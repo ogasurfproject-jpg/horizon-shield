@@ -1,0 +1,30 @@
+{
+ "source_id": "hrr-zairyo-r8-09",
+ "pdf_sha256": "4328997eb468f22185734e43b0f725e801872942d63855b7684645f112c5cf02",
+ "rows_written": 4947,
+ "stats": {
+  "pages": 67,
+  "rows": 1135,
+  "status:published_pdl": 4947,
+  "layer:material": 4943,
+  "layer:work": 4
+ },
+ "max_col_dist_pt": 0.12,
+ "max_group_split_err_pt": 0.11,
+ "col_offset_pt_range": [
+  17.5,
+  17.77
+ ],
+ "layout_check": {
+  "pages": 67,
+  "pages_equal": 67,
+  "layout_tokens": 4947,
+  "bbox_values": 4947,
+  "mismatch": []
+ },
+ "area_entries": 41,
+ "area_quote": [
+  "※令和６年４月１日現在の市町村名。"
+ ],
+ "unmatched_area": []
+}

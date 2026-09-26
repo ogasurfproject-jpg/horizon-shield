@@ -1,0 +1,45 @@
+{
+ "files": 4,
+ "rows": 4873,
+ "errors": 0,
+ "warnings": 0,
+ "by_status": {
+  "published_pdl": 2982,
+  "not_set": 251,
+  "publication_based_not_public": 803,
+  "published_restricted_not_copied": 744,
+  "public_domain": 93
+ },
+ "by_layer": {
+  "labor": 2350,
+  "material": 2430,
+  "index": 93
+ },
+ "sources_in_ledger": 4,
+ "per_file": {
+  "observations/jp/labor_mlit_roumu_r8.csv": {
+   "rows": 2350,
+   "status:published_pdl": 2136,
+   "layer:labor": 2350,
+   "status:not_set": 214
+  },
+  "observations/jp/material_kkr_namacon_r8_09.csv": {
+   "rows": 846,
+   "status:published_pdl": 846,
+   "layer:material": 846
+  },
+  "observations/jp/material_nara_namacon_status_r8_09.csv": {
+   "rows": 1584,
+   "status:publication_based_not_public": 803,
+   "layer:material": 1584,
+   "status:published_restricted_not_copied": 744,
+   "status:not_set": 37
+  },
+  "observations/us/index_fhwa_nhcci.csv": {
+   "rows": 93,
+   "status:public_domain": 93,
+   "layer:index": 93
+  }
+ },
+ "first_errors": []
+}

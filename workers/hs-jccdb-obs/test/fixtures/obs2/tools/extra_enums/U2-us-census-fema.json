@@ -1,0 +1,10 @@
+{
+ "layer": [
+  {"value": "house_price", "why": "新築一戸建て 1 戸あたりの販売価格・請負価格の統計(Census Survey of Construction の中央値・平均)。面積あたりではないので cost_sqft と分け、工事の出来高 spending とも分ける"}
+ ],
+ "price_basis": [
+  {"value": "price_per_house", "why": "1 戸あたりの価格(Census の Median / Average Sales Price、Median / Average Contract Price)。中央値か平均かは item_name に原本の言葉で持つ"},
+  {"value": "equipment_rate_per_mile", "why": "FEMA Schedule of Equipment Rates で Unit が mile の行(乗用車・パトカー二輪・ピックアップの走行距離あたりの料率)"},
+  {"value": "equipment_rate_unit_not_stated", "why": "FEMA Schedule of Equipment Rates で Unit 欄が空の行(4 行)。時間単価と推定せず、単位不明として持つ"}
+ ]
+}

@@ -1,0 +1,2023 @@
+{
+ "survey_date_field": {
+  "st2016a": {
+   "201699": 67
+  },
+  "st2017a": {
+   "201799": 66
+  },
+  "st2018a": {
+   "201899": 67
+  },
+  "st2019a": {
+   "201999": 67
+  },
+  "st2020a": {
+   "202099": 66
+  },
+  "st2021a": {
+   "202199": 67
+  },
+  "st2022a": {
+   "202299": 67
+  },
+  "st2023a": {
+   "202399": 67
+  },
+  "st2024a": {
+   "202499": 67
+  },
+  "st2025a": {
+   "202599": 68
+  },
+  "st2608y": {
+   "202608": 65
+  },
+  "co2016a": {
+   "2016": 3039
+  },
+  "co2017a": {
+   "2017": 3038
+  },
+  "co2018a": {
+   "2018": 3037
+  },
+  "co2019a": {
+   "2019": 3036
+  },
+  "co2020a": {
+   "2020": 3034
+  },
+  "co2021a": {
+   "2021": 3034
+  },
+  "co2022a": {
+   "2022": 3033
+  },
+  "co2023a": {
+   "2023": 3029
+  },
+  "co2024a": {
+   "2024": 3028
+  },
+  "co2025a": {
+   "2025": 3029
+  },
+  "co2608y": {
+   "202608": 3020
+  },
+  "ma2016a": {
+   "201699": 382
+  },
+  "ma2017a": {
+   "201799": 382
+  },
+  "ma2018a": {
+   "201899": 382
+  },
+  "ma2019a": {
+   "201999": 384
+  },
+  "ma2020a": {
+   "202099": 384
+  },
+  "ma2021a": {
+   "202199": 384
+  },
+  "ma2022a": {
+   "202299": 384
+  },
+  "ma2023a": {
+   "202399": 384
+  },
+  "cbsa2024a": {
+   "202499": 921
+  },
+  "cbsa2025a": {
+   "202599": 931
+  },
+  "cbsa2608y": {
+   "202608": 922
+  },
+  "ne2016a": {
+   "2016": 5578
+  },
+  "ne2017a": {
+   "2017": 5580
+  },
+  "ne2018a": {
+   "2018": 5577
+  },
+  "ne2019a": {
+   "2019": 5576
+  },
+  "ne2020a": {
+   "2020": 5582
+  },
+  "ne2021a": {
+   "2021": 5580
+  },
+  "ne2022a": {
+   "2022": 5585
+  },
+  "ne2023a": {
+   "2023": 5572
+  },
+  "ne2024a": {
+   "2024": 5579
+  },
+  "ne2025a": {
+   "2025": 5581
+  },
+  "ne2608y": {
+   "202608": 5574
+  },
+  "mw2016a": {
+   "2016": 8007
+  },
+  "mw2017a": {
+   "2017": 8013
+  },
+  "mw2018a": {
+   "2018": 8003
+  },
+  "mw2019a": {
+   "2019": 7994
+  },
+  "mw2020a": {
+   "2020": 8007
+  },
+  "mw2021a": {
+   "2021": 8004
+  },
+  "mw2022a": {
+   "2022": 7987
+  },
+  "mw2023a": {
+   "2023": 7937
+  },
+  "mw2024a": {
+   "2024": 7965
+  },
+  "mw2025a": {
+   "2025": 8022
+  },
+  "mw2608y": {
+   "202608": 8027
+  },
+  "so2016a": {
+   "2016": 4459
+  },
+  "so2017a": {
+   "2017": 4472
+  },
+  "so2018a": {
+   "2018": 4477
+  },
+  "so2019a": {
+   "2019": 4465
+  },
+  "so2020a": {
+   "2020": 4465
+  },
+  "so2021a": {
+   "2021": 4460
+  },
+  "so2022a": {
+   "2022": 4465
+  },
+  "so2023a": {
+   "2023": 4408
+  },
+  "so2024a": {
+   "2024": 4430
+  },
+  "so2025a": {
+   "2025": 4458
+  },
+  "so2608y": {
+   "202608": 4462
+  },
+  "we2016a": {
+   "2016": 2061
+  },
+  "we2017a": {
+   "2017": 2060
+  },
+  "we2018a": {
+   "2018": 2062
+  },
+  "we2019a": {
+   "2019": 2047
+  },
+  "we2020a": {
+   "2020": 2044
+  },
+  "we2021a": {
+   "2021": 2034
+  },
+  "we2022a": {
+   "2022": 2015
+  },
+  "we2023a": {
+   "2023": 2007
+  },
+  "we2024a": {
+   "2024": 2010
+  },
+  "we2025a": {
+   "2025": 2009
+  },
+  "we2608y": {
+   "202608": 1997
+  }
+ },
+ "files": {
+  "observations/us/spending_census_bps_county_2016.csv": {
+   "rows": 41524,
+   "bytes": 17643749,
+   "sha256": "a9c35e3f3bd1c8dc57cf9cbcd3d95d3a98e8da4890d82ab06186a640fe0d0cc8"
+  },
+  "observations/us/spending_census_bps_county_2017.csv": {
+   "rows": 41551,
+   "bytes": 17657153,
+   "sha256": "a5cad45c5d007c9e0d60e154e9a0cb92321288d20b48b03030da129781f7e577"
+  },
+  "observations/us/spending_census_bps_county_2018.csv": {
+   "rows": 41540,
+   "bytes": 17652487,
+   "sha256": "3b490c5b59597998a53086da5fb71ce94a32b6f649c2f897d203273e92710d1e"
+  },
+  "observations/us/spending_census_bps_county_2019.csv": {
+   "rows": 41594,
+   "bytes": 17679335,
+   "sha256": "d940ae25a2003c5655dd0ba749b6051427c0b5cbeecb655b374939e37282bd18"
+  },
+  "observations/us/spending_census_bps_county_2020.csv": {
+   "rows": 41629,
+   "bytes": 17696948,
+   "sha256": "a6e4f56a922ba5f0e79082878a3d409075f1bfd230218b0c31a75bd5938e34e9"
+  },
+  "observations/us/spending_census_bps_county_2021.csv": {
+   "rows": 41612,
+   "bytes": 17691636,
+   "sha256": "4d53ed9eb641de7393b3d28b63beccf7ba53cbf4c8b70a640cfbebdafa763474"
+  },
+  "observations/us/spending_census_bps_county_2022.csv": {
+   "rows": 41760,
+   "bytes": 17762171,
+   "sha256": "5316e2e8a1fbcb1f202d4a54461b1e19b5205eb5a08fb9cd19f6295a7f963370"
+  },
+  "observations/us/spending_census_bps_county_2023.csv": {
+   "rows": 41823,
+   "bytes": 17793596,
+   "sha256": "dfb2207f9d3f8c93796adb4ccb495dc0b31484bcfcadb133959d02d23a389024"
+  },
+  "observations/us/spending_census_bps_county_2024.csv": {
+   "rows": 41871,
+   "bytes": 17816727,
+   "sha256": "87ffd2f430f1c3255e78daafc3120f28162b603d26aee518bd02095913d312df"
+  },
+  "observations/us/spending_census_bps_county_2025.csv": {
+   "rows": 41869,
+   "bytes": 17815543,
+   "sha256": "dbd8053f205d827c0b62ec5dd550b9714cd89c24dbfa48a2d021d8f6d294e4cf"
+  },
+  "observations/us/spending_census_bps_county_2026_ytd08.csv": {
+   "rows": 41341,
+   "bytes": 19179143,
+   "sha256": "dc6933862ce44512f0d9bda06f6226c1eaf6985bc1b5593363c3b40d0a9f2ac8"
+  },
+  "observations/us/spending_census_bps_metro_2016.csv": {
+   "rows": 5790,
+   "bytes": 2781653,
+   "sha256": "18a239f0f1c2212dbdc7d0b6c66e23f22e2336c53d47fecbe4b597c938567d08"
+  },
+  "observations/us/spending_census_bps_metro_2017.csv": {
+   "rows": 5788,
+   "bytes": 2780080,
+   "sha256": "34755220d55c6e5eb53e5c9f98de24cd6ee7dad751c3e71cd4847cfcdef783e9"
+  },
+  "observations/us/spending_census_bps_metro_2018.csv": {
+   "rows": 5805,
+   "bytes": 2792891,
+   "sha256": "82987c6d1a4c2bb8c60724be134f95b212c657e381b5a999f732b406a84058d7"
+  },
+  "observations/us/spending_census_bps_metro_2019.csv": {
+   "rows": 5846,
+   "bytes": 2810304,
+   "sha256": "a9ff1ba6d771209ea0e9db602490a3c6a3d004bb5b2fb9506a18e518a5e286d9"
+  },
+  "observations/us/spending_census_bps_metro_2020.csv": {
+   "rows": 5855,
+   "bytes": 2815773,
+   "sha256": "ebbe8fa58d053524da9a1476f2f5be22edac90713d56bf0216161c34f1e5719c"
+  },
+  "observations/us/spending_census_bps_metro_2021.csv": {
+   "rows": 5848,
+   "bytes": 2812898,
+   "sha256": "70422eaeaab73c872f51ded5b3445cb8a9cb803121e1aca894e6d36e02f043f7"
+  },
+  "observations/us/spending_census_bps_metro_2022.csv": {
+   "rows": 5866,
+   "bytes": 2822247,
+   "sha256": "1c6db1965229dae040e80a873ef69b6fc8c78be3740d325381456d43b145e01e"
+  },
+  "observations/us/spending_census_bps_metro_2023.csv": {
+   "rows": 5880,
+   "bytes": 2828492,
+   "sha256": "0b0cc6903ca91fe32736a1f0c89ceb78bd24dc893deca92b08af9edee6ed1e0b"
+  },
+  "observations/us/spending_census_bps_metro_2024.csv": {
+   "rows": 13462,
+   "bytes": 6584061,
+   "sha256": "93d285da24af9243842ccfc0d6225b0c42bd20850713d906a47cb8b84a62e9c4"
+  },
+  "observations/us/spending_census_bps_metro_2025.csv": {
+   "rows": 13597,
+   "bytes": 6649550,
+   "sha256": "4480fcc1bd8fd2d29d7ab4f9cd954fcfffc5fb909fdaf1d141f2604e323efc1d"
+  },
+  "observations/us/spending_census_bps_metro_2026_ytd08.csv": {
+   "rows": 13317,
+   "bytes": 7026764,
+   "sha256": "df9efcb2401f195e36dc4ee46d5e92a9eca49bb7bbad72115d0271141f9698e4"
+  },
+  "observations/us/spending_census_bps_place_2016.csv": {
+   "rows": 69853,
+   "bytes": 36797087,
+   "sha256": "d4fa494a8d5d00e4031d81c381df01c44694374b8c850464e5b3467f828652d7"
+  },
+  "observations/us/spending_census_bps_place_2017.csv": {
+   "rows": 70655,
+   "bytes": 37213926,
+   "sha256": "4d2c40925545af363eacec72b557a90ed75c78af8251e4df8d808e81687f646b"
+  },
+  "observations/us/spending_census_bps_place_2018.csv": {
+   "rows": 71057,
+   "bytes": 37420145,
+   "sha256": "e746379bcb3ed1e4eb6b515c6f6ca2efe6a58ea9b62a7b5ee7329f157b67fbab"
+  },
+  "observations/us/spending_census_bps_place_2019.csv": {
+   "rows": 72621,
+   "bytes": 38246540,
+   "sha256": "36b149052ca498ba9e4b6c6a13092d7fa197ce5ae42694e56423dd32906f2da3"
+  },
+  "observations/us/spending_census_bps_place_2020.csv": {
+   "rows": 73365,
+   "bytes": 38630541,
+   "sha256": "684df977531768811e433f349ac91dd371c93e144ecd1b3f9ccb52113e87faf0"
+  },
+  "observations/us/spending_census_bps_place_2021.csv": {
+   "rows": 73941,
+   "bytes": 38951727,
+   "sha256": "4ffc35ddd2e00000c5a06c677cb07881488bebc5633787be218470e7a085bd85"
+  },
+  "observations/us/spending_census_bps_place_2022.csv": {
+   "rows": 74399,
+   "bytes": 39196883,
+   "sha256": "cd0153f65a21b5a4e0fb22246d0a81ebacb9b4e05213d393822c91e053dbd2ca"
+  },
+  "observations/us/spending_census_bps_place_2023.csv": {
+   "rows": 74889,
+   "bytes": 39443076,
+   "sha256": "a70fc24777fc0a57f56a19927df0ceff6e4335a4fe67d2eda2f1a317e76737f8"
+  },
+  "observations/us/spending_census_bps_place_2024.csv": {
+   "rows": 75510,
+   "bytes": 39756156,
+   "sha256": "033932efdc3a493a1cab3d4fa9faf6fffb731d8b2bce302263e203953c8d6641"
+  },
+  "observations/us/spending_census_bps_place_2025.csv": {
+   "rows": 75601,
+   "bytes": 39801070,
+   "sha256": "1949a63d0d4746e30fa2b520fc988e845c301d7aeed5a358ba3d18b3ec7be518"
+  },
+  "observations/us/spending_census_bps_place_2026_ytd08.csv": {
+   "rows": 68100,
+   "bytes": 38436400,
+   "sha256": "be55a9c29519cf016be8bea62614354eeac58182f9551299d2e2b39c8a693de3"
+  },
+  "observations/us/spending_census_bps_state.csv": {
+   "rows": 11718,
+   "bytes": 5111313,
+   "sha256": "48d0fcad80f784531f9c43ba749b1a6e689684f74b8c4fb34212643298f40883"
+  }
+ },
+ "rows_by_level_status": {
+  "county:computed": 57830,
+  "county:not_set": 75590,
+  "county:public_domain": 324694,
+  "metro:computed": 16974,
+  "metro:not_set": 6384,
+  "metro:public_domain": 63696,
+  "place:computed": 199802,
+  "place:not_set": 140,
+  "place:public_domain": 600049,
+  "state:computed": 2910,
+  "state:not_set": 26,
+  "state:public_domain": 8782
+ },
+ "value_zero_not_set": {
+  "state": 26,
+  "county": 75590,
+  "metro": 6384,
+  "place": 140
+ },
+ "per_unit_skipped_units_gt0_value0": {
+  "state": 4,
+  "county": 58,
+  "metro": 7,
+  "place": 140
+ },
+ "per_unit_skipped_rounds_to_0(stem,name,class,value,units)": [
+  [
+   "co2022a",
+   "Williamson County",
+   "2-units",
+   15,
+   92
+  ],
+  [
+   "ne2018a",
+   "Old Bridge township",
+   "3-4 units",
+   1,
+   3
+  ],
+  [
+   "ne2020a",
+   "Jackson township",
+   "5+ units",
+   2,
+   10
+  ],
+  [
+   "ne2021a",
+   "Jackson township",
+   "5+ units",
+   3,
+   15
+  ],
+  [
+   "ne2022a",
+   "Jackson township",
+   "5+ units",
+   2,
+   10
+  ],
+  [
+   "ne2023a",
+   "Jackson township",
+   "5+ units",
+   1,
+   5
+  ],
+  [
+   "ne2024a",
+   "Jackson township",
+   "5+ units",
+   1,
+   5
+  ],
+  [
+   "so2022a",
+   "Franklin",
+   "2-units",
+   15,
+   92
+  ]
+ ],
+ "per_unit_under_1000_usd_noted(stem,name,class,value,units)": [
+  [
+   "co2020a",
+   "Camden County",
+   "2-units",
+   300,
+   2
+  ],
+  [
+   "co2021a",
+   "Warren County",
+   "5+ units",
+   500,
+   5
+  ],
+  [
+   "co2022a",
+   "Madison County",
+   "2-units",
+   1931,
+   6
+  ],
+  [
+   "co2022a",
+   "Choctaw County",
+   "1-unit",
+   450,
+   10
+  ],
+  [
+   "co2024a",
+   "Warren County",
+   "3-4 units",
+   15,
+   15
+  ],
+  [
+   "co2025a",
+   "Warren County",
+   "3-4 units",
+   4,
+   4
+  ],
+  [
+   "co2608y",
+   "Warren County",
+   "3-4 units",
+   3,
+   3
+  ],
+  [
+   "ne2016a",
+   "Camden",
+   "5+ units",
+   39710,
+   65
+  ],
+  [
+   "ne2016a",
+   "Edgewater borough",
+   "3-4 units",
+   150,
+   3
+  ],
+  [
+   "ne2016a",
+   "Franklin Lakes borough",
+   "2-units",
+   1000,
+   2
+  ],
+  [
+   "ne2017a",
+   "Dumont borough",
+   "5+ units",
+   249,
+   5
+  ],
+  [
+   "ne2017a",
+   "Fair Lawn borough",
+   "3-4 units",
+   1086,
+   4
+  ],
+  [
+   "ne2017a",
+   "Fair Lawn borough",
+   "5+ units",
+   722,
+   5
+  ],
+  [
+   "ne2017a",
+   "Franklin Lakes borough",
+   "2-units",
+   1000,
+   2
+  ],
+  [
+   "ne2017a",
+   "Trenton",
+   "5+ units",
+   17350,
+   30
+  ],
+  [
+   "ne2018a",
+   "Rutherford borough",
+   "3-4 units",
+   1000,
+   4
+  ],
+  [
+   "ne2018a",
+   "Trenton",
+   "5+ units",
+   1850,
+   15
+  ],
+  [
+   "ne2019a",
+   "Audubon borough",
+   "2-units",
+   232,
+   2
+  ],
+  [
+   "ne2020a",
+   "Camden",
+   "2-units",
+   300,
+   2
+  ],
+  [
+   "ne2020a",
+   "Franklin Lakes borough",
+   "5+ units",
+   1700,
+   5
+  ],
+  [
+   "ne2020a",
+   "Galloway township",
+   "5+ units",
+   2226,
+   15
+  ],
+  [
+   "ne2020a",
+   "Lakewood township",
+   "5+ units",
+   7000,
+   20
+  ],
+  [
+   "ne2020a",
+   "Long Branch",
+   "3-4 units",
+   2000,
+   10
+  ],
+  [
+   "ne2020a",
+   "North Wildwood",
+   "3-4 units",
+   1300,
+   3
+  ],
+  [
+   "ne2020a",
+   "Ocean township",
+   "5+ units",
+   114021,
+   150
+  ],
+  [
+   "ne2020a",
+   "Point Pleasant borough",
+   "3-4 units",
+   10000,
+   14
+  ],
+  [
+   "ne2020a",
+   "Ridgefield borough",
+   "3-4 units",
+   2500,
+   3
+  ],
+  [
+   "ne2020a",
+   "Roselle Park borough",
+   "3-4 units",
+   100,
+   3
+  ],
+  [
+   "ne2020a",
+   "Sayreville borough",
+   "2-units",
+   200,
+   2
+  ],
+  [
+   "ne2020a",
+   "Weehawken township",
+   "3-4 units",
+   1500,
+   3
+  ],
+  [
+   "ne2020a",
+   "Wood-Ridge borough",
+   "2-units",
+   2618,
+   10
+  ],
+  [
+   "ne2021a",
+   "Barnegat township",
+   "5+ units",
+   100604,
+   140
+  ],
+  [
+   "ne2021a",
+   "Clifton",
+   "2-units",
+   2000,
+   4
+  ],
+  [
+   "ne2021a",
+   "Elmwood Park borough",
+   "2-units",
+   9800,
+   12
+  ],
+  [
+   "ne2021a",
+   "Lopatcong township",
+   "5+ units",
+   500,
+   5
+  ],
+  [
+   "ne2021a",
+   "Ocean township",
+   "5+ units",
+   44851,
+   79
+  ],
+  [
+   "ne2021a",
+   "Ridgefield borough",
+   "3-4 units",
+   5000,
+   6
+  ],
+  [
+   "ne2021a",
+   "South Bound Brook borough",
+   "3-4 units",
+   2000,
+   3
+  ],
+  [
+   "ne2021a",
+   "Union township",
+   "1-unit",
+   100,
+   1
+  ],
+  [
+   "ne2021a",
+   "Upper Saddle River borough",
+   "3-4 units",
+   500,
+   3
+  ],
+  [
+   "ne2021a",
+   "Wall township",
+   "2-units",
+   500,
+   2
+  ],
+  [
+   "ne2021a",
+   "Wildwood",
+   "5+ units",
+   4000,
+   5
+  ],
+  [
+   "ne2021a",
+   "Wood-Ridge borough",
+   "2-units",
+   1,
+   2
+  ],
+  [
+   "ne2021a",
+   "Wrightstown borough",
+   "1-unit",
+   800,
+   1
+  ],
+  [
+   "ne2022a",
+   "Bound Brook borough",
+   "3-4 units",
+   500,
+   3
+  ],
+  [
+   "ne2022a",
+   "Carlstadt borough",
+   "3-4 units",
+   14200,
+   16
+  ],
+  [
+   "ne2022a",
+   "Elmwood Park borough",
+   "2-units",
+   200,
+   4
+  ],
+  [
+   "ne2022a",
+   "Lawrence township",
+   "5+ units",
+   48215,
+   75
+  ],
+  [
+   "ne2022a",
+   "Linden",
+   "2-units",
+   2000,
+   4
+  ],
+  [
+   "ne2022a",
+   "Manalapan township",
+   "3-4 units",
+   1303,
+   27
+  ],
+  [
+   "ne2022a",
+   "Manalapan township",
+   "5+ units",
+   33680,
+   55
+  ],
+  [
+   "ne2022a",
+   "Middlesex borough",
+   "2-units",
+   2400,
+   12
+  ],
+  [
+   "ne2022a",
+   "Ridgefield borough",
+   "3-4 units",
+   2500,
+   3
+  ],
+  [
+   "ne2022a",
+   "Upper Saddle River borough",
+   "3-4 units",
+   3000,
+   7
+  ],
+  [
+   "ne2022a",
+   "Westfield town",
+   "2-units",
+   1450,
+   2
+  ],
+  [
+   "ne2023a",
+   "Carlstadt borough",
+   "5+ units",
+   5800,
+   10
+  ],
+  [
+   "ne2023a",
+   "Highlands borough",
+   "5+ units",
+   3000,
+   5
+  ],
+  [
+   "ne2023a",
+   "Middlesex borough",
+   "2-units",
+   400,
+   2
+  ],
+  [
+   "ne2023a",
+   "Ocean township",
+   "5+ units",
+   3974,
+   7
+  ],
+  [
+   "ne2023a",
+   "South Brunswick township",
+   "5+ units",
+   10015,
+   80
+  ],
+  [
+   "ne2023a",
+   "Upper Saddle River borough",
+   "3-4 units",
+   101,
+   6
+  ],
+  [
+   "ne2023a",
+   "Upper Saddle River borough",
+   "5+ units",
+   350,
+   5
+  ],
+  [
+   "ne2023a",
+   "Wildwood",
+   "5+ units",
+   2150,
+   10
+  ],
+  [
+   "ne2023a",
+   "Woolwich township",
+   "5+ units",
+   18000,
+   30
+  ],
+  [
+   "ne2024a",
+   "Greenwich township",
+   "3-4 units",
+   15,
+   15
+  ],
+  [
+   "ne2024a",
+   "Independence township",
+   "5+ units",
+   373,
+   5
+  ],
+  [
+   "ne2024a",
+   "Lawrence township",
+   "5+ units",
+   4858,
+   16
+  ],
+  [
+   "ne2024a",
+   "Lumberton township",
+   "5+ units",
+   2000,
+   20
+  ],
+  [
+   "ne2024a",
+   "Middlesex borough",
+   "2-units",
+   800,
+   4
+  ],
+  [
+   "ne2024a",
+   "Upper Saddle River borough",
+   "3-4 units",
+   1439,
+   12
+  ],
+  [
+   "ne2024a",
+   "Wildwood Crest borough",
+   "5+ units",
+   500,
+   5
+  ],
+  [
+   "ne2025a",
+   "Greenwich township",
+   "3-4 units",
+   4,
+   4
+  ],
+  [
+   "ne2025a",
+   "Tenafly borough",
+   "2-units",
+   800,
+   2
+  ],
+  [
+   "ne2025a",
+   "Upper Saddle River borough",
+   "3-4 units",
+   1080,
+   9
+  ],
+  [
+   "ne2608y",
+   "Greenwich township",
+   "3-4 units",
+   3,
+   3
+  ],
+  [
+   "ne2608y",
+   "Independence township",
+   "5+ units",
+   373,
+   5
+  ],
+  [
+   "ne2608y",
+   "Upper Saddle River borough",
+   "3-4 units",
+   1080,
+   9
+  ],
+  [
+   "mw2024a",
+   "Greenbush",
+   "1-unit",
+   100,
+   4
+  ],
+  [
+   "so2022a",
+   "Richmond",
+   "2-units",
+   1931,
+   6
+  ],
+  [
+   "so2022a",
+   "Coffeeville town",
+   "1-unit",
+   1,
+   1
+  ],
+  [
+   "so2022a",
+   "Hugo",
+   "1-unit",
+   450,
+   10
+  ],
+  [
+   "so2024a",
+   "Coffeeville town",
+   "1-unit",
+   2,
+   2
+  ],
+  [
+   "we2020a",
+   "Hartline town",
+   "1-unit",
+   500,
+   1
+  ]
+ ],
+ "place_combos_total": {
+  "ne2016a": 22312,
+  "ne2017a": 22320,
+  "ne2018a": 22308,
+  "ne2019a": 22304,
+  "ne2020a": 22328,
+  "ne2021a": 22320,
+  "ne2022a": 22340,
+  "ne2023a": 22288,
+  "ne2024a": 22316,
+  "ne2025a": 22324,
+  "ne2608y": 22296,
+  "mw2016a": 32028,
+  "mw2017a": 32052,
+  "mw2018a": 32012,
+  "mw2019a": 31976,
+  "mw2020a": 32028,
+  "mw2021a": 32016,
+  "mw2022a": 31948,
+  "mw2023a": 31748,
+  "mw2024a": 31860,
+  "mw2025a": 32088,
+  "mw2608y": 32108,
+  "so2016a": 17836,
+  "so2017a": 17888,
+  "so2018a": 17908,
+  "so2019a": 17860,
+  "so2020a": 17860,
+  "so2021a": 17840,
+  "so2022a": 17860,
+  "so2023a": 17632,
+  "so2024a": 17720,
+  "so2025a": 17832,
+  "so2608y": 17848,
+  "we2016a": 8244,
+  "we2017a": 8240,
+  "we2018a": 8248,
+  "we2019a": 8188,
+  "we2020a": 8176,
+  "we2021a": 8136,
+  "we2022a": 8060,
+  "we2023a": 8028,
+  "we2024a": 8040,
+  "we2025a": 8036,
+  "we2608y": 7988
+ },
+ "place_combos_all_zero_skipped": {
+  "ne2016a": 17504,
+  "ne2017a": 17564,
+  "ne2018a": 17595,
+  "ne2019a": 17459,
+  "ne2020a": 17455,
+  "ne2021a": 17368,
+  "ne2022a": 17321,
+  "ne2023a": 17305,
+  "ne2024a": 17288,
+  "ne2025a": 17329,
+  "ne2608y": 17781,
+  "mw2016a": 26272,
+  "mw2017a": 26181,
+  "mw2018a": 26111,
+  "mw2019a": 25978,
+  "mw2020a": 25965,
+  "mw2021a": 25896,
+  "mw2022a": 25842,
+  "mw2023a": 25554,
+  "mw2024a": 25610,
+  "mw2025a": 25751,
+  "mw2608y": 26508,
+  "so2016a": 13492,
+  "so2017a": 13488,
+  "so2018a": 13511,
+  "so2019a": 13337,
+  "so2020a": 13297,
+  "so2021a": 13311,
+  "so2022a": 13229,
+  "so2023a": 12859,
+  "so2024a": 12918,
+  "so2025a": 13045,
+  "so2608y": 13425,
+  "we2016a": 5676,
+  "we2017a": 5588,
+  "we2018a": 5487,
+  "we2019a": 5393,
+  "we2020a": 5330,
+  "we2021a": 5249,
+  "we2022a": 5214,
+  "we2023a": 5254,
+  "we2024a": 5241,
+  "we2025a": 5254,
+  "we2608y": 5490
+ },
+ "reconciliation": {
+  "2016a": {
+   "states51_sum_minus_US": {
+    "estimates": {
+     "cells": 12,
+     "exact": 8,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 3
+    },
+    "reported_only": {
+     "cells": 12,
+     "exact": 8,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 2
+    }
+   },
+   "region_division_sum": {
+    "cells": 312,
+    "exact": 265,
+    "max_abs_diff": 2
+   },
+   "county_sum_vs_state": {
+    "states_without_county_rows": [],
+    "county_rows": 3039,
+    "estimates": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.497,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "28",
+      "5+ units",
+      46431497,
+      46431
+     ],
+     "states_with_any_mismatch": {}
+    },
+    "reported_only": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.5,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "28",
+      "5+ units",
+      18872500,
+      18873
+     ],
+     "states_with_any_mismatch": {}
+    }
+   },
+   "place_sum_vs_state": {
+    "place_rows": 20105,
+    "states": 51,
+    "count_cells": 408,
+    "count_cells_exact": 406,
+    "value_max_abs_diff_thousand_usd": 1120.269
+   },
+   "row_internal": {
+    "row_sets": 47186,
+    "violations": {
+     "2-units U!=2B": 14,
+     "3-4 units out of 3B..4B": 6,
+     "units 0 but value>0": 77
+    }
+   },
+   "reported_gt_estimate_cells": {
+    "cells": 283116,
+    "reported_gt_estimate": 0
+   }
+  },
+  "2017a": {
+   "states51_sum_minus_US": {
+    "estimates": {
+     "cells": 12,
+     "exact": 8,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 3
+    },
+    "reported_only": {
+     "cells": 12,
+     "exact": 8,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 3
+    }
+   },
+   "region_division_sum": {
+    "cells": 312,
+    "exact": 260,
+    "max_abs_diff": 3
+   },
+   "county_sum_vs_state": {
+    "states_without_county_rows": [],
+    "county_rows": 3038,
+    "estimates": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.498,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "49",
+      "3-4 units",
+      144844502,
+      144845
+     ],
+     "states_with_any_mismatch": {}
+    },
+    "reported_only": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.498,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "19",
+      "5+ units",
+      573474498,
+      573474
+     ],
+     "states_with_any_mismatch": {}
+    }
+   },
+   "place_sum_vs_state": {
+    "place_rows": 20125,
+    "states": 51,
+    "count_cells": 408,
+    "count_cells_exact": 396,
+    "value_max_abs_diff_thousand_usd": 17999.534
+   },
+   "row_internal": {
+    "row_sets": 47222,
+    "violations": {
+     "units 0 but value>0": 94
+    }
+   },
+   "reported_gt_estimate_cells": {
+    "cells": 283332,
+    "reported_gt_estimate": 0
+   }
+  },
+  "2018a": {
+   "states51_sum_minus_US": {
+    "estimates": {
+     "cells": 12,
+     "exact": 8,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 4
+    },
+    "reported_only": {
+     "cells": 12,
+     "exact": 9,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 3
+    }
+   },
+   "region_division_sum": {
+    "cells": 312,
+    "exact": 267,
+    "max_abs_diff": 3
+   },
+   "county_sum_vs_state": {
+    "states_without_county_rows": [],
+    "county_rows": 3037,
+    "estimates": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.499,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "50",
+      "5+ units",
+      83601499,
+      83601
+     ],
+     "states_with_any_mismatch": {}
+    },
+    "reported_only": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.499,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "50",
+      "1-unit",
+      193634501,
+      193635
+     ],
+     "states_with_any_mismatch": {}
+    }
+   },
+   "place_sum_vs_state": {
+    "place_rows": 20119,
+    "states": 51,
+    "count_cells": 408,
+    "count_cells_exact": 386,
+    "value_max_abs_diff_thousand_usd": 167117.742
+   },
+   "row_internal": {
+    "row_sets": 47210,
+    "violations": {
+     "2-units U!=2B": 14,
+     "units 0 but value>0": 23
+    }
+   },
+   "reported_gt_estimate_cells": {
+    "cells": 283260,
+    "reported_gt_estimate": 0
+   }
+  },
+  "2019a": {
+   "states51_sum_minus_US": {
+    "estimates": {
+     "cells": 12,
+     "exact": 8,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 2
+    },
+    "reported_only": {
+     "cells": 12,
+     "exact": 8,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 3
+    }
+   },
+   "region_division_sum": {
+    "cells": 312,
+    "exact": 261,
+    "max_abs_diff": 3
+   },
+   "county_sum_vs_state": {
+    "states_without_county_rows": [],
+    "county_rows": 3036,
+    "estimates": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.496,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "16",
+      "2-units",
+      31556504,
+      31557
+     ],
+     "states_with_any_mismatch": {}
+    },
+    "reported_only": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.498,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "09",
+      "5+ units",
+      520958498,
+      520958
+     ],
+     "states_with_any_mismatch": {}
+    }
+   },
+   "place_sum_vs_state": {
+    "place_rows": 20082,
+    "states": 51,
+    "count_cells": 408,
+    "count_cells_exact": 386,
+    "value_max_abs_diff_thousand_usd": 22750.281
+   },
+   "row_internal": {
+    "row_sets": 47138,
+    "violations": {
+     "units 0 but value>0": 12
+    }
+   },
+   "reported_gt_estimate_cells": {
+    "cells": 282828,
+    "reported_gt_estimate": 0
+   }
+  },
+  "2020a": {
+   "states51_sum_minus_US": {
+    "estimates": {
+     "cells": 12,
+     "exact": 10,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 1
+    },
+    "reported_only": {
+     "cells": 12,
+     "exact": 8,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 2
+    }
+   },
+   "region_division_sum": {
+    "cells": 312,
+    "exact": 262,
+    "max_abs_diff": 2
+   },
+   "county_sum_vs_state": {
+    "states_without_county_rows": [],
+    "county_rows": 3034,
+    "estimates": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.5,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "49",
+      "3-4 units",
+      170581500,
+      170582
+     ],
+     "states_with_any_mismatch": {}
+    },
+    "reported_only": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.499,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "50",
+      "3-4 units",
+      3984501,
+      3985
+     ],
+     "states_with_any_mismatch": {}
+    }
+   },
+   "place_sum_vs_state": {
+    "place_rows": 20098,
+    "states": 51,
+    "count_cells": 408,
+    "count_cells_exact": 372,
+    "value_max_abs_diff_thousand_usd": 178531.847
+   },
+   "row_internal": {
+    "row_sets": 47164,
+    "violations": {
+     "units 0 but value>0": 4
+    }
+   },
+   "reported_gt_estimate_cells": {
+    "cells": 282984,
+    "reported_gt_estimate": 0
+   }
+  },
+  "2021a": {
+   "states51_sum_minus_US": {
+    "estimates": {
+     "cells": 12,
+     "exact": 8,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 5
+    },
+    "reported_only": {
+     "cells": 12,
+     "exact": 8,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 5
+    }
+   },
+   "region_division_sum": {
+    "cells": 312,
+    "exact": 247,
+    "max_abs_diff": 2
+   },
+   "county_sum_vs_state": {
+    "states_without_county_rows": [],
+    "county_rows": 3034,
+    "estimates": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.499,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "32",
+      "5+ units",
+      691807499,
+      691807
+     ],
+     "states_with_any_mismatch": {}
+    },
+    "reported_only": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.498,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "09",
+      "2-units",
+      16923502,
+      16924
+     ],
+     "states_with_any_mismatch": {}
+    }
+   },
+   "place_sum_vs_state": {
+    "place_rows": 20078,
+    "states": 51,
+    "count_cells": 408,
+    "count_cells_exact": 376,
+    "value_max_abs_diff_thousand_usd": 154664.337
+   },
+   "row_internal": {
+    "row_sets": 47126,
+    "violations": {
+     "units 0 but value>0": 10
+    }
+   },
+   "reported_gt_estimate_cells": {
+    "cells": 282756,
+    "reported_gt_estimate": 0
+   }
+  },
+  "2022a": {
+   "states51_sum_minus_US": {
+    "estimates": {
+     "cells": 12,
+     "exact": 10,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 3
+    },
+    "reported_only": {
+     "cells": 12,
+     "exact": 8,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 3
+    }
+   },
+   "region_division_sum": {
+    "cells": 312,
+    "exact": 262,
+    "max_abs_diff": 3
+   },
+   "county_sum_vs_state": {
+    "states_without_county_rows": [
+     "72",
+     "78"
+    ],
+    "county_rows": 3033,
+    "estimates": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.5,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "29",
+      "2-units",
+      84953500,
+      84954
+     ],
+     "states_with_any_mismatch": {}
+    },
+    "reported_only": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.494,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "37",
+      "2-units",
+      110521494,
+      110521
+     ],
+     "states_with_any_mismatch": {}
+    }
+   },
+   "place_sum_vs_state": {
+    "place_rows": 20052,
+    "states": 52,
+    "count_cells": 416,
+    "count_cells_exact": 370,
+    "value_max_abs_diff_thousand_usd": 688710.296
+   },
+   "row_internal": {
+    "row_sets": 47072,
+    "violations": {
+     "units 0 but value>0": 6
+    }
+   },
+   "reported_gt_estimate_cells": {
+    "cells": 282432,
+    "reported_gt_estimate": 0
+   }
+  },
+  "2023a": {
+   "states51_sum_minus_US": {
+    "estimates": {
+     "cells": 12,
+     "exact": 8,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 3
+    },
+    "reported_only": {
+     "cells": 12,
+     "exact": 9,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 3
+    }
+   },
+   "region_division_sum": {
+    "cells": 312,
+    "exact": 256,
+    "max_abs_diff": 2
+   },
+   "county_sum_vs_state": {
+    "states_without_county_rows": [
+     "72",
+     "78"
+    ],
+    "county_rows": 3029,
+    "estimates": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.498,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "37",
+      "3-4 units",
+      51390498,
+      51390
+     ],
+     "states_with_any_mismatch": {}
+    },
+    "reported_only": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.499,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "39",
+      "3-4 units",
+      141068501,
+      141069
+     ],
+     "states_with_any_mismatch": {}
+    }
+   },
+   "place_sum_vs_state": {
+    "place_rows": 19924,
+    "states": 51,
+    "count_cells": 408,
+    "count_cells_exact": 408,
+    "value_max_abs_diff_thousand_usd": 0.498
+   },
+   "row_internal": {
+    "row_sets": 46808,
+    "violations": {
+     "units 0 but value>0": 11
+    }
+   },
+   "reported_gt_estimate_cells": {
+    "cells": 280848,
+    "reported_gt_estimate": 0
+   }
+  },
+  "2024a": {
+   "states51_sum_minus_US": {
+    "estimates": {
+     "cells": 12,
+     "exact": 10,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 3
+    },
+    "reported_only": {
+     "cells": 12,
+     "exact": 9,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 3
+    }
+   },
+   "region_division_sum": {
+    "cells": 312,
+    "exact": 261,
+    "max_abs_diff": 2
+   },
+   "county_sum_vs_state": {
+    "states_without_county_rows": [
+     "72",
+     "78"
+    ],
+    "county_rows": 3028,
+    "estimates": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.499,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "15",
+      "5+ units",
+      429322501,
+      429323
+     ],
+     "states_with_any_mismatch": {}
+    },
+    "reported_only": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.496,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "26",
+      "5+ units",
+      889213504,
+      889214
+     ],
+     "states_with_any_mismatch": {}
+    }
+   },
+   "place_sum_vs_state": {
+    "place_rows": 19984,
+    "states": 51,
+    "count_cells": 408,
+    "count_cells_exact": 408,
+    "value_max_abs_diff_thousand_usd": 0.499
+   },
+   "row_internal": {
+    "row_sets": 48000,
+    "violations": {
+     "units 0 but value>0": 10
+    }
+   },
+   "reported_gt_estimate_cells": {
+    "cells": 288000,
+    "reported_gt_estimate": 0
+   }
+  },
+  "2025a": {
+   "states51_sum_minus_US": {
+    "estimates": {
+     "cells": 12,
+     "exact": 9,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 4
+    },
+    "reported_only": {
+     "cells": 12,
+     "exact": 9,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 5
+    }
+   },
+   "region_division_sum": {
+    "cells": 312,
+    "exact": 257,
+    "max_abs_diff": 3
+   },
+   "county_sum_vs_state": {
+    "states_without_county_rows": [
+     "60",
+     "72",
+     "78"
+    ],
+    "county_rows": 3029,
+    "estimates": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.498,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "36",
+      "5+ units",
+      4354208502,
+      4354209
+     ],
+     "states_with_any_mismatch": {}
+    },
+    "reported_only": {
+     "count_cells": 408,
+     "count_cells_exact": 408,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 0.499,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "36",
+      "2-units",
+      174649499,
+      174649
+     ],
+     "states_with_any_mismatch": {}
+    }
+   },
+   "place_sum_vs_state": {
+    "place_rows": 20070,
+    "states": 51,
+    "count_cells": 408,
+    "count_cells_exact": 372,
+    "value_max_abs_diff_thousand_usd": 181189.945
+   },
+   "row_internal": {
+    "row_sets": 48196,
+    "violations": {
+     "2-units U!=2B": 14,
+     "units 0 but value>0": 2
+    }
+   },
+   "reported_gt_estimate_cells": {
+    "cells": 289176,
+    "reported_gt_estimate": 0
+   }
+  },
+  "2608y": {
+   "states51_sum_minus_US": {
+    "estimates": {
+     "cells": 12,
+     "exact": 9,
+     "exact_bldgs_units": 8,
+     "max_abs_diff_bldgs_units": 0,
+     "max_abs_diff_value_thousand": 3
+    },
+    "reported_only": {
+     "cells": 12,
+     "exact": 2,
+     "exact_bldgs_units": 2,
+     "max_abs_diff_bldgs_units": 1090,
+     "max_abs_diff_value_thousand": 187697
+    }
+   },
+   "region_division_sum": {
+    "cells": 312,
+    "exact": 238,
+    "max_abs_diff": 187696
+   },
+   "county_sum_vs_state": {
+    "states_without_county_rows": [],
+    "county_rows": 3020,
+    "estimates": {
+     "count_cells": 408,
+     "count_cells_exact": 358,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 142626.787,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "48",
+      "1-unit",
+      28601924787,
+      28459298
+     ],
+     "states_with_any_mismatch": {
+      "05": 3,
+      "13": 3,
+      "18": 3,
+      "19": 3,
+      "21": 3,
+      "23": 3,
+      "29": 9,
+      "36": 9,
+      "38": 3,
+      "39": 6,
+      "40": 3,
+      "41": 3,
+      "47": 3,
+      "48": 9,
+      "50": 3,
+      "54": 3,
+      "55": 6
+     }
+    },
+    "reported_only": {
+     "count_cells": 408,
+     "count_cells_exact": 66,
+     "value_cells": 204,
+     "value_max_abs_diff_thousand_usd": 2318457.911,
+     "value_worst(state, class, county_sum_usd, state_thousand)": [
+      "48",
+      "1-unit",
+      24700918911,
+      22382461
+     ],
+     "states_with_any_mismatch": {
+      "01": 6,
+      "02": 12,
+      "04": 12,
+      "05": 6,
+      "06": 12,
+      "08": 11,
+      "09": 12,
+      "12": 12,
+      "13": 12,
+      "15": 12,
+      "16": 12,
+      "17": 12,
+      "18": 12,
+      "19": 12,
+      "20": 12,
+      "21": 12,
+      "22": 9,
+      "23": 12,
+      "24": 6,
+      "25": 12,
+      "26": 12,
+      "27": 11,
+      "28": 3,
+      "29": 12,
+      "30": 9,
+      "31": 12,
+      "32": 6,
+      "33": 12,
+      "34": 12,
+      "35": 9,
+      "36": 12,
+      "37": 12,
+      "38": 3,
+      "39": 12,
+      "40": 12,
+      "41": 12,
+      "42": 12,
+      "44": 12,
+      "45": 12,
+      "46": 3,
+      "47": 12,
+      "48": 12,
+      "49": 12,
+      "50": 12,
+      "51": 12,
+      "53": 12,
+      "54": 12,
+      "55": 9,
+      "56": 3
+     }
+    }
+   },
+   "place_sum_vs_state": {
+    "place_rows": 20060,
+    "states": 51,
+    "count_cells": 408,
+    "count_cells_exact": 364,
+    "value_max_abs_diff_thousand_usd": 150719.935
+   },
+   "row_internal": {
+    "row_sets": 48134,
+    "violations": {
+     "units 0 but value>0": 19
+    }
+   },
+   "reported_gt_estimate_cells": {
+    "cells": 288804,
+    "reported_gt_estimate": 0
+   }
+  }
+ }
+}

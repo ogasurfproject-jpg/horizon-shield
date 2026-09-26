@@ -1,0 +1,8 @@
+{
+ "year": "h29",
+ "main": "pdfminer",
+ "other": "pypdf text (B table, value sequence per prefecture)",
+ "prefs": 47,
+ "prefs_same_sequence": 47,
+ "diff": []
+}

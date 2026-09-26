@@ -1,0 +1,23 @@
+{
+ "source_id": "mtdot-wavg-2025",
+ "country": "US",
+ "title": "Weighted Average Prices Catalog, JANUARY 01, 2025 - DECEMBER 31, 2025 (Report Name AASHTOPRECON002)",
+ "publisher": "Montana Department of Transportation, Construction Contracting Bureau",
+ "url": "https://mdt.mt.gov/other/webdata/external/contractplans/contract/Archives/Average_prices/2025.pdf",
+ "retrieved_at": "2026-09-26",
+ "bytes": 1084380,
+ "sha256": "d4cbd3587a30b04d6965d17c87dd3440ccd0f83f1257df8e820b1861627f2a2e",
+ "http_last_modified": "Tue, 17 Feb 2026 19:38:59 GMT",
+ "published": "2026-01-02",
+ "published_note": "表紙の 'Date : 01/02/2026'。PDF の更新日時 2026-02-18",
+ "license": "restricted",
+ "license_url": "https://www.mdt.mt.gov/mdt/terms-of-use.aspx",
+ "license_quote": "4. Copyright Limitations: MDT has made the content of certain pages of its Web sites available to the public. Anyone may view, copy, or distribute information found within these web pages (not including the design or layout of the pages) for personal or informational use without owing an obligation to MDT if the documents are not modified in any respect, and unless otherwise stated on the particular materials or information to which a restriction on free use applies. MDT makes no warranty, however, that the materials contained within these pages are free from copyright claims, or other restrictions or limitations on free use or display. MDT disclaims any liability for the improper or incorrect use of information obtained from its Web sites.",
+ "license_note": "条件付きの許可: 'personal or informational use' と 'if the documents are not modified in any respect'。値は原本の印字のまま写し、原本の PDF は改変せず raw に置く。条件の読み方は親の判断に回す(報告に記載)。原本の PDF に著作権表示・利用制限の記載はない。条文の取得: Apify web-fetch markdown(dataset fVLf1h1FckaRfGJ1N)",
+ "attribution": "Source: Montana Department of Transportation, Weighted Average Prices Catalog 2025, https://mdt.mt.gov/other/webdata/external/contractplans/contract/Archives/Average_prices/2025.pdf",
+ "scope_quote": "* The weighted average unit price is the total bid amount divided by the total quantity",
+ "how_read": "tools/parsers/parse_mtdot_wavg.py。pdftotext -bbox-layout の語の座標で全 17 頁 718 品目を読んだ。照合: bbox の品目 718 = layout の行頭 9 桁品目番号 718(集合も一致)、同じ行を pdftotext -layout の正規表現で別に読み 718 品目すべてで 説明・単位・数量・単価 が一致、品目番号は昇順。列の割り当て: 1,436 セルで最近傍の列と一致(不一致 0)、ずれを引いた後の右端の距離の最大 0.01pt。",
+ "values_copied": false,
+ "fetched_via": "Apify apify/web-fetch (formats=raw), dataset dih18cvfzaBujjeWi。bytes = content-length 1084380、先頭 %PDF",
+ "decision_20260926": "Montana DOT の条件は『for personal or informational use』かつ『if the documents are not modified in any respect』で、観測層への並べ替えと再配布の許可ではない(2026-09-26 番人の判断)"
+}

@@ -1,0 +1,20 @@
+{
+ "source_id": "fhwa-pricetrends-2002q4",
+ "country": "US",
+ "title": "ARCHIVED: Price Trends for Federal-Aid Highway Construction - Fourth Quarter 2002 - Price Trends - Federal-aid Program Administration - Federal Highway Administration",
+ "publisher": "U.S. Department of Transportation, Federal Highway Administration (Office of Infrastructure, Office of Program Administration)",
+ "url": "https://www.fhwa.dot.gov/programadmin/pt2002q4.cfm",
+ "landing": "https://www.fhwa.dot.gov/programadmin/pricetrends.cfm",
+ "retrieved_at": "2026-09-26",
+ "bytes": 86889,
+ "sha256": "60b7c675941d095f4b055efb27963c2dc22ca54dc58990b9cf9b8165de28083c",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.law.cornell.edu/uscode/text/17/105",
+ "license_quote": "Copyright protection under this title is not available for any work of the United States Government (17 U.S.C. 105)",
+ "license_note": "連邦政府(FHWA)の刊行物。頁と PDF に著作権表示・利用制限の記載はない(HTML で 'copyright' / '©' を検索して 0 件)。FHWA の 'Web Policies & Notices'(https://www.fhwa.dot.gov/webpolicies/publishschedule.cfm)は Web 公開計画の頁で、再利用の条文はない(Apify markdown dataset JSZMoYefiJyftBtWt)。",
+ "attribution": "Source: U.S. DOT, Federal Highway Administration, Price Trends for Federal-Aid Highway Construction (ARCHIVED), https://www.fhwa.dot.gov/programadmin/pt2002q4.cfm",
+ "values_copied": true,
+ "fetched_via": "Apify apify/web-fetch (formats=raw)。text/html を文字として受け取り UTF-8 で保存(サーバーの Last-Modified は返らない)",
+ "scope_quote": "Average contract prices shown herein are based on actual bids and include costs of materials, labor, equipment, overhead and profit. / FHWA guidance calls for data to be provided on all National Highway System projects except those projects with a contract value less than $500,000, or installation of protective devices at railroad grade crossings, or beautification projects.",
+ "how_read": "tools/parsers/parse_fhwa_pricetrends.py。この号からは州別表(表 5、その年の年計)だけを使う(全国の系列は 2006 Q4 号から)。行頭のラベル 1 つ + 値 15 列を全行で確かめた。0.00 は not_set。照合: 州別表の United States 行を、同じ号の表 1 の 2002 年の年計、および 2006 Q4 号の 2002 年の年計と比べた(結果は reports/US-E-fhwa-pricetrends-checks.json)。"
+}

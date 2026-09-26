@@ -1,0 +1,77 @@
+{
+ "source_id": "city-boston-permits-6ddcd912",
+ "country": "US",
+ "title": "Approved Building Permits (Analyze Boston, resource 6ddcd912-32a0-43df-9908-63574f8c7e77, Inspectional Services Department): declared_valuation と sq_feet の分布(permittypedescr x worktype x 年)",
+ "publisher": "City of Boston, Inspectional Services Department (Analyze Boston)",
+ "url": "https://data.boston.gov/api/3/action/datastore_search_sql",
+ "landing": "https://data.boston.gov/dataset/approved-building-permits",
+ "retrieved_at": "2026-09-26",
+ "published": "2026-09-25",
+ "published_note": "package_show の resources[0].last_modified 2026-09-25T16:49:28、metadata_modified 2026-09-25T16:49:28",
+ "license": "OPEN-TERMS",
+ "license_url": "https://www.boston.gov/government/cabinets/innovation-and-technology/terms-use-and-privacy-policy-city-boston-digital",
+ "license_quote": "Terms of Use for City of Boston Digital Services\nWhat this covers\nThe following Terms of Use lay out the purpose and intent of the City’s website and other platforms the City may use to provide digital services. Digital City services include:\n- the Analyze Boston Open Data Portal\nUser-generated content created from City information\nIt’s possible that a third-party could take information from a digital City service and host it on a separate platform (for example, taking the food truck schedule from Boston.gov and displaying it on a separate website). The City is not responsible for information posted by third parties we are not affiliated with, so cannot ensure the information’s accuracy.\nIf you are using City information on a third-party site, please keep in mind:\n- You and your application must not express or imply any sponsorship or endorsement by the City of Boston.\n- The text and images used in applications produced using City information should not be similar to those used by the City of Boston. They should not imply ownership, endorsement, or approval by the City of Boston. You may not use the City seal in any way.\n- City of Boston services should not be misrepresented. For example, non-city services should not be represented as City of Boston Services.",
+ "dataset_license_field": "package_show の license_id 'odc-pddl'、license_title 'Open Data Commons Public Domain Dedication and License (PDDL)'、license_url 'http://www.opendefinition.org/licenses/odc-pddl'、isopen true",
+ "license_note": "判断: OPEN-TERMS。データセットの license 欄が PDDL(isopen true)。市の Terms of Use(Last Updated: August 22, 2025)は Analyze Boston を対象に含み、第三者が市の情報を別の場所に載せることを前提に、市の後援を装わない・市章を使わない等の注意だけを置く。条文の取得: Apify web-fetch markdown(dataset NdM5RhErvyrWGaRot)。箇条書きは対象の行だけを抜き出した(記号は '-')",
+ "attribution": "Source: City of Boston Inspectional Services Department, Approved Building Permits, Analyze Boston (https://data.boston.gov/dataset/approved-building-permits), retrieved 2026-09-26, Open Data Commons PDDL. Aggregated by JCCDB; not endorsed by the City of Boston",
+ "scope_quote": "This dataset includes information about building permits issued by the City of Boston from 2009 to the present. Permits that are being processed or have been denied, deleted, void or revoked are not included in the dataset.",
+ "area_quote": "市全体(geo_level city)。geo_code は州 FIPS 2 桁(検査器の city の形が 2/5/6 桁で、Census place GEOID 7 桁を通さないため)。place GEOID は行の note",
+ "how_read": "CKAN datastore_search_sql: SELECT permittypedescr AS t, worktype AS b, declared_valuation AS c, sq_feet AS a, count(*) AS n FROM \"6ddcd912-32a0-43df-9908-63574f8c7e77\" WHERE issued_date >= '<年>-01-01' AND issued_date < '<翌年>-01-01' GROUP BY 1,2,3,4(年ごと。2023: 15,187 組、2024: 14,855 組、2025: 15,355 組。応答に records_truncated は無い)。照合の応答は date_trunc('month', issued_date) x permittypedescr x worktype の count(*)・count(declared_valuation)・sum(CAST(replace(replace(declared_valuation,'$',''),',','') AS numeric))。substring や extract を使った SQL は Apify 側で失敗・時間切れになり、date_trunc に替えた。declared_valuation は '$25,800.00' の形(3 年分の全組で形が揃うことを確認)。値の作り方: 有効な申告額 = 100 ドル以上 10 億ドル未満(欠け・0・100 ドル未満の置き値・10 億ドル以上を除き、除いた件数は行の note)。件数と合計は全区分、中央値・25/75 分位は有効な申告額が 10 件以上の区分だけ(線形補間 type 7)。1 sqft あたりは 面積 100 sqft 以上の許可だけ、10 件以上の区分だけ。全区分の行(工事の区分 = all)も作る。申告工事額は申請者の申告で、実際の契約額ではない。parser: tools/parsers/parse_us_city_permits.py(raw の応答から同じ CSV を作る)。照合(別の数え方): API に月 x 区分ごとの count(*)・count(値)・sum(値) を別に数えさせた応答(check_monthly)と、ヒストグラム応答を手元で足した値を比べた。区分 337 組で 件数の不一致 0、非欠け件数の不一致 0、合計の差 0.01 超 0(最大差 0.00)。年ごと: 2023: API 38533 件 = 手元 38533 件、値の合計 API 17663163670.36 = 手元 17663163670.36; 2024: API 37335 件 = 手元 37335 件、値の合計 API 13102231766.62 = 手元 13102231766.62; 2025: API 36795 件 = 手元 36795 件、値の合計 API 12462262911.74 = 手元 12462262911.74。さらに 区分 x 工事の件数行の年ごとの和 = 区分 x (all) の件数行の和 = API の年ごとの件数({\"2023\": 38533, \"2024\": 37335, \"2025\": 36795})。",
+ "values_copied": true,
+ "api": true,
+ "sha256": "200c90cbfb8bea67bb8abf69a40def78a0ed4411e487905eda1ab9a7ef332efb",
+ "sha256_of": "raw/city-boston-permits-6ddcd912.manifest.json(API 応答ごとの url・bytes・sha256 の一覧)",
+ "bytes": 3733,
+ "fetched_via": "Apify apify/web-fetch (formats=raw)。応答は raw/ にそのまま保存(manifest に dataset ID)",
+ "api_responses": [
+  {
+   "path": "raw/city-boston-permits-6ddcd912.check_monthly.json",
+   "url": "https://data.boston.gov/api/3/action/datastore_search_sql?sql=SELECT%20date_trunc(%27month%27,issued_date)%20AS%20ym,%20permittypedescr%20AS%20t,%20worktype%20AS%20b,%20count(*)%20AS%20n,%20count(declared_valuation)%20AS%20nc,%20sum(CAST(replace(replace(declared_valuation,%27$%27,%27%27),%27,%27,%27%27)%20AS%20numeric))%20AS%20s%20FROM%20%226ddcd912-32a0-43df-9908-63574f8c7e77%22%20WHERE%20issued_date%20%3E=%20%272023-01-01%27%20AND%20issued_date%20%3C%20%272026-01-01%27%20GROUP%20BY%201,2,3%20ORDER%20BY%201,2,3",
+   "bytes": 328985,
+   "sha256": "5e131d183d6b909b62d6ef69ead6d997e3820e0232a43e4e094fb97a4569a4ea",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:44:22.381Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset g76PVgGICxUITaKOV"
+  },
+  {
+   "path": "raw/city-boston-permits-6ddcd912.hist.2023.json",
+   "url": "https://data.boston.gov/api/3/action/datastore_search_sql?sql=SELECT%20permittypedescr%20AS%20t,%20worktype%20AS%20b,%20declared_valuation%20AS%20c,%20sq_feet%20AS%20a,%20count(*)%20AS%20n%20FROM%20%226ddcd912-32a0-43df-9908-63574f8c7e77%22%20WHERE%20issued_date%20%3E=%20%272023-01-01%27%20AND%20issued_date%20%3C%20%272024-01-01%27%20GROUP%20BY%201,2,3,4%20ORDER%20BY%201,2,3,4",
+   "bytes": 1280043,
+   "sha256": "a276173ccd650dcf6fc8be1c34dbef35fc07d9599ddce2a8926fda15cd5f0a6a",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:43:40.634Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset qunGTPGLcQwiBeqHZ"
+  },
+  {
+   "path": "raw/city-boston-permits-6ddcd912.hist.2024.json",
+   "url": "https://data.boston.gov/api/3/action/datastore_search_sql?sql=SELECT%20permittypedescr%20AS%20t,%20worktype%20AS%20b,%20declared_valuation%20AS%20c,%20sq_feet%20AS%20a,%20count(*)%20AS%20n%20FROM%20%226ddcd912-32a0-43df-9908-63574f8c7e77%22%20WHERE%20issued_date%20%3E=%20%272024-01-01%27%20AND%20issued_date%20%3C%20%272025-01-01%27%20GROUP%20BY%201,2,3,4%20ORDER%20BY%201,2,3,4",
+   "bytes": 1251108,
+   "sha256": "b97548729a6630d9c0eeba262dc0b92e67fbfd19da8d79d1dc4ad50aa3c1cfd5",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:43:09.105Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset AfVXairxSoFq4cvqh"
+  },
+  {
+   "path": "raw/city-boston-permits-6ddcd912.hist.2025.json",
+   "url": "https://data.boston.gov/api/3/action/datastore_search_sql?sql=SELECT%20permittypedescr%20AS%20t,%20worktype%20AS%20b,%20declared_valuation%20AS%20c,%20sq_feet%20AS%20a,%20count(*)%20AS%20n%20FROM%20%226ddcd912-32a0-43df-9908-63574f8c7e77%22%20WHERE%20issued_date%20%3E=%20%272025-01-01%27%20AND%20issued_date%20%3C%20%272026-01-01%27%20GROUP%20BY%201,2,3,4%20ORDER%20BY%201,2,3,4",
+   "bytes": 1295262,
+   "sha256": "460c714ebfff29ec679e6ebcef0c2895055ac8b9ae4f0b9e394ea234d9bbfa7d",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:44:00.806Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset yMvwVrbYf3LLyGPYA"
+  },
+  {
+   "path": "raw/city-boston-permits-6ddcd912.package.json",
+   "url": "https://data.boston.gov/api/3/action/package_show?id=approved-building-permits",
+   "bytes": 18252,
+   "sha256": "90ee9766cfa7fb2a442f0c7e91609957aaba5837a3e4be119146c5713ee7985d",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:45:14.046Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset l8RF3b3pe0qTG69o8"
+  }
+ ],
+ "rows": {
+  "spending": 1583,
+  "cost_sqft": 32
+ }
+}

@@ -1,0 +1,25 @@
+{
+ "source_id": "census-vip-eits",
+ "country": "US",
+ "title": "Construction Spending (Value of Construction Put in Place), Economic Indicators time series dataset VIP-mf (all data for the report)",
+ "publisher": "U.S. Census Bureau, Economic Indicators Division, Construction Expenditures Branch",
+ "url": "https://www.census.gov/econ_getzippedfile/?programCode=VIP",
+ "landing": "https://www.census.gov/construction/c30/c30index.html",
+ "retrieved_at": "2026-09-26",
+ "published": "2026-09-01",
+ "http_last_modified": "Sat, 26 Sep 2026 00:24:55 GMT(応答時に生成される zip のため取得時刻。中の VIP-mf.csv の日付は 2026-09-01 09:01、DATA UPDATED ON: Tuesday, 01-Sep-26 09:01:03 EDT)",
+ "bytes": 328571,
+ "sha256": "1370e0b266fc6846102ae13bbc5bc186844496786afcaebd3a38c25676e669b0",
+ "inner_file": {
+  "name": "VIP-mf.csv",
+  "bytes": 1682444,
+  "sha256": "f8422c2c1463a4cff51944ff2904b86d40908f27fdda9353050c2176eff224a6"
+ },
+ "fetched_via": "Apify apify/web-fetch (formats=raw, base64、Content-Type application/octet-stream, Content-Disposition: inline; filename=VIP-mf.zip)。bytes が Content-Length と一致、zip の testzip 正常",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.law.cornell.edu/uscode/text/17/105",
+ "license_quote": "Copyright protection under this title is not available for any work of the United States Government, but the United States Government is not precluded from receiving and holding copyrights transferred to it by assignment, bequest, or otherwise. (17 U.S.C. 105(a), https://www.law.cornell.edu/uscode/text/17/105) / Census Bureau, Citing our Data, Tools, Technical Documents and Research, Public-Use Statement (https://www.census.gov/about/policies/citation.html, Page Last Revised - February 24, 2026): \"Proper citation ensures that Census Bureau statistical products and research can be discovered, reused, replicated for verification, and credited for recognition to measure usage and impact. Data users who create their own estimates using data from disseminated tables and other data should cite the Census Bureau as the source of the original data only. Conclusions drawn from any analysis of these data are the sole responsibility of the performing party.\"",
+ "attribution": "Source: U.S. Census Bureau, Construction Spending (Value of Construction Put in Place), time series dataset VIP-mf, https://www.census.gov/construction/c30/, released September 1, 2026",
+ "how_read": "tools/parsers/parse_census_vip.py。zip の中の VIP-mf.csv を csv として読む(同梱 README の節構成: CATEGORIES / DATA TYPES / ERROR TYPES / GEO LEVELS / TIME PERIODS / NOTES / DATA)。水準の値(dt = T 全体 / V 民間 / P 公共、et = 0)を 2002-01 から 2026-07 まで全月、季節調整なしの月の値(is_adj=0)と季節調整済み年率(is_adj=1、分類名が Annual Rate for ...)の両方。相対標準誤差(E_T/E_V/E_P)は同じ月・分類・調整の行の ref_value に。月次変化率(MPCT 等)は取り込まない。照合: (1) Total = Residential + Nonresidential は NSA の T/V/P 各 295 か月すべてで差 1 以内(丸め)。SAAR は 2016-01 以降 127 か月すべて差 1 以内、2002〜2015 年に最大 305(T と V)。(2) Nonresidential = 16 種類の和(T のみ成り立つ。V は 11 種類、P は 12 種類しか公表されていない): NSA 最大差 4、SAAR 最大差 4(2016 年以降は 3)。(3) T = V + P(3 系列とも公表されている分類): NSA 2950 組すべて差 1 以内、SAAR は 2016 年以降 1270 組すべて差 1 以内、全期間で最大 9。(4) 2026-09-01 の報道発表(https://www.census.gov/construction/c30/current/index.html)の 13 個の数字(2026 年 7 月・6 月の総額・民間・民間住宅・民間非住宅・公共・公共教育・公共道路、2025 年 7 月の総額、十億ドル小数 1 桁)と CSV の値が丸めの範囲で全部一致。xlsx の表(totsatime.xlsx など)は Apify web-fetch が xlsx を文字として読み替えて壊した(先頭が PK でも zip として開けない)ため使わず、同じ Census の時系列データセットの zip を原本にした。Census Data API(timeseries/eits/vip)は鍵なしの要求に Missing Key を返したため使っていない。",
+ "values_copied": true
+}

@@ -1,0 +1,75 @@
+{
+ "source_id": "mlit-sekou-package-r8-04",
+ "country": "JP",
+ "title": "令和８年度 施工パッケージ型積算方式 標準単価表(excel版)(令和8年4月1日以降に入札書提出期限日を設定している工事から適用)",
+ "publisher": "国土交通省 大臣官房技術調査課 建設システム管理企画室(策定・通知 国技建管第16号 令和8年3月18日)。excel 版の公表は国土技術政策総合研究所 社会資本マネジメント研究センター 社会資本システム研究室",
+ "url": "https://www.nilim.go.jp/lab/pbg/theme/theme2/sekop/20260319_sekoptanka0804.xlsx",
+ "landing": "https://www.nilim.go.jp/lab/pbg/theme/theme2/theme_sekop.htm",
+ "notice_url": "https://www.mlit.go.jp/tec/content/001989802.pdf",
+ "notice_landing": "https://www.mlit.go.jp/tec/koujisekisan_00003.html",
+ "notice_quote": "施工パッケージ型積算方式標準単価表については、令和 7 年 3 月 18 日付け国技建管第 13 号により通知しているところであるが、別添のとおり「令和８年度 施工パッケージ型積算方式 標準単価表」を策定したので通知する。また、標準単価表については、国土技術政策総合研究所ホームページにおいて公表することを申し添える。附則 本通知は、令和 8 年 4 月 1 日から令和 9 年 3 月 31 日までの期間に入札書提出期限日を設定する工事に適用する。",
+ "published": "2026-03-18",
+ "effective_from": "2026-04-01",
+ "effective_to": "2027-03-31",
+ "base_period": "2025-04",
+ "base_period_quote": "各条件区分に対応した、東京地区（東京 17 区）における基準年月（令和 8 年度版の基準年月は令和 7 年 4 月）の施工単位当たりの単価（円）です。この標準単価を基に地区や年月等の補正を行い、積算単価を算出します。",
+ "scope_quote": "■機労材構成比 標準単価に対する機械経費(K)、労務費(R)、材料費(Z)、市場単価(S)の金額構成比率です。なお、K、R、Z は機械経費、労務費、材料費それぞれの合計金額構成比率であり、K1～K3、R1～R4、Z1～Z4、S は各代表的な規格の金額構成比率です。また、各合計金額構成比率（K、R、Z）は代表的な規格以外の金額も含むため、K1～K3、R1～R4、Z1～Z4 の合計が K、R、Z と一致しない場合があります。/ 留意事項（１）単価表には、補正に使用する機械経費、労務単価、材料単価は記載していません。これらの単価等は土木請負工事工事費積算基準の定めにより下記の通りとなります。機械経費：請負工事機械経費積算要領 労務単価：公共工事設計労務単価 材料単価：物価資料等",
+ "area_quote": "東京地区（東京 17 区）",
+ "http_last_modified": "Wed, 18 Mar 2026 06:43:40 GMT",
+ "bytes": 2821841,
+ "sha256": "0273696a6be8de72f0c0dc05e248ed7d8a8cf44cb96aeedba068dfbbc2a4865f",
+ "notice_pdf": {
+  "url": "https://www.mlit.go.jp/tec/content/001989802.pdf",
+  "bytes": 6609938,
+  "sha256_as_reported_by_downloader": "63f6997b6f68d6d138eac815f098c40483232256810addb03a2cf1e2349db8ca",
+  "http_last_modified": "Wed, 18 Mar 2026 12:36:34 GMT",
+  "pages": 868,
+  "note": "PDF のバイト列はこの作業環境に持ち込めなかった(MCP の転送で 6.6MB の base64 が切れる)。照合には Apify web-fetch の PDF 文字抽出(formats=text)を raw/mlit-sekou-package-r8-04_pdf_text.txt に保存して使った。",
+  "pdf_text_file": "raw/mlit-sekou-package-r8-04_pdf_text.txt",
+  "pdf_text_bytes": 4777116,
+  "pdf_text_sha256": "4393519d5f222c083231d6804e49061a502456a52d54d316d088137fb54e9d48"
+ },
+ "related_files": [
+  {
+   "file": "raw/mlit-sekou-package-r8-04-sankou.xlsx",
+   "url": "https://www.nilim.go.jp/lab/pbg/theme/theme2/sekop/20250319_sekopsankou0804.xlsx",
+   "title": "施工パッケージ型積算方式標準単価表(参考資料)(代表機械規格・代表労務規格・参考数量)",
+   "bytes": 2343756,
+   "sha256": "b546ab0c6676a97cca1fdab8c942e0371abda96e8c2d39b90867142478bbe1e4",
+   "http_last_modified": "Wed, 18 Mar 2026 06:43:26 GMT",
+   "used": "取り込んでいない(参考数量は次の仕事)"
+  },
+  {
+   "file": "raw/mlit-sekou-package-r8-04-kikaku.pdf",
+   "url": "https://www.nilim.go.jp/lab/pbg/theme/theme2/sekop/20260324_kikaku0804.pdf",
+   "title": "代表材料規格等の基準単価作成方法について(令和８年度４月適用分)",
+   "bytes": 248943,
+   "sha256": "c8dc2a1da88d3cc4fc14300cdd275a57b49dfe598cda819bba71b5445c506acf",
+   "http_last_modified": "Tue, 24 Mar 2026 01:45:30 GMT",
+   "used": "取り込んでいない。代表材料規格の基準単価は『物価資料の令和７年４月号または春号に掲載されている東京地区の代表材料規格の単価の平均値を採用している』(1.(1))ため、代表規格の単価そのものは市販資料由来で値を入れない"
+  }
+ ],
+ "retrieved_at": "2026-09-26",
+ "license": "PDL1.0",
+ "license_url": "https://www.nilim.go.jp/aboutlink.htm",
+ "license_quote": "国土技術政策総合研究所ウェブサイト及び国土技術政策総合研究所のソーシャルメディアアカウントで掲載・発信している情報（以下「コンテンツ」といいます。）は、の著作権は、特記されていない限り国土技術政策総合研究所に帰属し、権利表記の記載がない限り「公共データ利用規約（第1.0版）」（PDL1.0）に準拠した利用条件の下で、利用することができます。",
+ "license_page_sha256": "d545f473350e88711ac2d19ca5e0c9e0d4df763b1ce83d811e14657912c8b002",
+ "license_url_mlit": "https://www.mlit.go.jp/link.html",
+ "license_quote_mlit": "国土交通省ウェブサイトで掲載・発信している情報（以下「コンテンツ」といいます。）の著作権は、特記されていない限り国土交通省に帰属し、権利表記の記載がない限り「公共データ利用規約（第1.0版）」（PDL1.0）に準拠した利用条件の下で、利用することができます。",
+ "license_note": "excel 版(国総研)と PDF 版(国交省)のどちらにも権利表記は無い(PDF 文字 868 頁に「著作権」「転載」「複製」の語なし)。国交省の別ルール適用コンテンツ一覧(https://www.mlit.go.jp/page/kanbo01_hy_003657.html)にも載っていない。国総研の条文の「は、の著作権は、」は原文のまま。",
+ "attribution": "出典：「令和８年度 施工パッケージ型積算方式 標準単価表」（国土交通省）(excel 版: 国土技術政策総合研究所ホームページ https://www.nilim.go.jp/lab/pbg/theme/theme2/sekop/20260319_sekoptanka0804.xlsx)を加工して作成",
+ "how_read": "openpyxl でセルを直接読んだ(tools/parsers/parse_mlit_sekou_package.py)。シート 001〜411 が1パッケージ1シート、3〜5行目が見出し、6行目から明細。値は表示書式の桁で丸めた値(PDF の印字と同じ)。規格(spec)は条件区分の『名：値』を原本の列順に ' | ' でつないだもの(値が『-』の条件は省く)。『物価資料等による』だけのパッケージは spec に『No.xxx』(同じ名称の材料費パッケージが複数の工種にあるため)。値の保存値と表示桁の差は 2 進小数の誤差だけ(4,264 セル、表示桁を超える本当の端数は 0)。照合: (1) 一覧シートとシート見出しの No が 411 件一致(名称の表記ゆれ2件は報告)。(2) PDF 版 868 頁の文字で、各パッケージの頁数が一覧の頁欄と 411 件一致。(3) Excel の全 9,177 行について、標準単価+構成比 15 欄の 16 値が PDF 文字の語の並びにこの順で連続して現れることを全件確認(146,832 セル一致、不一致 0)。(4) 条件区分の値 40,826 セルが同じパッケージの PDF 文字に全部現れる。(5)『物価資料等による』100 パッケージは PDF でも同じ文言で数値なし。",
+ "values_copied": true,
+ "fetched_via": "Apify の bulk-file-downloader(rationalistic_candle_ucn/bulk-file-downloader)で KV ストアに落とし zip にしてから apify/web-fetch(formats=raw, base64)で取り、zip から取り出した。apify/web-fetch の raw は xlsx(content-type に xml を含む)を文字として UTF-8 で読み壊すため直接は使えなかった。取り出した xlsx の sha256 は downloader が記録した sha256 と一致、バイト数はサーバの ETag(Apache、サイズ 0x2b0ed1 = 2,821,841)と一致。",
+ "files_written": [
+  "observations/jp/work_mlit_sekou_package_r7_04.csv (9,277 行: 標準単価 9,177 + 物価資料等による 100)",
+  "observations/jp/work_mlit_sekou_package_ratio_r7_04_p1.csv (40,150 行: No.001〜164 の構成比)",
+  "observations/jp/work_mlit_sekou_package_ratio_r7_04_p2.csv (39,505 行: No.165〜411 の構成比)"
+ ],
+ "rows_not_written": "構成比が『-』の 56,482 セル(その成分なし)と、K または Z の合計が 0.00 の 1,518 セル(K 651、Z 867。検査器は開いた状態の 0 を許さない)は行にしていない。",
+ "source_typos": [
+  "一覧シート No.037『大型ブロック（材料費）』/ 表の見出し『大型ブロック積（材料費）』(PDF も見出しは『大型ブロック積（材料費）』)",
+  "一覧シート No.107 は半角カナ・半角記号『ｱﾝｶｰ鋼材加工･組立･挿入･緊張･定着･頭部処理(ｱﾝｶｰ)』/ 表の見出しは全角『アンカー鋼材加工・組立・挿入・緊張・定着・頭部処理（アンカー）』",
+  "国総研の利用条件の条文『（以下「コンテンツ」といいます。）は、の著作権は、』"
+ ]
+}

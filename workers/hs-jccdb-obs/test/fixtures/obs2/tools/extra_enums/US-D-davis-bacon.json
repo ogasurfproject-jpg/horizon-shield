@@ -1,0 +1,5 @@
+{
+ "price_basis": [
+  {"value": "prevailing_wage_daily", "why": "Davis-Bacon の賃金決定で、職種名に「AMOUNTS IN 'RATES' COLUMN ARE PER DAY」とある行(潜水士など)。Rates 列が日額なので時給の prevailing_wage_hourly と分ける(unit USD/day)"}
+ ]
+}

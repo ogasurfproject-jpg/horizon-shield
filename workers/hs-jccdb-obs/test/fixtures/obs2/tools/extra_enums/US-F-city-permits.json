@@ -1,0 +1,9 @@
+{
+ "price_basis": [
+  {"value": "permit_valuation_total_usd", "why": "市の建築許可データの申告工事額(estimated cost / valuation / job value)を、市 x 年 x 許可の種類 x 工事の区分 で足した合計(USD)。申請者の申告で契約額ではない。有効な申告額(100 ドル以上 10 億ドル未満)だけを足す。count と組で平均が出せる"},
+  {"value": "permit_valuation_median_usd", "why": "同じ区分の許可 1 件あたりの申告工事額の中央値(USD)。原本に無い値を手元で計算(区分と申告額ごとの件数を API で取り、線形補間 type 7)。有効な申告額が 10 件以上の区分だけ"},
+  {"value": "permit_valuation_p25_usd", "why": "同じ区分の許可 1 件あたりの申告工事額の 25 パーセンタイル(USD)。計算の決まりは median と同じ"},
+  {"value": "permit_valuation_p75_usd", "why": "同じ区分の許可 1 件あたりの申告工事額の 75 パーセンタイル(USD)。計算の決まりは median と同じ"},
+  {"value": "permit_valuation_per_sqft_median_usd", "why": "許可ごとの(申告工事額 / 原本の面積の列)の中央値(USD per square foot)。面積の列がある市だけ。有効な申告額で面積 100 sqft 以上の許可が 10 件以上の区分だけ。cost_per_sqft(統計機関が公表する面積あたり工事費)とは作り方が違うので分ける"}
+ ]
+}

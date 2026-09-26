@@ -1,0 +1,23 @@
+{
+ "title": "令和8年3月から適用する公共工事設計労務単価について(報道発表資料 別紙)",
+ "publisher": "国土交通省 不動産・建設経済局",
+ "url": "https://www.mlit.go.jp/report/press/content/001981942.pdf",
+ "landing": "https://www.mlit.go.jp/report/press/tochi_fudousan_kensetsugyo14_hh_000001_00337.html",
+ "published": "2026-02-17",
+ "effective_from": "2026-03-01",
+ "http_last_modified": "Tue, 17 Feb 2026 05:08:54 GMT",
+ "bytes": 2448611,
+ "sha256": "f659c012a9bc50bb87731bfc469707a9360af7faf9aba073f09f4c193d573003",
+ "retrieved_at": "2026-09-26",
+ "license": "PDL1.0",
+ "license_url": "https://www.mlit.go.jp/link.html",
+ "license_quote": "権利表記の記載がない限り「公共データ利用規約（第1.0版）」（PDL1.0）に準拠した利用条件の下で、利用することができます",
+ "attribution": "出典：国土交通省ウェブサイト(https://www.mlit.go.jp/report/press/content/001981942.pdf)を加工して作成",
+ "how_read": "pdftotext -layout。同じ PDF に同じ単価が二つの組版(20職種/頁の横長表、10職種/頁の縦長表)で載っており、全 47 都道府県 x 5 頁の並びが一致することを確かめてから取り込んだ(tools/parse_mlit_roumu.py)。",
+ "source_id": "mlit-roumu-r8",
+ "country": "JP",
+ "values_copied": true,
+ "fetched_via": "Apify web-fetch (formats=raw)。作業環境から官公庁サイトへ直接は届かないため。バイト列は sha256 で原本と同じと確かめられる。",
+ "license_quote_previous": "権利表記の記載がない限り『公共データ利用規約（第1.0版）』（PDL1.0）に準拠した利用条件の下で、利用することができます",
+ "license_quote_fixed": "2026-09-26 独立検証(V2)で、条文の写し方(かぎ括弧の置き換え・見出しと本文の連結)が頁と文字どおりでないと分かり、頁の文字どおりに直した。利用条件の中身は変わらない。"
+}

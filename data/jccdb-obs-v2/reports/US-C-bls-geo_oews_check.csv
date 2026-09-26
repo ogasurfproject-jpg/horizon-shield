@@ -1,0 +1,342 @@
+check,occ_code,o_group,title,parent,sum_children,children_suppressed,msa_areas,ratio
+msa_plus_bos_vs_national_2025,00-0000,total,,155495730,149931140,0,387,0.9642
+msa_plus_bos_vs_national_2025,11-9021,detailed,Construction Managers,380360,353600,5,379,0.9296
+msa_plus_bos_vs_national_2025,13-1051,detailed,Cost Estimators,224220,216710,4,378,0.9665
+msa_plus_bos_vs_national_2025,17-1011,detailed,"Architects, Except Landscape and Naval",106770,99950,2,234,0.9361
+msa_plus_bos_vs_national_2025,17-2051,detailed,Civil Engineers,367840,351310,2,370,0.9551
+msa_plus_bos_vs_national_2025,17-3011,detailed,Architectural and Civil Drafters,103700,95320,1,288,0.9192
+msa_plus_bos_vs_national_2025,17-3022,detailed,Civil Engineering Technologists and Technicians,68520,62840,1,259,0.9171
+msa_plus_bos_vs_national_2025,47-0000,major,Construction and Extraction Occupations,6425160,6229350,0,387,0.9695
+msa_plus_bos_vs_national_2025,47-1011,detailed,First-Line Supervisors of Construction Trades and Extraction Workers,812210,784940,1,387,0.9664
+msa_plus_bos_vs_national_2025,47-2011,detailed,Boilermakers,10190,4110,7,27,0.4033
+msa_plus_bos_vs_national_2025,47-2021,detailed,Brickmasons and Blockmasons,52550,44840,5,153,0.8533
+msa_plus_bos_vs_national_2025,47-2022,detailed,Stonemasons,7820,3070,6,24,0.3926
+msa_plus_bos_vs_national_2025,47-2031,detailed,Carpenters,670090,653890,0,384,0.9758
+msa_plus_bos_vs_national_2025,47-2041,detailed,Carpet Installers,13780,5940,4,39,0.4311
+msa_plus_bos_vs_national_2025,47-2042,detailed,"Floor Layers, Except Carpet, Wood, and Hard Tiles",23640,15460,6,76,0.6540
+msa_plus_bos_vs_national_2025,47-2043,detailed,Floor Sanders and Finishers,3720,30,6,7,0.0081
+msa_plus_bos_vs_national_2025,47-2044,detailed,Tile and Stone Setters,35850,28610,6,126,0.7980
+msa_plus_bos_vs_national_2025,47-2051,detailed,Cement Masons and Concrete Finishers,206170,199540,2,334,0.9678
+msa_plus_bos_vs_national_2025,47-2053,detailed,Terrazzo Workers and Finishers,1180,0,1,1,0.0000
+msa_plus_bos_vs_national_2025,47-2061,detailed,Construction Laborers,1096780,1060380,1,386,0.9668
+msa_plus_bos_vs_national_2025,47-2071,detailed,"Paving, Surfacing, and Tamping Equipment Operators",41820,33730,9,156,0.8066
+msa_plus_bos_vs_national_2025,47-2072,detailed,Pile Driver Operators,2310,1180,0,15,0.5108
+msa_plus_bos_vs_national_2025,47-2073,detailed,Operating Engineers and Other Construction Equipment Operators,478090,464860,1,387,0.9723
+msa_plus_bos_vs_national_2025,47-2081,detailed,Drywall and Ceiling Tile Installers,83080,73670,1,168,0.8867
+msa_plus_bos_vs_national_2025,47-2082,detailed,Tapers,12840,9580,1,37,0.7461
+msa_plus_bos_vs_national_2025,47-2111,detailed,Electricians,757220,730010,0,386,0.9641
+msa_plus_bos_vs_national_2025,47-2121,detailed,Glaziers,58480,46860,2,163,0.8013
+msa_plus_bos_vs_national_2025,47-2131,detailed,"Insulation Workers, Floor, Ceiling, and Wall",44440,30480,8,111,0.6859
+msa_plus_bos_vs_national_2025,47-2132,detailed,"Insulation Workers, Mechanical",25660,16450,4,79,0.6411
+msa_plus_bos_vs_national_2025,47-2141,detailed,"Painters, Construction and Maintenance",225190,218560,3,357,0.9706
+msa_plus_bos_vs_national_2025,47-2142,detailed,Paperhangers,1570,250,2,4,0.1592
+msa_plus_bos_vs_national_2025,47-2151,detailed,Pipelayers,33050,25970,6,130,0.7858
+msa_plus_bos_vs_national_2025,47-2152,detailed,"Plumbers, Pipefitters, and Steamfitters",465840,454790,1,384,0.9763
+msa_plus_bos_vs_national_2025,47-2161,detailed,Plasterers and Stucco Masons,19310,15560,3,62,0.8058
+msa_plus_bos_vs_national_2025,47-2171,detailed,Reinforcing Iron and Rebar Workers,13800,7940,7,31,0.5754
+msa_plus_bos_vs_national_2025,47-2181,detailed,Roofers,135490,127390,0,263,0.9402
+msa_plus_bos_vs_national_2025,47-2211,detailed,Sheet Metal Workers,119770,109730,4,275,0.9162
+msa_plus_bos_vs_national_2025,47-2221,detailed,Structural Iron and Steel Workers,68380,55560,7,160,0.8125
+msa_plus_bos_vs_national_2025,47-2231,detailed,Solar Photovoltaic Installers,31350,18270,7,48,0.5828
+msa_plus_bos_vs_national_2025,47-3011,detailed,"Helpers--Brickmasons, Blockmasons, Stonemasons, and Tile and Marble Setters",14170,7620,4,46,0.5378
+msa_plus_bos_vs_national_2025,47-3012,detailed,Helpers--Carpenters,21680,13960,21,90,0.6439
+msa_plus_bos_vs_national_2025,47-3013,detailed,Helpers--Electricians,63630,53180,3,172,0.8358
+msa_plus_bos_vs_national_2025,47-3014,detailed,"Helpers--Painters, Paperhangers, Plasterers, and Stucco Masons",7490,3010,6,23,0.4019
+msa_plus_bos_vs_national_2025,47-3015,detailed,"Helpers--Pipelayers, Plumbers, Pipefitters, and Steamfitters",44330,34070,14,144,0.7686
+msa_plus_bos_vs_national_2025,47-3016,detailed,Helpers--Roofers,6030,1690,1,17,0.2803
+msa_plus_bos_vs_national_2025,47-3019,detailed,"Helpers, Construction Trades, All Other",24770,18920,5,98,0.7638
+msa_plus_bos_vs_national_2025,47-4011,detailed,Construction and Building Inspectors,146720,139580,0,335,0.9513
+msa_plus_bos_vs_national_2025,47-4021,detailed,Elevator and Escalator Installers and Repairers,23790,15370,4,56,0.6461
+msa_plus_bos_vs_national_2025,47-4031,detailed,Fence Erectors,24480,9650,6,55,0.3942
+msa_plus_bos_vs_national_2025,47-4041,detailed,Hazardous Materials Removal Workers,51710,42070,9,138,0.8136
+msa_plus_bos_vs_national_2025,47-4051,detailed,Highway Maintenance Workers,154960,152410,2,347,0.9835
+msa_plus_bos_vs_national_2025,47-4061,detailed,Rail-Track Laying and Maintenance Equipment Operators,19580,4130,2,15,0.2109
+msa_plus_bos_vs_national_2025,47-4071,detailed,Septic Tank Servicers and Sewer Pipe Cleaners,30650,23650,9,156,0.7716
+msa_plus_bos_vs_national_2025,47-4090,detailed,Miscellaneous Construction and Related Workers,28380,20350,11,108,0.7171
+msa_plus_bos_vs_national_2025,47-5011,detailed,"Derrick Operators, Oil and Gas",10590,6310,4,14,0.5958
+msa_plus_bos_vs_national_2025,47-5012,detailed,"Rotary Drill Operators, Oil and Gas",12600,7900,1,18,0.6270
+msa_plus_bos_vs_national_2025,47-5013,detailed,"Service Unit Operators, Oil and Gas",43140,37800,0,42,0.8762
+msa_plus_bos_vs_national_2025,47-5022,detailed,"Excavating and Loading Machine and Dragline Operators, Surface Mining",34480,25930,1,118,0.7520
+msa_plus_bos_vs_national_2025,47-5023,detailed,"Earth Drillers, Except Oil and Gas",19450,11870,4,82,0.6103
+msa_plus_bos_vs_national_2025,47-5032,detailed,"Explosives Workers, Ordnance Handling Experts, and Blasters",5100,1930,2,16,0.3784
+msa_plus_bos_vs_national_2025,47-5041,detailed,Continuous Mining Machine Operators,14000,7950,1,13,0.5679
+msa_plus_bos_vs_national_2025,47-5043,detailed,"Roof Bolters, Mining",2160,1230,0,2,0.5694
+msa_plus_bos_vs_national_2025,47-5044,detailed,"Loading and Moving Machine Operators, Underground Mining",5930,2530,1,5,0.4266
+msa_plus_bos_vs_national_2025,47-5049,detailed,"Underground Mining Machine Operators, All Other",3180,240,1,1,0.0755
+msa_plus_bos_vs_national_2025,47-5051,detailed,"Rock Splitters, Quarry",3320,570,1,3,0.1717
+msa_plus_bos_vs_national_2025,47-5071,detailed,"Roustabouts, Oil and Gas",44970,38870,0,40,0.8644
+msa_plus_bos_vs_national_2025,47-5081,detailed,Helpers--Extraction Workers,6700,1710,0,13,0.2552
+msa_plus_bos_vs_national_2025,47-5099,detailed,"Extraction Workers, All Other",5540,2620,1,11,0.4729
+msa_plus_bos_vs_national_2025,49-9021,detailed,"Heating, Air Conditioning, and Refrigeration Mechanics and Installers",409670,400090,0,385,0.9766
+states51_vs_national_2024,11-9021,detailed,Construction Managers,348330.0,347490,0,,0.9976
+states51_vs_national_2024,13-1051,detailed,Cost Estimators,219530.0,219680,1,,1.0007
+states51_vs_national_2024,17-1011,detailed,"Architects, Except Landscape and Naval",111140.0,111250,0,,1.0010
+states51_vs_national_2024,17-2051,detailed,Civil Engineers,355410.0,356320,0,,1.0026
+states51_vs_national_2024,17-3011,detailed,Architectural and Civil Drafters,109550.0,109560,0,,1.0001
+states51_vs_national_2024,17-3022,detailed,Civil Engineering Technologists and Technicians,62130.0,62340,0,,1.0034
+states51_vs_national_2024,47-0000,major,Construction and Extraction Occupations,6361720.0,6362270,0,,1.0001
+states51_vs_national_2024,47-1011,detailed,First-Line Supervisors of Construction Trades and Extraction Workers,806080.0,806570,0,,1.0006
+states51_vs_national_2024,47-2011,detailed,Boilermakers,10170.0,9440,7,,0.9282
+states51_vs_national_2024,47-2021,detailed,Brickmasons and Blockmasons,53520.0,53550,0,,1.0006
+states51_vs_national_2024,47-2022,detailed,Stonemasons,8750.0,8270,5,,0.9451
+states51_vs_national_2024,47-2031,detailed,Carpenters,697740.0,697210,0,,0.9992
+states51_vs_national_2024,47-2041,detailed,Carpet Installers,14980.0,14270,4,,0.9526
+states51_vs_national_2024,47-2042,detailed,"Floor Layers, Except Carpet, Wood, and Hard Tiles",24850.0,24400,2,,0.9819
+states51_vs_national_2024,47-2043,detailed,Floor Sanders and Finishers,4140.0,1700,13,,0.4106
+states51_vs_national_2024,47-2044,detailed,Tile and Stone Setters,38740.0,38130,2,,0.9843
+states51_vs_national_2024,47-2051,detailed,Cement Masons and Concrete Finishers,205230.0,205220,0,,1.0000
+states51_vs_national_2024,47-2053,detailed,Terrazzo Workers and Finishers,1450.0,490,3,,0.3379
+states51_vs_national_2024,47-2061,detailed,Construction Laborers,1057660.0,1057640,0,,1.0000
+states51_vs_national_2024,47-2071,detailed,"Paving, Surfacing, and Tamping Equipment Operators",45680.0,45460,1,,0.9952
+states51_vs_national_2024,47-2072,detailed,Pile Driver Operators,3040.0,2480,4,,0.8158
+states51_vs_national_2024,47-2073,detailed,Operating Engineers and Other Construction Equipment Operators,469270.0,469330,0,,1.0001
+states51_vs_national_2024,47-2081,detailed,Drywall and Ceiling Tile Installers,82900.0,82090,1,,0.9902
+states51_vs_national_2024,47-2082,detailed,Tapers,12500.0,10990,2,,0.8792
+states51_vs_national_2024,47-2111,detailed,Electricians,742580.0,742710,0,,1.0002
+states51_vs_national_2024,47-2121,detailed,Glaziers,57000.0,54480,4,,0.9558
+states51_vs_national_2024,47-2131,detailed,"Insulation Workers, Floor, Ceiling, and Wall",38610.0,37540,2,,0.9723
+states51_vs_national_2024,47-2132,detailed,"Insulation Workers, Mechanical",25640.0,24910,2,,0.9715
+states51_vs_national_2024,47-2141,detailed,"Painters, Construction and Maintenance",224180.0,224410,0,,1.0010
+states51_vs_national_2024,47-2142,detailed,Paperhangers,1520.0,700,3,,0.4605
+states51_vs_national_2024,47-2151,detailed,Pipelayers,33580.0,33080,2,,0.9851
+states51_vs_national_2024,47-2152,detailed,"Plumbers, Pipefitters, and Steamfitters",455940.0,456180,0,,1.0005
+states51_vs_national_2024,47-2161,detailed,Plasterers and Stucco Masons,20880.0,20200,4,,0.9674
+states51_vs_national_2024,47-2171,detailed,Reinforcing Iron and Rebar Workers,14140.0,12210,6,,0.8635
+states51_vs_national_2024,47-2181,detailed,Roofers,136740.0,136150,2,,0.9957
+states51_vs_national_2024,47-2211,detailed,Sheet Metal Workers,117470.0,116290,1,,0.9900
+states51_vs_national_2024,47-2221,detailed,Structural Iron and Steel Workers,64720.0,64750,0,,1.0005
+states51_vs_national_2024,47-2231,detailed,Solar Photovoltaic Installers,28280.0,25720,5,,0.9095
+states51_vs_national_2024,47-3011,detailed,"Helpers--Brickmasons, Blockmasons, Stonemasons, and Tile and Marble Setters",15660.0,15080,4,,0.9630
+states51_vs_national_2024,47-3012,detailed,Helpers--Carpenters,24610.0,20340,8,,0.8265
+states51_vs_national_2024,47-3013,detailed,Helpers--Electricians,64440.0,64290,2,,0.9977
+states51_vs_national_2024,47-3014,detailed,"Helpers--Painters, Paperhangers, Plasterers, and Stucco Masons",7220.0,6180,4,,0.8560
+states51_vs_national_2024,47-3015,detailed,"Helpers--Pipelayers, Plumbers, Pipefitters, and Steamfitters",43640.0,41930,8,,0.9608
+states51_vs_national_2024,47-3016,detailed,Helpers--Roofers,5170.0,4060,7,,0.7853
+states51_vs_national_2024,47-3019,detailed,"Helpers, Construction Trades, All Other",25510.0,24450,5,,0.9584
+states51_vs_national_2024,47-4011,detailed,Construction and Building Inspectors,137210.0,137140,0,,0.9995
+states51_vs_national_2024,47-4021,detailed,Elevator and Escalator Installers and Repairers,23340.0,21050,6,,0.9019
+states51_vs_national_2024,47-4031,detailed,Fence Erectors,22640.0,19120,14,,0.8445
+states51_vs_national_2024,47-4041,detailed,Hazardous Materials Removal Workers,50570.0,49830,4,,0.9854
+states51_vs_national_2024,47-4051,detailed,Highway Maintenance Workers,151750.0,151540,0,,0.9986
+states51_vs_national_2024,47-4061,detailed,Rail-Track Laying and Maintenance Equipment Operators,16480.0,14540,1,,0.8823
+states51_vs_national_2024,47-4071,detailed,Septic Tank Servicers and Sewer Pipe Cleaners,29050.0,28880,2,,0.9941
+states51_vs_national_2024,47-4090,detailed,Miscellaneous Construction and Related Workers,33530.0,33140,2,,0.9884
+states51_vs_national_2024,47-5011,detailed,"Derrick Operators, Oil and Gas",11040.0,10670,1,,0.9665
+states51_vs_national_2024,47-5012,detailed,"Rotary Drill Operators, Oil and Gas",13090.0,12670,1,,0.9679
+states51_vs_national_2024,47-5013,detailed,"Service Unit Operators, Oil and Gas",44120.0,43910,1,,0.9952
+states51_vs_national_2024,47-5022,detailed,"Excavating and Loading Machine and Dragline Operators, Surface Mining",34210.0,34090,0,,0.9965
+states51_vs_national_2024,47-5023,detailed,"Earth Drillers, Except Oil and Gas",17410.0,17400,0,,0.9994
+states51_vs_national_2024,47-5032,detailed,"Explosives Workers, Ordnance Handling Experts, and Blasters",5680.0,4470,5,,0.7870
+states51_vs_national_2024,47-5041,detailed,Continuous Mining Machine Operators,14340.0,12900,3,,0.8996
+states51_vs_national_2024,47-5043,detailed,"Roof Bolters, Mining",2230.0,1450,0,,0.6502
+states51_vs_national_2024,47-5044,detailed,"Loading and Moving Machine Operators, Underground Mining",6130.0,4970,1,,0.8108
+states51_vs_national_2024,47-5049,detailed,"Underground Mining Machine Operators, All Other",3480.0,1910,1,,0.5489
+states51_vs_national_2024,47-5051,detailed,"Rock Splitters, Quarry",3080.0,2360,2,,0.7662
+states51_vs_national_2024,47-5071,detailed,"Roustabouts, Oil and Gas",45330.0,44970,1,,0.9921
+states51_vs_national_2024,47-5081,detailed,Helpers--Extraction Workers,6720.0,6150,2,,0.9152
+states51_vs_national_2024,47-5099,detailed,"Extraction Workers, All Other",6070.0,5110,4,,0.8418
+states51_vs_national_2024,49-9021,detailed,"Heating, Air Conditioning, and Refrigeration Mechanics and Installers",396870.0,396760,0,,0.9997
+states51_vs_national_2023,11-9021,detailed,Construction Managers,329190.0,329180,0,,1.0000
+states51_vs_national_2023,13-1051,detailed,Cost Estimators,220970.0,220960,0,,1.0000
+states51_vs_national_2023,17-1011,detailed,"Architects, Except Landscape and Naval",111170.0,111180,0,,1.0001
+states51_vs_national_2023,17-2051,detailed,Civil Engineers,327950.0,327930,0,,0.9999
+states51_vs_national_2023,17-3011,detailed,Architectural and Civil Drafters,111070.0,110860,1,,0.9981
+states51_vs_national_2023,17-3022,detailed,Civil Engineering Technologists and Technicians,63560.0,63340,1,,0.9965
+states51_vs_national_2023,47-0000,major,Construction and Extraction Occupations,6225630.0,6225620,0,,1.0000
+states51_vs_national_2023,47-1011,detailed,First-Line Supervisors of Construction Trades and Extraction Workers,777420.0,777430,0,,1.0000
+states51_vs_national_2023,47-2011,detailed,Boilermakers,11130.0,10690,3,,0.9605
+states51_vs_national_2023,47-2021,detailed,Brickmasons and Blockmasons,56830.0,56840,0,,1.0002
+states51_vs_national_2023,47-2022,detailed,Stonemasons,9790.0,9370,1,,0.9571
+states51_vs_national_2023,47-2031,detailed,Carpenters,700290.0,700290,0,,1.0000
+states51_vs_national_2023,47-2041,detailed,Carpet Installers,15560.0,15330,2,,0.9852
+states51_vs_national_2023,47-2042,detailed,"Floor Layers, Except Carpet, Wood, and Hard Tiles",25150.0,25010,1,,0.9944
+states51_vs_national_2023,47-2043,detailed,Floor Sanders and Finishers,5070.0,3210,5,,0.6331
+states51_vs_national_2023,47-2044,detailed,Tile and Stone Setters,42420.0,42280,2,,0.9967
+states51_vs_national_2023,47-2051,detailed,Cement Masons and Concrete Finishers,203560.0,203520,0,,0.9998
+states51_vs_national_2023,47-2053,detailed,Terrazzo Workers and Finishers,1460.0,420,2,,0.2877
+states51_vs_national_2023,47-2061,detailed,Construction Laborers,1019090.0,1019070,0,,1.0000
+states51_vs_national_2023,47-2071,detailed,"Paving, Surfacing, and Tamping Equipment Operators",43080.0,43090,0,,1.0002
+states51_vs_national_2023,47-2072,detailed,Pile Driver Operators,3010.0,2540,3,,0.8439
+states51_vs_national_2023,47-2073,detailed,Operating Engineers and Other Construction Equipment Operators,450370.0,450370,0,,1.0000
+states51_vs_national_2023,47-2081,detailed,Drywall and Ceiling Tile Installers,90860.0,89800,1,,0.9883
+states51_vs_national_2023,47-2082,detailed,Tapers,15560.0,15180,1,,0.9756
+states51_vs_national_2023,47-2111,detailed,Electricians,712580.0,712570,0,,1.0000
+states51_vs_national_2023,47-2121,detailed,Glaziers,53390.0,50940,1,,0.9541
+states51_vs_national_2023,47-2131,detailed,"Insulation Workers, Floor, Ceiling, and Wall",38510.0,37110,1,,0.9636
+states51_vs_national_2023,47-2132,detailed,"Insulation Workers, Mechanical",22850.0,22550,1,,0.9869
+states51_vs_national_2023,47-2141,detailed,"Painters, Construction and Maintenance",215910.0,215910,0,,1.0000
+states51_vs_national_2023,47-2142,detailed,Paperhangers,1830.0,1100,2,,0.6011
+states51_vs_national_2023,47-2151,detailed,Pipelayers,34840.0,34760,0,,0.9977
+states51_vs_national_2023,47-2152,detailed,"Plumbers, Pipefitters, and Steamfitters",436160.0,436170,1,,1.0000
+states51_vs_national_2023,47-2161,detailed,Plasterers and Stucco Masons,22310.0,22110,2,,0.9910
+states51_vs_national_2023,47-2171,detailed,Reinforcing Iron and Rebar Workers,17400.0,15290,5,,0.8787
+states51_vs_national_2023,47-2181,detailed,Roofers,135140.0,134950,0,,0.9986
+states51_vs_national_2023,47-2211,detailed,Sheet Metal Workers,116190.0,114840,1,,0.9884
+states51_vs_national_2023,47-2221,detailed,Structural Iron and Steel Workers,63780.0,61070,1,,0.9575
+states51_vs_national_2023,47-2231,detailed,Solar Photovoltaic Installers,24510.0,21610,4,,0.8817
+states51_vs_national_2023,47-3011,detailed,"Helpers--Brickmasons, Blockmasons, Stonemasons, and Tile and Marble Setters",16460.0,16370,0,,0.9945
+states51_vs_national_2023,47-3012,detailed,Helpers--Carpenters,21770.0,19840,4,,0.9113
+states51_vs_national_2023,47-3013,detailed,Helpers--Electricians,68670.0,68630,0,,0.9994
+states51_vs_national_2023,47-3014,detailed,"Helpers--Painters, Paperhangers, Plasterers, and Stucco Masons",7700.0,6830,2,,0.8870
+states51_vs_national_2023,47-3015,detailed,"Helpers--Pipelayers, Plumbers, Pipefitters, and Steamfitters",45300.0,44860,2,,0.9903
+states51_vs_national_2023,47-3016,detailed,Helpers--Roofers,4540.0,3930,0,,0.8656
+states51_vs_national_2023,47-3019,detailed,"Helpers, Construction Trades, All Other",27250.0,27080,0,,0.9938
+states51_vs_national_2023,47-4011,detailed,Construction and Building Inspectors,133640.0,133630,0,,0.9999
+states51_vs_national_2023,47-4021,detailed,Elevator and Escalator Installers and Repairers,23990.0,23370,3,,0.9742
+states51_vs_national_2023,47-4031,detailed,Fence Erectors,21470.0,20830,3,,0.9702
+states51_vs_national_2023,47-4041,detailed,Hazardous Materials Removal Workers,49960.0,49820,2,,0.9972
+states51_vs_national_2023,47-4051,detailed,Highway Maintenance Workers,150860.0,150620,0,,0.9984
+states51_vs_national_2023,47-4061,detailed,Rail-Track Laying and Maintenance Equipment Operators,18770.0,17800,0,,0.9483
+states51_vs_national_2023,47-4071,detailed,Septic Tank Servicers and Sewer Pipe Cleaners,27900.0,27830,2,,0.9975
+states51_vs_national_2023,47-4090,detailed,Miscellaneous Construction and Related Workers,28930.0,28890,0,,0.9986
+states51_vs_national_2023,47-5011,detailed,"Derrick Operators, Oil and Gas",11510.0,11310,1,,0.9826
+states51_vs_national_2023,47-5012,detailed,"Rotary Drill Operators, Oil and Gas",12180.0,11690,2,,0.9598
+states51_vs_national_2023,47-5013,detailed,"Service Unit Operators, Oil and Gas",46150.0,45440,0,,0.9846
+states51_vs_national_2023,47-5022,detailed,"Excavating and Loading Machine and Dragline Operators, Surface Mining",32630.0,32550,1,,0.9975
+states51_vs_national_2023,47-5023,detailed,"Earth Drillers, Except Oil and Gas",18010.0,18030,0,,1.0011
+states51_vs_national_2023,47-5032,detailed,"Explosives Workers, Ordnance Handling Experts, and Blasters",4610.0,4140,3,,0.8980
+states51_vs_national_2023,47-5041,detailed,Continuous Mining Machine Operators,15700.0,14360,0,,0.9146
+states51_vs_national_2023,47-5043,detailed,"Roof Bolters, Mining",1960.0,1360,1,,0.6939
+states51_vs_national_2023,47-5044,detailed,"Loading and Moving Machine Operators, Underground Mining",5160.0,4250,1,,0.8236
+states51_vs_national_2023,47-5049,detailed,"Underground Mining Machine Operators, All Other",2560.0,1830,1,,0.7148
+states51_vs_national_2023,47-5051,detailed,"Rock Splitters, Quarry",3610.0,2810,2,,0.7784
+states51_vs_national_2023,47-5071,detailed,"Roustabouts, Oil and Gas",43830.0,43640,0,,0.9957
+states51_vs_national_2023,47-5081,detailed,Helpers--Extraction Workers,7360.0,7060,1,,0.9592
+states51_vs_national_2023,47-5099,detailed,"Extraction Workers, All Other",7120.0,6530,2,,0.9171
+states51_vs_national_2023,49-9021,detailed,"Heating, Air Conditioning, and Refrigeration Mechanics and Installers",397450.0,397460,0,,1.0000
+states51_vs_national_2022,11-9021,detailed,Construction Managers,303220.0,302040,1,,0.9961
+states51_vs_national_2022,13-1051,detailed,Cost Estimators,225310.0,225310,0,,1.0000
+states51_vs_national_2022,17-1011,detailed,"Architects, Except Landscape and Naval",107490.0,107480,0,,0.9999
+states51_vs_national_2022,17-2051,detailed,Civil Engineers,307570.0,307580,0,,1.0000
+states51_vs_national_2022,17-3011,detailed,Architectural and Civil Drafters,105960.0,105960,0,,1.0000
+states51_vs_national_2022,17-3022,detailed,Civil Engineering Technologists and Technicians,62350.0,61210,1,,0.9817
+states51_vs_national_2022,47-0000,major,Construction and Extraction Occupations,6075520.0,6075530,0,,1.0000
+states51_vs_national_2022,47-1011,detailed,First-Line Supervisors of Construction Trades and Extraction Workers,720900.0,720900,0,,1.0000
+states51_vs_national_2022,47-2011,detailed,Boilermakers,13570.0,12450,7,,0.9175
+states51_vs_national_2022,47-2021,detailed,Brickmasons and Blockmasons,55530.0,55290,1,,0.9957
+states51_vs_national_2022,47-2022,detailed,Stonemasons,10220.0,9700,3,,0.9491
+states51_vs_national_2022,47-2031,detailed,Carpenters,689770.0,689770,0,,1.0000
+states51_vs_national_2022,47-2041,detailed,Carpet Installers,17400.0,16880,2,,0.9701
+states51_vs_national_2022,47-2042,detailed,"Floor Layers, Except Carpet, Wood, and Hard Tiles",20710.0,19530,2,,0.9430
+states51_vs_national_2022,47-2043,detailed,Floor Sanders and Finishers,4270.0,3020,5,,0.7073
+states51_vs_national_2022,47-2044,detailed,Tile and Stone Setters,40760.0,40690,0,,0.9983
+states51_vs_national_2022,47-2051,detailed,Cement Masons and Concrete Finishers,196730.0,196730,0,,1.0000
+states51_vs_national_2022,47-2053,detailed,Terrazzo Workers and Finishers,1460.0,990,2,,0.6781
+states51_vs_national_2022,47-2061,detailed,Construction Laborers,1012780.0,1012790,0,,1.0000
+states51_vs_national_2022,47-2071,detailed,"Paving, Surfacing, and Tamping Equipment Operators",41470.0,41260,1,,0.9949
+states51_vs_national_2022,47-2072,detailed,Pile Driver Operators,3290.0,2670,2,,0.8116
+states51_vs_national_2022,47-2073,detailed,Operating Engineers and Other Construction Equipment Operators,423040.0,422960,0,,0.9998
+states51_vs_national_2022,47-2081,detailed,Drywall and Ceiling Tile Installers,91590.0,91570,0,,0.9998
+states51_vs_national_2022,47-2082,detailed,Tapers,14290.0,13840,2,,0.9685
+states51_vs_national_2022,47-2111,detailed,Electricians,690050.0,690050,1,,1.0000
+states51_vs_national_2022,47-2121,detailed,Glaziers,51630.0,49140,1,,0.9518
+states51_vs_national_2022,47-2131,detailed,"Insulation Workers, Floor, Ceiling, and Wall",33130.0,31940,3,,0.9641
+states51_vs_national_2022,47-2132,detailed,"Insulation Workers, Mechanical",25660.0,25500,0,,0.9938
+states51_vs_national_2022,47-2141,detailed,"Painters, Construction and Maintenance",215680.0,215670,0,,1.0000
+states51_vs_national_2022,47-2142,detailed,Paperhangers,2220.0,1470,2,,0.6622
+states51_vs_national_2022,47-2151,detailed,Pipelayers,36070.0,35970,0,,0.9972
+states51_vs_national_2022,47-2152,detailed,"Plumbers, Pipefitters, and Steamfitters",427920.0,427930,0,,1.0000
+states51_vs_national_2022,47-2161,detailed,Plasterers and Stucco Masons,25950.0,25580,4,,0.9857
+states51_vs_national_2022,47-2171,detailed,Reinforcing Iron and Rebar Workers,17270.0,15300,6,,0.8859
+states51_vs_national_2022,47-2181,detailed,Roofers,131980.0,131770,0,,0.9984
+states51_vs_national_2022,47-2211,detailed,Sheet Metal Workers,120810.0,120810,0,,1.0000
+states51_vs_national_2022,47-2221,detailed,Structural Iron and Steel Workers,66810.0,66840,0,,1.0004
+states51_vs_national_2022,47-2231,detailed,Solar Photovoltaic Installers,27760.0,26660,2,,0.9604
+states51_vs_national_2022,47-3011,detailed,"Helpers--Brickmasons, Blockmasons, Stonemasons, and Tile and Marble Setters",17730.0,17530,1,,0.9887
+states51_vs_national_2022,47-3012,detailed,Helpers--Carpenters,24580.0,24390,1,,0.9923
+states51_vs_national_2022,47-3013,detailed,Helpers--Electricians,71000.0,69960,3,,0.9854
+states51_vs_national_2022,47-3014,detailed,"Helpers--Painters, Paperhangers, Plasterers, and Stucco Masons",8630.0,7290,5,,0.8447
+states51_vs_national_2022,47-3015,detailed,"Helpers--Pipelayers, Plumbers, Pipefitters, and Steamfitters",46760.0,46720,0,,0.9991
+states51_vs_national_2022,47-3016,detailed,Helpers--Roofers,5790.0,5300,3,,0.9154
+states51_vs_national_2022,47-3019,detailed,"Helpers, Construction Trades, All Other",27920.0,27680,1,,0.9914
+states51_vs_national_2022,47-4011,detailed,Construction and Building Inspectors,128950.0,128950,0,,1.0000
+states51_vs_national_2022,47-4021,detailed,Elevator and Escalator Installers and Repairers,24380.0,23930,1,,0.9815
+states51_vs_national_2022,47-4031,detailed,Fence Erectors,27060.0,26300,1,,0.9719
+states51_vs_national_2022,47-4041,detailed,Hazardous Materials Removal Workers,46780.0,46380,2,,0.9914
+states51_vs_national_2022,47-4051,detailed,Highway Maintenance Workers,143330.0,143140,0,,0.9987
+states51_vs_national_2022,47-4061,detailed,Rail-Track Laying and Maintenance Equipment Operators,18600.0,16420,0,,0.8828
+states51_vs_national_2022,47-4071,detailed,Septic Tank Servicers and Sewer Pipe Cleaners,27660.0,27600,2,,0.9978
+states51_vs_national_2022,47-4090,detailed,Miscellaneous Construction and Related Workers,29880.0,29700,1,,0.9940
+states51_vs_national_2022,47-5011,detailed,"Derrick Operators, Oil and Gas",10950.0,10670,1,,0.9744
+states51_vs_national_2022,47-5012,detailed,"Rotary Drill Operators, Oil and Gas",12190.0,11660,3,,0.9565
+states51_vs_national_2022,47-5013,detailed,"Service Unit Operators, Oil and Gas",36320.0,35980,0,,0.9906
+states51_vs_national_2022,47-5022,detailed,"Excavating and Loading Machine and Dragline Operators, Surface Mining",33670.0,33600,0,,0.9979
+states51_vs_national_2022,47-5023,detailed,"Earth Drillers, Except Oil and Gas",19010.0,19010,0,,1.0000
+states51_vs_national_2022,47-5032,detailed,"Explosives Workers, Ordnance Handling Experts, and Blasters",4710.0,4220,4,,0.8960
+states51_vs_national_2022,47-5041,detailed,Continuous Mining Machine Operators,13500.0,12560,1,,0.9304
+states51_vs_national_2022,47-5043,detailed,"Roof Bolters, Mining",1700.0,1150,0,,0.6765
+states51_vs_national_2022,47-5044,detailed,"Loading and Moving Machine Operators, Underground Mining",5210.0,3940,3,,0.7562
+states51_vs_national_2022,47-5049,detailed,"Underground Mining Machine Operators, All Other",2270.0,1770,1,,0.7797
+states51_vs_national_2022,47-5051,detailed,"Rock Splitters, Quarry",3910.0,3400,0,,0.8696
+states51_vs_national_2022,47-5071,detailed,"Roustabouts, Oil and Gas",39100.0,38880,1,,0.9944
+states51_vs_national_2022,47-5081,detailed,Helpers--Extraction Workers,6910.0,6460,3,,0.9349
+states51_vs_national_2022,47-5099,detailed,"Extraction Workers, All Other",6290.0,5800,3,,0.9221
+states51_vs_national_2022,49-9021,detailed,"Heating, Air Conditioning, and Refrigeration Mechanics and Installers",374770.0,374760,0,,1.0000
+states51_vs_national_2021,11-9021,detailed,Construction Managers,284750.0,284770,0,,1.0001
+states51_vs_national_2021,13-1051,detailed,Cost Estimators,208950.0,208960,0,,1.0000
+states51_vs_national_2021,17-1011,detailed,"Architects, Except Landscape and Naval",100400.0,100410,0,,1.0001
+states51_vs_national_2021,17-2051,detailed,Civil Engineers,304310.0,304300,0,,1.0000
+states51_vs_national_2021,17-3011,detailed,Architectural and Civil Drafters,101310.0,101250,0,,0.9994
+states51_vs_national_2021,17-3022,detailed,Civil Engineering Technologists and Technicians,64170.0,64180,0,,1.0002
+states51_vs_national_2021,47-0000,major,Construction and Extraction Occupations,5848950.0,5848950,0,,1.0000
+states51_vs_national_2021,47-1011,detailed,First-Line Supervisors of Construction Trades and Extraction Workers,665870.0,665880,0,,1.0000
+states51_vs_national_2021,47-2011,detailed,Boilermakers,12920.0,11460,7,,0.8870
+states51_vs_national_2021,47-2021,detailed,Brickmasons and Blockmasons,55950.0,55690,1,,0.9954
+states51_vs_national_2021,47-2022,detailed,Stonemasons,9000.0,7480,8,,0.8311
+states51_vs_national_2021,47-2031,detailed,Carpenters,668060.0,668090,0,,1.0000
+states51_vs_national_2021,47-2041,detailed,Carpet Installers,19790.0,17560,5,,0.8873
+states51_vs_national_2021,47-2042,detailed,"Floor Layers, Except Carpet, Wood, and Hard Tiles",18300.0,17330,6,,0.9470
+states51_vs_national_2021,47-2043,detailed,Floor Sanders and Finishers,4340.0,3140,7,,0.7235
+states51_vs_national_2021,47-2044,detailed,Tile and Stone Setters,41160.0,41120,0,,0.9990
+states51_vs_national_2021,47-2051,detailed,Cement Masons and Concrete Finishers,186600.0,186480,1,,0.9994
+states51_vs_national_2021,47-2053,detailed,Terrazzo Workers and Finishers,2640.0,1640,5,,0.6212
+states51_vs_national_2021,47-2061,detailed,Construction Laborers,968760.0,968760,0,,1.0000
+states51_vs_national_2021,47-2071,detailed,"Paving, Surfacing, and Tamping Equipment Operators",44200.0,43670,2,,0.9880
+states51_vs_national_2021,47-2072,detailed,Pile Driver Operators,3760.0,2720,6,,0.7234
+states51_vs_national_2021,47-2073,detailed,Operating Engineers and Other Construction Equipment Operators,404820.0,404790,0,,0.9999
+states51_vs_national_2021,47-2081,detailed,Drywall and Ceiling Tile Installers,97070.0,96720,1,,0.9964
+states51_vs_national_2021,47-2082,detailed,Tapers,14580.0,13750,3,,0.9431
+states51_vs_national_2021,47-2111,detailed,Electricians,650580.0,650600,0,,1.0000
+states51_vs_national_2021,47-2121,detailed,Glaziers,52700.0,52740,0,,1.0008
+states51_vs_national_2021,47-2131,detailed,"Insulation Workers, Floor, Ceiling, and Wall",30360.0,29970,2,,0.9872
+states51_vs_national_2021,47-2132,detailed,"Insulation Workers, Mechanical",28010.0,26560,4,,0.9482
+states51_vs_national_2021,47-2141,detailed,"Painters, Construction and Maintenance",214220.0,214220,0,,1.0000
+states51_vs_national_2021,47-2142,detailed,Paperhangers,2340.0,1760,3,,0.7521
+states51_vs_national_2021,47-2151,detailed,Pipelayers,33330.0,32360,3,,0.9709
+states51_vs_national_2021,47-2152,detailed,"Plumbers, Pipefitters, and Steamfitters",417620.0,417600,1,,1.0000
+states51_vs_national_2021,47-2161,detailed,Plasterers and Stucco Masons,26980.0,24920,7,,0.9236
+states51_vs_national_2021,47-2171,detailed,Reinforcing Iron and Rebar Workers,16420.0,14060,13,,0.8563
+states51_vs_national_2021,47-2181,detailed,Roofers,129890.0,129890,1,,1.0000
+states51_vs_national_2021,47-2211,detailed,Sheet Metal Workers,122630.0,119880,3,,0.9776
+states51_vs_national_2021,47-2221,detailed,Structural Iron and Steel Workers,68620.0,68410,1,,0.9969
+states51_vs_national_2021,47-2231,detailed,Solar Photovoltaic Installers,16420.0,14550,8,,0.8861
+states51_vs_national_2021,47-3011,detailed,"Helpers--Brickmasons, Blockmasons, Stonemasons, and Tile and Marble Setters",18210.0,17860,5,,0.9808
+states51_vs_national_2021,47-3012,detailed,Helpers--Carpenters,27540.0,26800,4,,0.9731
+states51_vs_national_2021,47-3013,detailed,Helpers--Electricians,72150.0,71710,5,,0.9939
+states51_vs_national_2021,47-3014,detailed,"Helpers--Painters, Paperhangers, Plasterers, and Stucco Masons",8940.0,7240,8,,0.8098
+states51_vs_national_2021,47-3015,detailed,"Helpers--Pipelayers, Plumbers, Pipefitters, and Steamfitters",45930.0,43950,6,,0.9569
+states51_vs_national_2021,47-3016,detailed,Helpers--Roofers,6830.0,5290,10,,0.7745
+states51_vs_national_2021,47-3019,detailed,"Helpers, Construction Trades, All Other",27300.0,26970,3,,0.9879
+states51_vs_national_2021,47-4011,detailed,Construction and Building Inspectors,117830.0,117800,0,,0.9997
+states51_vs_national_2021,47-4021,detailed,Elevator and Escalator Installers and Repairers,22510.0,21550,4,,0.9574
+states51_vs_national_2021,47-4031,detailed,Fence Erectors,24470.0,23630,6,,0.9657
+states51_vs_national_2021,47-4041,detailed,Hazardous Materials Removal Workers,44240.0,43890,3,,0.9921
+states51_vs_national_2021,47-4051,detailed,Highway Maintenance Workers,141150.0,141090,0,,0.9996
+states51_vs_national_2021,47-4061,detailed,Rail-Track Laying and Maintenance Equipment Operators,21030.0,17780,5,,0.8455
+states51_vs_national_2021,47-4071,detailed,Septic Tank Servicers and Sewer Pipe Cleaners,28620.0,28430,2,,0.9934
+states51_vs_national_2021,47-4090,detailed,Miscellaneous Construction and Related Workers,30920.0,29960,5,,0.9690
+states51_vs_national_2021,47-5011,detailed,"Derrick Operators, Oil and Gas",7880.0,7310,3,,0.9277
+states51_vs_national_2021,47-5012,detailed,"Rotary Drill Operators, Oil and Gas",11170.0,10360,5,,0.9275
+states51_vs_national_2021,47-5013,detailed,"Service Unit Operators, Oil and Gas",32870.0,31670,1,,0.9635
+states51_vs_national_2021,47-5022,detailed,"Excavating and Loading Machine and Dragline Operators, Surface Mining",35720.0,35450,2,,0.9924
+states51_vs_national_2021,47-5023,detailed,"Earth Drillers, Except Oil and Gas",15800.0,15490,3,,0.9804
+states51_vs_national_2021,47-5032,detailed,"Explosives Workers, Ordnance Handling Experts, and Blasters",5370.0,4720,5,,0.8790
+states51_vs_national_2021,47-5041,detailed,Continuous Mining Machine Operators,14740.0,12370,2,,0.8392
+states51_vs_national_2021,47-5043,detailed,"Roof Bolters, Mining",1850.0,1480,0,,0.8000
+states51_vs_national_2021,47-5044,detailed,"Loading and Moving Machine Operators, Underground Mining",4450.0,1930,5,,0.4337
+states51_vs_national_2021,47-5049,detailed,"Underground Mining Machine Operators, All Other",3150.0,2180,2,,0.6921
+states51_vs_national_2021,47-5051,detailed,"Rock Splitters, Quarry",4450.0,3000,6,,0.6742
+states51_vs_national_2021,47-5071,detailed,"Roustabouts, Oil and Gas",34520.0,34090,0,,0.9875
+states51_vs_national_2021,47-5081,detailed,Helpers--Extraction Workers,5980.0,5390,2,,0.9013
+states51_vs_national_2021,47-5099,detailed,"Extraction Workers, All Other",5380.0,4770,2,,0.8866
+states51_vs_national_2021,49-9021,detailed,"Heating, Air Conditioning, and Refrigeration Mechanics and Installers",356960.0,356970,0,,1.0000

@@ -1,0 +1,82 @@
+{
+ "source_id": "city-nyc-permits-w9ak-ipjd",
+ "country": "US",
+ "title": "DOB NOW: Build - Job Application Filings (NYC Open Data w9ak-ipjd): Initial Cost と Total Construction Floor Area の分布(Job Type x Building Type x 年)",
+ "publisher": "New York City Department of Buildings (DOB), NYC Open Data",
+ "url": "https://data.cityofnewyork.us/resource/w9ak-ipjd.json",
+ "landing": "https://data.cityofnewyork.us/d/w9ak-ipjd",
+ "retrieved_at": "2026-09-26",
+ "published": "2026-09-25",
+ "published_note": "views の rowsUpdatedAt 1790368147 = 2026-09-25T20:29:07Z。応答ヘッダ x-soda2-truth-last-modified: Fri, 25 Sep 2026 20:28:59 GMT",
+ "license": "OPEN-TERMS",
+ "license_url": "https://cityofnewyork.github.io/opendatatsm/LocalLaw11of2012.html",
+ "license_quote": "## § 23-502 Public data set availability.\nd.\tSuch public data sets shall be made available without any registration requirement, license requirement or restrictions on their use provided that the department may require a third party providing to the public any public data set, or application utilizing such data set, to explicitly identify the source and version of the public data set, and a description of any modifications made to such public data set. Registration requirements, license requirements or restrictions as used in this section shall not include measures required to ensure access to public data sets, to protect the single web site housing public data sets from unlawful abuse or attempts to damage or impair use of the web site, or to analyze the types of data being used to improve service delivery.",
+ "dataset_license_field": "views の license 欄は空(null)。attribution 欄 'Department of Buildings (DOB)'",
+ "license_counter_quote": "NYC.gov Terms of Use (https://www.nyc.gov/main/terms-of-use) IV. INTELLECTUAL PROPERTY 1.: The City respects the intellectual property of others and it asks its users to do the same. Service marks and trademarks contained in or displayed on NYC.gov, and the contents of linked sites operated by third parties, are the property of their respective owners (which may be the City). All other design, information, text, graphics, images, pages, interfaces, links, software, and other items and materials contained in or displayed on NYC.gov, and the selection and arrangements thereof, are the property of the City of New York. All rights are reserved.",
+ "license_note": "license_quote の前半は Local Law 11 of 2012(NYC Administrative Code § 23-502、市の Open Data Technical Standards Manual https://cityofnewyork.github.io/opendatatsm/LocalLaw11of2012.html が掲げる 2012 年の条文。その後の改正は確かめていない)、後半は同じ Manual の Public Policies(https://cityofnewyork.github.io/opendatatsm/publicpolicies.html)。判断: OPEN-TERMS。市の法律(§ 23-502 d)が公開データセットを『registration requirement, license requirement or restrictions on their use なしで』提供すると定める。ポータルの利用条件は NYC.gov の Terms of Use を併せて適用し、その IV.1 に『All rights are reserved』があるが、これは NYC.gov の頁の中身についての一般条項で、法律が定めるデータセットの扱いを上書きしないと読んだ(親の確認を求める)。法律は第三者に出典・版・加工の内容の明示を求めうるので、attribution に書く。条文の取得: GitHub CityOfNewYork/opendatatsm(gh-pages、commit fa204a27304262a68f83469c8468f7b00ca8f889、2026-08-18)を git clone して LocalLaw11of2012.markdown 80 行目と publicpolicies.markdown 11/15/19/21 行目をそのまま(apify web-fetch は github.io の取得に失敗)。NYC.gov Terms of Use は Apify web-fetch markdown(dataset 9V9A6ZFtmjl45NTgj)。https://www.nyc.gov/html/data/terms.html(旧 NYC OpenData Terms of Use)は 404",
+ "attribution": "Source: NYC Department of Buildings, DOB NOW: Build - Job Application Filings, NYC Open Data (https://data.cityofnewyork.us/d/w9ak-ipjd), version as of 2026-09-25 (retrieved 2026-09-26). Modified: initial filings (-I1) with a first permit date in 2023-2025 were aggregated by Job Type x Building Type x year (counts, sums, medians, quartiles and cost per square foot computed by JCCDB)",
+ "scope_quote": "List of most job filings filed in DOB NOW. This dataset does not include certain types of job.  For Electrical jobs, use https://data.cityofnewyork.us/browse?Data-Collection_Data-Collection=DOB+NOW+Electrical+Permits+Data. Elevator and LAA jobs will also be published separately.",
+ "area_quote": "市全体(geo_level city)。geo_code は州 FIPS 2 桁(検査器の city の形が 2/5/6 桁で、Census place GEOID 7 桁を通さないため)。place GEOID は行の note",
+ "how_read": "SoQL: $select=job_type as t, building_type as b, initial_cost as c, total_construction_floor_area as a, count(*) as n; $where=job_filing_number like '%-I1' and first_permit_date between '<年>-01-01T00:00:00' and '<年>-12-31T23:59:59.999'; $group=t,b,c,a; $limit=500000(年ごとに 1 回。2023: 45,642 組、2024: 44,237 組、2025: 43,240 組、いずれも limit 未満)。Initial Cost は text 型(API の sum には ::number で数にして渡した)。面積に '1.28854e+006' のような指数表記があり Decimal で読んだ。値の作り方: 有効な申告額 = 100 ドル以上 10 億ドル未満(欠け・0・100 ドル未満の置き値・10 億ドル以上を除き、除いた件数は行の note)。件数と合計は全区分、中央値・25/75 分位は有効な申告額が 10 件以上の区分だけ(線形補間 type 7)。1 sqft あたりは 面積 100 sqft 以上の許可だけ、10 件以上の区分だけ。全区分の行(工事の区分 = all)も作る。申告工事額は申請者の申告で、実際の契約額ではない。parser: tools/parsers/parse_us_city_permits.py(raw の応答から同じ CSV を作る)。照合(別の数え方): API に月 x 区分ごとの count(*)・count(値)・sum(値) を別に数えさせた応答(check_monthly)と、ヒストグラム応答を手元で足した値を比べた。区分 60 組で 件数の不一致 0、非欠け件数の不一致 0、合計の差 0.01 超 0(最大差 0)。年ごと: 2023: API 69140 件 = 手元 69140 件、値の合計 API 15057986447.12 = 手元 15057986447.12; 2024: API 73529 件 = 手元 73529 件、値の合計 API 16002668333.16 = 手元 16002668333.16; 2025: API 67279 件 = 手元 67279 件、値の合計 API 15505509190.77 = 手元 15505509190.77。さらに 区分 x 工事の件数行の年ごとの和 = 区分 x (all) の件数行の和 = API の年ごとの件数({\"2023\": 69140, \"2024\": 73529, \"2025\": 67279})。",
+ "values_copied": true,
+ "api": true,
+ "sha256": "516cf97c78764a827eb2b5b386435d14964698969af12310a5610473b9f61196",
+ "sha256_of": "raw/city-nyc-permits-w9ak-ipjd.manifest.json(API 応答ごとの url・bytes・sha256 の一覧)",
+ "bytes": 3568,
+ "fetched_via": "Apify apify/web-fetch (formats=raw)。応答は raw/ にそのまま保存(manifest に dataset ID)",
+ "api_responses": [
+  {
+   "path": "raw/city-nyc-permits-w9ak-ipjd.check_monthly.json",
+   "url": "https://data.cityofnewyork.us/resource/w9ak-ipjd.json?$select=date_trunc_ym(first_permit_date)%20as%20ym,job_type%20as%20t,building_type%20as%20b,count(*)%20as%20n,count(initial_cost)%20as%20nc,sum(initial_cost::number)%20as%20s&$where=job_filing_number%20like%20%27%25-I1%27%20and%20first_permit_date%20between%20%272023-01-01T00:00:00%27%20and%20%272025-12-31T23:59:59.999%27&$group=ym,t,b&$order=ym,t,b&$limit=50000",
+   "bytes": 75202,
+   "sha256": "f6fcd66491ba9ba21d45b6881deab6a222564a926b155e6c14d6d739948db8a6",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:23:26.944Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset 7xaGRjs1cDRSV0UYZ"
+  },
+  {
+   "path": "raw/city-nyc-permits-w9ak-ipjd.hist.2023.json",
+   "url": "https://data.cityofnewyork.us/resource/w9ak-ipjd.json?$select=job_type%20as%20t,building_type%20as%20b,initial_cost%20as%20c,total_construction_floor_area%20as%20a,count(*)%20as%20n&$where=job_filing_number%20like%20%27%25-I1%27%20and%20first_permit_date%20between%20%272023-01-01T00:00:00%27%20and%20%272023-12-31T23:59:59.999%27&$group=t,b,c,a&$order=t,b,c,a&$limit=500000",
+   "bytes": 2934251,
+   "sha256": "446dbeb333f817e4a6ce22af0f1f69ac20664480e6d2146534c686055526ddbc",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:21:52.306Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset UygcskcretAQPRTce"
+  },
+  {
+   "path": "raw/city-nyc-permits-w9ak-ipjd.hist.2024.json",
+   "url": "https://data.cityofnewyork.us/resource/w9ak-ipjd.json?$select=job_type%20as%20t,building_type%20as%20b,initial_cost%20as%20c,total_construction_floor_area%20as%20a,count(*)%20as%20n&$where=job_filing_number%20like%20%27%25-I1%27%20and%20first_permit_date%20between%20%272024-01-01T00:00:00%27%20and%20%272024-12-31T23:59:59.999%27&$group=t,b,c,a&$order=t,b,c,a&$limit=500000",
+   "bytes": 2813819,
+   "sha256": "64275cd579364e2508bf55270d597fba2fb56196c13a7e8086501b13640fafb4",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:22:28.498Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset r6KI90tur1gRffdud"
+  },
+  {
+   "path": "raw/city-nyc-permits-w9ak-ipjd.hist.2025.json",
+   "url": "https://data.cityofnewyork.us/resource/w9ak-ipjd.json?$select=job_type%20as%20t,building_type%20as%20b,initial_cost%20as%20c,total_construction_floor_area%20as%20a,count(*)%20as%20n&$where=job_filing_number%20like%20%27%25-I1%27%20and%20first_permit_date%20between%20%272025-01-01T00:00:00%27%20and%20%272025-12-31T23:59:59.999%27&$group=t,b,c,a&$order=t,b,c,a&$limit=500000",
+   "bytes": 2747901,
+   "sha256": "8c4a3b78aef75e160a94c7951e252eb69e3ec37b8237d0d97216b2a053fd7c37",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:22:57.710Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset 68NjiG2PqCO4tvcFk"
+  },
+  {
+   "path": "raw/city-nyc-permits-w9ak-ipjd.views.json",
+   "url": "https://data.cityofnewyork.us/api/views/w9ak-ipjd.json",
+   "bytes": 134119,
+   "sha256": "385c981a55178e8ebab8e8147c17d705bcc0e9b0559568597fad38b458a5f2cb",
+   "content_type": "application/json; charset=utf-8",
+   "fetched_at": "2026-09-26",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset Pep6kRKbz8ztjmHiA"
+  }
+ ],
+ "rows": {
+  "spending": 369,
+  "cost_sqft": 73
+ },
+ "license_quote_other": {
+  "where": "同じ Open Data Technical Standards Manual(GitHub CityOfNewYork/opendatatsm、commit fa204a27304262a68f83469c8468f7b00ca8f889)の Public Policies の節",
+  "text": "Public Policies\n[Local Law 11 of 2012](LocalLaw11of2012.html), specifically § 23-502 d, requires that data sets must be available without registration requirement, license requirement, or usage restrictions, except as provided below.\nDoITT may require third party entities such as application developers to explicitly identify the source, version, and modifications made to a public data set, should they publicly re-publish it elsewhere or incorporate the public data set into an application. This is addressed through updated Terms of Use for the NYC OpenData portal.\nThe following Terms of Use apply to visitors to the NYC OpenData portal and application developers who obtain City data through this single web portal:\nBy accessing data sets and feeds available through the NYC OpenData portal (or the \"Site\"), the user agrees to all of the [Terms of Use of NYC.gov](http://www.nyc.gov/html/misc/html/tou.html) as well as the [NYC.gov Privacy Policy](http://www.nyc.gov/privacy). The user also agrees to any additional terms of use defined by entities providing data or feeds through the Site. Entities providing data include, without limitation, agencies, bureaus, offices, departments and other discrete entities of the City of New York (\"City\"). Public data sets made available on the NYC OpenData portal are provided for informational purposes. The City does not warranty the completeness, accuracy, content, or fitness for any particular purpose or use of any public data set made available on the NYC OpenData portal, nor are any such warranties to be implied or inferred with respect to the public data sets furnished therein."
+ }
+}

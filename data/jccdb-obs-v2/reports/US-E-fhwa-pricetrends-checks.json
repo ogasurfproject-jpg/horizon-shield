@@ -1,0 +1,341 @@
+{
+ "pages": {
+  "fhwa-pricetrends-2006q4": {
+   "title": "ARCHIVED: Price Trends for Federal-Aid Highway Construction - Fourth Quarter 2006 - Price Trends - Federal-aid Program Administration - Federal Highway Administration",
+   "sha256": "ca40d166668626a1d17c846a299153ff4d87b073f37a7ac60dd43d0afe1770af",
+   "bytes": 84577,
+   "tables": [
+    47,
+    47,
+    47,
+    30,
+    53
+   ],
+   "t1_rows": 47,
+   "t2_rows": 47,
+   "t3_rows": 47,
+   "t4_rows": 30,
+   "state_rows": 52,
+   "us_row": [
+    "4.51",
+    "186.08",
+    "37.94",
+    "257.53",
+    "55.25",
+    "224.17",
+    "235.12",
+    "0.872",
+    "197.93",
+    "1.736",
+    "196.12",
+    "574.80",
+    "238.67",
+    "220.47",
+    "221.30"
+   ],
+   "us_vs_same_issue_national_annual_mismatch_cols": [],
+   "us_vs_2006q4_national_annual_diffs": []
+  },
+  "fhwa-pricetrends-2005q4": {
+   "title": "ARCHIVED: Price Trends for Federal-Aid Highway Construction - Fourth Quarter 2005 - Price Trends - Federal-aid Program Administration - Federal Highway Administration",
+   "sha256": "b953d51e6074a56045f9d05c3df7447c513d3c10a9a355ee0c1d0bfde100fd30",
+   "bytes": 89319,
+   "tables": [
+    50,
+    50,
+    50,
+    38,
+    53
+   ],
+   "state_rows": 52,
+   "us_row": [
+    "3.99",
+    "164.63",
+    "33.42",
+    "226.84",
+    "45.56",
+    "184.85",
+    "198.64",
+    "0.941",
+    "213.55",
+    "1.571",
+    "177.50",
+    "394.88",
+    "163.96",
+    "176.01",
+    "183.56"
+   ],
+   "us_vs_same_issue_national_annual_mismatch_cols": [],
+   "us_vs_2006q4_national_annual_diffs": []
+  },
+  "fhwa-pricetrends-2004q4": {
+   "title": "ARCHIVED: Price Trends for Federal-Aid Highway Construction - Fourth Quarter 2004 - Price Trends - Federal-aid Program Administration - Federal Highway Administration",
+   "sha256": "0ba7d55ed450bacfe130ca358865de9db7b4b106d4d2edd4d1268106db65657d",
+   "bytes": 90185,
+   "tables": [
+    49,
+    49,
+    49,
+    40,
+    53
+   ],
+   "state_rows": 52,
+   "us_row": [
+    "3.29",
+    "135.69",
+    "26.97",
+    "183.06",
+    "36.97",
+    "149.97",
+    "160.84",
+    "0.815",
+    "184.84",
+    "1.521",
+    "171.89",
+    "331.49",
+    "137.64",
+    "154.75",
+    "154.38"
+   ],
+   "us_vs_same_issue_national_annual_mismatch_cols": [],
+   "us_vs_2006q4_national_annual_diffs": []
+  },
+  "fhwa-pricetrends-2003q4": {
+   "title": "ARCHIVED: Price Trends for Federal-Aid Highway Construction - Fourth Quarter 2003 - Price Trends - Federal-aid Program Administration - Federal Highway Administration",
+   "sha256": "4f50e97af0f10d0573939f28275ef55e2abeafbd66b49a60a0c1258dbc054679",
+   "bytes": 88809,
+   "tables": [
+    48,
+    48,
+    48,
+    39,
+    53
+   ],
+   "state_rows": 52,
+   "us_row": [
+    "3.45",
+    "142.25",
+    "23.95",
+    "162.57",
+    "32.54",
+    "132.02",
+    "142.06",
+    "0.718",
+    "162.91",
+    "1.219",
+    "137.76",
+    "406.02",
+    "168.59",
+    "159.47",
+    "149.75"
+   ],
+   "us_vs_same_issue_national_annual_mismatch_cols": [],
+   "us_vs_2006q4_national_annual_diffs": [
+    {
+     "col": 12,
+     "state_table_us": "168.59",
+     "latest_issue_annual": "158.5"
+    }
+   ]
+  },
+  "fhwa-pricetrends-2002q4": {
+   "title": "ARCHIVED: Price Trends for Federal-Aid Highway Construction - Fourth Quarter 2002 - Price Trends - Federal-aid Program Administration - Federal Highway Administration",
+   "sha256": "60b7c675941d095f4b055efb27963c2dc22ca54dc58990b9cf9b8165de28083c",
+   "bytes": 86889,
+   "tables": [
+    47,
+    47,
+    47,
+    38,
+    53
+   ],
+   "state_rows": 52,
+   "us_row": [
+    "2.94",
+    "121.22",
+    "25.86",
+    "175.51",
+    "34.14",
+    "138.51",
+    "150.66",
+    "0.610",
+    "138.39",
+    "1.436",
+    "162.24",
+    "374.90",
+    "155.67",
+    "154.45",
+    "147.90"
+   ],
+   "us_vs_same_issue_national_annual_mismatch_cols": [
+    {
+     "col": 11,
+     "state_table_us": "374.90",
+     "same_issue_annual": "374.96"
+    }
+   ],
+   "us_vs_2006q4_national_annual_diffs": [
+    {
+     "col": 11,
+     "state_table_us": "374.90",
+     "latest_issue_annual": "374.96"
+    }
+   ]
+  },
+  "fhwa-pricetrends-2001q4": {
+   "title": "ARCHIVED: Price Trends for Federal-Aid Highway Construction - Fourth Quarter 2001 - Price Trends - Federal-aid Program Administration - Federal Highway Administration",
+   "sha256": "6f6d3ac6c19eb37bab8c69560382884404e61fa4a8414678c29e07171a919cb5",
+   "bytes": 83336,
+   "tables": [
+    46,
+    42,
+    42,
+    37,
+    53
+   ],
+   "state_rows": 52,
+   "us_row": [
+    "3.05",
+    "125.97",
+    "28.21",
+    "191.49",
+    "34.93",
+    "141.71",
+    "158.06",
+    "0.601",
+    "136.41",
+    "1.201",
+    "135.75",
+    "339.44",
+    "140.95",
+    "138.80",
+    "144.75"
+   ],
+   "us_vs_same_issue_national_annual_mismatch_cols": [],
+   "us_vs_2006q4_national_annual_diffs": []
+  },
+  "fhwa-pricetrends-2000q4": {
+   "title": "ARCHIVED: Price Trends for Federal-Aid Highway Construction - Fourth Quarter 2000 - Price Trends - Federal-aid Program Administration - Federal Highway Administration",
+   "sha256": "f94165c5e6315c3fc27a0eec7817740f3c1870e7e84739af479695247a127ab2",
+   "bytes": 91473,
+   "tables": [
+    49,
+    53,
+    53,
+    39,
+    53
+   ],
+   "state_rows": 52,
+   "us_row": [
+    "3.01",
+    "124.08",
+    "25.30",
+    "171.73",
+    "35.15",
+    "142.62",
+    "152.18",
+    "0.549",
+    "124.59",
+    "1.351",
+    "152.61",
+    "363.66",
+    "151.00",
+    "146.91",
+    "145.63"
+   ],
+   "us_vs_same_issue_national_annual_mismatch_cols": [],
+   "us_vs_2006q4_national_annual_diffs": []
+  },
+  "fhwa-pricetrends-1999q4": {
+   "title": "ARCHIVED: Price Trends for Federal-Aid Highway Construction - Fourth Quarter 1999 - Price Trends - Federal-aid Program Administration - Federal Highway Administration",
+   "sha256": "4ca572f246d1d2ef37cf65443a61cdbad922903550388dab307fb815d7532b9e",
+   "bytes": 90215,
+   "tables": [
+    48,
+    52,
+    52,
+    38,
+    53
+   ],
+   "state_rows": 52,
+   "us_row": [
+    "2.93",
+    "120.89",
+    "23.49",
+    "159.45",
+    "32.28",
+    "130.95",
+    "140.31",
+    "0.554",
+    "125.66",
+    "1.224",
+    "138.28",
+    "342.24",
+    "142.11",
+    "138.29",
+    "136.50"
+   ],
+   "us_vs_same_issue_national_annual_mismatch_cols": [],
+   "us_vs_2006q4_national_annual_diffs": []
+  },
+  "fhwa-pricetrends-1998q4": {
+   "title": "ARCHIVED: Price Trends for Federal-Aid Highway Construction - Fourth Quarter 1998 - Price Trends - Federal-aid Program Administration - Federal Highway Administration",
+   "sha256": "a4d50f076bb8831187ad62be09894c94cd9f56b873e271c85b002a2a82fef999",
+   "bytes": 86422,
+   "tables": [
+    43,
+    47,
+    47,
+    40,
+    53
+   ],
+   "state_rows": 52,
+   "us_row": [
+    "3.01",
+    "124.25",
+    "23.65",
+    "160.53",
+    "25.00",
+    "101.43",
+    "120.84",
+    "0.544",
+    "123.43",
+    "1.111",
+    "125.49",
+    "337.25",
+    "140.03",
+    "133.36",
+    "126.87"
+   ],
+   "us_vs_same_issue_national_annual_mismatch_cols": [],
+   "us_vs_2006q4_national_annual_diffs": []
+  }
+ },
+ "pdf_vs_html_2006q4": {
+  "html_decimal_values": 3392,
+  "pdf_decimal_tokens": 3392,
+  "html_values_not_covered_by_pdf": {},
+  "pdf_sha256": "353508d6e22ac86ae04d88d9e0e58fb2536996c83e830bf541d92d13dd668286",
+  "pdf_bytes": 630938
+ },
+ "rows": 3834,
+ "by_status": {
+  "public_domain": 3317,
+  "not_set": 517
+ },
+ "by_table": {
+  "HTML 表 1 fhwa-pricetrends-2006q4": 282,
+  "HTML 表 2 fhwa-pricetrends-2006q4": 282,
+  "HTML 表 3 fhwa-pricetrends-2006q4": 282,
+  "HTML 表 4 fhwa-pricetrends-2006q4": 180,
+  "HTML 表 5 fhwa-pricetrends-2006q4": 312,
+  "HTML 表 5 fhwa-pricetrends-2005q4": 312,
+  "HTML 表 5 fhwa-pricetrends-2004q4": 312,
+  "HTML 表 5 fhwa-pricetrends-2003q4": 312,
+  "HTML 表 5 fhwa-pricetrends-2002q4": 312,
+  "HTML 表 5 fhwa-pricetrends-2001q4": 312,
+  "HTML 表 5 fhwa-pricetrends-2000q4": 312,
+  "HTML 表 5 fhwa-pricetrends-1999q4": 312,
+  "HTML 表 5 fhwa-pricetrends-1998q4": 312
+ }
+}

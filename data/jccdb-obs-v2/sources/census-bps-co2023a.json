@@ -1,0 +1,23 @@
+{
+ "source_id": "census-bps-co2023a",
+ "country": "US",
+ "title": "Building Permits Survey, County ASCII file co2023a.txt (2023, Annual)",
+ "publisher": "U.S. Census Bureau, Economic Indicators Division (Building Permits Survey)",
+ "url": "https://www2.census.gov/econ/bps/County/co2023a.txt",
+ "landing": "https://www.census.gov/construction/bps/",
+ "documentation": "https://www2.census.gov/econ/bps/Documentation/cntyasc.pdf",
+ "retrieved_at": "2026-09-26",
+ "published": "2024-04-25",
+ "http_last_modified": "ディレクトリ一覧の更新日時 2024-04-25 10:23(サーバーの現地時刻)、一覧のサイズ 366K",
+ "bytes": 374707,
+ "sha256": "fab11d759e905ff61838b8dfa41c0f2082e150cad07a20c65ddd620a007aa158",
+ "encoding": "ASCII",
+ "fetched_via": "apify/website-content-crawler(同上)で key-value store に保存 → bulk-file-downloader が bytes と sha256 を記録し zip に → apify/web-fetch(raw)で zip を受け取った。zip の見出し部の 2 進数が文字として読み替えられ壊れた(EF BF BD 108 か所)ため、zip 内のファイル名の直後から記録どおりのバイト数を切り出し、sha256 が bulk-file-downloader の記録と一致することを確かめた(原本は ASCII のみ)",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.law.cornell.edu/uscode/text/17/105",
+ "license_quote": "Copyright protection under this title is not available for any work of the United States Government, but the United States Government is not precluded from receiving and holding copyrights transferred to it by assignment, bequest, or otherwise. (17 U.S.C. 105(a), https://www.law.cornell.edu/uscode/text/17/105) / Census Bureau, Citing our Data, Tools, Technical Documents and Research, Public-Use Statement (https://www.census.gov/about/policies/citation.html, Page Last Revised - February 24, 2026, Apify で 2026-09-26 に再取得して同文を確認): \"Proper citation ensures that Census Bureau statistical products and research can be discovered, reused, replicated for verification, and credited for recognition to measure usage and impact. Data users who create their own estimates using data from disseminated tables and other data should cite the Census Bureau as the source of the original data only. Conclusions drawn from any analysis of these data are the sole responsibility of the performing party.\"",
+ "attribution": "Source: U.S. Census Bureau, Building Permits Survey, co2023a.txt, https://www2.census.gov/econ/bps/County/co2023a.txt, accessed on September 26, 2026",
+ "scope_quote": "This file provides building permit statistics on new privately-owned residential construction. These are the County totals for all counties in which permit offices are requested to report. (cntyasc.pdf, February 9, 2022) / Two sets of data are shown for each type of construction: 1. Estimates with Imputation - includes reported data for monthly respondents and imputed data for nonrespondents. 2. Reported Only - includes only reported data for respondents.",
+ "how_read": "tools/parsers/parse_census_bps.py。原本は latin-1 のカンマ区切り(見出し 2〜3 行の後に 1 地域 1 行)。4 区分(1-unit, 2-units, 3-4 units, 5+ units)x Bldgs/Units/Value の Estimates with Imputation を price、Reported Only を ref_value に。Value は ドル(文書に単位の記載なし。郡の和 ÷ 1000 が州の千ドルの値と ±0.5 以内で一致することで確かめた)。Units > 0 かつ Value > 0 の組に 1 戸あたり工事額(原本に無い計算値)を足した。照合: 同じ時点の郡ファイルの州ごとの和 = 州ファイル(Estimates: Bldgs/Units 408 セル中 408 一致、Value 最大差 0.498 千ドル。Reported Only: 408 セル中 408 一致、Value 最大差 0.499 千ドル)。行の中の整合(同じ時点の全階層): 1-unit Bldgs = Units、2-units Units = 2 x Bldgs 等の違反 {\"units 0 but value>0\": 11}。Reported Only が Estimates を上回るセル 0。",
+ "values_copied": true
+}

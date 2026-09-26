@@ -1,0 +1,42 @@
+{
+ "source_id": "cbr-tokuchou-shizai-r8-08-mie",
+ "country": "JP",
+ "title": "令和８年度の特別調査（資材単価） 三重県分(ZIP の中身は事務所ごとの PDF「建設資材価格調査報告リスト 令和８年度 管内建設資材価格・設計労務単価調査業務」)",
+ "publisher": "国土交通省 中部地方整備局",
+ "url": "https://www.cbr.mlit.go.jp/architecture/kensetsugijutsu/unit_price/zip/r08/list_r8.08_shizai_mie.zip",
+ "landing": "https://www.cbr.mlit.go.jp/architecture/kensetsugijutsu/unit_price/R8_chousa_tanka.htm",
+ "landing_parent": "https://www.cbr.mlit.go.jp/architecture/kensetsugijutsu/unit_price/index.htm",
+ "published_note": "頁の一覧に「令和8年9月3日更新／ZIP」。頁の Last-Modified は Tue, 08 Sep 2026 01:05:23 GMT。",
+ "http_last_modified": "Tue, 08 Sep 2026 01:05:27 GMT",
+ "bytes": 242665,
+ "sha256": "8024fb5288e1cfb790342bf51e891416000f1bee51df577a03e1b317f2c3d6ae",
+ "zip_members": [
+  {
+   "name": "list_r8.08_shizai_木曽川下流河川.pdf",
+   "bytes": 63679,
+   "sha256": "2b528b636bf93315bdf13ee31dcd104cd6a7507bdbece336d95f7b33893f0655"
+  },
+  {
+   "name": "list_r8.08_shizai_北勢国道.pdf",
+   "bytes": 279582,
+   "sha256": "10fbf1f2a5b048ac8ff0c591e72914b9126494e2e82113c1ae3fa943adba598c"
+  }
+ ],
+ "retrieved_at": "2026-09-26",
+ "fetched_via": "Apify web-fetch (formats=raw)。作業環境から官公庁サイトへ直接は届かないため。bytes は Content-Length と一致、先頭 PK、zipfile.testzip で CRC 誤り 0。",
+ "license": "PDL1.0",
+ "license_url": "https://www.cbr.mlit.go.jp/policy.htm",
+ "license_quote": "当ホームページで公開している情報（以下「コンテンツ」といいます。）の著作権は、特記されていない限り国土交通省中部地方整備局に帰属し、権利表記の記載がない限り「公共データ利用規約（第1.0版）」（PDL1.0）に準拠した利用条件の下で、利用することができます。 / イ）コンテンツを編集・加工等して利用する場合は、上記出典とは別に、編集・加工等を行ったことを記載してください。なお編集・加工した情報を、あたかも国（又は府省等）が作成したかのような態様で公表・利用してはいけません。 / ２）本利用ルールが適用されないコンテンツについて 以下のコンテンツについては、本利用ルールの適用外です。 ア）組織や特定の事業を表すシンボルマーク、ロゴ、キャラクターデザイン イ）具体的かつ合理的な根拠の説明とともに、別の利用ルールの適用を明示しているコンテンツ",
+ "license_note": "ZIP の中の PDF の全文を pdftotext で検索し、転載・複製・電子媒体・禁止・著作の語が 0 件であることを確かめた(権利表記なし)。頁(R8_chousa_tanka.htm)にも利用条件の特記は無い。よってサイトの PDL1.0 が当たる。中部地整の「土木工事設計材料単価表」(shizai2026xx.pdf、台帳 cbr-zairyo-r8-10)は表の 2 頁に「本単価表を無断転載・複写や電子媒体等に加工することを禁じます。」があり別扱い(値は写していない)。この ZIP はその表とは別の文書(事務所ごとの特別調査の報告リスト)。",
+ "attribution": "「令和８年度の特別調査（資材単価）三重県」（中部地方整備局）（https://www.cbr.mlit.go.jp/architecture/kensetsugijutsu/unit_price/R8_chousa_tanka.htm）を加工して作成",
+ "scope_quote": "② 中部地方整備局　管内事務所・管理所－特別調査（資材単価） 「①局－特別調査（資材単価）」に無い資材単価で、工事ごとに特別調査を行い、予定価格の積算に用いたもの。 ※本掲載単価は、工事ごとに調査を実施したものであり、施工地域、時期、現場条件が異なる場合、単価が異なる場合がある。",
+ "scope_quote_note": "頁(index.htm)は Shift_JIS で、Apify の本文は日本語が文字化けする。文言は WebFetch の読みで取り、Apify の生バイトに残る各文字の 2 バイト目(ASCII)と数字・記号の並び(※、①、－、、 の位置)が合うことを確かめた。原本で確かめてから引用に使うこと。",
+ "tax_note": "原本(頁・PDF)に消費税の扱いの記載は無い。price_basis は special_survey_price(tools/extra_enums/J1-open-routes.json)にし、税抜きと断定していない。",
+ "area_note": "geo_code は原本の「県名」欄(調査を依頼した事務所の県)。単価の効く範囲は area_label(原本の「単価適用地域」の文字のまま。局管内 / 管内統一 / 事務所管内 / 当該工事のみ / 工事限定 / 市町名 など)。「局管内」の行は geo_level bureau_area、geo_code 空。area_code は地区コードではなく「調査依頼番号#資材番号」(原本の依頼番号と資材番号。当該工事を特定する番号で、同じ品名・規格が別の工事で別の値になる行を区別するため)。",
+ "how_read": "tools/parsers/parse_cbr_tokuchou_shizai.py。PDF は細い矩形の罫線で囲んだ 14 列の格子(県名 / 調査依頼事務所名 / 担当課 / 依頼番号 / 資材番号 / 調査区分 / 材工区分 / 品名 / 規格 / 単位 / 価格 / 報告月 / 単価適用地域 / 備考)。pdfplumber の extract_tables(lines) でセルに切り、セル内の折り返しは前後が ASCII 英数字のときだけ空白でつなぎ他は詰めた。価格は数ならその値(桁区切りを除く)、数でない(調査中止、「…にあり」、「…に分割」、「下記内訳のとおり」、空欄)は not_set、備考に建設物価などの市販資料の名がある行(値は空欄)は publication_based_not_public。照合(別の読み方): poppler の pdftotext -bbox-layout の語を、同じ頁の罫線(矩形)から作った格子でセルに割り当て、pdfplumber(pdfminer)のセルの文字と空白を除いて全セルで比べた。この出典: 2114 セル中 2114 一致(価格の列を含め不一致 0)。格子の外の語は各 PDF の表題 3 語だけ。見出し行を除くデータ行 142 行。",
+ "rows_by_status": {
+  "published_pdl": 142
+ },
+ "values_copied": true,
+ "row_listing": "public_build"
+}

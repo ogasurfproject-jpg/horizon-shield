@@ -1,0 +1,77 @@
+{
+ "source_id": "city-austin-permits-3syk-w9eu",
+ "country": "US",
+ "title": "Issued Construction Permits (City of Austin Open Data 3syk-w9eu): Building Permit の Total Job Valuation と面積の分布(Work Class x Permit Class x 年)",
+ "publisher": "City of Austin, Austin Development Services",
+ "url": "https://datahub.austintexas.gov/resource/3syk-w9eu.json",
+ "landing": "https://data.austintexas.gov/d/3syk-w9eu",
+ "retrieved_at": "2026-09-26",
+ "published": "2026-09-25",
+ "published_note": "views の rowsUpdatedAt 1790338249 = 2026-09-25T12:10:49Z",
+ "license": "OPEN-TERMS",
+ "license_url": "https://datahub.austintexas.gov/stories/s/ranj-cccq",
+ "license_quote": "Licensing Summary\nData available through the City of Austin Open Data Portal are offered free and without restriction. Data and content created by City of Austin government employees within the scope of their employment are not subject to copyright protection. Unless otherwise noted in metadata, datasets available on the City of Austin Open Data Portal are in the public domain, which means you may link to the City of Austin Open Data Portal at no cost .\nSecondary Use of Data\nData accessed through the City of Austin Open Data Portal at https://data.austintexas.gov do not, and should not, include controls over its end use.\nAttribution When Using the Data\nWe ask that proper credit be given when using content, data, documentation, code, and related materials from the City of Austin Open Data Portal at https://data.austintexas.gov or other sources publicly available from the City of Austin in your own work. Please provide attribution to both the City of Austin and the City Department that is the source of the cited data.",
+ "dataset_license_field": "views の license 欄: {\"name\": \"Public Domain U.S. Government\", \"termsLink\": \"https://www.usa.gov/government-works\"}、licenseId 'USGOV_WORKS'、attribution 'City of Austin, Texas - data.austintexas.gov'。説明の先頭に 'View the City of Austin Open Data Terms of Use' のリンク",
+ "license_note": "頁の題: Terms of Use for the City of Austin Open Data Portal。判断: OPEN-TERMS(市の条文)。license 欄の 'Public Domain U.S. Government' は連邦の著作物の表示で市のデータには当てはまらないので、US-PD-17USC105 にはしない。利用条件には『The City may require the termination of any and all displays, distribution, or other use of any or all of the data for any reason』もある(Chicago と同じ型の撤回条項)が、Austin は『offered free and without restriction』『in the public domain』と明示している点が違う。条文の取得: Apify web-fetch raw の頁のソース(Socrata のストーリー頁の埋め込み JSON)から本文を取り出した(dataset 2Uc2XfIT4KPZDCawa、sha256 97769849ea25239ff77b985b6550d57ef1a0d1697d3982bd4060cbf97daea7d6)。タグを外した空白は 1 つに詰めた",
+ "attribution": "Source: City of Austin, Austin Development Services, Issued Construction Permits, City of Austin Open Data Portal (https://data.austintexas.gov/d/3syk-w9eu), retrieved 2026-09-26. Aggregated by JCCDB",
+ "scope_quote": "Building, Electrical, Mechanical, and Plumbing Permits and Driveway/Sidewalk Permits issued by the City of Austin.  Includes relevant details such as issue date, location, council district, expiration date, description of work, square footage, valuation, and units.",
+ "area_quote": "市全体(geo_level city)。geo_code は州 FIPS 2 桁(検査器の city の形が 2/5/6 桁で、Census place GEOID 7 桁を通さないため)。place GEOID は行の note",
+ "how_read": "SoQL: $select=work_class as t, permit_class as b, total_job_valuation as c, total_new_add_sqft as a1, remodel_repair_sqft as a2, count(*) as n; $where=permittype='BP' and jurisdiction='AUSTIN FULL PURPOSE' and issue_date between '<年>-01-01T00:00:00' and '<年>-12-31T23:59:59.999'; $group=t,b,c,a1,a2; $limit=500000(年ごと。2023: 6,030 組、2024: 5,203 組、2025: 5,133 組)。面積 = total_new_add_sqft + remodel_repair_sqft(片方が空なら 0 とみなす)。R- 435 Renovations/Remodel の Repair は Total Job Valuation が 1 ドルの許可が大半(2023: 2,568 件中 2,475 件、2025: 2,492 件中 2,370 件)で、100 ドル未満の置き値として除いた。2023 年に 81 億ドルの許可が 6 件(C- 213 Hotels 5 件、C- 106 Mixed Use Shell 1 件)あり、10 億ドル以上として除いた。値の作り方: 有効な申告額 = 100 ドル以上 10 億ドル未満(欠け・0・100 ドル未満の置き値・10 億ドル以上を除き、除いた件数は行の note)。件数と合計は全区分、中央値・25/75 分位は有効な申告額が 10 件以上の区分だけ(線形補間 type 7)。1 sqft あたりは 面積 100 sqft 以上の許可だけ、10 件以上の区分だけ。全区分の行(工事の区分 = all)も作る。申告工事額は申請者の申告で、実際の契約額ではない。parser: tools/parsers/parse_us_city_permits.py(raw の応答から同じ CSV を作る)。照合(別の数え方): API に月 x 区分ごとの count(*)・count(値)・sum(値) を別に数えさせた応答(check_monthly)と、ヒストグラム応答を手元で足した値を比べた。区分 185 組で 件数の不一致 0、非欠け件数の不一致 0、合計の差 0.01 超 0(最大差 0)。年ごと: 2023: API 11234 件 = 手元 11234 件、値の合計 API 65952264496 = 手元 65952264496; 2024: API 10424 件 = 手元 10424 件、値の合計 API 7462116405 = 手元 7462116405; 2025: API 11018 件 = 手元 11018 件、値の合計 API 8365217708 = 手元 8365217708。さらに 区分 x 工事の件数行の年ごとの和 = 区分 x (all) の件数行の和 = API の年ごとの件数({\"2023\": 11234, \"2024\": 10424, \"2025\": 11018})。",
+ "values_copied": true,
+ "api": true,
+ "sha256": "73ab8742f124d5e8c46661d928ad7f305aef6561c033bf79fd60347cd422750e",
+ "sha256_of": "raw/city-austin-permits-3syk-w9eu.manifest.json(API 応答ごとの url・bytes・sha256 の一覧)",
+ "bytes": 3812,
+ "fetched_via": "Apify apify/web-fetch (formats=raw)。応答は raw/ にそのまま保存(manifest に dataset ID)",
+ "api_responses": [
+  {
+   "path": "raw/city-austin-permits-3syk-w9eu.check_monthly.json",
+   "url": "https://datahub.austintexas.gov/resource/3syk-w9eu.json?$select=date_trunc_ym(issue_date)%20as%20ym,work_class%20as%20t,permit_class%20as%20b,count(*)%20as%20n,count(total_job_valuation)%20as%20nc,sum(total_job_valuation)%20as%20s&$where=permittype=%27BP%27%20and%20jurisdiction=%27AUSTIN%20FULL%20PURPOSE%27%20and%20issue_date%20between%20%272023-01-01T00:00:00%27%20and%20%272025-12-31T23:59:59.999%27&$group=ym,t,b&$order=ym,t,b&$limit=50000",
+   "bytes": 139670,
+   "sha256": "03dac3dbbb31dd8e9b40e69fffd09d66e2af00a9a6b869a0592df633c9e58db9",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:28:09.999Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset FaKDeiFpHVgk7Tne3"
+  },
+  {
+   "path": "raw/city-austin-permits-3syk-w9eu.hist.2023.json",
+   "url": "https://datahub.austintexas.gov/resource/3syk-w9eu.json?$select=work_class%20as%20t,permit_class%20as%20b,total_job_valuation%20as%20c,total_new_add_sqft%20as%20a1,remodel_repair_sqft%20as%20a2,count(*)%20as%20n&$where=permittype=%27BP%27%20and%20jurisdiction=%27AUSTIN%20FULL%20PURPOSE%27%20and%20issue_date%20between%20%272023-01-01T00:00:00%27%20and%20%272023-12-31T23:59:59.999%27&$group=t,b,c,a1,a2&$order=t,b,c,a1,a2&$limit=500000",
+   "bytes": 498881,
+   "sha256": "90c47f344866638b6a5e84108254ee28675931a89abd7c83568aa016a5f23fa5",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:26:53.336Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset aM6kLb1ixDH95GBsd"
+  },
+  {
+   "path": "raw/city-austin-permits-3syk-w9eu.hist.2024.json",
+   "url": "https://datahub.austintexas.gov/resource/3syk-w9eu.json?$select=work_class%20as%20t,permit_class%20as%20b,total_job_valuation%20as%20c,total_new_add_sqft%20as%20a1,remodel_repair_sqft%20as%20a2,count(*)%20as%20n&$where=permittype=%27BP%27%20and%20jurisdiction=%27AUSTIN%20FULL%20PURPOSE%27%20and%20issue_date%20between%20%272024-01-01T00:00:00%27%20and%20%272024-12-31T23:59:59.999%27&$group=t,b,c,a1,a2&$order=t,b,c,a1,a2&$limit=500000",
+   "bytes": 429070,
+   "sha256": "f646742fc67f913e8c88b5137dddbe39d8ee6c7a22fe1abe6e51bb31620dd6c1",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:27:27.181Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset IFdoWs6FuJFb5zbij"
+  },
+  {
+   "path": "raw/city-austin-permits-3syk-w9eu.hist.2025.json",
+   "url": "https://datahub.austintexas.gov/resource/3syk-w9eu.json?$select=work_class%20as%20t,permit_class%20as%20b,total_job_valuation%20as%20c,total_new_add_sqft%20as%20a1,remodel_repair_sqft%20as%20a2,count(*)%20as%20n&$where=permittype=%27BP%27%20and%20jurisdiction=%27AUSTIN%20FULL%20PURPOSE%27%20and%20issue_date%20between%20%272025-01-01T00:00:00%27%20and%20%272025-12-31T23:59:59.999%27&$group=t,b,c,a1,a2&$order=t,b,c,a1,a2&$limit=500000",
+   "bytes": 420440,
+   "sha256": "6cba5f78a26c500b396aa2bd8d77c54e89f843597889cb293ab3ef2429827a46",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:27:45.118Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset F3SJxxL3IMeQSDqiz"
+  },
+  {
+   "path": "raw/city-austin-permits-3syk-w9eu.views.json",
+   "url": "https://datahub.austintexas.gov/api/views/3syk-w9eu.json",
+   "bytes": 132336,
+   "sha256": "b6158f1ec589c3e5bb383eb7da1ebca37798cc6b0dc6ec98206f418bfc4b10f5",
+   "content_type": "application/json; charset=utf-8",
+   "fetched_at": "2026-09-26T03:15:41.518Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset CYrsfNSkiC9x2jOou"
+  }
+ ],
+ "rows": {
+  "spending": 653,
+  "cost_sqft": 56
+ }
+}

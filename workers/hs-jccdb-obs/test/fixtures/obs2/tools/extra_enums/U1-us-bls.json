@@ -1,0 +1,8 @@
+{
+ "price_basis": [
+  {"value": "wage_annual_p10", "why": "OEWS の A_PCT10(Annual 10th percentile wage)。obs_common には時給の分位だけがあり、年収の分位が無い"},
+  {"value": "wage_annual_p25", "why": "OEWS の A_PCT25(Annual 25th percentile wage)"},
+  {"value": "wage_annual_p75", "why": "OEWS の A_PCT75(Annual 75th percentile wage)"},
+  {"value": "wage_annual_p90", "why": "OEWS の A_PCT90(Annual 90th percentile wage)"}
+ ]
+}

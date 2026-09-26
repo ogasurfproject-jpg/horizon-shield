@@ -1,0 +1,59 @@
+{
+ "source_id": "city-seattle-permits-76t5-zqzr",
+ "country": "US",
+ "title": "Building Permits (Seattle Open Data 76t5-zqzr, SDCI): EstProjectCost の分布(PermitTypeMapped / PermitTypeDesc x PermitClass x 年)",
+ "publisher": "City of Seattle, Seattle Department of Construction & Inspections (SDCI)",
+ "url": "https://cos-data.seattle.gov/resource/76t5-zqzr.json",
+ "landing": "https://data.seattle.gov/d/76t5-zqzr",
+ "retrieved_at": "2026-09-26",
+ "published": "2026-09-26",
+ "published_note": "views の rowsUpdatedAt 1790385182 = 2026-09-26T01:13:02Z",
+ "license": "OPEN-TERMS",
+ "license_url": "https://data.seattle.gov/stories/s/Data-Policy/6ukr-wvup/",
+ "license_quote": "Seattle Open Data Terms of Use\nBy using data made available through this site the user agrees to all the conditions stated in the following paragraphs. To the extent the data consists of a list of individuals or can be readily sorted, filtered, or configured as a list of individuals, it is not to be used for a commercial purpose. The City of Seattle makes no claims as to the completeness, accuracy, timeliness, or content of any data contained in this application; makes no representation of any kind, including, but not limited to, warranty of the accuracy or fitness for a particular use; nor are any such warranties to be implied or inferred with respect to the information or data furnished herein. The data contained in the site is used at one's own risk. Unless otherwise indicated, data on this site does not require specific attribution.",
+ "dataset_license_field": "views の license 欄: {\"name\": \"Public Domain\"}、licenseId 'PUBLIC_DOMAIN'、attribution 'City of Seattle'",
+ "license_note": "判断: OPEN-TERMS。データセットの license 欄が Public Domain。ポータルの条件は、個人の一覧になるデータの商用利用だけを禁じ、帰属表示も原則不要とする。ここで作るのは区分ごとの集計で、個人の一覧ではない。条文の取得: Apify web-fetch raw の頁のソース(Socrata のストーリー頁の埋め込み JSON)から本文を取り出した(dataset 29Eeu7YNYgMxLxfK6、sha256 fd56859cb270c470b75a3ff93755c4f1a3051e254f0fc25701b180a91088c808)。頁が参照する Open Data Policy の PDF(OpenDataPolicyV1.pdf)は取れたが(225,201 bytes、content-length と一致)、pdftotext / pypdf で文字が取れず、条文は写していない",
+ "attribution": "Source: City of Seattle, Seattle Department of Construction & Inspections, Building Permits, Seattle Open Data (https://data.seattle.gov/d/76t5-zqzr), retrieved 2026-09-26. Aggregated by JCCDB",
+ "scope_quote": "All building permits issued or in progress within the city of Seattle.",
+ "area_quote": "市全体(geo_level city)。geo_code は州 FIPS 2 桁(検査器の city の形が 2/5/6 桁で、Census place GEOID 7 桁を通さないため)。place GEOID は行の note",
+ "how_read": "SoQL: $select=date_extract_y(issueddate) as y, permittypemapped as m, permittypedesc as t, permitclass as b, estprojectcost as c, count(*) as n; $where=issueddate between '2023-01-01T00:00:00' and '2025-12-31T23:59:59.999'; $group=y,m,t,b,c; $limit=500000(9,988 組)。PermitTypeDesc の 'Tenant Improvment' は原本の綴りのまま。Roof / Grading / 一部の Demolition は PermitTypeDesc が空で '(blank)'。値の作り方: 有効な申告額 = 100 ドル以上 10 億ドル未満(欠け・0・100 ドル未満の置き値・10 億ドル以上を除き、除いた件数は行の note)。件数と合計は全区分、中央値・25/75 分位は有効な申告額が 10 件以上の区分だけ(線形補間 type 7)。1 sqft あたりは 面積 100 sqft 以上の許可だけ、10 件以上の区分だけ。全区分の行(工事の区分 = all)も作る。申告工事額は申請者の申告で、実際の契約額ではない。parser: tools/parsers/parse_us_city_permits.py(raw の応答から同じ CSV を作る)。照合(別の数え方): API に月 x 区分ごとの count(*)・count(値)・sum(値) を別に数えさせた応答(check_monthly)と、ヒストグラム応答を手元で足した値を比べた。区分 132 組で 件数の不一致 0、非欠け件数の不一致 0、合計の差 0.01 超 0(最大差 0.0000)。年ごと: 2023: API 5848 件 = 手元 5848 件、値の合計 API 4613455142.0900 = 手元 4613455142.0900; 2024: API 5853 件 = 手元 5853 件、値の合計 API 3735417172.6390 = 手元 3735417172.6390; 2025: API 6334 件 = 手元 6334 件、値の合計 API 6847453905.0628 = 手元 6847453905.0628。さらに 区分 x 工事の件数行の年ごとの和 = 区分 x (all) の件数行の和 = API の年ごとの件数({\"2023\": 5848, \"2024\": 5853, \"2025\": 6334})。",
+ "values_copied": true,
+ "api": true,
+ "sha256": "73488b08ef7ddec77308889c9116975dac0a58e6ac2e3a508b176d5d4a1adf04",
+ "sha256_of": "raw/city-seattle-permits-76t5-zqzr.manifest.json(API 応答ごとの url・bytes・sha256 の一覧)",
+ "bytes": 2065,
+ "fetched_via": "Apify apify/web-fetch (formats=raw)。応答は raw/ にそのまま保存(manifest に dataset ID)",
+ "api_responses": [
+  {
+   "path": "raw/city-seattle-permits-76t5-zqzr.check_monthly.json",
+   "url": "https://cos-data.seattle.gov/resource/76t5-zqzr.json?$select=date_trunc_ym(issueddate)%20as%20ym,permittypemapped%20as%20m,permittypedesc%20as%20t,permitclass%20as%20b,count(*)%20as%20n,count(estprojectcost)%20as%20nc,sum(estprojectcost)%20as%20s&$where=issueddate%20between%20%272023-01-01T00:00:00%27%20and%20%272025-12-31T23:59:59.999%27&$group=ym,m,t,b&$order=ym,m,t,b&$limit=50000",
+   "bytes": 109436,
+   "sha256": "0ba73e11aace5ec568586b07fd553533806b4558902b02950c2ccdbb1fa19f54",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:26:29.032Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset HPE5jOQjF9lH4CWpR"
+  },
+  {
+   "path": "raw/city-seattle-permits-76t5-zqzr.hist.2023-2025.json",
+   "url": "https://cos-data.seattle.gov/resource/76t5-zqzr.json?$select=date_extract_y(issueddate)%20as%20y,permittypemapped%20as%20m,permittypedesc%20as%20t,permitclass%20as%20b,estprojectcost%20as%20c,count(*)%20as%20n&$where=issueddate%20between%20%272023-01-01T00:00:00%27%20and%20%272025-12-31T23:59:59.999%27&$group=y,m,t,b,c&$order=y,m,t,b,c&$limit=500000",
+   "bytes": 962148,
+   "sha256": "d1b38879b4cde94f722133559b33a2b1e6fadd46894180339cd45e004a3f9ad4",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:26:07.088Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset 65qJM0rcShF0nghRa"
+  },
+  {
+   "path": "raw/city-seattle-permits-76t5-zqzr.views.json",
+   "url": "https://cos-data.seattle.gov/api/views/76t5-zqzr.json",
+   "bytes": 74647,
+   "sha256": "976a340f83ef7f34fd0827325319b9f4acc08ea56f53669441ab3166a0eb9644",
+   "content_type": "application/json; charset=utf-8",
+   "fetched_at": "2026-09-26T03:14:52.861Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset oUkLJ3qiOySOJIh1p"
+  }
+ ],
+ "rows": {
+  "spending": 599,
+  "cost_sqft": 0
+ }
+}

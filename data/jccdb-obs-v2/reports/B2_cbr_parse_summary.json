@@ -1,0 +1,31 @@
+{
+ "source_id": "cbr-zairyo-r8-10",
+ "pdf_sha256": "6f782fa5185eff907637c8f506755c229b455a44f863acb90a82af2cd565015c",
+ "rows_written": 7896,
+ "stats": {
+  "pages": 135,
+  "rows": 2215,
+  "status:published_restricted_not_copied": 7896,
+  "layer:material": 7861,
+  "layer:work": 30,
+  "layer:equipment": 5
+ },
+ "max_col_dist_pt": 0.12,
+ "max_group_split_err_pt": 0.07,
+ "col_offset_pt_range": [
+  16.44,
+  17.77
+ ],
+ "layout_check": {
+  "pages": 135,
+  "pages_equal": 135,
+  "layout_tokens": 7896,
+  "bbox_values": 7896,
+  "mismatch": []
+ },
+ "area_entries": 190,
+ "area_quote": [
+  "：単価未設定地区"
+ ],
+ "unmatched_area": []
+}

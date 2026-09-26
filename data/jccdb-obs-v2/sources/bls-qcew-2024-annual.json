@@ -1,0 +1,629 @@
+{
+ "source_id": "bls-qcew-2024-annual",
+ "country": "US",
+ "title": "Quarterly Census of Employment and Wages (QCEW), 2024 annual averages by industry (CSV), NAICS 23 Construction and sub-industries",
+ "publisher": "U.S. Bureau of Labor Statistics",
+ "url": "https://data.bls.gov/cew/data/files/2024/csv/2024_annual_by_industry.zip",
+ "landing": "https://www.bls.gov/cew/downloadable-data-files.htm",
+ "retrieved_at": "2026-09-26",
+ "bytes": 9532943,
+ "sha256": "128d00eb424e81458e06f9c9e579adf1f039ca8c5e46c3eff701281582424989",
+ "sha256_of": "raw/bls-qcew-2024-annual-by-industry.zip.seg.bin(zip のうち建設業のメンバーが並ぶ区間の bytes。zip 全体の sha256 は、全体を取っていないので無い)",
+ "zip_total_bytes": 144722455,
+ "http_etag": "\"8a04a17-63dcf988e5155\"",
+ "http_last_modified": "Tue, 02 Sep 2025 11:14:47 GMT",
+ "ranges": [
+  {
+   "content_range": "bytes 144122455-144722454/144722455",
+   "bytes": 600000,
+   "sha256": "f1a5dbf7988143296a6ea106ba8338bf74264f4fc4cefcadd7ced87338757df0",
+   "raw": "raw/bls-qcew-2024-annual-by-industry.zip.cd.bin",
+   "role": "中央ディレクトリ"
+  },
+  {
+   "content_range": "bytes 13789591-18556061/144722455",
+   "bytes": 4766471,
+   "sha256": "cf3106cf6f9c5f76a3e3a2025ef163e78a9ec4e59d97664c3500fb50be457bf0",
+   "http_status": 206,
+   "raw": "raw/bls-qcew-2024-annual-by-industry.zip.seg.bin",
+   "role": "建設業のメンバーの区間(連結)"
+  },
+  {
+   "content_range": "bytes 18556062-23322533/144722455",
+   "bytes": 4766472,
+   "sha256": "0a71f3c516f39baf37217932ffae1a00bdcbc452cccdff9a3d4eee9345c529b0",
+   "http_status": 206,
+   "raw": "raw/bls-qcew-2024-annual-by-industry.zip.seg.bin",
+   "role": "建設業のメンバーの区間(連結)"
+  }
+ ],
+ "zip_members_total": 2160,
+ "members_used": [
+  {
+   "name": "2024.annual 23 NAICS 23 Construction.csv",
+   "crc32": "a4336746",
+   "uncompressed_bytes": 1972692,
+   "sha256": "af7ac25fceadb677b6af859be7a1c7fc4afbe658559378e5be144765bf8140fc"
+  },
+  {
+   "name": "2024.annual 236 NAICS 236 Construction of buildings.csv",
+   "crc32": "930590d3",
+   "uncompressed_bytes": 1174885,
+   "sha256": "b60f06e4505ebdb50e904c541c602cae7e0b1b954a79885f45d0dfcbf8f047a2"
+  },
+  {
+   "name": "2024.annual 2361 NAICS 2361 Residential building construction.csv",
+   "crc32": "50634879",
+   "uncompressed_bytes": 1126418,
+   "sha256": "8ef32dc0256b63a28bc021632630757627d61209978f92295309fdd20e1a923d"
+  },
+  {
+   "name": "2024.annual 23611 NAICS 23611 Residential building construction.csv",
+   "crc32": "d1853135",
+   "uncompressed_bytes": 1133606,
+   "sha256": "df40aeca37a8e2ac96e012664df38aef5bbf394edc2ecd3b6441034b6cd86f1f"
+  },
+  {
+   "name": "2024.annual 236115 NAICS 236115 New single-family housing construction (except for-sale builders).csv",
+   "crc32": "df22ffe2",
+   "uncompressed_bytes": 1161664,
+   "sha256": "3549c73107ab1ae7d2eacfaa0a754e9c55c6011fd5de02cfbd619c8b4b362af4"
+  },
+  {
+   "name": "2024.annual 236116 NAICS 236116 New multifamily housing construction (except for-sale builders).csv",
+   "crc32": "1ee41f1a",
+   "uncompressed_bytes": 447084,
+   "sha256": "e58d3a4c4b5e3c08b3c7f09605a83d7d07dcc9ee5f8ed98f1dd6e0f57844d7b5"
+  },
+  {
+   "name": "2024.annual 236117 NAICS 236117 New housing for-sale builders.csv",
+   "crc32": "37b6b0de",
+   "uncompressed_bytes": 445047,
+   "sha256": "157c4783f7b7527ed36df412a2480eb7716f9e7564a1ddcba785b0c034988b66"
+  },
+  {
+   "name": "2024.annual 236118 NAICS 236118 Residential remodelers.csv",
+   "crc32": "beabe5cd",
+   "uncompressed_bytes": 1030143,
+   "sha256": "7572529bc43eefaa8f4ca1bd45dffad6477400355870d2f65f0cd73b23b63072"
+  },
+  {
+   "name": "2024.annual 2362 NAICS 2362 Nonresidential building construction.csv",
+   "crc32": "6893b1db",
+   "uncompressed_bytes": 1079372,
+   "sha256": "dad6059df6db02fe6858c5f65121ff3e363c5f3b799a9bad94bc85b04841c151"
+  },
+  {
+   "name": "2024.annual 23621 NAICS 23621 Industrial building construction.csv",
+   "crc32": "f6cff7be",
+   "uncompressed_bytes": 584871,
+   "sha256": "a1be0523032d98d9ee9a5d009f3f092fa8ce43d957d0fa9fd02221f65ad95e89"
+  },
+  {
+   "name": "2024.annual 236210 NAICS 236210 Industrial building construction.csv",
+   "crc32": "a549e653",
+   "uncompressed_bytes": 588913,
+   "sha256": "dde290954054e53efbbd9ccc32756575b09e4bae3330669ef9ed79eff56bdf68"
+  },
+  {
+   "name": "2024.annual 23622 NAICS 23622 Commercial and institutional building construction.csv",
+   "crc32": "e4e1909f",
+   "uncompressed_bytes": 1032661,
+   "sha256": "88cea29b93f365e0b7319ae3856e8b5daf9a9ea186930c651b4778891685dd15"
+  },
+  {
+   "name": "2024.annual 236220 NAICS 236220 Commercial and institutional building construction.csv",
+   "crc32": "f7766732",
+   "uncompressed_bytes": 1039323,
+   "sha256": "85f898389aae4b13ea2cff72c305cd5df4ac361ac67f3d5dfff14ab4debec7ce"
+  },
+  {
+   "name": "2024.annual 237 NAICS 237 Heavy and civil engineering construction.csv",
+   "crc32": "2040918c",
+   "uncompressed_bytes": 1985372,
+   "sha256": "f538621c4980cb9338a380dc92b2e926533b21cabe31f9ee30770a98d6249818"
+  },
+  {
+   "name": "2024.annual 2371 NAICS 2371 Utility system construction.csv",
+   "crc32": "908630a3",
+   "uncompressed_bytes": 1000604,
+   "sha256": "bbe1e3b3e2e0c3c0708f977e6caadc99d36fb1883d14aaf112d7b52bef3f6830"
+  },
+  {
+   "name": "2024.annual 23711 NAICS 23711 Water and sewer line and related structures construction.csv",
+   "crc32": "a1bc9b0c",
+   "uncompressed_bytes": 897435,
+   "sha256": "aed32de692e4f31aff584273fe5f29124db7f1e41a5d104243f1602c2c3aaa3a"
+  },
+  {
+   "name": "2024.annual 237110 NAICS 237110 Water and sewer line and related structures construction.csv",
+   "crc32": "70882794",
+   "uncompressed_bytes": 903149,
+   "sha256": "b73b6a0e8c60bf18bd4ed193772e885a75052d7841d76f197df3ce3c3918b397"
+  },
+  {
+   "name": "2024.annual 23712 NAICS 23712 Oil and gas pipeline and related structures construction.csv",
+   "crc32": "f48d2c62",
+   "uncompressed_bytes": 495257,
+   "sha256": "dd24f834181177c7a75a547938dfe622c90801144d4fb3dbc804c6aa144cab73"
+  },
+  {
+   "name": "2024.annual 237120 NAICS 237120 Oil and gas pipeline and related structures construction.csv",
+   "crc32": "43a07f25",
+   "uncompressed_bytes": 498465,
+   "sha256": "06fd971ddf168a9df516f430e8cc4252a061effed82443f75dd025322988a0af"
+  },
+  {
+   "name": "2024.annual 23713 NAICS 23713 Power and communication line and related structures construction.csv",
+   "crc32": "6546231c",
+   "uncompressed_bytes": 825952,
+   "sha256": "301ffcb4559dade67861760a56dd0ab2a60c280e7c8f9d9764f58d3c155dac40"
+  },
+  {
+   "name": "2024.annual 237130 NAICS 237130 Power and communication line and related structures construction.csv",
+   "crc32": "7f274afe",
+   "uncompressed_bytes": 831128,
+   "sha256": "a97698798e6df866867b611224a34067f7c0835928b08490488297a23eed7c6a"
+  },
+  {
+   "name": "2024.annual 2372 NAICS 2372 Land subdivision.csv",
+   "crc32": "f3a209ba",
+   "uncompressed_bytes": 421768,
+   "sha256": "2da6cd76d91e4ba1e722a617ce473cb64360792094e9fdcf4c5d7d706f753fbe"
+  },
+  {
+   "name": "2024.annual 23721 NAICS 23721 Land subdivision.csv",
+   "crc32": "345f43f8",
+   "uncompressed_bytes": 424888,
+   "sha256": "60b89c490c76efcc622d3e74888a8295f6708e37308124133e4f13bcaa501219"
+  },
+  {
+   "name": "2024.annual 237210 NAICS 237210 Land subdivision.csv",
+   "crc32": "02d84bba",
+   "uncompressed_bytes": 428008,
+   "sha256": "7649c85a9968d28e15c0eeae2a4943eb43d78f27087d75a4432a248972e8b047"
+  },
+  {
+   "name": "2024.annual 2373 NAICS 2373 Highway, street, and bridge construction.csv",
+   "crc32": "b3825428",
+   "uncompressed_bytes": 1618936,
+   "sha256": "01953b31c704ece3691272123a3663390d751e34ed1322a0c918f7e8bb718959"
+  },
+  {
+   "name": "2024.annual 23731 NAICS 23731 Highway, street, and bridge construction.csv",
+   "crc32": "a0ca90fd",
+   "uncompressed_bytes": 1629462,
+   "sha256": "c4416e0c8a3059ac227add215b4c535a0a15f5833f8d1f98ef71a573c7b736e5"
+  },
+  {
+   "name": "2024.annual 237310 NAICS 237310 Highway, street, and bridge construction.csv",
+   "crc32": "cc122403",
+   "uncompressed_bytes": 1639988,
+   "sha256": "0c6877ccba5390d2542d03337c331dd028458baabf46be6e200594404bef78c2"
+  },
+  {
+   "name": "2024.annual 2379 NAICS 2379 Other heavy and civil engineering construction.csv",
+   "crc32": "d82167dd",
+   "uncompressed_bytes": 736652,
+   "sha256": "6394f3892828d49be9a57dd6cb8976d12e2b3aefc36ac3056eb30398850dfcb2"
+  },
+  {
+   "name": "2024.annual 23799 NAICS 23799 Other heavy and civil engineering construction.csv",
+   "crc32": "88bf969f",
+   "uncompressed_bytes": 741554,
+   "sha256": "e3fdbd2dd82784c498cb34a0af2f5b5b6d6fdda2bdcfbc703ed2b2650b1a3042"
+  },
+  {
+   "name": "2024.annual 237990 NAICS 237990 Other heavy and civil engineering construction.csv",
+   "crc32": "f06a01a1",
+   "uncompressed_bytes": 746456,
+   "sha256": "aec1b9bb8bb94113ebedb30cee3cb8c7f88b0dd2d057403e43f7a53b7b674d56"
+  },
+  {
+   "name": "2024.annual 238 NAICS 238 Specialty trade contractors.csv",
+   "crc32": "ad65936f",
+   "uncompressed_bytes": 1257356,
+   "sha256": "f748988cb377eef249f3e5a54f887376e19b647075e76ca2aff22760719cee4d"
+  },
+  {
+   "name": "2024.annual 2381 NAICS 2381 Building foundation and exterior contractors.csv",
+   "crc32": "ea6128d9",
+   "uncompressed_bytes": 1137801,
+   "sha256": "62f8b410a157aa1b5f3f9de0e1849b34d72eaf9ca81023c0aaf8ac2f7ca5f04f"
+  },
+  {
+   "name": "2024.annual 23811 NAICS 23811 Poured concrete structure contractors.csv",
+   "crc32": "db5bdbd1",
+   "uncompressed_bytes": 895048,
+   "sha256": "dba658f121b4f3a44133daf93908d6c9c0d62a6ba3bff7f07fad4f5cbb309c07"
+  },
+  {
+   "name": "2024.annual 238111 NAICS 238111 Residential poured foundation contractors.csv",
+   "crc32": "ea004b89",
+   "uncompressed_bytes": 786472,
+   "sha256": "901506484b024b983ad0eb053610c12fb5cfe2cb3ea2500127adb2b5132db4a7"
+  },
+  {
+   "name": "2024.annual 238112 NAICS 238112 Nonresidential poured foundation contractors.csv",
+   "crc32": "89957601",
+   "uncompressed_bytes": 623797,
+   "sha256": "a4b020718b20486ecbab19f771263c58ae9006f5bb5efbf7c02678bba9993669"
+  },
+  {
+   "name": "2024.annual 23812 NAICS 23812 Steel and precast concrete contractors.csv",
+   "crc32": "c7cf9f6f",
+   "uncompressed_bytes": 519628,
+   "sha256": "3efb97caaf148c510b913336536c83c62877304367e8989fc038805ea170938e"
+  },
+  {
+   "name": "2024.annual 238121 NAICS 238121 Residential structural steel contractors.csv",
+   "crc32": "fae82776",
+   "uncompressed_bytes": 252739,
+   "sha256": "ebd89c8d03d9fd31d9b27c1f7c23d7c7f2d6a82cf156eae912be028d161ad413"
+  },
+  {
+   "name": "2024.annual 238122 NAICS 238122 Nonresidential structural steel contractors.csv",
+   "crc32": "d667db66",
+   "uncompressed_bytes": 469118,
+   "sha256": "4753f4721f7bcfdfb793f7f7f01caab9aa8f7da8d76a1f8d944cd7dbee40c05c"
+  },
+  {
+   "name": "2024.annual 23813 NAICS 23813 Framing contractors.csv",
+   "crc32": "08f8cff8",
+   "uncompressed_bytes": 589611,
+   "sha256": "b0904f4cbb521d6f0a9e185a0f8c9bd1913dac4ddb397d9dbe09c2776534829c"
+  },
+  {
+   "name": "2024.annual 238131 NAICS 238131 Residential framing contractors.csv",
+   "crc32": "fdbdb245",
+   "uncompressed_bytes": 558819,
+   "sha256": "a9c38cbfaf9b6a9787f6c4b211147dcafd0c42e0a0de7b1871c2e70cb67f99bc"
+  },
+  {
+   "name": "2024.annual 238132 NAICS 238132 Nonresidential framing contractors.csv",
+   "crc32": "026ace9b",
+   "uncompressed_bytes": 288969,
+   "sha256": "afde5a2d5635a0efba727d3f60c3a53633ac2ecba733b25c1735620bc359284f"
+  },
+  {
+   "name": "2024.annual 23814 NAICS 23814 Masonry contractors.csv",
+   "crc32": "96c73cab",
+   "uncompressed_bytes": 708784,
+   "sha256": "a1962163a822e60b33455368435fba26b14095ed125dfde84723f28c5c5af744"
+  },
+  {
+   "name": "2024.annual 238141 NAICS 238141 Residential masonry contractors.csv",
+   "crc32": "3ad982c2",
+   "uncompressed_bytes": 647285,
+   "sha256": "84890dd939d40ee755c2849a33547240d2569c7fed1189f966b2f4f39dd93642"
+  },
+  {
+   "name": "2024.annual 238142 NAICS 238142 Nonresidential masonry contractors.csv",
+   "crc32": "7ac9f44a",
+   "uncompressed_bytes": 477647,
+   "sha256": "e4655b535ed6db811721e1fc488c5d5d92ec362f9ffe0c6be0a84806bbacc3b8"
+  },
+  {
+   "name": "2024.annual 23815 NAICS 23815 Glass and glazing contractors.csv",
+   "crc32": "12079e96",
+   "uncompressed_bytes": 525354,
+   "sha256": "d8cf78f478f94dc7e9df0347b7cc18bc7e1579215ad3e43996b165d2a0339391"
+  },
+  {
+   "name": "2024.annual 238151 NAICS 238151 Residential glass and glazing contractors.csv",
+   "crc32": "ba67ca88",
+   "uncompressed_bytes": 416305,
+   "sha256": "81821a9053e687e68025461233f3bd6ceb2757050138109db8ea95ed5109658e"
+  },
+  {
+   "name": "2024.annual 238152 NAICS 238152 Nonresidential glass and glazing contractors.csv",
+   "crc32": "fa5b126c",
+   "uncompressed_bytes": 395729,
+   "sha256": "c459b46a689fed687ad7a942ee86f38d73ebbe81530d55025fda1a513d1a4310"
+  },
+  {
+   "name": "2024.annual 23816 NAICS 23816 Roofing contractors.csv",
+   "crc32": "42ba92f3",
+   "uncompressed_bytes": 780834,
+   "sha256": "1daefd25df7ceb9ded80594e927ee18943b1e764c930c6e4593904c8c47723a0"
+  },
+  {
+   "name": "2024.annual 238161 NAICS 238161 Residential roofing contractors.csv",
+   "crc32": "79b8d181",
+   "uncompressed_bytes": 734597,
+   "sha256": "c4da6ad2a5738720b67652943b95596730113fd94be5e63d2e4194339bd84c7b"
+  },
+  {
+   "name": "2024.annual 238162 NAICS 238162 Nonresidential roofing contractors.csv",
+   "crc32": "f6f0fb69",
+   "uncompressed_bytes": 527466,
+   "sha256": "ec1e10dbcaed60bbbd9ba75f2102832c466dd8841c62a19eec4b671da39e326f"
+  },
+  {
+   "name": "2024.annual 23817 NAICS 23817 Siding contractors.csv",
+   "crc32": "889c5a19",
+   "uncompressed_bytes": 571476,
+   "sha256": "cf905dd1a28e13a5acbc3bd458fd86ce6e2eec5c931c2e31ca43d56b70d59b77"
+  },
+  {
+   "name": "2024.annual 238171 NAICS 238171 Residential siding contractors.csv",
+   "crc32": "f8849468",
+   "uncompressed_bytes": 564527,
+   "sha256": "b18346e282123517627b59079853ab800b85a4f86e7f3df31bbe16f8761f0382"
+  },
+  {
+   "name": "2024.annual 238172 NAICS 238172 Nonresidential siding contractors.csv",
+   "crc32": "6268b7af",
+   "uncompressed_bytes": 173632,
+   "sha256": "fe3aacbe23b8f75141b06b045657c440c5acdfa3787a2e2a2475463d506ee451"
+  },
+  {
+   "name": "2024.annual 23819 NAICS 23819 Other building exterior contractors.csv",
+   "crc32": "62799e76",
+   "uncompressed_bytes": 638122,
+   "sha256": "22d40de087572a997a9cd920bc1ea2afd7a5e20e04432ce6f0c2a29f7b6e3cef"
+  },
+  {
+   "name": "2024.annual 238191 NAICS 238191 Other residential exterior contractors.csv",
+   "crc32": "e7db6964",
+   "uncompressed_bytes": 485379,
+   "sha256": "7cbf54c4de7f357fb8f9adfecdee19ed929bbade0394a6a260ad602d1d22bdc5"
+  },
+  {
+   "name": "2024.annual 238192 NAICS 238192 Other nonresidential exterior contractors.csv",
+   "crc32": "f35793df",
+   "uncompressed_bytes": 481561,
+   "sha256": "c32b56317154ea2bb0fcf913604f58bc3a46cf3611e20b455fa8cfd1192f738d"
+  },
+  {
+   "name": "2024.annual 2382 NAICS 2382 Building equipment contractors.csv",
+   "crc32": "be5dbfca",
+   "uncompressed_bytes": 1223618,
+   "sha256": "478740a5d40c41afcf1d2e9ceae4d6fbdb5fffa7c10e7aea9807381525056c01"
+  },
+  {
+   "name": "2024.annual 23821 NAICS 23821 Electrical and wiring contractors.csv",
+   "crc32": "4c63f63d",
+   "uncompressed_bytes": 1076223,
+   "sha256": "69a33732755bb2332e2f9f1214e0e94cc25c49f3d89eb93b0fad849c04650bb2"
+  },
+  {
+   "name": "2024.annual 238211 NAICS 238211 Residential electrical contractors.csv",
+   "crc32": "806f3ff0",
+   "uncompressed_bytes": 993935,
+   "sha256": "e645e101940d19787d6a3d7e577627ca7cd5dd4d8e17a65258cf3099f216bd1e"
+  },
+  {
+   "name": "2024.annual 238212 NAICS 238212 Nonresidential electrical contractors.csv",
+   "crc32": "cdab84bc",
+   "uncompressed_bytes": 969242,
+   "sha256": "a93a04665a2e028c08c696e356316636cd145915dd63ac00d0ce867c5f135a57"
+  },
+  {
+   "name": "2024.annual 23822 NAICS 23822 Plumbing and hvac contractors.csv",
+   "crc32": "f4c3ead6",
+   "uncompressed_bytes": 1097528,
+   "sha256": "6a17c49776bca62a8fc6e4c03ca0446f52d1bcf39e5e4306a4414d5bd35a4462"
+  },
+  {
+   "name": "2024.annual 238221 NAICS 238221 Residential plumbing and hvac contractors.csv",
+   "crc32": "62164f8e",
+   "uncompressed_bytes": 1091081,
+   "sha256": "962cc638f12567d2414fccc79bbd72efeb7c7701160f826f561c4d7a482ba270"
+  },
+  {
+   "name": "2024.annual 238222 NAICS 238222 Nonresidential plumbing and hvac contractors.csv",
+   "crc32": "ef88b1cc",
+   "uncompressed_bytes": 871111,
+   "sha256": "cd9d32d5b466244c5f325c3b8cbd343912b0bad7b97c2c0aa5a4ed832781dc67"
+  },
+  {
+   "name": "2024.annual 23829 NAICS 23829 Other building equipment contractors.csv",
+   "crc32": "1583b590",
+   "uncompressed_bytes": 683397,
+   "sha256": "341fdf80d66dc942f5b059a9759bb9d74b62f761fa60366960a591598d2bb42d"
+  },
+  {
+   "name": "2024.annual 238291 NAICS 238291 Other residential equipment contractors.csv",
+   "crc32": "70200468",
+   "uncompressed_bytes": 395710,
+   "sha256": "ea4f74f789214bb5ce82ac38ea21b8f6bcd824ab2e6ce376c375fd7b7aa2918e"
+  },
+  {
+   "name": "2024.annual 238292 NAICS 238292 Other nonresidential equipment contractors.csv",
+   "crc32": "3cc4675e",
+   "uncompressed_bytes": 614771,
+   "sha256": "20d92f51d6cfbea8e264cf2e0bc23811f2125445e6364c0889f4cf38f1066b47"
+  },
+  {
+   "name": "2024.annual 2383 NAICS 2383 Building finishing contractors.csv",
+   "crc32": "028cada6",
+   "uncompressed_bytes": 1030353,
+   "sha256": "62d924fab3ebd8951969a0dcf3322cb463f8947231f06e26212cc5ebd1d17295"
+  },
+  {
+   "name": "2024.annual 23831 NAICS 23831 Drywall and insulation contractors.csv",
+   "crc32": "cbe94f81",
+   "uncompressed_bytes": 760006,
+   "sha256": "91d73cfd0ed5b6d6c1cc0a2b765aba3a4a25b736931abd60a2841a613935f2fe"
+  },
+  {
+   "name": "2024.annual 238311 NAICS 238311 Residential drywall contractors.csv",
+   "crc32": "20772726",
+   "uncompressed_bytes": 663783,
+   "sha256": "53ceac397b0169fc8eb408d4a7407f0428029d89a982a683adf6842fe0a18bf1"
+  },
+  {
+   "name": "2024.annual 238312 NAICS 238312 Nonresidential drywall contractors.csv",
+   "crc32": "18672c2c",
+   "uncompressed_bytes": 494678,
+   "sha256": "be89778105cfcc40e1f6b1298ef61dc6fc1b031da2059924b9e7aa1d26978549"
+  },
+  {
+   "name": "2024.annual 23832 NAICS 23832 Painting and wall covering contractors.csv",
+   "crc32": "0931a2aa",
+   "uncompressed_bytes": 817849,
+   "sha256": "268bfda537cf97ffa549ab10c18000b9bd83dc5a905c352f16ce4c318387e68a"
+  },
+  {
+   "name": "2024.annual 238321 NAICS 238321 Residential painting contractors.csv",
+   "crc32": "33119f6d",
+   "uncompressed_bytes": 713164,
+   "sha256": "fbd13434b4be36425c1b9fcdae6119def6103af100a8f1608c803b0e52a2a182"
+  },
+  {
+   "name": "2024.annual 238322 NAICS 238322 Nonresidential painting contractors.csv",
+   "crc32": "74021f1c",
+   "uncompressed_bytes": 536614,
+   "sha256": "2a3caaea67e30ef3f50c135b9d80ef2aba0e84ab2d7cda53f02bb3df848df57b"
+  },
+  {
+   "name": "2024.annual 23833 NAICS 23833 Flooring contractors.csv",
+   "crc32": "69250a98",
+   "uncompressed_bytes": 632977,
+   "sha256": "dc40ebddd941fa7fa10ebd497ce42a12e8ed5c45e0a87974693f7d741c00282a"
+  },
+  {
+   "name": "2024.annual 238331 NAICS 238331 Residential flooring contractors.csv",
+   "crc32": "db514923",
+   "uncompressed_bytes": 612761,
+   "sha256": "ab855cd0493ce790b4ff0151267e3ae8818272367076ae6ce757577ccc5070f4"
+  },
+  {
+   "name": "2024.annual 238332 NAICS 238332 Nonresidential flooring contractors.csv",
+   "crc32": "f4ec537e",
+   "uncompressed_bytes": 363978,
+   "sha256": "bb98bf0daa0bd34058879512fb48fde248fda74551b8bcb533cf7a08bda829c8"
+  },
+  {
+   "name": "2024.annual 23834 NAICS 23834 Tile and terrazzo contractors.csv",
+   "crc32": "1591ecd8",
+   "uncompressed_bytes": 477944,
+   "sha256": "d668a751187612db94ff7fb081b971cf8f86d44756b26ec87939d38fb826110b"
+  },
+  {
+   "name": "2024.annual 238341 NAICS 238341 Residential tile and terrazzo contractors.csv",
+   "crc32": "6e229a9a",
+   "uncompressed_bytes": 461593,
+   "sha256": "b878219b2be27b9b5e03fc89e7ccf08f820349a6c2cab1bd636f5df932a8caed"
+  },
+  {
+   "name": "2024.annual 238342 NAICS 238342 Nonresidential tile and terrazzo contractors.csv",
+   "crc32": "fc8eff92",
+   "uncompressed_bytes": 233267,
+   "sha256": "33b70c75c7b00fe32050a1744ce87d4052bdb2d9d5a9aee5512c740b09b0124d"
+  },
+  {
+   "name": "2024.annual 23835 NAICS 23835 Finish carpentry contractors.csv",
+   "crc32": "904258e1",
+   "uncompressed_bytes": 809078,
+   "sha256": "b8fc3b7227b242b808babd9b4e1784af97ff2b82023ca99d65600cc7560e43c6"
+  },
+  {
+   "name": "2024.annual 238351 NAICS 238351 Residential finish carpentry contractors.csv",
+   "crc32": "72e48bde",
+   "uncompressed_bytes": 778092,
+   "sha256": "4a13b2d2036a0125c1a44b22f55d7b7f87e5d58af73bfe2b11a7a2ce7f28504b"
+  },
+  {
+   "name": "2024.annual 238352 NAICS 238352 Nonresidential finish carpentry contractors.csv",
+   "crc32": "65f935d1",
+   "uncompressed_bytes": 401967,
+   "sha256": "d2105ba5cea79657cfb884e1eaf5adf102ee85c1092f10e5d18296bafffbdef9"
+  },
+  {
+   "name": "2024.annual 23839 NAICS 23839 Other building finishing contractors.csv",
+   "crc32": "3dbf4923",
+   "uncompressed_bytes": 556320,
+   "sha256": "53bffc7f9af13eef5747b300fe59d72a303ee9514486331d5a05b27b95feb817"
+  },
+  {
+   "name": "2024.annual 238391 NAICS 238391 Other residential finishing contractors.csv",
+   "crc32": "5d09af50",
+   "uncompressed_bytes": 465296,
+   "sha256": "b026ebece60a38e4604b777908c9abdf9b8fb29f81df4814ed12698fd0e6c092"
+  },
+  {
+   "name": "2024.annual 238392 NAICS 238392 Other nonresidential finishing contractors.csv",
+   "crc32": "d82bd501",
+   "uncompressed_bytes": 388902,
+   "sha256": "e9b5c0fa4444897f42f073559a3f45c5100a96e01bbc4cdc2057106f4382bbd8"
+  },
+  {
+   "name": "2024.annual 2389 NAICS 2389 Other specialty trade contractors.csv",
+   "crc32": "0be19435",
+   "uncompressed_bytes": 1158889,
+   "sha256": "f89785ceb84b59ce0da64c49c8e35b963df5e15ffebf1a7641bf7128bbae3bd8"
+  },
+  {
+   "name": "2024.annual 23891 NAICS 23891 Site preparation contractors.csv",
+   "crc32": "894beeb0",
+   "uncompressed_bytes": 1051684,
+   "sha256": "b9f9d319bad9248fbd9c173d8feefd7d703cbda1fb1cf7fb72e4cf3dc47236ea"
+  },
+  {
+   "name": "2024.annual 238911 NAICS 238911 Residential site preparation contractors.csv",
+   "crc32": "c0d105e9",
+   "uncompressed_bytes": 945414,
+   "sha256": "6e9e7383b07496d147cc92c282450e3e652adc592c21d5445e36476e373740d4"
+  },
+  {
+   "name": "2024.annual 238912 NAICS 238912 Nonresidential site preparation contractors.csv",
+   "crc32": "c5fcc6f1",
+   "uncompressed_bytes": 987211,
+   "sha256": "961a601199eced5e02d8c36c65beaf3eeced946f183c9ab1d8df4f3579514199"
+  },
+  {
+   "name": "2024.annual 23899 NAICS 23899 All other specialty trade contractors.csv",
+   "crc32": "71429658",
+   "uncompressed_bytes": 1011792,
+   "sha256": "3fe77bdc639b9e79698668989af0e8603d28affb72f0281375a7c3cec5f06af3"
+  },
+  {
+   "name": "2024.annual 238991 NAICS 238991 All other residential trade contractors.csv",
+   "crc32": "ae98e312",
+   "uncompressed_bytes": 878933,
+   "sha256": "175f05410b4c5d63236d2cb8ede48e7db6d218af55de39936c3cf14c499cb52a"
+  },
+  {
+   "name": "2024.annual 238992 NAICS 238992 All other nonresidential trade contractors.csv",
+   "crc32": "25dd5906",
+   "uncompressed_bytes": 839098,
+   "sha256": "7d97a53c0f96aa39b0aae02bb75b0908e72559730f8be923cf57c797f6200f00"
+  }
+ ],
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.bls.gov/opub/copyright-information.htm",
+ "license_quote": "The Bureau of Labor Statistics (BLS) is a Federal government agency and everything that we publish, both in hard copy and electronically, is in the public domain, except for previously copyrighted photographs and illustrations. You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.",
+ "attribution": "Source: U.S. Bureau of Labor Statistics, Quarterly Census of Employment and Wages (https://www.bls.gov/cew/)",
+ "how_read": "zip 全体ではなく、Range ヘッダで末尾(中央ディレクトリ)と建設業のメンバー 92 本の区間だけを取った。中央ディレクトリから各メンバーの位置・圧縮後の大きさ・CRC32 を読み、区間から deflate を展開して、展開後の大きさと CRC32 が中央ディレクトリと一致することを全メンバーで確かめた。各メンバーの CSV をそのまま読む(列の定義は layout の頁: annual_avg_estabs_count = Annual average of quarterly establishment counts for a given year; annual_avg_emplvl = Annual average of monthly employment levels for a given year; annual_avg_wkly_wage = Average weekly wage based on the 12-monthly employment levels and total annual wage levels.; avg_annual_pay = Average annual pay based on employment and wage levels for a given year.; total_annual_wages = Sum of the four quarterly total wage levels for a given year)。所有区分は own_code 5(Private)だけ(建設の業種ファイルに own_code 0 の合計行は無い)。2 桁と 3 桁(23, 236, 237, 238)は全国・州・郡、4〜6 桁は全国・州。1 行から事業所数・雇用者数(count)、週平均賃金(wage_weekly_mean)、年平均給与(wage_annual_mean)の 4 観測。disclosure_code N の行は事業所数だけ値を入れ、他は not_set(原本は 0 埋め。Q&A の原文を note に)。照合: 郡(xx999 を含む)の合計と州、州(50 州 + DC)の合計と全国を事業所数・雇用者数・年間賃金総額で(reports/US-C-bls-geo_qcew_check.csv)、年平均給与 = total_annual_wages / annual_avg_emplvl と週平均賃金 = 同 / 52 を開示された全行で。 2024 は API の industry/23.csv と zip のメンバー 23 を全行で突き合わせた。",
+ "values_copied": true,
+ "fetched_via": "Apify web-fetch (formats=raw) with Range header",
+ "scope_quote": "2024.annual.by_industry",
+ "aux_files": [
+  {
+   "path": "raw/bls-qcew-api-2024-a-industry-23.csv",
+   "url": "https://data.bls.gov/cew/data/api/2024/a/industry/23.csv",
+   "bytes": 1087346,
+   "sha256": "c7a61add473b0e55c26c654963c14bbe044f512d1806a6920d0324bf7ab3247f",
+   "http_last_modified": "Tue, 02 Sep 2025 11:06:56 GMT",
+   "etag": "\"109772-63dcf7c7d6578\"",
+   "role": "照合用(同じ値の別の組版)"
+  },
+  {
+   "path": "raw/bls-qcew-annual-layout.htm",
+   "url": "https://www.bls.gov/cew/about-data/downloadable-file-layouts/annual/naics-based-annual-layout.htm",
+   "bytes": 106200,
+   "sha256": "7edeab942143db76fe8427d64c597744ec83ab735c2c8bef4b9d7a76b4a3b7da",
+   "role": "disclosure_code と各列の定義の原文"
+  },
+  {
+   "path": "raw/bls-qcew-questions-and-answers.htm",
+   "url": "https://www.bls.gov/cew/questions-and-answers.htm",
+   "bytes": 99794,
+   "sha256": "9003624ee5e1a287dcc58099e4ab80cf2621414b3dc62632e4241260eed86a4b",
+   "role": "disclosure_code と各列の定義の原文"
+  }
+ ],
+ "rows": 70700
+}

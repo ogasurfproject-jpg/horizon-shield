@@ -1,0 +1,21 @@
+{
+ "source_id": "cbr-chikukubun",
+ "country": "JP",
+ "title": "地区コード一覧表(中部地方整備局 資材単価の地区区分)",
+ "publisher": "国土交通省 中部地方整備局",
+ "url": "https://www.cbr.mlit.go.jp/architecture/kensetsugijutsu/unit_price/pdf/chikucode01.pdf",
+ "landing": "https://www.cbr.mlit.go.jp/architecture/kensetsugijutsu/unit_price/index.htm",
+ "http_last_modified": "Wed, 30 Apr 2025 04:32:36 GMT",
+ "bytes": 144113,
+ "sha256": "02a2b85fc44a7080d556a832776429c7394c5f279cd40385434398e6a52b2683",
+ "retrieved_at": "2026-09-26",
+ "license": "PDL1.0",
+ "license_url": "https://www.cbr.mlit.go.jp/policy.htm",
+ "license_quote": "当ホームページで公開している情報（以下「コンテンツ」といいます。）の著作権は、特記されていない限り国土交通省中部地方整備局に帰属し、権利表記の記載がない限り「公共データ利用規約（第1.0版）」（PDL1.0）に準拠した利用条件の下で、利用することができます。",
+ "license_note": "この PDF(9頁)に権利表記の文言は無い(pdftotext で検索)。価格は載っていない。地区名と市町村名だけを cbr-zairyo-r8-10 の行の area_members に使う。",
+ "attribution": "「地区コード一覧表」（中部地方整備局）（https://www.cbr.mlit.go.jp/architecture/kensetsugijutsu/unit_price/pdf/chikucode01.pdf）を加工して作成",
+ "how_read": "pdftotext -bbox-layout。「１０１岐阜」形の地区コードの語を錨に、次のコードまでの帯で、左の欄(x<100)の字を詰めて地区名、右の欄を市町村名とした(190 地区)。",
+ "values_copied": false,
+ "values_copied_reason": "価格を含まない出典(地区の定義だけ)。",
+ "fetched_via": "Apify web-fetch (formats=raw)。作業環境から官公庁サイトへ直接は届かないため。バイト列は sha256 で原本と同じと確かめられる。"
+}

@@ -1,0 +1,113 @@
+{
+ "files": {
+  "observations/jp/cost_sqft_mlit_chakko_2025.csv": {
+   "rows": 4789,
+   "by_status": {
+    "published_cc_by": 4756,
+    "not_set": 33
+   },
+   "by_price_basis": {
+    "count": 2400,
+    "construction_cost_planned_total": 1200,
+    "cost_per_m2": 1189
+   },
+   "sha256": "e3c82a2a19a8abd7b1bed52e22fe2a331fcec965edb38107aff65033731c9cff"
+  },
+  "observations/jp/cost_sqft_mlit_chakko_2026_01_07.csv": {
+   "rows": 32030,
+   "by_status": {
+    "published_cc_by": 27320,
+    "not_set": 4710
+   },
+   "by_price_basis": {
+    "count": 16800,
+    "construction_cost_planned_total": 8400,
+    "cost_per_m2": 6830
+   },
+   "sha256": "fcb6ade256765b1a67dd277a027d988ffaa6acfba8048dc123a659de779deab6"
+  }
+ },
+ "checks": {
+  "2025": {
+   "counts": {
+    "A_ok": 78,
+    "C_ok": 3505,
+    "C_skip": 239,
+    "B_ok": 144,
+    "E_eq": 144,
+    "D_ok": 144
+   },
+   "diffs": []
+  },
+  "2026-01": {
+   "counts": {
+    "A_ok": 78,
+    "C_ok": 3744,
+    "B_ok": 144,
+    "E_eq": 144,
+    "D_ok": 144
+   },
+   "diffs": []
+  },
+  "2026-02": {
+   "counts": {
+    "A_ok": 78,
+    "C_ok": 3744,
+    "B_ok": 144,
+    "E_eq": 144,
+    "D_ok": 144
+   },
+   "diffs": []
+  },
+  "2026-03": {
+   "counts": {
+    "A_ok": 78,
+    "C_ok": 3744,
+    "B_ok": 144,
+    "E_eq": 144,
+    "D_ok": 144
+   },
+   "diffs": []
+  },
+  "2026-04": {
+   "counts": {
+    "A_ok": 78,
+    "C_ok": 3744,
+    "B_ok": 144,
+    "E_eq": 144,
+    "D_ok": 144
+   },
+   "diffs": []
+  },
+  "2026-05": {
+   "counts": {
+    "A_ok": 78,
+    "C_ok": 3744,
+    "B_ok": 144,
+    "E_eq": 144,
+    "D_ok": 144
+   },
+   "diffs": []
+  },
+  "2026-06": {
+   "counts": {
+    "A_ok": 78,
+    "C_ok": 3744,
+    "B_ok": 144,
+    "E_eq": 144,
+    "D_ok": 144
+   },
+   "diffs": []
+  },
+  "2026-07": {
+   "counts": {
+    "A_ok": 78,
+    "C_ok": 3744,
+    "B_ok": 144,
+    "E_eq": 144,
+    "D_ok": 144
+   },
+   "diffs": []
+  }
+ }
+}

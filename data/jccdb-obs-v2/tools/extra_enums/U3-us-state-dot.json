@@ -1,0 +1,6 @@
+{
+ "price_basis": [
+  {"value": "bid_avg_lowest3", "why": "州 DOT の入札単価集計で、最低 3 者の入札単価の平均(SDDOT 'Avg of 3 Lowest Bids'、NJDOT 'Average of Low 3 Bidders')。落札者だけの加重平均 bid_weighted_avg とは別の数え方。原本は加重か単純かを明記しない"},
+  {"value": "bid_group_avg", "why": "複数の品目を束ねた品目群の平均単価(SDDOT 'Average Unit Bid Prices for Bid Item Groups (Awarded Contracts)')。原本は加重か単純かを明記しない"}
+ ]
+}

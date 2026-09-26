@@ -1,0 +1,1100 @@
+{
+ "files": 185,
+ "rows": 3206783,
+ "rows_by_dir": {
+  "observations": 3185391,
+  "observations_restricted": 20402,
+  "observations_hold": 990
+ },
+ "errors": 0,
+ "warnings": 0,
+ "by_status": {
+  "published_cc_by": 36819,
+  "published_pdl": 266350,
+  "not_set": 134214,
+  "publication_based_not_public": 3345,
+  "published_restricted_not_copied": 22304,
+  "public_domain": 2727809,
+  "published_open_terms": 15942
+ },
+ "by_layer": {
+  "cost_sqft": 38885,
+  "index": 99673,
+  "labor": 166886,
+  "material": 172094,
+  "work": 95549,
+  "equipment": 96390,
+  "spending": 1470894,
+  "bid_item": 16058,
+  "cost_limit": 23296,
+  "house_price": 1056,
+  "wage": 1026002
+ },
+ "sources_in_ledger": 2458,
+ "extra_enums": {
+  "price_basis": [
+   "annual_total_thousand_usd",
+   "area_cost_factor",
+   "asbuilt_unit_cost_midpoint",
+   "bid_avg_contract_price",
+   "bid_avg_contract_price_3q_moving",
+   "bid_avg_lowest3",
+   "bid_group_avg",
+   "construction_cost_planned_total",
+   "engineer_daily_rate",
+   "equipment_depreciation_hourly",
+   "equipment_fccm_hourly",
+   "equipment_fuel_hourly",
+   "equipment_rate_per_mile",
+   "equipment_rate_unit_not_stated",
+   "equipment_standby_rate_hourly",
+   "facility_prv_unit_cost",
+   "facility_sustainment_unit_cost_annual",
+   "facility_unit_cost_guc",
+   "hcc_limit_usd",
+   "orders_received_total",
+   "permit_valuation_median_usd",
+   "permit_valuation_p25_usd",
+   "permit_valuation_p75_usd",
+   "permit_valuation_per_sqft_median_usd",
+   "permit_valuation_per_unit_usd",
+   "permit_valuation_thousand_usd",
+   "permit_valuation_total_usd",
+   "permit_valuation_usd",
+   "prevailing_wage_daily",
+   "price_per_house",
+   "special_survey_price",
+   "state_adjustment_factor",
+   "supporting_facility_unit_cost",
+   "sustainment_area_cost_factor",
+   "tdc_limit_usd",
+   "wage_annual_p10",
+   "wage_annual_p25",
+   "wage_annual_p75",
+   "wage_annual_p90",
+   "wage_weekly_mean"
+  ],
+  "layer": [
+   "cost_limit",
+   "house_price"
+  ],
+  "geo_level": [
+   "country",
+   "usace_ep_region"
+  ]
+ },
+ "per_file": {
+  "observations/jp/cost_sqft_mlit_chakko_2025.csv": {
+   "rows": 4789,
+   "status:published_cc_by": 4789,
+   "layer:cost_sqft": 4789
+  },
+  "observations/jp/cost_sqft_mlit_chakko_2026_01_07.csv": {
+   "rows": 32030,
+   "status:published_cc_by": 32030,
+   "layer:cost_sqft": 32030
+  },
+  "observations/jp/index_mlit_deflator.csv": {
+   "rows": 11475,
+   "status:published_pdl": 11475,
+   "layer:index": 11475
+  },
+  "observations/jp/index_mlit_deflator_nendo.csv": {
+   "rows": 5460,
+   "status:not_set": 1541,
+   "layer:index": 5460,
+   "status:published_pdl": 3919
+  },
+  "observations/jp/index_mlit_deflator_realigned.csv": {
+   "rows": 990,
+   "status:published_pdl": 960,
+   "layer:index": 990,
+   "status:not_set": 30
+  },
+  "observations/jp/index_mlit_shinei_yosan_fy2027.csv": {
+   "rows": 200,
+   "status:published_pdl": 200,
+   "layer:index": 200
+  },
+  "observations/jp/labor_mlit_gijutsusha_h21.csv": {
+   "rows": 19,
+   "status:published_pdl": 19,
+   "layer:labor": 19
+  },
+  "observations/jp/labor_mlit_gijutsusha_h22.csv": {
+   "rows": 19,
+   "status:published_pdl": 19,
+   "layer:labor": 19
+  },
+  "observations/jp/labor_mlit_gijutsusha_h23.csv": {
+   "rows": 19,
+   "status:published_pdl": 19,
+   "layer:labor": 19
+  },
+  "observations/jp/labor_mlit_gijutsusha_h24.csv": {
+   "rows": 19,
+   "status:published_pdl": 19,
+   "layer:labor": 19
+  },
+  "observations/jp/labor_mlit_gijutsusha_h25.csv": {
+   "rows": 19,
+   "status:published_pdl": 19,
+   "layer:labor": 19
+  },
+  "observations/jp/labor_mlit_gijutsusha_h26.csv": {
+   "rows": 18,
+   "status:published_pdl": 18,
+   "layer:labor": 18
+  },
+  "observations/jp/labor_mlit_gijutsusha_h27.csv": {
+   "rows": 20,
+   "status:published_pdl": 20,
+   "layer:labor": 20
+  },
+  "observations/jp/labor_mlit_gijutsusha_h28.csv": {
+   "rows": 20,
+   "status:published_pdl": 20,
+   "layer:labor": 20
+  },
+  "observations/jp/labor_mlit_gijutsusha_h29.csv": {
+   "rows": 20,
+   "status:published_pdl": 20,
+   "layer:labor": 20
+  },
+  "observations/jp/labor_mlit_gijutsusha_h30.csv": {
+   "rows": 20,
+   "status:published_pdl": 20,
+   "layer:labor": 20
+  },
+  "observations/jp/labor_mlit_gijutsusha_h31.csv": {
+   "rows": 20,
+   "status:published_pdl": 20,
+   "layer:labor": 20
+  },
+  "observations/jp/labor_mlit_gijutsusha_r2.csv": {
+   "rows": 20,
+   "status:published_pdl": 20,
+   "layer:labor": 20
+  },
+  "observations/jp/labor_mlit_gijutsusha_r3.csv": {
+   "rows": 20,
+   "status:published_pdl": 20,
+   "layer:labor": 20
+  },
+  "observations/jp/labor_mlit_gijutsusha_r4.csv": {
+   "rows": 20,
+   "status:published_pdl": 20,
+   "layer:labor": 20
+  },
+  "observations/jp/labor_mlit_gijutsusha_r5.csv": {
+   "rows": 20,
+   "status:published_pdl": 20,
+   "layer:labor": 20
+  },
+  "observations/jp/labor_mlit_gijutsusha_r6.csv": {
+   "rows": 20,
+   "status:published_pdl": 20,
+   "layer:labor": 20
+  },
+  "observations/jp/labor_mlit_gijutsusha_r7.csv": {
+   "rows": 20,
+   "status:published_pdl": 20,
+   "layer:labor": 20
+  },
+  "observations/jp/labor_mlit_gijutsusha_r8.csv": {
+   "rows": 20,
+   "status:published_pdl": 20,
+   "layer:labor": 20
+  },
+  "observations/jp/labor_mlit_roumu_h25.csv": {
+   "rows": 2350,
+   "status:published_pdl": 2247,
+   "layer:labor": 2350,
+   "status:not_set": 103
+  },
+  "observations/jp/labor_mlit_roumu_h26.csv": {
+   "rows": 2350,
+   "status:published_pdl": 2265,
+   "layer:labor": 2350,
+   "status:not_set": 85
+  },
+  "observations/jp/labor_mlit_roumu_h27.csv": {
+   "rows": 2303,
+   "status:published_pdl": 2098,
+   "layer:labor": 2303,
+   "status:not_set": 205
+  },
+  "observations/jp/labor_mlit_roumu_h28.csv": {
+   "rows": 2303,
+   "status:published_pdl": 2097,
+   "layer:labor": 2303,
+   "status:not_set": 206
+  },
+  "observations/jp/labor_mlit_roumu_h29.csv": {
+   "rows": 2256,
+   "status:published_pdl": 2133,
+   "layer:labor": 2256,
+   "status:not_set": 123
+  },
+  "observations/jp/labor_mlit_roumu_h30.csv": {
+   "rows": 2256,
+   "status:published_pdl": 2128,
+   "layer:labor": 2256,
+   "status:not_set": 128
+  },
+  "observations/jp/labor_mlit_roumu_h31.csv": {
+   "rows": 2303,
+   "status:published_pdl": 2114,
+   "layer:labor": 2303,
+   "status:not_set": 189
+  },
+  "observations/jp/labor_mlit_roumu_r2.csv": {
+   "rows": 2350,
+   "status:published_pdl": 2123,
+   "layer:labor": 2350,
+   "status:not_set": 227
+  },
+  "observations/jp/labor_mlit_roumu_r3.csv": {
+   "rows": 2350,
+   "status:published_pdl": 2120,
+   "layer:labor": 2350,
+   "status:not_set": 230
+  },
+  "observations/jp/labor_mlit_roumu_r4.csv": {
+   "rows": 2350,
+   "status:published_pdl": 2125,
+   "layer:labor": 2350,
+   "status:not_set": 225
+  },
+  "observations/jp/labor_mlit_roumu_r5.csv": {
+   "rows": 2350,
+   "status:published_pdl": 2127,
+   "layer:labor": 2350,
+   "status:not_set": 223
+  },
+  "observations/jp/labor_mlit_roumu_r6.csv": {
+   "rows": 2350,
+   "status:published_pdl": 2148,
+   "layer:labor": 2350,
+   "status:not_set": 202
+  },
+  "observations/jp/labor_mlit_roumu_r7.csv": {
+   "rows": 2350,
+   "status:published_pdl": 2177,
+   "layer:labor": 2350,
+   "status:not_set": 173
+  },
+  "observations/jp/labor_mlit_roumu_r8.csv": {
+   "rows": 2350,
+   "status:published_pdl": 2136,
+   "layer:labor": 2350,
+   "status:not_set": 214
+  },
+  "observations/jp/material_cbr_tokuchou_shizai_r8_08.csv": {
+   "rows": 744,
+   "status:published_pdl": 688,
+   "layer:material": 744,
+   "status:not_set": 54,
+   "status:publication_based_not_public": 2
+  },
+  "observations/jp/material_cgr_zairyo_r8_04.csv": {
+   "rows": 20055,
+   "status:not_set": 8073,
+   "layer:material": 20035,
+   "status:published_pdl": 11982,
+   "layer:work": 10,
+   "layer:equipment": 10
+  },
+  "observations/jp/material_hkd_zairyo_r8_09.csv": {
+   "rows": 45320,
+   "status:published_pdl": 44492,
+   "layer:material": 43360,
+   "status:publication_based_not_public": 738,
+   "layer:equipment": 350,
+   "status:not_set": 90,
+   "layer:work": 1610
+  },
+  "observations/jp/material_hrr_zairyo_r8_09.csv": {
+   "rows": 4947,
+   "status:published_pdl": 4947,
+   "layer:material": 4943,
+   "layer:work": 4
+  },
+  "observations/jp/material_kkr_namacon_r7_06.csv": {
+   "rows": 848,
+   "status:published_pdl": 848,
+   "layer:material": 848
+  },
+  "observations/jp/material_kkr_namacon_r7_07.csv": {
+   "rows": 848,
+   "status:published_pdl": 848,
+   "layer:material": 848
+  },
+  "observations/jp/material_kkr_namacon_r8_01.csv": {
+   "rows": 846,
+   "status:published_pdl": 846,
+   "layer:material": 846
+  },
+  "observations/jp/material_kkr_namacon_r8_04.csv": {
+   "rows": 846,
+   "status:published_pdl": 846,
+   "layer:material": 846
+  },
+  "observations/jp/material_kkr_namacon_r8_09.csv": {
+   "rows": 846,
+   "status:published_pdl": 846,
+   "layer:material": 846
+  },
+  "observations/jp/material_kkr_namacon_r8_10.csv": {
+   "rows": 846,
+   "status:published_pdl": 846,
+   "layer:material": 846
+  },
+  "observations/jp/material_kkr_zairyo_r8_09.csv": {
+   "rows": 24197,
+   "status:not_set": 6875,
+   "layer:material": 24185,
+   "status:published_pdl": 17322,
+   "layer:equipment": 12
+  },
+  "observations/jp/material_kkr_zairyo_r8_10.csv": {
+   "rows": 24197,
+   "status:not_set": 6952,
+   "layer:material": 24185,
+   "status:published_pdl": 17245,
+   "layer:equipment": 12
+  },
+  "observations/jp/material_ktr_zairyo_as_r8_05.csv": {
+   "rows": 136,
+   "status:published_pdl": 73,
+   "layer:material": 136,
+   "status:not_set": 63
+  },
+  "observations/jp/material_ktr_zairyo_as_r8_06.csv": {
+   "rows": 136,
+   "status:published_pdl": 73,
+   "layer:material": 136,
+   "status:not_set": 63
+  },
+  "observations/jp/material_ktr_zairyo_as_r8_07.csv": {
+   "rows": 136,
+   "status:published_pdl": 73,
+   "layer:material": 136,
+   "status:not_set": 63
+  },
+  "observations/jp/material_ktr_zairyo_as_r8_08.csv": {
+   "rows": 136,
+   "status:published_pdl": 73,
+   "layer:material": 136,
+   "status:not_set": 63
+  },
+  "observations/jp/material_ktr_zairyo_as_r8_09.csv": {
+   "rows": 136,
+   "status:published_pdl": 73,
+   "layer:material": 136,
+   "status:not_set": 63
+  },
+  "observations/jp/material_ktr_zairyo_r8_04.csv": {
+   "rows": 4077,
+   "status:published_pdl": 3420,
+   "layer:material": 3915,
+   "status:not_set": 447,
+   "status:publication_based_not_public": 210,
+   "layer:work": 153,
+   "layer:equipment": 9
+  },
+  "observations/jp/material_nara_namacon_status_r8_09.csv": {
+   "rows": 1584,
+   "status:publication_based_not_public": 803,
+   "layer:material": 1584,
+   "status:published_restricted_not_copied": 744,
+   "status:not_set": 37
+  },
+  "observations/jp/material_ogb_zairyo_r8_04.csv": {
+   "rows": 515,
+   "status:published_pdl": 512,
+   "layer:material": 515,
+   "status:not_set": 3
+  },
+  "observations/jp/material_qsr_zairyo_r8_09.csv": {
+   "rows": 22514,
+   "status:published_pdl": 22513,
+   "layer:material": 22507,
+   "status:not_set": 1,
+   "layer:equipment": 7
+  },
+  "observations/jp/spending_mlit_reform_fy2025.csv": {
+   "rows": 804,
+   "status:published_pdl": 800,
+   "layer:spending": 804,
+   "status:not_set": 4
+  },
+  "observations/jp/work_mlit_sekou_package_r7_04.csv": {
+   "rows": 9277,
+   "status:published_pdl": 9177,
+   "layer:work": 9277,
+   "status:publication_based_not_public": 100
+  },
+  "observations/jp/work_mlit_sekou_package_ratio_r7_04_p1.csv": {
+   "rows": 40150,
+   "status:published_pdl": 40150,
+   "layer:work": 40150
+  },
+  "observations/jp/work_mlit_sekou_package_ratio_r7_04_p2.csv": {
+   "rows": 39505,
+   "status:published_pdl": 39505,
+   "layer:work": 39505
+  },
+  "observations/jp/work_mlit_shinei_yosan_fy2027.csv": {
+   "rows": 432,
+   "status:not_set": 215,
+   "layer:work": 432,
+   "status:published_pdl": 217
+  },
+  "observations/us/bid_item_fhwa_pricetrends_1972_2006.csv": {
+   "rows": 3834,
+   "status:public_domain": 3317,
+   "layer:bid_item": 3834,
+   "status:not_set": 517
+  },
+  "observations/us/bid_item_mtdot_2025.csv": {
+   "rows": 718,
+   "status:published_restricted_not_copied": 718,
+   "layer:bid_item": 718
+  },
+  "observations/us/bid_item_njdot_2023q2.csv": {
+   "rows": 8608,
+   "status:published_open_terms": 8608,
+   "layer:bid_item": 8608
+  },
+  "observations/us/bid_item_sddot_2024.csv": {
+   "rows": 2898,
+   "status:published_restricted_not_copied": 2885,
+   "layer:bid_item": 2898,
+   "status:not_set": 13
+  },
+  "observations/us/cost_limit_hud_tdc_2024.csv": {
+   "rows": 23296,
+   "status:public_domain": 23296,
+   "layer:cost_limit": 23296
+  },
+  "observations/us/cost_sqft_census_newhousing.csv": {
+   "rows": 730,
+   "status:public_domain": 730,
+   "layer:cost_sqft": 730
+  },
+  "observations/us/cost_sqft_city_permits_austin_2023_2025.csv": {
+   "rows": 56,
+   "status:published_open_terms": 56,
+   "layer:cost_sqft": 56
+  },
+  "observations/us/cost_sqft_city_permits_boston_2023_2025.csv": {
+   "rows": 32,
+   "status:published_open_terms": 32,
+   "layer:cost_sqft": 32
+  },
+  "observations/us/cost_sqft_city_permits_neworleans_2023_2025.csv": {
+   "rows": 46,
+   "status:published_open_terms": 46,
+   "layer:cost_sqft": 46
+  },
+  "observations/us/cost_sqft_city_permits_nyc_2023_2025.csv": {
+   "rows": 73,
+   "status:published_open_terms": 73,
+   "layer:cost_sqft": 73
+  },
+  "observations/us/cost_sqft_city_permits_sandiego_2024_2025.csv": {
+   "rows": 11,
+   "status:published_open_terms": 11,
+   "layer:cost_sqft": 11
+  },
+  "observations/us/cost_sqft_dod_ufc370101_2026.csv": {
+   "rows": 1118,
+   "status:not_set": 120,
+   "layer:cost_sqft": 1118,
+   "status:public_domain": 370,
+   "status:publication_based_not_public": 628
+  },
+  "observations/us/equipment_fema_2025.csv": {
+   "rows": 465,
+   "status:public_domain": 465,
+   "layer:equipment": 465
+  },
+  "observations/us/equipment_usace_ep1110_2024.csv": {
+   "rows": 95520,
+   "status:public_domain": 95520,
+   "layer:equipment": 95520
+  },
+  "observations/us/house_price_census_newhousing.csv": {
+   "rows": 1056,
+   "status:public_domain": 1008,
+   "layer:house_price": 1056,
+   "status:not_set": 48
+  },
+  "observations/us/index_bls_cpi_repair.csv": {
+   "rows": 374,
+   "status:public_domain": 325,
+   "layer:index": 374,
+   "status:not_set": 49
+  },
+  "observations/us/index_bls_eci.csv": {
+   "rows": 714,
+   "status:public_domain": 714,
+   "layer:index": 714
+  },
+  "observations/us/index_bls_ppi.csv": {
+   "rows": 32892,
+   "status:public_domain": 32855,
+   "layer:index": 32892,
+   "status:not_set": 37
+  },
+  "observations/us/index_bls_ppi_fd.csv": {
+   "rows": 384,
+   "status:public_domain": 384,
+   "layer:index": 384
+  },
+  "observations/us/index_bls_ppi_resid.csv": {
+   "rows": 3237,
+   "status:public_domain": 3098,
+   "layer:index": 3237,
+   "status:not_set": 139
+  },
+  "observations/us/index_census_cqpi.csv": {
+   "rows": 1383,
+   "status:public_domain": 1383,
+   "layer:index": 1383
+  },
+  "observations/us/index_dod_acf_2026.csv": {
+   "rows": 32978,
+   "status:public_domain": 32978,
+   "layer:index": 32978
+  },
+  "observations/us/index_fhwa_nhcci.csv": {
+   "rows": 93,
+   "status:public_domain": 93,
+   "layer:index": 93
+  },
+  "observations/us/index_usace_cwccis.csv": {
+   "rows": 8503,
+   "status:public_domain": 8503,
+   "layer:index": 8503
+  },
+  "observations/us/labor_dol_davis_bacon_ak_2026.csv": {
+   "rows": 406,
+   "status:public_domain": 406,
+   "layer:labor": 406
+  },
+  "observations/us/labor_dol_davis_bacon_al_2026.csv": {
+   "rows": 7570,
+   "status:public_domain": 7570,
+   "layer:labor": 7570
+  },
+  "observations/us/labor_dol_davis_bacon_ar_2026.csv": {
+   "rows": 7462,
+   "status:public_domain": 7462,
+   "layer:labor": 7462
+  },
+  "observations/us/labor_dol_davis_bacon_as_2026.csv": {
+   "rows": 24,
+   "status:public_domain": 24,
+   "layer:labor": 24
+  },
+  "observations/us/labor_dol_davis_bacon_az_2026.csv": {
+   "rows": 2802,
+   "status:public_domain": 2802,
+   "layer:labor": 2802
+  },
+  "observations/us/labor_dol_davis_bacon_ca_2026.csv": {
+   "rows": 6770,
+   "status:public_domain": 6770,
+   "layer:labor": 6770
+  },
+  "observations/us/labor_dol_davis_bacon_cm_2026.csv": {
+   "rows": 34,
+   "status:public_domain": 34,
+   "layer:labor": 34
+  },
+  "observations/us/labor_dol_davis_bacon_co_2026.csv": {
+   "rows": 2884,
+   "status:public_domain": 2884,
+   "layer:labor": 2884
+  },
+  "observations/us/labor_dol_davis_bacon_ct_2026.csv": {
+   "rows": 2010,
+   "status:public_domain": 2010,
+   "layer:labor": 2010
+  },
+  "observations/us/labor_dol_davis_bacon_dc_2026.csv": {
+   "rows": 250,
+   "status:public_domain": 250,
+   "layer:labor": 250
+  },
+  "observations/us/labor_dol_davis_bacon_de_2026.csv": {
+   "rows": 410,
+   "status:public_domain": 410,
+   "layer:labor": 410
+  },
+  "observations/us/labor_dol_davis_bacon_fl_2026.csv": {
+   "rows": 12456,
+   "status:public_domain": 12455,
+   "layer:labor": 12456,
+   "status:not_set": 1
+  },
+  "observations/us/labor_dol_davis_bacon_ga_2026.csv": {
+   "rows": 8720,
+   "status:public_domain": 8720,
+   "layer:labor": 8720
+  },
+  "observations/us/labor_dol_davis_bacon_gu_2026.csv": {
+   "rows": 92,
+   "status:public_domain": 92,
+   "layer:labor": 92
+  },
+  "observations/us/labor_dol_davis_bacon_hi_2026.csv": {
+   "rows": 264,
+   "status:public_domain": 264,
+   "layer:labor": 264
+  },
+  "observations/us/labor_dol_davis_bacon_ia_2026.csv": {
+   "rows": 3942,
+   "status:public_domain": 3942,
+   "layer:labor": 3942
+  },
+  "observations/us/labor_dol_davis_bacon_id_2026.csv": {
+   "rows": 4418,
+   "status:public_domain": 4418,
+   "layer:labor": 4418
+  },
+  "observations/us/labor_dol_davis_bacon_il_2026.csv": {
+   "rows": 5068,
+   "status:public_domain": 5065,
+   "layer:labor": 5068,
+   "status:not_set": 3
+  },
+  "observations/us/labor_dol_davis_bacon_in_2026.csv": {
+   "rows": 2816,
+   "status:public_domain": 2816,
+   "layer:labor": 2816
+  },
+  "observations/us/labor_dol_davis_bacon_ks_2026.csv": {
+   "rows": 9426,
+   "status:public_domain": 9426,
+   "layer:labor": 9426
+  },
+  "observations/us/labor_dol_davis_bacon_ky_2026.csv": {
+   "rows": 5714,
+   "status:public_domain": 5714,
+   "layer:labor": 5714
+  },
+  "observations/us/labor_dol_davis_bacon_la_2026.csv": {
+   "rows": 2176,
+   "status:public_domain": 2176,
+   "layer:labor": 2176
+  },
+  "observations/us/labor_dol_davis_bacon_ma_2026.csv": {
+   "rows": 1986,
+   "status:public_domain": 1986,
+   "layer:labor": 1986
+  },
+  "observations/us/labor_dol_davis_bacon_md_2026.csv": {
+   "rows": 6662,
+   "status:public_domain": 6662,
+   "layer:labor": 6662
+  },
+  "observations/us/labor_dol_davis_bacon_me_2026.csv": {
+   "rows": 1496,
+   "status:public_domain": 1496,
+   "layer:labor": 1496
+  },
+  "observations/us/labor_dol_davis_bacon_mi_2026.csv": {
+   "rows": 11908,
+   "status:public_domain": 11908,
+   "layer:labor": 11908
+  },
+  "observations/us/labor_dol_davis_bacon_mn_2026.csv": {
+   "rows": 11660,
+   "status:public_domain": 11660,
+   "layer:labor": 11660
+  },
+  "observations/us/labor_dol_davis_bacon_mo_2026.csv": {
+   "rows": 3796,
+   "status:public_domain": 3796,
+   "layer:labor": 3796
+  },
+  "observations/us/labor_dol_davis_bacon_ms_2026.csv": {
+   "rows": 7436,
+   "status:public_domain": 7436,
+   "layer:labor": 7436
+  },
+  "observations/us/labor_dol_davis_bacon_mt_2026.csv": {
+   "rows": 3304,
+   "status:public_domain": 3304,
+   "layer:labor": 3304
+  },
+  "observations/us/spending_census_bps_county_2016.csv": {
+   "rows": 41524,
+   "status:public_domain": 41524,
+   "layer:spending": 41524
+  },
+  "observations/us/spending_census_bps_county_2017.csv": {
+   "rows": 41551,
+   "status:public_domain": 41551,
+   "layer:spending": 41551
+  },
+  "observations/us/spending_census_bps_county_2018.csv": {
+   "rows": 41540,
+   "status:public_domain": 41540,
+   "layer:spending": 41540
+  },
+  "observations/us/spending_census_bps_county_2019.csv": {
+   "rows": 41594,
+   "status:public_domain": 41594,
+   "layer:spending": 41594
+  },
+  "observations/us/spending_census_bps_county_2020.csv": {
+   "rows": 41629,
+   "status:public_domain": 41629,
+   "layer:spending": 41629
+  },
+  "observations/us/spending_census_bps_county_2021.csv": {
+   "rows": 41612,
+   "status:public_domain": 41612,
+   "layer:spending": 41612
+  },
+  "observations/us/spending_census_bps_county_2022.csv": {
+   "rows": 41760,
+   "status:public_domain": 41760,
+   "layer:spending": 41760
+  },
+  "observations/us/spending_census_bps_county_2023.csv": {
+   "rows": 41823,
+   "status:public_domain": 41823,
+   "layer:spending": 41823
+  },
+  "observations/us/spending_census_bps_county_2024.csv": {
+   "rows": 41871,
+   "status:public_domain": 41871,
+   "layer:spending": 41871
+  },
+  "observations/us/spending_census_bps_county_2025.csv": {
+   "rows": 41869,
+   "status:public_domain": 41869,
+   "layer:spending": 41869
+  },
+  "observations/us/spending_census_bps_county_2026_ytd08.csv": {
+   "rows": 41341,
+   "status:public_domain": 41341,
+   "layer:spending": 41341
+  },
+  "observations/us/spending_census_bps_metro_2016.csv": {
+   "rows": 5790,
+   "status:public_domain": 5790,
+   "layer:spending": 5790
+  },
+  "observations/us/spending_census_bps_metro_2017.csv": {
+   "rows": 5788,
+   "status:public_domain": 5788,
+   "layer:spending": 5788
+  },
+  "observations/us/spending_census_bps_metro_2018.csv": {
+   "rows": 5805,
+   "status:public_domain": 5805,
+   "layer:spending": 5805
+  },
+  "observations/us/spending_census_bps_metro_2019.csv": {
+   "rows": 5846,
+   "status:public_domain": 5846,
+   "layer:spending": 5846
+  },
+  "observations/us/spending_census_bps_metro_2020.csv": {
+   "rows": 5855,
+   "status:public_domain": 5855,
+   "layer:spending": 5855
+  },
+  "observations/us/spending_census_bps_metro_2021.csv": {
+   "rows": 5848,
+   "status:public_domain": 5848,
+   "layer:spending": 5848
+  },
+  "observations/us/spending_census_bps_metro_2022.csv": {
+   "rows": 5866,
+   "status:public_domain": 5866,
+   "layer:spending": 5866
+  },
+  "observations/us/spending_census_bps_metro_2023.csv": {
+   "rows": 5880,
+   "status:public_domain": 5880,
+   "layer:spending": 5880
+  },
+  "observations/us/spending_census_bps_metro_2024.csv": {
+   "rows": 13462,
+   "status:public_domain": 13462,
+   "layer:spending": 13462
+  },
+  "observations/us/spending_census_bps_metro_2025.csv": {
+   "rows": 13597,
+   "status:public_domain": 13597,
+   "layer:spending": 13597
+  },
+  "observations/us/spending_census_bps_metro_2026_ytd08.csv": {
+   "rows": 13317,
+   "status:public_domain": 13317,
+   "layer:spending": 13317
+  },
+  "observations/us/spending_census_bps_place_2016.csv": {
+   "rows": 69853,
+   "status:public_domain": 69853,
+   "layer:spending": 69853
+  },
+  "observations/us/spending_census_bps_place_2017.csv": {
+   "rows": 70655,
+   "status:public_domain": 70655,
+   "layer:spending": 70655
+  },
+  "observations/us/spending_census_bps_place_2018.csv": {
+   "rows": 71057,
+   "status:public_domain": 71057,
+   "layer:spending": 71057
+  },
+  "observations/us/spending_census_bps_place_2019.csv": {
+   "rows": 72621,
+   "status:public_domain": 72621,
+   "layer:spending": 72621
+  },
+  "observations/us/spending_census_bps_place_2020.csv": {
+   "rows": 73365,
+   "status:public_domain": 73365,
+   "layer:spending": 73365
+  },
+  "observations/us/spending_census_bps_place_2021.csv": {
+   "rows": 73941,
+   "status:public_domain": 73941,
+   "layer:spending": 73941
+  },
+  "observations/us/spending_census_bps_place_2022.csv": {
+   "rows": 74399,
+   "status:public_domain": 74399,
+   "layer:spending": 74399
+  },
+  "observations/us/spending_census_bps_place_2023.csv": {
+   "rows": 74889,
+   "status:public_domain": 74889,
+   "layer:spending": 74889
+  },
+  "observations/us/spending_census_bps_place_2024.csv": {
+   "rows": 75510,
+   "status:public_domain": 75510,
+   "layer:spending": 75510
+  },
+  "observations/us/spending_census_bps_place_2025.csv": {
+   "rows": 75601,
+   "status:public_domain": 75601,
+   "layer:spending": 75601
+  },
+  "observations/us/spending_census_bps_place_2026_ytd08.csv": {
+   "rows": 68100,
+   "status:public_domain": 68100,
+   "layer:spending": 68100
+  },
+  "observations/us/spending_census_bps_state.csv": {
+   "rows": 11718,
+   "status:public_domain": 11718,
+   "layer:spending": 11718
+  },
+  "observations/us/spending_census_econ2022_construction.csv": {
+   "rows": 77330,
+   "status:public_domain": 71332,
+   "layer:spending": 77330,
+   "status:not_set": 5998
+  },
+  "observations/us/spending_census_vip.csv": {
+   "rows": 28320,
+   "status:public_domain": 28320,
+   "layer:spending": 28320
+  },
+  "observations/us/spending_city_permits_austin_2023_2025.csv": {
+   "rows": 653,
+   "status:published_open_terms": 595,
+   "layer:spending": 653,
+   "status:not_set": 58
+  },
+  "observations/us/spending_city_permits_boston_2023_2025.csv": {
+   "rows": 1583,
+   "status:published_open_terms": 1579,
+   "layer:spending": 1583,
+   "status:not_set": 4
+  },
+  "observations/us/spending_city_permits_neworleans_2023_2025.csv": {
+   "rows": 2196,
+   "status:published_open_terms": 1992,
+   "layer:spending": 2196,
+   "status:not_set": 204
+  },
+  "observations/us/spending_city_permits_nyc_2023_2025.csv": {
+   "rows": 369,
+   "status:published_open_terms": 369,
+   "layer:spending": 369
+  },
+  "observations/us/spending_city_permits_sandiego_2024_2025.csv": {
+   "rows": 820,
+   "status:published_open_terms": 657,
+   "layer:spending": 820,
+   "status:not_set": 163
+  },
+  "observations/us/spending_city_permits_seattle_2023_2025.csv": {
+   "rows": 599,
+   "status:published_open_terms": 598,
+   "layer:spending": 599,
+   "status:not_set": 1
+  },
+  "observations/us/spending_city_permits_sf_2023_2025.csv": {
+   "rows": 1343,
+   "status:published_open_terms": 1326,
+   "layer:spending": 1343,
+   "status:not_set": 17
+  },
+  "observations/us/wage_bls_oews_2021.csv": {
+   "rows": 37882,
+   "status:public_domain": 37392,
+   "layer:wage": 37882,
+   "status:not_set": 490
+  },
+  "observations/us/wage_bls_oews_2022.csv": {
+   "rows": 37726,
+   "status:public_domain": 37509,
+   "layer:wage": 37726,
+   "status:not_set": 217
+  },
+  "observations/us/wage_bls_oews_2023.csv": {
+   "rows": 37765,
+   "status:public_domain": 37604,
+   "layer:wage": 37765,
+   "status:not_set": 161
+  },
+  "observations/us/wage_bls_oews_2024.csv": {
+   "rows": 37427,
+   "status:public_domain": 37164,
+   "layer:wage": 37427,
+   "status:not_set": 263
+  },
+  "observations/us/wage_bls_oews_2025.csv": {
+   "rows": 37193,
+   "status:public_domain": 36930,
+   "layer:wage": 37193,
+   "status:not_set": 263
+  },
+  "observations/us/wage_bls_oews_metro_2025_a.csv": {
+   "rows": 65104,
+   "status:public_domain": 64809,
+   "layer:wage": 65104,
+   "status:not_set": 295
+  },
+  "observations/us/wage_bls_oews_metro_2025_b.csv": {
+   "rows": 66417,
+   "status:public_domain": 66142,
+   "layer:wage": 66417,
+   "status:not_set": 275
+  },
+  "observations/us/wage_bls_qcew_2016.csv": {
+   "rows": 70716,
+   "status:public_domain": 61809,
+   "layer:wage": 70716,
+   "status:not_set": 8907
+  },
+  "observations/us/wage_bls_qcew_2017.csv": {
+   "rows": 70516,
+   "status:public_domain": 61888,
+   "layer:wage": 70516,
+   "status:not_set": 8628
+  },
+  "observations/us/wage_bls_qcew_2018.csv": {
+   "rows": 70536,
+   "status:public_domain": 61830,
+   "layer:wage": 70536,
+   "status:not_set": 8706
+  },
+  "observations/us/wage_bls_qcew_2019.csv": {
+   "rows": 70568,
+   "status:public_domain": 61835,
+   "layer:wage": 70568,
+   "status:not_set": 8733
+  },
+  "observations/us/wage_bls_qcew_2020.csv": {
+   "rows": 70612,
+   "status:public_domain": 61795,
+   "layer:wage": 70612,
+   "status:not_set": 8817
+  },
+  "observations/us/wage_bls_qcew_2021.csv": {
+   "rows": 70636,
+   "status:public_domain": 61831,
+   "layer:wage": 70636,
+   "status:not_set": 8805
+  },
+  "observations/us/wage_bls_qcew_2022.csv": {
+   "rows": 70748,
+   "status:public_domain": 62129,
+   "layer:wage": 70748,
+   "status:not_set": 8619
+  },
+  "observations/us/wage_bls_qcew_2023.csv": {
+   "rows": 70776,
+   "status:public_domain": 62319,
+   "layer:wage": 70776,
+   "status:not_set": 8457
+  },
+  "observations/us/wage_bls_qcew_2024.csv": {
+   "rows": 70700,
+   "status:public_domain": 60029,
+   "layer:wage": 70700,
+   "status:not_set": 10671
+  },
+  "observations/us/wage_bls_qcew_2025.csv": {
+   "rows": 70680,
+   "status:public_domain": 56472,
+   "layer:wage": 70680,
+   "status:not_set": 14208
+  },
+  "observations/us/work_dod_ufc370101_2026.csv": {
+   "rows": 864,
+   "status:publication_based_not_public": 864,
+   "layer:work": 864
+  },
+  "observations/us/work_fta_capcost_2024_09.csv": {
+   "rows": 3508,
+   "status:public_domain": 2796,
+   "layer:work": 3508,
+   "status:not_set": 712
+  },
+  "observations_restricted/jp/material_cbr_zairyo_r8_10.csv": {
+   "rows": 7896,
+   "status:published_restricted_not_copied": 7896,
+   "layer:material": 7861,
+   "layer:work": 30,
+   "layer:equipment": 5
+  },
+  "observations_restricted/jp/material_skr_zairyo_r8_10.csv": {
+   "rows": 6412,
+   "status:not_set": 2445,
+   "layer:material": 6412,
+   "status:published_restricted_not_copied": 3967
+  },
+  "observations_restricted/jp/material_thr_zairyo_r8_04.csv": {
+   "rows": 6094,
+   "status:published_restricted_not_copied": 6094,
+   "layer:material": 6088,
+   "layer:work": 6
+  },
+  "observations_hold/jp/index_mlit_deflator_nendo_suspect_shift.csv": {
+   "rows": 165,
+   "status:published_pdl": 165,
+   "layer:index": 165
+  },
+  "observations_hold/jp/index_mlit_deflator_suspect_shift.csv": {
+   "rows": 825,
+   "status:published_pdl": 825,
+   "layer:index": 825
+  }
+ },
+ "first_errors": []
+}

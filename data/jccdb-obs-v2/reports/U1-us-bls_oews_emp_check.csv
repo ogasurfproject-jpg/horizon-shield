@@ -1,0 +1,111 @@
+occ_code,o_group,title,national_tot_emp,states_reporting,states_suppressed_emp,sum_50states_dc,sum_with_territories,ratio_50states_dc,ratio_with_territories,note
+11-9021,detailed,Construction Managers,380360,54,2,372510,373690,0.9794,0.9825,
+13-1051,detailed,Cost Estimators,224220,53,0,224200,224830,0.9999,1.0027,
+17-1011,detailed,"Architects, Except Landscape and Naval",106770,53,0,106790,107620,1.0002,1.0080,
+17-2051,detailed,Civil Engineers,367840,53,0,367880,370270,1.0001,1.0066,
+17-3011,detailed,Architectural and Civil Drafters,103700,53,0,103740,104500,1.0004,1.0077,
+17-3022,detailed,Civil Engineering Technologists and Technicians,68520,52,1,68150,68570,0.9946,1.0007,
+47-0000,major,Construction and Extraction Occupations,6425160,54,0,6425180,6471150,1.0000,1.0072,
+47-1000,minor,Supervisors of Construction and Extraction Workers,812210,0,0,,,,,州のファイルにこの階層(minor)の行が無い
+47-1010,broad,First-Line Supervisors of Construction Trades and Extraction Workers,812210,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-1011,detailed,First-Line Supervisors of Construction Trades and Extraction Workers,812210,54,0,812230,818140,1.0000,1.0073,
+47-2000,minor,Construction Trades Workers,4739450,0,0,,,,,州のファイルにこの階層(minor)の行が無い
+47-2010,broad,Boilermakers,10190,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2011,detailed,Boilermakers,10190,38,4,8920,9040,0.8754,0.8871,
+47-2020,broad,"Brickmasons, Blockmasons, and Stonemasons",60370,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2021,detailed,Brickmasons and Blockmasons,52550,52,1,52490,52630,0.9989,1.0015,
+47-2022,detailed,Stonemasons,7820,31,10,4740,4740,0.6061,0.6061,
+47-2030,broad,Carpenters,670090,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2031,detailed,Carpenters,670090,54,0,670080,675040,1.0000,1.0074,
+47-2040,broad,"Carpet, Floor, and Tile Installers and Finishers",76990,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2041,detailed,Carpet Installers,13780,46,5,12660,12660,0.9187,0.9187,
+47-2042,detailed,"Floor Layers, Except Carpet, Wood, and Hard Tiles",23640,45,0,23460,23460,0.9924,0.9924,
+47-2043,detailed,Floor Sanders and Finishers,3720,24,13,1320,1320,0.3548,0.3548,
+47-2044,detailed,Tile and Stone Setters,35850,47,3,35390,35390,0.9872,0.9872,
+47-2050,broad,"Cement Masons, Concrete Finishers, and Terrazzo Workers",207340,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2051,detailed,Cement Masons and Concrete Finishers,206170,53,0,206160,207830,1.0000,1.0081,
+47-2053,detailed,Terrazzo Workers and Finishers,1180,7,6,100,100,0.0847,0.0847,
+47-2060,broad,Construction Laborers,1096780,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2061,detailed,Construction Laborers,1096780,54,0,1096800,1107790,1.0000,1.0100,
+47-2070,broad,Construction Equipment Operators,522210,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2071,detailed,"Paving, Surfacing, and Tamping Equipment Operators",41820,51,4,40880,41110,0.9775,0.9830,
+47-2072,detailed,Pile Driver Operators,2310,11,0,1900,1900,0.8225,0.8225,
+47-2073,detailed,Operating Engineers and Other Construction Equipment Operators,478090,54,0,478080,481250,1.0000,1.0066,
+47-2080,broad,"Drywall Installers, Ceiling Tile Installers, and Tapers",95920,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2081,detailed,Drywall and Ceiling Tile Installers,83080,50,0,82820,83140,0.9969,1.0007,
+47-2082,detailed,Tapers,12840,28,4,11590,11680,0.9026,0.9097,
+47-2110,broad,Electricians,757220,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2111,detailed,Electricians,757220,54,0,757240,760010,1.0000,1.0037,
+47-2120,broad,Glaziers,58480,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2121,detailed,Glaziers,58480,51,0,58460,58510,0.9997,1.0005,
+47-2130,broad,Insulation Workers,70110,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2131,detailed,"Insulation Workers, Floor, Ceiling, and Wall",44440,49,1,42960,43070,0.9667,0.9692,
+47-2132,detailed,"Insulation Workers, Mechanical",25660,44,5,24750,24750,0.9645,0.9645,
+47-2140,broad,Painters and Paperhangers,226760,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2141,detailed,"Painters, Construction and Maintenance",225190,54,0,225140,226110,0.9998,1.0041,
+47-2142,detailed,Paperhangers,1570,13,3,950,950,0.6051,0.6051,
+47-2150,broad,"Pipelayers, Plumbers, Pipefitters, and Steamfitters",498890,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2151,detailed,Pipelayers,33050,45,3,32370,32550,0.9794,0.9849,
+47-2152,detailed,"Plumbers, Pipefitters, and Steamfitters",465840,54,0,465820,467130,1.0000,1.0028,
+47-2160,broad,Plasterers and Stucco Masons,19310,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2161,detailed,Plasterers and Stucco Masons,19310,29,3,17930,17930,0.9285,0.9285,
+47-2170,broad,Reinforcing Iron and Rebar Workers,13800,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2171,detailed,Reinforcing Iron and Rebar Workers,13800,35,8,11950,12470,0.8659,0.9036,
+47-2180,broad,Roofers,135490,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2181,detailed,Roofers,135490,52,0,135490,136040,1.0000,1.0041,
+47-2210,broad,Sheet Metal Workers,119770,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2211,detailed,Sheet Metal Workers,119770,52,0,119680,120030,0.9992,1.0022,
+47-2220,broad,Structural Iron and Steel Workers,68380,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2221,detailed,Structural Iron and Steel Workers,68380,52,1,67530,67840,0.9876,0.9921,
+47-2230,broad,Solar Photovoltaic Installers,31350,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-2231,detailed,Solar Photovoltaic Installers,31350,33,8,26790,28680,0.8545,0.9148,
+47-3000,minor,"Helpers, Construction Trades",182090,0,0,,,,,州のファイルにこの階層(minor)の行が無い
+47-3010,broad,"Helpers, Construction Trades",182090,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-3011,detailed,"Helpers--Brickmasons, Blockmasons, Stonemasons, and Tile and Marble Setters",14170,44,4,13270,13270,0.9365,0.9365,
+47-3012,detailed,Helpers--Carpenters,21680,48,8,20150,21560,0.9294,0.9945,
+47-3013,detailed,Helpers--Electricians,63630,49,3,63190,64910,0.9931,1.0201,
+47-3014,detailed,"Helpers--Painters, Paperhangers, Plasterers, and Stucco Masons",7490,25,8,5310,5310,0.7089,0.7089,
+47-3015,detailed,"Helpers--Pipelayers, Plumbers, Pipefitters, and Steamfitters",44330,49,5,43060,43520,0.9714,0.9817,
+47-3016,detailed,Helpers--Roofers,6030,26,8,4940,4940,0.8192,0.8192,
+47-3019,detailed,"Helpers, Construction Trades, All Other",24770,41,1,24420,25160,0.9859,1.0157,
+47-4000,minor,Other Construction and Related Workers,480270,0,0,,,,,州のファイルにこの階層(minor)の行が無い
+47-4010,broad,Construction and Building Inspectors,146720,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-4011,detailed,Construction and Building Inspectors,146720,53,0,146760,147540,1.0003,1.0056,
+47-4020,broad,Elevator and Escalator Installers and Repairers,23790,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-4021,detailed,Elevator and Escalator Installers and Repairers,23790,39,4,22030,22160,0.9260,0.9315,
+47-4030,broad,Fence Erectors,24480,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-4031,detailed,Fence Erectors,24480,45,10,21100,21100,0.8619,0.8619,
+47-4040,broad,Hazardous Materials Removal Workers,51710,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-4041,detailed,Hazardous Materials Removal Workers,51710,53,1,51670,51880,0.9992,1.0033,
+47-4050,broad,Highway Maintenance Workers,154960,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-4051,detailed,Highway Maintenance Workers,154960,50,0,154860,157590,0.9994,1.0170,
+47-4060,broad,Rail-Track Laying and Maintenance Equipment Operators,19580,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-4061,detailed,Rail-Track Laying and Maintenance Equipment Operators,19580,40,1,17560,17560,0.8968,0.8968,
+47-4070,broad,Septic Tank Servicers and Sewer Pipe Cleaners,30650,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-4071,detailed,Septic Tank Servicers and Sewer Pipe Cleaners,30650,49,1,30310,30310,0.9889,0.9889,
+47-4090,broad,Miscellaneous Construction and Related Workers,28380,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-4090,detailed,Miscellaneous Construction and Related Workers,28380,46,3,27710,27860,0.9764,0.9817,
+47-5000,minor,Extraction Workers,211130,0,0,,,,,州のファイルにこの階層(minor)の行が無い
+47-5010,broad,"Derrick, Rotary Drill, and Service Unit Operators, Oil and Gas",66320,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-5011,detailed,"Derrick Operators, Oil and Gas",10590,19,3,10000,10000,0.9443,0.9443,
+47-5012,detailed,"Rotary Drill Operators, Oil and Gas",12600,26,1,12190,12190,0.9675,0.9675,
+47-5013,detailed,"Service Unit Operators, Oil and Gas",43140,27,1,42710,42710,0.9900,0.9900,
+47-5020,broad,Surface Mining Machine Operators and Earth Drillers,53920,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-5022,detailed,"Excavating and Loading Machine and Dragline Operators, Surface Mining",34480,50,1,33590,33720,0.9742,0.9780,
+47-5023,detailed,"Earth Drillers, Except Oil and Gas",19450,48,1,19350,19350,0.9949,0.9949,
+47-5030,broad,"Explosives Workers, Ordnance Handling Experts, and Blasters",5100,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-5032,detailed,"Explosives Workers, Ordnance Handling Experts, and Blasters",5100,32,6,3830,3830,0.7510,0.7510,
+47-5040,broad,Underground Mining Machine Operators,25260,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-5041,detailed,Continuous Mining Machine Operators,14000,27,0,12950,12950,0.9250,0.9250,
+47-5043,detailed,"Roof Bolters, Mining",2160,7,0,1620,1620,0.7500,0.7500,
+47-5044,detailed,"Loading and Moving Machine Operators, Underground Mining",5930,20,1,4100,4100,0.6914,0.6914,
+47-5049,detailed,"Underground Mining Machine Operators, All Other",3180,9,2,1590,1590,0.5000,0.5000,
+47-5050,broad,"Rock Splitters, Quarry",3320,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-5051,detailed,"Rock Splitters, Quarry",3320,21,2,2720,2790,0.8193,0.8404,
+47-5070,broad,"Roustabouts, Oil and Gas",44970,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-5071,detailed,"Roustabouts, Oil and Gas",44970,23,0,44170,44170,0.9822,0.9822,
+47-5080,broad,Helpers--Extraction Workers,6700,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-5081,detailed,Helpers--Extraction Workers,6700,26,4,5690,5690,0.8493,0.8493,
+47-5090,broad,Miscellaneous Extraction Workers,5540,0,0,,,,,州のファイルにこの階層(broad)の行が無い
+47-5099,detailed,"Extraction Workers, All Other",5540,17,3,4790,4790,0.8646,0.8646,
+49-9021,detailed,"Heating, Air Conditioning, and Refrigeration Mechanics and Installers",409670,54,0,409690,411140,1.0000,1.0036,

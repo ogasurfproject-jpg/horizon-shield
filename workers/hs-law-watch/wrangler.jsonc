@@ -1,0 +1,21 @@
+// hs-law-watch : 改正ウォッチャー(訪問看護の告示・通知・疑義解釈、建設の単価表)。規則は書き換えない。
+{
+  "name": "hs-law-watch",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-09-01",
+  "account_id": "c15ff64aba400e541853dec1fbe5e76a",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+  // JST 09:07 と 18:07(UTC 00:07 / 09:07)。官報は平日 8:30 公開、厚労省の頁は日中に更新される。
+  "triggers": { "crons": ["7 0 * * *", "7 9 * * *"] },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "hs-law-watch", "database_id": "bd747d1c-4f2c-4641-a4db-e7e2f4b75020" }
+  ]
+  // secret(TOshi の手、無くても動く。無いときは知らせを飛ばさない):
+  //   ADMIN_KEY     : /admin/run と /admin/event の鍵(無いと admin は 403 のまま)
+  //   LINE_TOKEN    : LINE Messaging API のチャネルアクセストークン(知らせ用の OA)
+  //   LINE_TO       : 送り先の userId
+  //   GITHUB_TOKEN  : jhnrd に Issue を立てる PAT(issues:write だけ)
+  //   GITHUB_REPO   : ogasurfproject-jpg/jhnrd
+}

@@ -1,0 +1,24 @@
+{
+ "year": "r5",
+ "rows_bbox": 20,
+ "rows_layout": 20,
+ "bbox_eq_layout": 20,
+ "max_value_to_header_center": 44.17,
+ "max_ratio_to_header_center": 0.01,
+ "min_margin_to_other_header": 43.22,
+ "groups": {
+  "①設計業務": 7,
+  "②測量業務": 5,
+  "③航空・船舶関係": 5,
+  "④地質業務": 3
+ },
+ "rows_written": 20,
+ "bracket": 0,
+ "simple_avg_all": 44455.0,
+ "simple_avg_by_group": {
+  "①設計業務": 53671.429,
+  "②測量業務": 37700.0,
+  "③航空・船舶関係": 40580.0,
+  "④地質業務": 40666.667
+ }
+}

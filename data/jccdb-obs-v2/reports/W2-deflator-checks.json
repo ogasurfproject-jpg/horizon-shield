@@ -1,0 +1,46 @@
+{
+ "files": {
+  "observations/jp/index_mlit_deflator.csv": {
+   "rows": 12300,
+   "by_status": {
+    "published_pdl": 12300
+   },
+   "periods": 164,
+   "series": 75,
+   "sha256": "9de948ccc3b54131871fa1ad3e0aa996737af52e09bdff1789759ae66f3b360f"
+  },
+  "observations/jp/index_mlit_deflator_nendo.csv": {
+   "rows": 5625,
+   "by_status": {
+    "not_set": 1541,
+    "published_pdl": 4084
+   },
+   "periods": 75,
+   "series": 75,
+   "sha256": "f1269ae8ad9f54e5dd7cddf808dadaa8ccac406d16af2dc4c59767f470f452ed"
+  }
+ },
+ "checks": {
+  "H_month_vs_quarter_same": true,
+  "H_month_vs_year_same": true,
+  "month_first_last": [
+   "2016-04",
+   "2026-06"
+  ],
+  "Q": {
+   "other:same": 2250,
+   "late_tail:left_only": 650,
+   "late_tail:same": 155,
+   "late_tail:neither": 20
+  },
+  "Q_absdiff_max_other": "0.1",
+  "Y": {
+   "other:same": 585,
+   "late_tail:neither": 4,
+   "late_tail:left_only": 146,
+   "late_tail:same": 15
+  },
+  "Y_absdiff_max_other": "0.1",
+  "Y_diffs_gt_0.1_other": []
+ }
+}

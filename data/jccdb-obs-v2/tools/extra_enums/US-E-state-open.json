@@ -1,0 +1,10 @@
+{
+ "price_basis": [
+  {"value": "bid_avg_contract_price",
+   "why": "FHWA 'Price Trends for Federal-Aid Highway Construction' の 'Average contract price'。原本の定義は 'Average contract prices shown herein are based on actual bids and include costs of materials, labor, equipment, overhead and profit.'(連邦補助の契約の入札に基づく平均契約単価)。加重平均か単純平均かは原本に明記がないので bid_weighted_avg と分ける"},
+  {"value": "bid_avg_contract_price_3q_moving",
+   "why": "同じ FHWA Price Trends の 'Three-Quarter Moving Index' 表にある Average contract price(連続 3 四半期の移動)。四半期単独の値と混ざらないように分ける"},
+  {"value": "asbuilt_unit_cost_midpoint",
+   "why": "FTA Capital Cost Database の 'Unit Cost at Mid-Point of Construction'(竣工した連邦補助の交通プロジェクトの出来形の要素別単価。工事期間の中間年の名目ドル、地域補正なし)。入札単価ではなく竣工実績の原価"}
+ ]
+}

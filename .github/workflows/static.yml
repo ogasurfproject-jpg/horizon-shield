@@ -55,6 +55,10 @@ jobs:
           # papers/ は残す。論文 PDF 2 本は公開する物や。
           rm -rf _public/ops _public/line-broadcast _public/note-post
           rm -rf _public/paint-monitor _public/yahoo-monitor
+          # 2026-09-26 JCCDB 観測層 v2(data/jccdb-obs-v2、CSV と台帳で約 1.9 GB)を足した。
+          # これはサイトに出す物ではない(読む口は Cloudflare の hs-jccdb-obs)。rsync で写すと
+          # Pages の公開サイズの上限(1 GB)を超えて配れなくなる。場所で削る。
+          rm -rf _public/data/jccdb-obs-v2
           # 2026-09-10 Worker のソースが 1 本、workers/ の外に居た。
           # 上の rm は「場所」で削る。場所の外に置かれた写しは素通りする。
           # このファイルは env.ANTHROPIC_API_KEY を参照する 11KB の Worker 本体で、

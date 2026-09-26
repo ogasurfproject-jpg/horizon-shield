@@ -1,0 +1,37 @@
+{
+ "source_id": "bls-oews-m2021-state",
+ "country": "US",
+ "title": "Occupational Employment and Wage Statistics (OEWS), May 2021, state (state_M2021_dl.xlsx)",
+ "publisher": "U.S. Bureau of Labor Statistics",
+ "url": "https://www.bls.gov/oes/special-requests/oesm21st.zip",
+ "landing": "https://www.bls.gov/oes/tables.htm",
+ "retrieved_at": "2026-09-26",
+ "bytes": 7525249,
+ "sha256": "a4397cb1524512c21ca900dcc25d6a21d2b6342031efb746494ffd7ffc6c6941",
+ "http_last_modified": "Fri, 15 May 2026 13:17:56 GMT",
+ "http_etag": "\"05a2d3e6de4dc1:0\"",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.bls.gov/opub/copyright-information.htm",
+ "license_quote": "The Bureau of Labor Statistics (BLS) is a Federal government agency and everything that we publish, both in hard copy and electronically, is in the public domain, except for previously copyrighted photographs and illustrations. You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.",
+ "attribution": "Source: U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics, May 2021 (https://www.bls.gov/oes/)",
+ "how_read": "zip の中の xlsx を openpyxl でセルごとに読む(state_M2021_dl.xlsx の 1 枚目)。対象は SOC 47-xxxx の全行と 11-9021, 13-1051, 17-1011, 17-2051, 17-3011, 17-3022, 49-9021、cross-industry(NAICS 000000)・全所有形態(OWN_CODE 1235)。1 行の職業から TOT_EMP と時給・年収の平均と分位(10/25/50/75/90)の 13 観測。U1(May 2025 の全国・州)とitem_name / spec / unit の作り方を揃えた。記号 * ** # は値を入れず not_set、note にこのファイルの Field Descriptions の Notes の原文。照合: 年収 = 時給 x 2080 の全組、全国の雇用者数と 50 州 + DC の合計(reports/US-C-bls-geo_oews_check.csv)。",
+ "values_copied": true,
+ "fetched_via": "Apify web-fetch (formats=raw); Range ヘッダで 2 回に分けて取得し連結(どの回も HTTP 206、同じ ETag、合計 bytes = Content-Range の全長、zip の CRC 検査済み)",
+ "parts": [
+  {
+   "content_range": "bytes 0-5999999/7525249",
+   "bytes": 6000000,
+   "sha256": "0f3cdb79db58878e1768a4ef4ae39efeaff3ef988973b950e6a9e5c9181368dc",
+   "http_status": 206
+  },
+  {
+   "content_range": "bytes 6000000-7525248/7525249",
+   "bytes": 1525249,
+   "sha256": "9c534569f3c914ef34429d7aedd576710341dcf4622091b4ebae37cfb3eff21d",
+   "http_status": 206
+  }
+ ],
+ "published": "",
+ "scope_quote": "May 2021 OEWS Estimates",
+ "rows": 36452
+}

@@ -1,0 +1,21 @@
+{
+ "source_id": "mlit-deflator-nendo-260630",
+ "country": "JP",
+ "title": "建設工事費デフレーター（2020年度基準）年度次 defnendo_260630.xlsx(令和8年6月30日付け、1951〜2025年度)",
+ "publisher": "国土交通省 総合政策局 情報政策課 建設経済統計調査室",
+ "url": "https://www.mlit.go.jp/statistics/details/content/defnendo_260630.xlsx",
+ "landing": "https://www.mlit.go.jp/statistics/details/t-other-2_tk_000362.html",
+ "published": "2026-06-30",
+ "retrieved_at": "2026-09-26",
+ "bytes": 35876,
+ "sha256": "ac59ca2fbd3ec9859f061d405d7705e5d5065ca851b222d0165fdddf4c48b8a0",
+ "http_last_modified": "",
+ "license": "PDL1.0",
+ "license_url": "https://www.mlit.go.jp/link.html",
+ "license_quote": "国土交通省ウェブサイトで掲載・発信している情報（以下「コンテンツ」といいます。）の著作権は、特記されていない限り国土交通省に帰属し、権利表記の記載がない限り「公共データ利用規約（第1.0版）」（PDL1.0）に準拠した利用条件の下で、利用することができます。 / イ　コンテンツを編集・加工等して利用する場合は、上記出典とは別に、編集・加工等を行ったことを記載してください。なお、編集・加工した情報を、あたかも国（又は府省等）が作成したかのような態様で公表・利用してはいけません。",
+ "attribution": "出典：「建設工事費デフレーター」（国土交通省）（https://www.mlit.go.jp/statistics/details/content/defnendo_260630.xlsx）を加工して作成",
+ "scope_quote": "建設工事費デフレーターは、令和8年4月分から2020年度基準に改定しました。(統計ページ) / *　建設工事費デフレーターは、その算定にあたり採用するウエイト項目に営業余剰や間接税（消費税を含む）等を含めていません。(ファイルの注)",
+ "how_read": "openpyxl(data_only)でセルを直接読んだ(tools/parsers/parse_mlit_deflator.py)。「***」は not_set。表頭8段が月次ファイルと同じことを確かめた。照合: 年度値と月別(4〜3月)12か月平均の一致を全セル数えた。2021年度以降の「地方道路公社等」から「S事務所・その他」の33列で年度別の値が1列右にずれている疑い(報告書に数字)。",
+ "values_copied": true,
+ "fetched_via": "Apify apify/website-content-crawler(crawlerType=cheerio, saveContentTypes=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)で取得し、キー値ストアのレコードを get-key-value-store-record で受け取った(作業環境から官公庁サイトへ直接は届かないため)。apify/web-fetch の formats=raw は、この種のバイナリを文字列として扱い不正なバイトを U+FFFD に置き換えて壊した(e-Stat の .xls で先頭 efbfbdefbfbd11e0、U+FFFD 11046 か所。MLIT の .xlsx も zip として開けなかった)ため使っていない。同じ website-content-crawler の経路で取った deftsuki_2606.xlsx の MD5 がサーバーの ETag と一致したので、この経路はバイト列を変えないと確かめている。"
+}

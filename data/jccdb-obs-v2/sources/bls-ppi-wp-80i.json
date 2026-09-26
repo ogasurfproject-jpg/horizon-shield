@@ -1,0 +1,80 @@
+{
+ "source_id": "bls-ppi-wp-80i",
+ "country": "US",
+ "title": "Producer Price Indexes (PPI), time.series flat file wp.data.80i.ConstructnInputs",
+ "publisher": "U.S. Bureau of Labor Statistics",
+ "url": "https://download.bls.gov/pub/time.series/wp/wp.data.80i.ConstructnInputs",
+ "landing": "https://www.bls.gov/ppi/",
+ "retrieved_at": "2026-09-26",
+ "bytes": 1406260,
+ "sha256": "07e01e048a817dfa0bd28582c7e6f258dbfe7a86e9266bdd2f43a56427134df9",
+ "http_last_modified": "Thu, 10 Sep 2026 12:30:00 GMT",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.bls.gov/opub/copyright-information.htm",
+ "license_quote": "The Bureau of Labor Statistics (BLS) is a Federal government agency and everything that we publish, both in hard copy and electronically, is in the public domain, except for previously copyrighted photographs and illustrations. You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.",
+ "attribution": "Source: U.S. Bureau of Labor Statistics, Producer Price Indexes (https://www.bls.gov/ppi/)",
+ "how_read": "BLS の time.series flat file(タブ区切り: series_id, year, period, value, footnote_codes)をそのまま読む。取り込む系列は BLS の公式 Series ID 一覧(data-retrieval-guide の commodity / industry 2本)に載る ID だけ(Inputs to construction industries は WPUIP23 で始まる全系列、建設業の産業別 PPI は PCU23 で始まる全系列、主要資材は選んだ 55 系列)。系列名は同じ一覧の原文、分類名は wp.group / 一覧の産業名、基準時点は wp.series / pc.series の base_date。2016 年1月から台帳の終了月までの月次(M01-M12)。年平均 M13 は入れない。脚注 P(速報)は note に wp.footnote の原文で。台帳の範囲内で行が無い月は not_set。照合: 系列ごとに期待月数(台帳の開始・終了月から)と値のある月数、欠け、台帳の終了月とファイルの最終月の一致を全数で数えた(reports/U1-us-bls_ppi_series_check.csv)。API v1 の応答(WPUIP2312001、2024-01〜2026-08)と flat file を全月で突き合わせた。",
+ "values_copied": true,
+ "fetched_via": "Apify web-fetch (formats=raw)",
+ "series_count": 152,
+ "rows": 19456,
+ "aux_files": [
+  {
+   "path": "raw/bls-ppi-commodity-series-id-codes.txt",
+   "url": "https://www.bls.gov/ppi/data-retrieval-guide/producer-price-index-commodity-data-series-id-codes.txt",
+   "sha256": "f7fd4f39d4f48400da879a22ffee324f1b0a1b87583457201ac8fd3207411cb4",
+   "bytes": 261252,
+   "http_last_modified": "Wed, 15 Jul 2026 17:44:29 GMT"
+  },
+  {
+   "path": "raw/bls-ppi-industry-series-id-codes.txt",
+   "url": "https://www.bls.gov/ppi/data-retrieval-guide/producer-price-index-industry-data-series-id-codes.txt",
+   "sha256": "2c2dd8a831162acdfb1fc0a96f2d7e185c5c6293acf1c4bb2105f9dd03f81dfe",
+   "bytes": 306771,
+   "http_last_modified": "Wed, 15 Jul 2026 14:34:16 GMT"
+  },
+  {
+   "path": "raw/bls-wp.series.txt",
+   "url": "https://download.bls.gov/pub/time.series/wp/wp.series",
+   "sha256": "cf06d3d3e03393dce142145fa24ba028915ca39637adb86a0efe1a2b66fe8265",
+   "bytes": 985162,
+   "http_last_modified": "Thu, 10 Sep 2026 12:30:00 GMT"
+  },
+  {
+   "path": "raw/bls-pc.series.txt",
+   "url": "https://download.bls.gov/pub/time.series/pc/pc.series",
+   "sha256": "911f881136037963018f92a0c1e4f7f48452ab53ccf303d724eaa609f8845715",
+   "bytes": 853221,
+   "http_last_modified": "Thu, 10 Sep 2026 12:30:00 GMT"
+  },
+  {
+   "path": "raw/bls-wp.group.txt",
+   "url": "https://download.bls.gov/pub/time.series/wp/wp.group",
+   "sha256": "863337a72fa59e22863ae38611b33483e6da393286754762b0fe1c8ef9b7402d",
+   "bytes": 2050,
+   "http_last_modified": "Thu, 10 Sep 2026 12:30:00 GMT"
+  },
+  {
+   "path": "raw/bls-wp.footnote.txt",
+   "url": "https://download.bls.gov/pub/time.series/wp/wp.footnote",
+   "sha256": "2c34208e13e23e809f3eac8ac1bc42c5e975e5b2140e8cba837468a968718959",
+   "bytes": 150,
+   "http_last_modified": "Thu, 10 Sep 2026 12:30:00 GMT"
+  },
+  {
+   "path": "raw/bls-api-v1-WPUIP2312001.json",
+   "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/WPUIP2312001?startyear=2016&endyear=2025",
+   "sha256": "b776a334a46524a93c2c1cdba87ca6a5069513eb8e1a6609d1d59af6c0968d97",
+   "bytes": 3623,
+   "http_last_modified": ""
+  },
+  {
+   "path": "raw/bls-copyright.htm",
+   "url": "https://www.bls.gov/opub/copyright-information.htm",
+   "sha256": "93b73a7df1d66de966702f1ebe76ad42d3dcf5ca38741b4fcbf610f885021be2",
+   "bytes": 47310,
+   "http_last_modified": ""
+  }
+ ],
+ "api_note": "API v1 の GET(https://api.bls.gov/publicAPI/v1/timeseries/data/<id>)は startyear/endyear を無視して直近3年だけを返した。POST は Apify の web-fetch で送れず、cheerio-scraper はアカウント権限の承認が要り使えなかった。"
+}

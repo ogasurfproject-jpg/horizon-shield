@@ -1,0 +1,23 @@
+{
+ "source_id": "census-bps-st2025a",
+ "country": "US",
+ "title": "Building Permits Survey, State ASCII file st2025a.txt (2025, Annual)",
+ "publisher": "U.S. Census Bureau, Economic Indicators Division (Building Permits Survey)",
+ "url": "https://www2.census.gov/econ/bps/State/st2025a.txt",
+ "landing": "https://www.census.gov/construction/bps/",
+ "documentation": "https://www2.census.gov/econ/bps/Documentation/stateasc.pdf",
+ "retrieved_at": "2026-09-26",
+ "published": "2026-05-14",
+ "http_last_modified": "ディレクトリ一覧の更新日時 2026-05-14 09:30(サーバーの現地時刻)、一覧のサイズ 10K",
+ "bytes": 10744,
+ "sha256": "eab29258ada8389b9f469c566eb6eb074cf128aa94c471e89f818a20a4d83afb",
+ "encoding": "ASCII",
+ "fetched_via": "apify/website-content-crawler(crawlerType cheerio, saveContentTypes text/plain, respectRobotsTxtFile false)で原本を key-value store に保存 → rationalistic_candle_ucn/bulk-file-downloader がその記録を取り直して bytes と sha256 を記録し zip(無圧縮)に → apify/web-fetch(raw, base64)で zip を受け取り、zip の CRC 検査正常、中のファイルの sha256 が bulk-file-downloader の記録と一致。別に apify/web-fetch(raw)で直接取得した 10,744 bytes と一致",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.law.cornell.edu/uscode/text/17/105",
+ "license_quote": "Copyright protection under this title is not available for any work of the United States Government, but the United States Government is not precluded from receiving and holding copyrights transferred to it by assignment, bequest, or otherwise. (17 U.S.C. 105(a), https://www.law.cornell.edu/uscode/text/17/105) / Census Bureau, Citing our Data, Tools, Technical Documents and Research, Public-Use Statement (https://www.census.gov/about/policies/citation.html, Page Last Revised - February 24, 2026, Apify で 2026-09-26 に再取得して同文を確認): \"Proper citation ensures that Census Bureau statistical products and research can be discovered, reused, replicated for verification, and credited for recognition to measure usage and impact. Data users who create their own estimates using data from disseminated tables and other data should cite the Census Bureau as the source of the original data only. Conclusions drawn from any analysis of these data are the sole responsibility of the performing party.\"",
+ "attribution": "Source: U.S. Census Bureau, Building Permits Survey, st2025a.txt, https://www2.census.gov/econ/bps/State/st2025a.txt, accessed on September 26, 2026",
+ "scope_quote": "These files provide building permit statistics on new privately-owned residential construction. These are provided for the 50 states and the District of Columbia sorted by FIPS State code, followed by aggregate totals for divisions, regions and the United States total. / Buildings, Units and Valuation Permit Data (valuation is shown in thousands of dollars.) (stateasc.pdf, February 9, 2022) / Two sets of data are shown for each type of construction: 1. Estimates with Imputation - includes reported data for monthly respondents and imputed data for nonrespondents. 2. Reported Only - includes only reported data for respondents.",
+ "how_read": "tools/parsers/parse_census_bps.py。原本は latin-1 のカンマ区切り(見出し 2〜3 行の後に 1 地域 1 行)。4 区分(1-unit, 2-units, 3-4 units, 5+ units)x Bldgs/Units/Value の Estimates with Imputation を price、Reported Only を ref_value に。Value は 千ドル(文書に明記)。Units > 0 かつ Value > 0 の組に 1 戸あたり工事額(原本に無い計算値)を足した。照合: 50 州 + DC の和 = US 計(Estimates: Bldgs/Units 8 セル中 8 一致・最大差 0、Value 最大差 4 千ドル。Reported Only: Bldgs/Units 8 セル中 8 一致・最大差 0、Value 最大差 5 千ドル)。Region 4 と Division 9 = 州の和(312 セル中 257 一致、最大差 3)。照合: 同じ時点の郡ファイルの州ごとの和 = 州ファイル(Estimates: Bldgs/Units 408 セル中 408 一致、Value 最大差 0.498 千ドル。Reported Only: 408 セル中 408 一致、Value 最大差 0.499 千ドル)。行の中の整合(同じ時点の全階層): 1-unit Bldgs = Units、2-units Units = 2 x Bldgs 等の違反 {\"2-units U!=2B\": 14, \"units 0 but value>0\": 2}。Reported Only が Estimates を上回るセル 0。",
+ "values_copied": true
+}

@@ -1,0 +1,36 @@
+{
+ "source_id": "bls-cpi-cu-data-12",
+ "country": "US",
+ "title": "Consumer Price Index (CPI-U), time.series flat file cu.data.12.USHousing (repair and hardware items)",
+ "publisher": "U.S. Bureau of Labor Statistics",
+ "url": "https://download.bls.gov/pub/time.series/cu/cu.data.12.USHousing",
+ "landing": "https://www.bls.gov/cpi/",
+ "retrieved_at": "2026-09-26",
+ "bytes": 2703462,
+ "sha256": "f8d97f2dce4af234f6be7c22a6221ac00d9c30bddb7fee71942128cf31496276",
+ "raw": "raw/bls-cu.data.12.USHousing.txt",
+ "http_last_modified": "Fri, 11 Sep 2026 12:30:00 GMT",
+ "http_etag": "\"0d41a43e941dd1:0\"",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.bls.gov/opub/copyright-information.htm",
+ "license_quote": "The Bureau of Labor Statistics (BLS) is a Federal government agency and everything that we publish, both in hard copy and electronically, is in the public domain, except for previously copyrighted photographs and illustrations. You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.",
+ "attribution": "Source: U.S. Bureau of Labor Statistics, Consumer Price Index (https://www.bls.gov/cpi/)",
+ "how_read": "BLS の time.series flat file(タブ区切り)をそのまま読む。系列の台帳は cu.series(raw/bls-cu.series.txt)、脚注は cu.footnote(raw/bls-cu.footnote.txt)。cu.series の series_title で maintenance を含む品目は Motor vehicle maintenance and repair / Motor vehicle maintenance and servicing / Water and sewerage maintenance だけで、住宅(dwelling)の maintenance and repair の品目は無い(cu.item 16,554 bytes、2026-09-11 版も目で確かめた。結果が会話に直接出たため raw には置いていない)。近い系列として CUUR0000SEHP04, CUUR0000SEHM, CUUR0000SEHM01(U.S. city average、CPI-U、季節調整なし、月次)を 2016 年1月から台帳の終了月まで入れる。値が - の月と行の無い月は not_set(脚注 X の原文を note に)。",
+ "values_copied": true,
+ "fetched_via": "Apify web-fetch (formats=raw)",
+ "rows": 374,
+ "aux_files": [
+  {
+   "path": "raw/bls-cu.series.txt",
+   "url": "https://download.bls.gov/pub/time.series/cu/cu.series",
+   "bytes": 1339447,
+   "sha256": "f7367ea7851338d4d9165061bfb14051030f07f073dc12d007cdff2becd2320d"
+  },
+  {
+   "path": "raw/bls-cu.footnote.txt",
+   "url": "https://download.bls.gov/pub/time.series/cu/cu.footnote",
+   "bytes": 100,
+   "sha256": "d92c2f0b60f9a52f9184f366f9d5b61fc6659181959be718fa332e43f9983903"
+  }
+ ]
+}

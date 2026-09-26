@@ -1,0 +1,25 @@
+{
+ "source_id": "usace-cwccis-2026-03",
+ "country": "US",
+ "title": "EM 1110-2-1304 Civil Works Construction Cost Index System (CWCCIS), tables revised as of 31 March 2026 (CWCCIS_Mar_2026-Combined Tables.pdf)",
+ "publisher": "U.S. Army Corps of Engineers (Cost Engineering, Walla Walla District)",
+ "url": "https://publibrary.sec.usace.army.mil/api/download?id=9fcedc82-37ec-4b3c-e8de-1b9dfc89ebec&filename=CWCCIS_Mar_2026-Combined%20Tables.pdf&token=&preview=true",
+ "landing": "https://www.nww.usace.army.mil/missions/cost-engineering/cwccis-indices/",
+ "retrieved_at": "2026-09-26",
+ "published": "2026-03-31",
+ "bytes": 413831,
+ "sha256": "f8f4e9f42476aae566c2cbc6c286dcacc6b23afbd754266bf4dbd8bce0d0bed8",
+ "fetched_via": "Apify web-fetch raw では文字として読み替えられて壊れた(EF BF BD 146,340 箇所、長さ 701,608)。Apify の eliai/base64-encoder-decoder で取り直し、413,831 bytes。PDF の linearization 辞書 /L 413831 と一致、先頭 %PDF-1.6、qpdf --check でストリームの誤り無し(linearization の hint の警告のみ)、pdftotext で 52 頁すべて読める。照合用の旧版 30 September 2025(https://publibrary.sec.usace.army.mil/api/download?id=15b4b314-eeed-4bd2-8eb4-66417d7be7ef&filename=CWCCIS_Tables_SEP-2025.pdf&token=&preview=true)は raw/usace-cwccis-2025-09.pdf(707,958 bytes、web-fetch raw と base64 の 2 経路で同じ sha256)。",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.usace.army.mil/Privacy-and-Security/",
+ "license_quote": "U.S. Army Corps of Engineers の Privacy and Security の頁(https://www.usace.army.mil/Privacy-and-Security/、2026-09-26 に Apify で取得): \"1. This website is provided as a public service by the U.S. Army Corps of Engineers, Public Affairs.\" \"2. Information presented on this website is considered public information and may be distributed or copied unless otherwise specified. Use of appropriate byline/photo/image credits is requested.\" / EM 1110-2-1304(31 March 2021、https://www.publications.usace.army.mil/Portals/76/Users/182/86/2486/EM%201110-2-1304_2021.pdf、raw/usace-cwccis-em1110-2-1304-2021.pdf): \"3. Distribution Statement. Approved for public release; distribution is unlimited.\" / Copyright protection under this title is not available for any work of the United States Government, but the United States Government is not precluded from receiving and holding copyrights transferred to it by assignment, bequest, or otherwise. (17 U.S.C. 105(a), https://www.law.cornell.edu/uscode/text/17/105、2026-09-26 に Apify で取得) / 表の PDF の Author: \"USACE\"。表の PDF に著作権表示は無い(pdftotext で copyright / © / distribution を検索して 0 件)。",
+ "license_judgement": "USACE の文書で配布制限なし、連邦政府の著作物として public_domain。注意: EM 1110-2-1304 の 14 項によると指数の作成には BLS の PPI、OMB の updating factors、Bureau of Reclamation の指数、EP 1110-1-8 に加えて、市販の資料(RSMeans の Labor Rates / Heavy Construction Cost Data の City Cost Index、Engineering News-Record の 20-City 指数)も入力に使っている。表の値は USACE が重み付けで合成した指数で、市販資料の値を写したセルや市販資料由来と示されたセルは無いので値を入れた(判断の根拠を reports/US-A-dod-usace.md に書いた)。",
+ "attribution": "Source: U.S. Army Corps of Engineers, EM 1110-2-1304 Civil Works Construction Cost Index System (CWCCIS), tables as of 31 March 2026, https://www.nww.usace.army.mil/missions/cost-engineering/cwccis-indices/",
+ "how_read": "tools/parsers/parse_usace_cwccis.py。pdftotext -bbox-layout の語。行は Wt % の語の高さ、列は見出し(1Q80 / FY68 など)の x 中心に最近傍(最大距離 4.02pt、列の間隔は約 47pt)。Table 1 は 1-38 頁(1Q80〜4Q55*、20 行 x 8 列 x 38 頁 = 6,080)、Table 2 は 39-49 頁(FY68〜FY55*、1,760)、Table 3 は 50 頁(51 州等)、Table 4 は 51-52 頁(51 x 2014〜2025 = 612、最大距離 4.90pt)。照合: (1) 頁ごとに pdftotext -layout の「数.2桁」の数と bbox で読んだ値の数が 49/49 頁で一致。(2) COMPOSITE と 19 工種の Wt % による加重平均の差が 392/392 列で 0.01 以内(Wt % の和 100)。(3) Table 2 の年度値と Table 1 の 4 四半期の平均が 1,520 組のうち 1,511 組で 0.01 以内(外れ 9 組は 12 NAVIGATION PORTS & HARBORS の FY86・87・88・91 と COMPOSITE の FY91 など、最大 0.88)。(4) Table 2 の YEARLY PERCENTAGE CHANGE と COMPOSITE の前年比が 87/87 で一致(0.05% 以内)。(5) 旧版 30 September 2025 と同じ期間の値: 実績の四半期 3,638/3,640、実績の年度 1,140/1,140 が一致(違う 2 つは 2Q25 の 12 と COMPOSITE の改訂)、見通し(*)の値 3,060 はすべて更新されている。(6) Table 3(現行)と Table 4 の 2025 列が 51/51 で一致。原本の誤植らしきもの: Table 2 の FY26*〜FY55* の 30 列の期間の見出しがすべて 'Oct 24 - Sep 25'(該当行の note に書いた)。",
+ "values_copied": true,
+ "scope_quote": "表の注: \"Note: FY* indicates data developed based on OMB projections.\" \"[ 1st QTR = 2 OCT THRU 31 DEC/1 JAN] [2nd QTR = 2 JAN THRU 31 MAR/ 1 APR] [3rd QTR = 2 APR THRU 30 JUN/ 1 JUL] [4th QTR = 2 JUL THRU 30 SEPT/ 1 OCT]\" 見出し: \"TABLE 1, QUARTERLY COST INDICES BY CWWBS FEATURE CODE\" \"Base Year 1967 = 100\"。EM 1110-2-1304 10 項: \"Indices used to escalate costs from the past to the present are developed from actual historic data. Indices for future escalation are developed using the “Updating Factors” in table 1 of the EC, CW Direct Program Development Policy Guidance, which are based on the current annual Office of Management and Budget (OMB) inflation factors.\"",
+ "supporting_files": {
+  "raw/usace-cwccis-2025-09.pdf": "42bcb8ef2486f9ce3ed8ae617f1391940e22fe51cfd3eed000a07cdb94ff5d06",
+  "raw/usace-cwccis-em1110-2-1304-2021.pdf": "3ec0fb3ca93061fd4c66ff1f23495cb302c442a3a3673a662b25f539e6d67156"
+ }
+}

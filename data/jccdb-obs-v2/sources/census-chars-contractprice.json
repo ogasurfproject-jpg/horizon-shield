@@ -1,0 +1,18 @@
+{
+ "source_id": "census-chars-contractprice",
+ "country": "US",
+ "title": "Characteristics of New Housing: Median and Average Contract Price of New Contractor-Built Single-Family Houses Started by Region and Type of Financing",
+ "publisher": "U.S. Census Bureau and U.S. Department of Housing and Urban Development (Survey of Construction)",
+ "url": "https://www.census.gov/construction/chars/xls/contractprice_cust.xls",
+ "landing": "https://www.census.gov/construction/chars/current.html",
+ "retrieved_at": "2026-09-26",
+ "bytes": 78848,
+ "sha256": "6c3eb1bfb126c12ecd5d1243ee521fc0538b51be6ba07d86fdae97bf45dff1d4",
+ "fetched_via": "Apify apify/website-content-crawler(crawlerType cheerio, saveFiles)で原本を key-value store に保存し、MCP の get-key-value-store-record でバイト列を受け取った。HTTP 200、Content-Type は原本どおり。先頭が D0CF11E0(xls)/ PK(xlsx)で xlrd / openpyxl で開ける。apify/web-fetch の raw は xls/xlsx を文字として読み替えて壊す(先頭 EFBFBD、zip として開けない)ので使わない",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.law.cornell.edu/uscode/text/17/105",
+ "license_quote": "Copyright protection under this title is not available for any work of the United States Government, but the United States Government is not precluded from receiving and holding copyrights transferred to it by assignment, bequest, or otherwise. (17 U.S.C. 105(a), https://www.law.cornell.edu/uscode/text/17/105) / Census Bureau, Citing our Data, Tools, Technical Documents and Research, Public-Use Statement (https://www.census.gov/about/policies/citation.html, Page Last Revised - February 24, 2026): \"Proper citation ensures that Census Bureau statistical products and research can be discovered, reused, replicated for verification, and credited for recognition to measure usage and impact. Data users who create their own estimates using data from disseminated tables and other data should cite the Census Bureau as the source of the original data only. Conclusions drawn from any analysis of these data are the sole responsibility of the performing party.\" / 表の出所の表記: \"Source: U.S. Census Bureau and U.S. Department of Housing and Urban Development, Survey of Construction\"(Census 商務省と HUD はいずれも連邦政府の機関)",
+ "attribution": "Source: U.S. Census Bureau and U.S. Department of Housing and Urban Development, Survey of Construction, https://www.census.gov/construction/chars/xls/contractprice_cust.xls",
+ "how_read": "tools/parsers/parse_census_newhousing.py。シート ContractMedAvgPrice のセルを直接読む(見出し行の文字を確かめてから列を決める)。1994〜2025 年、Total(全米)と 4 地域、資金の種類別(Conventional / FHA insured / VA guaranteed / Cash、全米)、中央値と平均。(S)(公表基準に満たず非公表)と (NA)(該当なし)は値を入れず not_set(48 行)。照合: 全米の平均が 4 地域の平均の間に入るか、4 地域とも値がある 29 年すべて入る。",
+ "values_copied": true
+}

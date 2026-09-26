@@ -1,0 +1,13 @@
+{
+ "layer": [
+  {"value": "cost_limit", "why": "公的機関が定めた 1 戸あたりの開発費・建設費の上限(HUD の公営住宅 Unit Total Development Cost (TDC) Limits と Housing Construction Cost (HCC))。統計の実績値(spending, cost_sqft, house_price)でも単価表(work)でもなく、規則(24 CFR 905.314)で使う上限額なので分ける"}
+ ],
+ "price_basis": [
+  {"value": "permit_valuation_usd", "why": "Census Building Permits Survey の Value(建築許可の申請時に申告された工事額の合計。単位 ドル。郡・place のファイル)。工事の出来高(spending_million_usd_*)や単価ではなく、許可件数に対応する見込み工事額の合計なので分ける"},
+  {"value": "permit_valuation_thousand_usd", "why": "Census Building Permits Survey の Value(同上)で、原本の単位が千ドルのもの(州・都市圏のファイル。stateasc.pdf / msaasc.pdf / cbsaasc.pdf に valuation is shown in thousands of dollars)"},
+  {"value": "permit_valuation_per_unit_usd", "why": "原本に無い計算値。Census BPS の Value(千ドルなら x 1000)÷ Units(戸数)。許可 1 戸あたりの工事額(ドル、土地代を含まない)。面積あたりではないので cost_per_sqft と分ける"},
+  {"value": "annual_total_thousand_usd", "why": "Economic Census 2022(EC2223BASIC)の年間の合計額(value of construction work、annual payroll、cost of materials など。単位 千ドル)。単価や出来高の月次統計ではなく、事業所から集めた 1 年分の合計"},
+  {"value": "tdc_limit_usd", "why": "HUD 公営住宅の Unit Total Development Cost (TDC) Limit(1 戸あたりの総開発費の上限、ドル)。地域・構造・寝室数ごと"},
+  {"value": "hcc_limit_usd", "why": "HUD 公営住宅の Housing Construction Cost (HCC) Limit(1 戸あたりの住宅建設費の上限、ドル)。TDC 表で TDC と組で公表される"}
+ ]
+}

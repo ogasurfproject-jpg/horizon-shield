@@ -1,0 +1,16 @@
+{
+ "source_id": "test-fixture-jp-restricted-listing",
+ "country": "JP",
+ "title": "試験用 (TEST FIXTURE, not real data): 表が複製・電子媒体への加工を禁じている出典の形(行は載せず件数だけ)",
+ "publisher": "hs-jccdb-obs test harness",
+ "url": "https://example.invalid/jccdb-test-fixture/test-fixture-jp-restricted-listing",
+ "retrieved_at": "2026-09-26",
+ "license": "restricted",
+ "license_url": "https://example.invalid/jccdb-test-fixture/license",
+ "license_quote": "試験用。実在の利用条件ではない。/ Test fixture; not a real licence text.",
+ "how_read": "test/fixtures/make_fixtures.py が書いた架空の行。/ Written by make_fixtures.py.",
+ "values_copied": false,
+ "sha256": "c1b8fe75305730a5299f36ecfe7c764013d7424b826355bb7a67d8658d61a68a",
+ "row_listing": "not_in_public_build",
+ "row_listing_reason": "試験用: 本単価表の全部または一部を、無断で複製・転載・磁気媒体入力することを禁止します(という形の注記)。"
+}

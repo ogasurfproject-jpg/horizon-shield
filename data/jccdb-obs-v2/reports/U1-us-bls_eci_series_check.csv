@@ -1,0 +1,18 @@
+series_id,title,catalog_begin,catalog_end,range_from,expected_quarters,quarters_with_value,missing,last_in_file,catalog_end_matches_last
+CIU1010000400000I,"Total compensation for civilian workers in natural resources, construction, and maintenance occupations, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU1010000405000I,"Total compensation for civilian workers in construction, extraction, farming, fishing, and forestry occupations, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU1020000400000I,"Wages and salaries for civilian workers in natural resources, construction, and maintenance occupations, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU1020000405000I,"Wages and salaries for civilian workers in construction, extraction, farming, fishing, and forestry occupations, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU2010000400000I,"Total compensation for private industry workers in natural resources, construction, and maintenance occupations, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU2010000405000I,"Total compensation for private industry workers in construction, extraction, farming, fishing, and forestry occupations, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU2012300000000I,"Total compensation for private industry workers in the construction industry, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU2013000400000I,"Total compensation for natural resources, construction, and maintenance occupations in the private manufacturing industry, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU201G000400000I,"Total compensation for natural resources, construction, and maintenance occupations in the private goods-producing industries, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU201S000400000I,"Total compensation for natural resources, construction, and maintenance occupations in the private service-providing industries, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU2020000400000I,"Wages and salaries for private industry workers in natural resources, construction, and maintenance occupations, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU2020000405000I,"Wages and salaries for private industry workers in construction, extraction, farming, fishing, and forestry occupations, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU2022300000000I,"Wages and salaries for private industry workers in the construction industry, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU2023000400000I,"Wages and salaries for natural resources, construction, and maintenance occupations in the private manufacturing industry, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU202G000400000I,"Wages and salaries for natural resources, construction, and maintenance occupations in the private goods-producing industries, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU202S000400000I,"Wages and salaries for natural resources, construction, and maintenance occupations in the private service-providing industries, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True
+CIU2030000400000I,"Total benefits for private industry workers in natural resources, construction, and maintenance occupations, current dollar index",2001Q1,2026Q2,2016Q1,42,42,,2026Q2,True

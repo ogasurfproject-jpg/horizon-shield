@@ -1,0 +1,136 @@
+{
+ "csv_rows": 12805,
+ "projects": 65,
+ "elements_per_project": [
+  197
+ ],
+ "written": 3508,
+ "counts": {
+  "public_domain": 2796,
+  "skip_blank": 9296,
+  "not_set_cost_only": 100,
+  "not_set_hardcost_ratio": 585,
+  "not_set_unit_cost_zero": 27,
+  "skip_no_midpoint": 1
+ },
+ "unit_cost_vs_cost_div_qty": {
+  "rows": 2796,
+  "within_1usd": 2781,
+  "max_rel_diff_outside": 0.0038271691580696403,
+  "outside": [
+   [
+    "Atlanta - MARTA North Springs Extension",
+    "40.07",
+    "108",
+    "$15,330,024",
+    "$142,490"
+   ],
+   [
+    "Atlanta - MARTA North Springs Extension",
+    "40.071",
+    "108",
+    "$286,317",
+    "$2,661"
+   ],
+   [
+    "Fort Worth - TexRail",
+    "10.06",
+    "53",
+    "$1,773,000",
+    "$33,580"
+   ],
+   [
+    "Fort Worth - TexRail",
+    "10.065",
+    "53",
+    "$1,773,000",
+    "$33,580"
+   ],
+   [
+    "Ft. Collins - Mason Corridor BRT",
+    "10.04",
+    "158",
+    "$700,000",
+    "$4,419"
+   ],
+   [
+    "Ft. Collins - Mason Corridor BRT",
+    "10.041",
+    "158",
+    "$700,000",
+    "$4,419"
+   ],
+   [
+    "Houston Southeast LRT",
+    "10.04",
+    "739",
+    "$6,208,000",
+    "$8,398"
+   ],
+   [
+    "Houston Southeast LRT",
+    "10.044",
+    "739",
+    "$6,208,000",
+    "$8,398"
+   ],
+   [
+    "Pittsburgh - North Shore LRT Connector",
+    "10.06",
+    "1,003",
+    "$51,301,000",
+    "$51,137"
+   ],
+   [
+    "Pittsburgh - North Shore LRT Connector",
+    "10.065",
+    "1,003",
+    "$51,301,000",
+    "$51,137"
+   ],
+   [
+    "Pittsburgh - North Shore LRT Connector",
+    "10.07",
+    "2,218",
+    "$60,274,000",
+    "$27,180"
+   ],
+   [
+    "Pittsburgh - North Shore LRT Connector",
+    "10.078",
+    "2,218",
+    "$60,274,000",
+    "$27,180"
+   ],
+   [
+    "Pittsburgh - North Shore LRT Connector",
+    "10.08",
+    "158",
+    "$4,780,000",
+    "$30,177"
+   ],
+   [
+    "Portland - Westside-Hillsboro MAX",
+    "10.06",
+    "153",
+    "$685,000",
+    "$4,474"
+   ],
+   [
+    "Portland - Westside-Hillsboro MAX",
+    "10.061",
+    "153",
+    "$685,000",
+    "$4,474"
+   ]
+  ]
+ },
+ "subtotals_equal_sum_of_parts": {
+  "55": "65/65",
+  "75": "65/65",
+  "105": "65/65"
+ },
+ "replacement_chars": 394,
+ "sha256": "64ef6c4d8d74bf42c73c2bdc971524ca73a3c2c8378aa593fa161df8a44cf46e",
+ "bytes": 1849004
+}

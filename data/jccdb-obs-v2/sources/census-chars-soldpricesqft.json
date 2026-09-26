@@ -1,0 +1,18 @@
+{
+ "source_id": "census-chars-soldpricesqft",
+ "country": "US",
+ "title": "Characteristics of New Housing: Median and Average Price per Square Foot of Floor Area in New Single-Family Houses Sold",
+ "publisher": "U.S. Census Bureau and U.S. Department of Housing and Urban Development (Survey of Construction)",
+ "url": "https://www.census.gov/construction/chars/xls/soldpricesqft_cust.xls",
+ "landing": "https://www.census.gov/construction/chars/current.html",
+ "retrieved_at": "2026-09-26",
+ "bytes": 146944,
+ "sha256": "ce412990845bbb590909c2a43c377efeacdf6fcade0652b7d8dce4e73777dca5",
+ "fetched_via": "Apify apify/website-content-crawler(crawlerType cheerio, saveFiles)で原本を key-value store に保存し、MCP の get-key-value-store-record でバイト列を受け取った。HTTP 200、Content-Type は原本どおり。先頭が D0CF11E0(xls)/ PK(xlsx)で xlrd / openpyxl で開ける。apify/web-fetch の raw は xls/xlsx を文字として読み替えて壊す(先頭 EFBFBD、zip として開けない)ので使わない",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.law.cornell.edu/uscode/text/17/105",
+ "license_quote": "Copyright protection under this title is not available for any work of the United States Government, but the United States Government is not precluded from receiving and holding copyrights transferred to it by assignment, bequest, or otherwise. (17 U.S.C. 105(a), https://www.law.cornell.edu/uscode/text/17/105) / Census Bureau, Citing our Data, Tools, Technical Documents and Research, Public-Use Statement (https://www.census.gov/about/policies/citation.html, Page Last Revised - February 24, 2026): \"Proper citation ensures that Census Bureau statistical products and research can be discovered, reused, replicated for verification, and credited for recognition to measure usage and impact. Data users who create their own estimates using data from disseminated tables and other data should cite the Census Bureau as the source of the original data only. Conclusions drawn from any analysis of these data are the sole responsibility of the performing party.\" / 表の出所の表記: \"Source: U.S. Census Bureau and U.S. Department of Housing and Urban Development, Survey of Construction\"(Census 商務省と HUD はいずれも連邦政府の機関)",
+ "attribution": "Source: U.S. Census Bureau and U.S. Department of Housing and Urban Development, Survey of Construction, https://www.census.gov/construction/chars/xls/soldpricesqft_cust.xls",
+ "how_read": "tools/parsers/parse_census_newhousing.py。シート SoldMedAvgPPSF のセルを直接読む(見出し行の文字を確かめてから列を決める)。1992〜2025 年、全米と 4 地域、中央値と平均。照合: 全米の平均が 4 地域の平均の間に入るか 34 年すべて入る。平均 < 中央値は 0 か所。",
+ "values_copied": true
+}

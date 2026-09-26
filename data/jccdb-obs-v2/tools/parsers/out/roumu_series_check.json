@@ -1,0 +1,832 @@
+{
+ "all": [
+  {
+   "year": "h26",
+   "calc": 7.088,
+   "published": 7.1,
+   "match": true
+  },
+  {
+   "year": "h27",
+   "calc": 4.229,
+   "published": 4.2,
+   "match": true
+  },
+  {
+   "year": "h28",
+   "calc": 4.887,
+   "published": 4.9,
+   "match": true
+  },
+  {
+   "year": "h29",
+   "calc": 3.388,
+   "published": 3.4,
+   "match": true
+  },
+  {
+   "year": "h30",
+   "calc": 2.833,
+   "published": 2.8,
+   "match": true
+  },
+  {
+   "year": "h31",
+   "calc": 3.309,
+   "published": 3.3,
+   "match": true
+  },
+  {
+   "year": "r2",
+   "calc": 2.524,
+   "published": 2.5,
+   "match": true
+  },
+  {
+   "year": "r3",
+   "calc": 1.179,
+   "published": 1.2,
+   "match": true
+  },
+  {
+   "year": "r4",
+   "calc": 2.508,
+   "published": 2.5,
+   "match": true
+  },
+  {
+   "year": "r5",
+   "calc": 5.166,
+   "published": 5.2,
+   "match": true
+  },
+  {
+   "year": "r6",
+   "calc": 5.912,
+   "published": 5.9,
+   "match": true
+  },
+  {
+   "year": "r7",
+   "calc": 6.023,
+   "published": 6.0,
+   "match": true
+  },
+  {
+   "year": "r8",
+   "calc": 4.454,
+   "published": 4.5,
+   "match": true
+  }
+ ],
+ "m12": [
+  {
+   "year": "h26",
+   "calc": 6.868,
+   "published": 6.9,
+   "match": true
+  },
+  {
+   "year": "h27",
+   "calc": 3.13,
+   "published": 3.1,
+   "match": true
+  },
+  {
+   "year": "h28",
+   "calc": 6.667,
+   "published": 6.7,
+   "match": true
+  },
+  {
+   "year": "h29",
+   "calc": 2.552,
+   "published": 2.6,
+   "match": true
+  },
+  {
+   "year": "h30",
+   "calc": 2.804,
+   "published": 2.8,
+   "match": true
+  },
+  {
+   "year": "h31",
+   "calc": 3.721,
+   "published": 3.7,
+   "match": true
+  },
+  {
+   "year": "r2",
+   "calc": 2.278,
+   "published": 2.3,
+   "match": true
+  },
+  {
+   "year": "r3",
+   "calc": 0.955,
+   "published": 1.0,
+   "match": true
+  },
+  {
+   "year": "r4",
+   "calc": 2.97,
+   "published": 3.0,
+   "match": true
+  },
+  {
+   "year": "r5",
+   "calc": 4.99,
+   "published": 5.0,
+   "match": true
+  },
+  {
+   "year": "r6",
+   "calc": 6.186,
+   "published": 6.2,
+   "match": true
+  },
+  {
+   "year": "r7",
+   "calc": 5.636,
+   "published": 5.6,
+   "match": true
+  },
+  {
+   "year": "r8",
+   "calc": 4.202,
+   "published": 4.2,
+   "match": true
+  }
+ ],
+ "per_job": [
+  {
+   "year": "r2",
+   "job": "特殊作業員",
+   "calc": 1.931,
+   "published": 1.9,
+   "match": true
+  },
+  {
+   "year": "r2",
+   "job": "運転手（一般）",
+   "calc": 1.939,
+   "published": 1.9,
+   "match": true
+  },
+  {
+   "year": "r2",
+   "job": "普通作業員",
+   "calc": 1.856,
+   "published": 1.9,
+   "match": true
+  },
+  {
+   "year": "r2",
+   "job": "型わく工",
+   "calc": 2.594,
+   "published": 2.6,
+   "match": true
+  },
+  {
+   "year": "r2",
+   "job": "軽作業員",
+   "calc": 2.086,
+   "published": 2.1,
+   "match": true
+  },
+  {
+   "year": "r2",
+   "job": "大工",
+   "calc": 2.394,
+   "published": 2.4,
+   "match": true
+  },
+  {
+   "year": "r2",
+   "job": "とび工",
+   "calc": 2.531,
+   "published": 2.5,
+   "match": true
+  },
+  {
+   "year": "r2",
+   "job": "左官",
+   "calc": 2.572,
+   "published": 2.6,
+   "match": true
+  },
+  {
+   "year": "r2",
+   "job": "鉄筋工",
+   "calc": 2.599,
+   "published": 2.6,
+   "match": true
+  },
+  {
+   "year": "r2",
+   "job": "交通誘導警備員Ａ",
+   "calc": 2.414,
+   "published": 2.4,
+   "match": true
+  },
+  {
+   "year": "r2",
+   "job": "運転手（特殊）",
+   "calc": 1.939,
+   "published": 1.9,
+   "match": true
+  },
+  {
+   "year": "r2",
+   "job": "交通誘導警備員Ｂ",
+   "calc": 2.241,
+   "published": 2.2,
+   "match": true
+  },
+  {
+   "year": "r3",
+   "job": "特殊作業員",
+   "calc": 0.272,
+   "published": 0.3,
+   "match": true
+  },
+  {
+   "year": "r3",
+   "job": "運転手（一般）",
+   "calc": 1.717,
+   "published": 1.7,
+   "match": true
+  },
+  {
+   "year": "r3",
+   "job": "普通作業員",
+   "calc": 0.294,
+   "published": 0.3,
+   "match": true
+  },
+  {
+   "year": "r3",
+   "job": "型わく工",
+   "calc": 1.747,
+   "published": 1.7,
+   "match": true
+  },
+  {
+   "year": "r3",
+   "job": "軽作業員",
+   "calc": 0.666,
+   "published": 0.7,
+   "match": true
+  },
+  {
+   "year": "r3",
+   "job": "大工",
+   "calc": 0.705,
+   "published": 0.7,
+   "match": true
+  },
+  {
+   "year": "r3",
+   "job": "とび工",
+   "calc": 0.867,
+   "published": 0.9,
+   "match": true
+  },
+  {
+   "year": "r3",
+   "job": "左官",
+   "calc": 0.343,
+   "published": 0.3,
+   "match": true
+  },
+  {
+   "year": "r3",
+   "job": "鉄筋工",
+   "calc": 0.193,
+   "published": 0.2,
+   "match": true
+  },
+  {
+   "year": "r3",
+   "job": "交通誘導警備員Ａ",
+   "calc": 2.114,
+   "published": 2.1,
+   "match": true
+  },
+  {
+   "year": "r3",
+   "job": "運転手（特殊）",
+   "calc": 0.922,
+   "published": 0.9,
+   "match": true
+  },
+  {
+   "year": "r3",
+   "job": "交通誘導警備員Ｂ",
+   "calc": 2.068,
+   "published": 2.1,
+   "match": true
+  },
+  {
+   "year": "r4",
+   "job": "特殊作業員",
+   "calc": 4.407,
+   "published": 4.4,
+   "match": true
+  },
+  {
+   "year": "r4",
+   "job": "運転手（一般）",
+   "calc": 3.966,
+   "published": 4.0,
+   "match": true
+  },
+  {
+   "year": "r4",
+   "job": "普通作業員",
+   "calc": 3.092,
+   "published": 3.1,
+   "match": true
+  },
+  {
+   "year": "r4",
+   "job": "型わく工",
+   "calc": 2.349,
+   "published": 2.3,
+   "match": true
+  },
+  {
+   "year": "r4",
+   "job": "軽作業員",
+   "calc": 1.192,
+   "published": 1.2,
+   "match": true
+  },
+  {
+   "year": "r4",
+   "job": "大工",
+   "calc": 1.852,
+   "published": 1.9,
+   "match": true
+  },
+  {
+   "year": "r4",
+   "job": "とび工",
+   "calc": 1.519,
+   "published": 1.5,
+   "match": true
+  },
+  {
+   "year": "r4",
+   "job": "左官",
+   "calc": 2.77,
+   "published": 2.8,
+   "match": true
+  },
+  {
+   "year": "r4",
+   "job": "鉄筋工",
+   "calc": 3.292,
+   "published": 3.3,
+   "match": true
+  },
+  {
+   "year": "r4",
+   "job": "交通誘導警備員Ａ",
+   "calc": 3.708,
+   "published": 3.7,
+   "match": true
+  },
+  {
+   "year": "r4",
+   "job": "運転手（特殊）",
+   "calc": 4.378,
+   "published": 4.4,
+   "match": true
+  },
+  {
+   "year": "r4",
+   "job": "交通誘導警備員Ｂ",
+   "calc": 3.152,
+   "published": 3.2,
+   "match": true
+  },
+  {
+   "year": "r5",
+   "job": "特殊作業員",
+   "calc": 3.98,
+   "published": 4.0,
+   "match": true
+  },
+  {
+   "year": "r5",
+   "job": "運転手（一般）",
+   "calc": 5.759,
+   "published": 5.8,
+   "match": true
+  },
+  {
+   "year": "r5",
+   "job": "普通作業員",
+   "calc": 5.736,
+   "published": 5.7,
+   "match": true
+  },
+  {
+   "year": "r5",
+   "job": "型わく工",
+   "calc": 3.772,
+   "published": 3.8,
+   "match": true
+  },
+  {
+   "year": "r5",
+   "job": "軽作業員",
+   "calc": 6.251,
+   "published": 6.3,
+   "match": true
+  },
+  {
+   "year": "r5",
+   "job": "大工",
+   "calc": 4.907,
+   "published": 4.9,
+   "match": true
+  },
+  {
+   "year": "r5",
+   "job": "とび工",
+   "calc": 4.814,
+   "published": 4.8,
+   "match": true
+  },
+  {
+   "year": "r5",
+   "job": "左官",
+   "calc": 4.001,
+   "published": 4.0,
+   "match": true
+  },
+  {
+   "year": "r5",
+   "job": "鉄筋工",
+   "calc": 3.569,
+   "published": 3.6,
+   "match": true
+  },
+  {
+   "year": "r5",
+   "job": "交通誘導警備員Ａ",
+   "calc": 7.065,
+   "published": 7.1,
+   "match": true
+  },
+  {
+   "year": "r5",
+   "job": "運転手（特殊）",
+   "calc": 5.662,
+   "published": 5.7,
+   "match": true
+  },
+  {
+   "year": "r5",
+   "job": "交通誘導警備員Ｂ",
+   "calc": 6.279,
+   "published": 6.3,
+   "match": true
+  },
+  {
+   "year": "r6",
+   "job": "特殊作業員",
+   "calc": 6.219,
+   "published": 6.2,
+   "match": true
+  },
+  {
+   "year": "r6",
+   "job": "運転手（一般）",
+   "calc": 7.244,
+   "published": 7.2,
+   "match": true
+  },
+  {
+   "year": "r6",
+   "job": "普通作業員",
+   "calc": 5.539,
+   "published": 5.5,
+   "match": true
+  },
+  {
+   "year": "r6",
+   "job": "型わく工",
+   "calc": 6.634,
+   "published": 6.6,
+   "match": true
+  },
+  {
+   "year": "r6",
+   "job": "軽作業員",
+   "calc": 6.348,
+   "published": 6.3,
+   "match": true
+  },
+  {
+   "year": "r6",
+   "job": "大工",
+   "calc": 4.931,
+   "published": 4.9,
+   "match": true
+  },
+  {
+   "year": "r6",
+   "job": "とび工",
+   "calc": 6.151,
+   "published": 6.2,
+   "match": true
+  },
+  {
+   "year": "r6",
+   "job": "左官",
+   "calc": 4.987,
+   "published": 5.0,
+   "match": true
+  },
+  {
+   "year": "r6",
+   "job": "鉄筋工",
+   "calc": 6.556,
+   "published": 6.6,
+   "match": true
+  },
+  {
+   "year": "r6",
+   "job": "交通誘導警備員Ａ",
+   "calc": 6.398,
+   "published": 6.4,
+   "match": true
+  },
+  {
+   "year": "r6",
+   "job": "運転手（特殊）",
+   "calc": 6.326,
+   "published": 6.3,
+   "match": true
+  },
+  {
+   "year": "r6",
+   "job": "交通誘導警備員Ｂ",
+   "calc": 7.694,
+   "published": 7.7,
+   "match": true
+  },
+  {
+   "year": "r7",
+   "job": "特殊作業員",
+   "calc": 5.645,
+   "published": 5.6,
+   "match": true
+  },
+  {
+   "year": "r7",
+   "job": "運転手（一般）",
+   "calc": 5.397,
+   "published": 5.4,
+   "match": true
+  },
+  {
+   "year": "r7",
+   "job": "普通作業員",
+   "calc": 5.336,
+   "published": 5.3,
+   "match": true
+  },
+  {
+   "year": "r7",
+   "job": "型わく工",
+   "calc": 5.143,
+   "published": 5.1,
+   "match": true
+  },
+  {
+   "year": "r7",
+   "job": "軽作業員",
+   "calc": 6.767,
+   "published": 6.8,
+   "match": true
+  },
+  {
+   "year": "r7",
+   "job": "大工",
+   "calc": 6.313,
+   "published": 6.3,
+   "match": true
+  },
+  {
+   "year": "r7",
+   "job": "とび工",
+   "calc": 4.764,
+   "published": 4.8,
+   "match": true
+  },
+  {
+   "year": "r7",
+   "job": "左官",
+   "calc": 6.813,
+   "published": 6.8,
+   "match": true
+  },
+  {
+   "year": "r7",
+   "job": "鉄筋工",
+   "calc": 5.876,
+   "published": 5.9,
+   "match": true
+  },
+  {
+   "year": "r7",
+   "job": "交通誘導警備員Ａ",
+   "calc": 5.685,
+   "published": 5.7,
+   "match": true
+  },
+  {
+   "year": "r7",
+   "job": "運転手（特殊）",
+   "calc": 5.024,
+   "published": 5.0,
+   "match": true
+  },
+  {
+   "year": "r7",
+   "job": "交通誘導警備員Ｂ",
+   "calc": 5.692,
+   "published": 5.7,
+   "match": true
+  },
+  {
+   "year": "r8",
+   "job": "特殊作業員",
+   "calc": 4.286,
+   "published": 4.3,
+   "match": true
+  },
+  {
+   "year": "r8",
+   "job": "運転手（一般）",
+   "calc": 2.863,
+   "published": 2.9,
+   "match": true
+  },
+  {
+   "year": "r8",
+   "job": "普通作業員",
+   "calc": 3.008,
+   "published": 3.0,
+   "match": true
+  },
+  {
+   "year": "r8",
+   "job": "型わく工",
+   "calc": 5.042,
+   "published": 5.0,
+   "match": true
+  },
+  {
+   "year": "r8",
+   "job": "軽作業員",
+   "calc": 2.88,
+   "published": 2.9,
+   "match": true
+  },
+  {
+   "year": "r8",
+   "job": "大工",
+   "calc": 3.123,
+   "published": 3.1,
+   "match": true
+  },
+  {
+   "year": "r8",
+   "job": "とび工",
+   "calc": 3.998,
+   "published": 4.0,
+   "match": true
+  },
+  {
+   "year": "r8",
+   "job": "左官",
+   "calc": 4.118,
+   "published": 4.1,
+   "match": true
+  },
+  {
+   "year": "r8",
+   "job": "鉄筋工",
+   "calc": 4.604,
+   "published": 4.6,
+   "match": true
+  },
+  {
+   "year": "r8",
+   "job": "交通誘導警備員Ａ",
+   "calc": 5.761,
+   "published": 5.8,
+   "match": true
+  },
+  {
+   "year": "r8",
+   "job": "運転手（特殊）",
+   "calc": 4.753,
+   "published": 4.8,
+   "match": true
+  },
+  {
+   "year": "r8",
+   "job": "交通誘導警備員Ｂ",
+   "calc": 6.662,
+   "published": 6.7,
+   "match": true
+  }
+ ],
+ "headline": [
+  {
+   "year": "h29",
+   "calc": 3.388,
+   "published": 3.4,
+   "match": true
+  },
+  {
+   "year": "h30",
+   "calc": 2.833,
+   "published": 2.8,
+   "match": true
+  },
+  {
+   "year": "h31",
+   "calc": 3.309,
+   "published": 3.3,
+   "match": true
+  },
+  {
+   "year": "r2",
+   "calc": 2.524,
+   "published": 2.5,
+   "match": true
+  },
+  {
+   "year": "r3",
+   "calc": 1.179,
+   "published": 1.2,
+   "match": true
+  },
+  {
+   "year": "r4",
+   "calc": 2.508,
+   "published": 2.5,
+   "match": true
+  },
+  {
+   "year": "r5",
+   "calc": 5.166,
+   "published": 5.2,
+   "match": true
+  },
+  {
+   "year": "r6",
+   "calc": 5.912,
+   "published": 5.9,
+   "match": true
+  },
+  {
+   "year": "r7",
+   "calc": 6.023,
+   "published": 6.0,
+   "match": true
+  },
+  {
+   "year": "r8",
+   "calc": 4.454,
+   "published": 4.5,
+   "match": true
+  }
+ ],
+ "summary": {
+  "all": {
+   "checked": 13,
+   "match": 13
+  },
+  "m12": {
+   "checked": 13,
+   "match": 13
+  },
+  "per_job": {
+   "checked": 84,
+   "match": 84
+  },
+  "headline": {
+   "checked": 10,
+   "match": 10
+  }
+ }
+}

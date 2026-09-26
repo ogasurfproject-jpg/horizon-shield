@@ -1,0 +1,34 @@
+source,series_id,title,catalog_begin,catalog_end,expected_months,months_with_value,missing_months,missing_list,cells_outside_range,preliminary,note
+ppi_fd,WPUFD43,Final demand construction,2009-M11,2026-08,128,128,0,,0,4,"HTML の Data extracted on: September 26, 2026 (12:06:05 AM)"
+ppi_fd,WPUFD431,Construction for private capital investment,2009-M11,2026-08,128,128,0,,0,4,"HTML の Data extracted on: September 26, 2026 (12:06:34 AM)"
+ppi_fd,WPUFD432,Construction for government,2009-M11,2026-08,128,128,0,,0,4,"HTML の Data extracted on: September 26, 2026 (12:06:50 AM)"
+bls-ppi-wp-9-resid,WPU0821,General millwork,1964-01,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-9-resid,WPU08210102,"Stock wood kitchen cabinets, related cabinetwork and countertops",2012-12,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-9-resid,WPU08210105,"Custom wood kitchen cabinets, bathroom vanities, and related cabinetwork",2012-12,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-9-resid,WPU08210106,Wood bathroom vanities and related bathroom cabinetwork including tops,2012-12,2019-01,37,37,0,,0,0,ファイルの最終月 2019-M01、台帳の終了月と一致
+bls-ppi-wp-9-resid,WPU08210112,Wood window units,1983-06,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-9-resid,WPU08210142,"Wood panel, flush, & molded face doors, interior & exterior, incl. doors with glazed sections",1983-06,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-9-resid,WPU08210152,"Other wood doors, incl. garage, patio, bifold, cabinet, screen, storm and louver",1983-06,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-9-resid,WPU081204,Hardwood flooring,1984-06,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-11b-resid,WPU1062,"Furnaces and heaters, including parts",1947-01,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-11b-resid,WPU106201461,"Warm air furnaces, including parts",2009-12,2024-05,101,77,24,2016-01 2016-02 2016-03 2016-04 2016-05 2016-06 2016-07 2016-08 2016-09 2016-10 2016-11 2016-12 2017-01 2017-02 2017-03 2017-04 2017-05 2017-06 2017-07 2017-08 2017-09 2017-10 2017-11 2017-12,0,0,ファイルの最終月 2024-M05、台帳の終了月と一致
+bls-ppi-wp-11b-resid,WPU1066,Domestic water heaters,1947-01,2026-05,125,125,0,,0,1,ファイルの最終月 2026-M05、台帳の終了月と一致
+bls-ppi-wp-11b-resid,WPU10660101,"Household water heaters, electric, for permanent installation",1950-01,2026-05,125,125,0,,0,1,ファイルの最終月 2026-M05、台帳の終了月と一致
+bls-ppi-wp-11b-resid,WPU10660114,"Household water heaters, excluding electric",2001-05,2026-05,125,125,0,,0,1,ファイルの最終月 2026-M05、台帳の終了月と一致
+bls-ppi-wp-11b-resid,WPU107102,Metal doors and frames (except storm),1983-06,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-11b-resid,WPU107103,Metal windows (except storm sash),1983-06,2026-08,128,127,1,2016-05,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-11b-resid,WPU10730120,Sheet metal air-conditioning ducts and stove pipe,2003-12,2026-08,128,98,30,2019-04 2019-05 2019-06 2019-07 2019-08 2019-09 2019-10 2019-11 2019-12 2020-01 2020-02 2020-03 2020-04 2020-05 2020-06 2020-07 2020-08 2020-09 2020-10 2020-11 2020-12 2021-01 2021-02 2021-03 2021-04 2021-05 2021-06 2021-07 2021-08 2021-09,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-11b-resid,WPU1083,Lighting fixtures,1960-12,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-10,WPU09220124,Waferboard and oriented strandboard (OSB),1991-07,2019-01,37,37,0,,0,0,ファイルの最終月 2019-M01、台帳の終了月と一致
+bls-ppi-wp-12b,WPU1148,Air conditioning and refrigeration equip,1977-12,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-12b,WPU114802,"Unitary air-conditioners, except air source heat pumps",1977-12,2026-07,127,127,0,,0,3,ファイルの最終月 2026-M07、台帳の終了月と一致
+bls-ppi-wp-12b,WPU11480734,Heat pumps,2009-12,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-12c,WPU1171,Wiring devices,1961-01,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-12c,WPU117101,Current-carrying wiring devices,1961-01,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-12c,WPU117102,Noncurrent-carrying wiring devices,1961-01,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-13,WPU1231,Carpets and rugs,1947-01,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-13,WPU124,Household appliances,1947-01,2026-08,128,128,0,,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-ppi-wp-13,WPU12410445,Room air-conditioners,1955-01,2026-08,128,44,84,2016-01 2016-02 2016-03 2016-04 2016-05 2016-06 2016-07 2016-08 2016-09 2016-10 2016-11 2016-12 2017-01 2017-02 2017-03 2017-04 2017-05 2017-06 2017-07 2017-08 2017-09 2017-10 2017-11 2017-12 2018-01 2018-02 2018-03 2018-04 2018-05 2018-06 2018-07 2018-08 2018-09 2018-10 2018-11 2018-12 2019-01 2019-02 2019-03 2019-04,0,4,ファイルの最終月 2026-M08、台帳の終了月と一致
+bls-cpi-cu-data-12,CUUR0000SEHP04,"Repair of household items in U.S. city average, all urban consumers, not seasonally adjusted",1997-12,2025-10,118,71,47,2019-07 2019-09 2020-10 2020-12 2021-06 2021-07 2021-08 2021-09 2021-10 2021-11 2021-12 2022-01 2022-02 2022-03 2022-04 2022-05 2022-06 2022-07 2022-08 2022-09 2022-11 2022-12 2023-02 2023-04 2023-06 2023-10 2023-11 2023-12 2024-02 2024-04 2024-05 2024-06 2024-08 2024-09 2024-10 2024-11 2024-12 2025-01 2025-02 2025-03 2025-04 2025-05 2025-06 2025-07 2025-08 2025-09 2025-10,0,,値が - の月 1。ファイルの最終月 2025-M10
+bls-cpi-cu-data-12,CUUR0000SEHM,"Tools, hardware, outdoor equipment and supplies in U.S. city average, all urban consumers, not seasonally adjusted",1997-12,2026-08,128,127,1,2025-10,0,,値が - の月 1。ファイルの最終月 2026-M08
+bls-cpi-cu-data-12,CUUR0000SEHM01,"Tools, hardware and supplies in U.S. city average, all urban consumers, not seasonally adjusted",1997-12,2026-08,128,127,1,2025-10,0,,値が - の月 1。ファイルの最終月 2026-M08

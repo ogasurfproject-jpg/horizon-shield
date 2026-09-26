@@ -1,0 +1,15 @@
+{
+ "source_id": "test-fixture-labor-r7",
+ "country": "JP",
+ "title": "試験用 (TEST FIXTURE, not real data): 公共工事設計労務単価の過去年の形",
+ "publisher": "hs-jccdb-obs test harness",
+ "url": "https://example.invalid/jccdb-test-fixture/test-fixture-labor-r7",
+ "retrieved_at": "2026-09-26",
+ "license": "PDL1.0",
+ "license_url": "https://example.invalid/jccdb-test-fixture/license",
+ "license_quote": "試験用。実在の利用条件ではない。/ Test fixture; not a real licence text.",
+ "how_read": "test/fixtures/make_fixtures.py が書いた架空の行。/ Written by make_fixtures.py.",
+ "values_copied": true,
+ "sha256": "c1b8fe75305730a5299f36ecfe7c764013d7424b826355bb7a67d8658d61a68a",
+ "attribution": "試験用の帰属表示 (test-fixture-labor-r7)"
+}

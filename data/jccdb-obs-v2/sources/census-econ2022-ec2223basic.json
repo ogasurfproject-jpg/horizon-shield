@@ -1,0 +1,36 @@
+{
+ "source_id": "census-econ2022-ec2223basic",
+ "country": "US",
+ "title": "2022 Economic Census, Construction: Summary Statistics for the U.S., States, and Selected Geographies: 2022 (EC2223BASIC)",
+ "publisher": "U.S. Census Bureau (Economic Census)",
+ "url": "https://www2.census.gov/programs-surveys/economic-census/data/2022/sector23/EC2223BASIC.zip",
+ "landing": "https://www.census.gov/data/tables/2022/econ/economic-census/naics-sector-23.html",
+ "table_notes": "https://data.census.gov/table/ECNBASIC2022.EC2223BASIC",
+ "retrieved_at": "2026-09-26",
+ "published": "2024-12-05",
+ "http_last_modified": "Thu, 05 Dec 2024 12:00:03 GMT",
+ "bytes": 486485,
+ "sha256": "a6e36d8584616ac18009ecf6b6473b5df3bd3b3c6ef24fc2b6037f7e6f9e9e4e",
+ "inner_files": {
+  "EC2223BASIC.dat": {
+   "bytes": 2033093,
+   "sha256": "95e86387829011e25c7b47945604fd767b57b0e0b7cade5080a288567c1727a1"
+  },
+  "EC2223BASIC_FIELDS.txt": {
+   "bytes": 10487,
+   "sha256": "87cc8c26b7b475e6c869abb7115c7cd7d4c8ced3eb403fe07cef0adb4379a877"
+  },
+  "EC2223BASIC_README.txt": {
+   "bytes": 291,
+   "sha256": "a7065c7042af819e551662769b3f4e4bb2e8038d733f3aa0558e0b1ea2a98d11"
+  }
+ },
+ "fetched_via": "Apify apify/web-fetch(formats raw、Content-Type application/zip を base64 で受け取り)。bytes が contentLength と一致、先頭 PK、zip の testzip 正常。Census Data API(api.census.gov/data/2022/ecnbasic)は鍵なしの要求に Missing Key の頁を返したため使っていない",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.law.cornell.edu/uscode/text/17/105",
+ "license_quote": "Copyright protection under this title is not available for any work of the United States Government, but the United States Government is not precluded from receiving and holding copyrights transferred to it by assignment, bequest, or otherwise. (17 U.S.C. 105(a), https://www.law.cornell.edu/uscode/text/17/105) / Census Bureau, Citing our Data, Tools, Technical Documents and Research, Public-Use Statement (https://www.census.gov/about/policies/citation.html, Page Last Revised - February 24, 2026, Apify で 2026-09-26 に再取得して同文を確認): \"Proper citation ensures that Census Bureau statistical products and research can be discovered, reused, replicated for verification, and credited for recognition to measure usage and impact. Data users who create their own estimates using data from disseminated tables and other data should cite the Census Bureau as the source of the original data only. Conclusions drawn from any analysis of these data are the sole responsibility of the performing party.\"",
+ "attribution": "Source: U.S. Census Bureau, \"Construction: Summary Statistics for the U.S., States, and Selected Geographies: 2022,\" 2022 Economic Census, Table EC2223BASIC, https://www2.census.gov/programs-surveys/economic-census/data/2022/sector23/EC2223BASIC.zip, accessed on September 26, 2026",
+ "scope_quote": "This file package includes a data file and companion file with important metadata information. Table Notes for this table can be found on data.census.gov at: https://data.census.gov/table/ECNBASIC2022.EC2223BASIC (EC2223BASIC_README.txt)",
+ "how_read": "tools/parsers/parse_census_econ2022.py。EC2223BASIC.dat を | 区切りで読み、欄の意味は EC2223BASIC_FIELDS.txt の Label をそのまま spec に。4,070 行(US 73、Region 292、州 3,705。NAICS 23 から 6 桁まで)x 19 欄 = 77330 行。金額は $1,000(price_basis annual_total_thousand_usd)、件数は count。_F の flag が入ったセルは値の欄が 0 で公表されていないので not_set(flag D 5949、EMP の flag a/b/c/e/f/g 49)。flag の無い金額の 0(241)は検査器が 0 を値として受けないため not_set・ref_value 0。照合(企業数 FIRM は州・業種をまたぐため外した): 州 51 の和 = US は比較できた 600 組すべて一致(州に flag があり比べなかった組 714)。州の和 = Region は 3468 組すべて一致。NAICS の親 = 子の和は 37880 組すべて一致。RCPCWRK = RCPCGDL + PRIDL は 3206 組、RCPCGDL = FEDDL + CSLDL は 3052 組、RCPNCW = RCPCWRK - CSTSCNT は 3230 組、すべて一致。",
+ "values_copied": true
+}

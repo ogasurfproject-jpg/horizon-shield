@@ -1,0 +1,180 @@
+{
+ "checks": {
+  "county_vs_state:pairs": 48513,
+  "county_vs_state:estabs_equal": 15330,
+  "county_vs_state:estabs_within_rounding": 48513,
+  "county_vs_state:with_N_pairs": 44155,
+  "county_vs_state:with_N_sum_le_parent": 44149,
+  "county_vs_state:with_N_wages_sum_le_parent": 44155,
+  "county_vs_state:no_N_pairs": 1748,
+  "county_vs_state:no_N_emplvl_equal": 1061,
+  "county_vs_state:no_N_emplvl_within_rounding": 1748,
+  "county_vs_state:no_N_wages_equal": 1748,
+  "states51_vs_national:pairs": 920,
+  "states51_vs_national:estabs_equal": 32,
+  "states51_vs_national:estabs_within_rounding": 920,
+  "states51_vs_national:no_N_pairs": 456,
+  "states51_vs_national:no_N_emplvl_equal": 50,
+  "states51_vs_national:no_N_emplvl_within_rounding": 456,
+  "states51_vs_national:no_N_wages_equal": 456,
+  "states51_vs_national:with_N_pairs": 464,
+  "states51_vs_national:with_N_sum_le_parent": 464,
+  "states51_vs_national:with_N_wages_sum_le_parent": 464
+ },
+ "arithmetic": {
+  "rows": 145105,
+  "pay_in_interval": 145105,
+  "wkly_in_interval": 145105,
+  "rows_emp_ge_1000": 51740,
+  "emp_ge_1000_max_pay_diff_x100": 5998,
+  "emp_ge_1000_max_wkly_diff_x100": 143
+ },
+ "api_vs_zip_2024": {
+  "api_rows": 6475,
+  "zip_rows": 6475,
+  "matched_rows": 6475,
+  "rows_all_equal": 6475,
+  "api_only_msa_rows": 393
+ },
+ "per_year": {
+  "2016": {
+   "rows": 70716,
+   "members": 92,
+   "bytes_csv": 36356619,
+   "stat": {
+    "skip_own_3": 8535,
+    "public_domain": 61809,
+    "not_set_N": 8907,
+    "skip_own_2": 6496,
+    "skip_own_1": 29,
+    "skip_msa": 32855,
+    "skip_county_4to6digit": 162027
+   }
+  },
+  "2017": {
+   "rows": 70516,
+   "members": 92,
+   "bytes_csv": 36129577,
+   "stat": {
+    "skip_own_3": 8504,
+    "public_domain": 61888,
+    "not_set_N": 8628,
+    "skip_own_2": 6458,
+    "skip_own_1": 29,
+    "skip_msa": 32827,
+    "skip_county_4to6digit": 161220
+   }
+  },
+  "2018": {
+   "rows": 70536,
+   "members": 92,
+   "bytes_csv": 36176187,
+   "stat": {
+    "skip_own_3": 8450,
+    "public_domain": 61830,
+    "not_set_N": 8706,
+    "skip_own_2": 6261,
+    "skip_own_1": 20,
+    "skip_msa": 32903,
+    "skip_county_4to6digit": 161699
+   }
+  },
+  "2019": {
+   "rows": 70568,
+   "members": 92,
+   "bytes_csv": 36207287,
+   "stat": {
+    "skip_own_3": 8393,
+    "public_domain": 61835,
+    "not_set_N": 8733,
+    "skip_own_2": 6231,
+    "skip_own_1": 47,
+    "skip_msa": 32922,
+    "skip_county_4to6digit": 162055
+   }
+  },
+  "2020": {
+   "rows": 70612,
+   "members": 92,
+   "bytes_csv": 36270727,
+   "stat": {
+    "skip_own_3": 8387,
+    "public_domain": 61795,
+    "not_set_N": 8817,
+    "skip_own_2": 6185,
+    "skip_own_1": 20,
+    "skip_msa": 32964,
+    "skip_county_4to6digit": 162468
+   }
+  },
+  "2021": {
+   "rows": 70636,
+   "members": 92,
+   "bytes_csv": 36275979,
+   "stat": {
+    "skip_own_3": 8421,
+    "public_domain": 61831,
+    "not_set_N": 8805,
+    "skip_own_2": 6283,
+    "skip_own_1": 15,
+    "skip_msa": 33003,
+    "skip_county_4to6digit": 163349
+   }
+  },
+  "2022": {
+   "rows": 70748,
+   "members": 92,
+   "bytes_csv": 36365223,
+   "stat": {
+    "skip_own_3": 8452,
+    "public_domain": 62129,
+    "not_set_N": 8619,
+    "skip_own_2": 6402,
+    "skip_own_1": 15,
+    "skip_msa": 33058,
+    "skip_county_4to6digit": 165089
+   }
+  },
+  "2023": {
+   "rows": 70776,
+   "members": 92,
+   "bytes_csv": 36309994,
+   "stat": {
+    "skip_own_3": 8496,
+    "public_domain": 62319,
+    "not_set_N": 8457,
+    "skip_own_2": 6702,
+    "skip_own_1": 15,
+    "skip_msa": 33103,
+    "skip_county_4to6digit": 166093
+   }
+  },
+  "2024": {
+   "rows": 70700,
+   "members": 92,
+   "bytes_csv": 37346412,
+   "stat": {
+    "skip_own_3": 8502,
+    "public_domain": 60029,
+    "not_set_N": 10671,
+    "skip_own_2": 6627,
+    "skip_own_1": 44,
+    "skip_msa": 33652,
+    "skip_county_4to6digit": 166167
+   }
+  },
+  "2025": {
+   "rows": 70680,
+   "members": 92,
+   "bytes_csv": 39043218,
+   "stat": {
+    "skip_own_3": 8505,
+    "public_domain": 56472,
+    "not_set_N": 14208,
+    "skip_own_2": 6652,
+    "skip_own_1": 30,
+    "skip_county_4to6digit": 166031
+   }
+  }
+ }
+}

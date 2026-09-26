@@ -1,0 +1,19 @@
+{
+ "price_basis": [
+  {"value": "facility_unit_cost_guc", "why": "UFS 3-701-01 Table 2 の Guidance Unit Cost(GUC)。国防総省の施設の種類ごとの新築単価($/m2・$/SF。管制塔は $/VM・$/VF)。HII に登録された 3 件以上の落札を ACF=1 と入札者数で正規化し 2025-10 に escalate した平均。統計の cost_per_sqft(着工統計の工事費/床面積)とは作り方が違うので分ける"},
+  {"value": "facility_prv_unit_cost", "why": "UFS 3-701-01 Table 3 の PRV Unit Cost(PUC、$ FY2026 / FAC の UM)。Plant Replacement Value を算定するための施設分類(FAC)ごとの再調達単価。単位は SF に限らない(EA, SY, LF など)"},
+  {"value": "facility_sustainment_unit_cost_annual", "why": "UFS 3-701-01 Table 3 の Sustainment Unit Cost(SUC、$ FY2026 / UM / 年)。施設の維持費の年平均単価。工事単価ではない"},
+  {"value": "supporting_facility_unit_cost", "why": "UFS 3-701-01 Table 6 の Supporting Facilities Unit Cost(Oct 2025、$/UoM、contractor mark-ups 込み)。舗装・配管などの付帯施設の工種別単価。この取り込みでは値を入れず状態だけ(市販の Cost Book 由来)"},
+  {"value": "area_cost_factor", "why": "UFS 3-701-01 Table 4-1 の MILCON Area Cost Factor(場所ごとの工事費の地域係数、96 Base City 平均 = 1.00、MLE 比 63/35/2)。指数の一種だが index_value と区別するため"},
+  {"value": "sustainment_area_cost_factor", "why": "UFS 3-701-01 Table 4-1 の Sustainment ACF(維持費用の地域係数、MLE 比 46/53/1)"},
+  {"value": "state_adjustment_factor", "why": "USACE EM 1110-2-1304(CWCCIS)Table 3・Table 4 の State Adjustment Factors(州ごとの工事費調整係数)。時点指数 index_value と区別する"},
+  {"value": "equipment_standby_rate_hourly", "why": "USACE EP 1110-1-8 の機械の待機(standby)時間単価 Stby(DEPR x 0.5 + FCCM、EP 2.26)。運転込みの総時間単価 equipment_rate_hourly(Avg)と区別する"},
+  {"value": "equipment_depreciation_hourly", "why": "USACE EP 1110-1-8 の時間単価の要素 DEPR(減価償却 / 時間)"},
+  {"value": "equipment_fccm_hourly", "why": "USACE EP 1110-1-8 の時間単価の要素 FCCM(Facilities Capital Cost of Money / 時間、FAR 31.205-10)"},
+  {"value": "equipment_fuel_hourly", "why": "USACE EP 1110-1-8 の時間単価の要素 Fuel(燃料費 / 時間、average 条件)"}
+ ],
+ "geo_level": [
+  {"value": "country", "why": "米国外の国・地域(UFS 3-701-01 Table 4-1 OCONUS の Country 欄)。geo_code は ISO 3166-1 alpha-2、geo_name は原本の国名。米国の領土(Guam, Puerto Rico など)は state(FIPS)に入れる"},
+  {"value": "usace_ep_region", "why": "USACE EP 1110-1-8 の 12 の地理区分(Region 1 Northeast 〜 Region 12 Kwajalein)。geo_code は EP-R1〜EP-R12、area_label に原本の地域名"}
+ ]
+}

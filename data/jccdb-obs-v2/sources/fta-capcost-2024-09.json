@@ -1,0 +1,21 @@
+{
+ "source_id": "fta-capcost-2024-09",
+ "country": "US",
+ "title": "FTA Capital Cost Database, September 2024 update (FTA Cost Database 2024 Sept.csv): as-built costs of 65 federally funded transit projects by Standard Cost Category",
+ "publisher": "U.S. Department of Transportation, Federal Transit Administration",
+ "url": "https://www.transit.dot.gov/sites/fta.dot.gov/files/docs/FTA-Cost-Database-September-2024.csv",
+ "landing": "https://www.transit.dot.gov/capital-cost-database",
+ "retrieved_at": "2026-09-26",
+ "bytes": 1849004,
+ "sha256": "64ef6c4d8d74bf42c73c2bdc971524ca73a3c2c8378aa593fa161df8a44cf46e",
+ "http_last_modified": "Thu, 10 Oct 2024 20:20:41 GMT",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.law.cornell.edu/uscode/text/17/105",
+ "license_quote": "Copyright protection under this title is not available for any work of the United States Government (17 U.S.C. 105) / FTA Web Policies (https://www.transit.dot.gov/fta-web-policies/web-policies/fta-web-policies, Last updated: Tuesday, September 13, 2022), Photo Policy: \"FTA does not restrict or hinder the public from downloading any information from its website.\"",
+ "license_note": "連邦政府(FTA)の公開データ。頁と CSV に著作権表示・利用制限の記載はない。FTA Web Policies は Apify markdown(dataset xYa9soWURSTjXaFL5)で取得。",
+ "attribution": "Source: U.S. DOT, Federal Transit Administration, Capital Cost Database (September 2024 update), https://www.transit.dot.gov/sites/fta.dot.gov/files/docs/FTA-Cost-Database-September-2024.csv",
+ "values_copied": true,
+ "fetched_via": "Apify apify/web-fetch (formats=raw)。Content-Type text/csv を文字として受け取ったため、原本の UTF-8 でない 1 バイト文字(2 つのプロジェクト名、計 394 か所)が U+FFFD(EF BF BD)に置き換わった。数値の列は ASCII だけで影響なし。sha256 と bytes は保存したバイト列のもので、サーバーの原本のバイト列とは一致しない可能性がある(Range を付けても 200 で全体が返り、原本の長さを確かめられなかった)",
+ "scope_quote": "The Capital Cost Database is a Microsoft Access database of as-built costs for 65 federally funded projects in the following modes: bus rapid transit, commuter rail, light rail, heavy rail and trolley. ... Project costs are tracked in FTA's Standard Cost Categories and the project costs have been validated. (landing page, Last updated: Friday, October 11, 2024)",
+ "how_read": "tools/parsers/parse_fta_capcost.py。CSV をそのまま読む(12,805 行 = 65 プロジェクト x 197 要素)。Unit Cost at Mid-Point of Construction を値に、Quantity を ref_value に、Cost を note に。Units が Hard Costs の要素(単価欄が比率の丸めで $0 / $1)と、単価が空欄で費用だけの行は not_set(費用を ref_value)。費用も単価も空欄の行は書かない。'Unit Cost in National Average, User Selected Analysis Year 2024' は写さない(FTA Cost Database Quick Guide June 2023: 'The default index is the RS Means Construction Cost Index.')。照合: 単価 = 費用 / 数量 を全行で比べ、小計行 55・75・105 が構成要素の和と一致するかを全 65 プロジェクトで確かめた(結果は reports/US-E-fta-capcost-checks.json)。"
+}

@@ -1,0 +1,23 @@
+{
+ "source_id": "mlit-gijutsusha-h28",
+ "country": "JP",
+ "title": "平成28年度設計業務委託等技術者単価（※H28.2より適用）",
+ "publisher": "国土交通省 大臣官房技術調査課",
+ "url": "https://www.mlit.go.jp/common/001116385.pdf",
+ "landing": "https://www.mlit.go.jp/tec/gyoumu_tanka.html",
+ "http_last_modified": "Wed, 11 Sep 2024 12:05:22 GMT",
+ "bytes": 99301,
+ "sha256": "29b793a2bf26479e356700825638c05e61908dff5ddba85d52c58c5fc385a333",
+ "retrieved_at": "2026-09-26",
+ "license": "PDL1.0",
+ "license_url": "https://www.mlit.go.jp/link.html",
+ "license_quote": "権利表記の記載がない限り「公共データ利用規約（第1.0版）」（PDL1.0）に準拠した利用条件の下で、利用することができます",
+ "attribution": "出典：国土交通省ウェブサイト(https://www.mlit.go.jp/common/001116385.pdf)を加工して作成",
+ "how_read": "pdftotext -bbox-layout の語の座標で別表を読んだ(tools/parsers/parse_mlit_gijutsusha.py)。群の見出し(①〜④)と列の見出し『基準日額（円）』『割増対象賃金比(%)』の x で値を列に入れた。値と見出し中心の距離の最大 0.06pt、他の見出しとの余裕の最小 141.38pt。pdftotext -layout の行の読みと 20/20 行一致、pdfminer の文字列とも一致。全職種の単純平均 35470 円は、令和8年度 PDF 資料2 のグラフの値 35470 と一致。前年比 3.789% は公表値 3.8% と一致。",
+ "values_copied": true,
+ "fetched_via": "Apify web-fetch (formats=raw)。作業環境から官公庁サイトへ直接は届かないため。バイト列は sha256 で原本と同じと確かめられる。",
+ "scope_quote": "一覧頁(tec/gyoumu_tanka.html)のリンクの文字: 平成28年度設計業務委託等技術者単価（※H28.2より適用）",
+ "effective_from": "2016-02-01",
+ "license_quote_previous": "権利表記の記載がない限り『公共データ利用規約（第1.0版）』（PDL1.0）に準拠した利用条件の下で、利用することができます",
+ "license_quote_fixed": "2026-09-26 独立検証(V2)で、条文の写し方(かぎ括弧の置き換え・見出しと本文の連結)が頁と文字どおりでないと分かり、頁の文字どおりに直した。利用条件の中身は変わらない。"
+}

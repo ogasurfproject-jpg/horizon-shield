@@ -1,0 +1,22 @@
+{
+ "source_id": "bls-oews-m2025-national",
+ "country": "US",
+ "title": "Occupational Employment and Wage Statistics (OEWS), May 2025, national (national_M2025_dl.xlsx)",
+ "publisher": "U.S. Bureau of Labor Statistics",
+ "url": "https://www.bls.gov/oes/special-requests/oesm25nat.zip",
+ "landing": "https://www.bls.gov/oes/tables.htm",
+ "retrieved_at": "2026-09-26",
+ "bytes": 279525,
+ "sha256": "b5855a37f3e03e779f6fbf173d3bbc94aeeff33426aef32fa95ce6d025bab1af",
+ "http_last_modified": "Fri, 15 May 2026 13:12:23 GMT",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.bls.gov/opub/copyright-information.htm",
+ "license_quote": "The Bureau of Labor Statistics (BLS) is a Federal government agency and everything that we publish, both in hard copy and electronically, is in the public domain, except for previously copyrighted photographs and illustrations. You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.",
+ "attribution": "Source: U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics, May 2025 (https://www.bls.gov/oes/)",
+ "how_read": "zip の中の xlsx を openpyxl でセルごとに読む(national_M2025_dl.xlsx の 1 枚目)。対象は SOC 47-xxxx の全行と 11-9021, 13-1051, 17-1011, 17-2051, 17-3011, 17-3022, 49-9021、cross-industry(NAICS 000000)・全所有形態(OWN_CODE 1235)。1 行の職業から TOT_EMP と時給・年収の平均と分位(10/25/50/75/90)の 13 観測を作る。記号 * ** # は値を入れず not_set、note に Field Descriptions の Notes の原文。O_GROUP が broad と detailed の両方で出る職業(OEWS の仕様)は両方を残し、spec に O_GROUP を書く。照合: 全国の TOT_EMP と州の合計(reports/U1-us-bls_oews_emp_check.csv)、47-0000 と minor 5 群の合計、年収 = 時給 x 2080 の全組。",
+ "values_copied": true,
+ "fetched_via": "Apify web-fetch (formats=raw)",
+ "published": "2026-05",
+ "scope_quote": "May 2025 OEWS Estimates",
+ "rows": 1430
+}

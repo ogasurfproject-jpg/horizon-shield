@@ -1,0 +1,258 @@
+series_id,group,source_id,title,base_date,catalog_begin,catalog_end,range_from,expected_months,months_with_value,missing_months,missing_list,rows_outside_catalog_range,last_month_in_file,catalog_end_matches_last,preliminary_P,geo_level,geo_code
+WPUIP230000,inputs_to_construction,bls-ppi-wp-80i,"Inputs to construction industries, excluding capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2300001,inputs_to_construction,bls-ppi-wp-80i,"Inputs to construction industries, goods",198606,1986-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23000012,inputs_to_construction,bls-ppi-wp-80i,"Inputs to construction industries, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23000013,inputs_to_construction,bls-ppi-wp-80i,"Inputs to construction industries, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2300002,inputs_to_construction,bls-ppi-wp-80i,"Inputs to construction industries, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23000021,inputs_to_construction,bls-ppi-wp-80i,"Inputs to construction industries, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23000022,inputs_to_construction,bls-ppi-wp-80i,"Inputs to construction industries, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23000023,inputs_to_construction,bls-ppi-wp-80i,"Inputs to construction industries, services less trade, transportation, and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP231000,inputs_to_construction,bls-ppi-wp-80i,"Inputs to new construction, excluding capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2310001,inputs_to_construction,bls-ppi-wp-80i,"Inputs to new construction, goods",198606,1986-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23100012,inputs_to_construction,bls-ppi-wp-80i,"Inputs to new construction, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23100013,inputs_to_construction,bls-ppi-wp-80i,"Inputs to new construction, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2310002,inputs_to_construction,bls-ppi-wp-80i,"Inputs to new construction, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23100021,inputs_to_construction,bls-ppi-wp-80i,"Inputs to new construction, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23100022,inputs_to_construction,bls-ppi-wp-80i,"Inputs to new construction, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23100023,inputs_to_construction,bls-ppi-wp-80i,"Inputs to new construction, services excluding trade, transportation, and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP231100,inputs_to_construction,bls-ppi-wp-80i,"Inputs to new residential construction, excluding capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2311001,inputs_to_construction,bls-ppi-wp-80i,"Inputs to residential construction, goods",198606,1986-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23110012,inputs_to_construction,bls-ppi-wp-80i,"Inputs to residential construction, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23110013,inputs_to_construction,bls-ppi-wp-80i,"Inputs to residential construction, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2311002,inputs_to_construction,bls-ppi-wp-80i,"Inputs to residential construction, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23110021,inputs_to_construction,bls-ppi-wp-80i,"Inputs to residential construction, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23110022,inputs_to_construction,bls-ppi-wp-80i,"Inputs to residential construction, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23110023,inputs_to_construction,bls-ppi-wp-80i,"Inputs to residential construction, services less trade, transportation, and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP231110,inputs_to_construction,bls-ppi-wp-80i,"Inputs to single family residential construction, excl. capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2311101,inputs_to_construction,bls-ppi-wp-80i,"Inputs to single family residential construction, goods",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23111012,inputs_to_construction,bls-ppi-wp-80i,"Inputs to single family residential construction, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23111013,inputs_to_construction,bls-ppi-wp-80i,"Inputs to single family residential construction, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2311102,inputs_to_construction,bls-ppi-wp-80i,"Inputs to single family residential construction, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23111021,inputs_to_construction,bls-ppi-wp-80i,"Inputs to single family residential construction, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23111022,inputs_to_construction,bls-ppi-wp-80i,"Inputs to single family residential construction, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23111023,inputs_to_construction,bls-ppi-wp-80i,"Inputs to single family residential construction, services less trade, transp., and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP231120,inputs_to_construction,bls-ppi-wp-80i,"Inputs to multifamily residential construction, excl. capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2311201,inputs_to_construction,bls-ppi-wp-80i,"Inputs to multifamily residential construction, goods",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23112012,inputs_to_construction,bls-ppi-wp-80i,"Inputs to multifamily residential construction, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23112013,inputs_to_construction,bls-ppi-wp-80i,"Inputs to multifamily residential construction, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2311202,inputs_to_construction,bls-ppi-wp-80i,"Inputs to multifamily residential construction, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23112021,inputs_to_construction,bls-ppi-wp-80i,"Inputs to multifamily residential construction, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23112022,inputs_to_construction,bls-ppi-wp-80i,"Inputs to multifamily residential construction, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23112023,inputs_to_construction,bls-ppi-wp-80i,"Inputs to multifamily residential construction, services less trade, transp., and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP231130,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other residential construction, excluding capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2311301,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other residential construction, goods",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23113012,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other residential construction, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23113013,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other residential construction, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2311302,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other residential construction, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23113021,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other residential construction, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23113022,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other residential construction, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23113023,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other residential construction, services less trade, transp., and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP231200,inputs_to_construction,bls-ppi-wp-80i,"Inputs to new nonresidential construction, excluding capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312001,inputs_to_construction,bls-ppi-wp-80i,"Inputs to nonresidential construction, goods",201006,2010-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23120012,inputs_to_construction,bls-ppi-wp-80i,"Inputs to nonresidential construction, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23120013,inputs_to_construction,bls-ppi-wp-80i,"Inputs to nonresidential construction, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312002,inputs_to_construction,bls-ppi-wp-80i,"Inputs to nonresidential construction, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23120021,inputs_to_construction,bls-ppi-wp-80i,"Inputs to nonresidential construction, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23120022,inputs_to_construction,bls-ppi-wp-80i,"Inputs to nonresidential construction, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23120023,inputs_to_construction,bls-ppi-wp-80i,"Inputs to nonresidential construction, services less trade, transportation, and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP231210,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial and healthcare structures, excl. capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312101,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial and healthcare structures, goods",201006,2010-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23121012,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial and healthcare structures, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23121013,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial and healthcare structures, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312102,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial and healthcare structures, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23121021,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial and healthcare structures, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23121022,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial and healthcare structures, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23121023,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial and healthcare structures, services less trade, transp., and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP231211,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial structures, excluding capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312111,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial structures, goods",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23121112,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial structures, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23121113,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial structures, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312112,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial structures, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23121121,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial structures, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23121122,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial structures, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23121123,inputs_to_construction,bls-ppi-wp-80i,"Inputs to commercial structures, services less trade, transportation, and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP231212,inputs_to_construction,bls-ppi-wp-80i,"Inputs to healthcare structures, excluding capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312121,inputs_to_construction,bls-ppi-wp-80i,"Inputs to healthcare structures, goods",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23121212,inputs_to_construction,bls-ppi-wp-80i,"Inputs to healthcare structures, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23121213,inputs_to_construction,bls-ppi-wp-80i,"Inputs to healthcare structures, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312122,inputs_to_construction,bls-ppi-wp-80i,"Inputs to healthcare structures, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23121221,inputs_to_construction,bls-ppi-wp-80i,"Inputs to healthcare structures, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23121222,inputs_to_construction,bls-ppi-wp-80i,"Inputs to healthcare structures, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23121223,inputs_to_construction,bls-ppi-wp-80i,"Inputs to healthcare structures, services less trade, transportation, and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP231220,inputs_to_construction,bls-ppi-wp-80i,"Inputs to industrial structures, excluding capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312201,inputs_to_construction,bls-ppi-wp-80i,"Inputs to industrial structures, goods",201006,2010-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23122012,inputs_to_construction,bls-ppi-wp-80i,"Inputs to industrial structures, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23122013,inputs_to_construction,bls-ppi-wp-80i,"Inputs to industrial structures, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312202,inputs_to_construction,bls-ppi-wp-80i,"Inputs to industrial structures, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23122021,inputs_to_construction,bls-ppi-wp-80i,"Inputs to industrial structures, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23122022,inputs_to_construction,bls-ppi-wp-80i,"Inputs to industrial structures, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23122023,inputs_to_construction,bls-ppi-wp-80i,"Inputs to industrial structures, services less trade, transportation, and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP231230,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other nonresidential construction, excluding capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312301,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other nonresidential construction, goods",201006,2010-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123012,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other nonresidential construction, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123013,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other nonresidential construction, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312302,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other nonresidential construction, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123021,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other nonresidential construction, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123022,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other nonresidential construction, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123023,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other nonresidential construction, services less trade, transp., and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP231231,inputs_to_construction,bls-ppi-wp-80i,"Inputs to highways and streets, excluding capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312311,inputs_to_construction,bls-ppi-wp-80i,"Inputs to highways and streets, goods",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123112,inputs_to_construction,bls-ppi-wp-80i,"Inputs to highways and streets, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123113,inputs_to_construction,bls-ppi-wp-80i,"Inputs to highways and streets, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312312,inputs_to_construction,bls-ppi-wp-80i,"Inputs to highways and streets, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123121,inputs_to_construction,bls-ppi-wp-80i,"Inputs to highways and streets, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123122,inputs_to_construction,bls-ppi-wp-80i,"Inputs to highways and streets, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123123,inputs_to_construction,bls-ppi-wp-80i,"Inputs to highways and streets, services less trade, transportation, and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP231232,inputs_to_construction,bls-ppi-wp-80i,"Inputs to power and communication structures, excluding capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312321,inputs_to_construction,bls-ppi-wp-80i,"Inputs to power and communication structures, goods",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123212,inputs_to_construction,bls-ppi-wp-80i,"Inputs to power and communication structures, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123213,inputs_to_construction,bls-ppi-wp-80i,"Inputs to power and communication structures, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312322,inputs_to_construction,bls-ppi-wp-80i,"Inputs to power and communication structures, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123221,inputs_to_construction,bls-ppi-wp-80i,"Inputs to power and communication structures, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123222,inputs_to_construction,bls-ppi-wp-80i,"Inputs to power and communication structures, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123223,inputs_to_construction,bls-ppi-wp-80i,"Inputs to power and communication structures, services less trade, transp., and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP231233,inputs_to_construction,bls-ppi-wp-80i,"Inputs to educational and vocational structures, excl. capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312331,inputs_to_construction,bls-ppi-wp-80i,"Inputs to educational and vocational structures, goods",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123312,inputs_to_construction,bls-ppi-wp-80i,"Inputs to educational and vocational structures, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123313,inputs_to_construction,bls-ppi-wp-80i,"Inputs to educational and vocational structures, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312332,inputs_to_construction,bls-ppi-wp-80i,"Inputs to educational and vocational structures, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123321,inputs_to_construction,bls-ppi-wp-80i,"Inputs to educational and vocational structures, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123322,inputs_to_construction,bls-ppi-wp-80i,"Inputs to educational and vocational structures, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123323,inputs_to_construction,bls-ppi-wp-80i,"Inputs to educational and vocational structures, services less trade, transp., and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP231234,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other misc. nonresidential construction, excl. capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312341,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other misc. nonresidential construction, goods",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123412,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other misc. nonresidential construction, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123413,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other misc. nonresidential construction, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2312342,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other misc. nonresidential construction, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123421,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other misc. nonresidential construction, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123422,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other misc. nonresidential construction, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23123423,inputs_to_construction,bls-ppi-wp-80i,"Inputs to other misc. nonresidential construction, services less trade, transp., & warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP232000,inputs_to_construction,bls-ppi-wp-80i,"Inputs to maintenance and repair construction, excluding capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2320001,inputs_to_construction,bls-ppi-wp-80i,"Inputs to maintenance and repair construction, goods",198606,1986-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23200012,inputs_to_construction,bls-ppi-wp-80i,"Inputs to maintenance and repair construction, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23200013,inputs_to_construction,bls-ppi-wp-80i,"Inputs to maintenance and repair construction, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2320002,inputs_to_construction,bls-ppi-wp-80i,"Inputs to maintenance and repair construction, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23200021,inputs_to_construction,bls-ppi-wp-80i,"Inputs to maintenance and repair construction, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23200022,inputs_to_construction,bls-ppi-wp-80i,"Inputs to maintenance and repair construction, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23200023,inputs_to_construction,bls-ppi-wp-80i,"Inputs to maintenance and repair construction, services less trade, transp., and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP232100,inputs_to_construction,bls-ppi-wp-80i,"Inputs to residential maintenance and repair, excluding capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2321001,inputs_to_construction,bls-ppi-wp-80i,"Inputs to residential maintenance and repair, goods",198606,1986-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23210012,inputs_to_construction,bls-ppi-wp-80i,"Inputs to residential maintenance and repair, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23210013,inputs_to_construction,bls-ppi-wp-80i,"Inputs to residential maintenance and repair, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2321002,inputs_to_construction,bls-ppi-wp-80i,"Inputs to residential maintenance and repair, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23210021,inputs_to_construction,bls-ppi-wp-80i,"Inputs to residential maintenance and repair, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23210022,inputs_to_construction,bls-ppi-wp-80i,"Inputs to residential maintenance and repair, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23210023,inputs_to_construction,bls-ppi-wp-80i,"Inputs to residential maintenance and repair, services less trade, transp., and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP232200,inputs_to_construction,bls-ppi-wp-80i,"Inputs to nonresidential maintenance and repair, excl. capital investment, labor, and imports",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2322001,inputs_to_construction,bls-ppi-wp-80i,"Inputs to nonresidential maintenance and repair, goods",198606,1986-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23220012,inputs_to_construction,bls-ppi-wp-80i,"Inputs to nonresidential maintenance and repair, energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23220013,inputs_to_construction,bls-ppi-wp-80i,"Inputs to nonresidential maintenance and repair, goods less foods and energy",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP2322002,inputs_to_construction,bls-ppi-wp-80i,"Inputs to nonresidential maintenance and repair, services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23220021,inputs_to_construction,bls-ppi-wp-80i,"Inputs to nonresidential maintenance and repair, trade services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23220022,inputs_to_construction,bls-ppi-wp-80i,"Inputs to nonresidential maintenance and repair, transportation and warehousing services",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPUIP23220023,inputs_to_construction,bls-ppi-wp-80i,"Inputs to nonresidential maintenance and repair, services less trade, transp., and warehousing",201412,2014-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU236211236211,construction_industry,bls-ppi-pc-75,New industrial building construction,200706,2007-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU236211236211P,construction_industry,bls-ppi-pc-75,Primary products,200706,2007-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU236221236221,construction_industry,bls-ppi-pc-75,New warehouse building construction,200412,2004-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU236221236221P,construction_industry,bls-ppi-pc-75,Primary products,200412,2004-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU236222236222,construction_industry,bls-ppi-pc-75,New school building construction,200512,2005-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU236222236222P,construction_industry,bls-ppi-pc-75,Primary products,200512,2005-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU236223236223,construction_industry,bls-ppi-pc-75,New office building construction,200606,2006-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU236223236223P,construction_industry,bls-ppi-pc-75,Primary products,200606,2006-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU236224236224,construction_industry,bls-ppi-pc-75,New health care building construction,201206,2012-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU236224236224P,construction_industry,bls-ppi-pc-75,Primary products,201206,2012-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU236400236400,construction_industry,bls-ppi-pc-75,New nonresidential building construction by contractor type/region,201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU2364002364001,construction_industry,bls-ppi-pc-75,General contractors,201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU23640023640011,construction_industry,bls-ppi-pc-75,"General contractors, Northeast",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R1
+PCU23640023640012,construction_industry,bls-ppi-pc-75,"General contractors, South",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R3
+PCU23640023640013,construction_industry,bls-ppi-pc-75,"General contractors, Midwest",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R2
+PCU23640023640014,construction_industry,bls-ppi-pc-75,"General contractors, West",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R4
+PCU236400236400221,construction_industry,bls-ppi-pc-75,"Plumbing, heating, and air conditioning contractors",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU2364002364002211,construction_industry,bls-ppi-pc-75,"Plumbing, heating, and air conditioning contractors, Northeast",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R1
+PCU2364002364002212,construction_industry,bls-ppi-pc-75,"Plumbing, heating, and air conditioning contractors, South",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R3
+PCU2364002364002213,construction_industry,bls-ppi-pc-75,"Plumbing, heating, and air conditioning contractors, Midwest",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R2
+PCU2364002364002214,construction_industry,bls-ppi-pc-75,"Plumbing, heating, and air conditioning contractors, West",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R4
+PCU236400236400222,construction_industry,bls-ppi-pc-75,Electrical contractors,201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU2364002364002221,construction_industry,bls-ppi-pc-75,"Electrical contractors, northeast",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R1
+PCU2364002364002222,construction_industry,bls-ppi-pc-75,"Electrical contractors, South",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R3
+PCU2364002364002223,construction_industry,bls-ppi-pc-75,"Electrical contractors, Midwest",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R2
+PCU2364002364002224,construction_industry,bls-ppi-pc-75,"Electrical contractors, West",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R4
+PCU236400236400223,construction_industry,bls-ppi-pc-75,Roofing contractors,201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU2364002364002231,construction_industry,bls-ppi-pc-75,"Roofing contractors, Northeast",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R1
+PCU2364002364002232,construction_industry,bls-ppi-pc-75,"Roofing contractors, South",201402,2014-02,2026-08,2016-01,128,121,7,2021-07 2022-10 2024-01 2024-02 2024-03 2024-04 2024-05,0,2026-M08,True,4,census_region,R3
+PCU2364002364002233,construction_industry,bls-ppi-pc-75,"Roofing contractors, Midwest",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R2
+PCU2364002364002234,construction_industry,bls-ppi-pc-75,"Roofing contractors, West",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R4
+PCU236400236400224,construction_industry,bls-ppi-pc-75,Poured concrete foundation and structure contractors,201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU2364002364002241,construction_industry,bls-ppi-pc-75,"Poured concrete foundation and structure contractors, Northeast",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R1
+PCU2364002364002242,construction_industry,bls-ppi-pc-75,"Poured concrete foundation and structure contractors, South",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R3
+PCU2364002364002243,construction_industry,bls-ppi-pc-75,"Poured concrete foundation and structure contractors, Midwest",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R2
+PCU2364002364002244,construction_industry,bls-ppi-pc-75,"Poured concrete foundation and structure contractors, West",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R4
+PCU236500236500,construction_industry,bls-ppi-pc-75,New nonresidential building construction by region,201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU2365002365001,construction_industry,bls-ppi-pc-75,"New nonresidential building construction, Northeast",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R1
+PCU2365002365002,construction_industry,bls-ppi-pc-75,"New nonresidential building construction, South",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R3
+PCU2365002365003,construction_industry,bls-ppi-pc-75,"New nonresidential building construction, Midwest",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R2
+PCU2365002365004,construction_industry,bls-ppi-pc-75,"New nonresidential building construction, West",201402,2014-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R4
+PCU23811X23811X,construction_industry,bls-ppi-pc-75,"Concrete contractors, nonresidential building work",200712,2007-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU23811X23811XP,construction_industry,bls-ppi-pc-75,Primary products,200712,2007-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU23816X23816X,construction_industry,bls-ppi-pc-75,"Roofing contractors, nonresidential building work",200712,2007-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU23816X23816XP,construction_industry,bls-ppi-pc-75,Primary products,200712,2007-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU2381MR2381MR,construction_industry,bls-ppi-pc-75,Nonresidential building maintenance & repair,200904,2009-04,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU23821X23821X,construction_industry,bls-ppi-pc-75,"Electrical contractors, nonresidential building work",200712,2007-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU23821X23821XP,construction_industry,bls-ppi-pc-75,Primary products,200712,2007-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU23822X23822X,construction_industry,bls-ppi-pc-75,"Plumbing, heating and air-conditioning contractors, nonresidential building work",200712,2007-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+PCU23822X23822XP,construction_industry,bls-ppi-pc-75,Primary products,200712,2007-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU132,construction_material,bls-ppi-wp-14,Concrete ingredients and related products,198200,1926-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1321,construction_material,bls-ppi-wp-14,"Construction sand, gravel and crushed stone",198200,1947-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1322,construction_material,bls-ppi-wp-14,"Cement, hydraulic",198200,1971-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU133,construction_material,bls-ppi-wp-14,Concrete products,198200,1926-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1331,construction_material,bls-ppi-wp-14,Concrete block and brick,198200,1947-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1332,construction_material,bls-ppi-wp-14,Concrete pipe,198200,1971-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1333,construction_material,bls-ppi-wp-14,Ready-mix concrete,198200,1971-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU13330101A,construction_material,bls-ppi-wp-14,Northeast region ready-mix concrete,201212,2012-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R1
+WPU13330101B,construction_material,bls-ppi-wp-14,Midwest region ready-mix concrete,201212,2012-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R2
+WPU13330101C,construction_material,bls-ppi-wp-14,South region ready-mix concrete,201212,2012-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R3
+WPU13330101D,construction_material,bls-ppi-wp-14,West region ready-mix concrete,201212,2012-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,census_region,R4
+WPU1334,construction_material,bls-ppi-wp-14,Precast concrete products,198200,1980-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU081,construction_material,bls-ppi-wp-9,Lumber,198200,1926-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU0811,construction_material,bls-ppi-wp-9,Softwood lumber,198200,1947-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU0812,construction_material,bls-ppi-wp-9,Hardwood lumber,198200,1947-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU082,construction_material,bls-ppi-wp-9,Millwork,198200,1926-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU0822,construction_material,bls-ppi-wp-9,Prefabricated structural members,198200,1963-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU083,construction_material,bls-ppi-wp-9,Plywood,198200,1947-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU0831,construction_material,bls-ppi-wp-9,Softwood veneer and plywood,198200,1947-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU0835,construction_material,bls-ppi-wp-9,Hardwood veneer and plywood,200512,2005-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU086,construction_material,bls-ppi-wp-9,Prefabricated wood buildings & components,198412,1984-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1017,construction_material,bls-ppi-wp-11a,Steel mill products,198200,1939-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU101704,construction_material,bls-ppi-wp-11a,"Hot rolled steel bars, plates, and structural shapes",198206,1982-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU101706,construction_material,bls-ppi-wp-11a,Steel pipe and tube,198206,1982-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU102501,construction_material,bls-ppi-wp-11a,Aluminum mill shapes,198200,1947-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU10250239,construction_material,bls-ppi-wp-11a,Copper and copper alloy pipe and tube,200406,2004-06,2026-04,2016-01,124,110,14,2021-04 2024-11 2024-12 2025-01 2025-02 2025-04 2025-05 2025-06 2025-07 2025-08 2025-09 2025-11 2025-12 2026-01,0,2026-M04,True,0,national,US
+WPU1026,construction_material,bls-ppi-wp-11a,Nonferrous wire and cable,198200,1947-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU10260314,construction_material,bls-ppi-wp-11a,Copper wire and cable,198612,1986-12,2026-08,2016-01,128,127,1,2020-07,0,2026-M08,True,4,national,US
+WPU107,construction_material,bls-ppi-wp-11b,Fabricated structural metal products,198200,1947-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1071,construction_material,bls-ppi-wp-11b,"Metal doors, sash, and trim",198200,1947-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1073,construction_material,bls-ppi-wp-11b,Sheet metal products,198200,1961-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1074,construction_material,bls-ppi-wp-11b,"Structural, architectural, and pre-engineered metal products",198200,1961-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU107405,construction_material,bls-ppi-wp-11b,Fabricated structural metal,198200,1981-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1074051,construction_material,bls-ppi-wp-11b,Fabricated structural metal bar joists and concrete reinforcing bars,198200,1961-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1079,construction_material,bls-ppi-wp-11b,Prefabricated metal buildings,198200,1981-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU104101,construction_material,bls-ppi-wp-11b,Builders' hardware,198200,1962-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU105,construction_material,bls-ppi-wp-11b,Plumbing fixtures and fittings,198200,1926-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU106,construction_material,bls-ppi-wp-11b,Heating equipment,198200,1947-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1311,construction_material,bls-ppi-wp-14,Flat glass,198200,1967-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU134,construction_material,bls-ppi-wp-14,Clay construction products ex. refractories,198200,1947-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1342,construction_material,bls-ppi-wp-14,Brick and structural clay tile,198412,1984-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU136,construction_material,bls-ppi-wp-14,Asphalt felts and coatings,198200,1926-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1361,construction_material,bls-ppi-wp-14,Prepared asphalt and tar roofing and siding products,198200,1926-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU137,construction_material,bls-ppi-wp-14,Gypsum products,198200,1947-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU13710102,construction_material,bls-ppi-wp-14,Gypsum building materials,199312,1994-02,2026-08,2016-01,128,113,15,2017-06 2017-07 2017-08 2017-09 2017-10 2017-11 2017-12 2018-01 2018-02 2018-03 2018-04 2018-05 2018-06 2018-07 2018-08,0,2026-M08,True,4,national,US
+WPU1392,construction_material,bls-ppi-wp-14,Insulation materials,198200,1947-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1394,construction_material,bls-ppi-wp-14,Paving mixtures and blocks,198200,1958-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU13940113C,construction_material,bls-ppi-wp-14,Asphalt and tar paving mixtures (excluding liquid),200912,2009-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU1395,construction_material,bls-ppi-wp-14,Cut stone and stone products,198412,1984-12,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU058102,construction_material,bls-ppi-wp-6,Asphalt,198506,1985-06,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU057303,construction_material,bls-ppi-wp-6,No. 2 diesel fuel,198200,1973-02,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU0621,construction_material,bls-ppi-wp-7,Prepared paint,198200,1926-13,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU062101,construction_material,bls-ppi-wp-7,Architectural coatings,198200,1975-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU0721,construction_material,bls-ppi-wp-8,Plastic construction products,198200,1970-01,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US
+WPU112,construction_material,bls-ppi-wp-12a,Construction machinery and equipment,198200,1939-08,2026-08,2016-01,128,128,0,,0,2026-M08,True,4,national,US

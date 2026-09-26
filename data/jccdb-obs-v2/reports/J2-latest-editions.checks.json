@@ -1,0 +1,2680 @@
+{
+ "kkr_namacon": {
+  "r7_06": {
+   "month": "r7_06",
+   "source_id": "kkr-zairyo-r7-06",
+   "pdf_sha256": "07c79c0d1ad949c4ff3206ccb5b1049d1856aa484204d1267a6c915af553e9e0",
+   "rows": 848,
+   "pages": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36
+   ],
+   "rows_bbox": 567,
+   "rows_layout": 567,
+   "rows_equal": 567,
+   "max_col_dist_pt": 0.06,
+   "max_group_split_err_pt": 0.05,
+   "beppyo_same_as_r8_09": true,
+   "linked_v4": 541,
+   "per_page": [
+    {
+     "page": 10,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 8,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 11,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 78,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 12,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 15,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 13,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 14,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 14,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 16,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 15,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 36,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 16,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 4,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0.02,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 17,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 175,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.05,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 18,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 50,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.01,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    },
+    {
+     "page": 19,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 20,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 71,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 21,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 22,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 23,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 24,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 23,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.0,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 25,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 26,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 156,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.05,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 27,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 45,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    },
+    {
+     "page": 28,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 29,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 37,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 30,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 31,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 32,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 33,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 13,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.0,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 34,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 35,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 81,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.05,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 36,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 26,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.01,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    }
+   ]
+  },
+  "r7_07": {
+   "month": "r7_07",
+   "source_id": "kkr-zairyo-r7-07",
+   "pdf_sha256": "90a7489068e70b2d9951497b06d70a547b465d4b511cdd1d4d57cc899048cec9",
+   "rows": 848,
+   "pages": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36
+   ],
+   "rows_bbox": 567,
+   "rows_layout": 567,
+   "rows_equal": 567,
+   "max_col_dist_pt": 0.06,
+   "max_group_split_err_pt": 0.05,
+   "beppyo_same_as_r8_09": true,
+   "linked_v4": 541,
+   "per_page": [
+    {
+     "page": 10,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 8,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 11,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 78,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 12,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 15,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 13,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 14,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 14,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 16,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 15,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 36,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 16,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 4,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0.02,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 17,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 175,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.05,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 18,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 50,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.01,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    },
+    {
+     "page": 19,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 20,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 71,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 21,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 22,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 23,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 24,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 23,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.0,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 25,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 26,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 156,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.05,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 27,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 45,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    },
+    {
+     "page": 28,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 29,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 37,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 30,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 31,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 32,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 33,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 13,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.0,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 34,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 35,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 81,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.05,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 36,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 26,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.01,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    }
+   ]
+  },
+  "r8_01": {
+   "month": "r8_01",
+   "source_id": "kkr-zairyo-r8-01",
+   "pdf_sha256": "c7ad8a76b17067b49046be8c96c9a2b23ec38ea70f371713ca2db0a8dcb9d8fd",
+   "rows": 846,
+   "pages": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36
+   ],
+   "rows_bbox": 567,
+   "rows_layout": 567,
+   "rows_equal": 567,
+   "max_col_dist_pt": 0.06,
+   "max_group_split_err_pt": 0.05,
+   "beppyo_same_as_r8_09": true,
+   "linked_v4": 541,
+   "per_page": [
+    {
+     "page": 10,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 8,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 11,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 78,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 12,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 15,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 13,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 12,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 14,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 16,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 15,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 36,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 16,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 4,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0.02,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 17,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 175,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.05,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 18,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 50,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.01,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    },
+    {
+     "page": 19,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 20,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 71,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 21,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 22,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 23,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 24,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 23,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.0,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 25,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 26,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 156,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.05,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 27,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 45,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    },
+    {
+     "page": 28,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 29,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 37,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 30,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 31,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 32,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 33,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 13,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.0,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 34,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 35,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 81,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.05,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 36,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 26,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.01,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    }
+   ]
+  },
+  "r8_04": {
+   "month": "r8_04",
+   "source_id": "kkr-zairyo-r8-04",
+   "pdf_sha256": "92e35f0663e09bca28456c5d105d728b17734c38e58e7e9accbc7f2502b7bc22",
+   "rows": 846,
+   "pages": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36
+   ],
+   "rows_bbox": 567,
+   "rows_layout": 567,
+   "rows_equal": 567,
+   "max_col_dist_pt": 0.06,
+   "max_group_split_err_pt": 0.05,
+   "beppyo_same_as_r8_09": true,
+   "linked_v4": 541,
+   "per_page": [
+    {
+     "page": 10,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 8,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 11,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 78,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 12,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 15,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 13,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 12,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 14,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 16,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 15,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 36,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 16,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 4,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0.02,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 17,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 175,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.05,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 18,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 50,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.01,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    },
+    {
+     "page": 19,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 20,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 71,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 21,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 22,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 23,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 24,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 23,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.0,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 25,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 26,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 156,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.05,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 27,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 45,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    },
+    {
+     "page": 28,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 29,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 37,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.06,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 30,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 31,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 32,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 33,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 13,
+     "group_split_err_pt": 0.04,
+     "max_col_dist_pt": 0.0,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 34,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 35,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 81,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.05,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 36,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 26,
+     "group_split_err_pt": 0.02,
+     "max_col_dist_pt": 0.01,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    }
+   ]
+  },
+  "r8_09": {
+   "month": "r8_09",
+   "source_id": "kkr-zairyo-r8-09",
+   "pdf_sha256": "07691505e9319935539a58bb33ed74ca2e3d749b12753eb87c83333690e22886",
+   "rows": 846,
+   "pages": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36
+   ],
+   "rows_bbox": 567,
+   "rows_layout": 567,
+   "rows_equal": 567,
+   "max_col_dist_pt": 0.13,
+   "max_group_split_err_pt": 0.15,
+   "beppyo_same_as_r8_09": true,
+   "linked_v4": 541,
+   "per_page": [
+    {
+     "page": 10,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 8,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 11,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 78,
+     "group_split_err_pt": 0.08,
+     "max_col_dist_pt": 0.08,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 12,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 15,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.12,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 13,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 12,
+     "group_split_err_pt": 0.06,
+     "max_col_dist_pt": 0.07,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 14,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 16,
+     "group_split_err_pt": 0.09,
+     "max_col_dist_pt": 0.09,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 15,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 36,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.13,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 16,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 4,
+     "group_split_err_pt": 0.15,
+     "max_col_dist_pt": 0.02,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 17,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 175,
+     "group_split_err_pt": 0.07,
+     "max_col_dist_pt": 0.11,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 18,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 50,
+     "group_split_err_pt": 0.12,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    },
+    {
+     "page": 19,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 20,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 71,
+     "group_split_err_pt": 0.08,
+     "max_col_dist_pt": 0.08,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 21,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 22,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.06,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 23,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.09,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 24,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 23,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.0,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 25,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.15,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 26,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 156,
+     "group_split_err_pt": 0.07,
+     "max_col_dist_pt": 0.11,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 27,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 45,
+     "group_split_err_pt": 0.12,
+     "max_col_dist_pt": 0.07,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    },
+    {
+     "page": 28,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 29,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 37,
+     "group_split_err_pt": 0.08,
+     "max_col_dist_pt": 0.08,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 30,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 31,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.06,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 32,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.09,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 33,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 13,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.0,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 34,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.15,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 35,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 81,
+     "group_split_err_pt": 0.07,
+     "max_col_dist_pt": 0.11,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 36,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 26,
+     "group_split_err_pt": 0.12,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    }
+   ]
+  },
+  "r8_10": {
+   "month": "r8_10",
+   "source_id": "kkr-zairyo-r8-10",
+   "pdf_sha256": "82538ace3f1f9da28e4acdbf0dc1e875d46da91afbb12da23e652e5ac75701bd",
+   "rows": 846,
+   "pages": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36
+   ],
+   "rows_bbox": 567,
+   "rows_layout": 567,
+   "rows_equal": 567,
+   "max_col_dist_pt": 0.13,
+   "max_group_split_err_pt": 0.15,
+   "beppyo_same_as_r8_09": true,
+   "linked_v4": 541,
+   "per_page": [
+    {
+     "page": 10,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 8,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 11,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 78,
+     "group_split_err_pt": 0.08,
+     "max_col_dist_pt": 0.08,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 12,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 15,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.12,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 13,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 12,
+     "group_split_err_pt": 0.06,
+     "max_col_dist_pt": 0.07,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 14,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 16,
+     "group_split_err_pt": 0.09,
+     "max_col_dist_pt": 0.09,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 15,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 36,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.13,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 16,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 4,
+     "group_split_err_pt": 0.15,
+     "max_col_dist_pt": 0.02,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 17,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 175,
+     "group_split_err_pt": 0.07,
+     "max_col_dist_pt": 0.11,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 18,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 50,
+     "group_split_err_pt": 0.12,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    },
+    {
+     "page": 19,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 20,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 71,
+     "group_split_err_pt": 0.08,
+     "max_col_dist_pt": 0.08,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 21,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 22,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.06,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 23,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.09,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 24,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 23,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.0,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 25,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 0,
+     "group_split_err_pt": 0.15,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 26,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 156,
+     "group_split_err_pt": 0.07,
+     "max_col_dist_pt": 0.11,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 27,
+     "rows_bbox": 25,
+     "rows_layout": 25,
+     "rows_equal": 25,
+     "values": 45,
+     "group_split_err_pt": 0.12,
+     "max_col_dist_pt": 0.07,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    },
+    {
+     "page": 28,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.01,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "福井"
+     ]
+    },
+    {
+     "page": 29,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 37,
+     "group_split_err_pt": 0.08,
+     "max_col_dist_pt": 0.08,
+     "groups": [
+      "京都北部",
+      "滋賀",
+      "福井"
+     ]
+    },
+    {
+     "page": 30,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "京都北部",
+      "京都南部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 31,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.06,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "大阪"
+     ]
+    },
+    {
+     "page": 32,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.09,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "兵庫",
+      "兵庫北部",
+      "兵庫西部"
+     ]
+    },
+    {
+     "page": 33,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 13,
+     "group_split_err_pt": 0.05,
+     "max_col_dist_pt": 0.0,
+     "groups": [
+      "兵庫",
+      "奈良"
+     ]
+    },
+    {
+     "page": 34,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 0,
+     "group_split_err_pt": 0.15,
+     "max_col_dist_pt": 0,
+     "groups": [
+      "和歌山",
+      "奈良"
+     ]
+    },
+    {
+     "page": 35,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 81,
+     "group_split_err_pt": 0.07,
+     "max_col_dist_pt": 0.11,
+     "groups": [
+      "三重",
+      "和歌山"
+     ]
+    },
+    {
+     "page": 36,
+     "rows_bbox": 13,
+     "rows_layout": 13,
+     "rows_equal": 13,
+     "values": 26,
+     "group_split_err_pt": 0.12,
+     "max_col_dist_pt": 0.03,
+     "groups": [
+      "三重",
+      "岐阜"
+     ]
+    }
+   ]
+  }
+ },
+ "ktr_as_monthly": {
+  "r8_05": {
+   "source_id": "ktr-zairyo-as-r8-05",
+   "pdf_sha256": "abfe63861fb8b45f08899acbbde4f20db047a0a1fdcb4e06cc58ba8a39c47d86",
+   "rows": 136,
+   "status": {
+    "published_pdl": 73,
+    "not_set": 63
+   },
+   "areas": 34,
+   "area_members_unmatched": [],
+   "area_table_labels": 164,
+   "area_table_miss": 0,
+   "max_col_dist_pt": 0.04,
+   "pages_multiset_equal": 3,
+   "pages": 3,
+   "layout_tokens": 136,
+   "bbox_values": 136,
+   "per_page": [
+    {
+     "page": 1,
+     "rows": 4,
+     "cols": 11,
+     "layout_value_tokens": 44,
+     "bbox_values": 44,
+     "multiset_equal": true,
+     "max_col_dist_pt": 0.04,
+     "group_err_pt": 0.07
+    },
+    {
+     "page": 2,
+     "rows": 4,
+     "cols": 11,
+     "layout_value_tokens": 44,
+     "bbox_values": 44,
+     "multiset_equal": true,
+     "max_col_dist_pt": 0.04,
+     "group_err_pt": 0.07
+    },
+    {
+     "page": 3,
+     "rows": 4,
+     "cols": 12,
+     "layout_value_tokens": 48,
+     "bbox_values": 48,
+     "multiset_equal": true,
+     "max_col_dist_pt": 0.04,
+     "group_err_pt": 0.13
+    }
+   ]
+  },
+  "r8_06": {
+   "source_id": "ktr-zairyo-as-r8-06",
+   "pdf_sha256": "c4556e292db394df7256db88dc7d942083c32067b69e040dd6000b5192f0ef87",
+   "rows": 136,
+   "status": {
+    "published_pdl": 73,
+    "not_set": 63
+   },
+   "areas": 34,
+   "area_members_unmatched": [],
+   "area_table_labels": 164,
+   "area_table_miss": 0,
+   "max_col_dist_pt": 0.04,
+   "pages_multiset_equal": 3,
+   "pages": 3,
+   "layout_tokens": 136,
+   "bbox_values": 136,
+   "per_page": [
+    {
+     "page": 1,
+     "rows": 4,
+     "cols": 11,
+     "layout_value_tokens": 44,
+     "bbox_values": 44,
+     "multiset_equal": true,
+     "max_col_dist_pt": 0.04,
+     "group_err_pt": 0.07
+    },
+    {
+     "page": 2,
+     "rows": 4,
+     "cols": 11,
+     "layout_value_tokens": 44,
+     "bbox_values": 44,
+     "multiset_equal": true,
+     "max_col_dist_pt": 0.04,
+     "group_err_pt": 0.07
+    },
+    {
+     "page": 3,
+     "rows": 4,
+     "cols": 12,
+     "layout_value_tokens": 48,
+     "bbox_values": 48,
+     "multiset_equal": true,
+     "max_col_dist_pt": 0.04,
+     "group_err_pt": 0.13
+    }
+   ]
+  },
+  "r8_07": {
+   "source_id": "ktr-zairyo-as-r8-07",
+   "pdf_sha256": "3ff7a8204d5c2d646725a3188e4200edec0184c561df415c231a904ad321a42c",
+   "rows": 136,
+   "status": {
+    "published_pdl": 73,
+    "not_set": 63
+   },
+   "areas": 34,
+   "area_members_unmatched": [],
+   "area_table_labels": 164,
+   "area_table_miss": 0,
+   "max_col_dist_pt": 0.04,
+   "pages_multiset_equal": 3,
+   "pages": 3,
+   "layout_tokens": 136,
+   "bbox_values": 136,
+   "per_page": [
+    {
+     "page": 1,
+     "rows": 4,
+     "cols": 11,
+     "layout_value_tokens": 44,
+     "bbox_values": 44,
+     "multiset_equal": true,
+     "max_col_dist_pt": 0.04,
+     "group_err_pt": 0.07
+    },
+    {
+     "page": 2,
+     "rows": 4,
+     "cols": 11,
+     "layout_value_tokens": 44,
+     "bbox_values": 44,
+     "multiset_equal": true,
+     "max_col_dist_pt": 0.04,
+     "group_err_pt": 0.07
+    },
+    {
+     "page": 3,
+     "rows": 4,
+     "cols": 12,
+     "layout_value_tokens": 48,
+     "bbox_values": 48,
+     "multiset_equal": true,
+     "max_col_dist_pt": 0.04,
+     "group_err_pt": 0.13
+    }
+   ]
+  },
+  "r8_08": {
+   "source_id": "ktr-zairyo-as-r8-08",
+   "pdf_sha256": "fac567c3f1d4910d2dedc9d05ae4ad4f835e82516b2835535a9654afc929d9e4",
+   "rows": 136,
+   "status": {
+    "published_pdl": 73,
+    "not_set": 63
+   },
+   "areas": 34,
+   "area_members_unmatched": [],
+   "area_table_labels": 164,
+   "area_table_miss": 0,
+   "max_col_dist_pt": 0.04,
+   "pages_multiset_equal": 3,
+   "pages": 3,
+   "layout_tokens": 136,
+   "bbox_values": 136,
+   "per_page": [
+    {
+     "page": 1,
+     "rows": 4,
+     "cols": 11,
+     "layout_value_tokens": 44,
+     "bbox_values": 44,
+     "multiset_equal": true,
+     "max_col_dist_pt": 0.04,
+     "group_err_pt": 0.07
+    },
+    {
+     "page": 2,
+     "rows": 4,
+     "cols": 11,
+     "layout_value_tokens": 44,
+     "bbox_values": 44,
+     "multiset_equal": true,
+     "max_col_dist_pt": 0.04,
+     "group_err_pt": 0.07
+    },
+    {
+     "page": 3,
+     "rows": 4,
+     "cols": 12,
+     "layout_value_tokens": 48,
+     "bbox_values": 48,
+     "multiset_equal": true,
+     "max_col_dist_pt": 0.04,
+     "group_err_pt": 0.13
+    }
+   ]
+  },
+  "r8_09": {
+   "source_id": "ktr-zairyo-as-r8-09",
+   "pdf_sha256": "9fcab580504f8004522232a243f9346f8347721f8f1cf0d518a2b553154d2ff5",
+   "rows": 136,
+   "status": {
+    "published_pdl": 73,
+    "not_set": 63
+   },
+   "areas": 34,
+   "area_members_unmatched": [],
+   "area_table_labels": 164,
+   "area_table_miss": 0,
+   "max_col_dist_pt": 0.04,
+   "pages_multiset_equal": 3,
+   "pages": 3,
+   "layout_tokens": 136,
+   "bbox_values": 136,
+   "per_page": [
+    {
+     "page": 1,
+     "rows": 4,
+     "cols": 11,
+     "layout_value_tokens": 44,
+     "bbox_values": 44,
+     "multiset_equal": true,
+     "max_col_dist_pt": 0.04,
+     "group_err_pt": 0.07
+    },
+    {
+     "page": 2,
+     "rows": 4,
+     "cols": 11,
+     "layout_value_tokens": 44,
+     "bbox_values": 44,
+     "multiset_equal": true,
+     "max_col_dist_pt": 0.04,
+     "group_err_pt": 0.07
+    },
+    {
+     "page": 3,
+     "rows": 4,
+     "cols": 12,
+     "layout_value_tokens": 48,
+     "bbox_values": 48,
+     "multiset_equal": true,
+     "max_col_dist_pt": 0.04,
+     "group_err_pt": 0.13
+    }
+   ]
+  }
+ }
+}

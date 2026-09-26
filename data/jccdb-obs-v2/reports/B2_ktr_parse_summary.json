@@ -1,0 +1,515 @@
+{
+ "source_id": "ktr-zairyo-r8-04",
+ "pdf_sha256": "b78074edce6020851c50c79e11a0f2879d6ac886859228f12d50c0814263e07e",
+ "rows_written": 4077,
+ "stats": {
+  "grid_rows": 351,
+  "status:published_pdl": 3420,
+  "layer:material": 3915,
+  "status:not_set": 447,
+  "status:publication_based_not_public": 210,
+  "layer:work": 153,
+  "layer:equipment": 9,
+  "list_rows": 728,
+  "ruled_rows": 42,
+  "ruled_skipped_next_page": 1
+ },
+ "max_col_dist_pt": 0.1,
+ "area_labels": 164,
+ "area_labels_without_cell": 0,
+ "area_entries": 161,
+ "grid_columns_without_area_members": [
+  [
+   5,
+   "3111",
+   "栗山",
+   "栃木県"
+  ],
+  [
+   7,
+   "3071",
+   "東京１７区",
+   "東京都"
+  ],
+  [
+   7,
+   "3072",
+   "東京6区",
+   "東京都"
+  ],
+  [
+   8,
+   "3082",
+   "津久井",
+   "神奈川県"
+  ],
+  [
+   8,
+   "3092",
+   "箱根",
+   "神奈川県"
+  ]
+ ],
+ "check_pages": 43,
+ "check_pages_equal": 43,
+ "check_values_total_grid_list": 3825,
+ "ruled_values": 42,
+ "check_bad": [],
+ "checks": [
+  {
+   "page": 5,
+   "kind": "grid",
+   "rows": 5,
+   "layout_value_tokens": 75,
+   "bbox_values": 75,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.0,
+   "cols": 15
+  },
+  {
+   "page": 6,
+   "kind": "grid",
+   "rows": 5,
+   "layout_value_tokens": 75,
+   "bbox_values": 75,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.0,
+   "cols": 15
+  },
+  {
+   "page": 7,
+   "kind": "grid",
+   "rows": 5,
+   "layout_value_tokens": 80,
+   "bbox_values": 80,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.0,
+   "cols": 16
+  },
+  {
+   "page": 8,
+   "kind": "grid",
+   "rows": 5,
+   "layout_value_tokens": 70,
+   "bbox_values": 70,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.0,
+   "cols": 14
+  },
+  {
+   "page": 9,
+   "kind": "grid",
+   "rows": 5,
+   "layout_value_tokens": 45,
+   "bbox_values": 45,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.0,
+   "cols": 9
+  },
+  {
+   "page": 10,
+   "kind": "grid",
+   "rows": 4,
+   "layout_value_tokens": 44,
+   "bbox_values": 44,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.09,
+   "cols": 11
+  },
+  {
+   "page": 11,
+   "kind": "grid",
+   "rows": 4,
+   "layout_value_tokens": 44,
+   "bbox_values": 44,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.09,
+   "cols": 11
+  },
+  {
+   "page": 12,
+   "kind": "grid",
+   "rows": 4,
+   "layout_value_tokens": 48,
+   "bbox_values": 48,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.1,
+   "cols": 12
+  },
+  {
+   "page": 13,
+   "kind": "grid",
+   "rows": 33,
+   "layout_value_tokens": 297,
+   "bbox_values": 297,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.07,
+   "cols": 9
+  },
+  {
+   "page": 14,
+   "kind": "grid",
+   "rows": 33,
+   "layout_value_tokens": 188,
+   "bbox_values": 188,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.06,
+   "cols": 9
+  },
+  {
+   "page": 15,
+   "kind": "grid",
+   "rows": 33,
+   "layout_value_tokens": 272,
+   "bbox_values": 272,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.1,
+   "cols": 9
+  },
+  {
+   "page": 16,
+   "kind": "grid",
+   "rows": 33,
+   "layout_value_tokens": 263,
+   "bbox_values": 263,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.09,
+   "cols": 9
+  },
+  {
+   "page": 17,
+   "kind": "grid",
+   "rows": 26,
+   "layout_value_tokens": 194,
+   "bbox_values": 194,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.01,
+   "cols": 9
+  },
+  {
+   "page": 18,
+   "kind": "grid",
+   "rows": 33,
+   "layout_value_tokens": 297,
+   "bbox_values": 297,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.03,
+   "cols": 9
+  },
+  {
+   "page": 19,
+   "kind": "grid",
+   "rows": 33,
+   "layout_value_tokens": 295,
+   "bbox_values": 295,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.07,
+   "cols": 9
+  },
+  {
+   "page": 20,
+   "kind": "grid",
+   "rows": 33,
+   "layout_value_tokens": 297,
+   "bbox_values": 297,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.06,
+   "cols": 9
+  },
+  {
+   "page": 21,
+   "kind": "grid",
+   "rows": 33,
+   "layout_value_tokens": 297,
+   "bbox_values": 297,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.09,
+   "cols": 9
+  },
+  {
+   "page": 22,
+   "kind": "grid",
+   "rows": 23,
+   "layout_value_tokens": 207,
+   "bbox_values": 207,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.03,
+   "cols": 9
+  },
+  {
+   "page": 23,
+   "kind": "grid",
+   "rows": 1,
+   "layout_value_tokens": 9,
+   "bbox_values": 9,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.0,
+   "cols": 9
+  },
+  {
+   "page": 29,
+   "kind": "list",
+   "rows": 52,
+   "layout_value_tokens": 52,
+   "bbox_values": 52,
+   "multiset_equal": true,
+   "section": "電気通信資材価格"
+  },
+  {
+   "page": 30,
+   "kind": "list",
+   "rows": 52,
+   "layout_value_tokens": 52,
+   "bbox_values": 52,
+   "multiset_equal": true,
+   "section": "電気通信資材価格"
+  },
+  {
+   "page": 31,
+   "kind": "list",
+   "rows": 52,
+   "layout_value_tokens": 52,
+   "bbox_values": 52,
+   "multiset_equal": true,
+   "section": "電気通信資材価格"
+  },
+  {
+   "page": 32,
+   "kind": "list",
+   "rows": 52,
+   "layout_value_tokens": 52,
+   "bbox_values": 52,
+   "multiset_equal": true,
+   "section": "電気通信資材価格"
+  },
+  {
+   "page": 33,
+   "kind": "list",
+   "rows": 52,
+   "layout_value_tokens": 52,
+   "bbox_values": 52,
+   "multiset_equal": true,
+   "section": "電気通信資材価格"
+  },
+  {
+   "page": 34,
+   "kind": "list",
+   "rows": 52,
+   "layout_value_tokens": 52,
+   "bbox_values": 52,
+   "multiset_equal": true,
+   "section": "電気通信資材価格"
+  },
+  {
+   "page": 35,
+   "kind": "list",
+   "rows": 52,
+   "layout_value_tokens": 52,
+   "bbox_values": 52,
+   "multiset_equal": true,
+   "section": "電気通信資材価格"
+  },
+  {
+   "page": 36,
+   "kind": "list",
+   "rows": 52,
+   "layout_value_tokens": 52,
+   "bbox_values": 52,
+   "multiset_equal": true,
+   "section": "電気通信資材価格"
+  },
+  {
+   "page": 37,
+   "kind": "list",
+   "rows": 20,
+   "layout_value_tokens": 20,
+   "bbox_values": 20,
+   "multiset_equal": true,
+   "section": "電気通信資材価格"
+  },
+  {
+   "page": 51,
+   "kind": "list",
+   "rows": 33,
+   "layout_value_tokens": 33,
+   "bbox_values": 33,
+   "multiset_equal": true,
+   "section": "水質自動監視計用薬品単価"
+  },
+  {
+   "page": 52,
+   "kind": "list",
+   "rows": 29,
+   "layout_value_tokens": 29,
+   "bbox_values": 29,
+   "multiset_equal": true,
+   "section": "水質自動監視計用薬品単価"
+  },
+  {
+   "page": 53,
+   "kind": "list",
+   "rows": 4,
+   "layout_value_tokens": 4,
+   "bbox_values": 4,
+   "multiset_equal": true,
+   "section": "水質自動監視計用薬品単価"
+  },
+  {
+   "page": 54,
+   "kind": "list",
+   "rows": 56,
+   "layout_value_tokens": 56,
+   "bbox_values": 56,
+   "multiset_equal": true,
+   "section": "ボルト・ナット類単価"
+  },
+  {
+   "page": 55,
+   "kind": "list",
+   "rows": 51,
+   "layout_value_tokens": 51,
+   "bbox_values": 51,
+   "multiset_equal": true,
+   "section": "ボルト・ナット類単価"
+  },
+  {
+   "page": 56,
+   "kind": "list",
+   "rows": 51,
+   "layout_value_tokens": 51,
+   "bbox_values": 51,
+   "multiset_equal": true,
+   "section": "ボルト・ナット類単価"
+  },
+  {
+   "page": 57,
+   "kind": "list",
+   "rows": 44,
+   "layout_value_tokens": 44,
+   "bbox_values": 44,
+   "multiset_equal": true,
+   "section": "ボルト・ナット類単価"
+  },
+  {
+   "page": 65,
+   "kind": "list",
+   "rows": 24,
+   "layout_value_tokens": 24,
+   "bbox_values": 24,
+   "multiset_equal": true,
+   "section": "電線共同溝資材単価"
+  },
+  {
+   "page": 38,
+   "kind": "ruled",
+   "section": "非排水型伸縮装置設置費（材料費）",
+   "rows": 1,
+   "offset_dx_dy_pairs_spread": [
+    14.4,
+    14.41,
+    31,
+    0.033
+   ],
+   "multiset_equal": true,
+   "layout_value_tokens": 1,
+   "bbox_values": 1,
+   "note": "罫線の表: 単価が -layout の本文でその行の規格と同じ行か隣の行に出る数(layout_value_tokens)と行数(bbox_values)"
+  },
+  {
+   "page": 40,
+   "kind": "ruled",
+   "section": "橋梁用排水管工場製作品",
+   "rows": 4,
+   "offset_dx_dy_pairs_spread": [
+    14.4,
+    14.41,
+    42,
+    0.032
+   ],
+   "multiset_equal": true,
+   "layout_value_tokens": 3,
+   "bbox_values": 3,
+   "note": "罫線の表: 単価が -layout の本文でその行の規格と同じ行か隣の行に出る数(layout_value_tokens)と行数(bbox_values)"
+  },
+  {
+   "page": 41,
+   "kind": "ruled",
+   "section": "ゴム製伸縮継手単価",
+   "rows": 15,
+   "offset_dx_dy_pairs_spread": [
+    14.4,
+    14.44,
+    44,
+    0.033
+   ],
+   "multiset_equal": true,
+   "layout_value_tokens": 15,
+   "bbox_values": 15,
+   "note": "罫線の表: 単価が -layout の本文でその行の規格と同じ行か隣の行に出る数(layout_value_tokens)と行数(bbox_values)"
+  },
+  {
+   "page": 58,
+   "kind": "ruled",
+   "section": "機械設備資材単価 特殊鋼材類（ゲート用ローラ）",
+   "rows": 9,
+   "offset_dx_dy_pairs_spread": [
+    14.4,
+    14.41,
+    23,
+    0.031
+   ],
+   "multiset_equal": true,
+   "layout_value_tokens": 9,
+   "bbox_values": 9,
+   "note": "罫線の表: 単価が -layout の本文でその行の規格と同じ行か隣の行に出る数(layout_value_tokens)と行数(bbox_values)"
+  },
+  {
+   "page": 61,
+   "kind": "ruled",
+   "section": "ダクタイル鋳鉄管（規格外）単価",
+   "rows": 2,
+   "offset_dx_dy_pairs_spread": [
+    14.4,
+    14.41,
+    25,
+    0.033
+   ],
+   "multiset_equal": true,
+   "layout_value_tokens": 2,
+   "bbox_values": 2,
+   "note": "罫線の表: 単価が -layout の本文でその行の規格と同じ行か隣の行に出る数(layout_value_tokens)と行数(bbox_values)"
+  },
+  {
+   "page": 63,
+   "kind": "ruled",
+   "section": "アルミ高欄（ダム堰対応）他単価",
+   "rows": 8,
+   "offset_dx_dy_pairs_spread": [
+    14.4,
+    14.41,
+    42,
+    0.03
+   ],
+   "multiset_equal": true,
+   "layout_value_tokens": 8,
+   "bbox_values": 8,
+   "note": "罫線の表: 単価が -layout の本文でその行の規格と同じ行か隣の行に出る数(layout_value_tokens)と行数(bbox_values)"
+  },
+  {
+   "page": 63,
+   "kind": "ruled",
+   "section": "スチールショット単価",
+   "rows": 4,
+   "offset_dx_dy_pairs_spread": [
+    14.4,
+    14.41,
+    42,
+    0.03
+   ],
+   "multiset_equal": true,
+   "layout_value_tokens": 4,
+   "bbox_values": 4,
+   "note": "罫線の表: 単価が -layout の本文でその行の規格と同じ行か隣の行に出る数(layout_value_tokens)と行数(bbox_values)"
+  }
+ ]
+}

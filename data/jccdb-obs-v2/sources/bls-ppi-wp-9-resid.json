@@ -1,0 +1,32 @@
+{
+ "source_id": "bls-ppi-wp-9-resid",
+ "country": "US",
+ "title": "Producer Price Indexes (PPI), time.series flat file wp.data.9.Lumber (住宅建設の資材・設備 8 系列)",
+ "publisher": "U.S. Bureau of Labor Statistics",
+ "url": "https://download.bls.gov/pub/time.series/wp/wp.data.9.Lumber",
+ "landing": "https://www.bls.gov/ppi/",
+ "retrieved_at": "2026-09-26",
+ "bytes": 2615816,
+ "sha256": "e598958caca95b602b5f43c07f935a8162603062d3247ef3bca4e820ffe90e69",
+ "raw": "raw/bls-wp.data.9.Lumber.txt",
+ "http_last_modified": "Thu, 10 Sep 2026 12:30:00 GMT",
+ "http_etag": "",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.bls.gov/opub/copyright-information.htm",
+ "license_quote": "The Bureau of Labor Statistics (BLS) is a Federal government agency and everything that we publish, both in hard copy and electronically, is in the public domain, except for previously copyrighted photographs and illustrations. You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.",
+ "attribution": "Source: U.S. Bureau of Labor Statistics, Producer Price Indexes (https://www.bls.gov/ppi/)",
+ "how_read": "BLS の time.series flat file(タブ区切り: series_id, year, period, value, footnote_codes)をそのまま読む。取り込む系列は公式の Series ID 一覧(raw/bls-ppi-commodity-series-id-codes.txt)に載り、U1 の index_bls_ppi.csv に無い、住宅建設の資材・設備の系列: WPU0821, WPU08210102, WPU08210105, WPU08210106, WPU08210112, WPU08210142, WPU08210152, WPU081204。系列名は同じ一覧の原文、分類名は wp.group、基準時点は wp.series の base_date。2016 年1月(系列の開始が後ならその月)から台帳の終了月までの月次。年平均 M13 は入れない。脚注 P は wp.footnote の原文を note に。台帳の範囲内で行が無い月は not_set。照合: 系列ごとの期待月数と値のある月数、欠け、ファイルの最終月と台帳の終了月の一致(reports/US-C-bls-geo_ppi_cpi_check.csv)。 この原本は U1 が取得したもの(U1 の台帳 bls-ppi-wp-9 も同じファイルを指す)。U1 の台帳は変えず、この担当の系列だけをこの台帳で持つ。",
+ "values_copied": true,
+ "fetched_via": "Apify web-fetch (formats=raw); U1 が取得した原本(raw にあるものを読む)",
+ "rows": 933,
+ "series": [
+  "WPU0821",
+  "WPU08210102",
+  "WPU08210105",
+  "WPU08210106",
+  "WPU08210112",
+  "WPU08210142",
+  "WPU08210152",
+  "WPU081204"
+ ]
+}

@@ -1,0 +1,3 @@
+ops/runbook_20260926/toshi_steps.sh
+ops/runbook_20260926/GIT_ADD_LIST_20260926d.txt
+.github/workflows/static.yml

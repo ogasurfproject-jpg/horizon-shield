@@ -1,0 +1,47 @@
+{
+ "source_id": "bls-eci-ci-current",
+ "country": "US",
+ "title": "Employment Cost Index (ECI), time.series flat file ci.data.0.Current",
+ "publisher": "U.S. Bureau of Labor Statistics",
+ "url": "https://download.bls.gov/pub/time.series/ci/ci.data.0.Current",
+ "landing": "https://www.bls.gov/eci/",
+ "retrieved_at": "2026-09-26",
+ "bytes": 4203255,
+ "sha256": "277f709318bd3d496dec0cfaa2befbaf363eeb7d317a9b8ec38c05d99ef6e684",
+ "http_last_modified": "Fri, 31 Jul 2026 12:30:00 GMT",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.bls.gov/opub/copyright-information.htm",
+ "license_quote": "The Bureau of Labor Statistics (BLS) is a Federal government agency and everything that we publish, both in hard copy and electronically, is in the public domain, except for previously copyrighted photographs and illustrations. You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.",
+ "attribution": "Source: U.S. Bureau of Labor Statistics, Employment Cost Index (https://www.bls.gov/eci/)",
+ "how_read": "ci.series から seasonal=U、periodicity=I(current dollar index)、系列名に construction を含む系列を全部選び、ci.data.0.Current の値を 2016Q1 から台帳の終了四半期まで入れる。系列名は ci.series の原文。系列の脚注のうち本文のあるもの(B, N)を note に。基準時点は news release Table 4 の見出し \"Indexes (Dec. 2005=100)\"(civilian の表。private の系列も同じ ECI の current dollar index)。照合: 系列ごとに期待四半期数と値のある四半期数・欠け・台帳の終了四半期との一致を全数で(reports/U1-us-bls_eci_series_check.csv)。news release Table 4 の civilian 2 系列 x 3 四半期の値と flat file を突き合わせた。",
+ "values_copied": true,
+ "fetched_via": "Apify web-fetch (formats=raw)",
+ "aux_files": [
+  {
+   "path": "raw/bls-ci.series.txt",
+   "url": "https://download.bls.gov/pub/time.series/ci/ci.series",
+   "sha256": "e6dbe9438d6981a2fc831f6438c2d318049ff12840d6768324eb9b55eb51bd52",
+   "bytes": 487191
+  },
+  {
+   "path": "raw/bls-ci.footnote.txt",
+   "url": "https://download.bls.gov/pub/time.series/ci/ci.footnote",
+   "sha256": "1ca8db02543c2db8bbc3785594400835e95bfc7a08a96f2e0a3210ed833b3226",
+   "bytes": 2569
+  },
+  {
+   "path": "raw/bls-eci-news-release-t04.htm",
+   "url": "https://www.bls.gov/news.release/eci.t04.htm",
+   "sha256": "d01518eb77a6387691075d402bc81c2c5a309d3b0225589eb13392cc766071d7",
+   "bytes": 80280
+  },
+  {
+   "path": "raw/bls-copyright.htm",
+   "url": "https://www.bls.gov/opub/copyright-information.htm",
+   "sha256": "93b73a7df1d66de966702f1ebe76ad42d3dcf5ca38741b4fcbf610f885021be2",
+   "bytes": 47310
+  }
+ ],
+ "series_count": 17,
+ "rows": 714
+}

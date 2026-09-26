@@ -1,0 +1,23 @@
+{
+ "source_id": "hud-tdc-2024",
+ "country": "US",
+ "title": "2024 Unit Total Development Cost (TDC) Limits (Public Housing; HCC and TDC by locality, structure type and number of bedrooms)",
+ "publisher": "U.S. Department of Housing and Urban Development, Office of Public and Indian Housing, Office of Capital Improvements",
+ "url": "https://www.hud.gov/sites/dfiles/PIH/documents/2024_Units_TDC_Limits.pdf",
+ "landing": "https://www.hud.gov/helping-americans/public-indian-housing-capfund",
+ "retrieved_at": "2026-09-26",
+ "published": "2024-11-13",
+ "http_last_modified": "Tue, 24 Dec 2024 16:04:08 GMT(ETag \"11caeb-62a06435a6241\")",
+ "bytes": 1166059,
+ "sha256": "d28fbc40e15a4688d2416f912b9a2b2b5bb2958345109d5d90d2097cb456ee27",
+ "fetched_via": "Apify apify/web-fetch(formats raw、application/pdf を base64)。bytes が contentLength と一致、先頭 %PDF-1.7、88 頁(Microsoft Access の報告、Report Title : TDC for all building types-11/5/2024 10:32:04 AM、Printed on : 11/13/2024、HUDPIH-516391410-425 Last Updated 11/13/2024)",
+ "version_note": "Office of Capital Improvements の頁(2026-09-26 取得)の Total Development Cost Limits (TDCs) の一覧は 2024 が最新(2018〜2024)。https://www.hud.gov/sites/dfiles/PIH/documents/2025_Units_TDC_Limits.pdf は 404",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.law.cornell.edu/uscode/text/17/105",
+ "license_quote": "Copyright protection under this title is not available for any work of the United States Government, but the United States Government is not precluded from receiving and holding copyrights transferred to it by assignment, bequest, or otherwise. (17 U.S.C. 105(a), https://www.law.cornell.edu/uscode/text/17/105) / HUD's Web Publication Procedures and Style Guide (https://www.hud.gov/sites/documents/webpubstandards.pdf, 8/27/2025, Apify で取得、raw/hud-webpubstandards-20250827.pdf sha256 a3c7695daad70e117c64d3522fe4855e1689ccde744e7dbe88258e7cecdf12f8), p.1: \"D. Copyrights and Attribution: As a rule, all content--including written materials and graphics--on HUD's Internet websites is in the public domain. Anyone can use or link to any material written or created for HUD's Internet websites.\" / \"2. If an organization publishes written materials reprinted from outside sources, the Web Manager must have written authorization from the holder of the copyright to publish the materials on HUD's website and the copyright must be noted on each page of the material.\" (この PDF の 88 頁に著作権の表示は無い)",
+ "attribution": "Source: U.S. Department of Housing and Urban Development, 2024 Unit Total Development Cost (TDC) Limits, https://www.hud.gov/sites/dfiles/PIH/documents/2024_Units_TDC_Limits.pdf, accessed on September 26, 2026",
+ "scope_quote": "24 CFR 905.314(c)(2)(i) (eCFR, current): HUD will first determine the applicable “construction cost guideline” by averaging the current construction costs as listed in two nationally recognized residential construction cost indices for publicly bid construction of a good and sound quality for specific bedroom sizes and structure types. The two indices HUD will use for this purpose are the R.S. Means cost index for construction of “average” quality and the Marshall & Swift cost index for construction of “good” quality. ... (iii) Step 3: Elevator and nonelevator type structures. HUD will then multiply the resulting amounts from step 2 by 1.6 for elevator type structures and by 1.75 for nonelevator type structures.",
+ "publication_based_judgment": "HCC は HUD が 2 つの民間建設費指数の平均から算定した HUD 自身の上限額で、指数の値そのものを写した表ではない(表に市販資料の値である旨の表示も著作権表示も無い)。AGENT_RULES 3 の『市販の物価資料とその値を写した表』には当たらないと判断して値を入れた。所有者の判断で閉じる場合は parser の price_status を publication_based_not_public に替える",
+ "how_read": "tools/parsers/parse_hud_tdc.py。pdftotext -bbox-layout の語の座標で読む。頁ごとの見出し(HCC/TDC 14 語)の x 中心に数を割り当て、全 23296 セルで見出しとの距離の最大 3.26 pt(列の間隔は約 45 pt)。Region(x≒19)> 州(x≒21)> 地域(x≒34)> 構造(x≒46)の字下げで区切り、構造の行の 3 pt 下の 14 個の数の行を組にした。416 地域 x 4 構造 = 1664 行(全地域で 4 構造がこの順にそろう)、x 7 寝室数 x HCC/TDC = 23296 行。照合: pdftotext -layout の数の行 1664 行と bbox で組んだ行の数の並びが 1664 行で一致。TDC ÷ HCC は Detached/Semi-Detached・Row House・Walkup で全セル 1.75、Elevator で全セル 1.6(小数 3 桁、24 CFR 905.314(c)(2)(iii) の係数どおり)。地域は州の中の HUD の地域名(原本の大文字のまま area_label に)。geo_level city、geo_code は州 FIPS 2 桁。",
+ "values_copied": true
+}

@@ -1,0 +1,23 @@
+{
+ "source_id": "sddot-bid-item-2024",
+ "country": "US",
+ "title": "2024 SDDOT Bid Item Price Report (Bid Item Price Report January 01, 2024 to December 31, 2024)",
+ "publisher": "South Dakota Department of Transportation, Office of Project Development - Bid Letting",
+ "url": "https://dot.sd.gov/media/qqhgg24h/2024-bid-item-price-report.pdf",
+ "retrieved_at": "2026-09-26",
+ "bytes": 737897,
+ "sha256": "f51f31f530422e3a12d952288ef54fa56ca5e0d96a2b58f9cd6720ba6142aeac",
+ "http_last_modified": "Fri, 08 Aug 2025 15:43:19 GMT",
+ "published": "2025-03-31",
+ "published_note": "送り状の日付 March 31, 2025。品目表の印刷日時 03/10/2025 1:42:58PM。2026-09-26 時点で 2025 年版は見つからなかった(検索で 2020〜2024 年版のみ)",
+ "license": "restricted",
+ "license_url": "http://public.sd.gov/disclaim.aspx",
+ "license_quote": "South Dakota Online Disclaimer and Limitation of Liability: Anyone may view, copy or distribute information found on the State's website for personal or informational use without owing an obligation to the State. The State makes no warranty that the materials contained within this information are free from copyright claims or other restrictions or limitations on free use or display.",
+ "license_note": "州全体の免責頁(State of South Dakota)。dot.sd.gov には DOT 独自の利用条件の頁が見当たらない。許可の範囲は 'personal or informational use'。原本の PDF に著作権表示・利用制限の記載はない。条文の取得: Apify web-fetch markdown(dataset ScSVw6nPdnFpRQgIi)",
+ "attribution": "Source: South Dakota Department of Transportation, 2024 SDDOT Bid Item Price Report, https://dot.sd.gov/media/qqhgg24h/2024-bid-item-price-report.pdf",
+ "scope_quote": "The report includes unit bid price averages for major categories of work (groups of items) and compares the current years quantities and pricing to the data from four years earlier. The report also includes data for each individual bid item including: the total quantity bid; the total low bid cost; the average unit low bid price (price submitted by the bidder awarded the contract); the average unit price of the lowest three bids received; and the number of times the bid item was included in a contract.",
+ "how_read": "tools/parsers/parse_sddot_bid_item.py。pdftotext -bbox-layout の語の座標で 3 頁(品目群 18 x 2020/2024)と 4〜30 頁(品目 1431 x Avg Low Bid Price / Avg of 3 Lowest Bids)を読んだ。照合: bbox の品目 1431 = layout の行頭品目番号 1431(集合も一致)、全品目で Total Cost / Total Quantity と Avg Low Bid Price の差が 0.005 ドルを超えるのは 8 品目で最大 0.062%(210E3500、数量の表示桁の丸め)。列の割り当て: 7,245 セルで最近傍の列と一致(不一致 0)、ずれを引いた後の右端の距離の最大 2.02pt。0.00 の値(11 品目)は not_set。",
+ "values_copied": false,
+ "fetched_via": "Apify apify/web-fetch (formats=raw), dataset zelQTuJJPWsMxTO9j。bytes = content-length 737897、先頭 %PDF",
+ "decision_20260926": "South Dakota の条件は『for personal or informational use』までで、再配布の許可ではない(2026-09-26 番人の判断)"
+}

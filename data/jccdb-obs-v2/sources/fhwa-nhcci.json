@@ -1,0 +1,19 @@
+{
+ "source_id": "fhwa-nhcci",
+ "country": "US",
+ "title": "National Highway Construction Cost Index (NHCCI)",
+ "publisher": "U.S. DOT Federal Highway Administration",
+ "url": "https://data.transportation.gov/resource/r94d-n4f9.json",
+ "landing": "https://data.transportation.gov/Research-and-Statistics/NHCCI/r94d-n4f9",
+ "retrieved_at": "2026-09-26",
+ "bytes": 191659,
+ "sha256": "5231e0cd07f1b92e86f64f140f3686ca6bf46b288c87a2db8cd5551426347176",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.law.cornell.edu/uscode/text/17/105",
+ "license_quote": "Copyright protection under this title is not available for any work of the United States Government (17 U.S.C. 105)",
+ "attribution": "Source: U.S. DOT, Federal Highway Administration, National Highway Construction Cost Index (NHCCI)",
+ "how_read": "Socrata JSON API の全行(93 四半期)。値はそのまま、四半期の表記だけ '2003 Q1' を '2003Q1' に。",
+ "values_copied": true,
+ "api": true,
+ "fetched_via": "Apify web-fetch (formats=raw)"
+}

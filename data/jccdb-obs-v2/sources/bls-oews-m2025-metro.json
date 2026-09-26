@@ -1,0 +1,72 @@
+{
+ "source_id": "bls-oews-m2025-metro",
+ "country": "US",
+ "title": "Occupational Employment and Wage Statistics (OEWS), May 2025, metropolitan areas (MSA_M2025_dl.xlsx)",
+ "publisher": "U.S. Bureau of Labor Statistics",
+ "url": "https://www.bls.gov/oes/special-requests/oesm25ma.zip",
+ "landing": "https://www.bls.gov/oes/tables.htm",
+ "retrieved_at": "2026-09-26",
+ "bytes": 39932338,
+ "sha256": "cc3e6fa80edf64ab8fd0e8a6472ef1b513a6bcaef2f5018e9649c485793b0b99",
+ "http_last_modified": "Fri, 15 May 2026 13:24:05 GMT",
+ "http_etag": "\"80481e1a6ee4dc1:0\"",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.bls.gov/opub/copyright-information.htm",
+ "license_quote": "The Bureau of Labor Statistics (BLS) is a Federal government agency and everything that we publish, both in hard copy and electronically, is in the public domain, except for previously copyrighted photographs and illustrations. You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.",
+ "attribution": "Source: U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics, May 2025 (https://www.bls.gov/oes/)",
+ "how_read": "zip の中の xlsx を openpyxl でセルごとに読む(MSA_M2025_dl.xlsx の 1 枚目)。対象は SOC 47-xxxx の全行と 11-9021, 13-1051, 17-1011, 17-2051, 17-3011, 17-3022, 49-9021、cross-industry(NAICS 000000)・全所有形態(OWN_CODE 1235)。1 行の職業から TOT_EMP と時給・年収の平均と分位(10/25/50/75/90)の 13 観測。U1(May 2025 の全国・州)とitem_name / spec / unit の作り方を揃えた。記号 * ** # は値を入れず not_set、note にこのファイルの Field Descriptions の Notes の原文。照合: 年収 = 時給 x 2080 の全組、都市圏(プエルトリコを除く)と同じ zip の BOS(非都市圏)の雇用者数の合計を全国(May 2025)と(reports/US-C-bls-geo_oews_check.csv)。",
+ "values_copied": true,
+ "fetched_via": "Apify web-fetch (formats=raw); Range ヘッダで 7 回に分けて取得し連結(どの回も HTTP 206、同じ ETag、合計 bytes = Content-Range の全長、zip の CRC 検査済み)",
+ "parts": [
+  {
+   "content_range": "bytes 0-5999999/39932338",
+   "bytes": 6000000,
+   "sha256": "01c81f9cc5360edb2da2267520d870581455ebb8e1348bf5d90a490e7f2195a7",
+   "http_status": 206
+  },
+  {
+   "content_range": "bytes 6000000-11999999/39932338",
+   "bytes": 6000000,
+   "sha256": "329c94832b09db1d626b3706dd18973e361279c1ba923c4a913d80685142b53a",
+   "http_status": 206
+  },
+  {
+   "content_range": "bytes 12000000-17999999/39932338",
+   "bytes": 6000000,
+   "sha256": "078be442a75a5d2c6a7dc9589dab401436104998797fd49988cd909a82d8b4b9",
+   "http_status": 206
+  },
+  {
+   "content_range": "bytes 18000000-23999999/39932338",
+   "bytes": 6000000,
+   "sha256": "6071b5db70373120ce37cb4beb60cdd473015c62bb039f57c9fcfca08b5ad090",
+   "http_status": 206
+  },
+  {
+   "content_range": "bytes 24000000-29999999/39932338",
+   "bytes": 6000000,
+   "sha256": "6d3d5c8b92d9cc2f4e25ae745f791bae43edf9d9c9e434f9fe65f9081f9252a9",
+   "http_status": 206
+  },
+  {
+   "content_range": "bytes 30000000-35999999/39932338",
+   "bytes": 6000000,
+   "sha256": "47a43a284392cdd788b7e65e22ef3c13b249adf7d6b23bff794d8bcb82a91c5c",
+   "http_status": 206
+  },
+  {
+   "content_range": "bytes 36000000-39932337/39932338",
+   "bytes": 3932338,
+   "sha256": "5da985763ab3d3c85a7fcb27c116b2914b3de6c2878032191476175aed16cd02",
+   "http_status": 206
+  }
+ ],
+ "published": "",
+ "scope_quote": "May 2025 OEWS Estimates",
+ "rows": 131521,
+ "files": [
+  "observations/us/wage_bls_oews_metro_2025_a.csv",
+  "observations/us/wage_bls_oews_metro_2025_b.csv"
+ ],
+ "not_used": "BOS_M2025_dl.xlsx(非都市圏)は観測にせず、照合にだけ使った"
+}

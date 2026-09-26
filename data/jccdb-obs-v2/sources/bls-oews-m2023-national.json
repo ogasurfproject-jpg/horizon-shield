@@ -1,0 +1,31 @@
+{
+ "source_id": "bls-oews-m2023-national",
+ "country": "US",
+ "title": "Occupational Employment and Wage Statistics (OEWS), May 2023, national (national_M2023_dl.xlsx)",
+ "publisher": "U.S. Bureau of Labor Statistics",
+ "url": "https://www.bls.gov/oes/special-requests/oesm23nat.zip",
+ "landing": "https://www.bls.gov/oes/tables.htm",
+ "retrieved_at": "2026-09-26",
+ "bytes": 271583,
+ "sha256": "8ce5e8277c3ba68a19f468fec9b4da21170593d5ad9693a813f1afc04c80efa2",
+ "http_last_modified": "Fri, 15 May 2026 13:09:01 GMT",
+ "http_etag": "\"80d44aff6be4dc1:0\"",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.bls.gov/opub/copyright-information.htm",
+ "license_quote": "The Bureau of Labor Statistics (BLS) is a Federal government agency and everything that we publish, both in hard copy and electronically, is in the public domain, except for previously copyrighted photographs and illustrations. You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.",
+ "attribution": "Source: U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics, May 2023 (https://www.bls.gov/oes/)",
+ "how_read": "zip の中の xlsx を openpyxl でセルごとに読む(national_M2023_dl.xlsx の 1 枚目)。対象は SOC 47-xxxx の全行と 11-9021, 13-1051, 17-1011, 17-2051, 17-3011, 17-3022, 49-9021、cross-industry(NAICS 000000)・全所有形態(OWN_CODE 1235)。1 行の職業から TOT_EMP と時給・年収の平均と分位(10/25/50/75/90)の 13 観測。U1(May 2025 の全国・州)とitem_name / spec / unit の作り方を揃えた。記号 * ** # は値を入れず not_set、note にこのファイルの Field Descriptions の Notes の原文。照合: 年収 = 時給 x 2080 の全組、全国の雇用者数と 50 州 + DC の合計(reports/US-C-bls-geo_oews_check.csv)。",
+ "values_copied": true,
+ "fetched_via": "Apify web-fetch (formats=raw)",
+ "parts": [
+  {
+   "content_range": "(Range なし、HTTP 200)",
+   "bytes": 271583,
+   "sha256": "8ce5e8277c3ba68a19f468fec9b4da21170593d5ad9693a813f1afc04c80efa2",
+   "http_status": 200
+  }
+ ],
+ "published": "",
+ "scope_quote": "May 2023 OEWS Estimates",
+ "rows": 1430
+}

@@ -1,0 +1,334 @@
+{
+ "city-nyc-permits-w9ak-ipjd": {
+  "groups_compared": 60,
+  "count_mismatch": 0,
+  "nonnull_mismatch": 0,
+  "sum_mismatch_over_0.01": 0,
+  "max_abs_sum_diff": "0",
+  "mismatch_examples": [],
+  "per_year": {
+   "2023": {
+    "api_count": 69140,
+    "local_count": 69140,
+    "api_sum": "15057986447.12",
+    "local_sum": "15057986447.12"
+   },
+   "2024": {
+    "api_count": 73529,
+    "local_count": 73529,
+    "api_sum": "16002668333.16",
+    "local_sum": "16002668333.16"
+   },
+   "2025": {
+    "api_count": 67279,
+    "local_count": 67279,
+    "api_sum": "15505509190.77",
+    "local_sum": "15505509190.77"
+   }
+  },
+  "rows_spending": 369,
+  "rows_cost_sqft": 73,
+  "count_rows_detail_sum_by_year": {
+   "2023": 69140,
+   "2024": 73529,
+   "2025": 67279
+  },
+  "count_rows_all_sum_by_year": {
+   "2023": 69140,
+   "2024": 73529,
+   "2025": 67279
+  },
+  "by_basis": {
+   "count": 75,
+   "permit_valuation_total_usd": 75,
+   "permit_valuation_median_usd": 73,
+   "permit_valuation_p25_usd": 73,
+   "permit_valuation_p75_usd": 73,
+   "permit_valuation_per_sqft_median_usd": 73
+  }
+ },
+ "city-sf-permits-i98e-djp9": {
+  "groups_compared": 408,
+  "count_mismatch": 0,
+  "nonnull_mismatch": 0,
+  "sum_mismatch_over_0.01": 0,
+  "max_abs_sum_diff": "0.0",
+  "mismatch_examples": [],
+  "per_year": {
+   "2023": {
+    "api_count": 22087,
+    "local_count": 22087,
+    "api_sum": "1904897736.0",
+    "local_sum": "1904897736.0"
+   },
+   "2024": {
+    "api_count": 22777,
+    "local_count": 22777,
+    "api_sum": "2013949084.0",
+    "local_sum": "2013949084.0"
+   },
+   "2025": {
+    "api_count": 23013,
+    "local_count": 23013,
+    "api_sum": "2470145275.0",
+    "local_sum": "2470145275.0"
+   }
+  },
+  "rows_spending": 1343,
+  "rows_cost_sqft": 0,
+  "count_rows_detail_sum_by_year": {
+   "2023": 22087,
+   "2024": 22777,
+   "2025": 23013
+  },
+  "count_rows_all_sum_by_year": {
+   "2023": 22087,
+   "2024": 22777,
+   "2025": 23013
+  },
+  "by_basis": {
+   "count": 433,
+   "permit_valuation_total_usd": 433,
+   "permit_valuation_median_usd": 159,
+   "permit_valuation_p25_usd": 159,
+   "permit_valuation_p75_usd": 159
+  }
+ },
+ "city-seattle-permits-76t5-zqzr": {
+  "groups_compared": 132,
+  "count_mismatch": 0,
+  "nonnull_mismatch": 0,
+  "sum_mismatch_over_0.01": 0,
+  "max_abs_sum_diff": "0.0000",
+  "mismatch_examples": [],
+  "per_year": {
+   "2023": {
+    "api_count": 5848,
+    "local_count": 5848,
+    "api_sum": "4613455142.0900",
+    "local_sum": "4613455142.0900"
+   },
+   "2024": {
+    "api_count": 5853,
+    "local_count": 5853,
+    "api_sum": "3735417172.6390",
+    "local_sum": "3735417172.6390"
+   },
+   "2025": {
+    "api_count": 6334,
+    "local_count": 6334,
+    "api_sum": "6847453905.0628",
+    "local_sum": "6847453905.0628"
+   }
+  },
+  "rows_spending": 599,
+  "rows_cost_sqft": 0,
+  "count_rows_detail_sum_by_year": {
+   "2023": 5848,
+   "2024": 5853,
+   "2025": 6334
+  },
+  "count_rows_all_sum_by_year": {
+   "2023": 5848,
+   "2024": 5853,
+   "2025": 6334
+  },
+  "by_basis": {
+   "count": 163,
+   "permit_valuation_total_usd": 163,
+   "permit_valuation_median_usd": 91,
+   "permit_valuation_p25_usd": 91,
+   "permit_valuation_p75_usd": 91
+  }
+ },
+ "city-austin-permits-3syk-w9eu": {
+  "groups_compared": 185,
+  "count_mismatch": 0,
+  "nonnull_mismatch": 0,
+  "sum_mismatch_over_0.01": 0,
+  "max_abs_sum_diff": "0",
+  "mismatch_examples": [],
+  "per_year": {
+   "2023": {
+    "api_count": 11234,
+    "local_count": 11234,
+    "api_sum": "65952264496",
+    "local_sum": "65952264496"
+   },
+   "2024": {
+    "api_count": 10424,
+    "local_count": 10424,
+    "api_sum": "7462116405",
+    "local_sum": "7462116405"
+   },
+   "2025": {
+    "api_count": 11018,
+    "local_count": 11018,
+    "api_sum": "8365217708",
+    "local_sum": "8365217708"
+   }
+  },
+  "rows_spending": 653,
+  "rows_cost_sqft": 56,
+  "count_rows_detail_sum_by_year": {
+   "2023": 11234,
+   "2024": 10424,
+   "2025": 11018
+  },
+  "count_rows_all_sum_by_year": {
+   "2023": 11234,
+   "2024": 10424,
+   "2025": 11018
+  },
+  "by_basis": {
+   "count": 217,
+   "permit_valuation_total_usd": 217,
+   "permit_valuation_median_usd": 73,
+   "permit_valuation_p25_usd": 73,
+   "permit_valuation_p75_usd": 73,
+   "permit_valuation_per_sqft_median_usd": 56
+  }
+ },
+ "city-neworleans-permits-72f9-bi28": {
+  "groups_compared": 587,
+  "count_mismatch": 0,
+  "nonnull_mismatch": 0,
+  "sum_mismatch_over_0.01": 0,
+  "max_abs_sum_diff": "0.0",
+  "mismatch_examples": [],
+  "per_year": {
+   "2023": {
+    "api_count": 21316,
+    "local_count": 21316,
+    "api_sum": "6591504123.0",
+    "local_sum": "6591504123.0"
+   },
+   "2024": {
+    "api_count": 22210,
+    "local_count": 22210,
+    "api_sum": "2336038144.0",
+    "local_sum": "2336038144.0"
+   },
+   "2025": {
+    "api_count": 20766,
+    "local_count": 20766,
+    "api_sum": "2045197405.0",
+    "local_sum": "2045197405.0"
+   }
+  },
+  "rows_spending": 2196,
+  "rows_cost_sqft": 46,
+  "count_rows_detail_sum_by_year": {
+   "2023": 21316,
+   "2024": 22210,
+   "2025": 20766
+  },
+  "count_rows_all_sum_by_year": {
+   "2023": 21316,
+   "2024": 22210,
+   "2025": 20766
+  },
+  "by_basis": {
+   "count": 672,
+   "permit_valuation_total_usd": 672,
+   "permit_valuation_median_usd": 284,
+   "permit_valuation_p25_usd": 284,
+   "permit_valuation_p75_usd": 284,
+   "permit_valuation_per_sqft_median_usd": 46
+  }
+ },
+ "city-boston-permits-6ddcd912": {
+  "groups_compared": 337,
+  "count_mismatch": 0,
+  "nonnull_mismatch": 0,
+  "sum_mismatch_over_0.01": 0,
+  "max_abs_sum_diff": "0.00",
+  "mismatch_examples": [],
+  "per_year": {
+   "2023": {
+    "api_count": 38533,
+    "local_count": 38533,
+    "api_sum": "17663163670.36",
+    "local_sum": "17663163670.36"
+   },
+   "2024": {
+    "api_count": 37335,
+    "local_count": 37335,
+    "api_sum": "13102231766.62",
+    "local_sum": "13102231766.62"
+   },
+   "2025": {
+    "api_count": 36795,
+    "local_count": 36795,
+    "api_sum": "12462262911.74",
+    "local_sum": "12462262911.74"
+   }
+  },
+  "rows_spending": 1583,
+  "rows_cost_sqft": 32,
+  "count_rows_detail_sum_by_year": {
+   "2023": 38533,
+   "2024": 37335,
+   "2025": 36795
+  },
+  "count_rows_all_sum_by_year": {
+   "2023": 38533,
+   "2024": 37335,
+   "2025": 36795
+  },
+  "by_basis": {
+   "count": 376,
+   "permit_valuation_total_usd": 376,
+   "permit_valuation_median_usd": 277,
+   "permit_valuation_p25_usd": 277,
+   "permit_valuation_p75_usd": 277,
+   "permit_valuation_per_sqft_median_usd": 32
+  }
+ },
+ "city-sandiego-permits-development-permits-set2": {
+  "groups_compared": 285,
+  "count_mismatch": 0,
+  "nonnull_mismatch": 0,
+  "sum_mismatch_over_0.01": 0,
+  "max_abs_sum_diff": "0",
+  "mismatch_examples": [],
+  "per_year": {
+   "2023": {
+    "api_count": 0,
+    "local_count": 0,
+    "api_sum": "0",
+    "local_sum": "0"
+   },
+   "2024": {
+    "api_count": 13906,
+    "local_count": 13906,
+    "api_sum": "3283353294.66",
+    "local_sum": "3283353294.66"
+   },
+   "2025": {
+    "api_count": 12212,
+    "local_count": 12212,
+    "api_sum": "2735311760.13",
+    "local_sum": "2735311760.13"
+   }
+  },
+  "rows_spending": 820,
+  "rows_cost_sqft": 11,
+  "count_rows_detail_sum_by_year": {
+   "2024": 13906,
+   "2025": 12212
+  },
+  "count_rows_all_sum_by_year": {
+   "2024": 13906,
+   "2025": 12212
+  },
+  "by_basis": {
+   "count": 314,
+   "permit_valuation_total_usd": 314,
+   "permit_valuation_median_usd": 64,
+   "permit_valuation_p25_usd": 64,
+   "permit_valuation_p75_usd": 64,
+   "permit_valuation_per_sqft_median_usd": 11
+  }
+ }
+}

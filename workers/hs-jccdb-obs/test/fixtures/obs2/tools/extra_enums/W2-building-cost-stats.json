@@ -1,0 +1,6 @@
+{
+ "price_basis": [
+  {"value": "construction_cost_planned_total", "why": "建築着工統計の「工事費予定額」(集計した合計額。単価ではない)。単位は原本のまま 万円。床面積(count, ㎡)と組で cost_per_m2 を作るために別行で持つ"},
+  {"value": "orders_received_total", "why": "建築物リフォーム・リニューアル調査の「受注高」(集計した合計額。単価ではない)。単位は原本のまま(百万円 等)"}
+ ]
+}

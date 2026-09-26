@@ -1,0 +1,8 @@
+{
+ "year": "r3",
+ "main": "poppler",
+ "other": "pdfminer",
+ "cells_main": 2350,
+ "cells_other": 2350,
+ "same_wage_and_ref": 2350
+}

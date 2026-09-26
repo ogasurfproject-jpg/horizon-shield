@@ -1,0 +1,5 @@
+{
+ "price_basis": [
+  {"value": "wage_weekly_mean", "why": "QCEW の annual_avg_wkly_wage(Average weekly wage based on the 12-monthly employment levels and total annual wage levels.)。obs_common には週あたりの平均賃金が無い"}
+ ]
+}

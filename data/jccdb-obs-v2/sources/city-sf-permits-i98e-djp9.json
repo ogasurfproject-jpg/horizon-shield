@@ -1,0 +1,59 @@
+{
+ "source_id": "city-sf-permits-i98e-djp9",
+ "country": "US",
+ "title": "Building Permits (DataSF i98e-djp9, Department of Building Inspection): Estimated Cost の分布(Permit Type x Proposed Use x 年)",
+ "publisher": "City and County of San Francisco, Department of Building Inspection (DataSF)",
+ "url": "https://data.sf.gov/resource/i98e-djp9.json",
+ "landing": "https://data.sf.gov/d/i98e-djp9",
+ "retrieved_at": "2026-09-26",
+ "published": "2026-09-25",
+ "published_note": "views の rowsUpdatedAt 1790339618 = 2026-09-25T12:33:38Z",
+ "license": "OPEN-TERMS",
+ "license_url": "https://www.sf.gov/reports--april-2017--datasf-terms-use",
+ "license_quote": "IX. Public Domain Dedication and License (PDDL)\nExcept where otherwise stated in the file containing such Data or on the page from which such Data is accessed, including its metadata, Data is made available under the Public Domain Dedication and License v1.0 whose full text can be found at: http://www.opendatacommons.org/licenses/pddl/1.0/",
+ "dataset_license_field": "views の license 欄: {\"name\": \"Open Data Commons Public Domain Dedication and License\", \"termsLink\": \"http://opendatacommons.org/licenses/pddl/1.0/\"}、licenseId 'PDDL'",
+ "license_note": "DataSF terms of use(Friday, April 21, 2017)の IX。判断: OPEN-TERMS。ポータルの利用条件 IX とデータセットの license 欄の両方が PDDL 1.0。利用条件 VI(再識別の禁止)と VII(免責・補償)は集計値の再配布を妨げない。条文の取得: Apify web-fetch markdown(dataset mkfsZgrnv3fhx7pMd)。datasf.org/opendata/terms-of-use/ は DataSF の案内頁に飛ぶだけで、条文は sf.gov の上の頁にある",
+ "attribution": "Source: San Francisco Department of Building Inspection, Building Permits, DataSF (https://data.sf.gov/d/i98e-djp9), retrieved 2026-09-26, Open Data Commons PDDL 1.0. Aggregated by JCCDB",
+ "scope_quote": "The dataset includes details of all building permit applications filed with the Department of Building Inspection. Permit numbers and associated information may be repeated in multiple rows if there are multiple addresses associated with the permit.",
+ "area_quote": "市全体(geo_level city)。geo_code は州 FIPS 2 桁(検査器の city の形が 2/5/6 桁で、Census place GEOID 7 桁を通さないため)。place GEOID は行の note",
+ "how_read": "SoQL: $select=date_extract_y(issued_date) as y, permit_type as p, permit_type_definition as t, proposed_use as b, estimated_cost as c, count(*) as n; $where=primary_address_flag='Y' and issued_date between '2023-01-01T00:00:00' and '2025-12-31T23:59:59.999'; $group=y,p,t,b,c; $limit=500000(17,933 組)。複数住所の許可は住所ごとに行が重なるので primary_address_flag = 'Y' の行だけにした(除いた行は 2023: 1,706、2024: 1,812、2025: 1,877。API の集計で確認)。Estimated Cost は text 型。2025 年に permit_type 9 で permit_type_definition が空の許可が 130 件あり、'9 / (blank)' として残した。値の作り方: 有効な申告額 = 100 ドル以上 10 億ドル未満(欠け・0・100 ドル未満の置き値・10 億ドル以上を除き、除いた件数は行の note)。件数と合計は全区分、中央値・25/75 分位は有効な申告額が 10 件以上の区分だけ(線形補間 type 7)。1 sqft あたりは 面積 100 sqft 以上の許可だけ、10 件以上の区分だけ。全区分の行(工事の区分 = all)も作る。申告工事額は申請者の申告で、実際の契約額ではない。parser: tools/parsers/parse_us_city_permits.py(raw の応答から同じ CSV を作る)。照合(別の数え方): API に月 x 区分ごとの count(*)・count(値)・sum(値) を別に数えさせた応答(check_monthly)と、ヒストグラム応答を手元で足した値を比べた。区分 408 組で 件数の不一致 0、非欠け件数の不一致 0、合計の差 0.01 超 0(最大差 0.0)。年ごと: 2023: API 22087 件 = 手元 22087 件、値の合計 API 1904897736.0 = 手元 1904897736.0; 2024: API 22777 件 = 手元 22777 件、値の合計 API 2013949084.0 = 手元 2013949084.0; 2025: API 23013 件 = 手元 23013 件、値の合計 API 2470145275.0 = 手元 2470145275.0。さらに 区分 x 工事の件数行の年ごとの和 = 区分 x (all) の件数行の和 = API の年ごとの件数({\"2023\": 22087, \"2024\": 22777, \"2025\": 23013})。",
+ "values_copied": true,
+ "api": true,
+ "sha256": "3382a1c85ceafc419e46da5e8a3772c3761679d0f5b460897bf0d98c6c346aba",
+ "sha256_of": "raw/city-sf-permits-i98e-djp9.manifest.json(API 応答ごとの url・bytes・sha256 の一覧)",
+ "bytes": 2077,
+ "fetched_via": "Apify apify/web-fetch (formats=raw)。応答は raw/ にそのまま保存(manifest に dataset ID)",
+ "api_responses": [
+  {
+   "path": "raw/city-sf-permits-i98e-djp9.check_monthly.json",
+   "url": "https://data.sf.gov/resource/i98e-djp9.json?$select=date_trunc_ym(issued_date)%20as%20ym,permit_type%20as%20p,proposed_use%20as%20b,count(*)%20as%20n,count(estimated_cost)%20as%20nc,sum(estimated_cost::number)%20as%20s&$where=primary_address_flag=%27Y%27%20and%20issued_date%20between%20%272023-01-01T00:00:00%27%20and%20%272025-12-31T23:59:59.999%27&$group=ym,p,b&$order=ym,p,b&$limit=50000",
+   "bytes": 204240,
+   "sha256": "e698600202bd22d7e15bce1164e7a1398d27796c488f27363c774b749833daa5",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:25:18.783Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset MqohMm4mfLIrqK5iQ"
+  },
+  {
+   "path": "raw/city-sf-permits-i98e-djp9.hist.2023-2025.json",
+   "url": "https://data.sf.gov/resource/i98e-djp9.json?$select=date_extract_y(issued_date)%20as%20y,permit_type%20as%20p,permit_type_definition%20as%20t,proposed_use%20as%20b,estimated_cost%20as%20c,count(*)%20as%20n&$where=primary_address_flag=%27Y%27%20and%20issued_date%20between%20%272023-01-01T00:00:00%27%20and%20%272025-12-31T23:59:59.999%27&$group=y,p,t,b,c&$order=y,p,t,b,c&$limit=500000",
+   "bytes": 1679590,
+   "sha256": "3939150402486dff1aa9805c247829c9ccdf00a82008ffc529fa5949b866788d",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:24:51.626Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset pPWq0ZKE9m4bYIubr"
+  },
+  {
+   "path": "raw/city-sf-permits-i98e-djp9.views.json",
+   "url": "https://data.sf.gov/api/views/i98e-djp9.json",
+   "bytes": 26083,
+   "sha256": "aec8bc50ef96e66ab2a8a596240a40930cc377f95370c5b97f83be856867a7cc",
+   "content_type": "application/json; charset=utf-8",
+   "fetched_at": "2026-09-26T03:25:45.486Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset mGb6WpLc5JKnxj7TB"
+  }
+ ],
+ "rows": {
+  "spending": 1343,
+  "cost_sqft": 0
+ }
+}

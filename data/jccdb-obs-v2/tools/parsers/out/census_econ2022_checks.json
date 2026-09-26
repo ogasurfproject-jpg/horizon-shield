@@ -1,0 +1,50 @@
+{
+ "records": 4070,
+ "records_by_geotype": {
+  "01": 73,
+  "11": 292,
+  "02": 3705
+ },
+ "rows": 77330,
+ "status": {
+  "public_domain": 71091,
+  "not_set:D": 5949,
+  "not_set:zero": 241,
+  "not_set:e": 14,
+  "not_set:c": 5,
+  "not_set:f": 3,
+  "not_set:b": 16,
+  "not_set:a": 3,
+  "not_set:g": 8
+ },
+ "states_sum_vs_US": {
+  "compared": 600,
+  "exact": 600,
+  "skipped_state_flagged": 714,
+  "largest_diffs": []
+ },
+ "states_sum_vs_region": {
+  "compared": 3468,
+  "exact": 3468,
+  "skipped": 1788,
+  "largest_diffs": []
+ },
+ "naics_parent_vs_children": {
+  "compared": 37880,
+  "exact": 37880,
+  "skipped": 1306,
+  "largest_diffs": []
+ },
+ "identities": {
+  "RCPCWRK=RCPCGDL+PRIDL:compared": 3206,
+  "RCPCWRK=RCPCGDL+PRIDL:exact": 3206,
+  "RCPCGDL=FEDDL+CSLDL:compared": 3052,
+  "RCPCGDL=FEDDL+CSLDL:exact": 3052,
+  "RCPNCW=RCPCWRK-CSTSCNT:compared": 3230,
+  "RCPNCW=RCPCWRK-CSTSCNT:exact": 3230,
+  "RCPCGDL=FEDDL+CSLDL:skipped": 284,
+  "RCPNCW=RCPCWRK-CSTSCNT:skipped": 106,
+  "RCPCWRK=RCPCGDL+PRIDL:skipped": 130,
+  "largest_diffs": []
+ }
+}

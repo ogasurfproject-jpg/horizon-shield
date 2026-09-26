@@ -1,0 +1,17 @@
+// hs-jccdb-obs v0.3 : JCCDB の品目(v4)と観測層 v2(日本と米国)を引く読み取り専用の口。REST と MCP。
+// D1 は2つ: DB = 日本の観測 + v0.1 の items / obs(v0.1 と同じ D1 に 0003 を当てる)、DB_US = 米国の観測(新しく作る)。
+// DB_US が binding されていなくても worker は動き、米国の部分だけを fetch_failed として返す。
+// hs-mcp からは service binding(JCCDB_SVC)で呼ばれる。同じアカウント内の worker 間は通常 fetch が通らないため。
+{
+  "name": "hs-jccdb-obs",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-09-01",
+  "account_id": "c15ff64aba400e541853dec1fbe5e76a",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "hs-jccdb-obs", "database_id": "f3018bc5-ac9c-418d-a7c5-6d91d1d6e5f3" },
+    { "binding": "DB_US", "database_name": "hs-jccdb-obs-us", "database_id": "4e8afac6-a9f5-4f66-aab7-7b9d307d5d83" }
+  ]
+}

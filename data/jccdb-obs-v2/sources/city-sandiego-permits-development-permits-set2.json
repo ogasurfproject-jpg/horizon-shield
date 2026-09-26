@@ -1,0 +1,182 @@
+{
+ "source_id": "city-sandiego-permits-development-permits-set2",
+ "country": "US",
+ "title": "Approvals for development projects (City of San Diego Open Data, development-permits-set2): Issued approvals (2024)・(2025) の APPROVAL_VALUATION と APPROVAL_FLOOR_AREA の分布(APPROVAL_TYPE x JOB_BC_CODE_DESCRIPTION x 年)",
+ "publisher": "City of San Diego, Development Services Department (data.sandiego.gov)",
+ "url": "https://seshat.datasd.org/development_permits/approvals_issued_2024_datasd.csv",
+ "landing": "https://data.sandiego.gov/datasets/development-permits-set2/",
+ "retrieved_at": "2026-09-26",
+ "published": "2026-09-25",
+ "published_note": "データセット頁の Last Updated Sep 25, 2026、Update Frequency Daily。年別ファイルの Last-Modified は 2024 年版 Tue, 12 May 2026 16:53:57 GMT",
+ "license": "OPEN-TERMS",
+ "license_url": "https://data.sandiego.gov/help/guides/terms/",
+ "license_quote": "Terms of Use\nIV. City’s Intellectual Property Rights Not Affected\nIf the City claims or seeks to protect any patent, copyright, or other intellectual property rights in any Data, the website will so indicate in the file containing such Data or on the page from which such Data is accessed. These Terms of Use do not grant You any title or right to any patent, copyright, or other such intellectual property rights that the City or others may have in the Data.",
+ "dataset_license_field": "データセット頁(https://data.sandiego.gov/datasets/development-permits-set2/)の Dataset Details の License が https://opendefinition.org/licenses/odc-pddl/(Open Data Commons PDDL)へのリンク",
+ "license_note": "判断: OPEN-TERMS。データセット頁の License が ODC PDDL。ポータルの Terms of Use は SF の DataSF 条件と同じ型(保証の否認・補償・再識別の禁止なし)で、再配布を制限する条文は無く、IV は市が権利を主張するときは頁に示すとする。Terms of Use の VI.B に補償の条項がある(SF と同じ)。条文の取得: Apify web-fetch markdown(Terms: dataset incjlf9bEWbDkdcRN、データセット頁: dataset aUyKpyaAPc3izZ4wE)",
+ "attribution": "Source: City of San Diego Development Services Department, Approvals for development projects (Issued approvals 2024 and 2025), data.sandiego.gov (https://data.sandiego.gov/datasets/development-permits-set2/), retrieved 2026-09-26, Open Data Commons PDDL. Aggregated by JCCDB",
+ "scope_quote": "Approvals for permits, maps, agreements, and other applications processed by Development Services Department. A permit is required for projects such as new construction, additions, remodeling, or repairs to electrical, mechanical, and plumbing systems.",
+ "area_quote": "市全体(geo_level city)。geo_code は州 FIPS 2 桁(検査器の city の形が 2/5/6 桁で、Census place GEOID 7 桁を通さないため)。place GEOID は行の note",
+ "how_read": "原本: 年別ファイル approvals_issued_2024_datasd.csv(28,897,173 bytes、55,090 行)と approvals_issued_2025_datasd.csv(29,230,352 bytes、54,562 行)。Apify web-fetch に Range を 3,000,000 bytes ずつ渡して各 10 回で取り(HTTP 206、全部同じ ETag)、つないだ bytes が Content-Range の全長と一致し、md5 が S3 の ETag(9c2ef3014006cc4c74749f152255c093 / e206194d2368007e399642811e3d3948)と一致。9,000,000 bytes の Range は base64 で 12,001,206 bytes になり 1 項目の上限(9,436,240)を超えて失敗、6,500,000 bytes は取れたが MCP の受け取りが切れた。2023 年の年別ファイルは頁に無く(全年の Issued approvals は 557 MB)、取っていない。行の選び方: 年別ファイルの全行のうち、その年に APPROVAL_VALUATION が 1 件でも入っている APPROVAL_TYPE だけ(2024: 13,906 行、2025: 12,212 行)。値の作り方: 有効な申告額 = 100 ドル以上 10 億ドル未満(欠け・0・100 ドル未満の置き値・10 億ドル以上を除き、除いた件数は行の note)。件数と合計は全区分、中央値・25/75 分位は有効な申告額が 10 件以上の区分だけ(線形補間 type 7)。1 sqft あたりは 面積 100 sqft 以上の許可だけ、10 件以上の区分だけ。全区分の行(工事の区分 = all)も作る。申告工事額は申請者の申告で、実際の契約額ではない。parser: tools/parsers/parse_us_city_permits.py(raw の応答から同じ CSV を作る)。照合(別の読み方): 同じ CSV を pandas(read_csv、C の parser)で読み直し、年 x 承認の種類 x 区分ごとの件数・非欠け件数・評価額の合計を、parser(Python の csv)の集計と比べた。区分 285 組で 件数の不一致 0、非欠け件数の不一致 0、合計の差 0.01 超 0。年ごとの件数: 2024: pandas 13906 = csv 13906、合計 3283353294.66 = 3283353294.66; 2025: pandas 12212 = csv 12212、合計 2735311760.13 = 2735311760.13。件数行の和 = 区分 x (all) の件数行の和({\"2024\": 13906, \"2025\": 12212})。",
+ "values_copied": true,
+ "api": true,
+ "sha256": "1eea0c40c25f33d1ea0a362ab481c563411ebfe4ac31c859b71865b98a316b77",
+ "sha256_of": "raw/city-sandiego-permits-development-permits-set2.manifest.json(API 応答ごとの url・bytes・sha256 の一覧)",
+ "bytes": 5554,
+ "fetched_via": "Apify apify/web-fetch (formats=raw)。応答は raw/ にそのまま保存(manifest に dataset ID)",
+ "api_responses": [
+  {
+   "path": "raw/city-sandiego-permits-development-permits-set2.issued2024.csv",
+   "url": "https://seshat.datasd.org/development_permits/approvals_issued_2024_datasd.csv",
+   "bytes": 28897173,
+   "sha256": "cf83a4dab401c41f65a513e3e88137d4657278afab7d6d6b79b3edf8d544bb7c",
+   "md5": "9c2ef3014006cc4c74749f152255c093",
+   "etag": "\"9c2ef3014006cc4c74749f152255c093\"",
+   "content_type": "binary/octet-stream",
+   "fetched_at": "2026-09-26T03:52:44.870Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw, Range 3,000,000 bytes ずつ、HTTP 206)。連結後の bytes = Content-Range の全長、md5 = S3 の ETag",
+   "chunks": [
+    {
+     "range": "bytes 0-2999999/28897173",
+     "bytes": 3000000,
+     "sha256": "14a651b504d924689b4bf4bccee5526aeb1679051023ab91776ceb35281724ce",
+     "dataset": "TBYj0fCT4rYHzFkQK"
+    },
+    {
+     "range": "bytes 3000000-5999999/28897173",
+     "bytes": 3000000,
+     "sha256": "518ca5b11cffcc794e370d2c9f8bdb47af445e76c02482b0363cdf77e5a84bff",
+     "dataset": "aqqBN2h1k5pSOgng2"
+    },
+    {
+     "range": "bytes 6000000-8999999/28897173",
+     "bytes": 3000000,
+     "sha256": "04ecb26d31482169941d94b50b48f60458cafed4ee262ef338c78eb239ed11b1",
+     "dataset": "wELTkFWC1u3Uwgtte"
+    },
+    {
+     "range": "bytes 9000000-11999999/28897173",
+     "bytes": 3000000,
+     "sha256": "be762c941b72f1b00a1067660c82c9cbf80c0a673fca4d867d6dde079f258489",
+     "dataset": "OkdQ36L9pSedatnVQ"
+    },
+    {
+     "range": "bytes 12000000-14999999/28897173",
+     "bytes": 3000000,
+     "sha256": "a6632220aec2300961e87bc18d3d11f583ccaa7f3af11175db47cac817afb78c",
+     "dataset": "aND3glAYhMe7DpTOs"
+    },
+    {
+     "range": "bytes 15000000-17999999/28897173",
+     "bytes": 3000000,
+     "sha256": "ef85411f8edfe09eb0f0f332c391b47cd0174c35c9a7750658369fc36f43d9de",
+     "dataset": "5UixKIVlZTrtcNXGw"
+    },
+    {
+     "range": "bytes 18000000-20999999/28897173",
+     "bytes": 3000000,
+     "sha256": "baa3e91888538f93a8d1b5fa4807d299591d2a892531d84c06d5ee70ed666fa4",
+     "dataset": "HcBk1dRWzSExDOp1w"
+    },
+    {
+     "range": "bytes 21000000-23999999/28897173",
+     "bytes": 3000000,
+     "sha256": "38ab15df003df9521b6d64a2e73fdd96b70559d25bfa22fc7dd27d359dd5a059",
+     "dataset": "BbOvJEgMgENcpHyq3"
+    },
+    {
+     "range": "bytes 24000000-26999999/28897173",
+     "bytes": 3000000,
+     "sha256": "037100e97094684c245a17a6d938c90c06db58e0890aeaa6a90be9bcb717460c",
+     "dataset": "pnQxiVy2cbEVsF4bj"
+    },
+    {
+     "range": "bytes 27000000-28897172/28897173",
+     "bytes": 1897173,
+     "sha256": "e6eb6b0ff552cc0aa89ff97159b79ab27e52e93c477784c9126ef1cb2a80da56",
+     "dataset": "oBCyobmUPEwhdtnsa"
+    }
+   ]
+  },
+  {
+   "path": "raw/city-sandiego-permits-development-permits-set2.issued2025.csv",
+   "url": "https://seshat.datasd.org/development_permits/approvals_issued_2025_datasd.csv",
+   "bytes": 29230352,
+   "sha256": "ede516098b91e8398509df11efaab5125db31f2c1f1e07c00ddf853ef5f636e4",
+   "md5": "e206194d2368007e399642811e3d3948",
+   "etag": "\"e206194d2368007e399642811e3d3948\"",
+   "content_type": "binary/octet-stream",
+   "fetched_at": "2026-09-26T03:57:42.173Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw, Range 3,000,000 bytes ずつ、HTTP 206)。連結後の bytes = Content-Range の全長、md5 = S3 の ETag",
+   "chunks": [
+    {
+     "range": "bytes 0-2999999/29230352",
+     "bytes": 3000000,
+     "sha256": "f46bde9ae6f5eaf01d1481af1071a861c04e52eb0f93302e2df71b3ecb18c471",
+     "dataset": "PB5IthwXikgoxy8Of"
+    },
+    {
+     "range": "bytes 3000000-5999999/29230352",
+     "bytes": 3000000,
+     "sha256": "fb504ab1fcdc372dadbdaa735d5f1acd5bc54a427f4e047a60098468c646e5ab",
+     "dataset": "gofhn05VZma8WmWZy"
+    },
+    {
+     "range": "bytes 6000000-8999999/29230352",
+     "bytes": 3000000,
+     "sha256": "7783ef919c77dafaa5fa859d28f648579fdff81e2dfa77f307976d5cb29677ad",
+     "dataset": "ERIUBXCyyLfn9XtXj"
+    },
+    {
+     "range": "bytes 9000000-11999999/29230352",
+     "bytes": 3000000,
+     "sha256": "03e3e36797fb6855cf037f9d5230f1ebf9a37670b7558508aa9d315e05b6b8de",
+     "dataset": "3gysobaK7tWKX0u3u"
+    },
+    {
+     "range": "bytes 12000000-14999999/29230352",
+     "bytes": 3000000,
+     "sha256": "25e670cb7c5a2c60af954678811f27bd7cba1553569d8f8e6d328f71d34ae4bd",
+     "dataset": "Q2p58I7WziHiOAIiY"
+    },
+    {
+     "range": "bytes 15000000-17999999/29230352",
+     "bytes": 3000000,
+     "sha256": "fb7546942c458e0523de71839054d74ef48eb970390f037724cb332d78c6b52c",
+     "dataset": "UXRVfXU24Rg31zyI7"
+    },
+    {
+     "range": "bytes 18000000-20999999/29230352",
+     "bytes": 3000000,
+     "sha256": "849a26170c0884fde13e89e8c3b603110fb556288cc153b8a2e79b05d5b96961",
+     "dataset": "U0SvdibUD0ei2AngJ"
+    },
+    {
+     "range": "bytes 21000000-23999999/29230352",
+     "bytes": 3000000,
+     "sha256": "e4a1fabb7f5570b30a37741ec7ca0e5863678d1365d8438d57c579c1b38ec14b",
+     "dataset": "nlOG91s7qDp01BU6V"
+    },
+    {
+     "range": "bytes 24000000-26999999/29230352",
+     "bytes": 3000000,
+     "sha256": "b95fdb35bd28451fe2c0fe5f4c37b52570e88a36abf9d9ead32a1d27c9c2e8ba",
+     "dataset": "JDTosiZqzkS3DdYMK"
+    },
+    {
+     "range": "bytes 27000000-29230351/29230352",
+     "bytes": 2230352,
+     "sha256": "107a02d1eeb534258dfdf49d3c80c412d9a88e5dcc43a85a149d65423f7f4767",
+     "dataset": "hfelPzGlHAeStMPxc"
+    }
+   ]
+  }
+ ],
+ "rows": {
+  "spending": 820,
+  "cost_sqft": 11
+ },
+ "license_quote_other": {
+  "where": "https://data.sandiego.gov/datasets/development-permits-set2/",
+  "text": "Dataset Details\n- License [View License](https://opendefinition.org/licenses/odc-pddl/)"
+ }
+}

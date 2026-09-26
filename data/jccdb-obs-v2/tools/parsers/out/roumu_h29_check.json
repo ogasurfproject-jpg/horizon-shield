@@ -1,0 +1,201 @@
+{
+ "year": "h29",
+ "engine": "pdfminer",
+ "pages_A": [
+  16,
+  17,
+  18
+ ],
+ "pages_B": [
+  5,
+  6,
+  7,
+  8,
+  9
+ ],
+ "jobs": 48,
+ "jobs_A_eq_B": true,
+ "cells_A": 2256,
+ "cells_B": 2256,
+ "cells_expected": 2256,
+ "A_B_agree": 2256,
+ "A_B_mismatch": 0,
+ "max_hdr_value_center_dist": 13.38,
+ "min_margin_to_next_header": 5.58,
+ "max_xmax_spread_in_column": 4.08,
+ "nearest_header_agrees": 6640,
+ "cells_read": 6640,
+ "dash_assigned_by_right_edge": 242,
+ "dash_assigned_by_header_center": 0,
+ "odd": [
+  [
+   17,
+   "36",
+   "板金工",
+   "上段 (語なし) / 下段 -"
+  ],
+  [
+   17,
+   "37",
+   "板金工",
+   "上段 (語なし) / 下段 -"
+  ],
+  [
+   17,
+   "38",
+   "板金工",
+   "上段 (語なし) / 下段 -"
+  ],
+  [
+   17,
+   "39",
+   "板金工",
+   "上段 (語なし) / 下段 -"
+  ],
+  [
+   17,
+   "47",
+   "板金工",
+   "上段 (語なし) / 下段 -"
+  ],
+  [
+   18,
+   "40",
+   "ガラス工",
+   "上段 20,400 / 下段 -"
+  ]
+ ],
+ "page_stats": [
+  {
+   "page": 5,
+   "kind": "B",
+   "ncol": 10,
+   "ncells": 421,
+   "col_spread": 0.01859999999999218,
+   "max_hdr_dist": 6.330000000000041,
+   "min_margin": 26.219999999999914,
+   "nearest_hdr_agree": 421,
+   "row_spacing": 10.43999999999994,
+   "dash_by_xmax": 0,
+   "dash_by_center": 0,
+   "col_pitch": 38.879999999999995,
+   "prefs": 47
+  },
+  {
+   "page": 6,
+   "kind": "B",
+   "ncol": 10,
+   "ncells": 470,
+   "col_spread": 0.01859999999999218,
+   "max_hdr_dist": 6.330000000000041,
+   "min_margin": 26.219999999999914,
+   "nearest_hdr_agree": 470,
+   "row_spacing": 10.43999999999994,
+   "dash_by_xmax": 0,
+   "dash_by_center": 0,
+   "col_pitch": 38.879999999999995,
+   "prefs": 47
+  },
+  {
+   "page": 7,
+   "kind": "B",
+   "ncol": 10,
+   "ncells": 466,
+   "col_spread": 0.01859999999999218,
+   "max_hdr_dist": 6.330000000000041,
+   "min_margin": 26.219999999999914,
+   "nearest_hdr_agree": 466,
+   "row_spacing": 10.43999999999994,
+   "dash_by_xmax": 0,
+   "dash_by_center": 0,
+   "col_pitch": 38.87999999999997,
+   "prefs": 47
+  },
+  {
+   "page": 8,
+   "kind": "B",
+   "ncol": 9,
+   "ncells": 390,
+   "col_spread": 0.018600000000105865,
+   "max_hdr_dist": 7.709999999999923,
+   "min_margin": 26.280000000000086,
+   "nearest_hdr_agree": 390,
+   "row_spacing": 10.43999999999994,
+   "dash_by_xmax": 0,
+   "dash_by_center": 0,
+   "col_pitch": 41.639999999999986,
+   "prefs": 47
+  },
+  {
+   "page": 9,
+   "kind": "B",
+   "ncol": 9,
+   "ncells": 386,
+   "col_spread": 0.018600000000105865,
+   "max_hdr_dist": 9.810000000000002,
+   "min_margin": 26.279999999999973,
+   "nearest_hdr_agree": 386,
+   "row_spacing": 10.43999999999994,
+   "dash_by_xmax": 0,
+   "dash_by_center": 0,
+   "col_pitch": 41.64000000000004,
+   "prefs": 47
+  },
+  {
+   "page": 16,
+   "kind": "A",
+   "ncol": 20,
+   "ncells": 1880,
+   "col_spread": 4.080000000000041,
+   "max_hdr_dist": 13.379999999999995,
+   "min_margin": 5.639999999999986,
+   "nearest_hdr_agree": 1880,
+   "row_spacing": 17.75980000000027,
+   "dash_by_xmax": 98,
+   "dash_by_center": 0,
+   "col_pitch": 32.39999999999998,
+   "prefs": 47
+  },
+  {
+   "page": 17,
+   "kind": "A",
+   "ncol": 19,
+   "ncells": 1781,
+   "col_spread": 0.17640000000005784,
+   "max_hdr_dist": 13.379999999999995,
+   "min_margin": 5.639999999999986,
+   "nearest_hdr_agree": 1781,
+   "row_spacing": 17.75980000000027,
+   "dash_by_xmax": 69,
+   "dash_by_center": 0,
+   "col_pitch": 32.39999999999998,
+   "prefs": 47
+  },
+  {
+   "page": 18,
+   "kind": "A",
+   "ncol": 9,
+   "ncells": 846,
+   "col_spread": 0.17640000000008627,
+   "max_hdr_dist": 13.200000000000017,
+   "min_margin": 5.579999999999956,
+   "nearest_hdr_agree": 846,
+   "row_spacing": 17.75980000000027,
+   "dash_by_xmax": 75,
+   "dash_by_center": 0,
+   "col_pitch": 31.97999999999999,
+   "prefs": 47
+  }
+ ],
+ "notes": {
+  "paren": "(注)岩手県、宮城県、福島県における単価括弧書きは、入札不調の発生状況等に応じた単価を採用している。",
+  "bracket": "",
+  "lower": "公共工事設計労務単価+必要経費(法定福利費の事業主負担額、労務管理費、宿舎費等)(参考値)"
+ },
+ "rows_written": 2256,
+ "published_pdl": 2133,
+ "not_set": 123,
+ "with_ref_value": 2132,
+ "paren_marked_B": 105,
+ "bracket_marked_B": 0
+}

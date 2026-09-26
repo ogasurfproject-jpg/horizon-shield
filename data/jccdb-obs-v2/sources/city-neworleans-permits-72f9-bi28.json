@@ -1,0 +1,59 @@
+{
+ "source_id": "city-neworleans-permits-72f9-bi28",
+ "country": "US",
+ "title": "Permits - BLDS (data.nola.gov 72f9-bi28, Safety and Permits): EstProjectCost と TotalSqFt の分布(PermitTypeMapped / PermitTypeDesc x PermitClass x 年)",
+ "publisher": "City of New Orleans, Department of Safety and Permits",
+ "url": "https://data.nola.gov/resource/72f9-bi28.json",
+ "landing": "https://data.nola.gov/d/72f9-bi28",
+ "retrieved_at": "2026-09-26",
+ "published": "2026-09-24",
+ "published_note": "views の rowsUpdatedAt 1790230362 = 2026-09-24T06:12:42Z",
+ "license": "OPEN-TERMS",
+ "license_url": "https://datadriven.nola.gov/open-data/",
+ "license_quote": "Open Data\nConnect to our open data portal to find published datasets. This data is free to use and free to share.",
+ "dataset_license_field": "views の license 欄: {\"name\": \"Creative Commons 1.0 Universal (Public Domain Dedication)\", \"termsLink\": \"http://creativecommons.org/publicdomain/zero/1.0/legalcode\"}、licenseId 'CC0_10'、attribution 'Safety and Permits'",
+ "license_note": "判断: OPEN-TERMS。データセットは CC0 1.0 で、市の Open Data の頁も『free to use and free to share』。data.nola.gov 自体に独自の利用条件の頁は見つからなかった(WebSearch)。条文の取得: Apify web-fetch markdown(dataset AP4KROmkZalZWMolD)",
+ "attribution": "Source: City of New Orleans, Department of Safety and Permits, Permits - BLDS, data.nola.gov (https://data.nola.gov/d/72f9-bi28), retrieved 2026-09-26, CC0 1.0. Aggregated by JCCDB",
+ "scope_quote": "City of New Orleans permit data starting from 1/01/2012. This dataset has been transformed to meet the standards outlined by the Building and Land Development Specification (BLDS).",
+ "area_quote": "市全体(geo_level city)。geo_code は州 FIPS 2 桁(検査器の city の形が 2/5/6 桁で、Census place GEOID 7 桁を通さないため)。place GEOID は行の note",
+ "how_read": "SoQL: $select=date_extract_y(issuedate) as y, permittypemapped as m, permittypedesc as t, permitclass as b, estprojectcost as c, totalsqft as a, count(*) as n; $where=issuedate between '2023-01-01T00:00:00' and '2025-12-31T23:59:59.999'; $group=y,m,t,b,c,a; $limit=500000(26,221 組)。PermitTypeMapped が Other(Street Cut、看板、植樹、Small Cell など建築工事でないもの)は取り込まない(parser で除く。照合も除いた後で比べた)。EstProjectCost は原本の説明で 'Construction value, based on a copy of the construction contract or an itemized estimate in the case of self-performed work'。Mechanical Fuel Gas に 3 億 1,128 万ドルの許可が 12 件(2023、Single Family 2 件を含む)など、工種の許可に事業全体の額を入れたとみられる値があり、合計を大きく押し上げる(合計の行の note に最大値と割合を書いた)。値の作り方: 有効な申告額 = 100 ドル以上 10 億ドル未満(欠け・0・100 ドル未満の置き値・10 億ドル以上を除き、除いた件数は行の note)。件数と合計は全区分、中央値・25/75 分位は有効な申告額が 10 件以上の区分だけ(線形補間 type 7)。1 sqft あたりは 面積 100 sqft 以上の許可だけ、10 件以上の区分だけ。全区分の行(工事の区分 = all)も作る。申告工事額は申請者の申告で、実際の契約額ではない。parser: tools/parsers/parse_us_city_permits.py(raw の応答から同じ CSV を作る)。照合(別の数え方): API に月 x 区分ごとの count(*)・count(値)・sum(値) を別に数えさせた応答(check_monthly)と、ヒストグラム応答を手元で足した値を比べた。区分 587 組で 件数の不一致 0、非欠け件数の不一致 0、合計の差 0.01 超 0(最大差 0.0)。年ごと: 2023: API 21316 件 = 手元 21316 件、値の合計 API 6591504123.0 = 手元 6591504123.0; 2024: API 22210 件 = 手元 22210 件、値の合計 API 2336038144.0 = 手元 2336038144.0; 2025: API 20766 件 = 手元 20766 件、値の合計 API 2045197405.0 = 手元 2045197405.0。さらに 区分 x 工事の件数行の年ごとの和 = 区分 x (all) の件数行の和 = API の年ごとの件数({\"2023\": 21316, \"2024\": 22210, \"2025\": 20766})。",
+ "values_copied": true,
+ "api": true,
+ "sha256": "f13419d6282a27e6f3fc212f27a014cbb8862e9ba6868292b602011b3b940aa5",
+ "sha256_of": "raw/city-neworleans-permits-72f9-bi28.manifest.json(API 応答ごとの url・bytes・sha256 の一覧)",
+ "bytes": 2076,
+ "fetched_via": "Apify apify/web-fetch (formats=raw)。応答は raw/ にそのまま保存(manifest に dataset ID)",
+ "api_responses": [
+  {
+   "path": "raw/city-neworleans-permits-72f9-bi28.check_monthly.json",
+   "url": "https://data.nola.gov/resource/72f9-bi28.json?$select=date_trunc_ym(issuedate)%20as%20ym,permittypemapped%20as%20m,permittypedesc%20as%20t,permitclass%20as%20b,count(*)%20as%20n,count(estprojectcost)%20as%20nc,sum(estprojectcost)%20as%20s&$where=issuedate%20between%20%272023-01-01T00:00:00%27%20and%20%272025-12-31T23:59:59.999%27&$group=ym,m,t,b&$order=ym,m,t,b&$limit=50000",
+   "bytes": 710704,
+   "sha256": "937173316aac08313843d718cf254a6fb68f92d3dac3a92eb8c4b389aff38952",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:29:49.054Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset bNRCt6lMJw7Y3OfM4"
+  },
+  {
+   "path": "raw/city-neworleans-permits-72f9-bi28.hist.2023-2025.json",
+   "url": "https://data.nola.gov/resource/72f9-bi28.json?$select=date_extract_y(issuedate)%20as%20y,permittypemapped%20as%20m,permittypedesc%20as%20t,permitclass%20as%20b,estprojectcost%20as%20c,totalsqft%20as%20a,count(*)%20as%20n&$where=issuedate%20between%20%272023-01-01T00:00:00%27%20and%20%272025-12-31T23:59:59.999%27&$group=y,m,t,b,c,a&$order=y,m,t,b,c,a&$limit=500000",
+   "bytes": 2971623,
+   "sha256": "b664ebd0b56182a67e0036d6d8b6bfb139153e55940806cbd7eb6bfe71bb0c35",
+   "content_type": "application/json;charset=utf-8",
+   "fetched_at": "2026-09-26T03:29:08.063Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset glkK7ugDKawbAfpnz"
+  },
+  {
+   "path": "raw/city-neworleans-permits-72f9-bi28.views.json",
+   "url": "https://data.nola.gov/api/views/72f9-bi28.json",
+   "bytes": 66214,
+   "sha256": "b6889b5719a2f659dcb565f81ed0ab34eb946a2b01b99bc332733fab74856f74",
+   "content_type": "application/json; charset=utf-8",
+   "fetched_at": "2026-09-26T03:28:32.467Z",
+   "fetched_via": "Apify apify/web-fetch (formats=raw), dataset 9XjAoRnJDj6roUPfd"
+  }
+ ],
+ "rows": {
+  "spending": 2196,
+  "cost_sqft": 46
+ }
+}

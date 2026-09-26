@@ -1,0 +1,22 @@
+{
+ "source_id": "fema-equipment-rates-2025",
+ "country": "US",
+ "title": "FEMA 2025 Schedule of Equipment Rates",
+ "publisher": "U.S. Department of Homeland Security, Federal Emergency Management Agency (FEMA), Public Assistance",
+ "url": "https://www.fema.gov/sites/default/files/documents/fema_pa_schedule-equipment-rates_2025.pdf",
+ "landing": "https://www.fema.gov/assistance/public/tools-resources/schedule-equipment-rates",
+ "retrieved_at": "2026-09-26",
+ "published": "2025-09-16",
+ "http_last_modified": "Tue, 16 Sep 2025 19:11:09 GMT",
+ "bytes": 817260,
+ "sha256": "62a9ca68fb61b3fe72a99a055c74c6cd20a9d0611498e3ecd9aff8153c59623f",
+ "fetched_via": "Apify apify/web-fetch (formats=raw, base64)。bytes が Content-Length と一致、先頭 %PDF",
+ "license": "US-PD-17USC105",
+ "license_url": "https://www.fema.gov/about/website-information#copyright",
+ "license_quote": "FEMA Website Information, Reuse and Copyright (https://www.fema.gov/about/website-information#copyright, Last updated May 1, 2023): \"Most material on FEMA.gov is free of copyright and may be copied and distributed without permission. We are flattered that you want to share. Citation of FEMA.gov and a link back is much appreciated. We sometimes use photos or graphics that we licensed or that are restricted. Check to see if there is a copyright or photo credit. You need to request permission from the original source to use this material.\" / Copyright protection under this title is not available for any work of the United States Government, but the United States Government is not precluded from receiving and holding copyrights transferred to it by assignment, bequest, or otherwise. (17 U.S.C. 105(a), https://www.law.cornell.edu/uscode/text/17/105)。PDF の本文に著作権表示・写真の帰属表示は無い(pdftotext で copyright / © を検索して 0 件)。",
+ "attribution": "Source: FEMA, 2025 Schedule of Equipment Rates, https://www.fema.gov/sites/default/files/documents/fema_pa_schedule-equipment-rates_2025.pdf",
+ "how_read": "tools/parsers/parse_fema_equipment_2025.py。11 頁の表 465 行を 2 通りで読んだ。(A) pdftotext -bbox-layout の語を句にまとめ、1 頁目の見出しの x 中心(Rates は右寄せなので右端 x=728.3)に最近傍で列を割り当て、#・Cost Code・Unit・Rate の値を取る。(B) タグ付き PDF の marked content(MCID、セル 1 つが 1 束)を pdfplumber で束ね、文字の欄を取る。行の境は PDF に描かれた横罫線。照合: 頁ごとに 帯の数 = # の数 = $ の数 = 値の数 = pdftotext -layout の行頭「番号 + Cost Code」の行数 が 11 頁すべて一致(60/48/50/55/37/45/55/18/28/41/28、計 465)。# は 1 から 465 まで欠け・重複なし、Cost Code は重複なし・昇順。A と B で #・Cost Code・Unit・Rate が 465 行すべて一致。見出し中心との距離の最大は MCID の束で 1.87pt(Specification)、Rates の右端のずれ 0.01pt。文字の欄の A と B の違いは 1 行(# 365、Equipment の文字が Manufacturer 列に重なって印字されている行。MCID の読みを採った)。別の組版との照合: FEMA の頁に同じ 2025 年の表が HTML で載っている(Apify web-fetch の markdown で取得)。Cost Code 465 個が PDF と HTML で過不足なく一致し、Rate 465/465、Unit 465/465(空欄 4 行を含む)が一致。",
+ "scope_quote": "FEMA Schedule of Equipment Rates の頁(https://www.fema.gov/assistance/public/tools-resources/schedule-equipment-rates、2026-09-26 に Apify で取得): \"The rates on this Schedule of Equipment Rates are for applicant-owned equipment in good mechanical condition, complete with all required attachments. Each rate covers all costs eligible under the Robert T. Stafford Disaster Relief and Emergency Assistance Act, 42 U.S.C. § 5121, et seq., for ownership and operation of equipment, including depreciation, overhead, all maintenance, field repairs, fuel, lubricants, tires, OSHA equipment and other costs incidental to operation. Standby equipment costs are not eligible.\" \"Equipment must be in actual operation performing eligible work in order for reimbursement to be eligible. Labor costs of the operator are not included in the rates and should be approved separately from equipment costs.\" \"These rates are applicable to major disaster and emergencies declared by the President on or after July 1, 2025.\" 表の見出し: # / Cost Code / Equipment / Manufacturer / Specification / Capacity or Size / HP / Notes / Unit / 2025 Rates",
+ "values_copied": true,
+ "effective_from": "2025-07-01"
+}
