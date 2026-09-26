@@ -55,3 +55,7 @@ Which side matches the specification: section 8.4.1 "Canonicalization Requiremen
 Suggested fix: apply the proto projection in `canonicalizeJSON` (unmarshal into `a2a.AgentCard` with presence semantics, marshal back, then JCS), and add a cross-SDK golden: one card, one key, signed by the JS SDK, verified by Go, and the reverse. The card above can serve as a public golden; it will keep both signatures until the SDKs agree.
 
 One spec-level note that falls out of this: under rule 1, fields outside the schema (for example extension declarations placed at the top level rather than in `capabilities.extensions[].params`) are not covered by the signature at all. That is worth one sentence in 8.4.1, since operators may assume the whole served document is signed.
+
+## 記録
+- 2026-09-26 19:32 fixture と本文案を commit ee5b4808 で push(TOshi の手)。issue は未投稿。投稿したら URL と日時をここに足す。
+- 2026-09-26 19:38 JST 投稿済み: https://github.com/a2aproject/a2a-go/issues/445(TOshi の手、ogasurfproject-jpg 名義)。返事が来たら要点をここに足す。
