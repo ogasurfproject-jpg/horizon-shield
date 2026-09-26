@@ -601,3 +601,9 @@ footer{background:#fff !important;border-top:1px solid #16181d !important;paddin
   .cta-h2{font-size:30px !important}
 }
 @media(max-width:900px) and (prefers-reduced-motion:no-preference){.rv{transition:none}}
+
+/* The partner badge file /badges/google-cloud-partner.png is not in the repository yet, so browsers drew a broken-image mark.
+   Until the official badge is placed there, show the programme name as a plain label. Remove these two rules when the file exists. */
+a[href="https://cloud.google.com/partners"] img{display:none}
+a[href="https://cloud.google.com/partners"]::after{content:"Google Cloud Partner";display:inline-flex;align-items:center;min-height:44px;padding:0 20px;border:1px solid #16181d;font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.12em;color:#16181d}
+a[href="https://cloud.google.com/partners"]:hover::after{border-color:#8b6b47;color:#8b6b47}
