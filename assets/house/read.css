@@ -34,7 +34,7 @@ main > h1{margin:0 0 20px;font-family:var(--serif);font-weight:800;font-size:44p
 /* the photograph under the page head (decorative, set in CSS) */
 main > .updated::after{content:"写真はイメージです";content:"写真はイメージです" / "";box-sizing:border-box;display:flex;align-items:flex-end;justify-content:flex-end;width:min(1248px,calc(100vw - 40px));margin:56px 0 72px calc(50% - min(624px,calc(50vw - 20px)));height:446px;font-size:11px;line-height:1;letter-spacing:.08em;color:var(--g6);
   background:linear-gradient(#fff,#fff) 0 100%/100% 26px no-repeat,url(/assets/house/papers-1536.jpg) 50% 55%/cover no-repeat;
-  background:linear-gradient(#fff,#fff) 0 100%/100% 26px no-repeat,image-set(url(/assets/house/papers-1536.webp) type("image/webp"),url(/assets/house/papers-1536.jpg) type("image/jpeg")) 50% 55%/cover no-repeat}
+  background:linear-gradient(#fff,#fff) 0 100%/100% 26px no-repeat,image-set(url(/assets/house/papers-1536.webp) type("image/webp") 1x,url(/assets/house/papers-3072.webp) type("image/webp") 2x,url(/assets/house/papers-1536.jpg) type("image/jpeg") 1x) 50% 55%/cover no-repeat}
 .lead{font-size:17px;line-height:2;color:var(--g2)}
 main h2{margin:72px 0 20px;padding-top:28px;border-top:1px solid var(--ink);font-family:var(--serif);font-size:26px;font-weight:700;line-height:1.55;letter-spacing:.05em;border-bottom:0}
 main h3{margin:28px 0 8px;font-size:17px;font-weight:700;line-height:1.7}
@@ -119,7 +119,7 @@ footer.site p{margin:0 0 6px;color:var(--g5);font-size:12px;line-height:1.9}
 .container > .date + h1{margin-top:16px}
 .container > h1 + .date::after,.container > .date + h1::after{content:"写真はイメージです";content:"写真はイメージです" / "";box-sizing:border-box;display:flex;align-items:flex-end;justify-content:flex-end;width:min(1248px,calc(100vw - 40px));margin:48px 0 64px calc(50% - min(624px,calc(50vw - 20px)));height:420px;font-size:11px;line-height:1;letter-spacing:.08em;color:var(--g6);
   background:linear-gradient(#fff,#fff) 0 100%/100% 26px no-repeat,url(/assets/house/kitchen-1536.jpg) 50% 45%/cover no-repeat;
-  background:linear-gradient(#fff,#fff) 0 100%/100% 26px no-repeat,image-set(url(/assets/house/kitchen-1536.webp) type("image/webp"),url(/assets/house/kitchen-1536.jpg) type("image/jpeg")) 50% 45%/cover no-repeat}
+  background:linear-gradient(#fff,#fff) 0 100%/100% 26px no-repeat,image-set(url(/assets/house/kitchen-1536.webp) type("image/webp") 1x,url(/assets/house/kitchen-3072.webp) type("image/webp") 2x,url(/assets/house/kitchen-1536.jpg) type("image/jpeg") 1x) 50% 45%/cover no-repeat}
 .container > .date + h1::after{font-family:var(--sans);font-weight:500;margin-bottom:56px}
 .container > .subtitle{font-size:16px;color:var(--g2);margin:0 0 48px}
 .container > .lead{margin:0 0 48px;padding:28px 0 0;border:0;border-top:2px solid var(--ink);border-radius:0;background:none;font-size:18px;line-height:2;color:var(--ink)}
@@ -164,7 +164,7 @@ body > div[style*="max-width:860px"] a{color:var(--g3) !important;border-bottom:
 .container > ul li span{font-size:13px !important;color:var(--g5) !important}
 .container > h1 + .subtitle::after{content:"写真はイメージです";content:"写真はイメージです" / "";box-sizing:border-box;display:flex;align-items:flex-end;justify-content:flex-end;width:min(1248px,calc(100vw - 40px));margin:48px 0 0 calc(50% - min(624px,calc(50vw - 20px)));height:420px;font-size:11px;line-height:1;letter-spacing:.08em;color:var(--g6);
   background:linear-gradient(#fff,#fff) 0 100%/100% 26px no-repeat,url(/assets/house/kitchen-1536.jpg) 50% 45%/cover no-repeat;
-  background:linear-gradient(#fff,#fff) 0 100%/100% 26px no-repeat,image-set(url(/assets/house/kitchen-1536.webp) type("image/webp"),url(/assets/house/kitchen-1536.jpg) type("image/jpeg")) 50% 45%/cover no-repeat}
+  background:linear-gradient(#fff,#fff) 0 100%/100% 26px no-repeat,image-set(url(/assets/house/kitchen-1536.webp) type("image/webp") 1x,url(/assets/house/kitchen-3072.webp) type("image/webp") 2x,url(/assets/house/kitchen-1536.jpg) type("image/jpeg") 1x) 50% 45%/cover no-repeat}
 @media (max-width:760px){
   .container > a.back{height:64px}
   .container > h1{font-size:27px;margin-top:32px}
