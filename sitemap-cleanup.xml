@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- sitemap-cleanup.xml (2026-09-26): 168 pages Google crawled in April to August, rejected, and has not revisited since.
+<!-- sitemap-cleanup.xml (2026-09-26): 178 pages Google crawled in April to August, rejected, and has not revisited since.
      Every URL here now carries <meta name="robots" content="noindex"> and is in no other sitemap. Listing them with a fresh
      lastmod asks Google to recrawl them and file them as excluded-by-noindex instead of crawled-not-indexed, so its picture
-     of this site stops being 168 stale stubs. Submitted to Google Search Console only; not in robots.txt, not given to Bing.
+     of this site stops being stale stubs. 10 of them are stubs Google still INDEXES from May although they carry noindex now;
+     once recrawled they leave the index, so the indexed count is expected to fall from 21 to about 11 (correct direction). Submitted to Google Search Console only; not in robots.txt, not given to Bing.
      Remove this file once GSC shows them under excluded by noindex. Source list: ops/google_cleanup_20260926.md -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://shield.the-horizons-innovation.com/mitsumori-ai-shindan.html</loc><lastmod>2026-09-26</lastmod></url>
@@ -173,4 +174,14 @@
   <url><loc>https://shield.the-horizons-innovation.com/souba/kyutoki-niigata/</loc><lastmod>2026-09-26</lastmod></url>
   <url><loc>https://shield.the-horizons-innovation.com/souba/shiroari-mie/</loc><lastmod>2026-09-26</lastmod></url>
   <url><loc>https://shield.the-horizons-innovation.com/souba/shiroari-chiba/</loc><lastmod>2026-09-26</lastmod></url>
+  <url><loc>https://shield.the-horizons-innovation.com/souba/yane-saitama/</loc><lastmod>2026-09-26</lastmod></url>
+  <url><loc>https://shield.the-horizons-innovation.com/souba/shiroari-tokyo/</loc><lastmod>2026-09-26</lastmod></url>
+  <url><loc>https://shield.the-horizons-innovation.com/souba/yane-fukuoka/</loc><lastmod>2026-09-26</lastmod></url>
+  <url><loc>https://shield.the-horizons-innovation.com/souba/gaiheki-ehime/</loc><lastmod>2026-09-26</lastmod></url>
+  <url><loc>https://shield.the-horizons-innovation.com/souba/kyutoki-okinawa/</loc><lastmod>2026-09-26</lastmod></url>
+  <url><loc>https://shield.the-horizons-innovation.com/souba/yane-akita/</loc><lastmod>2026-09-26</lastmod></url>
+  <url><loc>https://shield.the-horizons-innovation.com/souba/kyutoki-shiga/</loc><lastmod>2026-09-26</lastmod></url>
+  <url><loc>https://shield.the-horizons-innovation.com/souba/gaiheki-saga/</loc><lastmod>2026-09-26</lastmod></url>
+  <url><loc>https://shield.the-horizons-innovation.com/souba/yane-ehime/</loc><lastmod>2026-09-26</lastmod></url>
+  <url><loc>https://shield.the-horizons-innovation.com/souba/kyutoki-wakayama/</loc><lastmod>2026-09-26</lastmod></url>
 </urlset>

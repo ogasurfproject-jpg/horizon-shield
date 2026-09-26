@@ -192,3 +192,22 @@ GSC のページ索引で「noindex により除外」がおおむね 168 に達
 - https://shield.the-horizons-innovation.com/souba/kyutoki-niigata/
 - https://shield.the-horizons-innovation.com/souba/shiroari-mie/
 - https://shield.the-horizons-innovation.com/souba/shiroari-chiba/
+
+## 送信の記録（2026-09-26 05:55Z、TOshi の手、/usr/bin/python3 3.9 の google ライブラリで実行）
+- sitemap-cleanup.xml を GSC に送信、pending=True。
+- 送信前一覧の事実: sitemap.xml は 最終送信 2026-09-13T06:57:31Z、最終取得 2026-09-13T06:57:32Z（送信の 1 秒後に 1 回だけ）、送信 URL 115 / 索引 0。以後 13 日間 Google は sitemap.xml を再取得していない（現物は 151 本だが Google の記録は 115 のまま）。
+- 9/21 の URL 検査で「認識されていません」だった 103 本には 9/13 の 115 本に入っていた /kantei/ や blog が含まれる = Google は sitemap を読んでも URL を発見扱いにしていない。sitemap 経由の発見自体が止まっている状態。
+- 次に見る物: GSC の sitemap 一覧で sitemap-cleanup.xml の「最終取得」が付くか、sitemap.xml の最終取得が 9/13 から動くか。
+
+## 被リンク 1 本目（2026-09-26 15:15 JST、TOshi の手、Wix）
+- www.the-horizons-innovation.com（会社サイト、canonical 自己、noindex 無し）に shield へのリンク 2 本を確認（番人が外部から取得）:
+  ナビ「HORIZON SHIELD（建設費診断）」と HOME 本文「リフォーム・建設費の見積もり診断 HORIZON SHIELD（ホライゾンシールド）」。どちらも rel 無し（follow）。
+- それまで会社サイトから shield へのリンクは 0 本だった。Google がこのサイトに来る最初の自然経路。
+- 注意: Wix の公開ダイアログはサイト URL を https://thehoraizons.com/ と表示。thehoraizons.com は別内容のサイトで shield リンク無し。the-horizons-innovation.com と thehoraizons.com の関係（別サイトか、同一サイトの複数ドメインか）は未確認、別件。
+
+## 索引 21 本の正体（2026-09-26 15:20 JST、TOshi の export https___shield-4、番人が 21 本を live で実測）
+- 全 21 本の最終クロールは 5 月 19〜31 日。Google が持つこのサイトの索引は丸ごと 5 月の写し。
+- 内訳: 県別スタブ 10 本（今は全部 noindex + canonical→親。yane-saitama / shiroari-tokyo / yane-fukuoka / gaiheki-ehime / kyutoki-okinawa / yane-akita / kyutoki-shiga / gaiheki-saga / yane-ehime / kyutoki-wakayama）、コア 2 本（souba/gaiheki、souba/shiroari。9/15 に作り直したが Google の写しは 5 月版）、archive 9 本（movement-us、fuyujimai、制振-免震装置、kitchen-150man、roof-150man、屋根-種類-特徴、sofa-gaiheki-hyomenshori、mitsumori-ichishiki、aircon-kosho。全部 index,follow・canonical 自己）。
+- 処置: noindex 済みなのに索引に残る 10 本を sitemap-cleanup.xml に追加（168→178）。Google が再クロールすれば索引から落ちる。**索引数は 21→約 11 に下がる見込み。これは悪化ではなく、9/4 に自分で決めた noindex を Google がやっと反映する動き。**
+- GSC 登録リクエスト: /kantei/ 済（15:20、優先クロール待ちに入った旨の表示）。次は /hs-reverse-estimate/、/souba/gaiheki/、/souba/shiroari/（後者 2 本は 5 月版を 9/15 版に更新させるため）。
+- 後で見る: スタブは noindex と canonical→親 を同時に持つ。Google はこの組み合わせを推奨していない（矛盾信号）。9/21 時点で既に「noindex により除外」へ移った 4 本は同じ組み合わせで noindex が採用されたので実害は出ていないが、いずれ片方に揃える。
