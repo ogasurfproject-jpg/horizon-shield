@@ -20,75 +20,65 @@
   ]
 }
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700&family=Space+Mono&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#faf9f5;--surface:#fff;--border:#dddad0;--accent:#0f1e4a;--warn:#c8a832;--text:#1a1a2a;--muted:#888880}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;padding:0 0 80px}
-header{background:rgba(250,249,245,0.96);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#0f1e4a;text-decoration:none}
-.logo span{color:#c8a832}
-.container{max-width:860px;margin:0 auto;padding:48px 20px}
-h1{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--accent);margin-bottom:8px}
-.subtitle{font-family:'Space Mono',monospace;font-size:10px;color:var(--warn);letter-spacing:3px;margin-bottom:40px}
-.section-block{margin-bottom:32px;padding:24px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent)}
-.section-block h2{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:3px;margin-bottom:16px}
-.section-block p,.section-block li{font-size:14px;line-height:2;color:var(--text)}
-.section-block ul{padding-left:20px}
-.section-block li{margin-bottom:6px}
-.back-btn{display:inline-block;margin-top:32px;padding:12px 28px;background:var(--accent);color:#fff;text-decoration:none;font-weight:700;font-size:13px;letter-spacing:1px}
-</style>
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
 <link rel="mcp-server" href="https://mcp.horizonshield.dev">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="/assets/house/house.css?v=20260927">
 </head>
-<body>
-<header>
-  <a href="/" class="logo">HORIZON<span>SHIELD</span></a>
-  <a href="/" style="font-size:12px;color:var(--muted);text-decoration:none">← トップに戻る</a>
+<body class="hs">
+<a class="hs-skip" href="#main">本文へ</a>
+<header class="hs-top">
+<a class="hs-logo" href="/"><b>HORIZON SHIELD</b><span>住まいの適正価格</span></a>
+<nav class="hs-nav" aria-label="メインメニュー"><a href="/souba/">相場を調べる</a><a href="/shindan.html">0円簡易診断</a><a href="/check/">業者チェッカー</a><a href="/faq/">よくある質問</a><a href="/about-founder.html">代表について</a><a class="hs-btn" href="/hs-reverse-estimate/">無料でKIRAに相談</a></nav>
+<div class="hs-menu"><a class="hs-btn" href="/hs-reverse-estimate/">KIRAに相談</a><details><summary aria-label="メニュー"><svg width="20" height="14" viewBox="0 0 20 14" fill="none" stroke="#16181d" stroke-width="1.5" aria-hidden="true"><path d="M0 1h20M0 7h20M0 13h20"/></svg></summary><div class="hs-sheet"><nav aria-label="メインメニュー(スマホ)"><a class="l" href="/">トップ<span aria-hidden="true">→</span></a><a class="l" href="/souba/">相場を調べる<span aria-hidden="true">→</span></a><a class="l" href="/shindan.html">0円簡易診断<span aria-hidden="true">→</span></a><a class="l" href="/check/">業者チェッカー<span aria-hidden="true">→</span></a><a class="l" href="/faq/">よくある質問<span aria-hidden="true">→</span></a><a class="l" href="/about-founder.html">代表について<span aria-hidden="true">→</span></a></nav><div class="cta"><a class="hs-btn" href="/hs-reverse-estimate/">無料でKIRAに相談する</a><a class="hs-btn ghost" href="https://line.me/R/ti/p/@172piime">LINEで相談する(@172piime)</a></div><nav class="legal" aria-label="規約"><a href="/privacy.html">プライバシーポリシー</a><a href="/tos.html">利用規約</a><a href="/tokusho/">特定商取引法に基づく表記</a></nav></div></details></div>
 </header>
-<div class="container">
-  <div class="subtitle">// PRIVACY POLICY</div>
-  <h1>プライバシーポリシー</h1>
-
-  <div class="section-block">
-    <h2>取得する情報</h2>
-    <p>氏名、メールアドレス、電話番号、工事に関する相談内容・見積書データ、加盟店の事業者情報（会社名・所在地等）、およびサービスのお申込・決済に関する情報。クレジットカード情報は当社では保持せず、決済事業者（PayPal）が安全に処理します。</p>
-  </div>
-
-  <div class="section-block">
-    <h2>利用目的</h2>
-    <ul>
-      <li>サービスの提供およびレポート納品</li>
-      <li>お申込・課金・決済処理および契約管理</li>
-      <li>お問い合わせへの対応</li>
-      <li>サービス改善のための分析</li>
-    </ul>
-  </div>
-
-  <div class="section-block">
-    <h2>第三者提供</h2>
-    <p>法令に基づく場合を除き、お客様の同意なく第三者に提供しません。ただし、決済処理のために決済事業者（PayPal）へ必要な情報を提供する場合があります。また、サイトの運用・分析のためGoogle・Cloudflare等の外部サービスを利用する場合があります。</p>
-  </div>
-
-  <div class="section-block">
-    <h2>個人情報の管理</h2>
-    <p>適切なセキュリティ対策を講じ、個人情報の漏洩・紛失・改ざんを防止します。診断完了後、アップロードされた見積書データは速やかに削除します。</p>
-  </div>
-
-  <div class="section-block">
-    <h2>Cookieの使用</h2>
-    <p>当サイトはサービス改善のためCookieを使用する場合があります。ブラウザの設定により無効化できます。</p>
-  </div>
-
-  <div class="section-block">
-    <h2>お問い合わせ</h2>
-    <p>The HORIZ音s株式会社<br>代表取締役 大賀俊勝<br>TEL：0463-74-5917<br>MAIL：contact@the-horizons-innovation.com</p>
-  </div>
-
-  <a href="/" class="back-btn">← トップページに戻る</a>
+<main id="main">
+<div class="hs-head">
+<div class="hs-head-text">
+<p class="hs-crumb"><a href="/">HORIZON SHIELD</a> / プライバシーポリシー</p>
+<p class="hs-eyebrow">PRIVACY</p>
+<h1 class="hs-title">プライバシー<br>ポリシー</h1>
+<p class="hs-lead">お預かりする見積書は、ご家族の暮らしそのものです。何を受け取り、何に使い、どう守るかをここに記します。</p>
 </div>
-
-<div style="max-width:860px;margin:24px auto 0;padding:14px 18px;background:#fbfaf8;font-size:.82rem;line-height:1.6;color:#5b6b78;border-top:1px solid #e6e2db;text-align:center;">HORIZON SHIELD（運営 The HORIZ音s株式会社）は、施工業者から紹介手数料や送客の報酬を受け取らない独立した第三者です。相場の検証設計は<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6964439" style="color:#1E6B43;">配布論文SSRN 6964439</a>で公開。監修 <a href="https://orcid.org/0009-0000-9180-903X" style="color:#1E6B43;">大賀俊勝（ORCID 0009-0000-9180-903X）</a>。</div>
+<picture><source type="image/webp" srcset="/assets/house/homecoming-800.webp 800w, /assets/house/homecoming-1136.webp 1136w" sizes="(max-width:760px) 100vw, 720px"><img class="hs-head-img" src="/assets/house/homecoming-1136.jpg" width="1136" height="1408" alt="父と子が手をつないで白い家に帰る後ろ姿" style="object-position:50% 45%" fetchpriority="high"></picture>
+</div>
+<div class="hs-doc">
+<nav class="hs-toc" aria-label="目次"><p>目次</p><a href="#p1">01　取得する情報</a><a href="#p2">02　利用目的</a><a href="#p3">03　第三者提供</a><a href="#p4">04　個人情報の管理</a><a href="#p5">05　Cookieの使用</a><a href="#p6">06　お問い合わせ</a></nav>
+<div class="hs-body">
+<section class="hs-sec" id="p1" aria-labelledby="p1-h"><h2 class="hs-h2" id="p1-h"><span class="n">01</span>取得する情報</h2>
+<div class="hs-prose"><p>氏名、メールアドレス、電話番号、工事に関する相談内容・見積書データ、加盟店の事業者情報（会社名・所在地等）、およびサービスのお申込・決済に関する情報。クレジットカード情報は当社では保持せず、決済事業者（PayPal）が安全に処理します。</p></div>
+</section>
+<section class="hs-sec" id="p2" aria-labelledby="p2-h"><h2 class="hs-h2" id="p2-h"><span class="n">02</span>利用目的</h2>
+<ul class="hs-list"><li>サービスの提供およびレポート納品</li><li>お申込・課金・決済処理および契約管理</li><li>お問い合わせへの対応</li><li>サービス改善のための分析</li></ul>
+</section>
+<section class="hs-sec" id="p3" aria-labelledby="p3-h"><h2 class="hs-h2" id="p3-h"><span class="n">03</span>第三者提供</h2>
+<div class="hs-prose"><p>法令に基づく場合を除き、お客様の同意なく第三者に提供しません。ただし、決済処理のために決済事業者（PayPal）へ必要な情報を提供する場合があります。また、サイトの運用・分析のためGoogle・Cloudflare等の外部サービスを利用する場合があります。</p></div>
+</section>
+<section class="hs-sec" id="p4" aria-labelledby="p4-h"><h2 class="hs-h2" id="p4-h"><span class="n">04</span>個人情報の管理</h2>
+<div class="hs-prose"><p>適切なセキュリティ対策を講じ、個人情報の漏洩・紛失・改ざんを防止します。診断完了後、アップロードされた見積書データは速やかに削除します。</p></div>
+</section>
+<section class="hs-sec" id="p5" aria-labelledby="p5-h"><h2 class="hs-h2" id="p5-h"><span class="n">05</span>Cookieの使用</h2>
+<div class="hs-prose"><p>当サイトはサービス改善のためCookieを使用する場合があります。ブラウザの設定により無効化できます。</p></div>
+</section>
+<section class="hs-sec" id="p6" aria-labelledby="p6-h"><h2 class="hs-h2" id="p6-h"><span class="n">06</span>お問い合わせ</h2>
+<div class="hs-prose"><p>The HORIZ音s株式会社<br/>代表取締役 大賀俊勝<br/>TEL：0463-74-5917<br/>MAIL：contact@the-horizons-innovation.com</p></div>
+</section>
+</div>
+</div>
+</main>
+<footer class="hs-foot">
+<div class="hs-foot-in">
+<div class="hs-foot-cols">
+<div class="co"><b>HORIZON SHIELD</b><p>運営　The HORIZ音s株式会社</p><p>代表取締役　大賀俊勝</p></div>
+<div class="nv"><a href="/souba/">相場を調べる</a><a href="/shindan.html">0円簡易診断</a><a href="/check/">業者チェッカー</a><a href="/faq/">よくある質問</a><a href="/about-founder.html">代表について</a></div>
+<div class="nv"><a href="/privacy.html">プライバシーポリシー</a><a href="/tos.html">利用規約</a><a href="/tokusho/">特定商取引法に基づく表記</a></div>
+<div class="ct"><a href="tel:0463745917">TEL　0463-74-5917</a><a href="mailto:contact@the-horizons-innovation.com">contact@the-horizons-innovation.com</a><a href="https://line.me/R/ti/p/@172piime">LINE　@172piime</a></div>
+</div>
+<p class="hs-foot-note">HORIZON SHIELD（運営 The HORIZ音s株式会社）は、施工業者から紹介手数料や送客の報酬を受け取らない独立した第三者です。相場の検証設計は<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6964439">配布論文SSRN 6964439</a>で公開。監修 <a href="https://orcid.org/0009-0000-9180-903X">大賀俊勝（ORCID 0009-0000-9180-903X）</a>。掲載の写真はイメージです。</p>
+</div>
+</footer>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

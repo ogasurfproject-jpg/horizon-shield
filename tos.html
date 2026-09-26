@@ -20,90 +20,68 @@
   ]
 }
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700&family=Space+Mono&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#faf9f5;--surface:#fff;--border:#dddad0;--accent:#0f1e4a;--warn:#c8a832;--text:#1a1a2a;--muted:#888880}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;padding:0 0 80px}
-header{background:rgba(250,249,245,0.96);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#0f1e4a;text-decoration:none}
-.logo span{color:#c8a832}
-.container{max-width:860px;margin:0 auto;padding:48px 20px}
-h1{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--accent);margin-bottom:8px}
-.subtitle{font-family:'Space Mono',monospace;font-size:10px;color:var(--warn);letter-spacing:3px;margin-bottom:40px}
-.section-block{margin-bottom:32px;padding:24px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent)}
-.section-block h2{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:3px;margin-bottom:16px}
-.section-block p,.section-block li{font-size:14px;line-height:2;color:var(--text)}
-.section-block ul{padding-left:20px}
-.section-block li{margin-bottom:6px}
-.back-btn{display:inline-block;margin-top:32px;padding:12px 28px;background:var(--accent);color:#fff;text-decoration:none;font-weight:700;font-size:13px;letter-spacing:1px}
-</style>
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
 <link rel="mcp-server" href="https://mcp.horizonshield.dev">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="/assets/house/house.css?v=20260927">
 </head>
-<body>
-<header>
-  <a href="/" class="logo">HORIZON<span>SHIELD</span></a>
-  <a href="/" style="font-size:12px;color:var(--muted);text-decoration:none">← トップに戻る</a>
+<body class="hs">
+<a class="hs-skip" href="#main">本文へ</a>
+<header class="hs-top">
+<a class="hs-logo" href="/"><b>HORIZON SHIELD</b><span>住まいの適正価格</span></a>
+<nav class="hs-nav" aria-label="メインメニュー"><a href="/souba/">相場を調べる</a><a href="/shindan.html">0円簡易診断</a><a href="/check/">業者チェッカー</a><a href="/faq/">よくある質問</a><a href="/about-founder.html">代表について</a><a class="hs-btn" href="/hs-reverse-estimate/">無料でKIRAに相談</a></nav>
+<div class="hs-menu"><a class="hs-btn" href="/hs-reverse-estimate/">KIRAに相談</a><details><summary aria-label="メニュー"><svg width="20" height="14" viewBox="0 0 20 14" fill="none" stroke="#16181d" stroke-width="1.5" aria-hidden="true"><path d="M0 1h20M0 7h20M0 13h20"/></svg></summary><div class="hs-sheet"><nav aria-label="メインメニュー(スマホ)"><a class="l" href="/">トップ<span aria-hidden="true">→</span></a><a class="l" href="/souba/">相場を調べる<span aria-hidden="true">→</span></a><a class="l" href="/shindan.html">0円簡易診断<span aria-hidden="true">→</span></a><a class="l" href="/check/">業者チェッカー<span aria-hidden="true">→</span></a><a class="l" href="/faq/">よくある質問<span aria-hidden="true">→</span></a><a class="l" href="/about-founder.html">代表について<span aria-hidden="true">→</span></a></nav><div class="cta"><a class="hs-btn" href="/hs-reverse-estimate/">無料でKIRAに相談する</a><a class="hs-btn ghost" href="https://line.me/R/ti/p/@172piime">LINEで相談する(@172piime)</a></div><nav class="legal" aria-label="規約"><a href="/privacy.html">プライバシーポリシー</a><a href="/tos.html">利用規約</a><a href="/tokusho/">特定商取引法に基づく表記</a></nav></div></details></div>
 </header>
-<div class="container">
-  <div class="subtitle">// TERMS OF SERVICE</div>
-  <h1>利用規約</h1>
-
-  <div class="section-block">
-    <h2>サービスの内容</h2>
-    <p>本サービスは建設・リフォーム工事費に関するコンサルティングサービスです。工事の請負・仲介は行いません。</p>
-  </div>
-
-  <div class="section-block">
-    <h2>禁止事項</h2>
-    <ul>
-      <li>虚偽の情報による申込み</li>
-      <li>サービスの不正利用</li>
-      <li>レポート内容の第三者への無断転用・販売</li>
-    </ul>
-  </div>
-
-  <div class="section-block">
-    <h2>キャンセル・返金ポリシー</h2>
-    <ul>
-      <li><strong>レポート納品前のキャンセル：</strong>全額返金（連絡後7営業日以内に処理）</li>
-      <li><strong>レポート納品後のキャンセル：</strong>役務の性質上、返金不可</li>
-      <li><strong>完成検査立会い（前日17時までのキャンセル）：</strong>全額返金</li>
-      <li><strong>完成検査立会い（当日キャンセル）：</strong>交通費実費を申し受けます</li>
-      <li><strong>キャンセル方法：</strong>contact@the-horizons-innovation.com までメールにてご連絡ください</li>
-    </ul>
-  </div>
-
-  <div class="section-block">
-<h2>前払式チケット（受領課金）</h2>
-    <ul>
-      <li>当社の一部サービスは、あらかじめ購入したチケット（1枚100円）を消費してご利用いただきます。</li>
-      <li>チケットは当社の役務提供の対価としてのみ使用でき、換金および第三者への譲渡はできません。</li>
-      <li>有効期限：なし（無期限。発行後の失効はありません）。</li>
-      <li>未使用残高は、加盟店管理画面または contact@the-horizons-innovation.com にてご確認いただけます。</li>
-      <li>払戻し：役務提供前のキャンセルに限り、上記「キャンセル・返金ポリシー」に準じて未使用分を返金します。役務提供後の返金はお受けできません。</li>
-      <li>苦情・相談窓口：contact@the-horizons-innovation.com ／ 0463-74-5917</li>
-    </ul>
-
-        <h2>免責事項</h2>
-    <p>当社のレポートは専門家による意見であり、法的効力を持つものではありません。最終的な判断はお客様自身が行うものとします。当社は、レポートの内容に基づいてお客様が行った行為の結果について責任を負いません。</p>
-  </div>
-
-  <div class="section-block">
-    <h2>準拠法・管轄裁判所</h2>
-    <p>本規約は日本法に準拠し、横浜地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
-  </div>
-
-  <div class="section-block">
-    <h2>運営者</h2>
-    <p>The HORIZ音s株式会社<br>代表取締役 大賀俊勝<br>TEL：0463-74-5917<br>MAIL：contact@the-horizons-innovation.com</p>
-  </div>
-
-  <a href="/" class="back-btn">← トップページに戻る</a>
+<main id="main">
+<div class="hs-head">
+<div class="hs-head-text">
+<p class="hs-crumb"><a href="/">HORIZON SHIELD</a> / 利用規約</p>
+<p class="hs-eyebrow">TERMS</p>
+<h1 class="hs-title">利用規約</h1>
+<p class="hs-lead">私たちは工事を請け負わず、仲介もしません。値段を確かめることだけに徹する、その約束ごとです。</p>
 </div>
-
-<div style="max-width:860px;margin:24px auto 0;padding:14px 18px;background:#fbfaf8;font-size:.82rem;line-height:1.6;color:#5b6b78;border-top:1px solid #e6e2db;text-align:center;">HORIZON SHIELD（運営 The HORIZ音s株式会社）は、施工業者から紹介手数料や送客の報酬を受け取らない独立した第三者です。相場の検証設計は<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6964439" style="color:#1E6B43;">配布論文SSRN 6964439</a>で公開。監修 <a href="https://orcid.org/0009-0000-9180-903X" style="color:#1E6B43;">大賀俊勝（ORCID 0009-0000-9180-903X）</a>。</div>
+<picture><source type="image/webp" srcset="/assets/house/house-800.webp 800w, /assets/house/house-1136.webp 1136w" sizes="(max-width:760px) 100vw, 720px"><img class="hs-head-img" src="/assets/house/house-1136.jpg" width="1136" height="1408" alt="白い外壁の二階建ての家" style="object-position:50% 40%" fetchpriority="high"></picture>
+</div>
+<div class="hs-doc">
+<nav class="hs-toc" aria-label="目次"><p>目次</p><a href="#s1">01　サービスの内容</a><a href="#s2">02　禁止事項</a><a href="#s3">03　キャンセル・返金ポリシー</a><a href="#s4">04　前払式チケット（受領課金）</a><a href="#s5">05　免責事項</a><a href="#s6">06　準拠法・管轄裁判所</a><a href="#s7">07　運営者</a></nav>
+<div class="hs-body">
+<section class="hs-sec" id="s1" aria-labelledby="s1-h"><h2 class="hs-h2" id="s1-h"><span class="n">01</span>サービスの内容</h2>
+<div class="hs-prose"><p>本サービスは建設・リフォーム工事費に関するコンサルティングサービスです。工事の請負・仲介は行いません。</p></div>
+</section>
+<section class="hs-sec" id="s2" aria-labelledby="s2-h"><h2 class="hs-h2" id="s2-h"><span class="n">02</span>禁止事項</h2>
+<ul class="hs-list"><li>虚偽の情報による申込み</li><li>サービスの不正利用</li><li>レポート内容の第三者への無断転用・販売</li></ul>
+</section>
+<section class="hs-sec" id="s3" aria-labelledby="s3-h"><h2 class="hs-h2" id="s3-h"><span class="n">03</span>キャンセル・返金ポリシー</h2>
+<ul class="hs-list"><li><strong>レポート納品前のキャンセル：</strong>全額返金（連絡後7営業日以内に処理）</li><li><strong>レポート納品後のキャンセル：</strong>役務の性質上、返金不可</li><li><strong>完成検査立会い（前日17時までのキャンセル）：</strong>全額返金</li><li><strong>完成検査立会い（当日キャンセル）：</strong>交通費実費を申し受けます</li><li><strong>キャンセル方法：</strong>contact@the-horizons-innovation.com までメールにてご連絡ください</li></ul>
+</section>
+<section class="hs-sec" id="s4" aria-labelledby="s4-h"><h2 class="hs-h2" id="s4-h"><span class="n">04</span>前払式チケット（受領課金）</h2>
+<ul class="hs-list"><li>当社の一部サービスは、あらかじめ購入したチケット（1枚100円）を消費してご利用いただきます。</li><li>チケットは当社の役務提供の対価としてのみ使用でき、換金および第三者への譲渡はできません。</li><li>有効期限：なし（無期限。発行後の失効はありません）。</li><li>未使用残高は、加盟店管理画面または contact@the-horizons-innovation.com にてご確認いただけます。</li><li>払戻し：役務提供前のキャンセルに限り、上記「キャンセル・返金ポリシー」に準じて未使用分を返金します。役務提供後の返金はお受けできません。</li><li>苦情・相談窓口：contact@the-horizons-innovation.com ／ 0463-74-5917</li></ul>
+</section>
+<section class="hs-sec" id="s5" aria-labelledby="s5-h"><h2 class="hs-h2" id="s5-h"><span class="n">05</span>免責事項</h2>
+<div class="hs-prose"><p>当社のレポートは専門家による意見であり、法的効力を持つものではありません。最終的な判断はお客様自身が行うものとします。当社は、レポートの内容に基づいてお客様が行った行為の結果について責任を負いません。</p></div>
+</section>
+<section class="hs-sec" id="s6" aria-labelledby="s6-h"><h2 class="hs-h2" id="s6-h"><span class="n">06</span>準拠法・管轄裁判所</h2>
+<div class="hs-prose"><p>本規約は日本法に準拠し、横浜地方裁判所を第一審の専属的合意管轄裁判所とします。</p></div>
+</section>
+<section class="hs-sec" id="s7" aria-labelledby="s7-h"><h2 class="hs-h2" id="s7-h"><span class="n">07</span>運営者</h2>
+<div class="hs-prose"><p>The HORIZ音s株式会社<br/>代表取締役 大賀俊勝<br/>TEL：0463-74-5917<br/>MAIL：contact@the-horizons-innovation.com</p></div>
+</section>
+</div>
+</div>
+</main>
+<footer class="hs-foot">
+<div class="hs-foot-in">
+<div class="hs-foot-cols">
+<div class="co"><b>HORIZON SHIELD</b><p>運営　The HORIZ音s株式会社</p><p>代表取締役　大賀俊勝</p></div>
+<div class="nv"><a href="/souba/">相場を調べる</a><a href="/shindan.html">0円簡易診断</a><a href="/check/">業者チェッカー</a><a href="/faq/">よくある質問</a><a href="/about-founder.html">代表について</a></div>
+<div class="nv"><a href="/privacy.html">プライバシーポリシー</a><a href="/tos.html">利用規約</a><a href="/tokusho/">特定商取引法に基づく表記</a></div>
+<div class="ct"><a href="tel:0463745917">TEL　0463-74-5917</a><a href="mailto:contact@the-horizons-innovation.com">contact@the-horizons-innovation.com</a><a href="https://line.me/R/ti/p/@172piime">LINE　@172piime</a></div>
+</div>
+<p class="hs-foot-note">HORIZON SHIELD（運営 The HORIZ音s株式会社）は、施工業者から紹介手数料や送客の報酬を受け取らない独立した第三者です。相場の検証設計は<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6964439">配布論文SSRN 6964439</a>で公開。監修 <a href="https://orcid.org/0009-0000-9180-903X">大賀俊勝（ORCID 0009-0000-9180-903X）</a>。掲載の写真はイメージです。</p>
+</div>
+</footer>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

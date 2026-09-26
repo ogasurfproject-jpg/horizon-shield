@@ -6,201 +6,67 @@
 <title>ご注文ありがとうございました | HORIZON SHIELD</title>
   <meta name="description" content="ご注文ありがとうございましたを建設実務30年のプロがsouba-dbの実測データで解説します。訪問販売の即決を断る方法や、相見積もりの取り方まであわせて確認できます。見積書のチェックポイント、過剰請求の見分け方、業者に確認すべき点まで具体的にまとめました。サービスの前提条件と利用時の取り扱いを明記しています。">
   <meta property="og:description" content="ご注文ありがとうございましたを建設実務30年のプロがsouba-dbの実測データで解説します。訪問販売の即決を断る方法や、相見積もりの取り方まであわせて確認できます。見積書のチェックポイント、過剰請求の見分け方、業者に確認すべき点まで具体的にまとめました。サービスの前提条件と利用時の取り扱いを明記しています。">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
-*{margin:0;padding:0;box-sizing:border-box}
-body{
-  font-family:'Noto Sans JP',sans-serif;
-  background:linear-gradient(135deg,#0f1729 0%,#111c38 100%);
-  color:#fff;min-height:100vh;
-  display:flex;align-items:center;justify-content:center;
-  padding:20px 16px;
-}
-.card{
-  max-width:520px;width:100%;
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(212,175,55,.28);
-  border-radius:22px;overflow:hidden;
-  backdrop-filter:blur(8px);
-}
-.header{
-  background:linear-gradient(135deg,#d4af37 0%,#c5a028 100%);
-  color:#0f1729;padding:30px 24px;text-align:center;
-}
-.header-badge{
-  display:inline-block;padding:4px 14px;background:#0f1729;
-  color:#d4af37;font-size:11px;font-weight:900;letter-spacing:2px;
-  border-radius:12px;margin-bottom:10px;
-}
-.icon{margin-bottom:12px;line-height:1;display:flex;justify-content:center}
-.icon svg{width:64px;height:64px;filter:drop-shadow(0 4px 10px rgba(15,23,41,.28))}
-.header h1{font-size:22px;font-weight:900;line-height:1.4;margin-bottom:4px}
-.header p{font-size:12px;opacity:.75}
-
-.body{padding:28px 26px}
-
-.message{
-  background:rgba(212,175,55,.08);
-  border-left:3px solid #d4af37;
-  padding:16px 18px;border-radius:0 8px 8px 0;
-  margin-bottom:24px;
-  font-size:13px;line-height:1.8;color:rgba(255,255,255,.85);
-}
-.message strong{color:#d4af37}
-
-.steps{margin-bottom:24px}
-.step{
-  display:flex;gap:14px;padding:14px 0;
-  border-bottom:1px dashed rgba(255,255,255,.1);
-}
-.step:last-child{border-bottom:none}
-.step-num{
-  flex-shrink:0;width:30px;height:30px;
-  background:#d4af37;color:#0f1729;
-  border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-weight:900;font-size:14px;
-}
-.step-body{flex:1;font-size:13px;line-height:1.7}
-.step-title{font-weight:700;margin-bottom:2px;color:#fff}
-.step-text{color:rgba(255,255,255,.65);font-size:12px}
-
-.bank-info{
-  display:none;
-  background:#fffbe6;color:#1a1a2e;
-  padding:18px 20px;border-radius:12px;
-  margin-bottom:20px;font-size:13px;line-height:1.8;
-}
-.bank-info.active{display:block}
-.bank-info h3{font-size:14px;margin-bottom:10px;color:#c5a028}
-.bank-row{display:flex;justify-content:space-between;padding:4px 0}
-.bank-row strong{font-weight:700}
-.bank-amount{font-size:18px;font-weight:900;color:#c62828;margin-top:6px}
-.bank-note{
-  font-size:11px;color:#666;margin-top:10px;padding-top:10px;
-  border-top:1px dashed #ddd;line-height:1.6;
-}
-
-.order-id{
-  text-align:center;padding:12px;
-  background:rgba(255,255,255,.04);border-radius:10px;
-  margin-bottom:20px;
-  font-family:'Menlo','Monaco',monospace;font-size:12px;
-  color:rgba(255,255,255,.5);
-}
-.order-id strong{color:#d4af37;font-weight:700}
-
-.btn-line{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  padding:14px;background:#06c755;color:#fff;
-  text-decoration:none;border-radius:12px;
-  font-weight:700;font-size:15px;
-  margin-bottom:10px;
-}
-.btn-line:hover{opacity:.9}
-
-.btn-home{
-  display:block;text-align:center;padding:12px;
-  background:transparent;color:rgba(255,255,255,.5);
-  text-decoration:none;border-radius:10px;font-size:12px;
-  border:1px solid rgba(255,255,255,.15);
-}
-
-.footer-note{
-  padding:16px 20px;
-  text-align:center;font-size:11px;color:rgba(255,255,255,.4);
-  border-top:1px solid rgba(255,255,255,.08);line-height:1.7;
-}
-.footer-note a{color:#d4af37;text-decoration:none}
-</style>
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
 <link rel="mcp-server" href="https://mcp.horizonshield.dev">
   <link rel="canonical" href="https://shield.the-horizons-innovation.com/thankyou.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="/assets/house/house.css?v=20260927">
+<style>.hs-bank{display:none}.hs-bank.active{display:flex}</style>
 </head>
-<body>
-
-<div class="card">
-  <div class="header">
-    <div class="header-badge">ORDER CONFIRMED</div>
-    <div class="icon" id="headerIcon">
-      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="HORIZON SHIELD">
-        <path d="M24 3 L42 9 V22 C42 33 34 42 24 45 C14 42 6 33 6 22 V9 Z"
-              fill="#0f1729" stroke="rgba(255,236,176,0.45)" stroke-width="1.5"/>
-        <path d="M16 24.5 L21.5 30 L33 18.5"
-              stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      </svg>
-    </div>
-    <h1 id="headerTitle">ご注文ありがとうございました</h1>
-    <p id="headerSub">PDFは即日お届けします</p>
-  </div>
-
-  <div class="body">
-    <!-- 注文番号 -->
-    <div class="order-id" id="orderIdBox">
-      注文番号: <strong id="orderIdText">確認中...</strong>
-    </div>
-
-    <!-- 銀行振込情報（モード=bank_transferの時のみ表示） -->
-    <div class="bank-info" id="bankInfo">
-      <h3>💳 お振込先のご案内</h3>
-      <div class="bank-row"><span>銀行名</span><strong>静岡銀行</strong></div>
-      <div class="bank-row"><span>支店名</span><strong>平塚支店</strong></div>
-      <div class="bank-row"><span>口座種別</span><strong>普通</strong></div>
-      <div class="bank-row"><span>口座番号</span><strong>0479810</strong></div>
-      <div class="bank-row"><span>口座名義</span><strong>ザ ホライズンズ（カ</strong></div>
-      <div class="bank-amount">お振込金額：¥5,500（税込）</div>
-      <div class="bank-note">
-        ※ 振込名義にお名前を記載してください<br>
-        ※ 入金確認後、即日PDFをお届けします<br>
-        ※ 振込手数料はお客様負担でお願いいたします
-      </div>
-    </div>
-
-    <!-- メッセージ -->
-    <div class="message" id="mainMessage">
-      <strong>ご注文が完了しました。</strong><br>
-      建設30年のプロが監修した<strong>交渉用・逆見積書PDF</strong>を、ご指定のメールアドレスおよびLINEにお届けします。
-    </div>
-
-    <!-- 流れ -->
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <div class="step-title">PDF作成・納品</div>
-          <div class="step-text">即日メール・LINEで納品</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <div class="step-title">業者と価格交渉</div>
-          <div class="step-text">PDFの交渉フレーズで相場との差額を指摘</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <div class="step-title">追加サポート</div>
-          <div class="step-text">わからない点は LINE@172piime で無料サポート</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- LINE友達追加（必須）-->
-    <a class="btn-line" href="https://line.me/R/ti/p/@172piime" target="_blank" rel="noopener">
-      💬 LINE友達追加（@172piime）
-    </a>
-    <a class="btn-home" href="https://shield.the-horizons-innovation.com">
-      ← HORIZON SHIELD トップへ
-    </a>
-  </div>
-
-  <div class="footer-note">
-    HORIZON SHIELD / The HORIZ音s株式会社<br>
-    <a href="https://shield.the-horizons-innovation.com">shield.the-horizons-innovation.com</a>
-  </div>
+<body class="hs">
+<a class="hs-skip" href="#main">本文へ</a>
+<header class="hs-top">
+<a class="hs-logo" href="/"><b>HORIZON SHIELD</b><span>住まいの適正価格</span></a>
+<p class="hs-step"><span class="pre">お申し込み　</span><b>完了</b></p>
+</header>
+<main id="main">
+<div class="hs-flow">
+<div class="hs-flow-main">
+<div class="hs-intro">
+<p class="hs-eyebrow" id="headerIcon">ORDER CONFIRMED</p>
+<h1 class="hs-title" id="headerTitle">ご注文ありがとうございました</h1>
+<p class="hs-lead" id="headerSub">PDFは即日お届けします</p>
 </div>
-
+<div class="hs-order" id="orderIdBox"><div><span class="lbl">注文番号</span><span class="num" id="orderIdText">確認中...</span></div></div>
+<div class="hs-block hs-bank" id="bankInfo">
+<p class="t">お振込先のご案内</p>
+<div class="hs-kv">
+<div><span class="k">銀行名</span><span class="v">静岡銀行</span></div>
+<div><span class="k">支店名</span><span class="v">平塚支店</span></div>
+<div><span class="k">口座種別</span><span class="v">普通</span></div>
+<div><span class="k">口座番号</span><span class="v big">0479810</span></div>
+<div><span class="k">口座名義</span><span class="v">ザ ホライズンズ（カ</span></div>
+<div><span class="k">お振込金額</span><span class="v amt">¥5,500（税込）</span></div>
+</div>
+<ul class="hs-dash">
+<li>振込名義にお名前を記載してください</li>
+<li>入金確認後、即日PDFをお届けします</li>
+<li>振込手数料はお客様負担でお願いいたします</li>
+</ul>
+</div>
+<div class="hs-msg" id="mainMessage"><strong>ご注文が完了しました。</strong><br>建設30年のプロが監修した<strong>交渉用・逆見積書PDF</strong>を、ご指定のメールアドレスおよびLINEにお届けします。</div>
+<div class="hs-block">
+<p class="t">このあとの流れ</p>
+<div class="hs-rows">
+<div class="hs-row"><span class="k"><span style="color:#8b6b47;font-family:var(--serif)">01</span>　PDF作成・納品</span><span class="v">即日メール・LINEで納品</span></div>
+<div class="hs-row"><span class="k"><span style="color:#8b6b47;font-family:var(--serif)">02</span>　業者と価格交渉</span><span class="v">PDFの交渉フレーズで相場との差額を指摘</span></div>
+<div class="hs-row"><span class="k"><span style="color:#8b6b47;font-family:var(--serif)">03</span>　追加サポート</span><span class="v">わからない点は LINE@172piime で無料サポート</span></div>
+</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center">
+<a class="hs-btn" style="height:60px;padding:0 40px" href="https://line.me/R/ti/p/@172piime" target="_blank" rel="noopener">LINE友達追加（@172piime）</a>
+<a class="hs-link" style="display:inline-flex;align-items:center;min-height:44px;font-weight:700" href="https://shield.the-horizons-innovation.com">← HORIZON SHIELD トップへ</a>
+</div>
+</div>
+<picture><source type="image/webp" srcset="/assets/house/homecoming-800.webp 800w, /assets/house/homecoming-1136.webp 1136w" sizes="(max-width:760px) 100vw, 720px"><img class="hs-flow-img" src="/assets/house/homecoming-1136.jpg" width="1136" height="1408" alt="父と子が手をつないで白い家に帰る後ろ姿" style="object-position:50% 45%" loading="lazy"></picture>
+</div>
+</main>
+<footer class="hs-foot-slim"><div class="in">
+<div class="row"><p><b style="color:#16181d;letter-spacing:.22em">HORIZON SHIELD</b>　運営 The HORIZ音s株式会社　TEL <a href="tel:0463745917">0463-74-5917</a>　<a href="mailto:contact@the-horizons-innovation.com">contact@the-horizons-innovation.com</a></p><nav aria-label="規約"><a href="/privacy.html">プライバシーポリシー</a><a href="/tos.html">利用規約</a><a href="/tokusho/">特定商取引法に基づく表記</a></nav></div>
+<p class="hs-foot-note">HORIZON SHIELD（運営 The HORIZ音s株式会社）は、施工業者から紹介手数料や送客の報酬を受け取らない独立した第三者です。相場の検証設計は<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6964439">配布論文SSRN 6964439</a>で公開。監修 <a href="https://orcid.org/0009-0000-9180-903X">大賀俊勝（ORCID 0009-0000-9180-903X）</a>。掲載の写真はイメージです。</p>
+</div></footer>
 <script>
 // URL パラメータ解析
 const params = new URLSearchParams(window.location.search);
@@ -221,9 +87,6 @@ if (mode === 'bank_transfer') {
   `;
 }
 </script>
-
-
-<div style="max-width:860px;margin:24px auto 0;padding:14px 18px;background:#fbfaf8;font-size:.82rem;line-height:1.6;color:#5b6b78;border-top:1px solid #e6e2db;text-align:center;">HORIZON SHIELD（運営 The HORIZ音s株式会社）は、施工業者から紹介手数料や送客の報酬を受け取らない独立した第三者です。相場の検証設計は<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6964439" style="color:#1E6B43;">配布論文SSRN 6964439</a>で公開。監修 <a href="https://orcid.org/0009-0000-9180-903X" style="color:#1E6B43;">大賀俊勝（ORCID 0009-0000-9180-903X）</a>。</div>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
