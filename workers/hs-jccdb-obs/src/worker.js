@@ -1,6 +1,16 @@
 /**
  * hs-jccdb-obs v0.3 : JCCDB の品目(v4, 95,403行)と観測層 v2(日本と米国、同じ列)を、AI からも人からも引ける口。
  *
+ * v0.4 の変更(2026-09-26 夜):
+ *   ・米国の値は公開の口では返さない。hs-mcp の service binding(URL の host が jccdb-obs.internal)からの呼び出しにだけ答える。
+ *     公開の URL(workers.dev)から米国の値を求めると、値を返さず us_private(restricted:true、fetch_failed:false、HTTP 403)と答え、
+ *     hs-mcp(https://mcp.horizonshield.dev/mcp)の道具の名前を添える。日本の値、米国の出典台帳(jccdb_sources)、件数(jccdb_coverage)、
+ *     品目検索の件数(jccdb_search_items)は今までどおり公開。国を指定しない公開の呼び出しは日本だけを引き、us_private_note を添える。
+ *   ・新しい4本(内部だけ): jccdb_us_kake(州・共同購買の契約の値引き率と掛け率)、jccdb_us_margin(卸・小売の粗利率と BEA の流通構造)、
+ *     jccdb_us_import_cost(輸入の陸揚げ原価、HS 10 桁と相手国)、jccdb_us_price_chain(陸揚げ原価から卸・小売・元請の各段の価格)。
+ *     表は schema/0004_kake_us.sql、中身は tools/make_d1_sql_kake.py の生成物。
+ *   ・jccdb_coverage の既定を要約にした(出典の一覧を外す)。detail:true で v0.3 と同じ全部。
+ *
  * v0.2 からの変更(2026-09-26):
  *   ・D1 を国で2つに分けた: DB(日本の観測 + v0.1 の items / obs)と DB_US(米国の観測)。表の形は schema/0003_obs3.sql。
  *     道具は country(か地域)で DB を選ぶ。country を受けない道具や country の無い呼び出しは両方に聞いて束ねる
@@ -25,7 +35,24 @@
  */
 
 const PROTOCOL_VERSION = "2025-11-25";
-const SERVER = { name: "hs-jccdb-obs", version: "0.3.0" };
+const SERVER = { name: "hs-jccdb-obs", version: "0.4.0" };
+
+// v0.4: 米国の値を返すのは内部の呼び出し(hs-mcp の service binding。URL の host が INTERNAL_HOST)だけ。
+// 公開の URL の host は workers.dev か独自のドメインで、外から host を jccdb-obs.internal にして届かせることはできない。
+export const INTERNAL_HOST = "jccdb-obs.internal";
+export const isInternal = (url) => url.hostname === INTERNAL_HOST;
+export const US_ONLY_TOOLS = new Set(["jccdb_us_prices", "jccdb_us_prevailing_wage", "jccdb_us_permits", "jccdb_us_area_factor",
+  "jccdb_us_kake", "jccdb_us_margin", "jccdb_us_import_cost", "jccdb_us_price_chain"]);
+// 公開のままの道具(米国は件数と出典台帳だけで、値を返さない)
+export const PUBLIC_US_OK = new Set(["jccdb_sources", "jccdb_coverage", "jccdb_search_items"]);
+const HS_MCP = { url: "https://mcp.horizonshield.dev/mcp", tools: ["get_us_construction_prices", "get_us_prevailing_wage", "get_us_permits", "get_us_area_factor",
+  "get_us_contract_discounts", "get_us_trade_margins", "get_us_import_landed_cost", "get_us_price_chain", "get_jccdb_observations"] };
+export function usPrivate() {
+  return {
+    error: "米国の値はこの公開の口では返さない。HORIZON SHIELD の MCP(" + HS_MCP.url + ")の道具で、出典・式・ハッシュと一緒に引ける。取りに行けなかったのではなく、ここでは出さない。/ U.S. values are not served on this public endpoint. Ask the HORIZON SHIELD MCP server (" + HS_MCP.url + "), which returns them with sources, formulas and hashes. This is not a fetch failure.",
+    code: "us_private", restricted: true, fetch_failed: false, source_read: false, country: "US", served_via: HS_MCP,
+  };
+}
 
 export const STATUS_LEGEND = {
   published_pdl: "出典が値を公開しており、利用条件(PDL1.0)が再配布を許すので値を載せている。帰属表示(attribution)が要る。/ Published by the source under PDL1.0 (CC BY 4.0 compatible); value included, attribution required.",
@@ -329,6 +356,7 @@ function loadingFail(c) {
 // 国ごとの DB を開く。meta の built_v3(本体の最後の文)が無ければ「入れ直しの途中」。FTS5 は built_v3_fts(FTS の最後の文)があって指紋が同じときだけ使う。
 async function part(ctx, c) {
   if (ctx.parts[c]) return ctx.parts[c];
+  if (c === "US" && ctx.restrictUS) { ctx.parts[c] = { country: c, fail: usPrivate() }; return ctx.parts[c]; }
   const db = ctx.env ? (c === "JP" ? ctx.env.DB : ctx.env.DB_US) : null;
   let p;
   if (!db) p = { country: c, fail: notBound(c) };
@@ -388,13 +416,19 @@ function withParts(out, ok, fails) {
   out.parts = {};
   for (const c of ok) out.parts[c] = { source_read: true, fetch_failed: false };
   for (const c of fc) out.parts[c] = { ...fails[c] };
+  if (fc.every((c) => fails[c].restricted)) {
+    out.us_private = true;
+    out.partial_reading = `米国の値はこの公開の口では返さない(parts.US)。件数と行は${ok.map((c) => COUNTRY_LABEL[c]).join("・")}の分だけ。米国は ${HS_MCP.url} の道具で引ける。/ U.S. values are not served here; counts and rows cover ${ok.join("/")} only. Use ${HS_MCP.url} for U.S. values.`;
+    return out;
+  }
   out.partial_reading = `${fc.map((c) => COUNTRY_LABEL[c]).join("・")}の部分は読めなかった(parts の fetch_failed)。件数と行は${ok.map((c) => COUNTRY_LABEL[c]).join("・")}の分だけで、読めなかった側が 0 件という意味ではない。/ The ${fc.join("/")} part could not be read; counts and rows cover ${ok.join("/")} only and say nothing about the missing part.`;
   return out;
 }
 
-function targetsOf(country, g) {
+function targetsOf(country, g, ctx) {
   if (g) return [g.country];
   if (country) return [country];
+  if (ctx && ctx.restrictUS) { ctx.usOmitted = true; return ["JP"]; }
   return ["JP", "US"];
 }
 
@@ -633,7 +667,7 @@ async function buildFilter(ctx, a, opts) {
   }
   if (g && country && g.country !== country) return { err: argErr(`地域 ${g.name} は country=${country} ではない。/ region is not in ${country}`) };
   if (g) country = g.country;
-  const targets = targetsOf(country, g);
+  const targets = targetsOf(country, g, ctx);
   if (a.layer && !(await layerOk(ctx, a.layer, targets))) return { err: argErr("layer が分からない: " + a.layer + " / layer must be one of " + LAYERS.join(", ")) };
   if (a.status && !own(STATUS_LEGEND, String(a.status))) return { err: argErr("status が分からない: " + a.status + " / status must be one of " + Object.keys(STATUS_LEGEND).join(", ")) };
   let period = null;
@@ -954,7 +988,7 @@ async function compareRegions(ctx, a) {
   if (!["exact", "namacon"].includes(mode)) return argErr("normalize は exact か namacon: " + a.normalize + " / normalize must be exact or namacon");
   const country0 = normCountry(a.country);
   if (country0 === undefined) return argErr("country は JP か US: " + a.country + " / country must be JP or US");
-  if (a.geo_level && !(await geoLevelOk(ctx, a.geo_level, targetsOf(country0, null)))) return argErr("geo_level が分からない: " + a.geo_level + " / geo_level must be one of " + GEO_LEVELS.join(", "));
+  if (a.geo_level && !(await geoLevelOk(ctx, a.geo_level, targetsOf(country0, null, ctx)))) return argErr("geo_level が分からない: " + a.geo_level + " / geo_level must be one of " + GEO_LEVELS.join(", "));
   const f = await buildFilter(ctx, { query: [a.query, a.spec].filter(Boolean).join(" "), country: a.country, layer: a.layer, status: a.status });
   if (f.err) return f.err;
   const CAP = 20000;
@@ -1560,6 +1594,221 @@ async function usAreaFactor(ctx, a) {
   };
 }
 
+// ---------------------------------------------------------------- v0.4 米国の掛け率・マージン・輸入原価・各段の価格(非公開の計算層)
+//
+// 表は schema/0004_kake_us.sql(DB_US にだけある)。中身は tools/make_d1_sql_kake.py の生成物。
+// この4本は内部(hs-mcp の service binding)からの呼び出しにだけ答える。公開の URL からは us_private を返す(値は返さない)。
+// 返答の約束は他の道具と同じ: 読めなかった(表が無い・入れ直しの途中)と 0 件を同じ値にしない。計算した値は computed:true。
+
+export const KAKE_NOTE = {
+  kake: "契約書の率は上限(業者はもっと安くしてよい)。掛け率 = 1 - 値引き率。定価(list)の基準は行ごとに違い(メーカーの最新の価格表、業者の目録、店頭価格)、基準の違う行どうしは比べない。/ Contract rates are ceilings (vendors may go lower). kake_ratio = 1 - discount. The list basis differs by row (manufacturer price list, vendor catalog, shelf price); do not compare rows with different bases.",
+  margin: "粗利率は業種の平均(Census の年次調査)。個々の会社や品目の仕入れ値ではない。kake_cost_ratio = 1 - 粗利率 は、売値のうち仕入れ原価が占める割合。/ Gross margins are industry averages from Census annual surveys, not any firm's or item's cost. kake_cost_ratio = 1 - gross margin is the share of cost of goods in sales.",
+  import: "陸揚げ原価 = CIF + 計算上の関税(Census IMDB)。関税は 232 条などの追加関税を含む。国内の運賃、通関の手数料、MPF と HMF は入っていない。単価 = 陸揚げ原価 / 数量。/ Landed cost = CIF + calculated duty (Census IMDB), including Section 232 and other additional duties; excludes inland freight, brokerage, MPF and HMF.",
+  chain: "各段の価格は、陸揚げ原価に業種の平均の粗利率と、州の交通局の元請の上乗せ率(Caltrans CTSS 9-1.04C の材料 15%)を掛けた推計(computed:true)。小売は直接輸入と卸経由の二つで幅を示す。見積の良し悪しを判定する値ではない。/ Stage prices are estimates (computed:true): landed cost times industry-average gross margins and a state DOT contractor materials markup (Caltrans 15%). Retail is a range (direct import vs via wholesale). Not a test of whether a quote is fair.",
+};
+const KAKE_BASES = ["MSRP Discount", "Over MSRP", "Catalog Off", "Discount off List Price", "Discount off shelf price", "Discount off shelf price (range)", "Cost Plus", "N/A", "See below"];
+
+function kakeNotLoaded(e) {
+  const msg = String((e && e.message) || e || "");
+  return {
+    error: "米国の掛け率・マージンの表(schema/0004_kake_us.sql と sql_us_kake/)が DB_US に入っていない、か入れ直しの途中。0件ではなく、読めていない。/ The U.S. kake and margin tables are not loaded (or are being reloaded); this is a failure to read, not an empty result.",
+    code: "kake_not_loaded", fetch_failed: true, source_read: false, country: "US", detail: msg.slice(0, 200) || undefined,
+  };
+}
+
+// DB_US を開き、kake_meta の built_kake(最後の文)を確かめる。
+async function kakePart(ctx) {
+  if (ctx.kake) return ctx.kake;
+  let k;
+  const p = await part(ctx, "US");
+  if (p.fail) k = { fail: p.fail };
+  else {
+    try {
+      const m = await p.db.prepare("SELECT v FROM kake_meta WHERE k='built_kake'").first();
+      k = m ? { db: p.db, built: JSON.parse(m.v) } : { fail: kakeNotLoaded() };
+    } catch (e) { k = { fail: /no such table/i.test(String(e && e.message)) ? kakeNotLoaded(e) : readFail(e, "US") }; }
+  }
+  ctx.kake = k;
+  return k;
+}
+
+function kakeMeta(built, extra) {
+  return {
+    private_layer: true, country: "US", computed_note: COMPUTED_NOTE,
+    data_version: { built_at: built.built_at, ym: built.ym, rows: built.rows, inputs_sha256: built.inputs_sha256 },
+    sources: built.sources,
+    how_to_cite: "出典(原本の URL)と、このサービスの計算(式と data_version.built_at)を分けて書くこと。例: 'U.S. Census Bureau, IMDB 2026-07; Census AIES 2024; computed by HORIZON SHIELD hs-jccdb-obs v0.4 (formula in row)'. / Cite the original source URLs and this service's computation (formula and data_version.built_at) separately.",
+    ...(extra || {}),
+  };
+}
+const likeWords = (q) => terms(q).map((t) => "%" + String(t).toLowerCase().replace(/[\\%_]/g, (m) => "\\" + m) + "%");
+const hsDigits = (q) => { const d = String(q || "").replace(/[.\s-]/g, ""); return /^\d{2,10}$/.test(d) ? d : null; };
+function numOr(v, d) { const x = Number(v); return Number.isFinite(x) ? x : d; }
+
+async function usKake(ctx, a) {
+  const k = await kakePart(ctx);
+  if (k.fail) return k.fail;
+  if (a.basis && !KAKE_BASES.includes(String(a.basis))) return argErr("basis が分からない: " + a.basis + " / basis must be one of " + KAKE_BASES.join(", "));
+  const lim = clamp(a.limit, 1, 100, 20), off = clamp(a.offset, 0, 1e6, 0);
+  const where = [], binds = [];
+  for (const w of likeWords(a.query)) { where.push("norm LIKE ? ESCAPE '\\'"); binds.push(w); }
+  if (!blank(a.source_id)) { where.push("source_id = ?"); binds.push(String(a.source_id)); }
+  if (!blank(a.vendor)) { where.push("lower(vendor) LIKE ? ESCAPE '\\'"); binds.push(likeWords(a.vendor)[0] || "%"); }
+  if (!blank(a.manufacturer)) { where.push("lower(manufacturer) LIKE ? ESCAPE '\\'"); binds.push(likeWords(a.manufacturer)[0] || "%"); }
+  if (!blank(a.basis)) { where.push("price_basis = ?"); binds.push(String(a.basis)); }
+  const W = where.length ? " WHERE " + where.join(" AND ") : "";
+  let n, rows, stats;
+  try {
+    n = (await k.db.prepare("SELECT COUNT(*) AS n FROM kake_obs" + W).bind(...binds).first()).n;
+    rows = (await k.db.prepare("SELECT * FROM kake_obs" + W + " ORDER BY source_id, vendor, (kake_ratio IS NULL), kake_ratio, rid LIMIT ? OFFSET ?").bind(...binds, lim, off).all()).results;
+    stats = (await k.db.prepare("SELECT source_id, vendor, price_basis, COUNT(*) AS n, MIN(kake_ratio) AS kmin, MAX(kake_ratio) AS kmax, MIN(price_to_list_ratio) AS pmin, MAX(price_to_list_ratio) AS pmax FROM kake_obs" + W + " GROUP BY source_id, vendor, price_basis ORDER BY source_id, vendor").bind(...binds).all()).results;
+  } catch (e) { return readFail(e, "US"); }
+  const shaped = rows.map((r) => ({
+    source_id: r.source_id, contract: r.contract, contract_term: r.contract_term, vendor: r.vendor, category: r.category, manufacturer: r.manufacturer,
+    product_line: r.product_line, subcategory: r.subcategory, detail: r.detail, uom: r.uom, price_basis: r.price_basis,
+    percentage: r.percentage, percentage_range: r.percentage_min != null ? [r.percentage_min, r.percentage_max] : undefined,
+    kake_ratio: r.kake_ratio, price_to_list_ratio: r.price_to_list_ratio, catalog_ratio: r.catalog_ratio,
+    computed: r.kake_ratio != null || r.price_to_list_ratio != null || r.catalog_ratio != null, observed_value: "percentage",
+    list_basis: r.list_basis, ceiling: r.ceiling === 1 ? true : r.ceiling === 0 ? false : null, zero_discount: r.zero_discount === 1,
+    method: r.method, period: r.period, where_in_source: r.page_or_row, evidence_url: r.evidence_url, evidence_sha256: r.evidence_sha256,
+    contract_url: r.contract_url || undefined, contract_sha256: r.contract_sha256 || undefined,
+  }));
+  return {
+    ...kakeMeta(k.built), layer: "kake", query: a.query || null, count: n, returned: shaped.length, offset: off, next_offset: off + shaped.length < n ? off + shaped.length : null,
+    summary_by_vendor: stats.map((s) => ({ source_id: s.source_id, vendor: s.vendor, price_basis: s.price_basis, rows: s.n,
+      kake_ratio_range: s.kmin != null ? [s.kmin, s.kmax] : null, price_to_list_ratio_range: s.pmin != null ? [s.pmin, s.pmax] : null })),
+    rows: shaped, basis: KAKE_NOTE.kake,
+  };
+}
+
+async function usMargin(ctx, a) {
+  const k = await kakePart(ctx);
+  if (k.fail) return k.fail;
+  const lim = clamp(a.limit, 1, 200, 30);
+  const trade = blank(a.trade) ? null : String(a.trade).toLowerCase();
+  if (trade && !["wholesale", "retail"].includes(trade)) return argErr("trade は wholesale か retail: " + a.trade);
+  const year = blank(a.year) ? null : parseInt(a.year, 10);
+  if (!blank(a.year) && !Number.isFinite(year)) return argErr("year は 4 桁の年: " + a.year);
+  const naics = blank(a.naics) ? null : String(a.naics).replace(/\D/g, "");
+  if (!blank(a.naics) && !naics) return argErr("naics は数字(例 4233、423320、4441): " + a.naics);
+  if (!naics && blank(a.query)) return argErr("naics か query が要る(例 naics=4233、query='plumbing')。/ give naics or query.");
+  const where = ["measure = 'gross_margin_pct_of_sales'"], binds = [];
+  if (naics) { where.push("naics LIKE ?"); binds.push(naics + "%"); }
+  for (const w of likeWords(a.query)) { where.push("norm LIKE ? ESCAPE '\\'"); binds.push(w); }
+  if (trade) { where.push("lower(trade) = ?"); binds.push(trade); }
+  if (year) { where.push("year = ?"); binds.push(year); }
+  let rows, bea = [];
+  try {
+    const all = bool(a.history) || year;
+    const sql = all
+      ? "SELECT * FROM margin_gm WHERE " + where.join(" AND ") + " ORDER BY naics, source_id, year DESC LIMIT ?"
+      : "SELECT m.* FROM margin_gm m JOIN (SELECT source_id AS s, naics AS n, typop AS t, MAX(year) AS y FROM margin_gm WHERE " + where.join(" AND ") + " AND value IS NOT NULL GROUP BY source_id, naics, typop) x ON m.source_id = x.s AND m.naics = x.n AND IFNULL(m.typop, '') = IFNULL(x.t, '') AND m.year = x.y AND m.measure = 'gross_margin_pct_of_sales' ORDER BY length(m.naics), m.naics, m.source_id LIMIT ?";
+    rows = (await k.db.prepare(sql).bind(...binds, lim).all()).results;
+    if (bool(a.include_bea) || !blank(a.commodity)) {
+      const bw = [], bb = [];
+      const cq = blank(a.commodity) ? a.query : a.commodity;
+      for (const w of likeWords(cq)) { bw.push("norm LIKE ? ESCAPE '\\'"); bb.push(w); }
+      if (naics && naics.length >= 3 && blank(a.commodity)) { bw.length = 0; bb.length = 0; }
+      if (bw.length) bea = (await k.db.prepare("SELECT * FROM margin_bea WHERE " + bw.join(" AND ") + " ORDER BY buyer_group, purchasers_value_musd DESC LIMIT 20").bind(...bb).all()).results;
+    }
+  } catch (e) { return readFail(e, "US"); }
+  return {
+    ...kakeMeta(k.built), layer: "margin", count: rows.length, returned: rows.length,
+    rows: rows.map((r) => ({ source_id: r.source_id, trade: r.trade, naics: r.naics, label: r.label, type_of_operation: r.typop, geo: r.geo, year: r.year, revised: r.revised,
+      gross_margin_pct: r.value, flag: r.flag, kake_cost_ratio: r.kake_cost_ratio, computed: r.computed === 1, method: r.method, cell: r.cell,
+      evidence_url: r.evidence_url, evidence_sha256: r.evidence_sha256 })),
+    bea_2007: bea.length ? bea.map((r) => ({ buyer_group: r.buyer_group, commodity_code: r.commodity_code, commodity: r.commodity,
+      producers_value_musd: r.producers_value_musd, transport_musd: r.transport_musd, wholesale_musd: r.wholesale_musd, retail_musd: r.retail_musd, purchasers_value_musd: r.purchasers_value_musd,
+      producer_to_purchaser: r.producer_to_purchaser, wholesale_share: r.wholesale_share, retail_share: r.retail_share, transport_share: r.transport_share, computed: true,
+      caveat: r.caveat, evidence_url: r.evidence_url, evidence_sha256: r.evidence_sha256 })) : undefined,
+    basis: KAKE_NOTE.margin,
+    reading: "既定は出典・NAICS・事業形態ごとの最新の年。history:true で年ごと。AWTS/ARTS は原本の % の値そのまま(computed:false)、AIES 2024 は粗利額 / 売上で計算(computed:true)。/ Latest year per source and NAICS by default; history:true for all years.",
+  };
+}
+
+async function usImportCost(ctx, a) {
+  const k = await kakePart(ctx);
+  if (k.fail) return k.fail;
+  const lim = clamp(a.limit, 1, 50, 10);
+  const hs = hsDigits(a.hs) || hsDigits(a.query);
+  if (!blank(a.hs) && !hsDigits(a.hs)) return argErr("hs は 2〜10 桁の数字(例 2523, 7214200000): " + a.hs);
+  if (!hs && blank(a.query)) return argErr("hs か query(英語の品名。例 portland cement)が要る。/ give hs or query.");
+  const where = [], binds = [];
+  if (hs) { where.push("hs10 LIKE ?"); binds.push(hs + "%"); }
+  else for (const w of likeWords(a.query)) { where.push("norm LIKE ? ESCAPE '\\'"); binds.push(w); }
+  let n, rows, ctyRows = [];
+  try {
+    n = (await k.db.prepare("SELECT COUNT(*) AS n FROM import_hs10 WHERE " + where.join(" AND ")).bind(...binds).first()).n;
+    rows = (await k.db.prepare("SELECT * FROM import_hs10 WHERE " + where.join(" AND ") + " ORDER BY yr_landed_duty_paid DESC LIMIT ?").bind(...binds, lim).all()).results;
+    if (rows.length) {
+      const ph = rows.map(() => "?").join(",");
+      const cw = ["hs10 IN (" + ph + ")"], cb = rows.map((r) => r.hs10);
+      if (!blank(a.country)) { cw.push("(cty_code = ? OR lower(cty_name) LIKE ?)"); cb.push(String(a.country), "%" + String(a.country).toLowerCase() + "%"); }
+      const all = (await k.db.prepare("SELECT * FROM import_hs10_cty WHERE " + cw.join(" AND ") + " ORDER BY hs10, con_val_yr DESC").bind(...cb).all()).results;
+      const per = {};
+      const top = blank(a.country) ? clamp(a.top_countries, 1, 20, 5) : 1000;
+      for (const r of all) { (per[r.hs10] = per[r.hs10] || []); if (per[r.hs10].length < top) per[r.hs10].push(r); }
+      ctyRows = per;
+    }
+  } catch (e) { return readFail(e, "US"); }
+  return {
+    ...kakeMeta(k.built), layer: "import_price", hs: hs || null, query: a.query || null, count: n, returned: rows.length,
+    rows: rows.map((r) => ({ hs10: r.hs10, description: r.descr, unit: r.unit1, naics: r.naics, end_use: r.end_use, period_month: r.ym,
+      month: { quantity: r.con_qy1_mo, customs_value_usd: r.con_val_mo, dutiable_value_usd: r.dut_val_mo, calculated_duty_usd: r.cal_dut_mo, charges_usd: r.con_cha_mo, cif_usd: r.con_cif_mo,
+        landed_duty_paid_usd: r.mo_landed_duty_paid, unit_landed_usd: r.mo_unit_landed, duty_rate_eff: r.mo_duty_rate_eff },
+      year_to_date: { quantity: r.con_qy1_yr, customs_value_usd: r.con_val_yr, dutiable_value_usd: r.dut_val_yr, calculated_duty_usd: r.cal_dut_yr, charges_usd: r.con_cha_yr, cif_usd: r.con_cif_yr,
+        landed_duty_paid_usd: r.yr_landed_duty_paid, unit_landed_usd: r.yr_unit_landed, duty_rate_eff: r.yr_duty_rate_eff },
+      computed_fields: ["landed_duty_paid_usd", "unit_landed_usd", "duty_rate_eff"],
+      by_country: (ctyRows[r.hs10] || []).map((c) => ({ cty_code: c.cty_code, country: c.cty_name, ytd_quantity: c.con_qy1_yr, ytd_customs_value_usd: c.con_val_yr,
+        ytd_calculated_duty_usd: c.cal_dut_yr, ytd_cif_usd: c.con_cif_yr, ytd_landed_duty_paid_usd: c.yr_landed_duty_paid, ytd_unit_landed_usd: c.yr_unit_landed, ytd_duty_rate_eff: c.yr_duty_rate_eff })),
+      evidence_url: r.evidence_url, evidence_sha256: r.evidence_sha256 })),
+    basis: KAKE_NOTE.import,
+  };
+}
+
+async function usPriceChain(ctx, a) {
+  const k = await kakePart(ctx);
+  if (k.fail) return k.fail;
+  const lim = clamp(a.limit, 1, 50, 10);
+  const hs = hsDigits(a.hs) || hsDigits(a.query);
+  if (!blank(a.hs) && !hsDigits(a.hs)) return argErr("hs は 2〜10 桁の数字: " + a.hs);
+  if (!hs && blank(a.query)) return argErr("hs か query(英語の品名。例 plywood)が要る。/ give hs or query.");
+  const where = [], binds = [];
+  if (hs) { where.push("hs10 LIKE ?"); binds.push(hs + "%"); }
+  else for (const w of likeWords(a.query)) { where.push("norm LIKE ? ESCAPE '\\'"); binds.push(w); }
+  if (!bool(a.include_thin)) where.push("thin_trade = 0");
+  let n, rows, mk;
+  try {
+    n = (await k.db.prepare("SELECT COUNT(*) AS n FROM trade_chain WHERE " + where.join(" AND ")).bind(...binds).first()).n;
+    rows = (await k.db.prepare("SELECT * FROM trade_chain WHERE " + where.join(" AND ") + " ORDER BY landed_duty_paid_ytd_usd DESC LIMIT ?").bind(...binds, lim).all()).results;
+    mk = (await k.db.prepare("SELECT agency, spec, section, component, markup, base, verified, verified_how, source_url, note FROM markup_dot ORDER BY verified DESC, agency, component").all()).results;
+  } catch (e) { return readFail(e, "US"); }
+  const stage = (u, m) => (m == null ? null : { unit_usd: u, multiplier_on_landed: m, kake_landed_share: m ? Math.round((1 / m) * 1e6) / 1e6 : null });
+  return {
+    ...kakeMeta(k.built), layer: "chain", hs: hs || null, query: a.query || null, count: n, returned: rows.length,
+    rows: rows.map((r) => ({
+      hs10: r.hs10, description: r.descr, unit: r.unit1, period: r.period, naics_product: r.naics_product,
+      landed: { quantity_ytd: r.qty_ytd, landed_duty_paid_ytd_usd: r.landed_duty_paid_ytd_usd, cif_ytd_usd: r.cif_ytd_usd, calculated_duty_ytd_usd: r.cal_duty_ytd_usd,
+        duty_rate_eff: r.duty_rate_eff_ytd, unit_landed_usd: r.unit_landed_ytd },
+      wholesale: { naics: r.wholesale_naics, naics_used_for_margin: r.gm_wholesale_naics_used, gross_margin: r.gm_wholesale, gross_margin_awts2022_4digit: r.gm_wholesale_awts2022_4digit,
+        ...stage(r.unit_wholesale, r.mult_wholesale), map_confidence: r.map_confidence, map_reason: r.map_reason },
+      retail: r.mult_retail_direct == null ? null : { naics: "444110", gross_margin: r.gm_retail_444110,
+        direct_import: stage(r.unit_retail_direct, r.mult_retail_direct), via_wholesale: stage(r.unit_retail_via_wholesale, r.mult_retail_via_wholesale),
+        alt_store: r.gm_retail_alt != null ? { naics: r.gm_retail_alt_naics, gross_margin: r.gm_retail_alt, multiplier_on_landed_via_wholesale: r.mult_retail_alt_via_wholesale } : undefined },
+      contractor: { markup_materials: r.contractor_markup_materials, rule: "Caltrans CTSS 9-1.04C: (purchase price + delivery) x 115%; delivery not included here", ...stage(r.unit_contractor, r.mult_contractor) },
+      cross_check_bea2007: r.bea2007_construction_producer_to_purchaser != null ? { commodity: r.bea2007_commodity, match: r.bea2007_match, construction_producer_to_purchaser: r.bea2007_construction_producer_to_purchaser,
+        reading: "2007 年の建設業の購入で、購入者価格のうち生産者価格が占める割合。照合用で、計算には使っていない。" } : null,
+      flags: { thin_trade: r.thin_trade === 1, unit_outlier_vs_hs6: r.unit_outlier_vs_hs6 === 1 },
+      computed: true, formula: r.formula, caveat: r.caveat,
+      sources: { import: r.src_import, import_sha256: r.src_import_sha256, gm_wholesale: r.src_gm_wholesale, gm_wholesale_sha256: r.src_gm_wholesale_sha256,
+        gm_retail: r.src_gm_retail || undefined, markup: r.src_markup, trade_map_sha256: r.src_trade_map_sha256 },
+    })),
+    markups: mk.map((m) => ({ ...m, verified: m.verified === 1 })),
+    basis: KAKE_NOTE.chain,
+    reading: "thin_trade(陸揚げ原価 1 万ドル未満か数量 10 未満)の品目は既定で外す(include_thin:true で入れる)。map_confidence が low の品目は、卸の業種の当て方に自信が無い。/ Thin-trade items are excluded by default; low map_confidence means the wholesale mapping is uncertain.",
+  };
+}
+
 // ---------------------------------------------------------------- 何がどこまであるか
 
 const SOURCES_PER_LAYER = 60;
@@ -1570,7 +1819,7 @@ async function coverage(ctx, a) {
   if (country === undefined) return argErr("country は JP か US: " + a.country);
   let g = null;
   if (a.geo) { g = normGeo(a.geo, country); if (g && g.error) return argErr(g.error, { code: g.code, candidates: g.candidates }); }
-  const targets = targetsOf(country, g);
+  const targets = targetsOf(country, g, ctx);
   if (a.layer && !(await layerOk(ctx, a.layer, targets))) return argErr("layer が分からない: " + a.layer + " / layer must be one of " + LAYERS.join(", "));
   const R = await across(ctx, targets, async (p) => {
     const where = ["country = ?"], binds = [p.country];
@@ -1633,6 +1882,16 @@ async function coverage(ctx, a) {
     reading: "組み立て時(built_v2 の国ごとの built_at)の集計。rows は行の数、priced は値のある行の数、computed はそのうち原本に無く組み立てで計算した値の行の数。sources は行の多い順に layer ごと 60 まで(source_families に出典の系統ごとの合計、source_id で絞ると全部)。absent は 0 行の組み合わせで、『この DB に無い』であって『世界に無い』ではない。/ Counts as of build time; sources are capped at 60 per layer (see source_families); absent means not ingested here.",
     status_legend: STATUS_LEGEND,
   };
+  if (targets.includes("US") && R.ok.includes("US")) {
+    const kp = await kakePart(ctx);
+    out.us_private_layer = kp.fail ? { loaded: false, code: kp.fail.code } : { loaded: true, built_at: kp.built.built_at, ym: kp.built.ym, rows: kp.built.rows,
+      values_served_via: HS_MCP, reading: "掛け率・粗利率・輸入原価・各段の価格の非公開の層。件数だけをここに出し、値は hs-mcp の道具で返す。/ Private layer (contract discounts, margins, landed import cost, stage prices): counts here, values via hs-mcp." };
+  }
+  if (!bool(a.detail) && !a.source_id) {
+    for (const m of out.matrix) { m.source_families = m.source_families.slice(0, 5); delete m.sources; }
+    out.summary_only = true;
+    out.summary_reading = "要約(layer ごとの件数と、出典の系統の上位 5)。出典ごとの行は detail:true か source_id で。/ Summary view (counts per layer and top 5 source families); use detail:true or source_id for per-source rows.";
+  }
   return withParts(out, R.ok, R.fails);
 }
 
@@ -1720,7 +1979,8 @@ export const TOOLS = [
     name: "jccdb_coverage",
     annotations: { title: "何がどこまであるか", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     description: "観測層に何がどこまであるかを返す: 国 x layer x 出典の件数、値のある件数、状態別、出典の時点、出典の系統ごとの合計。0 行の組み合わせは absent に『無い』と明記する。/ What the observation layer holds: rows per country x layer x source (and source family), priced rows, status counts and source periods; empty combinations are listed as absent.",
-    inputSchema: { type: "object", properties: { country: { type: "string", enum: ["JP", "US"] }, layer: { type: "string", enum: LAYERS }, source_id: { type: "string" }, geo: { type: "string" } }, additionalProperties: false },
+    inputSchema: { type: "object", properties: { country: { type: "string", enum: ["JP", "US"] }, layer: { type: "string", enum: LAYERS }, source_id: { type: "string" }, geo: { type: "string" },
+      detail: { type: "boolean", description: "true で出典ごとの行も返す(既定は要約: layer ごとの件数と出典の系統の上位 5)" } }, additionalProperties: false },
   },
   {
     name: "jccdb_us_prevailing_wage",
@@ -1752,6 +2012,44 @@ export const TOOLS = [
       include_history: { type: "boolean", description: "USACE の州係数の年ごとの値も返す(既定 true)" }, limit: { type: "integer", minimum: 1, maximum: 100 }, offset: { type: "integer", minimum: 0 },
     }, additionalProperties: false },
   },
+  {
+    name: "jccdb_us_kake",
+    annotations: { title: "米国の契約の値引き率と掛け率(内部)", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "州と共同購買の契約書が公開している値引き率を引く(ワシントン州 DES 23623 配管・11121 電気、NASPO ValuePoint 資材)。掛け率 = 1 - 値引き率(computed)。定価への上乗せ(Over MSRP)と業者の目録からの値引き(Catalog Off)は別の列。率は上限で、定価の基準は行ごとに違う。/ Published contract discount rates (Washington DES plumbing and electrical, NASPO ValuePoint MRO) with kake_ratio = 1 - discount (computed). Over-MSRP and catalog-off rows are separate columns. Rates are ceilings; list bases differ by row.",
+    inputSchema: { type: "object", properties: {
+      query: { type: "string", description: "メーカー・製品系列・分野・業者の語(英語。例: eaton breakers, plumbing, nibco)" }, vendor: { type: "string" }, manufacturer: { type: "string" },
+      source_id: { type: "string", enum: ["wa-des-23623", "wa-des-11121", "naspo-mro-ak"] }, basis: { type: "string", enum: KAKE_BASES },
+      limit: { type: "integer", minimum: 1, maximum: 100 }, offset: { type: "integer", minimum: 0 },
+    }, additionalProperties: false },
+  },
+  {
+    name: "jccdb_us_margin",
+    annotations: { title: "米国の卸・小売の粗利率(内部)", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "卸と小売の粗利率を NAICS で引く(Census AWTS 1992〜2022、ARTS 1993〜2022、AIES 2024)。kake_cost_ratio = 1 - 粗利率。include_bea:true か commodity で BEA 2007 の建設業と家計の購入の流通構造(生産者価格・運賃・卸・小売・購入者価格)も。業種の平均で、個々の会社の仕入れ値ではない。/ Wholesale and retail gross margins by NAICS (Census AWTS, ARTS, AIES 2024) with kake_cost_ratio; optionally BEA 2007 margin structure for construction and household purchases. Industry averages.",
+    inputSchema: { type: "object", properties: {
+      naics: { type: "string", description: "NAICS の頭(例 4233 建材卸、423720 配管・暖房卸、4441 建材小売、444110 ホームセンター)" }, query: { type: "string", description: "業種の語(英語。例 plumbing, paint)" },
+      trade: { type: "string", enum: ["wholesale", "retail"] }, year: { type: "string" }, history: { type: "boolean" },
+      include_bea: { type: "boolean" }, commodity: { type: "string", description: "BEA の品目の語(英語。例 cement, lighting)" }, limit: { type: "integer", minimum: 1, maximum: 200 },
+    }, additionalProperties: false },
+  },
+  {
+    name: "jccdb_us_import_cost",
+    annotations: { title: "米国の輸入の陸揚げ原価(内部)", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "建材と化学品の輸入の陸揚げ原価(CIF + 計算上の関税)を HS 10 桁で引く(Census IMDB、月と年初来)。単価と実効の関税率は computed。相手国の上位(top_countries)か country で国別。関税は 232 条などの追加関税を含む。/ Landed import cost (CIF + calculated duty) for construction materials and chemicals by HS 10-digit code (Census IMDB), month and year to date, with unit cost and effective duty rate (computed) and top partner countries.",
+    inputSchema: { type: "object", properties: {
+      hs: { type: "string", description: "HS の頭 2〜10 桁(例 2523 セメント、7214 棒鋼、4412 合板)" }, query: { type: "string", description: "英語の品名(例 portland cement, plywood)" },
+      country: { type: "string", description: "相手国(Census の国コード 4 桁か英語の国名)" }, top_countries: { type: "integer", minimum: 1, maximum: 20 }, limit: { type: "integer", minimum: 1, maximum: 50 },
+    }, additionalProperties: false },
+  },
+  {
+    name: "jccdb_us_price_chain",
+    annotations: { title: "米国の陸揚げ原価から各段の価格(内部)", readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    description: "輸入の陸揚げ原価から、卸・小売(直接輸入と卸経由の幅)・元請の各段の価格と掛け率を計算して返す(computed:true、式と出典と sha256 つき)。粗利率は業種の平均(AIES 2024)、元請の上乗せは Caltrans CTSS 9-1.04C の材料 15%。見積の良し悪しを判定する値ではない。/ Stage prices from landed import cost: wholesale, retail (range) and contractor, with formulas, sources and hashes (computed:true). Industry-average margins; not a test of whether a quote is fair.",
+    inputSchema: { type: "object", properties: {
+      hs: { type: "string", description: "HS の頭 2〜10 桁" }, query: { type: "string", description: "英語の品名(例 plywood, pvc pipe, ceramic tiles)" },
+      include_thin: { type: "boolean", description: "取引の薄い品目(陸揚げ原価 1 万ドル未満か数量 10 未満)も入れる" }, limit: { type: "integer", minimum: 1, maximum: 50 },
+    }, additionalProperties: false },
+  },
 ];
 
 const HANDLERS = {
@@ -1767,18 +2065,26 @@ const HANDLERS = {
   jccdb_us_prevailing_wage: usPrevailingWage,
   jccdb_us_permits: usPermits,
   jccdb_us_area_factor: usAreaFactor,
+  jccdb_us_kake: usKake,
+  jccdb_us_margin: usMargin,
+  jccdb_us_import_cost: usImportCost,
+  jccdb_us_price_chain: usPriceChain,
 };
 
-export async function callTool(env, name, args) {
+export async function callTool(env, name, args, opts) {
   const fn = own(HANDLERS, name) ? HANDLERS[name] : null;
   if (!fn) return { error: "unknown tool: " + name, code: "unknown_tool" };
+  const internal = !!(opts && opts.internal);
+  if (!internal && US_ONLY_TOOLS.has(name)) return usPrivate();
   if (!env || (!env.DB && !env.DB_US)) return readFail(new Error("D1 bindings DB and DB_US are not configured"));
-  const ctx = { env, parts: {} };
+  const ctx = { env, parts: {}, restrictUS: !internal && !PUBLIC_US_OK.has(name) };
   let out;
   try { out = await fn(ctx, args || {}); } catch (e) { return readFail(e); }
   if (!out.error) {
     out.source_read = true;
     if (typeof out.count === "number") out.lookup = out.count > 0 ? "ok" : out.partial ? "unknown" : "absent";
+    if (ctx.usOmitted && out.lookup === "absent") out.lookup = "unknown"; // 米国は引いていないので「無い」とは言わない
+    if (ctx.usOmitted) out.us_private_note = "国の指定が無いので日本だけを引いた。米国の値はこの公開の口では返さず、" + HS_MCP.url + " の道具で引ける。/ No country given, so only Japan was searched; U.S. values are served via " + HS_MCP.url + ".";
   }
   return out;
 }
@@ -1788,16 +2094,16 @@ export async function callTool(env, name, args) {
 function json(body, status, h) {
   return new Response(JSON.stringify(body, null, 1), { status: status || 200, headers: { "content-type": "application/json; charset=utf-8", "access-control-allow-origin": "*", ...(h || {}) } });
 }
-function restStatus(out) { return out && out.fetch_failed ? 503 : 200; }
+function restStatus(out) { return out && out.restricted ? 403 : out && out.fetch_failed ? 503 : 200; }
 
-async function handleRpc(env, msg) {
+async function handleRpc(env, msg, internal) {
   const { id, method, params } = msg || {};
   if (method === "initialize") return { jsonrpc: "2.0", id, result: { protocolVersion: PROTOCOL_VERSION, serverInfo: SERVER, capabilities: { tools: {} } } };
   if (method === "notifications/initialized") return null;
   if (method === "ping") return { jsonrpc: "2.0", id, result: {} };
-  if (method === "tools/list") return { jsonrpc: "2.0", id, result: { tools: TOOLS } };
+  if (method === "tools/list") return { jsonrpc: "2.0", id, result: { tools: internal ? TOOLS : TOOLS.filter((t) => !US_ONLY_TOOLS.has(t.name)) } };
   if (method === "tools/call") {
-    const out = await callTool(env, params && params.name, (params && params.arguments) || {});
+    const out = await callTool(env, params && params.name, (params && params.arguments) || {}, { internal });
     return { jsonrpc: "2.0", id, result: { content: [{ type: "text", text: JSON.stringify(out) }], structuredContent: out, isError: !!out.error } };
   }
   return { jsonrpc: "2.0", id, error: { code: -32601, message: "method not found" } };
@@ -1830,6 +2136,10 @@ async function health(env, deep) {
   out.obs2_complete = jp.complete && us.complete;
   out.parts = { JP: jp, US: us };
   out.built_v2 = { JP: jp.built || null, US: us.built || null };
+  if (dbu) {
+    const kp = await kakePart({ env, parts: {}, restrictUS: false });
+    out.us_private_layer = kp.fail ? { loaded: false, code: kp.fail.code } : { loaded: true, built_at: kp.built.built_at, ym: kp.built.ym, rows: kp.built.rows };
+  }
   if (!jp.complete || !us.complete) out.obs2_error = [jp, us].filter((x) => x.error).map((x) => x.error).join(" / ") || null;
   out.ok = out.items > 0 && out.obs2_complete === true;
   return out;
@@ -1840,10 +2150,11 @@ export default {
     const url = new URL(request.url);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-allow-headers": "content-type, mcp-protocol-version" } });
     const p = url.pathname;
+    const internal = isInternal(url);
     try {
       if (request.method === "GET") {
         const a = Object.fromEntries(url.searchParams);
-        const rest = async (name, args) => { const out = await callTool(env, name, args); return json(out, restStatus(out)); };
+        const rest = async (name, args) => { const out = await callTool(env, name, args, { internal }); return json(out, restStatus(out)); };
         if (p === "/health") return json(await health(env, bool(a.deep)));
         if (p === "/search") return rest("jccdb_search_items", { query: a.q, category: a.category, limit: a.limit });
         if (p === "/obs") return rest("jccdb_observations", { query: a.q, pref: a.pref, geo: a.geo, country: a.country, layer: a.layer, status: a.status, period: a.period, source_id: a.source_id, limit: a.limit, offset: a.offset });
@@ -1856,19 +2167,25 @@ export default {
         if (p === "/us/wage") return rest("jccdb_us_prevailing_wage", { state: a.state, county: a.county, trade: a.trade || a.q, decision: a.decision, construction_type: a.construction_type, limit: a.limit, offset: a.offset });
         if (p === "/us/permits") return rest("jccdb_us_permits", { geo: a.geo, year: a.year, structure: a.structure, source: a.source, limit: a.limit, offset: a.offset });
         if (p === "/us/area-factor") return rest("jccdb_us_area_factor", { geo: a.geo, installation: a.installation || a.q, include_history: a.include_history, limit: a.limit, offset: a.offset });
-        if (p === "/coverage") return rest("jccdb_coverage", { country: a.country, layer: a.layer, source_id: a.source_id, geo: a.geo });
-        if (p === "/" || p === "/mcp") return json({ ...SERVER, protocolVersion: PROTOCOL_VERSION, tools: TOOLS.map((t) => t.name),
+        if (p === "/us/kake") return rest("jccdb_us_kake", { query: a.q, vendor: a.vendor, manufacturer: a.manufacturer, source_id: a.source_id, basis: a.basis, limit: a.limit, offset: a.offset });
+        if (p === "/us/margin") return rest("jccdb_us_margin", { naics: a.naics, query: a.q, trade: a.trade, year: a.year, history: a.history, include_bea: a.include_bea, commodity: a.commodity, limit: a.limit });
+        if (p === "/us/import") return rest("jccdb_us_import_cost", { hs: a.hs, query: a.q, country: a.country, top_countries: a.top_countries, limit: a.limit });
+        if (p === "/us/chain") return rest("jccdb_us_price_chain", { hs: a.hs, query: a.q, include_thin: a.include_thin, limit: a.limit });
+        if (p === "/coverage") return rest("jccdb_coverage", { country: a.country, layer: a.layer, source_id: a.source_id, geo: a.geo, detail: a.detail });
+        if (p === "/" || p === "/mcp") return json({ ...SERVER, protocolVersion: PROTOCOL_VERSION, tools: (internal ? TOOLS : TOOLS.filter((t) => !US_ONLY_TOOLS.has(t.name))).map((t) => t.name),
           rest: ["/search?q=", "/obs?q=&pref=&geo=&country=&layer=&period=&source_id=&offset=", "/labor?pref=&job=&history=1", "/sources?country=&source_id=&q=", "/compare?q=&spec=", "/work?q=&pref=", "/index?q=&from=&to=",
-            "/us?q=&state=&geo=&layer=&period=", "/us/wage?state=&county=&trade=&decision=", "/us/permits?geo=&year=&structure=", "/us/area-factor?geo=&installation=", "/coverage?country=&layer=", "/health?deep=1"] });
+            "/coverage?country=&layer=&detail=1", "/health?deep=1"].concat(internal ? ["/us?q=&state=&geo=&layer=&period=", "/us/wage?state=&county=&trade=&decision=", "/us/permits?geo=&year=&structure=", "/us/area-factor?geo=&installation=",
+            "/us/kake?q=&vendor=&source_id=", "/us/margin?naics=&q=&trade=&year=", "/us/import?hs=&q=&country=", "/us/chain?hs=&q="] : []),
+          us_values: internal ? "internal" : usPrivate().error });
         return json({ error: "not found" }, 404);
       }
       if (request.method === "POST" && (p === "/mcp" || p === "/")) {
         const body = await request.json();
         if (Array.isArray(body)) {
-          const out = (await Promise.all(body.map((m) => handleRpc(env, m)))).filter(Boolean);
+          const out = (await Promise.all(body.map((m) => handleRpc(env, m, internal)))).filter(Boolean);
           return json(out);
         }
-        const r = await handleRpc(env, body);
+        const r = await handleRpc(env, body, internal);
         return r ? json(r) : new Response(null, { status: 202 });
       }
       return json({ error: "method not allowed" }, 405);

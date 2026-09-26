@@ -1,3 +1,5 @@
+// hs-jccdb-obs v0.4 の検査(v0.3 の検査に、公開と内部の分け方と非公開の層の検査を足した)。
+// v0.4: 米国の値は内部(URL の host が jccdb-obs.internal = hs-mcp の service binding)だけで返すので、v0.3 までの検査は内部の host で叩く。
 // hs-jccdb-obs v0.3 の検査。D1 の代わりに node:sqlite に同じ SQL を流し、worker の関数をそのまま叩く。
 //
 // DB の中身(D1 を2つに分けたので、試験の DB も2つ):
@@ -16,7 +18,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { spawnSync } from "node:child_process";
 import worker, { normPref, norm, TOOLS, normGeo, normPeriod, periodStart, BASIS_NOTE, US_BASIS, STATUS_LEGEND, LAYERS, US_PRICE_LAYERS, namaconKey,
-  countyBase, ftsTokens, ftsQuery, dbraCounties } from "../src/worker.js";
+  countyBase, ftsTokens, ftsQuery, dbraCounties, US_ONLY_TOOLS, INTERNAL_HOST } from "../src/worker.js";
 
 const here = path.dirname(new URL(import.meta.url).pathname);
 const root = path.join(here, "..");
@@ -24,7 +26,7 @@ const OBS2 = [process.env.OBS2, path.join(root, "../../data/jccdb-obs-v2"), "/ho
   .filter(Boolean).find((p) => fs.existsSync(path.join(p, "tools/validate_obs.py")));
 if (!OBS2) { console.log("観測層 v2 の検査器(tools/validate_obs.py)が見つからない。OBS2=<観測層 v2 のルート> で渡すこと。"); process.exit(2); }
 const VALIDATOR = path.join(OBS2, "tools/validate_obs.py");
-const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "hs-jccdb-obs-v03-"));
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "hs-jccdb-obs-v04-"));
 process.on("exit", () => fs.rmSync(tmp, { recursive: true, force: true }));
 const T0 = Date.now();
 
@@ -67,9 +69,10 @@ const env = { DB: mkD1(db), DB_US: mkD1(dbu) };
 const JP_ROWS = db.prepare("SELECT COUNT(*) AS n FROM obs2").get().n, US_ROWS = dbu.prepare("SELECT COUNT(*) AS n FROM obs2").get().n;
 const FX_ROWS = JP_ROWS + US_ROWS;
 
-const get = async (p, e) => (await worker.fetch(new Request("https://x" + p), e || env)).json();
-const getRes = async (p, e) => worker.fetch(new Request("https://x" + p), e || env);
-const rpc = async (b, e) => (await worker.fetch(new Request("https://x/mcp", { method: "POST", body: JSON.stringify(b), headers: { "content-type": "application/json" } }), e || env)).json();
+const BASE = "https://" + INTERNAL_HOST;
+const get = async (p, e) => (await worker.fetch(new Request(BASE + p), e || env)).json();
+const getRes = async (p, e) => worker.fetch(new Request(BASE + p), e || env);
+const rpc = async (b, e) => (await worker.fetch(new Request(BASE + "/mcp", { method: "POST", body: JSON.stringify(b), headers: { "content-type": "application/json" } }), e || env)).json();
 const call = async (name, args, e) => (await rpc({ jsonrpc: "2.0", id: 9, method: "tools/call", params: { name, arguments: args } }, e)).result;
 const q = encodeURIComponent;
 
@@ -120,7 +123,8 @@ const tl = await rpc({ jsonrpc: "2.0", id: 1, method: "tools/list" });
 // v0.1 は tools.length === 4、v0.2 は 9 だった。v0.3 は米国の3本(prevailing_wage / permits / area_factor)を足すので 12(要求どおり)。
 // 代わりに「v0.1 の4本が同じ名前で残っている」ことを確かめる形は v0.2 のまま。25 本のうち変えたのはこの1本だけ。
 const V01 = ["jccdb_search_items", "jccdb_observations", "jccdb_labor_rate", "jccdb_sources"];
-ok(tl.result.tools.length === 12 && V01.every((n) => tl.result.tools.some((t) => t.name === n)) && TOOLS.every((t) => t.annotations.readOnlyHint), "tools/list");
+// v0.4 は非公開の層の4本を足して 16(内部の一覧。公開の一覧は米国だけの道具を外して 8)。
+ok(tl.result.tools.length === 16 && V01.every((n) => tl.result.tools.some((t) => t.name === n)) && TOOLS.every((t) => t.annotations.readOnlyHint), "tools/list");
 const tc = await rpc({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { name: "jccdb_observations", arguments: { query: "生コンクリート", pref: "奈良県", limit: 5 } } });
 ok(tc.result && tc.result.structuredContent.matched > 0 && !tc.result.isError, "tools/call observations");
 const src = await rpc({ jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "jccdb_sources", arguments: {} } });
@@ -491,7 +495,7 @@ const V01_PASS = pass - P0, V01_FAIL = fail - F0;
 // jccdb_coverage
 // ======================================================================
 {
-  const c = await get("/coverage");
+  const c = await get("/coverage?detail=1");
   const has = (cc, ll) => c.matrix.some((m) => m.country === cc && m.layer === ll);
   const pricedN = db.prepare("SELECT COUNT(*) AS n FROM obs2 WHERE price IS NOT NULL").get().n + dbu.prepare("SELECT COUNT(*) AS n FROM obs2 WHERE price IS NOT NULL").get().n;
   ok(c.total_rows === FX_ROWS && c.priced_rows === pricedN, "coverage: totals match the DBs");
@@ -506,7 +510,7 @@ const V01_PASS = pass - P0, V01_FAIL = fail - F0;
   ok(kkr.period_min === "2026-09" && kkr.period_max === "2026-09" && kkr.retrieved_at === "2026-09-26" && kkr.license === "PDL1.0" && kkr.priced === 846 && kkr.values_copied === true, "coverage: source period, retrieval date, licence");
   const um = await get("/coverage?country=US&layer=material");
   ok(um.count === 0 && um.lookup === "absent" && um.matrix.length === 0 && um.absent.length === 1, "coverage: US material is 0 and absent");
-  const n = await get("/coverage?geo=" + q("奈良"));
+  const n = await get("/coverage?detail=1&geo=" + q("奈良"));
   ok(n.matrix.some((m) => m.layer === "material") && n.matrix.some((m) => m.layer === "labor") && n.absent.some((a) => a.layer === "index"), "coverage: geo=奈良 shows material/labor, index absent there");
   const nm = n.matrix.find((m) => m.country === "JP" && m.layer === "material");
   const ns = nm && nm.sources.find((x) => x.source_id === "test-fixture-jp-restricted-listing");
@@ -661,6 +665,130 @@ const V01_PASS = pass - P0, V01_FAIL = fail - F0;
 }
 
 // ======================================================================
+// v0.4: 米国の値は内部(hs-mcp の service binding、host = jccdb-obs.internal)からの呼び出しにだけ返す
+// ======================================================================
+const PUB = "https://hs-jccdb-obs.oga-surf-project.workers.dev";
+const getPubRes = async (p, e) => worker.fetch(new Request(PUB + p), e || env);
+const getPub = async (p, e) => (await getPubRes(p, e)).json();
+const rpcPub = async (b, e) => (await worker.fetch(new Request(PUB + "/mcp", { method: "POST", body: JSON.stringify(b), headers: { "content-type": "application/json" } }), e || env)).json();
+{
+  for (const p of ["/us?limit=2", "/us/wage?state=OR&trade=carpenter", "/us/permits?geo=OR", "/us/area-factor?geo=NC", "/us/kake?q=eaton", "/us/margin?naics=4233", "/us/import?hs=2523", "/us/chain?hs=2523"]) {
+    const r = await getPubRes(p);
+    const j = await r.json();
+    ok(r.status === 403 && j.code === "us_private" && j.restricted === true && j.fetch_failed === false && !j.rows && !j.rates && !j.bps && /mcp\.horizonshield\.dev/.test(j.error), "v0.4 public " + p + " -> 403 us_private, no values");
+  }
+  const po = await getPubRes("/obs?country=US&q=carpenter");
+  const poj = await po.json();
+  ok(po.status === 403 && poj.code === "us_private" && !poj.rows, "v0.4 public /obs?country=US -> 403 us_private");
+  const pg = await getPub("/obs?geo=OR&q=carpenter");
+  ok(pg.code === "us_private" && !pg.rows, "v0.4 public /obs with a U.S. state -> us_private");
+  const pl = await getPub("/labor?country=US&job=carpenter");
+  ok(pl.code === "us_private" && !pl.rows, "v0.4 public /labor?country=US -> us_private");
+  const pc = await getPub("/compare?q=carpenter&country=US");
+  ok(pc.code === "us_private" && !pc.groups, "v0.4 public /compare?country=US -> us_private");
+  const pj = await getPub("/obs?q=" + q("生コンクリート") + "&limit=5");
+  ok(!pj.error && pj.rows.length > 0 && pj.rows.every((r) => r.country === "JP") && /米国/.test(pj.us_private_note) && !pj.partial && pj.lookup === "ok", "v0.4 public /obs without country: Japan only, with us_private_note");
+  const pz = await getPub("/obs?q=nothing-like-this-anywhere");
+  ok(!pz.error && pz.count === 0 && pz.lookup === "unknown" && /米国/.test(pz.us_private_note), "v0.4 public 0 rows without country is unknown, not absent (the U.S. was not searched)");
+  const ij = await get("/obs?q=" + q("生コンクリート") + "&limit=5");
+  ok(!ij.us_private_note && !ij.error, "v0.4 internal /obs without country searches both (no note)");
+  const tlp = await rpcPub({ jsonrpc: "2.0", id: 1, method: "tools/list" });
+  ok(tlp.result.tools.length === 8 && tlp.result.tools.every((t) => !US_ONLY_TOOLS.has(t.name)), "v0.4 public tools/list: 8 tools, no U.S.-only tool");
+  const tli = await rpc({ jsonrpc: "2.0", id: 1, method: "tools/list" });
+  ok(tli.result.tools.length === 16 && ["jccdb_us_kake", "jccdb_us_margin", "jccdb_us_import_cost", "jccdb_us_price_chain"].every((n) => tli.result.tools.some((t) => t.name === n)), "v0.4 internal tools/list: 16 tools with the 4 new ones");
+  const tcp = await rpcPub({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { name: "jccdb_us_prices", arguments: { state: "OR" } } });
+  ok(tcp.result.isError === true && tcp.result.structuredContent.code === "us_private" && !tcp.result.structuredContent.rows, "v0.4 public tools/call of a U.S. tool is refused (isError, us_private)");
+  const tco = await rpcPub({ jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "jccdb_observations", arguments: { country: "US", query: "carpenter" } } });
+  ok(tco.result.isError === true && tco.result.structuredContent.code === "us_private", "v0.4 public tools/call observations country=US is refused");
+  const pcv = await getPub("/coverage");
+  ok(!pcv.error && pcv.matrix.some((m) => m.country === "US") && pcv.summary_only === true && pcv.matrix.every((m) => !m.sources && m.source_families.length <= 5) && pcv.total_rows === FX_ROWS, "v0.4 public coverage: U.S. counts shown, summary by default");
+  const pcd = await getPub("/coverage?detail=1");
+  ok(!pcd.summary_only && pcd.matrix.every((m) => Array.isArray(m.sources)), "v0.4 coverage detail=1 keeps the per-source rows");
+  ok(pcv.us_private_layer && pcv.us_private_layer.loaded === false && pcv.us_private_layer.code === "kake_not_loaded", "v0.4 coverage: the private layer is reported as not loaded on the fixtures");
+  const psr = await getPub("/sources?country=US&limit=3");
+  ok(!psr.error && psr.count > 0 && psr.returned === 3, "v0.4 public sources: the U.S. ledger is public");
+  const psi = await getPub("/search?q=" + q("生コンクリート"));
+  ok(!psi.error && psi.matched > 0 && !psi.partial, "v0.4 public search_items: counts for both countries");
+  const spoof = await worker.fetch(new Request(PUB + "/us?limit=1", { headers: { "x-forwarded-host": INTERNAL_HOST, "x-original-host": INTERNAL_HOST } }), env);
+  ok(spoof.status === 403, "v0.4 headers cannot make a public request internal (the URL host decides)");
+  const rootP = await getPub("/"), rootI = await get("/");
+  ok(rootP.tools.length === 8 && !rootP.rest.some((x) => x.startsWith("/us")) && /mcp\.horizonshield\.dev/.test(rootP.us_values) && rootI.tools.length === 16 && rootI.rest.some((x) => x.startsWith("/us/chain")), "v0.4 root listing: public hides U.S. endpoints, internal shows them");
+  const kn = await call("jccdb_us_price_chain", { hs: "2523" });
+  ok(kn.isError === true && kn.structuredContent.code === "kake_not_loaded" && kn.structuredContent.fetch_failed === true, "v0.4 internal chain on a DB without 0004: kake_not_loaded (fetch_failed, not 0 rows)");
+  const hp = await getPub("/health");
+  ok(hp.us_private_layer && hp.us_private_layer.loaded === false, "v0.4 health reports the private layer state (not loaded on fixtures)");
+}
+
+// ======================================================================
+// v0.4: 非公開の層の中身(tools/make_d1_sql_kake.py の出力を DB_US に流して、4 本の答えを確かめる)
+//   入力は非公開のファイル。KAKE_SRC と KAKE_IMPORTS で渡す(既定は TOshi の Mac と番人の作業場の場所)。無ければ省く。
+// ======================================================================
+let kakeNote = "非公開の層の入力なし(省略)";
+{
+  const home = os.homedir();
+  const KSRC = [process.env.KAKE_SRC, path.join(home, "hs-core-private/ops-private/jccdb_us_kake_20260926"), "/home/claude/work/kake"].filter(Boolean).find((p) => fs.existsSync(path.join(p, "chain_us_hs10_202607.csv")));
+  const KIMP = [process.env.KAKE_IMPORTS, path.join(home, "horizon-shield/data/jccdb-obs-v2/raw/us/kake_20260926/derived"), "/home/claude/work/kake/derived"].filter(Boolean).find((p) => fs.existsSync(path.join(p, "imports_us_hs10_cty_202607.csv")));
+  if (KSRC && KIMP && process.env.KAKE !== "0") {
+    const kout = path.join(tmp, "sql_us_kake");
+    const kb = spawnSync("python3", [path.join(root, "tools/make_d1_sql_kake.py"), "--src", KSRC, "--imports", KIMP, "--ym", "202607", "--out", kout], { encoding: "utf8" });
+    ok(kb.status === 0, "v0.4 kake build exit 0: " + kb.stderr.slice(-500));
+    const km = manifestOf(kout);
+    ok(km.apply_order[0] === "schema/0004_kake_us.sql" && Object.entries(km.files).every(([f, h]) => crypto.createHash("sha256").update(fs.readFileSync(path.join(kout, f))).digest("hex") === h), "v0.4 kake manifest: schema first, file sha256 match");
+    dbu.exec(fs.readFileSync(path.join(root, "schema/0004_kake_us.sql"), "utf8"));
+    for (const rel of km.apply_order.slice(1)) dbu.exec(fs.readFileSync(path.join(kout, path.basename(rel)), "utf8"));
+    const rows = km.built.rows;
+    ok(dbu.prepare("SELECT COUNT(*) AS n FROM trade_chain").get().n === rows.trade_chain && rows.trade_chain > 4000 && rows.kake_obs > 1900 && rows.import_hs10_cty > 70000, "v0.4 kake tables loaded: " + JSON.stringify(rows));
+    const ch = (await call("jccdb_us_price_chain", { hs: "2523290000" })).structuredContent;
+    const c0 = ch.rows[0];
+    const near = (a, b) => Math.abs(a - b) <= 1e-6 * Math.max(1, Math.abs(b));
+    ok(ch.count === 1 && c0.hs10 === "2523290000" && near(c0.landed.unit_landed_usd * c0.wholesale.multiplier_on_landed, c0.wholesale.unit_usd) && near(c0.wholesale.unit_usd * 1.15, c0.contractor.unit_usd)
+      && near(c0.wholesale.multiplier_on_landed, 1 / (1 - c0.wholesale.gross_margin)) && c0.computed === true && /1\/\(1-gm_w\)/.test(c0.formula) && /^[0-9a-f]{64}$/.test(c0.sources.import_sha256) && ch.private_layer === true && ch.data_version.rows.trade_chain === rows.trade_chain,
+      "v0.4 chain portland cement: stages follow the formula, sources and hashes attached (" + c0.landed.unit_landed_usd + " -> " + c0.wholesale.unit_usd + " -> " + c0.contractor.unit_usd + ")");
+    ok(c0.retail && c0.retail.direct_import.unit_usd < c0.retail.via_wholesale.unit_usd && near(c0.retail.via_wholesale.multiplier_on_landed, c0.wholesale.multiplier_on_landed / (1 - c0.retail.gross_margin)), "v0.4 chain: retail is a range (direct import < via wholesale)");
+    const rb = (await call("jccdb_us_price_chain", { hs: "7214200000" })).structuredContent.rows[0];
+    ok(rb.retail === null && rb.landed.duty_rate_eff > 0.4, "v0.4 chain rebar: no retail stage, duty rate reflects Section 232 (" + rb.landed.duty_rate_eff + ")");
+    const ply = (await call("jccdb_us_price_chain", { query: "plywood", limit: 50 })).structuredContent;
+    ok(ply.count > 0 && ply.rows.every((r) => /PLYWOOD/i.test(r.description)) && ply.rows.every((r) => !r.flags.thin_trade), "v0.4 chain query plywood: " + ply.count + " items, thin trade excluded");
+    const plyT = (await call("jccdb_us_price_chain", { query: "plywood", include_thin: true, limit: 50 })).structuredContent;
+    ok(plyT.count >= ply.count, "v0.4 chain include_thin adds thin items (" + ply.count + " -> " + plyT.count + ")");
+    ok(ch.markups.some((m) => m.agency === "Caltrans" && m.component === "materials" && m.markup === 0.15 && m.verified === true) && ch.markups.filter((m) => !m.verified).every((m) => m.markup === null), "v0.4 chain markups: Caltrans verified, unverified ones carry no value");
+    const im = (await call("jccdb_us_import_cost", { hs: "7214200000" })).structuredContent;
+    const i0 = im.rows[0];
+    ok(i0.year_to_date.landed_duty_paid_usd === i0.year_to_date.cif_usd + i0.year_to_date.calculated_duty_usd && i0.by_country.length === 5 && i0.by_country.every((c, j, a) => j === 0 || a[j - 1].ytd_customs_value_usd >= c.ytd_customs_value_usd), "v0.4 import rebar: landed = CIF + duty, top 5 countries in order");
+    const imc = (await call("jccdb_us_import_cost", { hs: "7214200000", country: "canada" })).structuredContent.rows[0];
+    ok(imc.by_country.length === 1 && imc.by_country[0].country === "CANADA", "v0.4 import country filter");
+    const imq = (await call("jccdb_us_import_cost", { query: "portland cement" })).structuredContent;
+    ok(imq.count > 0 && imq.rows.every((r) => /PORTLAND/i.test(r.description) && /CEMENT/i.test(r.description)), "v0.4 import query by English words");
+    const ke = (await call("jccdb_us_kake", { query: "eaton breakers" })).structuredContent;
+    ok(ke.count > 0 && ke.rows.every((r) => r.kake_ratio == null || Math.abs(r.kake_ratio - (1 - r.percentage)) < 1e-9) && ke.summary_by_vendor.length > 0 && /上限/.test(ke.basis), "v0.4 kake eaton breakers: kake = 1 - discount (" + ke.count + " rows)");
+    const ko = (await call("jccdb_us_kake", { basis: "Over MSRP", limit: 5 })).structuredContent;
+    ok(ko.count === 1132 && ko.rows.every((r) => r.kake_ratio === null && r.price_to_list_ratio >= 1), "v0.4 kake Over MSRP rows carry price_to_list_ratio, never kake_ratio");
+    const kn2 = (await call("jccdb_us_kake", { source_id: "naspo-mro-ak", query: "plumbing" })).structuredContent;
+    ok(kn2.rows.some((r) => r.vendor === "Grainger" && Math.abs(r.kake_ratio - 0.8) < 1e-9), "v0.4 kake NASPO plumbing Grainger 20% off -> 0.8");
+    const mg = (await call("jccdb_us_margin", { naics: "4233", limit: 50 })).structuredContent;
+    const aies = mg.rows.find((r) => r.naics === "4233" && r.source_id === "census-aies-2024-42basic"), awts = mg.rows.find((r) => r.naics === "4233" && r.source_id === "census-awts-2022-table4");
+    ok(aies && Math.abs(aies.gross_margin_pct - 27.8006) < 1e-3 && aies.year === 2024 && awts && awts.gross_margin_pct === 27 && awts.year === 2022, "v0.4 margin 4233: AIES 2024 27.80 and AWTS 2022 27.0 (latest per source)");
+    const mh = (await call("jccdb_us_margin", { naics: "4233", trade: "wholesale", history: true, limit: 200 })).structuredContent;
+    ok(mh.rows.filter((r) => r.naics === "4233" && r.source_id === "census-awts-2022-table4").length >= 20, "v0.4 margin history: yearly AWTS series");
+    const mb = (await call("jccdb_us_margin", { query: "building material", trade: "retail", commodity: "cement" })).structuredContent;
+    ok(mb.bea_2007 && mb.bea_2007.some((r) => r.commodity_code === "327310"), "v0.4 margin with BEA commodity cement");
+    const bad1 = await call("jccdb_us_import_cost", { hs: "abc" });
+    const bad2 = await call("jccdb_us_margin", {});
+    const bad3 = await call("jccdb_us_kake", { basis: "bogus" });
+    ok([bad1, bad2, bad3].every((x) => x.isError && x.structuredContent.invalid_argument === true && x.structuredContent.fetch_failed === false), "v0.4 argument errors are invalid_argument, not fetch failures");
+    const zc = (await call("jccdb_us_price_chain", { query: "zzzz-not-a-product" })).structuredContent;
+    ok(zc.count === 0 && zc.lookup === "absent" && zc.source_read === true, "v0.4 chain 0 rows is absent (read, nothing there)");
+    const hi = await get("/health");
+    ok(hi.us_private_layer.loaded === true && hi.us_private_layer.rows.trade_chain === rows.trade_chain, "v0.4 health: private layer loaded with counts");
+    const cvi = await getPubRes("/us/chain?hs=2523");
+    ok(cvi.status === 403, "v0.4 still refused on the public URL after loading");
+    const cvp = await get("/coverage?country=US");
+    ok(cvp.us_private_layer.loaded === true && cvp.us_private_layer.rows.kake_obs === rows.kake_obs, "v0.4 coverage: private layer counts");
+    kakeNote = `非公開の層 ${Object.entries(rows).map(([k, v]) => k + " " + v).join("、")}`;
+  }
+}
+
+// ======================================================================
 // 本番に流す sql_jp/ と sql_us/(あれば): ファイルの DB(一時ディレクトリ)に流し、全行の形と道具の答えを確かめる
 // ======================================================================
 let prodNote = "sql_jp/ と sql_us/ なし(本番の組み立ての検査は省略)";
@@ -757,6 +885,6 @@ if (process.env.PROD_SQL !== "0" && fs.existsSync(path.join(prodJP, "MANIFEST.js
   pj.close(); pu.close();
 }
 
-console.log(`hs-jccdb-obs harness: ${pass} pass / ${fail} fail  (v0.1 の 25 本: ${V01_PASS} pass / ${V01_FAIL} fail、fixtures JP ${JP_ROWS} + US ${US_ROWS} 行、${prodNote}、${Math.round((Date.now() - T0) / 1000)}s)`);
+console.log(`hs-jccdb-obs harness: ${pass} pass / ${fail} fail  (v0.1 の 25 本: ${V01_PASS} pass / ${V01_FAIL} fail、fixtures JP ${JP_ROWS} + US ${US_ROWS} 行、${kakeNote}、${prodNote}、${Math.round((Date.now() - T0) / 1000)}s)`);
 if (timings.length) console.log("prod timings: " + timings.map(([p, ms, n]) => `${p} ${ms}ms(${n})`).join(" | "));
 process.exit(fail ? 1 : 0);

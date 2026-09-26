@@ -1,3 +1,23 @@
+# hs-jccdb-obs v0.4 配備手順(TOshi の手、2026-09-26 夜)
+
+v0.4 で変わること: 米国の値は hs-mcp の service binding(host が jccdb-obs.internal)からの呼び出しにだけ返す。公開の URL で米国の値を求めると 403 us_private(値なし、hs-mcp の道具の名前つき)。
+日本の値、米国の出典台帳(/sources)、件数(/coverage、/search)は公開のまま。新しい4本(掛け率・粗利率・輸入原価・各段の価格)は DB_US の新しい表(schema/0004_kake_us.sql)から引く。
+手順は ~/hs-core-private/ops-private/jccdb_us_kake_20260926/toshi_steps_kake.sh(段 K1〜K7)にまとめた。芯だけ書く:
+
+1. SQL を作る(入力は非公開。出力 sql_us_kake/ は .gitignore 済み)
+       python3 tools/make_d1_sql_kake.py --src ~/hs-core-private/ops-private/jccdb_us_kake_20260926 --imports ~/horizon-shield/data/jccdb-obs-v2/raw/us/kake_20260926/derived --ym 202607 --out sql_us_kake
+2. 手元で検査: `PROD_SQL=0 node test/harness.mjs`(番人の作業場: 264 pass / 0 fail、本番の sql_jp / sql_us 込みで 293 pass / 0 fail)
+3. DB_US に流す(obs2 には触らない。流し直しは 0004 から)
+       npx wrangler d1 execute hs-jccdb-obs-us --remote --file=schema/0004_kake_us.sql
+       npx wrangler d1 execute hs-jccdb-obs-us --remote --file=sql_us_kake/001.sql
+       npx wrangler d1 execute hs-jccdb-obs-us --remote --file=sql_us_kake/002.sql
+4. `npx wrangler deploy` のあと、公開の URL で /us/chain?hs=2523 が 403、/health の us_private_layer.loaded が true。
+5. hs-mcp に patcher v3(ops/jccdb_upgrade_20260926/patch_hs_mcp_kake_v3.py)を当てて deploy。get_us_price_chain などが値を返す。
+6. 戻し方: `npx wrangler rollback`(v0.3 に戻ると公開の URL で米国の値がまた出る)。hs-mcp は src/mcp.js.bak.<時刻>-kakev3 を戻して deploy。
+   表を捨てるなら 0004 の DROP 文だけを流す(obs2 は無関係)。
+
+---
+
 # hs-jccdb-obs v0.3 配備手順(TOshi の手)
 
 番人は deploy も secret も push も触らない。以下は TOshi が順に打つ。secret は要らない(読み取り専用、鍵なし)。
