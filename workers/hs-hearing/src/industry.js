@@ -348,7 +348,7 @@ export const INDUSTRIES = {
       },
     
       /* --- 算定要件を確かめる (JHNRD) --- */
-      /* shiji-tokubetsu/tk-count、shiji-tokubetsu/tk-expiry、shiji-tsujo/ts-expiry、kaigo-genzan-iryo-shiji-nissuu/iryo-shiji-kikan */
+      /* shiji-tokubetsu/tk-count、shiji-tokubetsu/tk-expiry、shiji-tsujo/ts-expiry、iryo-kihon-i/kihon-i-shiji-kikan */
       q_nv_shiji: {
         w: 10,
         purpose: "requirement",
@@ -363,19 +363,19 @@ export const INDUSTRIES = {
       },
     
       /* --- 算定要件を確かめる (JHNRD) --- */
-      /* kasan-tokubetsu-kanri/tk-target、kasan-terminal/tm-record、iryo-kasan-tokubetsu-kanri/tk-taisho、iryo-kasan-nyuyoji/nyuyoji-taisho、iryo-terminal/tc-yoken、iryo-terminal/tc-kubun、kaigo-kasan-renkei-kyoka/renkei-youken */
+      /* pt-ot-st/pt-8tan-kasan、kasan-tokubetsu-kanri/tk-target、kasan-tokubetsu-kanri/tk-kubun-1、kasan-tokubetsu-kanri/tk-kubun-2、kasan-tokubetsu-kanri/tk-1kasho、kasan-tokubetsu-kanri/tk-jokuso、kasan-tokubetsu-kanri/tk-tenteki、kasan-tokubetsu-kanri/tk-iryo、kasan-terminal/tm-record、kasan-terminal/tm-setsumei、kasan-terminal/tm-kiroku-3、kasan-terminal/tm-1kasho、kasan-terminal/tm-hoken、iryo-kihon-i/kihon-qa-ikuji、kaigo-kasan-kango-taisei/kt-doui、iryo-bukka/bukka-taisho、iryo-bukka/bukka-1nichi */
       q_nv_kasan: {
         w: 10,
         purpose: "requirement",
         text: "いま算定している加算を、思いつくだけ挙げてください。抜けているものを探すのがこちらの仕事なので、漏れていて構いません。",
       },
-      /* genzan-bcp/bcp-plan、genzan-bcp/bcp-plan-d、genzan-bcp/bcp-review、iryo-kanri-shonichi/kanri-anzen */
+      /* genzan-bcp/bcp-plan、genzan-bcp/bcp-plan-d、genzan-bcp/bcp-review、genzan-bcp/bcp-kikan、genzan-bcp/bcp-keika、genzan-bcp/bcp-sokyu */
       q_nv_bcp_plan: {
         w: 6,
         purpose: "requirement",
         text: "業務継続計画(BCP)は、いまどうなっていますか。感染症のぶんと災害のぶん、それぞれについて「策定済み」「作成中」「これから」のどれかで構いません。片方だけ、という状態もそのまま教えてください。",
       },
-      /* genzan-bcp/bcp-train */
+      /* genzan-bcp/bcp-train、genzan-bcp/bcp-genzan-scope */
       q_nv_bcp_train: {
         w: 5,
         purpose: "requirement",
@@ -387,7 +387,7 @@ export const INDUSTRIES = {
         purpose: "requirement",
         text: "感染症・災害用の備蓄品は、どなたが管理していますか。決まっていなければ「決まっていない」で構いません。",
       },
-      /* genzan-gyakutai/gy-committee */
+      /* genzan-gyakutai/gy-committee、genzan-gyakutai/gy-kaizen、genzan-gyakutai/gy-kikan、genzan-gyakutai/gy-any-one、genzan-gyakutai/gy-no-sokyu */
       q_nv_gy_committee: {
         w: 6,
         purpose: "requirement",
@@ -399,7 +399,7 @@ export const INDUSTRIES = {
         purpose: "requirement",
         text: "高齢者虐待防止のための指針は、いまどうなっていますか。「整備済み」「作りかけ」「まだ」のどれかで構いません。",
       },
-      /* genzan-gyakutai/gy-training */
+      /* genzan-gyakutai/gy-training、genzan-gyakutai/gy-nen1 */
       q_nv_gy_training: {
         w: 6,
         purpose: "requirement",
@@ -425,7 +425,7 @@ export const INDUSTRIES = {
       },
     
       /* --- 算定要件を確かめる (JHNRD) --- */
-      /* genzan-junkangoshi/jk-staff、pt-ot-st/pt-staff、kaigo-kihon-st/kihon-junkangoshi、kaigo-kasan-kango-taisei/kt-kango-wariai、kaigo-kasan-kango-taisei/kt-1-kangoshoku、kaigo-kasan-service-taisei/st-kinzoku */
+      /* genzan-junkangoshi/jk-staff、genzan-junkangoshi/jk-ha-98、genzan-junkangoshi/jk-keikaku、pt-ot-st/pt-staff、pt-ot-st/pt-20pun-6kai、pt-ot-st/pt-teiki-hyoka、iryo-kanri-shonichi/kyoka1-jinin、iryo-kanri-shonichi/kyoka-kango6wari、kaigo-kihon-st/kihon-junkangoshi、kaigo-kasan-kango-taisei/kt-kango-wariai、kaigo-kasan-kango-taisei/kt-1-kangoshoku、kaigo-kasan-kango-taisei/kt-kango-54、kaigo-kihon-teiki-junkai/teiki-shisetsu、kaigo-kihon-teiki-junkai/teiki-kijun、kaigo-pt-kaisu/pt-kaisu、yobou-kihon/yobou-20pun */
       q_nv_staff: {
         w: 8,
         purpose: "requirement",
@@ -548,85 +548,331 @@ export const INDUSTRIES = {
       },
     
       /* --- 算定要件を確かめる (JHNRD) --- */
-      /* iryo-kasan-24h/24h-futankeigen */
+      /* iryo-kasan-chojikan/chojikan-taisho、iryo-kasan-chojikan/chojikan-90pun、iryo-kasan-chojikan/chojikan-taisho-list、iryo-kasan-chojikan/chojikan-chojushoji、kaigo-kasan-chojikan/k-chojikan-taisho、kaigo-kasan-chojikan/chojikan-junkango */
+      q_nv_chojikan: {
+        w: 4,
+        purpose: "requirement",
+        text: "長い時間(1時間半を超えるなど)の訪問が要る利用者はいますか。いれば何人くらいか、だけで構いません。",
+      },
+      /* iryo-kasan-fukusumei/fukusu-doui、iryo-kasan-fukusumei/fukusu-taisho、iryo-kasan-fukusumei/fukusu-taisho-list、iryo-kasan-fukusumei/fukusu-shu、iryo-kasan-fukusumei/fukusu-taizai、kaigo-kasan-fukusumei/k-fukusu-kijun、kaigo-kasan-fukusumei/fukusu-hojo */
+      q_nv_fukusu: {
+        w: 4,
+        purpose: "requirement",
+        text: "2人以上で同時に訪問することはありますか。看護補助者が一緒に入ることがあるかも教えてください。",
+      },
+      /* iryo-kasan-renkei/renkei-heisan、iryo-kasan-renkei/renkei-ict、iryo-kasan-renkei/renkei-2kai、iryo-kasan-renkei/renkei-kiroku、iryo-kasan-renkei/conf-kaisu、iryo-kasan-renkei/conf-kiroku */
+      q_nv_renkei: {
+        w: 4,
+        purpose: "requirement",
+        text: "主治医・歯科・薬局・ケアマネと、利用者の情報をどうやって共有していますか。紙、電話、システム(名前が分かれば)で構いません。",
+      },
+      /* iryo-kasan-kanri-sonota/dx-shikaku、iryo-kasan-kanri-sonota/dx-kijun、iryo-kasan-kanri-sonota/dx-kyotaku-doui */
+      q_nv_dx: {
+        w: 3,
+        purpose: "requirement",
+        text: "訪問先でマイナ保険証の資格確認(オンライン資格確認)はできる体制ですか。",
+      },
+      /* iryo-joho-teikyo/joho-motome、iryo-joho-teikyo/joho1-2shukan、iryo-joho-teikyo/joho1-taisho、iryo-joho-teikyo/joho2-kaisu、iryo-joho-teikyo/joho3-tokubetsu、iryo-joho-teikyo/joho-qa-carer */
+      q_nv_joho_teikyo: {
+        w: 3,
+        purpose: "requirement",
+        text: "市町村・相談支援事業所・学校・入院先の病院から、利用者の情報を求められて文書で出すことはありますか。",
+      },
+      /* iryo-kasan-24h/24h-hokatsu-i、iryo-kasan-kinkyu/kinkyu-qa-hokatsu、iryo-hokatsu/hokatsu-yakan、iryo-hokatsu/hokatsu-denshi、iryo-hokatsu/hokatsu-heisan、iryo-hokatsu/hokatsu-120pun、iryo-hokatsu/hokatsu-kanrisha、iryo-hokatsu/hokatsu-doui、iryo-hokatsu/hokatsu-qa-2kai、iryo-hokatsu/hokatsu-qa-18ji、iryo-hokatsu/hokatsu-qa-jikoku、iryo-hokatsu/hokatsu-qa-jissai、iryo-hokatsu/hokatsu-qa-hizuke、iryo-hokatsu/hokatsu-qa-kazoku、iryo-hokatsu/hokatsu-qa-nicchu-only、iryo-hokatsu/hokatsu-qa-tokubetsu-ofuku、iryo-santei-shinai/shinai-hokatsu-tatemono */
+      q_nv_hokatsu: {
+        w: 3,
+        purpose: "requirement",
+        text: "サービス付き高齢者向け住宅など、同じ建物に住む利用者に1日に何度も訪問することはありますか。",
+      },
+      /* iryo-kihon-i/kihon-i-online、kaigo-kasan-enkaku-shibo/es-kenshu、kaigo-kasan-enkaku-shibo/es-terminal、kaigo-kasan-enkaku-shibo/es-guideline、kaigo-kasan-enkaku-shibo/es-qa-kenshu、iryo-enkaku/enkaku-todokede、iryo-enkaku/enkaku-shibo、iryo-enkaku/enkaku-hojo、iryo-enkaku/enkaku-kijun、iryo-enkaku/enkaku-qa-renzoku、iryo-enkaku/enkaku-qa-shujii、iryo-enkaku/enkaku-qa-zaijiso */
+      q_nv_enkaku: {
+        w: 2,
+        purpose: "requirement",
+        text: "情報通信機器を使った看取りの研修を受けた看護師や、オンライン診療の補助をしたことのある看護師はいますか。",
+      },
+      /* iryo-baseup/baseup-todokede、iryo-baseup/baseup-taisho-shokuin、iryo-baseup/baseup2-50、iryo-baseup/baseup-keizoku、iryo-baseup/baseup-joken-kanzan、iryo-baseup/baseup-qa-0331、iryo-baseup/baseup-qa-kyuyo、iryo-baseup/baseup-qa-zero、iryo-baseup/baseup2-kubun */
+      q_nv_baseup: {
+        w: 3,
+        purpose: "requirement",
+        text: "ベースアップ評価料の届出はしていますか。していれば(Ⅰ)だけか(Ⅱ)もか、分かる範囲で構いません。",
+      },
+      /* yobou-pt-12getsu/yobou-12 */
+      q_nv_yobou_pt: {
+        w: 2,
+        purpose: "requirement",
+        text: "要支援の方に理学療法士・作業療法士・言語聴覚士が訪問していて、始めてから1年を超えている方はいますか。",
+      },
+      /* iryo-kanri-shonichi/kanri-anzen、iryo-kanri-shonichi/kanri-anzen-qa-kenshu */
+      q_nv_anzen_taisei: {
+        w: 5,
+        purpose: "requirement",
+        text: "安全管理について伺います。事故が起きたときの対応を書いた文書、インシデントを報告して改善する仕組み、寝たきりに近い利用者さんの褥瘡の危険の評価、業務継続計画、毎年8月の褥瘡の報告。それぞれ「ある」「ない」「分からない」で構いません。",
+      },
+      /* iryo-kanri-shonichi/kyoka1-jisseki、iryo-kanri-shonichi/kyoka2-jinin-jisseki、iryo-kanri-shonichi/kyoka3-kijun */
+      q_nv_kyoka_jisseki: {
+        w: 5,
+        purpose: "requirement",
+        text: "前年度に、ご自宅等でのお看取り(ターミナルケア)まで関わった件数と、いま訪問している15歳未満の超重症児・準超重症児の人数、別表第七に当たる方の月の人数を教えてください。おおよそで構いません。",
+      },
+      /* iryo-kanri-shonichi/kyoka1-kyotaku */
+      q_nv_kyoka_kyotaku: {
+        w: 5,
+        purpose: "requirement",
+        text: "同じ敷地の中に、居宅介護支援事業所(ケアマネ)や相談支援事業所はありますか。あれば、利用者さんのケアプランやサービス等利用計画をそこで作っている方はどのくらいいますか。",
+      },
+      /* iryo-kanri-shonichi/kyoka1-kenshu */
+      q_nv_chiiki_kenshu: {
+        w: 5,
+        purpose: "requirement",
+        text: "この1年で、看護学生の実習受け入れ、地域の病院やステーション向けの研修、住民や他の事業所からの相談への対応をしたことはありますか。回数が分かれば回数も教えてください。",
+      },
+      /* iryo-kanri-shonichi/kyoka4-kijun */
+      q_nv_kyoka4_renkei: {
+        w: 5,
+        purpose: "requirement",
+        text: "精神科の利用者さんについて伺います。連携している機関(病院、障害福祉サービス事業所、相談支援事業所、介護事業所、保健所や市町村の担当部署)はいくつありますか。それぞれと年に何回会っていて、その記録を残していますか。",
+      },
+      /* iryo-kasan-24h/24h-hikango */
+      q_nv_24h_hikango: {
+        w: 5,
+        purpose: "requirement",
+        text: "夜間や休日の電話を、看護師(保健師)以外の職員が受けることはありますか。ある場合、対応マニュアルと、受けた内容を看護師に報告する決まりはありますか。",
+      },
+      /* iryo-kasan-24h/24h-renkei2 */
+      q_nv_24h_renkei: {
+        w: 5,
+        purpose: "requirement",
+        text: "24時間の電話対応や緊急訪問を、他のステーションと組んで分担していますか。地域の災害時の相互支援の仕組みに入っていますか。",
+      },
+      /* iryo-kihon-i/kihon-jikan-hyojun、iryo-kihon-i/kihon-ichiritsu-kinshi、iryo-kihon-ii/kihon2-gassan */
+      q_nv_jikan: {
+        w: 5,
+        purpose: "requirement",
+        text: "1回の訪問は、ふだん何分くらいですか。20分以上30分未満の短い訪問が、同じ日に同じ方へ何度も、または何人もの方に続くことはありますか。",
+      },
+      /* furiwake-iryo-kaigo/fw-tokubetsu-kikan、kaigo-genzan-iryo-shiji-nissuu/iryo-shiji-kikan、kaigo-tokubetsu-shiji-14/tokubetsu-shiji-14、kaigo-tokubetsu-shiji-14/tokubetsu-shiji-ryuiji */
+      q_nv_tokubetsu_shiji: {
+        w: 5,
+        purpose: "requirement",
+        text: "特別訪問看護指示書を受けた利用者さんについて、交付日から14日の期間と、月に何回まで受けたかを、どうやって数えていますか。気管カニューレを使っている方や真皮を越える褥瘡の方はいますか。",
+      },
+      /* iryo-kasan-tokubetsu-kanri/tk-todokede、iryo-kasan-tokubetsu-kanri/tk-taisei-todokede */
+      q_nv_tokkan_todokede: {
+        w: 5,
+        purpose: "requirement",
+        text: "特別管理加算の届出はしていますか。24時間の連絡体制と、医療機器の管理で医療機関と連絡を取り合う体制はどうなっていますか。",
+      },
+      /* iryo-kasan-tokubetsu-kanri/tk-taisho */
+      q_nv_tokkan_taisho: {
+        w: 5,
+        purpose: "requirement",
+        text: "特別管理加算を算定している利用者さんは、どのような状態の方ですか(在宅酸素、留置カテーテル、気管カニューレ、人工肛門、真皮を越える褥瘡、点滴など)。分かる範囲で構いません。",
+      },
+      /* iryo-kasan-tokubetsu-kanri/tk-jokuso-kiroku、iryo-kasan-tokubetsu-kanri/tk-tenteki-kiroku */
+      q_nv_tokkan_kiroku: {
+        w: 5,
+        purpose: "requirement",
+        text: "真皮を越える褥瘡の方について、週に1回以上、深さや大きさなどを評価して記録していますか。点滴の指示を受けている方について、指示書を記録に添えていますか。",
+      },
+      /* iryo-kasan-kinkyu/kinkyu-riyu-kisai、iryo-kasan-kinkyu/kinkyu-kiroku */
+      q_nv_kinkyu_kiroku: {
+        w: 5,
+        purpose: "requirement",
+        text: "緊急で訪問したとき、その日時、内容、対応の様子を記録していますか。請求のときに、緊急訪問看護加算を算定した理由を明細書に書いていますか。",
+      },
+      /* iryo-kasan-kinkyu/kinkyu-fukusu-st、iryo-santei-shinai/shinai-dojitsu */
+      q_nv_fukusu_st: {
+        w: 5,
+        purpose: "requirement",
+        text: "同じ利用者さんに、御社以外の訪問看護ステーションも入っていることはありますか。ある場合、同じ日に両方が訪問することはありますか。",
+      },
+      /* iryo-kasan-nyuyoji/nyuyoji-taisho、iryo-kasan-nyuyoji/nyuyoji-1800 */
+      q_nv_nyuyoji: {
+        w: 5,
+        purpose: "requirement",
+        text: "6歳未満のお子さんの利用者はいますか。そのうち超重症児・準超重症児、別表第七・第八に当たるお子さんは何人ですか。",
+      },
+      /* iryo-seishin-kihon/seishin-keiken */
+      q_nv_seishin_keiken: {
+        w: 5,
+        purpose: "requirement",
+        text: "精神科訪問看護を担当する職員は、精神科病棟・外来での勤務、精神疾患の方への訪問看護、保健所等での精神保健の業務のいずれかを1年以上経験しているか、20時間以上の研修を修了していますか。",
+      },
+      /* iryo-kasan-taiin/taiin-shien、iryo-kasan-taiin/taiin-shien-taisho、iryo-kasan-taiin/taiin-shien-shiji */
+      q_nv_taiin_shien: {
+        w: 5,
+        purpose: "requirement",
+        text: "利用者さんが退院するその日に、ご自宅等で療養上の指導をすることはありますか。そのとき、訪問看護指示書は退院時に受け取っていますか。90分を超えることはありますか。",
+      },
+      /* iryo-r8-shinsetsu/r8-joho-renkei、iryo-kasan-renkei/jrenkei-doui-kiroku、iryo-kasan-renkei/jrenkei-kijun、iryo-kasan-renkei/jrenkei-kikan5、iryo-kasan-renkei/jrenkei-web-keika */
+      q_nv_ict_renkei: {
+        w: 5,
+        purpose: "requirement",
+        text: "主治医・歯科・薬局・ケアマネ等と、ICT(情報共有のシステム)で利用者の情報を共有していますか。共有している機関の数と、そのことを事業所内の掲示やウェブサイトに載せているかを教えてください。",
+      },
+      /* iryo-kasan-kanri-sonota/kaigo-renkei-24h、iryo-kasan-kanri-sonota/kaigo-renkei-naiyou */
+      q_nv_kakutan_renkei: {
+        w: 5,
+        purpose: "requirement",
+        text: "喀痰吸引や経管栄養を行う介護職員(登録喀痰吸引等事業者の職員)に同行して、手技の確認や計画書づくりの助言をすることはありますか。",
+      },
+      /* iryo-terminal/tc-yoken、iryo-terminal/tc-kubun、iryo-terminal/tc-kiroku */
+      q_nv_terminal: {
+        w: 5,
+        purpose: "requirement",
+        text: "お看取りまで関わった方について、亡くなった場所と時刻を記録に残していますか。ターミナルケアの支援体制(連絡担当者、連絡先、緊急時の注意事項)を利用者さんとご家族に説明していますか。",
+      },
+      /* iryo-hokatsu/hokatsu-kijun、iryo-hokatsu/hokatsu-yakan-ninzu、iryo-hokatsu/hokatsu-1kasho、iryo-hokatsu/hokatsu-futan、iryo-hokatsu/hokatsu-keika、iryo-hokatsu/hokatsu-qa-yakan-ninzu、iryo-hokatsu/hokatsu-qa-tokubetsu-kankei-kenshu、iryo-hokatsu/hokatsu-qa-fukusu-tatemono、iryo-hokatsu/hokatsu-qa-shinki、iryo-hokatsu/hokatsu-qa-shinki-kenshu */
+      q_nv_hokatsu_todokede: {
+        w: 5,
+        purpose: "requirement",
+        text: "包括型訪問看護療養費の届出をしていますか、または考えていますか。併設・隣接する建物の種類と数、夜間に建物内で働く看護職員の人数、記録を電子で作っているかを教えてください。",
+      },
+      /* iryo-baseup/baseup-hokoku */
+      q_nv_baseup_hokoku: {
+        w: 5,
+        purpose: "requirement",
+        text: "ベースアップ評価料について、毎年8月の賃金改善実績報告書と賃金改善中間報告書を出していますか。根拠の資料を3年間保管していますか。",
+      },
+      /* iryo-r8-shinsetsu/r8-kiroku-jikoku */
+      q_nv_kiroku_jikoku: {
+        w: 5,
+        purpose: "requirement",
+        text: "訪問看護記録書に、実際に訪問を始めた時刻と終えた時刻を毎回書いていますか。予定の時刻を書いている、ということはありませんか。",
+      },
+      /* iryo-r8-shinsetsu/r8-oshiin */
+      q_nv_keikaku_youshiki: {
+        w: 5,
+        purpose: "requirement",
+        text: "訪問看護計画書・報告書は、どの様式で作っていますか(紙か電子か、令和8年6月以降の新しい様式か)。管理者の押印欄が残っている様式を使っていますか。",
+      },
+      /* pt-ot-st/pt-8tan、pt-ot-st/pt-8tan-kaisu、pt-ot-st/pt-qa-kaisu、pt-ot-st/pt-8tan-kijun */
+      q_nv_pt_kaisu: {
+        w: 5,
+        purpose: "requirement",
+        text: "前年度(4月から翌3月)の、理学療法士・作業療法士・言語聴覚士の訪問回数と、看護職員の訪問回数は、それぞれおおよそ何回でしたか。記録から数えられるかどうかだけでも構いません。",
+      },
+      /* kaigo-kasan-kinkyuji/kinkyuji-taisei-1、kaigo-kasan-kinkyuji/kinkyuji-futan-2、kaigo-kasan-kinkyuji/kinkyuji-futan-items、kaigo-kasan-kinkyuji/kinkyuji-yakan、kaigo-kasan-kinkyuji/kinkyuji-qa-renzoku、kaigo-kasan-kinkyuji/kinkyuji-qa-24h365 */
+      q_nv_kinkyuji_futan: {
+        w: 5,
+        purpose: "requirement",
+        text: "夜間の電話や緊急訪問の担当について伺います。次のうち御社で実際にやっているものを挙げてください。夜間対応した翌日の勤務間隔の確保、夜間対応の連続を2回までにする、夜間対応後に暦日の休日をとる、夜間勤務のニーズを踏まえた勤務体制の工夫、ICT・AI・IoTの活用による負担軽減、電話を受ける人を支える体制。1つも無ければ「無し」で構いません。",
+      },
+      /* kaigo-kihon-st/kihon-jikan、kaigo-kihon-st/kihon-2jikan */
+      q_nv_houmon_jikan: {
+        w: 5,
+        purpose: "requirement",
+        text: "訪問看護計画書に、1回ごとの訪問の所要時間(20分未満、30分未満、30分以上1時間未満、1時間以上1時間30分未満)を書いていますか。前の訪問からおおむね2時間以内に次の訪問をすることはありますか。",
+      },
+      /* kaigo-kasan-kango-taisei/kt-jisseki、kaigo-kasan-kango-taisei/kt-1-kinkyuji、kaigo-kasan-kango-taisei/kt-1-tokubetsu、kaigo-kasan-kango-taisei/kt-2-kinkyuji、kaigo-kasan-kango-taisei/kt-1-byoin、kaigo-kasan-kango-taisei/kt-2-byoin、kaigo-kasan-kango-taisei/kt-jitsu */
+      q_nv_kango_taisei_6m: {
+        w: 5,
+        purpose: "requirement",
+        text: "直近6か月の実利用者の総数と、そのうち緊急時訪問看護加算を算定した実利用者の数、特別管理加算を算定した実利用者の数を教えてください。おおよそで構いません。",
+      },
+      /* kaigo-kasan-service-taisei/st-kinzoku、kaigo-kasan-service-taisei/st-kinzoku-2、kaigo-kasan-service-taisei/st-wariai、kaigo-kasan-service-taisei/st-kinzoku-def */
+      q_nv_kinzoku: {
+        w: 5,
+        purpose: "requirement",
+        text: "看護師等(保健師・看護師・准看護師・理学療法士・作業療法士・言語聴覚士)のうち、勤続7年以上の方と勤続3年以上の方は、それぞれ何人いらっしゃいますか。同じ法人の他の事業所や病院で働いた年数を含めて数えて構いません。",
+      },
+      /* kaigo-kasan-kouku/kk-taisei */
+      q_nv_kouku_shika: {
+        w: 5,
+        purpose: "requirement",
+        text: "歯科訪問診療をしている歯科医院と、利用者さんの口の状態の評価について相談できる取り決めを、文書で交わしていますか。「交わしていない」で構いません。",
+      },
+      /* kaigo-kasan-renkei-kyoka/renkei-youken、kaigo-kasan-renkei-kyoka/renkei-naiyou、kaigo-kasan-renkei-kyoka/renkei-kokuji */
+      q_nv_renkei_kyoka: {
+        w: 5,
+        purpose: "requirement",
+        text: "訪問介護のヘルパーさんがたんの吸引等を行っている利用者さんについて、ヘルパーさんに同行して実施状況を確かめたり、連携のための会議に出たりしたことはありますか。あれば訪問看護記録書に残していますか。",
+      },
+      /* kaigo-kasan-shogu-kaizen/shogu-kouzou、kaigo-kasan-shogu-kaizen/shogu-qa-riyou */
+      q_nv_shogu_careplan: {
+        w: 5,
+        purpose: "requirement",
+        text: "ケアプランデータ連携システム(または同等と認められたシステム)を、加入だけでなく実際に使っていますか。あるいは連携推進法人に所属していますか。「どちらもない」で構いません。",
+      },
+      /* iryo-kasan-24h/24h-futankeigen、iryo-kasan-24h/24h-futan-jisseki、iryo-kasan-24h/24h-yakan-teigi */
       q_nv_24h_futan: {
         w: 9,
         purpose: "requirement",
         text: "24時間対応体制加算について伺います。夜間に対応した翌日の勤務間隔の確保、夜間対応の連続回数を2回までにする、夜間対応後に暦日の休日を確保する、勤務体制の工夫、ICTの活用、電話対応者への支援体制。このうち、御社で実際にやっているものを挙げてください。1つも無ければ「無し」で構いません。",
       },
-      /* iryo-kihon-i/kihon-i-kaisu、iryo-kasan-nyuyoji/nyuyoji-1800、furiwake-iryo-kaigo/fw-beppyo7-count */
+      /* kasan-terminal/tm-jotai-1nichi、iryo-kihon-i/kihon-i-kaisu、furiwake-iryo-kaigo/fw-beppyo7-count、furiwake-iryo-kaigo/fw-kaigo-yusen、furiwake-iryo-kaigo/fw-kaigo-reigai、furiwake-iryo-kaigo/fw-qa-nmosd、furiwake-iryo-kaigo/fw-qa-c114、iryo-kihon-ii/kihon2-shu3、iryo-kihon-iii/kihon3-gaihaku、iryo-kihon-iii/kihon3-1paku、iryo-kasan-nanbyo-fukusu/nanbyo-taisho、iryo-santei-shinai/shinai-tasho */
       q_nv_beppyo7: {
         w: 9,
         purpose: "requirement",
         text: "いま訪問している利用者さんのうち、末期の悪性腫瘍、筋萎縮性側索硬化症、多発性硬化症、パーキンソン病関連疾患、人工呼吸器を使用している状態など、いわゆる別表第七に当たる方は何人いらっしゃいますか。人数だけで構いません。分からなければ「分からない」で構いません。",
       },
-      /* kaigo-kasan-chiiki/ch-shitei、kaigo-kasan-chiiki/ch-idou */
+      /* kaigo-kasan-chiiki/ch-shitei、kaigo-kasan-chiiki/ch-idou、kaigo-kasan-chiiki/ch-chusankan、kaigo-kasan-chiiki/ch-shotei、kaigo-kasan-chiiki/ch-chusankan-kijun、iryo-kasan-tokubetsu-chiiki/chiiki-jikan、iryo-kasan-tokubetsu-chiiki/chiiki-kakunin、iryo-kasan-tokubetsu-chiiki/chiiki-jijo、iryo-kasan-tokubetsu-chiiki/chiiki-qa-satellite */
       q_nv_chiiki: {
         w: 5,
         purpose: "requirement",
         text: "御社の事業所や利用者さんのお住まいが、特別地域や中山間地域に指定されている場所に当たることはありますか。片道の移動に1時間近くかかる訪問があるかどうかでも構いません。",
       },
-      /* iryo-kanri-2nichime/kanri2-kubun、kaigo-genzan-douitsu-tatemono/dt-ninzu */
+      /* iryo-kanri-2nichime/kanri2-kubun、iryo-kanri-2nichime/kanri2-tanitsu-teigi、kaigo-genzan-douitsu-tatemono/dt-ninzu、kaigo-genzan-douitsu-tatemono/dt-ritsu、kaigo-genzan-douitsu-tatemono/dt-teigi、iryo-kihon-ii/kihon2-jikan、iryo-kihon-ii/kihon2-teigi、iryo-kihon-ii/kihon2-qa-shikichi、iryo-kasan-nanbyo-fukusu/nanbyo-kubun */
       q_nv_douitsu_tatemono: {
         w: 8,
         purpose: "requirement",
         text: "同じ建物(集合住宅やサービス付き高齢者向け住宅など)に住む利用者さんは、いちばん多い建物で何人いらっしゃいますか。また、1日に同じ建物へ何人訪問することがありますか。人数がそのまま減算と単価に効きます。",
       },
-      /* kaigo-kasan-kango-taisei/kt-jisseki、kaigo-kasan-kango-taisei/kt-1-kinkyuji、kaigo-kasan-kango-taisei/kt-1-tokubetsu、kaigo-kasan-kango-taisei/kt-1-terminal、kaigo-kasan-kango-taisei/kt-2-kinkyuji、kaigo-kasan-kango-taisei/kt-2-terminal、kaigo-kasan-enkaku-shibo/es-terminal */
+      /* kasan-terminal/tm-nissu、kaigo-kasan-kango-taisei/kt-1-terminal、kaigo-kasan-kango-taisei/kt-2-terminal */
       q_nv_kango_taisei: {
         w: 7,
         purpose: "requirement",
         text: "直近1年で、ターミナルケア(お看取りまで関わった件数)と、特別管理加算を算定した利用者さんの人数を教えてください。おおよそで構いません。届出の要件がこの実績で決まります。",
       },
-      /* iryo-kasan-24h/24h-taisei、iryo-kasan-kinkyu/kinkyu-yoken、kaigo-kasan-kinkyuji/kinkyuji-taisei */
+      /* kasan-terminal/tm-24h、iryo-kanri-shonichi/kyoka1-kyujitsu、iryo-kasan-24h/24h-taisei、iryo-kasan-24h/24h-setsumei-doui、iryo-kasan-24h/24h-heisetsu、iryo-kasan-kinkyu/kinkyu-yoken、iryo-kasan-kinkyu/kinkyu-bunsho、kaigo-kihon-st/kihon-20pun、kaigo-kasan-kinkyuji/kinkyuji-taisei、kaigo-kasan-kinkyuji/kinkyuji-doui、kaigo-kasan-kinkyuji/kinkyuji-renraku、kaigo-kasan-kinkyuji/kinkyuji-hokangoshi、kaigo-kasan-kinkyuji/kinkyuji-1kasho、kaigo-kasan-kinkyuji/kinkyuji-iryo、kaigo-kihon-byoin/byoin-20pun、kaigo-kihon-teiki-junkai/teiki-kinkyuji */
       q_nv_kinkyuji_taisei: {
         w: 8,
         purpose: "requirement",
         text: "夜間や休日に、利用者さんやご家族から電話が入る体制はどうなっていますか。誰が受けるか、携帯を持ち回っているか、受けたあとどう動くか。実際の回し方を教えてください。",
       },
-      /* kaigo-kasan-kouku/kk-hyoka、kaigo-kasan-kouku/kk-kiroku */
+      /* kaigo-kasan-kouku/kk-hyoka、kaigo-kasan-kouku/kk-kiroku、kaigo-kasan-kouku/kk-jogai、kaigo-kasan-kouku/kk-kakunin */
       q_nv_kouku: {
         w: 6,
         purpose: "requirement",
         text: "訪問の際に、口の中の状態(食べこぼし、むせ、汚れ、義歯の具合)を見て歯科につなぐことはありますか。つないだ記録を残していますか。「やっていない」で構いません。",
       },
-      /* iryo-kanri-shonichi/kanri-kyoka-kubun、iryo-kanri-shonichi/kanri-kyoka4-shinsetsu */
+      /* iryo-kanri-shonichi/kanri-kyoka-kubun、iryo-kanri-shonichi/kanri-kyoka4-shinsetsu、iryo-kanri-shonichi/kyoka-qa-kyoka4 */
       q_nv_kyoka_kata: {
         w: 9,
         purpose: "requirement",
         text: "訪問看護管理療養費の届出区分を教えてください。機能強化型1・2・3・4のいずれかを届け出ていますか、それとも届出はしていませんか。「分からない」でも構いません。月の初日の額がここで決まります。",
       },
-      /* furiwake-iryo-kaigo/fw-seishinka */
+      /* furiwake-iryo-kaigo/fw-seishinka、iryo-seishin-kihon/seishin-todokede、iryo-seishin-kihon/seishin-gaf、iryo-seishin-kasan/seishin-fukusukai、iryo-seishin-kasan/seishin-fukusumei-shiji、iryo-kasan-kanri-sonota/seishin-juusho-kaisu */
       q_nv_seishinka: {
         w: 6,
         purpose: "requirement",
         text: "精神科の訪問看護はやっていますか。やっている場合、精神科訪問看護指示書を受けている利用者さんは何人ですか。",
       },
-      /* kaigo-kasan-service-taisei/st-kenshu、kaigo-kasan-service-taisei/st-kaigi */
+      /* kaigo-kasan-service-taisei/st-kenshu、kaigo-kasan-service-taisei/st-kaigi、kaigo-kasan-service-taisei/st-kenshin、kaigo-kasan-service-taisei/st-kaigi-hindo */
       q_nv_service_taisei: {
         w: 6,
         purpose: "requirement",
         text: "看護師さんごとの研修計画は作っていますか。また、利用者さんの情報を共有する会議は定期的に開いていますか。「作っていない」「開いていない」で構いません。",
       },
-      /* kaigo-kasan-shokai/shokai-shinki、kaigo-kasan-shokai/shokai-taiin */
+      /* kaigo-kasan-shokai/shokai-shinki、kaigo-kasan-shokai/shokai-taiin、kaigo-kasan-shokai/shokai-2gatsu */
       q_nv_shokai: {
         w: 6,
         purpose: "requirement",
         text: "新しい利用者さんを受けるとき、初回の訪問はどなたが行きますか。また、退院や退所の直後に受けることはどのくらいありますか。月に何件くらいか、感覚で構いません。",
       },
-      /* kaigo-kasan-taiin-kyodo/tk-kyodo、kaigo-kasan-taiin-kyodo/tk-bunsho */
+      /* kaigo-kasan-taiin-kyodo/tk-kyodo、kaigo-kasan-taiin-kyodo/tk-bunsho、kaigo-kasan-taiin-kyodo/tk-kaisu、kaigo-kasan-taiin-kyodo/tk-tv、kaigo-kasan-taiin-kyodo/tk-qa-mail、iryo-kasan-taiin/taiin-bunsho、iryo-kasan-taiin/taiin-junkango、iryo-kasan-taiin/taiin-kaisu、iryo-kasan-taiin/taiin-video */
       q_nv_taiin_kyodo: {
         w: 6,
         purpose: "requirement",
         text: "利用者さんが退院するとき、病院に出向いて(またはオンラインで)病院の職員と一緒に指導をすることはありますか。あれば、月に何件くらいか、そのとき文書を渡しているかも教えてください。",
       },
-      /* iryo-kihon-i/kihon-i-senmon、kaigo-kasan-senmon-kanri/senmon-zaiseki、kaigo-kasan-senmon-kanri/senmon-tejunsho、kaigo-kasan-enkaku-shibo/es-kenshu */
+      /* iryo-kanri-shonichi/kyoka1-senmon、iryo-kihon-i/kihon-i-senmon、iryo-kihon-i/kihon-i-senmon-600、iryo-kihon-i/kihon-i-ha-kyodo、kaigo-kasan-senmon-kanri/senmon-zaiseki、kaigo-kasan-senmon-kanri/senmon-tejunsho、kaigo-kasan-senmon-kanri/senmon-taisho、kaigo-kasan-senmon-kanri/senmon-teiki、kaigo-kasan-senmon-kanri/senmon-qa-kenshu、kaigo-kasan-senmon-kanri/senmon-qa-tokutei、kaigo-kasan-senmon-kanri/senmon-qa-1kai、iryo-kasan-kanri-sonota/senmon-kenshu、iryo-kasan-kanri-sonota/senmon-i、iryo-kasan-kanri-sonota/senmon-kijun */
       q_nv_tokutei_koui: {
         w: 7,
         purpose: "requirement",
         text: "緩和ケア・褥瘡ケア・人工肛門/人工膀胱ケアの専門研修を修了した看護師、または特定行為研修を修了した看護師は在籍していますか。いらっしゃれば、どの分野の研修かも教えてください。いなければ「いない」で構いません。",
       },
-      /* kaigo-kasan-yakan/yk-jikan */
+      /* kaigo-kasan-yakan/yk-jikan、kaigo-kasan-yakan/yk-ritsu、kaigo-kasan-yakan/yk-jikantai、kaigo-kasan-yakan/yk-20pun、iryo-kasan-yakan-shinya/yakan-jikoku、iryo-kasan-yakan-shinya/yakan-motome */
       q_nv_yakan: {
         w: 5,
         purpose: "requirement",
