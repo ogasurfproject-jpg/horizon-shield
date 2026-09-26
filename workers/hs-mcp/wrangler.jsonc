@@ -36,7 +36,15 @@
   //   mcp.horizonshield.dev も hearing.horizonshield.dev も同じ zone の Route なので、Worker から
   //   公開 hostname 経由の fetch は通らん(本番実測: 静的 JSON に落ちとった)。hs-jidec-mcp -> hs-ledger と同じ形。
   "services": [
-    { "binding": "HEARING_SVC", "service": "hs-hearing" }
+    { "binding": "HEARING_SVC", "service": "hs-hearing" },
+    // ★2026-09-26 JCCDB の品目・観測層 v2 の口(11本: search_jccdb_items / get_jccdb_observations / get_jccdb_labor_rate /
+    //   compare_jccdb_regions / get_jccdb_work_unit_price / get_jccdb_index_series / get_us_construction_prices / get_jccdb_coverage /
+    //   get_us_prevailing_wage / get_us_permits / get_us_area_factor)。
+    //   同じ夜の v3 で、米国の掛け率の層の 4 本(get_us_price_chain / get_us_import_landed_cost / get_us_trade_margins /
+    //   get_us_contract_discounts)もこの口を通る。hs-jccdb-obs は内部の口(jccdb-obs.internal)から来た問い合わせにだけ米国の値を返すので、
+    //   この binding が無いと 4 本は値を返さない。
+    //   hs-jccdb-obs を先に deploy してから、この行を含む hs-mcp を deploy する(逆順だと binding 先が無く deploy が落ちる)。
+    { "binding": "JCCDB_SVC", "service": "hs-jccdb-obs" }
   ],
 
   // ★2026-08-11 第2段。mcp.horizonshield.dev をリポジトリから再現可能にする。
