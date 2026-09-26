@@ -25,16 +25,23 @@
 
 const enc = new TextEncoder();
 
+import { parseStrict, checkCanonicalInput } from "./strict_json.mjs";
+
 export async function sha256hex(s) {
   const buf = await crypto.subtle.digest("SHA-256", enc.encode(s));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-export function canonical(v) {
+// Canonical form, pinned (SPEC.md). Same bytes as bind.mjs; input outside the rule is refused, never hashed.
+function canon(v) {
   if (v === null || typeof v !== "object") return JSON.stringify(v);
-  if (Array.isArray(v)) return "[" + v.map(canonical).join(",") + "]";
+  if (Array.isArray(v)) return "[" + v.map(canon).join(",") + "]";
   const keys = Object.keys(v).sort();
-  return "{" + keys.map((k) => JSON.stringify(k) + ":" + canonical(v[k])).join(",") + "}";
+  return "{" + keys.map((k) => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}";
+}
+export function canonical(v) {
+  checkCanonicalInput(v);
+  return canon(v);
 }
 
 const DERIVED_FIELDS = ["evidence_id", "witness_sig", "edge_sig"];
@@ -153,7 +160,11 @@ function shapeError(obs) {
 
 export async function handleTaskWitnessPost(request, env) {
   let obs;
-  try { obs = await request.json(); } catch { return j({ ok: false, error: "bad_json" }, 400); }
+  // strict parse: duplicate keys, floats, unsafe integers and non-ASCII keys are refused before anything is hashed
+  try {
+    if (typeof request.text === "function") obs = parseStrict(await request.text());
+    else { obs = await request.json(); checkCanonicalInput(obs); }
+  } catch (e) { return j({ ok: false, error: e && e.code ? e.code : "bad_json", at: e && e.at != null ? e.at : undefined }, 400); }
   const se = shapeError(obs);
   if (se) return j({ ok: false, error: se, need: "task_id, hop{seq,from,to}, prev_evidence_id, conduct{verdict}, witness_id, evidence_id" }, 400);
   const v = await verifyObservation(obs); // R1 independence + R2 recompute

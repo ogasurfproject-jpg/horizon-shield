@@ -18,7 +18,7 @@ async function obs({ task_id = "t1", seq = 0, from = "did:key:A", to = "did:key:
   o.evidence_id = await evidenceId(o);
   return o;
 }
-function req(method, body) { return { method, json: async () => body }; }
+function req(method, body) { return { method, json: async () => body, text: async () => JSON.stringify(body) }; }
 function urlFor(qs) { return new URL("https://ledger.horizonshield.dev/witness/task?" + qs); }
 
 let fails = 0;
@@ -132,6 +132,25 @@ console.log("task-delegation-bind-v0 : ledger face selftest (Web Crypto)");
   const env = ENV();
   const r = await handleTaskWitness("/witness/task", { method: "GET" }, new URL("https://x/witness/task"), env);
   ok("12 get without task_id -> 400", r.status === 400);
+}
+
+// 10. strict parse at the ledger door: duplicate keys, floats, unsafe integers and non-ASCII keys are refused
+//     before anything is hashed (SPEC.md "Canonical form, pinned"); a clean record still lands
+{
+  const env = ENV();
+  const o = await obs({ task_id: "t10", verdict: "PASS" });
+  const clean = JSON.stringify(o);
+  const raw = async (text) => { const r = await handleTaskWitness("/witness/task", { method: "POST", text: async () => text }, null, env); return { status: r.status, body: JSON.parse(await r.text()) }; };
+  const dup = clean.replace('"task_id":"t10"', '"task_id":"t10","task_id":"t10"');
+  const flt = clean.replace('"seq":0', '"seq":0.0');
+  const big = clean.replace('"seq":0', '"seq":9007199254740993');
+  const key = clean.replace('"task_id"', '"task\u00e9id"');
+  const d = await raw(dup), f = await raw(flt), b = await raw(big), k = await raw(key), c = await raw(clean);
+  ok("10 duplicate key refused (400 duplicate_key)", d.status === 400 && d.body.error === "duplicate_key");
+  ok("10 float refused (400 non_integer_number)", f.status === 400 && f.body.error === "non_integer_number");
+  ok("10 unsafe integer refused (400 unsafe_number)", b.status === 400 && b.body.error === "unsafe_number");
+  ok("10 non-ASCII key refused (400 key_not_printable_ascii)", k.status === 400 && k.body.error === "key_not_printable_ascii");
+  ok("10 clean record still accepted (200)", c.status === 200 && c.body.ok === true);
 }
 
 console.log(fails ? ("\n" + fails + " FAILED") : "\nALL PASS (task_ledger_v0, Web Crypto)");

@@ -19,7 +19,7 @@ async function obs({ task_id, seq = 0, from = "did:key:A", to = "did:key:B", pre
   o.evidence_id = await evidenceId(o);
   return o;
 }
-async function post(o) { const r = await handleTaskWitness("/witness/task", { method: "POST", json: async () => o }, null, env); return { status: r.status, body: JSON.parse(await r.text()) }; }
+async function post(o) { const r = await handleTaskWitness("/witness/task", { method: "POST", json: async () => o, text: async () => JSON.stringify(o) }, null, env); return { status: r.status, body: JSON.parse(await r.text()) }; }
 const listLen = async (prefix) => (await env.LEDGER.list({ prefix })).keys.length;
 
 console.log("task-witness anchor : selftest (mirrors anchorWitnessPool)");

@@ -17,7 +17,7 @@ function kv() {
   };
 }
 const env = { LEDGER: kv() };
-function req(o) { return { method: "POST", json: async () => o }; }
+function req(o) { return { method: "POST", json: async () => o, text: async () => JSON.stringify(o) }; }
 function urlFor(qs) { return new URL("https://x/witness/task?" + qs); }
 let fails = 0;
 const ok = (n, c) => { console.log((c ? "  ok   " : "  FAIL ") + n); if (!c) fails++; };

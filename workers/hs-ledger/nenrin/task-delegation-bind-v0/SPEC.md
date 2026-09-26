@@ -31,3 +31,33 @@ Two Ed25519 detached signatures (wire form: detached JWS, EdDSA; DIDs resolve to
 - witness_sig: the witness signs canonical(preimage). The verdict becomes attributable and non-repudiable (R2 catches tamper, this catches spoofing of witness_id).
 - edge_sig: the delegating party (hop.from) signs canonical({task_id, hop}). The edge A->B is party-attested, not just witness-claimed. This closes the self-asserted-chain hole at the party level.
 Honest line: signatures prove WHO asserted, not that the assertion is TRUE. Attribution (sigs) + independence (R1) + non-suppression (R4) together = attributable, independent, non-suppressible observations. Signing does not change evidence_id (preimage excludes sigs).
+
+## Canonical form, pinned (the portable part of the verification contract)
+
+Artifact identity is a SHA-256 over the UTF-8 bytes of canonical(preimage), where preimage is the record without
+evidence_id, witness_sig and edge_sig. The record's schema name sits inside the hashed bytes. There is no domain
+prefix in v0; the agreement and contract record families add one, this family commits its type through the schema
+field instead. The canonical rule is the one the sieve and contract layers already prove byte-identical across
+Python and Node (musubi-canonical-v0):
+
+- object keys sorted by code point at every level; keys are printable ASCII (U+0020..U+007E), so code point order
+  and UTF-16 order agree in every runtime;
+- separators "," and ":" with no whitespace;
+- strings escape only '"', backslash and U+0000..U+001F (short forms for \b \f \n \r \t, the rest \u00xx
+  lowercase); everything else raw, including non-ASCII, U+007F, U+2028 and U+2029;
+- integers only, within plus or minus 2^53 - 1, no fraction, no exponent; a decimal is written as an integer at a
+  stated scale;
+- true, false, null, {} and [] as literals.
+
+Refusals, before anything is hashed (strict_json.mjs, shared by bind.mjs and the ledger face):
+duplicate_key (the same key twice in one object at any depth; neither first-wins nor last-wins is a result),
+non_integer_number, unsafe_number, key_not_printable_ascii, bad_json. A record that fails one of these has no
+evidence_id and is not stored. The rule only refuses; it never changes the bytes of a valid record, so every
+published fixture keeps its evidence_id (bind_adversarial A5).
+
+Bindings a record carries, as separate fields never derived from A2A task or context ids: task_id (the A2A Task
+id the observation is about), hop {seq, from, to}, prev_evidence_id (the chain), and, on the execution side,
+grant_ref (the authorization) and the digest of the action covered. Rules the verdict is computed under are
+numbered (R1 to R4 here, E1 to E3 in task-execution-bind-v0) and named in every verification report together with
+establishes, does_not_establish, the signer identities that resolved, and a recompute recipe. The report returns a
+status, never a score; the admission decision stays with the recipient.

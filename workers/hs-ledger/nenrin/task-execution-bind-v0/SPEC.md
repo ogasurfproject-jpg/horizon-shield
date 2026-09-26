@@ -29,7 +29,8 @@ ExecutionReceipt (signed by the provider named in the grant):
 - receipt_id = SHA-256(canonical(receipt without receipt_id and provider_sig)).
 - grant_ref sits INSIDE the signed preimage, so the provider is bound to that specific grant.
 
-canonical() and sha256hex() are imported from ../task-delegation-bind-v0/bind.mjs. The two layers share one
+canonical() and sha256hex() are imported from ../task-delegation-bind-v0/bind.mjs (canonical form pinned in its
+SPEC.md: printable-ASCII keys sorted by code point, integers only, duplicate keys refused before hashing). The two layers share one
 JCS, so a digest produced by either is recomputable by the other. That is what makes the digest-bound
 carriage in compose.test.mjs verifiable across the seam.
 

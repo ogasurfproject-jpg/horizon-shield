@@ -19,7 +19,7 @@ import { verifySignedExecution, reconcileSigned } from "../task-execution-bind-v
 import { verifyEvidence } from "../task-execution-bind-v0/outcome_evidence.mjs";
 import { verifyPreflight, verifyIntentSig, intentMatchesReceipt } from "../task-execution-bind-v0/preflight.mjs";
 
-export const VERIFIER_VERSION = "0.1.0";
+export const VERIFIER_VERSION = "0.1.1";
 export const LINK_PREFIX = "nenrin-exec://";
 
 // R3 generalized to a SET with possibly several witnesses per hop: seqs contiguous from 0, every root has a
@@ -203,8 +203,32 @@ export function verifyProvenance(input) {
     "anything about time beyond the record contents: this verifier has no clock and saw no anchor; a Bitcoin anchor, if one exists, bounds the records separately",
     "that this is the only provenance these parties produced for this task_id",
   ];
+  // the portable verification contract, stated on every report (SPEC.md "Canonical form, pinned"):
+  // which numbered rules the verdict was computed under, and which signer identities the checks resolved.
+  const uniq = (xs) => [...new Set(xs.filter((x) => typeof x === "string" && x.length))];
+  const rules = [
+    { id: "ID", layer: "cross", applied: true, statement: "every presented record carries the task_id under verification" },
+    { id: "R1", layer: "delegation", applied: observations.length > 0, statement: "witness_id differs from hop.from and hop.to (structural independence)" },
+    { id: "R2", layer: "delegation", applied: observations.length > 0, statement: "evidence_id recomputes from the canonical preimage" },
+    { id: "R3", layer: "delegation", applied: observations.length > 0, statement: "hops contiguous from seq 0, each prev_evidence_id resolves to a presented prior-hop observation" },
+    { id: "R4", layer: "delegation", applied: observations.length > 0, statement: "per-hop verdicts aggregate over the full witness set; disagreement is surfaced, never collapsed" },
+    { id: "E1", layer: "execution", applied: !!(grant && receipts.length), statement: "the provider's signed executed_action equals the caller's signed authorization, byte for byte" },
+    { id: "E2", layer: "execution", applied: !!(grant && receipts.length), statement: "exactly one authentic outcome reconciles for the grant; conflicting outcomes are equivocation" },
+    { id: "E3", layer: "execution", applied: !!(grant && receipts.length), statement: "the receipt hash-references the grant and comes from the executor the grant authorized" },
+    { id: "PF", layer: "preflight", applied: !!intent, statement: "the declared pre-execution action equals the caller's grant, from the authorized executor, in the window" },
+    { id: "SIG", layer: "attribution", applied: requireSigs, statement: "witness_sig, edge_sig, caller_sig and provider_sig verify against keys resolved from the signer identities" },
+  ];
+  const signers = {
+    signatures_required: requireSigs,
+    witnesses: uniq(observations.map((o) => o && o.witness_id)),
+    delegators: uniq(observations.map((o) => o && o.hop && o.hop.from)),
+    caller_id: grant && typeof grant.caller_id === "string" ? grant.caller_id : null,
+    provider_id: grant && typeof grant.provider_id === "string" ? grant.provider_id : null,
+    resolution: "identities are did:key or key_url; keys resolve offline from the identifier itself or from the resolve function the caller supplied",
+  };
   return {
     schema: "nenrin-provenance-verify-v0", verifier_version: VERIFIER_VERSION, task_id, verdict, refusals, findings, layers, establishes, does_not_establish,
+    rules, signers,
     recompute: {
       offline: "this verifier opens no socket and has no clock; run it yourself on the same records and do not take this operator's word",
       layers: ["../task-delegation-bind-v0/bind.mjs + sign.mjs (R1..R4, witness_sig, edge_sig)", "../task-execution-bind-v0/bind_exec.mjs + sign_exec.mjs (E1..E3, caller_sig, provider_sig)", "../task-execution-bind-v0/outcome_evidence.mjs (evidence pointer shape and optional lookup)"],

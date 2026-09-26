@@ -4,15 +4,24 @@
 // payload. That is the conferred-not-acquired line: the party under evaluation cannot mint its own verdict.
 // Same primitive shape as the AP2 fair-price attestation (content hash + independent recompute + sibling carriage).
 import { createHash } from "node:crypto";
+import { parseStrict, checkCanonicalInput } from "./strict_json.mjs";
+export { parseStrict, checkCanonicalInput };
 
 export const sha256hex = (s) => createHash("sha256").update(s, "utf8").digest("hex");
 
-// simplified JCS: recursive key sort, no whitespace. Deterministic across implementations.
-export function canonical(v) {
+// Canonical form, pinned (SPEC.md): keys sorted by code point (keys are printable ASCII, so every runtime sorts
+// them the same way), no whitespace, strings escaped only for '"', '\\' and U+0000..U+001F, non-ASCII raw,
+// integers only within plus or minus 2^53 - 1. canonical() refuses input outside the rule instead of producing
+// bytes another runtime might not reproduce; parseStrict() refuses duplicate keys before anything is hashed.
+function canon(v) {
   if (v === null || typeof v !== "object") return JSON.stringify(v);
-  if (Array.isArray(v)) return "[" + v.map(canonical).join(",") + "]";
+  if (Array.isArray(v)) return "[" + v.map(canon).join(",") + "]";
   const keys = Object.keys(v).sort();
-  return "{" + keys.map((k) => JSON.stringify(k) + ":" + canonical(v[k])).join(",") + "}";
+  return "{" + keys.map((k) => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}";
+}
+export function canonical(v) {
+  checkCanonicalInput(v);
+  return canon(v);
 }
 
 // evidence_id = content hash over the preimage (the record minus derived/envelope fields).
