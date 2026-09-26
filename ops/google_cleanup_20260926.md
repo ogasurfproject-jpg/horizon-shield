@@ -211,3 +211,13 @@ GSC のページ索引で「noindex により除外」がおおむね 168 に達
 - 処置: noindex 済みなのに索引に残る 10 本を sitemap-cleanup.xml に追加（168→178）。Google が再クロールすれば索引から落ちる。**索引数は 21→約 11 に下がる見込み。これは悪化ではなく、9/4 に自分で決めた noindex を Google がやっと反映する動き。**
 - GSC 登録リクエスト: /kantei/ 済（15:20、優先クロール待ちに入った旨の表示）。次は /hs-reverse-estimate/、/souba/gaiheki/、/souba/shiroari/（後者 2 本は 5 月版を 9/15 版に更新させるため）。
 - 後で見る: スタブは noindex と canonical→親 を同時に持つ。Google はこの組み合わせを推奨していない（矛盾信号）。9/21 時点で既に「noindex により除外」へ移った 4 本は同じ組み合わせで noindex が採用されたので実害は出ていないが、いずれ片方に揃える。
+
+## Domain プロパティ the-horizons-innovation.com（2026-09-26 18:17 JST 所有権確認、TOshi の手）
+- GSC に Domain プロパティ `the-horizons-innovation.com` を追加（contact@ のアカウント）。方式は DNS TXT（お名前.com の DNSレコード設定、ホスト名は空欄 = apex、TYPE TXT、値は google-site-verification=…、TTL 3600）。値は GSC の Settings > Ownership verification で見える。**消すと所有権が外れるので置きっぱなし。** 既存の `v=MCPv1…` TXT と並んで 2 本になった。
+- 経緯: 17:03 と 18:04 の VERIFY は失敗。原因は Google のキャッシュではなく、お名前.com 側で「確認画面へ進む」→「設定する」の最後の 1 押しが残っていて、レコードが配信されていなかった（ゾーンの SOA シリアルが 7/31 のままだった）。18:10 に設定を確定、18:11 に「DNSレコード設定 完了通知」と「ネームサーバー情報変更 完了通知」の 2 通。後者は「DNSレコード設定用ネームサーバー変更確認」のチェックによる形式的な NS 変更で、中身は前と同じ 01〜04.dnsv.jp（www は Wix、shield は GitHub Pages を指したまま。壊れていない）。18:13 には dig と dns.google の両方で 2 本見えた。18:17 VERIFY 成功。
+- 見分け方（次に同じ事が起きたとき）: Mac のターミナルで `dig +short TXT the-horizons-innovation.com @01.dnsv.jp`。権威サーバーに無ければお名前側の未確定か未反映、あって GSC が失敗なら Google の resolver のキャッシュ（TTL 3600）待ち。
+- 18:18 Sitemaps に `https://www.the-horizons-innovation.com/sitemap.xml`（Wix 自動生成）を送信、Success。登録直後は Type = Unknown、Discovered 0。Google が読むと Sitemap index に変わり、下に pages-sitemap 等がぶら下がる想定。
+- 18:20 URL 検査 `https://www.the-horizons-innovation.com/` は「URL is on Google」（会社サイトのトップは既に索引にある）。REQUEST INDEXING 済（優先クロール待ち）。= shield への被リンク 2 本を持つページの再クロールを頼んだ形。
+- Domain プロパティの Sitemaps 一覧は shield の sitemap.xml（9/13、115）と sitemap-cleanup.xml（9/26、168）も表示する。2024-07 の古い Sitemap index（`https://renonoer.mugaw…`、0 ページ）も見えるが触らない（正体は後で確認）。
+- Bing 側（sitemap.xml / sitemap-archive.xml / sitemap-yakumo.xml / robots.txt）は一切触っていない。
+- 次に見る物（月曜 9/28 09:00 の gsc_check と、GSC の画面）: (1) shield の sitemap.xml の最終取得が 9/13 から動くか、(2) sitemap-cleanup.xml に最終取得が付くか、(3) www の sitemap.xml が Sitemap index に変わるか、(4) 索引数 21 が下がる（noindex の反映、想定どおり）か、(5) /kantei/ ほか 4 本の登録依頼が「登録」に変わるか。
