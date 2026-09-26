@@ -13,7 +13,10 @@ This file is the copy. Standard library only, one directory, every file named by
     <dir>/ledger/<n>.json    the ledger entry as served (claim_sha256, ots_status, bitcoin_block, record_canonical)
     <dir>/ledger/<n>.raw     the claim bytes as served (?format=raw); sha256 must equal claim_sha256
     <dir>/ledger/<n>.ots     the OpenTimestamps proof bytes for the entry
-    <dir>/objects/<sha256>   every record a batch entry points to by bytes_url, stored under its own sha256
+    <dir>/objects/<sha256>   every record a batch entry points to by bytes_url, stored under the digest the batch names it by:
+                             sha256 of the bytes for agreements and executions; for a contract, contract_sha256 (sha256 over
+                             "a2a-contract-v0\n" plus the canonical record without its signatures, the digest both parties sign),
+                             which stays the same whether one or both signatures are present. verify checks each by its rule.
     <dir>/manifest.json      what was fetched, what verified, what did not, and the sha256 of this manifest
 
     python3 mirror.py pull   --dir ./nenrin-mirror              # fetch or resume; re-verifies what is already there
@@ -77,8 +80,34 @@ def _url_ok(u):
     return ALLOW_HTTP and (u.startswith("http://127.0.0.1") or u.startswith("http://localhost"))
 
 
+def canonical(obj):
+    return json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+CONTRACT_CONTEXT = b"a2a-contract-v0\n"
+
+
+def object_ok(kind, sha, b):
+    """Does this object carry the digest the batch names it by? Returns (ok, rule). Agreements and executions are
+    named by sha256 of their bytes. A contract is named by contract_sha256, the digest both parties signed: sha256
+    over the context line plus the canonical record without its signatures. Tried in that order; when the kind is
+    unknown (a stray file in objects/), a contract shaped record is allowed the second rule."""
+    if sha256_hex(b) == sha:
+        return True, "sha256"
+    if kind in ("contract", None):
+        try:
+            rec = json.loads(b.decode("utf-8"))
+        except Exception:  # noqa: BLE001
+            return False, None
+        if isinstance(rec, dict) and rec.get("schema") == "a2a-contract-v0":
+            body = {k: v for k, v in rec.items() if k != "signatures"}
+            if sha256_hex(CONTRACT_CONTEXT + canonical(body).encode("utf-8")) == sha:
+                return True, "contract_sha256"
+    return False, None
+
+
 def objects_of(entry):
-    """(sha, bytes_url) pairs a ledger entry points to: any records[] item with a 64 hex sha and an https bytes_url."""
+    """(sha, bytes_url, kind) triples a ledger entry points to: any records[] item with a 64 hex sha and an https bytes_url."""
     out = []
     rc = entry.get("record_canonical")
     if not isinstance(rc, str):
@@ -89,7 +118,7 @@ def objects_of(entry):
         return out
     for item in (rec.get("records") if isinstance(rec, dict) else None) or []:
         if isinstance(item, dict) and _is_hex64(item.get("sha")) and _url_ok(item.get("bytes_url")):
-            out.append((item["sha"], item["bytes_url"]))
+            out.append((item["sha"], item["bytes_url"], item.get("kind") if isinstance(item.get("kind"), str) else None))
     return out
 
 
@@ -153,7 +182,7 @@ def pull(base, d, n_from=None, n_to=None, quiet=False):
         if not e["ots"]:
             problems.append({"n": n, "what": "ots_missing"})
         # objects the entry points to, content addressed
-        for sha, url in objects_of(entry):
+        for sha, url, kind in objects_of(entry):
             e["objects"].append(sha)
             path = os.path.join(d, "objects", sha)
             if sha in objects:
@@ -161,17 +190,18 @@ def pull(base, d, n_from=None, n_to=None, quiet=False):
             if not os.path.exists(path):
                 st, b = fetch(url); time.sleep(PAUSE)
                 if st != 200 or not b:
-                    objects[sha] = {"url": url, "ok": False, "status": st}
+                    objects[sha] = {"url": url, "kind": kind, "ok": False, "status": st}
                     problems.append({"n": n, "what": "object_unreachable", "sha": sha, "url": url, "status": st}); continue
-                if sha256_hex(b) != sha:
-                    objects[sha] = {"url": url, "ok": False, "got": sha256_hex(b)}
-                    problems.append({"n": n, "what": "object_sha_mismatch", "sha": sha, "url": url, "got": sha256_hex(b)}); continue
+                ok, rule = object_ok(kind, sha, b)
+                if not ok:
+                    objects[sha] = {"url": url, "kind": kind, "ok": False, "got_sha256": sha256_hex(b)}
+                    problems.append({"n": n, "what": "object_sha_mismatch", "sha": sha, "url": url, "kind": kind, "got_sha256": sha256_hex(b)}); continue
                 _write(path, b)
             b = _read(path)
-            ok = sha256_hex(b) == sha
-            objects[sha] = {"url": url, "ok": ok, "bytes": len(b)}
+            ok, rule = object_ok(kind, sha, b)
+            objects[sha] = {"url": url, "kind": kind, "ok": ok, "addressed_by": rule, "bytes": len(b)}
             if not ok:
-                problems.append({"n": n, "what": "object_on_disk_mismatch", "sha": sha})
+                problems.append({"n": n, "what": "object_on_disk_mismatch", "sha": sha, "kind": kind})
         entries.append(e)
         say("  %3d  claim %s  raw %s  ots %s  objects %d%s" % (n, (claim or "")[:12], "ok" if e["raw_ok"] else "NO", "ok" if e["ots"] else "NO",
                                                           len(e["objects"]), "  block %s" % e.get("bitcoin_block") if e.get("bitcoin_block") else ""))
@@ -191,7 +221,7 @@ def pull(base, d, n_from=None, n_to=None, quiet=False):
 # --------------------------------------------------------------------------- verify (offline)
 def verify(d, quiet=False):
     say = (lambda *a: None) if quiet else print
-    problems, n_raw, n_obj = [], 0, 0
+    problems, n_raw, n_obj, kinds = [], 0, 0, {}
     ld = os.path.join(d, "ledger")
     for name in sorted(os.listdir(ld) if os.path.isdir(ld) else []):
         if not name.endswith(".json"):
@@ -212,18 +242,20 @@ def verify(d, quiet=False):
             problems.append({"n": n, "what": "raw_missing"})
         if not os.path.exists(os.path.join(ld, n + ".ots")):
             problems.append({"n": n, "what": "ots_missing"})
-        for sha, _url in objects_of(entry):
+        for sha, _url, kind in objects_of(entry):
             path = os.path.join(d, "objects", sha)
             if not os.path.exists(path):
-                problems.append({"n": n, "what": "object_missing", "sha": sha}); continue
+                problems.append({"n": n, "what": "object_missing", "sha": sha, "kind": kind}); continue
+            kinds[sha] = kind
     od = os.path.join(d, "objects")
     for name in sorted(os.listdir(od) if os.path.isdir(od) else []):
         if not _is_hex64(name):
             continue
         n_obj += 1
-        got = sha256_hex(_read(os.path.join(od, name)))
-        if got != name:
-            problems.append({"what": "object_sha_mismatch", "sha": name, "got": got})
+        b = _read(os.path.join(od, name))
+        ok, rule = object_ok(kinds.get(name), name, b)
+        if not ok:
+            problems.append({"what": "object_sha_mismatch", "sha": name, "kind": kinds.get(name), "got_sha256": sha256_hex(b)})
     mp = os.path.join(d, "manifest.json")
     msha = sha256_hex(_read(mp)) if os.path.exists(mp) else None
     say("verify %s: %d raw claims, %d objects, manifest %s, %d problem(s)" % (d, n_raw, n_obj, (msha or "absent")[:16], len(problems)))

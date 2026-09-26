@@ -17,7 +17,10 @@ Standard library only, Python 3.8 or later. Read only against the ledger; nothin
     ledger/<n>.json    the entry as served: claim_sha256, ots_status, bitcoin_block, record_canonical
     ledger/<n>.raw     the claim bytes as served; sha256(raw) must equal claim_sha256, or the pull records it
     ledger/<n>.ots     the OpenTimestamps proof for that entry, verifiable against Bitcoin block headers with any OTS client
-    objects/<sha256>   every record a batch entry names by bytes_url (contracts, agreements, executions), stored under its own sha256
+    objects/<sha256>   every record a batch entry names by bytes_url, stored under the digest the batch names it by: sha256 of the
+                       bytes for agreements and executions; for a contract, contract_sha256 (sha256 over "a2a-contract-v0" plus a
+                       newline plus the canonical record without its signatures, the digest both parties sign), the same address
+                       whether one or both signatures are present. verify applies each rule and says which one matched.
     manifest.json      what was fetched, what verified, what did not, with the manifest's own sha256 printed at the end
 
 Every file is named by what it is, so two mirrors made by two strangers can be compared by name and digest with `diff`, and neither needs the other to be honest.
@@ -36,4 +39,8 @@ If you hold a mirror and want it counted, say so in an issue with the manifest s
 
 ## Self test
 
-    python3 mirror_test.py      # a synthetic ledger on 127.0.0.1: honest pull, resume, tampered copy, lying server, diff, unreachable entry, CLI
+    python3 mirror_test.py      # a synthetic ledger on 127.0.0.1: honest pull, resume, tampered copy, lying server, diff, unreachable entry, CLI, contract address rule
+
+## First real run (2026-09-26)
+
+The first pull of the live ledger (56 entries, 4 records under entry 55) found one problem, in the mirror, not the ledger: the contract e15c0188 is served under its contract_sha256, the digest both parties sign, which is not the sha256 of the served bytes, and the first version of this tool only knew the plain rule. Fixed the same morning (the contract rule above, check 8). The finding is kept here because it is the kind of thing a mirror is for: the address of a record must be recomputable by a stranger from the bytes alone, and the rule for each kind is now written down where the stranger will look.

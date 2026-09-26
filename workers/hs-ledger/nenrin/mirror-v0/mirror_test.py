@@ -24,9 +24,20 @@ class Ledger:
         obj_b = json.dumps({"schema": "a2a-execution-v0", "performed_actions": ["read"]}, sort_keys=True, separators=(",", ":")).encode()
         self.objects[sha(obj_a)] = obj_a
         self.objects[sha(obj_b)] = obj_b
+        # a contract is named by contract_sha256 (context + canonical body without signatures), not by sha256 of its bytes,
+        # exactly as the real intake serves e15c0188: the same address whether one or both parties have signed
+        contract = {"schema": "a2a-contract-v0", "contract_id": "c" * 32, "parties": [{"role": "principal"}, {"role": "contractor"}],
+                    "grant": {"authorized_actions": ["read"]}, "signatures": [{"domain": "x", "signature": "AAAA"}]}
+        body = {k: v for k, v in contract.items() if k != "signatures"}
+        csha = sha(b"a2a-contract-v0\n" + M.canonical(body).encode("utf-8"))
+        obj_c = M.canonical(contract).encode("utf-8")
+        assert sha(obj_c) != csha
+        self.objects[csha] = obj_c
+        self.contract_sha = csha
         base = "http://127.0.0.1:%d" % port
-        recs = [{"sha": sha(obj_a), "kind": "contract", "bytes_url": "%s/object/%s" % (base, sha(obj_a))},
-                {"sha": sha(obj_b), "kind": "execution", "bytes_url": "%s/object/%s" % (base, sha(obj_b))}]
+        recs = [{"sha": sha(obj_a), "kind": "agreement", "bytes_url": "%s/object/%s" % (base, sha(obj_a))},
+                {"sha": sha(obj_b), "kind": "execution", "bytes_url": "%s/object/%s" % (base, sha(obj_b))},
+                {"sha": csha, "kind": "contract", "bytes_url": "%s/object/%s" % (base, csha)}]
         batch = json.dumps({"schema": "nenrin-agreement-batch-v1", "count": 2, "records": recs}, sort_keys=True, separators=(",", ":"))
         self.raw = {1: "外壁塗装 30坪 一式（シリコン）: claim one".encode("utf-8"),
                     2: b'{"schema":"jidec-claim","work":"claim two"}',
@@ -90,11 +101,13 @@ def main():
         A = os.path.join(tmp, "A")
         assert M.pull(base, A, quiet=True) == 0
         man = json.loads(open(os.path.join(A, "manifest.json"), encoding="utf-8").read())
-        assert man["problems"] == [] and len(man["entries"]) == 3 and len(man["objects"]) == 2, man
+        assert man["problems"] == [] and len(man["entries"]) == 3 and len(man["objects"]) == 3, man
+        assert man["objects"][L.contract_sha]["addressed_by"] == "contract_sha256"
+        assert all(v["addressed_by"] == "sha256" for k, v in man["objects"].items() if k != L.contract_sha)
         assert all(e["raw_ok"] and e["ots"] for e in man["entries"])
         assert sorted(os.listdir(os.path.join(A, "objects"))) == sorted(L.objects)
         assert M.verify(A, quiet=True) == 0
-        n += 1; print("[1] honest ledger: 3 entries, 2 objects content addressed, every digest recomputes offline")
+        n += 1; print("[1] honest ledger: 3 entries, 3 objects content addressed (two by sha256, the contract by contract_sha256), every digest recomputes offline")
 
         # [2] resume: a second pull fetches only the index; nothing on disk is refetched, verify still clean
         before = len(L.requests)
@@ -151,9 +164,23 @@ def main():
         rr = subprocess.run([sys.executable, os.path.join(HERE, "mirror.py"), "verify", "--dir", A], capture_output=True, text=True)
         assert rr.returncode == 0 and "0 problem(s)" in rr.stdout, rr.stdout + rr.stderr
         n += 1; print("[7] CLI verify on the honest copy: 0 problems")
+
+        # [8] a contract whose signatures were stripped still verifies under its address (that is the point of the
+        # address); a contract whose terms were edited does not, even though the server serves it with a valid shape
+        cp = os.path.join(A, "objects", L.contract_sha)
+        orig = open(cp, "rb").read()
+        rec = json.loads(orig.decode("utf-8")); rec["signatures"] = []
+        open(cp, "wb").write(M.canonical(rec).encode("utf-8"))
+        assert M.verify(A, quiet=True) == 0
+        rec = json.loads(orig.decode("utf-8")); rec["grant"]["authorized_actions"] = ["read", "payment"]
+        open(cp, "wb").write(M.canonical(rec).encode("utf-8"))
+        assert M.verify(A, quiet=True) == 1
+        open(cp, "wb").write(orig)
+        assert M.verify(A, quiet=True) == 0
+        n += 1; print("[8] contract object: signatures stripped still matches its contract_sha256 address; one action added does not")
     finally:
         srv.shutdown(); shutil.rmtree(tmp, ignore_errors=True)
-    print("\nSELF-TEST PASSED: nenrin-mirror-v0, %d checks (honest pull, resume, tampered copy, lying server, diff, unreachable entry, CLI)" % n)
+    print("\nSELF-TEST PASSED: nenrin-mirror-v0, %d checks (honest pull, resume, tampered copy, lying server, diff, unreachable entry, CLI, contract address rule)" % n)
 
 
 if __name__ == "__main__":
