@@ -1,0 +1,11 @@
+2026-09-26 (JST evening) gate 0.4.15
+served_sha256=99d374405a59bbdc92f93f52e5f6c647da8db8ec06a5b851c59dc8e1880fcb8d served_bytes=9420
+go (a2a-go v2.6.0 ebf17c56, stdlib build in a Linux container, Go 1.24.7):
+  go_canonical_bytes=6852 go_canonical_sha256=d9fe9289b493f93e2d771a0fcda118cf39177baf98392a2ad299f930098aef1a
+  signature[0]: PASS
+  signature[1]: FAIL signature verification failed
+  result: 1 of 2 signatures verify under a2a-go v2.6.0 a2acrypto
+js (@a2a-js/sdk 1.1.0, ../node_modules, Node on the operator's machine VM):
+  js_sdk_canonical_bytes=6410 js_sdk_canonical_sha256=1489fe91a2d6cbd6fcc88ce40d3c929eea9597832c3044fdc2c68877907d9f75
+  js_plain_jcs_bytes=6852 js_plain_jcs_sha256=d9fe9289b493f93e2d771a0fcda118cf39177baf98392a2ad299f930098aef1a
+  top_level_fields_dropped_by_js_sdk=["url","protocolVersion","securityRequirements","compensation","preferredTransport"]
