@@ -1657,7 +1657,7 @@ async function handle(request, env) {
           items.push({ n, work: e.work, claim_sha256: e.claim_sha256, ots_status: e.ots_status, pending_stage: pv ? pv.stage : null, pending_hours: pv ? pv.hours : null, bitcoin_block: e.bitcoin_block, url: `${origin}/ledger/${n}` });
         }
       }
-      return json({ ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", count: seq, entries: items });
+      return json({ ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", count: seq, entries: items }, 200, { "cache-control": "no-store" });
     }
 
     if (p === "/ledger/append" && request.method === "POST") {
@@ -2055,13 +2055,18 @@ async function handle(request, env) {
         if (!b64) return json({ error: "proof not yet available", ots_status: e.ots_status }, 404);
         return new Response(b64ToBytes(b64), { headers: { "content-type": "application/vnd.opentimestamps.proof", "content-disposition": `attachment; filename="claim_${n}.txt.ots"`, ...CORS } });
       }
+      // 2026-09-26. The status of an entry changes (unstamped -> pending -> confirmed) and the same URL answers
+      // HTML or JSON by Accept. Without these two headers an intermediary could hold the HTML of a pending
+      // entry and serve it after the anchor landed (seen: entry 56 read as "awaiting" nine hours after
+      // confirmation). Freshness is part of the record: no-store, and Vary: Accept on the negotiated forms.
+      const FRESH = { "cache-control": "no-store", vary: "Accept" };
       const fmt = url.searchParams.get("format");
-      if (fmt === "raw") return new Response(e.record_canonical || "", { headers: { "content-type": "text/plain; charset=utf-8", ...CORS } });
+      if (fmt === "raw") return new Response(e.record_canonical || "", { headers: { "content-type": "text/plain; charset=utf-8", ...CORS, "cache-control": "no-store" } });
       if (fmt === "json" || (request.headers.get("accept") || "").includes("application/json")) {
         const pv = pendingView(e, env);
-        return json(pv ? { ...e, pending_stage: pv.stage, pending_hours: pv.hours, pending_stale_after_hours: pv.stale_after } : e);
+        return json(pv ? { ...e, pending_stage: pv.stage, pending_hours: pv.hours, pending_stale_after_hours: pv.stale_after } : e, 200, FRESH);
       }
-      return new Response(receiptHtml(e, origin, env), { headers: { "content-type": "text/html; charset=utf-8", ...CORS } });
+      return new Response(receiptHtml(e, origin, env), { headers: { "content-type": "text/html; charset=utf-8", ...CORS, ...FRESH } });
     }
 
     return json({ error: "not found", routes: ["/ledger", "/ledger/{n}", "/ledger/{n}/ots"] }, 404);

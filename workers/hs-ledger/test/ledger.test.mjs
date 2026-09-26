@@ -290,4 +290,19 @@ chk("/health declares that it does not record IPs", !!hj.privacy && hj.privacy.n
   chk("witness/pending states the schedule instead of promising daily batches", /00:30 UTC/.test(pend.note), pend.note);
 }
 
+// 2026-09-26. An entry's status changes after it is written, and one URL answers HTML or JSON by Accept. Entry 56
+// was read as "awaiting confirmation" nine hours after its anchor landed, from a cached HTML. The record's freshness
+// is part of the record: the entry and the index say no-store, and the negotiated forms say Vary: Accept.
+{
+  const rh = await worker.fetch(new Request(B + "/ledger/2"), env);
+  chk("GET /ledger/{n} HTML is no-store", rh.headers.get("cache-control") === "no-store", rh.headers.get("cache-control"));
+  chk("GET /ledger/{n} HTML varies on Accept", /accept/i.test(rh.headers.get("vary") || ""), rh.headers.get("vary"));
+  const rj = await worker.fetch(new Request(B + "/ledger/2?format=json"), env);
+  chk("GET /ledger/{n} JSON is no-store", rj.headers.get("cache-control") === "no-store", rj.headers.get("cache-control"));
+  const rr = await worker.fetch(new Request(B + "/ledger/2?format=raw"), env);
+  chk("GET /ledger/{n} raw is no-store", rr.headers.get("cache-control") === "no-store", rr.headers.get("cache-control"));
+  const ri = await worker.fetch(new Request(B + "/ledger"), env);
+  chk("GET /ledger index is no-store", ri.headers.get("cache-control") === "no-store", ri.headers.get("cache-control"));
+}
+
 process.exit(chk.done() ? 1 : 0);
