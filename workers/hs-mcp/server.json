@@ -1,8 +1,8 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "dev.horizonshield/horizon-shield",
-  "description": "Independent buyer-side fair-price verification for Japanese construction and renovation estimates.",
-  "version": "1.0.10",
+  "description": "Buyer-side fair-price checks for Japanese renovation, plus JCCDB and USCCDB construction cost data.",
+  "version": "1.0.11",
   "remotes": [
     {
       "type": "streamable-http",

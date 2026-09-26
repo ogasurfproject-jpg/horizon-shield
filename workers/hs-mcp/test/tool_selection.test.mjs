@@ -42,7 +42,12 @@ const DASH = new RegExp("[" + String.fromCharCode(0x2012, 0x2013, 0x2014, 0x2015
     chk("instructions に " + w, ins.includes(w));
   }
   chk("instructions にダッシュ無し", !DASH.test(ins));
-  chk("serverInfo.version は 1.0.10", r.serverInfo && r.serverInfo.version === "1.0.10", JSON.stringify(r.serverInfo));
+  chk("serverInfo.version は 1.0.11", r.serverInfo && r.serverInfo.version === "1.0.11", JSON.stringify(r.serverInfo));
+  // 1.0.11: 案内文が建設費のデータ 15 本(日本 JCCDB、米国 USCCDB)を案内し、「Japan only」は適正価格の判定に限る
+  for (const w of ["JCCDB", "USCCDB", "United States Construction Cost Database", "search_jccdb_items", "get_jccdb_coverage", "get_us_construction_prices", "get_us_price_chain", "get_us_contract_discounts", "computed:true", "not renovation quotes", "fair-price verdicts are for Japan only", "適正価格の判定は日本限定"]) {
+    chk("instructions に " + w, ins.includes(w));
+  }
+  chk("instructions に素の「Scope and honesty: Japan only」が残っていない", !ins.includes("Scope and honesty: Japan only"));
 }
 
 // ---- 2. tools/list: 主要 2 ツールに利用者の言い回し(trigger) ----
@@ -107,6 +112,27 @@ const DASH = new RegExp("[" + String.fromCharCode(0x2012, 0x2013, 0x2014, 0x2015
   const o = await call("audit_estimate", { work: "リフォーム", quoted_price: 1200000 });
   chk("『リフォーム』120万は判定保留のまま", o.ambiguous === true, JSON.stringify(o).slice(0, 200));
   chk("  判定語を含まん", o.verdict === undefined && o.level === undefined);
+}
+
+// ---- 6. 1.0.11: get_jccdb_dataset_info に観測層(日本 JCCDB、米国 USCCDB)。道具の名前は実在の物だけ ----
+{
+  const o = await call("get_jccdb_dataset_info", {});
+  const ol = o.observation_layers;
+  chk("observation_layers が付く", ol && ol.japan && ol.united_states, JSON.stringify(o).slice(0, 200));
+  chk("米国は USCCDB の名", ol && /USCCDB: United States Construction Cost Database/.test(ol.united_states.name));
+  chk("計算の層はファイルで配らないと明記", ol && /not distributed as files/.test(ol.united_states.computed_layer.note));
+  const names = new Set((await rpc("tools/list", {})).tools.map(t => t.name));
+  const listed = ol ? [...ol.japan.tools, ...ol.united_states.tools, ...ol.united_states.computed_layer.tools] : [];
+  chk("観測層に書いた道具は全部 tools/list にある", listed.length >= 15 && listed.every(n => names.has(n)), listed.filter(n => !names.has(n)).join(","));
+  chk("品目の目録の既存の欄は変わらない", o.items === 95403 && o.license === "CC BY 4.0" && o.links && o.links.dataset_doi === "https://doi.org/10.5281/zenodo.22127752");
+  chk("観測層にダッシュ無し", !DASH.test(JSON.stringify(ol)));
+  const tl = (await rpc("tools/list", {})).tools;
+  chk("道具は 30 本で、全部に title と readOnlyHint の注記", tl.length === 30 && tl.every(t => t.title && t.annotations && typeof t.annotations.readOnlyHint === "boolean"), tl.length);
+  const writers = tl.filter(t => t.annotations.readOnlyHint === false).map(t => t.name).sort();
+  chk("台帳に記録を足す 2 本だけが readOnlyHint:false(verify_fair_price と create_ap2)", writers.join(",") === "create_ap2_fairness_attestation,verify_fair_price", writers.join(","));
+  chk("書く 2 本も destructiveHint:false", tl.filter(t => writers.includes(t.name)).every(t => t.annotations.destructiveHint === false));
+  chk("全部に outputSchema(object)", tl.every(t => t.outputSchema && t.outputSchema.type === "object"), tl.filter(t => !t.outputSchema).map(t => t.name).join(","));
+  chk("outputSchema にダッシュ無し", !DASH.test(JSON.stringify(tl.map(t => t.outputSchema))));
 }
 
 console.log(fail ? ("FAIL " + fail) : "ALL PASS");

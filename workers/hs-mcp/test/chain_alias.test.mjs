@@ -141,7 +141,7 @@ const DASH = new RegExp("[" + String.fromCharCode(0x2012, 0x2013, 0x2014, 0x2015
   const r = await rpcRaw("initialize", { protocolVersion: "2025-06-18" });
   chk("instructions に normalized_from と next_calls", /normalized_from/.test(r.instructions) && /next_calls/.test(r.instructions));
   chk("instructions にダッシュ無し", !DASH.test(r.instructions));
-  chk("serverInfo 1.0.10", r.serverInfo.version === "1.0.10");
+  chk("serverInfo 1.0.11", r.serverInfo.version === "1.0.11");
 }
 
 console.log(fail ? ("FAIL " + fail) : "ALL PASS");

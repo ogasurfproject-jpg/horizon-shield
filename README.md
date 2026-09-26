@@ -207,7 +207,8 @@ A homeowner commissioning construction work cannot reliably judge whether a quot
 - **Transport:** MCP over Streamable HTTP (JSON-RPC 2.0). The legacy SSE transport is not implemented; GET on /sse answers 405 sse_not_supported.
 - **Endpoint:** `https://mcp.horizonshield.dev`
 - **Access:** read only, no API key required
-- **Data region:** Japan (JPY), built on the open JCCDB dataset (95,403 line items)
+- **Data region:** fair-price verdicts for Japan (JPY), built on the open JCCDB dataset (95,403 line items); construction cost data for Japan (JCCDB observation layer) and the United States (USCCDB, the United States Construction Cost Database)
+- **Tools:** 30 (15 for fair price, verification and contractors; 15 for construction cost data)
 
 ## Tools
 
@@ -227,6 +228,34 @@ A homeowner commissioning construction work cannot reliably judge whether a quot
 | `verify_integrity_claim` | Independently recomputes a signed integrity verdict (SHA-256 over the signed_payload) as a third party. Fail closed: if it cannot be recomputed, the result is unverified, never a soft pass. |
 | `create_ap2_fairness_attestation` | Issues a FairPriceAttestation shaped to attach to a Google AP2 (Agent Payments Protocol) Cart Mandate, so a fair price proof can ride alongside the payment authorization. Optional `quoted_price` adds a within / above / below verdict. |
 | `get_agent_card` | Returns the A2A Agent Card URL and published skills for agent to agent discovery. |
+| `find_verified_contractor` | Finds verification-passed contractors on Yakumo, where listing depends only on passing the KIRA fairness audit and no referral or listing fee is taken. Scores and tiers, never prices; returns 0 honestly when nothing matches. |
+
+### Construction cost data: Japan (JCCDB) and both countries
+
+| Tool | Description |
+|------|-------------|
+| `search_jccdb_items` | Searches the 95,403 JCCDB line items (materials, products, labor) by name; returns whether each exists in a public document, with its evidence URL. |
+| `get_jccdb_observations` | Region, date and price status of an item in Japanese and U.S. public documents. Values only where the licence allows redistribution; every row carries licence, attribution and evidence URL. |
+| `get_jccdb_labor_rate` | MLIT public-works design labor rates by prefecture and trade (wage per 8 hours); latest by default, yearly series with `history:true`. |
+| `compare_jccdb_regions` | Latest value per region for an item and spec, with min, median (computed) and max; only identical spec, unit and basis are compared. |
+| `get_jccdb_work_unit_price` | Public-works unit prices for work items (materials, labor and equipment combined), with composition-ratio rows. Not renovation quote prices. |
+| `get_jccdb_index_series` | Construction cost index series (NHCCI, PPI, MLIT deflator and others) over a period, with year-over-year change computed by this service. |
+| `get_jccdb_coverage` | What the observation layers hold: rows per country, layer and source, priced rows and source periods; empty combinations are listed as absent. |
+
+### Construction cost data: United States (USCCDB)
+
+USCCDB is the United States Construction Cost Database: U.S. public-domain federal data and city open data, one row per observation with source URL, sha256 and licence. The four chain tools compute on request and are not distributed as files. Public-works prices, statistics and estimates are reference data, not renovation quotes.
+
+| Tool | Description |
+|------|-------------|
+| `get_us_construction_prices` | U.S. public construction cost data by layer, region, period and item: Davis-Bacon wages, BLS wages, public unit costs, equipment rates, permits and spending, indexes and area factors, HUD cost limits, state DOT bid prices. |
+| `get_us_prevailing_wage` | Davis-Bacon general wage determinations by state, county and trade: base wage and fringe with decision number and source URL. Minimums for federally funded work, not private market rates. |
+| `get_us_permits` | U.S. building permits by region and year: Census BPS and distributions of declared valuations in city permit data. Not contract prices. |
+| `get_us_area_factor` | DoD Area Cost Factors and USACE CWCCIS state adjustment factors by state, county, ZIP, city or overseas country. Budgeting factors, not a test of a quote. |
+| `get_us_price_chain` | Estimated U.S. prices along the distribution chain for construction materials and chemicals: landed import cost, wholesale, retail range and contractor, with formula, source URL and sha256 on every row. Computed on request. |
+| `get_us_import_landed_cost` | Landed cost of U.S. imports by HS 10-digit code (Census IMDB): customs value, CIF, calculated duty including Section 232, unit cost, effective duty rate and top partner countries. |
+| `get_us_trade_margins` | U.S. wholesale and retail gross margins by NAICS (Census AWTS, ARTS, AIES 2024) with kake_cost_ratio = 1 - margin; optionally the BEA 2007 margin structure. Industry averages. |
+| `get_us_contract_discounts` | Published discount rates off list price in U.S. public contracts (Washington DES, NASPO ValuePoint MRO) with kake_ratio = 1 - discount. Rates are ceilings; list bases differ by row. |
 
 ## Connecting
 

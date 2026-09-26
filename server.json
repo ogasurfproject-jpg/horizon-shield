@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ogasurfproject-jpg/horizon-shield",
   "title": "HORIZON SHIELD: construction and renovation estimate auditor",
-  "description": "Fair-price check for Japanese renovation quotes: range, verdict, red flags, verified contractors.",
-  "version": "1.0.10",
+  "description": "Fair-price checks for Japanese renovation quotes, plus Japan and US construction cost data.",
+  "version": "1.0.11",
   "websiteUrl": "https://shield.the-horizons-innovation.com",
   "icons": [
     {

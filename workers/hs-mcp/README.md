@@ -25,7 +25,9 @@ Works with any MCP client: **Claude  |  ChatGPT  |  Gemini  |  Perplexity  |  Cu
 - **Field-supervised data.** souba-db is curated from multiple public price sources plus
   30 years of on-site experience  -  not scraped guesses.
 
-## Tools (14)
+## Tools (30)
+
+### Fair price, verification and contractors (15)
 | Tool | What it does |
 |---|---|
 | `get_price_range` | Fair price range (min/avg/max), overcharge danger threshold, unit, trend |
@@ -42,9 +44,35 @@ Works with any MCP client: **Claude  |  ChatGPT  |  Gemini  |  Perplexity  |  Cu
 | `verify_integrity_claim` | Third-party verification of an issued signed claim (fail-closed) |
 | `create_ap2_fairness_attestation` | FairPriceAttestation shaped to attach to a Google AP2 Cart Mandate (optional quoted_price adds within/above/below) |
 | `get_agent_card` | A2A (Agent2Agent) agent card for agent interop |
+| `find_verified_contractor` | Verification-passed contractors on Yakumo (no referral or listing fee; scores and tiers, never prices) |
 
-Pricing is Japan-specific (JPY). Several tools (`check_red_flags`, `get_estimate_reading_guide`) are
+Fair-price verdicts are Japan-specific (JPY). Several tools (`check_red_flags`, `get_estimate_reading_guide`) are
 language-agnostic and work for estimates anywhere.
+
+### Construction cost data: Japan (JCCDB) and both countries (7)
+| Tool | What it does |
+|---|---|
+| `search_jccdb_items` | Search the 95,403 JCCDB line items by name, with evidence URLs |
+| `get_jccdb_observations` | Region, date and price status of an item in Japanese and U.S. public documents (licence and source on every row) |
+| `get_jccdb_labor_rate` | MLIT public-works design labor rates by prefecture and trade |
+| `compare_jccdb_regions` | Latest value per region for an item and spec (min, median, max) |
+| `get_jccdb_work_unit_price` | Public-works unit prices for work items with composition ratios |
+| `get_jccdb_index_series` | Construction cost index series with computed year-over-year change |
+| `get_jccdb_coverage` | What the observation layers hold, and what is absent |
+
+### Construction cost data: United States (USCCDB) (8)
+USCCDB is the United States Construction Cost Database. The four chain tools (`get_us_price_chain`, `get_us_import_landed_cost`, `get_us_trade_margins`, `get_us_contract_discounts`) compute on request and are not distributed as files.
+
+| Tool | What it does |
+|---|---|
+| `get_us_construction_prices` | U.S. public construction cost data by layer, region, period and item |
+| `get_us_prevailing_wage` | Davis-Bacon prevailing wages by state, county and trade |
+| `get_us_permits` | U.S. building permits and declared valuations by region and year |
+| `get_us_area_factor` | DoD and USACE location cost factors |
+| `get_us_price_chain` | Estimated U.S. prices from landed import cost to wholesale, retail and contractor (computed on request) |
+| `get_us_import_landed_cost` | Landed cost of U.S. imports by HS code, duty included |
+| `get_us_trade_margins` | U.S. wholesale and retail gross margins by NAICS |
+| `get_us_contract_discounts` | Discount rates off list price in U.S. public contracts |
 
 ## Try it
 ```bash
@@ -62,11 +90,7 @@ curl -X POST https://mcp.horizonshield.dev \
 - **Programmatic:** any MCP client that speaks streamable HTTP JSON-RPC (stateless).
 
 ## Deploy (maintainer)
-The parent folder's `wrangler.jsonc` points at a different Worker, so **cd into this folder first**:
-```bash
-cd workers/hs-mcp
-npx wrangler deploy   # no bindings, no secrets required
-```
+The server source is not in this repository. The maintainer deploys from a private working tree with this folder's `wrangler.jsonc` (bindings: `RL_KV`, `HEARING_SVC`, `JCCDB_SVC`); this folder holds the listing metadata and the conformance tests.
 
 ## License & data
 Tool logic (c) The HORIZONs Inc. Underlying open data: JCCDB (CC BY 4.0). souba-db is a curated
