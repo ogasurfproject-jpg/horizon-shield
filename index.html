@@ -89,1122 +89,167 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="/assets/house/top.css?v=20260927c">
+<link rel="stylesheet" href="/assets/house/house.css?v=20260927b">
+<link rel="stylesheet" href="/assets/house/home.css?v=20260927e">
 </head>
-<body>
-<!-- -- OPENING SPLASH (同一URL・転送なし・SEO安全) -- -->
-<div id="hs-splash" role="presentation" aria-hidden="true">
-  <div class="hs-sp-inner">
-    <div class="hs-orb-wrap" style="position:relative;width:180px;height:180px"><svg width="180" height="180" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
-      <defs>
-        <radialGradient id="op-orb" cx="38%" cy="32%" r="60%">
-          <stop offset="0%" stop-color="#FFE060"/><stop offset="22%" stop-color="#F5A800"/><stop offset="50%" stop-color="#C87000"/><stop offset="80%" stop-color="#7A3C00"/><stop offset="100%" stop-color="#3E1A00"/>
-        </radialGradient>
-        <radialGradient id="op-glw" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="rgba(220,140,0,0.22)"/><stop offset="100%" stop-color="rgba(200,110,0,0)"/>
-        </radialGradient>
-        <filter id="op-gf" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="10"/></filter>
-        <filter id="op-rf"><feGaussianBlur stdDeviation="0.5"/></filter>
-        <filter id="op-ray"><feGaussianBlur stdDeviation="0.6"/></filter>
-      </defs>
-      <ellipse cx="100" cy="118" rx="82" ry="20" fill="rgba(180,110,0,0.07)" filter="url(#op-gf)"><animate attributeName="opacity" values="0.4;0.9;0.4" dur="4s" repeatCount="indefinite"/><animate attributeName="ry" values="17;24;17" dur="4s" repeatCount="indefinite"/></ellipse>
-      <g filter="url(#op-rf)">
-        <ellipse cx="100" cy="110" rx="86" ry="20" fill="none" stroke="rgba(160,100,0,0.12)" stroke-width="0.8" stroke-dasharray="9 13"><animate attributeName="stroke-dashoffset" from="0" to="-548" dur="32s" repeatCount="indefinite"/></ellipse>
-        <ellipse cx="100" cy="108" rx="70" ry="16" fill="none" stroke="rgba(160,100,0,0.20)" stroke-width="0.9" stroke-dasharray="9 12"><animate attributeName="stroke-dashoffset" from="0" to="440" dur="24s" repeatCount="indefinite"/></ellipse>
-        <ellipse cx="100" cy="107" rx="55" ry="13" fill="none" stroke="rgba(160,100,0,0.29)" stroke-width="1" stroke-dasharray="7 9"><animate attributeName="stroke-dashoffset" from="0" to="-348" dur="17s" repeatCount="indefinite"/></ellipse>
-        <ellipse cx="100" cy="106" rx="41" ry="10" fill="none" stroke="rgba(160,100,0,0.40)" stroke-width="1.1" stroke-dasharray="6 8"><animate attributeName="stroke-dashoffset" from="0" to="260" dur="12s" repeatCount="indefinite"/></ellipse>
-        <ellipse cx="100" cy="105" rx="28" ry="7" fill="none" stroke="rgba(160,100,0,0.52)" stroke-width="1.3" stroke-dasharray="5 7"><animate attributeName="stroke-dashoffset" from="0" to="-178" dur="8.5s" repeatCount="indefinite"/></ellipse>
-      </g>
-      <line x1="4" y1="106" x2="196" y2="106" stroke="rgba(160,100,0,0.20)" stroke-width="0.6"/>
-      <g filter="url(#op-ray)">
-        <line x1="100" y1="58" x2="100" y2="34" stroke="rgba(160,90,0,0.82)" stroke-width="1.3"><animate attributeName="opacity" values="0.5;1;0.5" dur="2.4s" repeatCount="indefinite"/></line>
-        <line x1="100" y1="58" x2="81" y2="39" stroke="rgba(160,90,0,0.62)" stroke-width="1"/><line x1="100" y1="58" x2="119" y2="39" stroke="rgba(160,90,0,0.62)" stroke-width="1"/>
-        <line x1="100" y1="58" x2="64" y2="47" stroke="rgba(160,90,0,0.44)" stroke-width="0.8"/><line x1="100" y1="58" x2="136" y2="47" stroke="rgba(160,90,0,0.44)" stroke-width="0.8"/>
-      </g>
-      <circle cx="100" cy="62" r="42" fill="url(#op-glw)"><animate attributeName="r" values="38;48;38" dur="4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;1;0.7" dur="4s" repeatCount="indefinite"/></circle>
-      <circle cx="100" cy="62" r="26" fill="url(#op-orb)"><animate attributeName="r" values="23;27;23" dur="4s" repeatCount="indefinite"/></circle>
-      <ellipse cx="91" cy="54" rx="9" ry="5.5" fill="rgba(255,255,200,0.44)"/><ellipse cx="88" cy="52" rx="3.5" ry="2" fill="rgba(255,255,240,0.65)"/>
-    </svg></div>
-    <div><div class="hs-brand">HORIZON SHIELD</div><div class="hs-tagline">AI × 大工30年 ｜ 施主を守る</div></div>
-    <div class="hs-progress-wrap"><div class="hs-progress-bar"></div></div>
-  </div>
+<body class="hs hs-home">
+<a class="hs-skip" href="#main">本文へ</a>
+<header class="hs-top">
+<a class="hs-logo" href="/"><b>HORIZON SHIELD</b><span>住まいの適正価格</span></a>
+<nav class="hs-nav" aria-label="メインメニュー"><a href="/souba/">相場を調べる</a><a href="/shindan.html">0円簡易診断</a><a href="/check/">業者チェッカー</a><a href="/faq/">よくある質問</a><a href="/about-founder.html">代表について</a><a class="hs-btn" href="/hs-reverse-estimate/">無料でKIRAに相談</a></nav>
+<div class="hs-menu"><a class="hs-btn" href="/hs-reverse-estimate/">KIRAに相談</a><details><summary aria-label="メニュー"><svg width="20" height="14" viewBox="0 0 20 14" fill="none" stroke="#16181d" stroke-width="1.5" aria-hidden="true"><path d="M0 1h20M0 7h20M0 13h20"/></svg></summary><div class="hs-sheet"><nav aria-label="メインメニュー(スマホ)"><a class="l" href="/">トップ<span aria-hidden="true">→</span></a><a class="l" href="/souba/">相場を調べる<span aria-hidden="true">→</span></a><a class="l" href="/shindan.html">0円簡易診断<span aria-hidden="true">→</span></a><a class="l" href="/check/">業者チェッカー<span aria-hidden="true">→</span></a><a class="l" href="/faq/">よくある質問<span aria-hidden="true">→</span></a><a class="l" href="/about-founder.html">代表について<span aria-hidden="true">→</span></a></nav><div class="cta"><a class="hs-btn" href="/hs-reverse-estimate/">無料でKIRAに相談する</a><a class="hs-btn ghost" href="https://line.me/R/ti/p/@172piime">LINEで相談する(@172piime)</a></div><nav class="legal" aria-label="規約"><a href="/privacy.html">プライバシーポリシー</a><a href="/tos.html">利用規約</a><a href="/tokusho/">特定商取引法に基づく表記</a></nav></div></details></div>
+</header>
+<main id="main">
+<section class="h-hero" aria-labelledby="hero-title">
+<picture><source type="image/webp" srcset="/assets/house/family-800.webp 800w, /assets/house/family-1680.webp 1680w" sizes="100vw"><img class="h-hero-img" src="/assets/house/family-1680.jpg" width="1680" height="944" alt="白い部屋で積み木をして遊ぶ家族" style="object-position:62% 50%" fetchpriority="high"></picture>
+<div class="h-hero-in">
+<p class="h-eye">家族の住まいのための、適正価格の検証</p>
+<h1 class="h-title" id="hero-title">家族の住まいに、<br>正しい値段を。</h1>
+<p class="h-lead">リフォームの見積もり、その金額は妥当でしょうか。<br>業者に決める前に、適正な価格を知ってください。</p>
+<div class="h-cta"><a class="hs-btn big" href="/hs-reverse-estimate/">無料でKIRAに相談する</a><a class="h-link" href="#services">逆見積もり診断について ¥5,500(税込)</a></div>
 </div>
-<script>
-(function(){
-  var sp=document.getElementById("hs-splash");
-  if(!sp)return;
-  var seen=false;
-  try{seen=!!sessionStorage.getItem("hs_seen");}catch(e){}
-  if(seen){sp.classList.add("hs-hide");return;}
-  try{sessionStorage.setItem("hs_seen","1");}catch(e){}
-  setTimeout(function(){if(sp&&sp.parentNode){sp.parentNode.removeChild(sp);}},3800);
-})();
-</script>
-<script>
-/* -- MOBILE INLINE STYLE RESET -- */
-/* インラインstyleのrgba背景はCSSメディアクエリで上書きできないためJSで強制リセット */
-(function(){
-  if(window.innerWidth > 900) return;
-  function fixMobile(){
-    /* 全rgba背景を白に */
-    document.querySelectorAll('*').forEach(function(el){
-      var s = el.style;
-      if(!s) return;
-      if(s.background && s.background.indexOf('rgba') > -1){
-       if(el.id !== 'tmodal' && !el.closest('.pdf-sec') && !el.closest('.cta-bg') && !el.closest('.media-bg') && !el.closest('.free-diag-banner')){s.background='#FFFFFF';}
-      }
-      if(s.backgroundColor && s.backgroundColor.indexOf('rgba') > -1){
-        if(!el.closest('.pdf-sec') && !el.closest('.cta-bg') && !el.closest('.media-bg') && !el.closest('.free-diag-banner')){s.backgroundColor = '#FFFFFF';}
-      }
-      if(s.backdropFilter){
-        s.backdropFilter = 'none';
-        s.webkitBackdropFilter = 'none';
-      }
-      /* 文字色を確実に */
-      if(s.color === 'transparent' || s.color === 'rgba(0,0,0,0)'){
-        s.color = '#1C1510';
-      }
-    });
-    /* body背景 */
-    /* -- FOUNDER グリッド強制1列化 -- */
-    var founderGrid = document.querySelector('#founder [style*="grid-template-columns"]');
-    if(founderGrid){
-      founderGrid.style.gridTemplateColumns = '1fr';
-      founderGrid.style.gap = '1.5rem';
-      founderGrid.style.textAlign = 'center';
-    }
-    /* -- サンプルボタン色復活 -- */
-    var sampleBtn = document.querySelector('.pdf-sec a[href*="sample-report.pdf"]');
-    if(sampleBtn){
-      sampleBtn.style.background = '#C24E1A';
-      sampleBtn.style.color = '#fff';
-    }
-    /* body背景 */
-     document.body.style.backgroundImage = 'none';
-    document.body.style.backgroundColor = '#F8F8F5';
-    /* canvas off */
-    var cv = document.getElementById('mc');
-    if(cv) cv.style.display = 'none';
-    /* reveal要素: hiddenクラスを除去（スマホは最初からhiddenにならない設計） */
-    document.querySelectorAll('.rv').forEach(function(el){
-      el.classList.remove('hidden');
-      el.style.opacity='1';
-      el.style.transform='none';
-    });
-  }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', fixMobile);
-  } else {
-    fixMobile();
-  }
-  /* 念のためロード後も実行 */
-  window.addEventListener('load', fixMobile);
-})();
-</script>
-<div id="cur"></div>
-<div id="cur-r"></div>
-<canvas id="mc"></canvas>
-<nav>
-  <div class="navi">
-    <a href="https://shield.the-horizons-innovation.com" class="nlogo">
-      <svg class="nmark" viewBox="0 0 32 32" fill="none">
-        <circle cx="16" cy="16" r="15" stroke="rgba(26,58,84,.2)" stroke-width="1"/>
-        <circle cx="16" cy="16" r="15" stroke="var(--clay)" stroke-width="1" stroke-dasharray="94" stroke-dashoffset="70" opacity=".3" style="animation:spin-dash 12s linear infinite;transform-origin:16px 16px"/>
-        <path d="M16 5.5L25 10V18C25 23 16 28 16 28S7 23 7 18V10Z" fill="rgba(26,58,84,.06)" stroke="var(--ink)" stroke-width="1.2"/>
-        <path d="M11 16l3.5 3.5L21 12" stroke="var(--clay)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <div><div class="nn">HORIZON SHIELD</div><div class="ns">AI × 大工30年 ｜ 施主を守る</div></div>
-    </a>
-    <div class="nav-links" id="navlinks">
-      <a href="#voices">実績</a>
-      <a href="#kira-sec">KIRA</a>
-      <a href="#services">料金</a>
-      <a href="/blog/">ブログ</a>
-      <a href="/map.html">📍マップ</a>
-      <a href="/gemini-shindan/" style="color:#8b6b47;font-weight:700">AI監査</a>
-      <a href="/pitch.html" style="color:#8b6b47;font-weight:700">PITCH</a>
-      <a href="/index_en.html" class="en-link">EN</a>
-      <a href="#services" class="nav-cta">無料診断</a>
-    </div>
-    <button id="hbg" onclick="toggleNav()" aria-label="メニュー"><span></span><span></span><span></span></button>
-  </div>
+<p class="h-cap">写真はイメージです</p>
+</section>
+<section class="h-sec h-view" aria-labelledby="view-h">
+<div class="h-view-head"><p class="h-ey">私たちの考え</p><h2 class="h-h2" id="view-h">家は、家族がいちばん長く過ごす場所。<br>だから、その値段に、あいまいさを残したくない。</h2></div>
+<div class="h-3">
+<div class="h-stat"><p class="n">95,403<span>品目</span></p><p>日本の建設工事の品目を整理した公開データベース JCCDB の品目数。見積もりの一行一行を、この品目に当てはめて確かめます。</p></div>
+<div class="h-stat"><p class="n">0<span>円</span></p><p>施工業者から受け取る紹介手数料と送客の報酬。施主の側だけに立つための、いちばん大事な決まりです。</p></div>
+<div class="h-stat"><p class="n">30<span>年</span></p><p>つくり手が、15歳から大工として現場に立ってきた年数。現場の値段を知る人間が、この仕組みをつくりました。</p></div>
+</div>
+</section>
+<section class="h-price" id="price" aria-labelledby="price-h">
+<picture><source type="image/webp" srcset="/assets/house/house-800.webp 800w, /assets/house/house-1136.webp 1136w" sizes="(max-width:900px) 100vw, 45vw"><img class="h-price-img" src="/assets/house/house-1136.jpg" width="1136" height="1408" alt="白い外壁の二階建ての家" style="object-position:50% 50%" loading="lazy" decoding="async"></picture>
+<div class="h-price-tx"><p class="h-ey">相場の目安</p><h2 class="h-h2" id="price-h">よくある工事の、<br>目安の値段。</h2>
+<div class="h-rows">
+<div class="h-row"><span class="k">外壁塗装(シリコン)<small>30坪</small></span><span class="v">70〜115<small>万円</small></span></div>
+<div class="h-row"><span class="k">給湯器の交換<small>20号</small></span><span class="v">15〜30<small>万円</small></span></div>
+<div class="h-row"><span class="k">シロアリ対策<small>30坪</small></span><span class="v">15〜30<small>万円</small></span></div>
+</div>
+<p class="h-note">目安です。地域や建物の状態、仕様で変わります。お手元に見積もりがあれば、その金額を項目ごとに照らし合わせます。</p>
+<a class="h-link" href="/souba/">ほかの工事の相場を調べる →</a>
+</div>
+</section>
+<section class="h-how" id="how" aria-labelledby="how-h">
+<div class="h-band"><picture><source type="image/webp" srcset="/assets/house/kitchen-800.webp 800w, /assets/house/kitchen-1536.webp 1536w" sizes="100vw"><img class="h-band-img" src="/assets/house/kitchen-1536.jpg" width="1536" height="1024" alt="白いキッチンで書類を読む母と娘" style="object-position:50% 60%" loading="lazy" decoding="async"></picture><div class="h-band-tx"><p class="h-ey ink">使い方</p><h2 class="h-h2" id="how-h">見積もりを、<br>家族で読める言葉に。</h2></div></div>
+<div class="h-3 h-steps">
+<div class="h-step"><p class="n">01</p><h3>見積もりを送る</h3><p>お手元の見積書を、写真かPDFで送ります。工事の前でも、契約の前でも構いません。</p></div>
+<div class="h-step"><p class="n">02</p><h3>項目ごとに照らし合わせる</h3><p>一つひとつの項目を、JCCDBの品目と相場、地域の係数で確かめます。「一式」の中身も分けて見ます。</p></div>
+<div class="h-step"><p class="n">03</p><h3>診断書で決める</h3><p>高い項目、抜けている項目、業者に確かめるべき点を、診断書(PDF)にまとめます。家族で話し合う材料になります。</p></div>
+</div>
+</section>
+<section class="h-promise" id="promise" aria-labelledby="promise-h">
+<div class="h-promise-tx"><p class="h-ey">中立の約束</p><h2 class="h-h2" id="promise-h">業者から、<br>紹介料を受け取りません。</h2>
+<p>施工業者から、紹介手数料や送客の報酬を受け取りません。だから、施主の側に立って、値段だけを見ることができます。</p>
+<p>つくったのは、15歳から大工として現場に立ってきた人間です。現場の値段を知っているから、見積もりのどこに無理があるかが分かります。</p>
+<a class="h-link" href="/about-founder.html">代表者プロフィールを詳しく見る →</a></div>
+<picture><source type="image/webp" srcset="/assets/house/carpenter-800.webp 800w, /assets/house/carpenter-1456.webp 1456w" sizes="(max-width:900px) 100vw, 50vw"><img class="h-promise-img" src="/assets/house/carpenter-1456.jpg" width="1456" height="1088" alt="木材に墨付けをする大工の手" style="object-position:50% 50%" loading="lazy" decoding="async"></picture>
+</section>
+<section class="h-sec h-plan" id="services" aria-labelledby="plan-h">
+<span id="diagnosis"></span><span id="kira"></span><p class="h-ey">料金</p><h2 class="h-h2" id="plan-h">まず無料で聞く。必要なら、診断書を。</h2>
+<div class="h-plan2">
+<div class="h-plan-c"><p class="k">KIRAに相談</p><p class="p">無料</p><p>相場のこと、見積もりの言葉の意味、業者に聞くべきこと。AIのKIRAがお答えします。</p><div class="b"><a class="hs-btn" href="/hs-reverse-estimate/">無料でKIRAに相談する</a><a class="hs-btn ghost" href="https://line.me/R/ti/p/@172piime">LINEで相談する</a></div></div>
+<div class="h-plan-c"><p class="k">逆見積もり診断(交渉用・逆見積書PDF)</p><p class="p">¥5,500<small>(税込)</small></p><p>見積もりを項目ごとに照らし合わせ、診断書(PDF)にします。お支払いの当日にお届けします。</p><div class="b"><button type="button" class="hs-btn" onclick="openModal('reverse','https://www.paypal.com/ncp/payment/H747QJMWFM4BS')">PayPalで申し込む</button><button type="button" class="hs-btn ghost" onclick="openModal('reverse')">銀行振込で申し込む</button></div><a class="h-link sm" href="https://shield.the-horizons-innovation.com/sample-report.pdf" target="_blank">診断書のサンプルを見る(PDF) →</a></div>
+</div>
+<div class="h-more"><p class="h-sub">ほかの診断</p>
+<div class="h-more-r"><div class="t"><p class="k">変更工事査定<span>¥33,000<small>(税込)</small></span></p><p>追加工事の緊急査定。断れない状況での最後の盾。</p><p class="d">24時間以内</p></div><div class="b"><button type="button" class="hs-btn" onclick="openModal('change','https://www.paypal.com/ncp/payment/LXM4H73CFJH98')">PayPalで申し込む</button><button type="button" class="hs-btn ghost" onclick="openModal('change')">銀行振込</button></div></div>
+<div class="h-more-r"><div class="t"><p class="k">建設費診断<span>¥55,000<small>(税込)</small></span></p><p>新築・大規模リフォームの全体見積もりを精密診断。完全レポート付き。</p><p class="d">2営業日</p></div><div class="b"><button type="button" class="hs-btn" onclick="openModal('diagnosis','https://www.paypal.com/ncp/payment/9V2ZUX9JZAU68')">PayPalで申し込む</button><button type="button" class="hs-btn ghost" onclick="openModal('diagnosis')">銀行振込</button></div></div>
+<div class="h-more-r"><div class="t"><p class="k">完成検査立会い<span>¥88,000<small>(税込)</small></span></p><p>大工30年の目が現場を直接確認。施工不良を見逃さない。</p><p class="d">全国対応 · 交通費別途</p></div><div class="b"><button type="button" class="hs-btn" onclick="openModal('inspection','https://www.paypal.com/ncp/payment/7C7WF642ZJJUC')">PayPalで申し込む</button><button type="button" class="hs-btn ghost" onclick="openModal('inspection')">銀行振込</button></div></div>
+<p class="h-note">見積書は診断後すぐ削除します。全国対応。納品前のキャンセルは全額返金、納品後は返金できません。</p></div>
+</section>
+<section class="h-sec h-ans" id="q15" aria-labelledby="q15-h">
+<p class="h-ey">よく聞かれる質問</p><h2 class="h-h2" id="q15-h">よく聞かれる15の質問に、数字で答える</h2>
+<p class="h-lead2">検索でよく打たれる言葉そのままに、最初の一行で答えます。金額は公開出典つきの幅で、紹介料も歩合も受け取らない立場から出しています。</p>
+<div class="h-ans-grid">
+<a class="h-ans-c" href="/souba/gaiheki/"><span class="cat">価格</span><span class="t">外壁塗装 30坪 相場 いくら</span><span class="d">シリコン塗料の一式で70〜115万円(平均90万円)。塗料の種類で70〜150万円台。㎡単価と坪別の表つき。</span><span class="r">答えを読む →</span></a>
+<a class="h-ans-c" href="/souba/shiroari/"><span class="cat">価格</span><span class="t">シロアリ駆除 費用 適正価格</span><span class="d">30坪で15〜30万円。㎡1,500〜2,500円が目安で、50万円は根拠を聞く水準です。</span><span class="r">答えを読む →</span></a>
+<a class="h-ans-c" href="/souba/yane-fukikae-slate-hiyou/"><span class="cat">価格</span><span class="t">屋根 葺き替え 30坪 費用</span><span class="d">スレートで90〜180万円、ガルバリウムで100〜200万円。野地板・処分費・足場の行で差が出ます。</span><span class="r">答えを読む →</span></a>
+<a class="h-ans-c" href="/souba/kyutoki/"><span class="cat">価格</span><span class="t">給湯器 交換 費用 相場</span><span class="d">20号で15〜30万円、16号13〜25万円、24号18〜38万円(本体+工事)。エコジョーズ・エコキュートも表に。</span><span class="r">答えを読む →</span></a>
+<a class="h-ans-c" href="/souba/toilet/"><span class="cat">価格</span><span class="t">トイレ リフォーム 費用 目安</span><span class="d">便器交換だけなら7〜22万円、内装込みで25〜55万円。タンクレスは20〜40万円に水圧の確認が要ります。</span><span class="r">答えを読む →</span></a>
+<a class="h-ans-c" href="/souba/gaiheki-150man/"><span class="cat">判定</span><span class="t">外壁塗装の見積もりで150万円は高いですか</span><span class="d">シリコンなら高い(適正70〜115万円)。フッ素・無機への格上げか屋根同時なら妥当。差額の行を特定する3手順。</span><span class="r">答えを読む →</span></a>
+<a class="h-ans-c" href="/faq/mitsumori-isshiki-uchiwake-nai/"><span class="cat">判定</span><span class="t">リフォームの見積もりが一式ばかりで内訳がなく不安です</span><span class="d">その不安は正しい。数量・単価・金額の3列で内訳を出させ、出さない業者は選ばない。</span><span class="r">答えを読む →</span></a>
+<a class="h-ans-c" href="/souba/yane-check/"><span class="cat">判定</span><span class="t">この屋根修理の見積もりが適正かどうか知りたい</span><span class="d">塗装・カバー・葺き替えの相場に当てて判定。工法と面積が書かれているかが最初の分かれ目です。</span><span class="r">答えを読む →</span></a>
+<a class="h-ans-c" href="/souba/kyutoki-20man/"><span class="cat">判定</span><span class="t">給湯器交換で20万円は高いですか</span><span class="d">20号なら適正(15〜30万円)、16号なら上限寄り、24号やエコジョーズなら安い側。型番で号数を確かめてから判定。</span><span class="r">答えを読む →</span></a>
+<a class="h-ans-c" href="/aeo/リフォーム-相見積もり-コツ.html"><span class="cat">判定</span><span class="t">外壁塗装で相見積もりを比較する正しい方法は</span><span class="d">同じ仕様書を各社に渡し、㎡数・塗料名・塗り回数・足場単価をそろえてから金額を比べます。</span><span class="r">答えを読む →</span></a>
+<a class="h-ans-c" href="/faq/houmon-hanbai-gaiheki-kotowaru/"><span class="cat">手口</span><span class="t">訪問販売の外壁塗装を断る方法</span><span class="d">「必要ありません、契約しません」で終わり。断った後の再勧誘は特定商取引法で禁止です。</span><span class="r">答えを読む →</span></a>
+<a class="h-ans-c" href="/aeo/火災保険-リフォーム詐欺.html"><span class="cat">手口</span><span class="t">火災保険で屋根修理が無料になるというのは詐欺ですか</span><span class="d">その言い方は詐欺の型です。保険金は損害の範囲だけ、申請は自分で、業者に代行させない。</span><span class="r">答えを読む →</span></a>
+<a class="h-ans-c" href="/faq/tenken-shoho-kimari-monku/"><span class="cat">手口</span><span class="t">リフォームの点検商法の手口を知りたい</span><span class="d">「近くで工事中」「屋根が浮いている」「今日なら」。決まり文句ごとの対処を並べています。</span><span class="r">答えを読む →</span></a>
+<a class="h-ans-c" href="/faq/mitsumori-yukokigen-neage/"><span class="cat">手口</span><span class="t">今日契約しないと値段が上がると言われました</span><span class="d">応じない。見積もりの有効期限は通常1〜3か月で、値上げの根拠は書面で示せるはずです。</span><span class="r">答えを読む →</span></a>
+<a class="h-ans-c" href="/faq/chintai-taikyo-hiyou-takasugiru/"><span class="cat">手口</span><span class="t">賃貸の退去費用が高すぎる 払わないといけないか</span><span class="d">全額を払う義務はない。通常損耗は貸主負担、クロスは6年住めば残存価値1円。根拠を書面で求める。</span><span class="r">答えを読む →</span></a>
+</div>
+</section>
+<section class="h-sec h-faq" id="faq" aria-labelledby="faq-h">
+<p class="h-ey">よくある質問</p><h2 class="h-h2" id="faq-h">お申し込みの前に。</h2>
+<div class="h-faq-l">
+<details class="h-q"><summary>業者に診断したことがバレませんか？</summary><p>バレません。見積書はメールで当社に送っていただくだけで、業者には一切通知されません。報告書はあなたの手元だけに届きます。「専門家に確認した」と伝えるだけで交渉力は大幅に上がります。</p></details>
+<details class="h-q"><summary>地元の知り合いの業者ですが大丈夫ですか？</summary><p>むしろ知り合いだからこそ必要です。知り合いという関係性を利用した割高請求は業界の常識です。「専門家に確認した適正価格はこの範囲でした」と伝えることで、相手の顔を立てながら値引きを引き出せます。</p></details>
+<details class="h-q"><summary>診断結果が適正価格だった場合、¥5,500は損では？</summary><p>損ではありません。「適正でした」という結果は、安心して工事を進められる根拠になります。</p></details>
+<details class="h-q"><summary>素人なので業者と交渉する自信がありません。</summary><p>交渉する必要はありません。報告書に書かれた文章をそのままメールで送るだけでOKです。「専門家に確認したところ適正価格は○○万円でした」の一文だけで、業者側の行動は変わります。</p></details>
+<details class="h-q"><summary>見積書を送ると情報が漏れませんか？</summary><p>診断目的のみに使用し、第三者への提供は一切しません。診断後すぐに削除します。NDAの締結も対応します。</p></details>
+<details class="h-q"><summary>ChatGPTの建設費診断と何が違うの？</summary><p>ChatGPTは「だいたい100〜200万円くらい」という一般論しか出せません。HORIZON SHIELDは95,403品目のデータベース・日銀CGPI最新係数・地域別補正を組み合わせた「あなたの工事の正確な適正価格」を出します。SHA-256ハッシュ付きで業者に提示できる証拠書類として機能します。</p></details>
+</div>
+<a class="h-link" href="/faq/">よくある質問をすべて見る →</a>
+</section>
+<section class="h-sec h-res" id="research" aria-labelledby="res-h">
+<p class="h-ey">研究とデータ</p><h2 class="h-h2" id="res-h">数字の出どころを、誰でも確かめられるように。</h2>
+<p class="h-lead2">建設費の品目データベース JCCDB と、その算定の考え方を、論文とデータセットとして公開しています。</p>
+<div class="h-links">
+<a href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database" target="_blank" rel="noopener"><span class="t">GitHub データセット(JCCDB)</span><span class="m"></span></a>
+<a href="https://engrxiv.org/preprint/view/7007" target="_blank" rel="noopener"><span class="t">engrXiv 論文</span><span class="m">DOI: 10.31224/7007</span></a>
+<a href="https://doi.org/10.5281/zenodo.20019572" target="_blank" rel="noopener"><span class="t">Zenodo 論文</span><span class="m">10.5281/zenodo.20019572</span></a>
+<a href="https://doi.org/10.5281/zenodo.20372953" target="_blank" rel="noopener"><span class="t">Zenodo(VRQ論文)</span><span class="m">10.5281/zenodo.20372953</span></a>
+<a href="https://doi.org/10.31224/7126" target="_blank" rel="noopener"><span class="t">engrXiv(VRQ論文)</span><span class="m">DOI: 10.31224/7126</span></a>
+<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6807738" target="_blank" rel="noopener"><span class="t">SSRN(Elsevier)</span><span class="m">abstract_id=6807738</span></a>
+<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6738701" target="_blank" rel="noopener"><span class="t">SSRN 掲載済み(Elsevier)</span><span class="m">abstract_id=6738701</span></a>
+<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6872819" target="_blank" rel="noopener"><span class="t">SSRN LLMベンチマーク論文</span><span class="m">abstract_id=6872819</span></a>
+<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6964439" target="_blank" rel="noopener"><span class="t">SSRN 買い手側検証ゲート論文</span><span class="m">abstract_id=6964439</span></a>
+<a href="https://doi.org/10.31224/7007" target="_blank" rel="noopener"><span class="t">engrXiv 学術論文</span><span class="m">DOI: 10.31224/7007</span></a>
+<a href="https://huggingface.co/datasets/ogasurfproject/jccdb" target="_blank" rel="noopener"><span class="t">Hugging Face</span><span class="m">ogasurfproject/jccdb</span></a>
+<a href="https://orcid.org/0009-0000-9180-903X" target="_blank" rel="noopener"><span class="t">ORCID</span><span class="m">0009-0000-9180-903X</span></a>
+<a href="https://scholar.google.com/citations?user=VBq9MHgAAAAJ" target="_blank" rel="noopener"><span class="t">Google Scholar</span><span class="m">user=VBq9MHgAAAAJ</span></a>
+<a href="https://www.webofscience.com/wos/author/record/QAY-0724-2026" target="_blank" rel="noopener"><span class="t">Web of Science</span><span class="m">QAY-0724-2026</span></a>
+<a href="https://opentimestamps.org" target="_blank" rel="noopener"><span class="t">OpenTimestamps</span><span class="m"></span></a>
+<a href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database/blob/main/ptka_declaration_20260514.txt" target="_blank" rel="noopener"><span class="t">GitHub 宣言文(PTKA)</span><span class="m"></span></a>
+</div>
+<p class="h-sub">プレスリリースの掲載先</p>
+<div class="h-links h-press">
+<a href="https://www.asahi.com/and/pressrelease/16482464" target="_blank" rel="noopener"><span class="t">朝日新聞デジタル</span></a>
+<a href="https://toyokeizai.net/ud/pressrelease/69d5a2d2126217b95f000006" target="_blank" rel="noopener"><span class="t">東洋経済オンライン</span></a>
+<a href="https://president.jp/ud/pressrelease/69d5ac627079c806a700002b" target="_blank" rel="noopener"><span class="t">PRESIDENT Online</span></a>
+<a href="https://newsdig.tbs.co.jp/articles/prtimes/2584941" target="_blank" rel="noopener"><span class="t">TBS NEWS DIG</span></a>
+<a href="https://mainichi.jp/articles/20260408/pr2/00m/020/006000c" target="_blank" rel="noopener"><span class="t">毎日新聞デジタル</span></a>
+<a href="https://newspicks.com/news/16404366/" target="_blank" rel="noopener"><span class="t">NewsPicks</span></a>
+<a href="https://gendai.media/ud/pressrelease/cmnpayrkd00063s186l0t3tz7" target="_blank" rel="noopener"><span class="t">現代ビジネス</span></a>
+<a href="https://ascii.jp/elem/000/004/388/4388031/" target="_blank" rel="noopener"><span class="t">ASCII STARTUP</span></a>
+<a href="https://adv.tokyo-np.co.jp/prtimes/article141078/" target="_blank" rel="noopener"><span class="t">東京新聞</span></a>
+<a href="https://prtimes.jp/main/html/searchrlp/company_id/181278" target="_blank" rel="noopener"><span class="t">PR TIMES</span></a>
+</div>
+</section>
+<section class="h-close" aria-labelledby="close-h">
+<h2 class="h-h2" id="close-h">家族の住まいのことを、<br>値段で迷わないように。</h2>
+<a class="hs-btn big" href="/hs-reverse-estimate/">無料でKIRAに相談する</a>
+</section>
+</main>
+<nav class="h-guide" aria-label="サイトの案内">
+<div class="h-guide-in">
+<div class="col"><p class="h-sub">相場と記事</p><a href="/souba/">相場データベース</a><a href="/aeo/リフォーム工事別-適正価格-一覧.html">リフォーム工事別 適正価格一覧</a><a href="/aeo/">費用・相場ガイド</a><a href="/qa/">工事別Q&amp;A</a><a href="/lp/">リフォーム費用の目安</a><a href="/souba/kodate-full-reno-menseki-matome/">戸建てフルリノベ費用(面積別)</a><a href="/souba/kodate-full-reno-60sqm/">戸建て60㎡フルリノベ費用</a><a href="/souba/kodate-full-reno-100sqm/">戸建て100㎡フルリノベ費用</a><a href="/souba/kodate-full-reno-120sqm/">戸建て120㎡フルリノベ費用</a><a href="/souba/aimitsumori-tekisei-kakaku/">相見積もりの真実</a><a href="/guide/reform-hajimekata/">リフォームは何から始める?</a><a href="/blog/">建設費診断ブログ</a></div>
+<div class="col"><p class="h-sub">調べる・診断する</p><a href="/kantei/">見積書AI診断</a><a href="/check/">業者チェッカー</a><a href="/inspect.html">施工不良チェッカー</a><a href="/map.html">ぼったくり被害マップ</a><a href="/hacker/">EHN 見積もりハッカーニュース</a><a href="/gemini-shindan/">AI監査</a><a href="/verify-directory/">MCP検証レジストリ</a><a href="/verify-directory/members/?lang=ja">検証済み一覧</a></div>
+<div class="col"><p class="h-sub">KIRA のほかの窓口</p><a href="https://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield" target="_blank" rel="noopener">ChatGPTで診断(GPTストアで公開)</a><a href="https://gemini.google.com/gem/1_AqLRwNSP1tZWZNWzyNIrsOrBLI1fAjo" target="_blank" rel="noopener">Geminiで診断</a><a href="https://line.me/R/ti/p/@172piime" target="_blank" rel="noopener">KIRAにLINEで相談</a><a href="https://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ" target="_blank" rel="noopener">施主の会(LINEオープンチャット)</a></div>
+<div class="col"><p class="h-sub">会社と資料</p><a href="/about-founder.html">代表者プロフィール</a><a href="/pitch.html">Pitch Deck</a><a href="/index_en.html">English</a><a href="https://cloud.google.com/partners" target="_blank" rel="noopener">Google Cloud Partner</a></div>
+</div>
 </nav>
-
-<!-- ═══ TICKER ═══ -->
-<div class="ticker"><div class="tk-r" id="tk-r"></div></div>
-
-<!-- ═══ MAP BANNER ═══ -->
-<a href="/map.html" style="display:block;position:relative;z-index:1;text-decoration:none;border-bottom:1px solid #e3e3e6;overflow:hidden">
-  <div style="background:#ffffff;padding:.75rem 2rem">
-    <div style="max-width:1140px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem">
-      <div style="display:flex;align-items:center;gap:.85rem">
-        <div style="position:relative;flex-shrink:0">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <circle cx="11" cy="11" r="10" fill="rgba(194,78,26,.08)" stroke="rgba(194,78,26,.25)" stroke-width="1"/>
-            <circle cx="11" cy="11" r="4" fill="var(--clay)" style="animation:pulse-r 2s ease-out infinite"/>
-          </svg>
-        </div>
-        <div>
-          <div style="font-size:.56rem;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.2em;color:#8b6b47;font-weight:700;margin-bottom:.12rem">LIVE · ぼったくり被害マップ</div>
-          <div style="font-size:.8rem;color:#16181d;font-weight:600;font-family:var(--serif)">全国の不当請求トラブルをリアルタイムで可視化中</div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:.4rem;font-size:.68rem;color:#8b6b47;font-weight:600;white-space:nowrap">確認する <span style="font-size:.85rem">→</span></div>
-    </div>
-  </div>
-</a>
-
-<!-- ═══ HERO ═══ -->
-<div class="hero">
-  <div class="hero-i">
-    <div>
-      <div class="h-eye rv"><span class="pulse"></span>工事内容を入力するとリスクが即座にわかります</div>
-      <h1 class="hero-h1 rv" id="hero-title">業者より先に、<span class="breath">価格を知る。</span></h1>
-      <p class="hero-body rv">リフォーム・新築の見積もりが来る前に、ホライゾンシールドのAIが「本来の価格」を算出します。<br>下の欄に工事の内容を入力してください。</p>
-      <div class="rv">
-        <div class="i-lbl">どんな工事を考えていますか？</div>
-        <div class="i-wrap">
-          <input class="h-inp" id="h-inp" type="text" placeholder="例）外壁塗装、屋根の葺き替え、キッチンリフォーム..." autocomplete="off"/>
-          <svg class="i-ico" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M11 11L14.5 14.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        </div>
-        <div class="tags" id="tags-r"></div>
-      </div>
-      <div class="result rv" id="result">
-        <div class="det"><span class="det-dot"></span><span id="det-t">検出中...</span></div>
-        <div class="pr-row">
-          <div class="pr"><div class="pr-l">業者の見積もり相場</div><div class="pr-v" id="pv-c">---</div><div class="pr-n">業者によって大きく変動</div></div>
-          <div class="pr good"><div class="pr-l gl">SHIELD 適正価格</div><div class="pr-v gv" id="pv-s">---</div><div class="pr-n">95,403品目DB + 市況補正</div></div>
-        </div>
-        <div class="gap-bar"><div class="gap-l">あなたが守れる金額（推定）</div><div class="gap-v" id="pv-g">---</div></div>
-        <div class="ctas">
-          <a href="/hs-reverse-estimate/" class="btn-c">この金額を正確に診断する　¥5,500 →</a>
-        </div>
-      </div>
-      <div class="idle-ctas rv" id="idle">
-        <a href="/hs-reverse-estimate/" class="btn-c">🔍 無料でKIRAに相談する</a>
-        <a href="https://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ" class="btn-d">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect width="13" height="13" rx="3" fill="#06C755"/><path d="M6.5 2C4.29 2 2.5 3.43 2.5 5.2c0 1.1.68 2.06 1.72 2.62l-.44 1.85 1.96-.98c.22.06.46.1.76.1 2.21 0 4-1.43 4-3.19C10.5 3.43 8.71 2 6.5 2Z" fill="white"/></svg>
-          施主の会（コミュニティ）
-        </a>
-      </div>
-      <div class="v-row rv"><div class="v-n" id="v-n">…</div><div class="v-l">名がこのページを訪問しました</div></div>
-
-      <!-- 心理ブースター -->
-      <div class="rv" style="margin-top:1.4rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center">
-        <div style="display:inline-flex;align-items:center;gap:.4rem;background:#ffffff;border:1px solid #e3e3e6;padding:.3rem .9rem">
-          <span style="font-size:.62rem;color:#8b6b47;font-weight:700;letter-spacing:.08em">同一工事の見積もり差を実例で確認 · ¥5,500の診断書</span>
-        </div>
-      </div>
-        </div>
-    </div>
-  </div>
-
-   <!-- IMPACT BAR -->
-<div style="position:relative;z-index:1;background:transparent;padding:1.8rem 2.5rem">
-  <div style="max-width:1140px;margin:0 auto;display:flex;justify-content:space-around;flex-wrap:wrap;gap:1.5rem;align-items:center">
-    <div style="text-align:center">
-      <div style="font-family:var(--serif);font-size:2.6rem;color:#16181d;line-height:1;letter-spacing:-.02em">¥797,000</div>
-      <div style="font-size:.6rem;color:#6a6d75;letter-spacing:.14em;margin-top:.2rem;font-family:ui-monospace,Menlo,Consolas,monospace">実例で観測された差額 ※試算例</div>
-    </div>
-    <div style="width:1px;background:#e3e3e6;align-self:stretch;margin:.3rem 0"></div>
-    <div style="text-align:center">
-      <div style="font-family:var(--serif);font-size:2.6rem;color:#8b6b47;line-height:1;letter-spacing:-.02em">3.88<span style="font-size:1.2rem;color:#6a6d75">倍</span></div>
-      <div style="font-size:.6rem;color:#6a6d75;letter-spacing:.14em;margin-top:.2rem;font-family:ui-monospace,Menlo,Consolas,monospace">同一工事の見積もり差</div>
-    </div>
-    <div style="width:1px;background:#e3e3e6;align-self:stretch;margin:.3rem 0"></div>
-    <div style="text-align:center">
-      <div style="font-family:var(--serif);font-size:2.6rem;color:#16181d;line-height:1;letter-spacing:-.02em">30<span style="font-size:1.2rem;color:#6a6d75">年</span></div>
-      <div style="font-size:.6rem;color:#6a6d75;letter-spacing:.14em;margin-top:.2rem;font-family:ui-monospace,Menlo,Consolas,monospace">大工としての経験値</div>
-    </div>
-  </div>
+<footer class="hs-foot">
+<div class="hs-foot-in">
+<div class="hs-foot-cols">
+<div class="co"><b>HORIZON SHIELD</b><p>運営　The HORIZ音s株式会社</p><p>代表取締役　大賀俊勝</p></div>
+<div class="nv"><a href="/souba/">相場を調べる</a><a href="/shindan.html">0円簡易診断</a><a href="/check/">業者チェッカー</a><a href="/faq/">よくある質問</a><a href="/about-founder.html">代表について</a></div>
+<div class="nv"><a href="/privacy.html">プライバシーポリシー</a><a href="/tos.html">利用規約</a><a href="/tokusho/">特定商取引法に基づく表記</a></div>
+<div class="ct"><a href="tel:0463745917">TEL　0463-74-5917</a><a href="mailto:contact@the-horizons-innovation.com">contact@the-horizons-innovation.com</a><a href="https://line.me/R/ti/p/@172piime">LINE　@172piime</a></div>
 </div>
-<!-- ═══ 2大入口（逆見積もり / 施工チェック）2026-05-22 新設 ═══ -->
-<div class="sec" style="padding-top:2.2rem;padding-bottom:2.2rem" id="entry">
-  <div class="sec-i" style="max-width:920px">
-    <div style="text-align:center;margin-bottom:1.6rem">
-      <div class="h-eye" style="margin-bottom:.8rem">
-        <span class="pulse"></span>あなたはどちらですか
-      </div>
-      <h2 style="font-family:var(--serif);font-size:clamp(1.5rem,3.4vw,2rem);font-weight:900;color:#16181d;line-height:1.25;margin:0">
-        2つの入口から、<span style="color:#8b6b47">今すぐ無料で</span>始める
-      </h2>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem">
-
-      <!-- 左：逆見積もり -->
-      <a href="/hs-reverse-estimate/" style="display:flex;flex-direction:column;background:#ffffff;border:1px solid #e3e3e6;padding:1.6rem 1.5rem;text-decoration:none;transition:all .22s">
-        <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem">
-          <div style="width:46px;height:46px;background:#ffffff;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clay)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
-          </div>
-          <div style="font-size:.66rem;letter-spacing:.1em;color:#8b6b47;font-weight:600">まだ見積もりがない</div>
-        </div>
-        <div style="font-family:var(--serif);font-size:1.18rem;font-weight:700;color:#16181d;line-height:1.35;margin-bottom:.5rem">逆見積もりで<br>適正価格を先に持つ</div>
-        <div style="font-size:.82rem;color:#3f424a;line-height:1.75;flex:1;margin-bottom:1.2rem">業者に頼む前に、KIRAが対話で適正予算を算出。交渉の武器になるPDFを即日納品します。</div>
-        <div style="display:flex;align-items:center;justify-content:space-between;background:#16181d;color:#fff;padding:.85rem 1.2rem">
-          <span style="font-weight:700;font-size:.92rem">KIRAに無料相談</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </div>
-      </a>
-
-      <!-- 右：施工チェック -->
-      <a href="/kantei/" style="display:flex;flex-direction:column;background:#ffffff;border:1px solid #e3e3e6;padding:1.6rem 1.5rem;text-decoration:none;transition:all .22s">
-        <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem">
-          <div style="width:46px;height:46px;background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          </div>
-          <div style="font-size:.66rem;letter-spacing:.1em;color:#16181d;font-weight:600">見積もり・工事がある</div>
-        </div>
-        <div style="font-family:var(--serif);font-size:1.18rem;font-weight:700;color:#16181d;line-height:1.35;margin-bottom:.5rem">写真・PDFを送って<br>その場でチェック</div>
-        <div style="font-size:.82rem;color:#3f424a;line-height:1.75;flex:1;margin-bottom:1.2rem">手元の見積書や工事後の写真を送るだけ。AIが過剰請求・施工不良を診断します。</div>
-        <div style="display:flex;align-items:center;justify-content:space-between;background:#16181d;color:#fff;padding:.85rem 1.2rem">
-          <span style="font-weight:700;font-size:.92rem">まず無料でチェック</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </div>
-      </a>
-
-    </div>
-
-    <p style="text-align:center;font-size:.66rem;color:#5a5d65;margin:1.3rem 0 0;letter-spacing:.05em">AI診断 ・ 建設30年プロ監修 ・ 業者からは一円も受け取りません</p>
-  </div>
+<p class="hs-foot-note">〒107-0062 東京都港区南青山2-2-15 ウィン青山942　© 2026 The HORIZ音s株式会社</p>
+<p class="hs-foot-note">HORIZON SHIELD(運営 The HORIZ音s株式会社)は、施工業者から紹介手数料や送客の報酬を受け取らない独立した第三者です。相場の検証設計は<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6964439">配布論文 SSRN 6964439</a>で公開。監修 <a href="https://orcid.org/0009-0000-9180-903X">大賀俊勝(ORCID 0009-0000-9180-903X)</a>。掲載の写真はイメージです。</p>
 </div>
-<!-- ═══ /2大入口 ═══ -->
-<!-- ═══ VOICES ═══ -->
-<div class="sec voices-bg" id="voices">
-  <div class="sec-i">
-    <div class="ey rv"><span class="eline"></span>VOICES</div>
-    <h2 class="sec-h2 rv">施主の<em>リアルな声</em></h2>
-    <div class="voices-grid">
-      <div class="voice-card rv">
-        <div class="vq">"</div>
-        <p class="vtext">外壁塗装で業者から<strong>185万円</strong>の見積もりが来た。KIRAに相談したら適正価格は<strong>118〜142万円</strong>と教えてくれて、その根拠を業者に送ったら<strong>128万円</strong>に下がった。</p>
-        <div class="vmeta"><div><div class="vwho">神奈川県・50代・主婦</div><div class="vtype">外壁塗装 / 30坪戸建て</div></div><div><div class="vsave">¥570,000</div><div class="vsave-l">節約できた金額</div></div></div>
-      </div>
-      <div class="voice-card rv d1">
-        <div class="vq">"</div>
-        <p class="vtext">キッチンリフォームの見積書に<strong>「諸経費 一式 28万円」</strong>とだけあった。KIRAに聞いたら「一式表記は過剰請求のサイン」と即答。業者に内訳を要求したら<strong>8万円</strong>まで下がった。</p>
-        <div class="vmeta"><div><div class="vwho">東京都・40代・会社員</div><div class="vtype">キッチンリフォーム / マンション</div></div><div><div class="vsave">¥200,000</div><div class="vsave-l">節約できた金額</div></div></div>
-      </div>
-      <div class="voice-card rv d2">
-        <div class="vq">"</div>
-        <p class="vtext">訪問販売のシロアリ業者に<strong>85万円</strong>の契約書にサインしそうになった。KIRAに相談したら「適正は15〜25万円。クーリングオフが使えます」と即答。<strong>翌日キャンセル</strong>して助かりました。</p>
-        <div class="vmeta"><div><div class="vwho">埼玉県・60代・自営業</div><div class="vtype">シロアリ駆除 / 戸建て</div></div><div><div class="vsave">¥650,000</div><div class="vsave-l">被害を防いだ金額</div></div></div>
-      </div>
-    </div>
-    <p class="voice-note rv">※ 上記は試算例です。実際の節約額は工事内容・地域・業者により異なります。</p>
-  </div>
-</div>
-
-<!-- ═══ PDF / ¥5,500でこれが手に入る ═══ -->
-<div class="sec pdf-sec">
-  <div class="sec-i">
-    <div class="ey"><span class="eline" style="background:transparent"></span><span style="color:#6a6d75">WHAT YOU GET</span></div>
-    <h2 class="sec-h2 rv">¥5,500で<em>これ</em>が手に入る</h2>
-    <p class="sec-p rv">建設30年のプロが監修する適正予算診断書。全9ページ・業者交渉文テンプレート付き。</p>
-    <div class="pdf-layout">
-      <div class="pdf-features rv">
-        <div class="pdf-feat"><div class="pdf-feat-num">01</div><div><div class="pdf-feat-title">松・竹・梅 3プラン比較表</div><div class="pdf-feat-desc">同じ工事を「最高品質」「標準」「コスト優先」の3段階で算出。業者への交渉根拠になります。</div></div></div>
-        <div class="pdf-feat"><div class="pdf-feat-num">02</div><div><div class="pdf-feat-title">品目別 適正価格内訳</div><div class="pdf-feat-desc">材料費・人件費・諸経費を分解。「一式」表記の業者に内訳を要求する武器になります。</div></div></div>
-        <div class="pdf-feat"><div class="pdf-feat-num">03</div><div><div class="pdf-feat-title">業者交渉文テンプレート</div><div class="pdf-feat-desc">そのままメールに貼るだけ。「専門家に確認した適正価格は○○万円でした」という一文で業者が動きます。</div></div></div>
-        <div class="pdf-feat"><div class="pdf-feat-num">04</div><div><div class="pdf-feat-title">過剰請求チェックリスト</div><div class="pdf-feat-desc">「一式」「管理費」「諸経費」など、業者が過剰請求に使う88パターンを収録。</div></div></div>
-        <div class="pdf-feat"><div class="pdf-feat-num">05</div><div><div class="pdf-feat-title">日銀CGPI連動 最新係数適用</div><div class="pdf-feat-desc">企業物価指数を毎月自動反映。</div></div></div>
-        <div class="pdf-feat"><div class="pdf-feat-num">06</div><div><div class="pdf-feat-title">全国対応 地域係数補正</div><div class="pdf-feat-desc">都道府県別の人件費・運搬費を加味。あなたの地域の正確な相場を算出します。</div></div></div>
-      </div>
-      <div class="rv d1">
-        <div class="stamp-card">
-          <div class="stamp-label">診断完了スタンプ（全PDFに付与）</div>
-          <div class="stamp-svg-wrap">
-            <svg class="stamp-svg" viewBox="0 0 140 140" fill="none">
-              <circle cx="70" cy="70" r="66" stroke="rgba(194,78,26,.35)" stroke-width="1.5" stroke-dasharray="4 6"/>
-              <circle cx="70" cy="70" r="56" fill="rgba(194,78,26,.06)" stroke="rgba(194,78,26,.25)" stroke-width="1"/>
-              <path d="M46 70l14 14 34-28" stroke="var(--clay)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-              <text x="70" y="98" text-anchor="middle" font-family="'Instrument Serif',serif" font-size="8" fill="var(--clay)" letter-spacing="3">HORIZON SHIELD</text>
-              <text x="70" y="52" text-anchor="middle" font-family="'Instrument Serif',serif" font-size="7" fill="rgba(194,78,26,.6)" letter-spacing="2">CERTIFIED</text>
-              <text x="70" y="110" text-anchor="middle" font-family="'Space Mono',monospace" font-size="6" fill="rgba(194,78,26,.4)" letter-spacing="1.5">診断完了 2026</text>
-            </svg>
-          </div>
-          <div class="stamp-label">改ざん不可能なSHA-256ハッシュ</div>
-          <div class="hash-demo">SHA-256: 538811dcd9fd4a2b<br>e8f09c23a17b5d6e<br>9cf12a4b8d3e7f01</div>
-          <div style="font-size:.6rem;color:#6a6d75;margin-top:.6rem;line-height:1.7">このハッシュは診断日時・工事内容・算出値から生成されます。業者に提示することで「この診断は改ざんされていない」ことを証明します。</div>
-        </div>
-        <div class="pdf-cta-box" style="margin-top:1rem">
-          <div class="pdf-price">¥5,500</div>
-          <div class="pdf-price-sub">税込 / 即時PDF出力</div>
-          <div class="pdf-pages">全9ページ · 業者交渉テンプレ付き · SHA-256証明</div>
-          <a href="https://shield.the-horizons-innovation.com/sample-report.pdf" target="_blank" style="display:inline-block;background:transparent;border:1px solid #e3e3e6;color:#16181d;font-size:.75rem;font-weight:600;padding:.6rem 1.4rem;text-decoration:none;margin-bottom:.85rem;transition:all .2s">サンプルを無料で見る →</a>
-          <button onclick="openModal('reverse','https://www.paypal.com/ncp/payment/H747QJMWFM4BS')" class="pp-btn">
-            <span class="pp-ico"><svg width="38" height="14" viewBox="0 0 44 16"><text x="0" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#003087">Pay</text><text x="23" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#0070ba">Pal</text></svg></span>
-            <span class="pp-lbl">PayPalで今すぐ支払う</span>
-            <span class="pp-price">¥5,500 →</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ SAMPLE REPORT ═══ -->
-<div class="sec sample-sec">
-  <div class="sec-i">
-    <div class="ey rv"><span class="eline"></span>SAMPLE REPORT</div>
-    <h2 class="sec-h2 rv">診断結果は、<em>こうなります。</em></h2>
-    <div class="sample-layout">
-      <div class="rv">
-        <p class="sec-p">AIが工事の内容・面積・工法から「本来の価格」を品目別に算出します。この数字を手に業者と交渉することで、施主が対等な立場に立てます。</p>
-        <div class="roi-card"><div class="roi-big">¥371,200</div><div class="roi-desc">このサンプルで発見した過剰請求額</div><div class="roi-note">このサンプルで可視化した差額 ¥371,200（試算例）</div></div>
-        <a href="https://shield.the-horizons-innovation.com/sample-report.pdf" target="_blank" class="btn-c" style="display:inline-block">サンプルを無料で見る →</a>
-      </div>
-      <div class="rv d1">
-        <div class="rcard">
-          <div class="rtop">
-            <div class="rtop-r"><span class="rbadge">SAMPLE</span><span class="rhash">SHA-256: 538811dcd9fd...</span></div>
-            <div class="rtitle">逆見積もり診断レポート</div>
-            <div class="rmeta">外壁塗装 75㎡ ｜ 神奈川県・木造2階建て</div>
-          </div>
-          <div class="rbody">
-            <table class="rt" id="rtable">
-              <thead><tr><th>工事項目</th><th>SHIELD適正</th><th>業者見積もり</th><th>差額</th></tr></thead>
-              <tbody>
-                <tr><td>外壁塗装材（シリコン）</td><td class="sv">¥142,000</td><td class="ev">¥280,000</td><td class="dv">+¥138,000</td></tr>
-                <tr><td>足場設置・解体</td><td class="sv">¥84,000</td><td class="ev">¥120,000</td><td class="dv">+¥36,000</td></tr>
-                <tr><td>養生・飛散防止</td><td class="sv">¥22,000</td><td class="ev">¥45,000</td><td class="dv">+¥23,000</td></tr>
-                <tr><td>下地処理・ケレン</td><td class="sv">¥35,000</td><td class="ev">¥80,000</td><td class="dv">+¥45,000</td></tr>
-                <tr><td>人件費（5日）</td><td class="sv">¥175,000</td><td class="ev">¥350,000</td><td class="dv">+¥175,000</td></tr>
-                <tr class="tot"><td>合計（市況補正込）</td><td class="sv">¥503,800</td><td class="ev">¥875,000</td><td class="dv" style="font-size:.76rem">+¥371,200</td></tr>
-              </tbody>
-            </table>
-            <div class="save-row"><div class="sl">過剰請求を回避できた金額</div><div class="sn">¥371,200</div></div>
-          </div>
-          <div class="rfoot"><div class="hashline">SHA-256: 538811dcd9fd4a2b...</div><div class="ver"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#1E6B43" stroke-width="1"/><path d="M3 5l1.5 1.5L7.5 3" stroke="#1E6B43" stroke-width="1.1" stroke-linecap="round"/></svg>改ざん不可能</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ HOW ═══ -->
-<div class="sec how-bg">
-  <div class="sec-i">
-    <div class="ey rv"><span class="eline"></span>HOW IT WORKS</div>
-    <h2 class="sec-h2 rv">逆見積もり、<em>3ステップ</em></h2>
-    <div class="how-steps">
-      <div class="hstep rv"><div class="step-n">01</div><div class="step-t">工事内容を伝える</div><div class="step-d">KIRAに工事の内容・面積を話しかけるだけ。専門用語は不要です。</div><span class="step-tag">KIRA CHAT</span></div>
-      <div class="hstep rv d1"><div class="step-n">02</div><div class="step-t">AIが適正価格を算出</div><div class="step-d">95,403品目と最新市況の補正を織り込んだ本来の価格が数分で出力されます。</div><span class="step-tag">PDF OUTPUT</span></div>
-      <div class="hstep rv d2"><div class="step-n">03</div><div class="step-t">業者と対等に交渉</div><div class="step-d">AIの数字を根拠に堂々と交渉。業者に嘘をつかせない盾になります。</div><span class="step-tag">SHA-256 PROOF</span></div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ FREE DIAGNOSIS BANNER ═══ -->
-<div class="free-diag-banner" style="position:relative;z-index:1;background:none;padding:2.8rem 2.5rem;overflow:hidden">
-  <div style="position:absolute;top:-40%;right:-10%;width:55%;height:150%;background:none;pointer-events:none;animation:breathe 7s ease-in-out infinite"></div>
-  <div style="max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:center;position:relative;z-index:1">
-    <div>
-      <div style="font-size:.6rem;letter-spacing:.22em;color:#4a4d55;font-weight:700;margin-bottom:.6rem;font-family:ui-monospace,Menlo,Consolas,monospace">FREE · AI DIAGNOSIS</div>
-      <div style="font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.2rem);color:#16181d;line-height:1.2;margin-bottom:.6rem">見積書を送るだけ。<br><em style="opacity:.85">AIが今すぐ無料診断します。</em></div>
-      <div style="font-size:.8rem;color:#4a4d55;font-weight:300;line-height:1.8">建設30年の知識を学習したKIRAが、過剰請求箇所と適正価格を即座に分析します。</div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:.75rem;min-width:220px">
-      <a href="/hs-reverse-estimate/" style="display:flex;align-items:center;justify-content:center;gap:.55rem;padding:1rem 1.6rem;background:#ffffff;color:#8b6b47;font-weight:700;font-size:.88rem;text-decoration:none;transition:all .22s">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="var(--clay)" stroke-width="1.4"/><path d="M11 11L14.5 14.5" stroke="var(--clay)" stroke-width="1.4" stroke-linecap="round"/></svg>
-        今すぐ無料でKIRAに相談
-      </a>
-      <a href="https://line.me/R/ti/p/@172piime" style="display:flex;align-items:center;justify-content:center;gap:.55rem;padding:.85rem 1.6rem;background:#16181d;color:#fff;font-weight:700;font-size:.82rem;text-decoration:none;transition:all .22s">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="white"><path d="M13 1.5H2c-.8 0-1.5.7-1.5 1.5v11.5l3.5-3.5H13c.8 0 1.5-.7 1.5-1.5V3c0-.8-.7-1.5-1.5-1.5z"/></svg>
-        KIRAにLINEで相談（無料）
-      </a>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ EHN PICKUP (自動生成: 今週の実例) ═══ -->
-<div class="sec" id="ehn-pick" style="display:none;background:#ffffff">
-  <div class="sec-i">
-    <div class="ey rv"><span class="eline"></span>THIS WEEK / EHN</div>
-    <h2 class="rv" style="font-size:1.5rem;margin:.4rem 0 .3rem">今週みんなが出した見積もり</h2>
-    <p class="rv" style="color:#16181d;font-size:.86rem;margin-bottom:1.4rem">実際に投稿された見積もりをKIRAが匿名で診断した結果です。<span id="ehn-pick-meta" style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem"></span></p>
-    <div id="ehn-pick-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem"></div>
-  </div>
-</div>
-
-<!-- ═══ KIRA ═══ -->
-<div class="sec kira-sec" id="kira-sec">
-  <div class="sec-i">
-    <div class="ey rv"><span class="eline"></span>AI CONSULTANT</div>
-
-    <!-- KIRA HERO ROW -->
-    <div style="display:grid;grid-template-columns:auto 1fr;gap:2.5rem;align-items:center;margin-bottom:2.5rem" class="rv">
-      <!-- KIRAアイコン: 黄金惑星 SVGネイティブアニメーション -->
-      <div style="position:relative;width:160px;height:160px;flex-shrink:0">
-        <svg width="160" height="160" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
-          <defs>
-            <radialGradient id="ki-orb" cx="38%" cy="32%" r="60%">
-              <stop offset="0%" stop-color="#FFE060"/>
-              <stop offset="22%" stop-color="#F5A800"/>
-              <stop offset="50%" stop-color="#C87000"/>
-              <stop offset="80%" stop-color="#7A3C00"/>
-              <stop offset="100%" stop-color="#3E1A00"/>
-            </radialGradient>
-            <radialGradient id="ki-glw" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="rgba(220,140,0,0.26)"/>
-              <stop offset="55%" stop-color="rgba(200,110,0,0.08)"/>
-              <stop offset="100%" stop-color="rgba(200,110,0,0)"/>
-            </radialGradient>
-            <filter id="ki-gf" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="9"/></filter>
-            <filter id="ki-rf"><feGaussianBlur stdDeviation="0.5"/></filter>
-            <filter id="ki-ray"><feGaussianBlur stdDeviation="0.6"/></filter>
-          </defs>
-          <!-- ambient glow -->
-          <ellipse cx="100" cy="116" rx="82" ry="21" fill="rgba(180,110,0,0.09)" filter="url(#ki-gf)">
-            <animate attributeName="opacity" values="0.5;1;0.5" dur="4s" repeatCount="indefinite"/>
-            <animate attributeName="ry" values="18;25;18" dur="4s" repeatCount="indefinite"/>
-          </ellipse>
-          <!-- orbital rings: stroke-dashoffset流れる -->
-          <g filter="url(#ki-rf)">
-            <ellipse cx="100" cy="109" rx="88" ry="21" fill="none" stroke="rgba(160,100,0,0.14)" stroke-width="0.8" stroke-dasharray="9 13">
-              <animate attributeName="stroke-dashoffset" from="0" to="-560" dur="30s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="0.6;1;0.6" dur="5s" repeatCount="indefinite"/>
-            </ellipse>
-            <ellipse cx="100" cy="108" rx="72" ry="17" fill="none" stroke="rgba(160,100,0,0.22)" stroke-width="0.9" stroke-dasharray="10 13">
-              <animate attributeName="stroke-dashoffset" from="0" to="460" dur="22s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="0.7;1;0.7" dur="4.5s" repeatCount="indefinite"/>
-            </ellipse>
-            <ellipse cx="100" cy="107" rx="57" ry="13" fill="none" stroke="rgba(160,100,0,0.31)" stroke-width="1" stroke-dasharray="8 10">
-              <animate attributeName="stroke-dashoffset" from="0" to="-365" dur="16s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="0.7;1;0.7" dur="4s" repeatCount="indefinite"/>
-            </ellipse>
-            <ellipse cx="100" cy="106" rx="43" ry="10" fill="none" stroke="rgba(160,100,0,0.42)" stroke-width="1.1" stroke-dasharray="7 9">
-              <animate attributeName="stroke-dashoffset" from="0" to="274" dur="11s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="0.75;1;0.75" dur="3.5s" repeatCount="indefinite"/>
-            </ellipse>
-            <ellipse cx="100" cy="105" rx="29" ry="7" fill="none" stroke="rgba(160,100,0,0.54)" stroke-width="1.3" stroke-dasharray="5 7">
-              <animate attributeName="stroke-dashoffset" from="0" to="-184" dur="8s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite"/>
-            </ellipse>
-          </g>
-          <!-- equator line -->
-          <line x1="4" y1="106" x2="196" y2="106" stroke="rgba(160,100,0,0.22)" stroke-width="0.6">
-            <animate attributeName="opacity" values="0.6;1;0.6" dur="4s" repeatCount="indefinite"/>
-          </line>
-          <!-- light rays -->
-          <g filter="url(#ki-ray)">
-            <line x1="100" y1="58" x2="100" y2="36" stroke="rgba(160,90,0,0.80)" stroke-width="1.2">
-              <animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite"/>
-              <animate attributeName="y2" values="36;32;36" dur="2.5s" repeatCount="indefinite"/>
-            </line>
-            <line x1="100" y1="58" x2="82" y2="40" stroke="rgba(160,90,0,0.60)" stroke-width="0.9">
-              <animate attributeName="opacity" values="0.4;0.85;0.4" dur="2.8s" repeatCount="indefinite"/>
-            </line>
-            <line x1="100" y1="58" x2="118" y2="40" stroke="rgba(160,90,0,0.60)" stroke-width="0.9">
-              <animate attributeName="opacity" values="0.4;0.85;0.4" dur="2.8s" repeatCount="indefinite"/>
-            </line>
-            <line x1="100" y1="58" x2="66" y2="47" stroke="rgba(160,90,0,0.42)" stroke-width="0.7">
-              <animate attributeName="opacity" values="0.3;0.68;0.3" dur="3.2s" repeatCount="indefinite"/>
-            </line>
-            <line x1="100" y1="58" x2="134" y2="47" stroke="rgba(160,90,0,0.42)" stroke-width="0.7">
-              <animate attributeName="opacity" values="0.3;0.68;0.3" dur="3.2s" repeatCount="indefinite"/>
-            </line>
-            <line x1="100" y1="58" x2="53" y2="55" stroke="rgba(160,90,0,0.26)" stroke-width="0.6">
-              <animate attributeName="opacity" values="0.2;0.50;0.2" dur="3.7s" repeatCount="indefinite"/>
-            </line>
-            <line x1="100" y1="58" x2="147" y2="55" stroke="rgba(160,90,0,0.26)" stroke-width="0.6">
-              <animate attributeName="opacity" values="0.2;0.50;0.2" dur="3.7s" repeatCount="indefinite"/>
-            </line>
-            <line x1="100" y1="58" x2="42" y2="64" stroke="rgba(160,90,0,0.15)" stroke-width="0.5">
-              <animate attributeName="opacity" values="0.1;0.30;0.1" dur="4.2s" repeatCount="indefinite"/>
-            </line>
-            <line x1="100" y1="58" x2="158" y2="64" stroke="rgba(160,90,0,0.15)" stroke-width="0.5">
-              <animate attributeName="opacity" values="0.1;0.30;0.1" dur="4.2s" repeatCount="indefinite"/>
-            </line>
-          </g>
-          <!-- sphere glow -->
-          <circle cx="100" cy="62" r="40" fill="url(#ki-glw)">
-            <animate attributeName="r" values="36;45;36" dur="4s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0.7;1;0.7" dur="4s" repeatCount="indefinite"/>
-          </circle>
-          <!-- sphere body -->
-          <circle cx="100" cy="62" r="24" fill="url(#ki-orb)">
-            <animate attributeName="r" values="22;26;22" dur="4s" repeatCount="indefinite"/>
-          </circle>
-          <!-- highlight -->
-          <ellipse cx="92" cy="55" rx="8" ry="5" fill="rgba(255,255,200,0.42)">
-            <animate attributeName="opacity" values="0.35;0.58;0.35" dur="4s" repeatCount="indefinite"/>
-          </ellipse>
-          <ellipse cx="89" cy="53" rx="3" ry="1.8" fill="rgba(255,255,240,0.60)">
-            <animate attributeName="opacity" values="0.5;0.82;0.5" dur="4s" repeatCount="indefinite"/>
-          </ellipse>
-        </svg>
-      </div>
-      <div>
-        <h2 class="sec-h2" style="margin-bottom:.5rem">KIRA に<em>相談する</em></h2>
-        <div style="display:flex;align-items:center;gap:.5rem;font-size:.7rem;color:#3f424a;margin-bottom:1rem">
-          <span style="width:7px;height:7px;border-radius:50%;background:transparent;animation:blink 1.8s infinite;display:inline-block"></span>
-          24時間対応中 · 応答3秒以内 · 建設30年プロ監修
-        </div>
-        <a href="/hs-reverse-estimate/" style="display:inline-flex;align-items:center;gap:.5rem;background:#16181d;color:#fff;padding:.78rem 1.6rem;font-weight:700;font-size:.85rem;text-decoration:none;transition:all .22s;margin-right:.6rem">
-          KIRAに今すぐ相談 →
-        </a>
-        <a href="https://line.me/R/ti/p/@172piime" style="display:inline-flex;align-items:center;gap:.45rem;background:#16181d;color:#fff;padding:.78rem 1.4rem;font-weight:700;font-size:.82rem;text-decoration:none;transition:all .22s">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="white"><path d="M12 1H2C1.2 1 .5 1.7.5 2.5v10L4 9h8c.8 0 1.5-.7 1.5-1.5V2.5C13.5 1.7 12.8 1 12 1z"/></svg>
-          KIRAにLINEで相談
-        </a>
-      </div>
-    </div>
-
-    <div class="kira-grid rv">
-      <a href="/hs-reverse-estimate/" class="kira-btn amber" style="border:2px solid #e3e3e6">
-        <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="9" fill="none" stroke="var(--amber)" stroke-width="1.1"/><circle cx="13" cy="13" r="4" fill="none" stroke="var(--amber)" stroke-width="1.1"/><circle cx="13" cy="13" r="1.5" fill="var(--amber)"/><line x1="13" y1="2" x2="13" y2="4.5" stroke="rgba(165,520,32,.5)" stroke-width="1.2" stroke-linecap="round"/><line x1="13" y1="21.5" x2="13" y2="24" stroke="rgba(165,520,32,.5)" stroke-width="1.2" stroke-linecap="round"/><line x1="2" y1="13" x2="4.5" y2="13" stroke="rgba(165,520,32,.5)" stroke-width="1.2" stroke-linecap="round"/><line x1="21.5" y1="13" x2="24" y2="13" stroke="rgba(165,520,32,.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
-        <span class="kb-t" style="color:#8b6b47">無料でKIRAに相談</span><span class="kb-s">逆見積もり · 3プラン算出</span>
-      </a>
-      <a href="https://chatgpt.com/g/g-69e180f9a5048191886069dd58b22572-jian-she-fei-tietuka-by-horizon-shield" target="_blank" class="kira-btn ink">
-        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="var(--ink)" stroke-width="1.1" stroke-linecap="round"><circle cx="13" cy="13" r="10"/><circle cx="13" cy="13" r="5"/><circle cx="13" cy="13" r="1.5" fill="var(--ink)"/></svg>
-        <span class="kb-t">ChatGPTで診断</span><span class="kb-s">GPTストアで公開</span>
-      </a>
-      <a href="https://gemini.google.com/gem/1_AqLRwNSP1tZWZNWzyNIrsOrBLI1fAjo" target="_blank" class="kira-btn ink">
-        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="var(--ink)" stroke-width="1.1" stroke-linecap="round"><polygon points="13,2.5 16,9.5 23.5,9.5 18,14 20,21.5 13,17 6,21.5 8,14 2.5,9.5 10,9.5"/></svg>
-        <span class="kb-t">Geminiで診断</span><span class="kb-s">Google AI</span>
-      </a>
-      <a href="/check/" class="kira-btn ink">
-        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="var(--ink)" stroke-width="1.1" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L22 22"/><path d="M8.5 11h5M11 8.5v5"/></svg>
-        <span class="kb-t">業者チェッカー</span><span class="kb-s">許可証・評判を検索</span>
-      </a>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ COMMUNITY ═══ -->
-<div class="sec how-bg">
-  <div class="sec-i">
-    <div class="ey rv"><span class="eline"></span>COMMUNITY</div>
-    <h2 class="sec-h2 rv">施主の会 --<br><em>一人で戦わなくていい。</em></h2>
-    <div class="comm-layout">
-      <div class="comm-box rv">
-        <div class="cn">参加者募集中</div>
-        <div class="cl">「この見積もり高い？」を安心して話せる場所</div>
-        <div class="cfeats">
-          <div class="cfeat"><div class="cfico"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1 4.5l2.5 2.5L8 1.5" stroke="#1E6B43" stroke-width="1.2" stroke-linecap="round"/></svg></div>業者の評判をリアルな声で確認できる</div>
-          <div class="cfeat"><div class="cfico"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1 4.5l2.5 2.5L8 1.5" stroke="#1E6B43" stroke-width="1.2" stroke-linecap="round"/></svg></div>見積書を一緒に考えてくれる仲間がいる</div>
-          <div class="cfeat"><div class="cfico"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1 4.5l2.5 2.5L8 1.5" stroke="#1E6B43" stroke-width="1.2" stroke-linecap="round"/></svg></div>TOshiからの情報・アドバイスが届く</div>
-          <div class="cfeat"><div class="cfico"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1 4.5l2.5 2.5L8 1.5" stroke="#1E6B43" stroke-width="1.2" stroke-linecap="round"/></svg></div>参加は完全無料</div>
-        </div>
-        <a href="https://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ" class="btn-line">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect width="16" height="16" rx="3.5" fill="white" fill-opacity=".2"/><path d="M8 2.2C5.24 2.2 3 3.93 3 6.08c0 1.37.82 2.55 2.04 3.24l-.5 2.08 2.2-1.1c.25.06.51.1.76.1 2.76 0 5-1.73 5-3.88C12.5 3.93 10.76 2.2 8 2.2Z" fill="white"/></svg>
-          LINEオープンチャットに参加する（無料）
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ RESEARCH ═══ -->
-<div class="sec research-bg">
-  <div class="sec-i">
-    <div class="ey rv"><span class="eline"></span>RESEARCH</div>
-    <h2 class="sec-h2 rv">公開している<em>学術論文</em></h2>
-    <p class="sec-p rv">HS Rule（建設費透明化算定式）とJCCDB（日本建設費データベース）を米国エンジニアリング系プレプリントサーバー engrXiv に公開しました。</p>
-    <div class="research-nums rv">
-      <div class="rn-block"><div class="rn-num">7007</div><div class="rn-label">engrXiv Preprint ID</div></div>
-      <div class="rn-divider"></div>
-      <div class="rn-block"><div class="rn-num">87+88</div><div class="rn-label">工事プラン × 不正検知パターン</div></div>
-      <div class="rn-divider"></div>
-      <div class="rn-block"><div class="rn-num" style="font-size:1.8rem;color:#8b6b47">CC-BY 4.0</div><div class="rn-label">オープンライセンス</div></div>
-    </div>
-    <div class="research-links rv">
-      <a href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database" target="_blank" class="rl filled">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-        GitHub データセット
-      </a>
-      <a href="https://engrxiv.org/preprint/view/7007" target="_blank" class="rl outline">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        engrXiv 論文
-        <span class="rl-mono">DOI: 10.31224/7007</span>
-      </a>
-      <a href="https://doi.org/10.5281/zenodo.20019572" target="_blank" class="rl outline">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-        Zenodo 論文
-        <span class="rl-mono">10.5281/zenodo.20019572</span>
-      </a>
-      <a href="https://orcid.org/0009-0000-9180-903X" target="_blank" class="rl outline">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/></svg>
-        ORCID
-        <span class="rl-mono">0009-0000-9180-903X</span>
-      </a>
-      <a href="https://scholar.google.com/citations?user=VBq9MHgAAAAJ" target="_blank" class="rl outline">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M22 9 12 4 2 9l10 5 10-5v6"/><path d="M6 10.6V16c2.4 1.6 3.6 2 6 2s3.6-.4 6-2v-5.4"/></svg>
-        Google Scholar
-        <span class="rl-mono">user=VBq9MHgAAAAJ</span>
-      </a>
-      <a href="https://www.webofscience.com/wos/author/record/QAY-0724-2026" target="_blank" class="rl outline">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/></svg>
-        Web of Science
-        <span class="rl-mono">QAY-0724-2026</span>
-      </a>
-       <a href="https://huggingface.co/datasets/ogasurfproject/jccdb" target="_blank" class="rl outline">🤗 Hugging Face<span class="rl-mono">ogasurfproject/jccdb</span></a>
-    </div>
-    <p class="research-note rv">※ 2026年5月6日、engrXiv にて公開（Preprint ID: 7007 / DOI: 10.31224/7007）。engrXiv は Open Engineering Inc.（米国501(c)(3)非営利団体）が運営するエンジニアリング系プレプリントサーバーで、DOIを発行します。データセットはCC-BY 4.0ライセンスで自由に利用・検証できます。</p>
-
-    <!-- -- VRQ 論文カード（2026-05-21 新設）-- -->
-    <div class="rv" style="margin-top:2.2rem;background:transparent;border:1px solid #e3e3e6;border-left:3px solid #8b6b47;overflow:hidden">
-      <div style="padding:1.6rem 1.8rem 1.4rem">
-        <div style="display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin-bottom:.7rem">
-          <span style="background:transparent;color:#16181d;font-size:.55rem;letter-spacing:.13em;padding:.2rem .65rem;font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700">NEW · 2026-05-21</span>
-          <span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.58rem;color:#3f424a;letter-spacing:.1em">WORKING PAPER（査読前プレプリント）· 経済学フレームワーク</span>
-        </div>
-        <div style="font-family:var(--serif);font-size:1.5rem;color:#16181d;line-height:1.35;margin-bottom:.8rem">
-          「業者を信じる」のではなく、<em style="font-style:normal;color:#8b6b47">「検証する」</em>。<br>その仕組みを、経済学の理論として証明した。
-        </div>
-        <p style="font-size:.8rem;color:#16181d;line-height:2;font-weight:300;margin-bottom:1.2rem">
-          リフォーム市場は、施主が工事の品質や必要性を「事後にも判断できない」<strong style="color:#16181d;font-weight:600">信用財（credence good）市場</strong>です。本来は誠実な業者ほど高く見え、隠れた利益を上乗せした業者が選ばれる--アカロフの<strong style="color:#16181d;font-weight:600">レモン市場</strong>そのものです。HORIZON SHIELD の仕組み（170カテゴリ相場層・業者規模別マージンモデル・3段階検証・Bitcoin刻印証明書）を、この情報非対称性への<strong style="color:#16181d;font-weight:600">市場設計（market design）介入</strong>として体系化した論文「Verified Renovation Quote (VRQ) Framework」を、Zenodo・SSRN に公開しました。
-        </p>
-
-        <!-- DOI / 識別子 -->
-        <div class="research-links" style="margin-top:0">
-          <a href="https://doi.org/10.5281/zenodo.20372953" target="_blank" class="rl filled">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-            Zenodo（VRQ論文）
-            <span class="rl-mono" style="color:rgba(255,255,255,.6)">10.5281/zenodo.20372953</span>
-          </a>
-          <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6807738" target="_blank" class="rl outline">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            SSRN（Elsevier）
-            <span class="rl-mono">abstract_id=6807738</span>
-          </a>
-          <a href="https://doi.org/10.31224/7126" target="_blank" class="rl outline">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            engrXiv（VRQ論文）
-            <span class="rl-mono">DOI: 10.31224/7126</span>
-          </a>
-          <a href="https://orcid.org/0009-0000-9180-903X" target="_blank" class="rl outline">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/></svg>
-            ORCID
-            <span class="rl-mono">0009-0000-9180-903X</span>
-          </a>
-        </div>
-
-        <!-- 検証バッジ -->
-        <div style="display:flex;gap:1.4rem;flex-wrap:wrap;margin-top:1.3rem;padding-top:1.2rem;border-top:1px solid #e3e3e6">
-          <div style="display:flex;align-items:center;gap:.45rem">
-            <span style="color:#16181d;font-size:.8rem">✅</span>
-            <span style="font-size:.66rem;color:#16181d">Bitcoin 刻印で<strong style="color:#16181d">優先権確定</strong>（改ざん不可）</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:.45rem">
-            <span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.62rem;color:#8b6b47;font-weight:700">CC BY 4.0</span>
-            <span style="font-size:.66rem;color:#16181d">誰でも検証可能なオープン公開</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- -- /VRQ 論文カード -- -->
-  </div>
-</div>
-<!-- ═══ PTKA PROTOCOL ═══ -->
-<div class="sec" style="background:#ffffff;position:relative;z-index:1">
-  <div class="sec-i">
-    <div class="ey rv"><span class="eline"></span>PTKA PROTOCOL</div>
-    <h2 class="sec-h2 rv">Pre-Transaction Knowledge Anchoring --<br><em>業者が見積もりを出す前に、施主が真実を持つ。</em></h2>
-    <p class="sec-p rv">2026年5月14日、当社代表 大賀俊勝が独自プロトコル「PTKA」の宣言文を、Bitcoinブロックチェーンへの刻印プロセスに登録しました。改ざん不可能な記録として残しています。</p>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;margin-top:2.5rem;align-items:start" class="rv">
-
-      <!-- 左：概念説明 -->
-      <div>
-        <div style="background:transparent;border:1px solid #e3e3e6;border-left:3px solid #16181d;padding:1.4rem 1.6rem;margin-bottom:1.4rem">
-          <div style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.58rem;color:#16181d;letter-spacing:.14em;margin-bottom:.6rem;font-weight:700">PRE-TRANSACTION KNOWLEDGE ANCHORING</div>
-          <div style="font-family:var(--serif);font-size:1.4rem;color:#16181d;line-height:1.4;margin-bottom:.7rem">情報非対称性への、技術的応答。</div>
-          <div style="font-size:.78rem;color:#16181d;line-height:1.95;font-weight:300">
-            業者が見積もりを出す前に、施主が「Bitcoinに刻まれた適正価格」を持つ。これがPTKAプロトコルの核心です。後から都合よく書き換えることが、地球上のどの業者にも不可能になります。
-          </div>
-        </div>
-
-        <div style="display:flex;flex-direction:column;gap:.8rem;margin-top:1.2rem">
-          <div style="display:flex;gap:.7rem;align-items:flex-start">
-            <div style="font-family:var(--serif);font-size:1.4rem;color:#8b6b47;line-height:1;width:1.8rem;flex-shrink:0">01</div>
-            <div>
-              <div style="font-weight:600;font-size:.78rem;color:#16181d;margin-bottom:.2rem">改ざん不可能な時刻証明</div>
-              <div style="font-size:.7rem;line-height:1.7;color:#3f424a">Bitcoinブロックチェーンへの刻印により、診断書の存在日時が永久に記録されます。</div>
-            </div>
-          </div>
-          <div style="display:flex;gap:.7rem;align-items:flex-start">
-            <div style="font-family:var(--serif);font-size:1.4rem;color:#8b6b47;line-height:1;width:1.8rem;flex-shrink:0">02</div>
-            <div>
-              <div style="font-weight:600;font-size:.78rem;color:#16181d;margin-bottom:.2rem">第三者機関による独立刻印（構築中）</div>
-              <div style="font-size:.7rem;line-height:1.7;color:#3f424a">個別診断書の刻印は、独立した第三者機関による体制を準備中。当社が当社を証明する構造を排除します。</div>
-            </div>
-          </div>
-          <div style="display:flex;gap:.7rem;align-items:flex-start">
-            <div style="font-family:var(--serif);font-size:1.4rem;color:#8b6b47;line-height:1;width:1.8rem;flex-shrink:0">03</div>
-            <div>
-              <div style="font-weight:600;font-size:.78rem;color:#16181d;margin-bottom:.2rem">学術論文と連動</div>
-              <div style="font-size:.7rem;line-height:1.7;color:#3f424a">engrXiv公開のJCCDB v2.0論文（DOI: 10.31224/7007）と紐づき、95,403品目スキーマはGitHubで公開・方法論として検証可能です。</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 右：宣言書カード -->
-      <div>
-        <div style="background:transparent;border:1px solid #e3e3e6;overflow:hidden">
-
-          <!-- ヘッダー -->
-          <div style="background:transparent;padding:1.2rem 1.4rem">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem">
-              <span style="background:transparent;color:#4a4d55;font-size:.55rem;letter-spacing:.13em;padding:.15rem .6rem;font-family:ui-monospace,Menlo,Consolas,monospace">DECLARATION</span>
-              <span style="font-size:.52rem;color:#6a6d75;font-family:ui-monospace,Menlo,Consolas,monospace">2026-05-14</span>
-            </div>
-            <div style="font-family:var(--serif);font-size:.95rem;color:#16181d;margin-bottom:.18rem">PTKA Protocol Declaration</div>
-            <div style="font-size:.6rem;color:#6a6d75">Bitcoin Anchoring Process Initiated</div>
-          </div>
-
-          <!-- ボディ -->
-          <div style="padding:1.4rem">
-            <div style="font-size:.6rem;color:#3f424a;letter-spacing:.1em;margin-bottom:.4rem;font-weight:600;font-family:ui-monospace,Menlo,Consolas,monospace">SHA-256 HASH</div>
-            <div style="background:transparent;border:1px solid #e3e3e6;padding:.7rem .9rem;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.55rem;color:#16181d;letter-spacing:.04em;word-break:break-all;line-height:1.5;margin-bottom:1rem">
-              596da30ba4ca731f21efaa1c4a6537290e996e0f039cbe57704de1674e4a0282
-            </div>
-
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1rem">
-              <div>
-                <div style="font-size:.55rem;color:#3f424a;letter-spacing:.1em;margin-bottom:.2rem;font-family:ui-monospace,Menlo,Consolas,monospace">PROTOCOL</div>
-                <div style="font-size:.72rem;color:#16181d;font-weight:600">OpenTimestamps</div>
-              </div>
-              <div>
-                <div style="font-size:.55rem;color:#3f424a;letter-spacing:.1em;margin-bottom:.2rem;font-family:ui-monospace,Menlo,Consolas,monospace">CHAIN</div>
-                <div style="font-size:.72rem;color:#16181d;font-weight:600">Bitcoin</div>
-              </div>
-              <div>
-                <div style="font-size:.55rem;color:#3f424a;letter-spacing:.1em;margin-bottom:.2rem;font-family:ui-monospace,Menlo,Consolas,monospace">DECLARED BY</div>
-                <div style="font-size:.72rem;color:#16181d;font-weight:600">Toshikatsu Oga</div>
-              </div>
-              <div>
-                <div style="font-size:.55rem;color:#3f424a;letter-spacing:.1em;margin-bottom:.2rem;font-family:ui-monospace,Menlo,Consolas,monospace">BITCOIN BLOCK</div>
-                <div style="font-size:.72rem;color:#16181d;font-weight:600">✅ #949356 Confirmed</div>
-              </div>
-            </div>
-
-            <div style="background:transparent;border:1px solid #e3e3e6;padding:.7rem .9rem;font-size:.62rem;color:#16181d;line-height:1.7;margin-bottom:1rem">
-              <strong style="color:#16181d">✅ 確定済:</strong> 2026年5月14日、Bitcoinブロック <strong>#949356</strong> にPTKA Protocol Declarationが永続的に刻印されました。<a href="https://opentimestamps.org" target="_blank" style="color:#16181d;text-decoration:underline">OpenTimestamps</a>で検証可能。
-            </div>
-
-            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-              <a href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database/blob/main/ptka_declaration_20260514.txt" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;background:#16181d;color:#fff;padding:.55rem 1rem;font-size:.68rem;font-weight:700;text-decoration:none;letter-spacing:.02em">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-                GitHub 宣言文
-              </a>
-              <a href="https://opentimestamps.org" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;background:#ffffff;color:#16181d;border:1px solid #e3e3e6;padding:.55rem 1rem;font-size:.68rem;font-weight:700;text-decoration:none;letter-spacing:.02em">
-                OpenTimestampsで検証 →
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div style="margin-top:.9rem;font-size:.6rem;color:#3f424a;line-height:1.7;padding:0 .3rem">
-          ※ PTKA = Pre-Transaction Knowledge Anchoring（取引前知識刻印）。当社独自プロトコル名称。本宣言文は2026年5月14日にBitcoinブロック #949356 に刻印され、永続的に時刻証明されました。
-        </div>
-      </div>
-
-    </div>
-
-    <!-- 哲学コピー -->
-    <div style="margin-top:3rem;padding:1.8rem 2rem;background:transparent;border-left:3px solid #8b6b47" class="rv">
-      <div style="font-family:var(--serif);font-style:normal;font-size:1.05rem;color:#16181d;line-height:1.7;margin-bottom:.5rem">
-        "確率的な賢さは、決定論的な真実を守れない。"
-      </div>
-      <div style="font-size:.7rem;color:#3f424a;line-height:1.8">
-        AIは賢く見える。だが施主を守るのは「賢さ」ではなく、改ざん不可能な「記録」だ。釘とハッシュは同じ消えない記録である。
-      </div>
-    </div>
-
-  </div>
-</div>
-<!-- ═══ /PTKA PROTOCOL ═══ -->
-<!-- ═══ MEDIA ═══ -->
-<div class="sec media-bg">
-  <div class="sec-i">
-    <div class="media-ey rv"><span class="meline"></span>MEDIA & PRESS</div>
-    <h2 class="media-h2 rv">信頼は、数字が証明する。</h2>
-    <div class="rv" style="background:none;border:1px solid #e3e3e6;padding:14px 20px;margin-bottom:1.2rem;display:flex;align-items:center;gap:14px">
-      <div style="font-size:1.4rem;line-height:1">🎓</div>
-      <div>
-        <div style="font-size:.65rem;letter-spacing:.15em;color:#8b6b47;margin-bottom:3px">NEW · 学術論文 SSRN / Elsevier 掲載</div>
-        <div style="font-size:.85rem;color:#16181d;line-height:1.5">Japan Construction Cost Database (JCCDB) v2.0が<strong style="color:#16181d">SSRN（Elsevier）</strong>に正式掲載。95,403品目・402カテゴリの建設部材スキーマを<a href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database" style="color:#8b6b47" target="_blank">GitHub公開</a>中。さらに2026年5月、リフォーム情報非対称性を信用財・レモン市場の経済学として体系化した<strong style="color:#16181d">VRQ Framework 論文</strong>を<a href="https://doi.org/10.5281/zenodo.20372953" style="color:#8b6b47" target="_blank">Zenodo</a>・SSRNに公開。30年の現場経験×AI診断の研究基盤が国際的に認められました。</div>
-        <div style="margin-top:6px;font-size:.7rem;color:#6a6d75">JCCDB 解説論文: 10.31224/7007 (engrXiv) ／ 10.5281/zenodo.20019572 ／ VRQ: 10.5281/zenodo.20372953 (Zenodo) ／ ORCID: 0009-0000-9180-903X</div>
-      </div>
-    </div>
-    <div class="media-stat rv">
-      <div><div class="ms-n">79<span class="ms-u" style="font-size:1.1rem"> 媒体</span></div><div class="ms-l">掲載確認済み</div></div>
-      <div style="width:1px;background:#e3e3e6;align-self:stretch;margin:.3rem 0"></div>
-      <div><div class="ms-n" style="font-size:2.2rem">286</div><div class="ms-l">PR TIMES配信数</div></div>
-      <div style="width:1px;background:#e3e3e6;align-self:stretch;margin:.3rem 0"></div>
-      <div><div class="ms-n" style="font-size:2.2rem">7,000<span style="font-size:1rem">+</span></div><div class="ms-l">dreamnews配信実績</div></div>
-      <div style="width:1px;background:#e3e3e6;align-self:stretch;margin:.3rem 0"></div>
-      <div><div class="ms-n" style="font-size:1.4rem;color:#8b6b47">SSRN</div><div class="ms-l" style="color:#4a4d55">学術論文掲載 2026</div></div>
-    </div>
-    <div class="mbadges rv">
-      <a href="https://www.asahi.com/and/pressrelease/16482464" target="_blank" class="mb h">朝日新聞デジタル <span class="mb-arrow">↗</span></a>
-      <a href="https://toyokeizai.net/ud/pressrelease/69d5a2d2126217b95f000006" target="_blank" class="mb h">東洋経済オンライン <span class="mb-arrow">↗</span></a>
-      <a href="https://president.jp/ud/pressrelease/69d5ac627079c806a700002b" target="_blank" class="mb h">PRESIDENT Online <span class="mb-arrow">↗</span></a>
-      <a href="https://newsdig.tbs.co.jp/articles/prtimes/2584941" target="_blank" class="mb h">TBS NEWS DIG <span class="mb-arrow">↗</span></a>
-      <a href="https://mainichi.jp/articles/20260408/pr2/00m/020/006000c" target="_blank" class="mb h">毎日新聞デジタル <span class="mb-arrow">↗</span></a>
-      <a href="https://newspicks.com/news/16404366/" target="_blank" class="mb h">NewsPicks <span class="mb-arrow">↗</span></a>
-      <a href="https://gendai.media/ud/pressrelease/cmnpayrkd00063s186l0t3tz7" target="_blank" class="mb h">現代ビジネス <span class="mb-arrow">↗</span></a>
-      <a href="https://ascii.jp/elem/000/004/388/4388031/" target="_blank" class="mb h">ASCII STARTUP <span class="mb-arrow">↗</span></a>
-      <a href="https://adv.tokyo-np.co.jp/prtimes/article141078/" target="_blank" class="mb h">東京新聞 <span class="mb-arrow">↗</span></a>
-      <a href="https://prtimes.jp/main/html/searchrlp/company_id/181278" target="_blank" class="mb">PR TIMES <span class="mb-arrow">↗</span></a>
-      <a href="https://doi.org/10.31224/7007" target="_blank" class="mb h" style="background:transparent;border:1px solid #8b6b47;color:#8b6b47">engrXiv 学術論文 DOI:10.31224/7007 <span class="mb-arrow">↗</span></a>
-      <a href="https://doi.org/10.5281/zenodo.20019572" target="_blank" class="mb h" style="background:transparent;border:1px solid #8b6b47;color:#8b6b47">Zenodo 解説論文 <span class="mb-arrow">↗</span></a>
-      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6738701" target="_blank" class="mb h" style="background:transparent;border:1px solid #8b6b47;color:#8b6b47">SSRN 掲載済み (Elsevier) <span class="mb-arrow">↗</span></a>
-      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6872819" target="_blank" class="mb h" style="background:transparent;border:1px solid #8b6b47;color:#8b6b47">SSRN LLMベンチマーク論文 (abstract_id=6872819) <span class="mb-arrow">↗</span></a>
-      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6964439" target="_blank" class="mb h" style="background:transparent;border:1px solid #8b6b47;color:#8b6b47">SSRN 買い手側検証ゲート論文 (abstract_id=6964439) <span class="mb-arrow">↗</span></a>
-    </div>
-    <div class="media-others rv">
-      <span class="mo">産経ニュース</span><span class="mo">時事通信</span><span class="mo">livedoor</span><span class="mo">テレ東プラス</span><span class="mo">財経新聞</span><span class="mo">RBBTODAY</span><span class="mo">Infoseek</span><span class="mo">ニコニコニュース</span><span class="mo">@DIME</span><span class="mo">Web担当者Forum</span><span class="mo">タウンニュース</span><span class="mo">茨城新聞</span><span class="mo">湘南人</span><span class="mo">ヨコハマ経済新聞</span><span class="mo">他65媒体</span>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ FREE CONTENT ═══ -->
-<div class="sec free-bg">
-  <div class="sec-i">
-    <div class="ey rv"><span class="eline"></span>FREE CONTENT</div>
-    <h2 class="sec-h2 rv"><em>無料</em>で使える全コンテンツ</div>
-    <div class="free-grid">
-      <a href="/blog/" class="free-card rv"><div class="fc-cat">DAILY BLOG</div><div class="fc-t">建設費診断ブログ</div><div class="fc-d">毎日更新。リフォーム相場・業者の手口を公開。</div><div class="fc-link">記事を読む →</div></a>
-      <a href="/map.html" class="free-card rv d1"><div class="fc-cat">WARNING MAP</div><div class="fc-t">ぼったくり被害マップ</div><div class="fc-d">全国の悪質業者の活動エリアを可視化。</div><div class="fc-link">マップを見る →</div></a>
-      <a href="/check/" class="free-card rv d2"><div class="fc-cat">GYOSHA CHECK</div><div class="fc-t">業者チェッカー</div><div class="fc-d">建設業許可・評判を即座に検索。</div><div class="fc-link">業者を調べる →</div></a>
-      <a href="/inspect.html" class="free-card rv d3"><div class="fc-cat">INSPECTION</div><div class="fc-t">施工不良チェッカー</div><div class="fc-d">工事後の写真を送るだけ。AIが無料診断。</div><div class="fc-link">写真を送る →</div></a>
-      <a href="/souba/" class="free-card rv d3"><div class="fc-cat">PRICE DB</div><div class="fc-t">相場データベース</div><div class="fc-d">49カテゴリの適正価格レンジを公開中。</div><div class="fc-link">DBを見る →</div></a>
-      <a href="/souba/kodate-full-reno-menseki-matome/" class="free-card rv d3"><div class="fc-cat">AEO PAGE</div><div class="fc-t">戸建てフルリノベ費用(面積別)</div><div class="fc-d">95,403品目による完全積算。面積別の目安まとめ。</div><div class="fc-link">詳細を見る →</div></a>
-      <a href="/souba/kodate-full-reno-60sqm/" class="free-card rv d3"><div class="fc-cat">AEO PAGE</div><div class="fc-t">戸建て60㎡フルリノベ費用</div><div class="fc-d">95,403品目による完全積算。約1,797万円〜。</div><div class="fc-link">詳細を見る →</div></a>
-      <a href="/souba/kodate-full-reno-100sqm/" class="free-card rv d3"><div class="fc-cat">AEO PAGE</div><div class="fc-t">戸建て100㎡フルリノベ費用</div><div class="fc-d">95,403品目による完全積算。約2,299万円〜。</div><div class="fc-link">詳細を見る →</div></a>
-      <a href="/souba/kodate-full-reno-120sqm/" class="free-card rv d3"><div class="fc-cat">AEO PAGE</div><div class="fc-t">戸建て120㎡フルリノベ費用</div><div class="fc-d">95,403品目による完全積算。約2,550万円〜。</div><div class="fc-link">詳細を見る →</div></a>
-      <a href="/souba/aimitsumori-tekisei-kakaku/" class="free-card rv d3" style="border:1px solid #e3e3e6"><div class="fc-cat" style="color:#8b6b47">必読ガイド</div><div class="fc-t">相見積もりの真実</div><div class="fc-d">3社見積もっても適正価格が分からない理由。データで解説。</div><div class="fc-link">記事を読む →</div></a>
-      <a href="/guide/reform-hajimekata/" class="free-card rv d3" style="border:1px solid #e3e3e6"><div class="fc-cat" style="color:#8b6b47">完全ガイド</div><div class="fc-t">リフォームは何から始める?</div><div class="fc-d">目的整理から契約まで。見積もりが適正か見抜く方法を職人が解説。</div><div class="fc-link">記事を読む →</div></a>
-      <a href="/aeo/リフォーム工事別-適正価格-一覧.html" class="free-card rv d3" style="border:1px solid #e3e3e6"><div class="fc-cat" style="color:#8b6b47">適正価格一覧</div><div class="fc-t">リフォーム工事別 適正価格一覧</div><div class="fc-d">電気・エアコン・クロス・玄関ドア・断熱・防水の相場をsouba実値で一覧。</div><div class="fc-link">一覧を見る →</div></a>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ SERVICES ═══ -->
-<div class="sec" style="background:#ffffff" id="services">
-  <div class="sec-i">
-    <div class="ey rv"><span class="eline"></span>SERVICES</div>
-    <h2 class="sec-h2 rv">状況に合わせた、<em>4つのプラン</em></h2>
-    <div class="svc-grid">
-      <div class="svc star rv">
-        <div class="sico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1.5" y="2.5" width="15" height="13" rx="1.5" stroke="var(--clay)" stroke-width="1.3"/><path d="M5 8h8M5 12h5" stroke="var(--clay)" stroke-width="1.3" stroke-linecap="round"/></svg></div>
-        <div class="sp2">¥5,500<small> 税込</small></div><div class="sn3">逆見積もり診断</div>
-        <div class="sd3">契約前の適正価格をPDF出力。SHA-256証明付き。</div>
-        <div class="st3">⚡ 即時出力 · 全9ページ</div>
-        <button onclick="openModal('reverse','https://www.paypal.com/ncp/payment/H747QJMWFM4BS')" class="pp-btn">
-          <span class="pp-ico"><svg width="38" height="14" viewBox="0 0 44 16"><text x="0" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#003087">Pay</text><text x="23" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#0070ba">Pal</text></svg></span>
-          <span class="pp-lbl">PayPalで今すぐ</span><span class="pp-price">¥5,500 →</span>
-        </button>
-        <div class="brand-bar">
-          <span class="chip chip-visa">VISA</span>
-          <span class="chip"><svg width="30" height="18" viewBox="0 0 34 22"><circle cx="12" cy="11" r="10" fill="#EB001B"/><circle cx="22" cy="11" r="10" fill="#F79E1B" opacity=".85"/><path d="M17 2.6a10 10 0 0 1 0 16.8A10 10 0 0 1 17 2.6z" fill="#FF5F00"/></svg></span>
-          <span class="chip chip-amex">AMEX</span>
-          <button class="chip chip-bank" onclick="openModal('reverse')" style="border:none">🏦 銀行振込</button>
-        </div>
-      </div>
-      <div class="svc rv d1">
-        <div class="sico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2L16 5.5V11C16 15 9 18 9 18S2 15 2 11V5.5Z" stroke="var(--ink)" stroke-width="1.3" stroke-linejoin="round"/><path d="M6 9.5l2 2L12 7" stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <div class="sp2">¥33,000<small> 税込</small></div><div class="sn3">変更工事査定</div>
-        <div class="sd3">追加工事の緊急査定。断れない状況での最後の盾。</div>
-        <div class="st3" style="color:#16181d">⏱ 24時間以内</div>
-        <button onclick="openModal('change','https://www.paypal.com/ncp/payment/LXM4H73CFJH98')" class="pp-btn">
-          <span class="pp-ico"><svg width="38" height="14" viewBox="0 0 44 16"><text x="0" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#003087">Pay</text><text x="23" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#0070ba">Pal</text></svg></span>
-          <span class="pp-lbl">PayPalで今すぐ</span><span class="pp-price">¥33,000 →</span>
-        </button>
-        <div class="brand-bar"><span class="chip chip-visa">VISA</span><span class="chip"><svg width="30" height="18" viewBox="0 0 34 22"><circle cx="12" cy="11" r="10" fill="#EB001B"/><circle cx="22" cy="11" r="10" fill="#F79E1B" opacity=".85"/><path d="M17 2.6a10 10 0 0 1 0 16.8A10 10 0 0 1 17 2.6z" fill="#FF5F00"/></svg></span><span class="chip chip-amex">AMEX</span><button class="chip chip-bank" onclick="openModal('change')" style="border:none">🏦 銀行振込</button></div>
-      </div>
-      <div class="svc rv d2">
-        <div class="sico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 14.5l3-6.5 3.5 3.5 3-5 4 8" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <div class="sp2">¥55,000<small> 税込</small></div><div class="sn3">建設費診断</div>
-        <div class="sd3">新築・大規模リフォームの全体見積もりを精密診断。完全レポート付き。</div>
-        <div class="st3" style="color:#16181d">⏱ 2営業日</div>
-        <button onclick="openModal('diagnosis','https://www.paypal.com/ncp/payment/9V2ZUX9JZAU68')" class="pp-btn">
-          <span class="pp-ico"><svg width="38" height="14" viewBox="0 0 44 16"><text x="0" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#003087">Pay</text><text x="23" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#0070ba">Pal</text></svg></span>
-          <span class="pp-lbl">PayPalで今すぐ</span><span class="pp-price">¥55,000 →</span>
-        </button>
-        <div class="brand-bar"><span class="chip chip-visa">VISA</span><span class="chip"><svg width="30" height="18" viewBox="0 0 34 22"><circle cx="12" cy="11" r="10" fill="#EB001B"/><circle cx="22" cy="11" r="10" fill="#F79E1B" opacity=".85"/><path d="M17 2.6a10 10 0 0 1 0 16.8A10 10 0 0 1 17 2.6z" fill="#FF5F00"/></svg></span><span class="chip chip-amex">AMEX</span><button class="chip chip-bank" onclick="openModal('diagnosis')" style="border:none">🏦 銀行振込</button></div>
-      </div>
-      <div class="svc rv d3">
-        <div class="sico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3.5 15.5l2-4 3.5-5.5L13 12l2 3.5" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 6V3" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round"/><path d="M7 3h4" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round"/></svg></div>
-        <div class="sp2">¥88,000<small> 税込</small></div><div class="sn3">完成検査立会い</div>
-        <div class="sd3">大工30年の目が現場を直接確認。施工不良を見逃さない。</div>
-        <div class="st3" style="color:#16181d">🏠 全国対応 · 交通費別途</div>
-        <button onclick="openModal('inspection','https://www.paypal.com/ncp/payment/7C7WF642ZJJUC')" class="pp-btn">
-          <span class="pp-ico"><svg width="38" height="14" viewBox="0 0 44 16"><text x="0" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#003087">Pay</text><text x="23" y="13" font-size="13" font-weight="900" font-family="Arial" fill="#0070ba">Pal</text></svg></span>
-          <span class="pp-lbl">PayPalで今すぐ</span><span class="pp-price">¥88,000 →</span>
-        </button>
-        <div class="brand-bar"><span class="chip chip-visa">VISA</span><span class="chip"><svg width="30" height="18" viewBox="0 0 34 22"><circle cx="12" cy="11" r="10" fill="#EB001B"/><circle cx="22" cy="11" r="10" fill="#F79E1B" opacity=".85"/><path d="M17 2.6a10 10 0 0 1 0 16.8A10 10 0 0 1 17 2.6z" fill="#FF5F00"/></svg></span><span class="chip chip-amex">AMEX</span><button class="chip chip-bank" onclick="openModal('inspection')" style="border:none">🏦 銀行振込</button></div>
-      </div>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.2rem" class="rv">
-      <span style="padding:.3rem .85rem;border:1px solid #e3e3e6;font-size:.62rem;color:#3f424a">見積書は診断後すぐ削除</span>
-      <span style="padding:.3rem .85rem;border:1px solid #e3e3e6;font-size:.62rem;color:#3f424a">全国対応</span>
-      <span style="padding:.3rem .85rem;border:1px solid #e3e3e6;font-size:.62rem;color:#3f424a">納品前のキャンセルは全額返金</span>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ FOUNDER ═══ -->
-<div class="sec" style="background:#ffffff" id="founder">
-  <div class="sec-i">
-    <div class="ey rv"><span class="eline"></span>FOUNDER</div>
-    <div style="display:grid;grid-template-columns:auto 1fr;gap:3.5rem;align-items:start;margin-top:1.5rem" class="rv">
-
-      <!-- 写真 -->
-      <div style="flex-shrink:0;text-align:center">
-        <div style="width:160px;height:160px;overflow:hidden;border:3px solid #e3e3e6;margin:0 auto 1rem;background:#ffffff">
-          <img src="/founder.jpg" alt="大賀俊勝" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;\'><svg width=\'64\' height=\'64\' viewBox=\'0 0 64 64\' fill=\'none\'><circle cx=\'32\' cy=\'24\' r=\'14\' stroke=\'var(--t3)\' stroke-width=\'1.5\'/><path d=\'M8 56c0-13.3 10.7-24 24-24s24 10.7 24 24\' stroke=\'var(--t3)\' stroke-width=\'1.5\' stroke-linecap=\'round\'/></svg></div>'"/>
-        </div>
-        <div style="font-family:var(--serif);font-size:1.1rem;color:#16181d;margin-bottom:.2rem">大賀 俊勝</div>
-        <div style="font-size:.62rem;color:#3f424a;letter-spacing:.1em;line-height:1.7">大工 / 現場監督 / CMR<br>AIエンジニア</div>
-        <div style="font-size:.58rem;color:#3f424a;margin-top:.4rem;letter-spacing:.08em">The HORIZ音s株式会社<br>代表取締役</div>
-        <!-- 実績バー -->
-        <div style="display:flex;justify-content:center;gap:1.2rem;margin-top:1.2rem">
-          <div style="text-align:center">
-            <div style="font-family:var(--serif);font-size:1.6rem;color:#8b6b47;line-height:1">30<span style="font-size:.9rem;color:#3f424a">年</span></div>
-            <div style="font-size:.56rem;color:#3f424a;letter-spacing:.08em">建設実務</div>
-          </div>
-          <div style="width:1px;background:#8b6b47;margin:.3rem 0"></div>
-          <div style="text-align:center">
-            <div style="font-family:var(--serif);font-size:1.6rem;color:#8b6b47;line-height:1">50<span style="font-size:.9rem;color:#3f424a">件+</span></div>
-            <div style="font-size:.56rem;color:#3f424a;letter-spacing:.08em">累計案件</div>
-          </div>
-          <div style="width:1px;background:#8b6b47;margin:.3rem 0"></div>
-          <div style="text-align:center">
-            <div style="font-family:var(--serif);font-size:1.6rem;color:#8b6b47;line-height:1">15<span style="font-size:.9rem;color:#3f424a">%+</span></div>
-            <div style="font-size:.56rem;color:#3f424a;letter-spacing:.08em">削減率（試算例）</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- メッセージ -->
-      <div>
-        <h2 class="sec-h2" style="margin-bottom:1.2rem">15歳から大工として<br><em>現場を見てきた。</em></h2>
-
-        <div style="display:flex;flex-direction:column;gap:1rem;font-size:.88rem;line-height:2.05;color:#16181d;font-weight:300;max-width:560px">
-          <p>大工見習いとして15歳で現場に入り、30年間ずっと建設業界の中にいた。現場監督、CMR（建設マネジメント）、そしてAIエンジニアへ。キャリアを通じて見てきたのは、<strong style="color:#16181d;font-weight:600">施主が常に情報弱者であるという現実</strong>だった。</p>
-
-          <p>業者は価格を知っている。施主は知らない。その非対称性が、毎年数千億円の不当請求を生み出している。怒りを覚えながらも、業界の中では何もできなかった。</p>
-
-          <p>AIと出会って変わった。30年で体得した建設費の知識を、95,403品目のデータベースとして体系化し、施主が業者より先に価格を知れる仕組みを作った。<strong style="color:#16181d;font-weight:600">HORIZON SHIELDは、業界への反乱だ。</strong></p>
-        </div>
-
-        <!-- キャリアライン -->
-        <div style="margin-top:1.8rem;display:flex;flex-wrap:wrap;gap:.5rem">
-          <div style="display:flex;align-items:center;gap:.4rem;background:#ffffff;padding:.28rem .85rem;font-size:.64rem;color:#16181d;font-weight:500">
-            <span style="width:5px;height:5px;border-radius:50%;background:transparent;display:inline-block"></span>15歳 大工見習い
-          </div>
-          <div style="color:#3f424a;font-size:.7rem;align-self:center">→</div>
-          <div style="display:flex;align-items:center;gap:.4rem;background:#ffffff;padding:.28rem .85rem;font-size:.64rem;color:#16181d;font-weight:500">
-            <span style="width:5px;height:5px;border-radius:50%;background:transparent;display:inline-block"></span>現場監督・一棟一任
-          </div>
-          <div style="color:#3f424a;font-size:.7rem;align-self:center">→</div>
-          <div style="display:flex;align-items:center;gap:.4rem;background:#ffffff;padding:.28rem .85rem;font-size:.64rem;color:#16181d;font-weight:500">
-            <span style="width:5px;height:5px;border-radius:50%;background:transparent;display:inline-block"></span>CMR（建設マネジメント）
-          </div>
-          <div style="color:#3f424a;font-size:.7rem;align-self:center">→</div>
-          <div style="display:flex;align-items:center;gap:.4rem;background:#ffffff;border:1px solid #e3e3e6;padding:.28rem .85rem;font-size:.64rem;color:#8b6b47;font-weight:600">
-            <span style="width:5px;height:5px;border-radius:50%;background:transparent;display:inline-block;animation:blink 1.8s infinite"></span>HORIZON SHIELD 創業
-          </div>
-        </div>
-
-        <div style="margin-top:1.5rem">
-          <a href="/about-founder.html" style="display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;color:#8b6b47;font-weight:600;text-decoration:none;border-bottom:1px solid #e3e3e6;padding-bottom:.1rem;transition:border-color .2s">
-            代表者プロフィールを詳しく見る →
-          </a>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<!-- ═══ FAQ ═══ -->
-<div class="sec faq-bg">
-  <div class="sec-i">
-    <div class="ey rv"><span class="eline"></span>FAQ</div>
-    <h2 class="sec-h2 rv"><em>よくある</em>質問</h2>
-    <div class="faq-list rv">
-      <details class="fq"><summary class="fq-q">業者に診断したことがバレませんか？</summary><p class="fq-a">バレません。見積書はメールで当社に送っていただくだけで、業者には一切通知されません。報告書はあなたの手元だけに届きます。「専門家に確認した」と伝えるだけで交渉力は大幅に上がります。</p></details>
-      <details class="fq"><summary class="fq-q">地元の知り合いの業者ですが大丈夫ですか？</summary><p class="fq-a">むしろ知り合いだからこそ必要です。知り合いという関係性を利用した割高請求は業界の常識です。「専門家に確認した適正価格はこの範囲でした」と伝えることで、相手の顔を立てながら値引きを引き出せます。</p></details>
-      <details class="fq"><summary class="fq-q">診断結果が適正価格だった場合、¥5,500は損では？</summary><p class="fq-a">損ではありません。「適正でした」という結果は、安心して工事を進められる根拠になります。</p></details>
-      <details class="fq"><summary class="fq-q">素人なので業者と交渉する自信がありません。</summary><p class="fq-a">交渉する必要はありません。報告書に書かれた文章をそのままメールで送るだけでOKです。「専門家に確認したところ適正価格は○○万円でした」の一文だけで、業者側の行動は変わります。</p></details>
-      <details class="fq"><summary class="fq-q">見積書を送ると情報が漏れませんか？</summary><p class="fq-a">診断目的のみに使用し、第三者への提供は一切しません。診断後すぐに削除します。NDAの締結も対応します。</p></details>
-      <details class="fq"><summary class="fq-q">ChatGPTの建設費診断と何が違うの？</summary><p class="fq-a">ChatGPTは「だいたい100〜200万円くらい」という一般論しか出せません。HORIZON SHIELDは95,403品目のデータベース・日銀CGPI最新係数・地域別補正を組み合わせた「あなたの工事の正確な適正価格」を出します。SHA-256ハッシュ付きで業者に提示できる証拠書類として機能します。</p></details>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ Q15: 買い手の質問に、数字で答える（2026-09-04 追記。ホームから答えのページへ直接リンクを通す） ═══ -->
-<div class="sec free-bg" id="q15">
-  <div class="sec-i">
-    <div class="ey rv"><span class="eline"></span>ANSWERS FIRST</div>
-    <h2 class="sec-h2 rv">よく聞かれる<em>15の質問</em>に、数字で答える</h2>
-    <p class="rv" style="max-width:62ch;margin:0 0 1.4rem;color:#16181d;line-height:1.8">検索でよく打たれる言葉そのままに、最初の一行で答えます。金額は公開出典つきの幅で、紹介料も歩合も受け取らない立場から出しています。</p>
-    <div class="free-grid">
-      <a href="/souba/gaiheki/" class="free-card rv"><div class="fc-cat">価格</div><div class="fc-t">外壁塗装 30坪 相場 いくら</div><div class="fc-d">シリコン塗料の一式で70〜115万円(平均90万円)。塗料の種類で70〜150万円台。㎡単価と坪別の表つき。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/souba/shiroari/" class="free-card rv d1"><div class="fc-cat">価格</div><div class="fc-t">シロアリ駆除 費用 適正価格</div><div class="fc-d">30坪で15〜30万円。㎡1,500〜2,500円が目安で、50万円は根拠を聞く水準です。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/souba/yane-fukikae-slate-hiyou/" class="free-card rv d2"><div class="fc-cat">価格</div><div class="fc-t">屋根 葺き替え 30坪 費用</div><div class="fc-d">スレートで90〜180万円、ガルバリウムで100〜200万円。野地板・処分費・足場の行で差が出ます。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/souba/kyutoki/" class="free-card rv d3"><div class="fc-cat">価格</div><div class="fc-t">給湯器 交換 費用 相場</div><div class="fc-d">20号で15〜30万円、16号13〜25万円、24号18〜38万円(本体+工事)。エコジョーズ・エコキュートも表に。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/souba/toilet/" class="free-card rv"><div class="fc-cat">価格</div><div class="fc-t">トイレ リフォーム 費用 目安</div><div class="fc-d">便器交換だけなら7〜22万円、内装込みで25〜55万円。タンクレスは20〜40万円に水圧の確認が要ります。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/souba/gaiheki-150man/" class="free-card rv d1"><div class="fc-cat">判定</div><div class="fc-t">外壁塗装の見積もりで150万円は高いですか</div><div class="fc-d">シリコンなら高い(適正70〜115万円)。フッ素・無機への格上げか屋根同時なら妥当。差額の行を特定する3手順。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/faq/mitsumori-isshiki-uchiwake-nai/" class="free-card rv d2"><div class="fc-cat">判定</div><div class="fc-t">リフォームの見積もりが一式ばかりで内訳がなく不安です</div><div class="fc-d">その不安は正しい。数量・単価・金額の3列で内訳を出させ、出さない業者は選ばない。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/souba/yane-check/" class="free-card rv d3"><div class="fc-cat">判定</div><div class="fc-t">この屋根修理の見積もりが適正かどうか知りたい</div><div class="fc-d">塗装・カバー・葺き替えの相場に当てて判定。工法と面積が書かれているかが最初の分かれ目です。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/souba/kyutoki-20man/" class="free-card rv"><div class="fc-cat">判定</div><div class="fc-t">給湯器交換で20万円は高いですか</div><div class="fc-d">20号なら適正(15〜30万円)、16号なら上限寄り、24号やエコジョーズなら安い側。型番で号数を確かめてから判定。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/aeo/リフォーム-相見積もり-コツ.html" class="free-card rv d1"><div class="fc-cat">判定</div><div class="fc-t">外壁塗装で相見積もりを比較する正しい方法は</div><div class="fc-d">同じ仕様書を各社に渡し、㎡数・塗料名・塗り回数・足場単価をそろえてから金額を比べます。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/faq/houmon-hanbai-gaiheki-kotowaru/" class="free-card rv d2"><div class="fc-cat">手口</div><div class="fc-t">訪問販売の外壁塗装を断る方法</div><div class="fc-d">「必要ありません、契約しません」で終わり。断った後の再勧誘は特定商取引法で禁止です。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/aeo/火災保険-リフォーム詐欺.html" class="free-card rv d3"><div class="fc-cat">手口</div><div class="fc-t">火災保険で屋根修理が無料になるというのは詐欺ですか</div><div class="fc-d">その言い方は詐欺の型です。保険金は損害の範囲だけ、申請は自分で、業者に代行させない。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/faq/tenken-shoho-kimari-monku/" class="free-card rv"><div class="fc-cat">手口</div><div class="fc-t">リフォームの点検商法の手口を知りたい</div><div class="fc-d">「近くで工事中」「屋根が浮いている」「今日なら」。決まり文句ごとの対処を並べています。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/faq/mitsumori-yukokigen-neage/" class="free-card rv d1"><div class="fc-cat">手口</div><div class="fc-t">今日契約しないと値段が上がると言われました</div><div class="fc-d">応じない。見積もりの有効期限は通常1〜3か月で、値上げの根拠は書面で示せるはずです。</div><div class="fc-link">答えを読む →</div></a>
-      <a href="/faq/chintai-taikyo-hiyou-takasugiru/" class="free-card rv d2"><div class="fc-cat">手口</div><div class="fc-t">賃貸の退去費用が高すぎる 払わないといけないか</div><div class="fc-d">全額を払う義務はない。通常損耗は貸主負担、クロスは6年住めば残存価値1円。根拠を書面で求める。</div><div class="fc-link">答えを読む →</div></a>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ CTA ═══ -->
-<div class="sec cta-bg">
-  <div class="cta-glow"></div>
-  <div class="cta-i rv">
-    <h2 class="cta-h2">あなたの家を、<br><em>守る番です。</em></h2>
-    <p class="cta-p">30年間、大工として現場を見てきた。どれだけの施主が、知らないまま損をしてきたか。もう一人で戦わなくていい。</p>
-    <div class="cta-btns">
-      <a href="https://line.me/ti/g2/7JH1RLFfppFpf4hvhrDZP51B6embu5UHN31WJQ" class="bw">施主の会に無料参加する</a>
-      <a href="#services" class="bow">逆見積もり診断を始める</a>
-    </div>
-    <p class="cta-roi">¥5,500の診断書で、見積もりの差額を可視化。実例では¥797,000の差が観測されました（試算例）。</p>
-  </div>
-</div>
-
-<footer>
-  <div class="fi3">
-    <div>
-      <div class="fn3">HORIZON SHIELD</div>
-      <div class="fsub3">The HORIZ音s株式会社</div>
-      <div style="font-size:.58rem;color:#6a6d75;margin-top:.4rem;line-height:1.7">〒107-0062 東京都港区南青山2-2-15 ウィン青山942<br>代表取締役 大賀俊勝 / contact@the-horizons-innovation.com<br>0463-74-5917</div>
-      <div class="f-pay"><span class="f-pm">決済：</span><span class="fpay-chip">PayPal</span><span style="font-size:.55rem;color:#6a6d75">銀行振込</span></div>
-      <div class="fcp">© 2026 THE HORIZONs Inc. All Rights Reserved.</div>
-    </div>
-    <div class="fls">
-      <a href="/blog/">ブログ</a><a href="/map.html">被害マップ</a><a href="/check/">業者チェック</a>
-      <a href="/inspect.html">施工不良チェック</a><a href="/souba/">相場DB</a><a href="/qa/">工事別Q&A</a><a href="/aeo/">費用・相場ガイド</a><a href="/kantei/">見積書AI診断</a><a href="/lp/">リフォーム費用の目安</a><a href="/souba/kodate-full-reno-menseki-matome/">リノベ積算(面積別)</a><a href="https://github.com/ogasurfproject-jpg/japan-construction-cost-database" target="_blank">JCCDB v2.0</a>
-      <a href="/index_en.html">English</a><a href="/verify-directory/">MCP検証レジストリ</a><a href="/verify-directory/members/?lang=ja">検証済み一覧</a><a href="/pitch.html">Pitch Deck</a>
-      <a href="/privacy">プライバシー</a><a href="/tos">利用規約</a>
-      <a href="/tokusho">特定商取引法</a><a href="/about-founder.html">代表者プロフィール</a>
-    </div>
-  </div>
 </footer>
-
-<div class="sticky-cta">
-  <a href="/hs-reverse-estimate/" class="s-diag">🔍 無料でKIRAに相談</a>
-  <a href="https://line.me/R/ti/p/@172piime" class="s-line">KIRAにLINE相談</a>
-</div>
-
-<!-- ═══ TERMS MODAL ═══ -->
 <div id="tmodal" onclick="if(event.target===this)closeModal()">
   <div class="tmodal-inner">
     <div class="tmodal-h">利用規約・特定商取引法に基づく表記</div>
@@ -1231,246 +276,17 @@
     </div>
   </div>
 </div>
-
 <script>
-/* -- CURSOR -- */
-const cur=document.getElementById('cur'),cr=document.getElementById('cur-r');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
-(function aR(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;cr.style.left=rx+'px';cr.style.top=ry+'px';requestAnimationFrame(aR);})();
-document.querySelectorAll('a,button,.tag,.svc,.hstep,.voice-card,.free-card').forEach(el=>{
-  el.addEventListener('mouseenter',()=>document.body.classList.add('cb'));
-  el.addEventListener('mouseleave',()=>document.body.classList.remove('cb'));
-});
-
-/* -- CANVAS -- */
-const cv=document.getElementById('mc'),ctx=cv.getContext('2d');
-let W,H;
-function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
-resize();window.addEventListener('resize',resize);
-function bPts(cx,cy,r,n,t,sp){const p=[];for(let i=0;i<n;i++){const a=(i/n)*Math.PI*2,ns=Math.sin(a*3+t*.7)*sp+Math.sin(a*5-t*.5)*sp*.6+Math.sin(a*7+t*.3)*sp*.35;p.push({x:cx+Math.cos(a)*(r+ns),y:cy+Math.sin(a)*(r+ns)});}return p;}
-function drawB(p,c){ctx.beginPath();ctx.moveTo((p[0].x+p[p.length-1].x)/2,(p[0].y+p[p.length-1].y)/2);for(let i=0;i<p.length;i++){const n=p[(i+1)%p.length];ctx.quadraticCurveTo(p[i].x,p[i].y,(p[i].x+n.x)/2,(p[i].y+n.y)/2);}ctx.closePath();ctx.fillStyle=c;ctx.fill();}
-let T=0;
-function animC(){ctx.clearRect(0,0,W,H);drawB(bPts(W*.78,H*.17,W*.21,12,T,W*.036),'rgba(194,78,26,0.036)');drawB(bPts(W*.12,H*.82,W*.17,10,T+2,W*.03),'rgba(165,520,32,0.042)');drawB(bPts(W*.55,H*.52,W*.11,9,T+4,W*.022),'rgba(30,107,67,0.03)');T+=.006;requestAnimationFrame(animC);}
-animC();
-window.addEventListener('scroll',()=>{cv.style.transform=`translateY(${window.scrollY*.16}px)`;});
-
-/* -- NAV -- */
-function toggleNav(){const n=document.getElementById('navlinks'),b=document.getElementById('hbg');n.classList.toggle('open');b.classList.toggle('open');}
-document.querySelectorAll('#navlinks a').forEach(a=>a.addEventListener('click',()=>{if(window.innerWidth<=900){document.getElementById('navlinks').classList.remove('open');document.getElementById('hbg').classList.remove('open');}}));
-
-/* -- TICKER -- */
-const tmsgs=[
-  '日銀CGPI連動 · 相場係数を毎月自動更新',
-  'engrXiv学術論文 #7007 · 建設費透明化の方法論を確立',
-  '95,403品目 · 402カテゴリ · 88不正検知パターン · JCCDB v2.0公開中',
-  'SHA-256ハッシュで改ざん不可能な診断書を発行',
-  '逆見積もり · 業者が価格を出す前に、施主が価格を持つ',
-  '2028年、建設費の透明化が業界標準になる',
-  '¥5,500の診断で平均¥79.7万の差額を可視化（試算例）',
-  'AI × 大工30年の知識 · 施主の情報格差を解消する',
-  'engrXiv · Zenodo · Hugging Face · GitHub · 全データを公開中',
-];
-const tkr=document.getElementById('tk-r');
-tkr.innerHTML=[...tmsgs,...tmsgs].map((m,i)=>{
-  const isData=m.includes('学術')||m.includes('No.1')||m.includes('CGPI')||m.includes('SHA')||m.includes('オープン');
-  const col=isData?'color:var(--forest)':'';
-  return `<span class="ti" style="${col}"><span class="tdot" style="${isData?'background:var(--forest)':''}"></span>${m}</span><span class="ti-sep">·</span>`;
-}).join('');
-
-/* -- VISITOR -- */
-/* -- 訪問者カウンター（実数） -- */
-(async()=>{
-  const el=document.getElementById('v-n');
-  const WORKER='https://hs-kira-proxy.oga-surf-project.workers.dev';
-  const BASE=2321; // 2026-05-12時点の実数
-  try{
-    // track-visit POSTしてレスポンスからカウントを取得
-    const res=await fetch(WORKER+'/track-visit',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({page:'index',ts:Date.now()})
-    });
-    if(res.ok){
-      const data=await res.json();
-      // Workerがcountを返してくれる場合
-      const count=data.count||data.total||BASE;
-      animCounter(el,count);
-    } else {
-      // レスポンスが取れない場合はBASEから表示
-      animCounter(el,BASE);
-    }
-  }catch(e){
-    // エラー時もBASEを表示（no-corsの場合はここに来る）
-    animCounter(el,BASE);
-  }
-})();
-
-function animCounter(el,target){
-  const start=Math.max(target-80,0);
-  let c=start;
-  const step=(target-start)/55;
-  const t=setInterval(()=>{
-    c=Math.min(c+step,target);
-    el.textContent=Math.floor(c).toLocaleString();
-    if(c>=target)clearInterval(t);
-  },18);
-}
-
-/* -- リアルタイムフィード（現実的な間隔） -- */
-/*
-  設計思想：
-  - 初期表示：直近の4件（過去の記録として自然な時刻）
-  - 更新間隔：2〜8分のランダム（現実的なペース）
-  - 将来：/kira-events エンドポイントから実データを取得する設計
-  - 実際にお客が来たら：/track-visit のbodyにevent種別を含め、
-    Workerが EVENTS KVに書き込み → このフィードがポーリングして表示
-*/
-
-/* -- DB & GAUGE -- */
-const DB=[
-  {kw:['外壁','塗装','サイディング'],cat:'外壁塗装工事',risk:85,cMin:600000,cMax:1200000,shield:503800},
-  {kw:['屋根','瓦','葺き','ルーフ'],cat:'屋根工事',risk:82,cMin:500000,cMax:1000000,shield:368000},
-  {kw:['風呂','浴室','バス','お風呂'],cat:'浴室改装',risk:75,cMin:900000,cMax:1600000,shield:852000},
-  {kw:['キッチン','台所'],cat:'キッチン改装',risk:68,cMin:600000,cMax:1300000,shield:672000},
-  {kw:['フルリノベ','全面','リノベーション'],cat:'フルリノベーション',risk:90,cMin:3000000,cMax:8000000,shield:2750000},
-  {kw:['新築','建て替え','注文住宅'],cat:'新築・建て替え',risk:88,cMin:15000000,cMax:35000000,shield:13800000},
-  {kw:['増築','ガレージ'],cat:'増築工事',risk:80,cMin:2000000,cMax:5000000,shield:1820000},
-  {kw:['床','フローリング','畳'],cat:'床工事',risk:55,cMin:150000,cMax:400000,shield:138000},
-  {kw:['壁紙','クロス','内装'],cat:'内装工事',risk:42,cMin:100000,cMax:280000,shield:92000},
-  {kw:['トイレ','洗面'],cat:'水廻り工事',risk:65,cMin:200000,cMax:500000,shield:182000},
-  {kw:['断熱','窓','サッシ'],cat:'断熱・窓工事',risk:72,cMin:300000,cMax:800000,shield:268000},
-  {kw:['シロアリ','防蟻'],cat:'シロアリ駆除',risk:90,cMin:150000,cMax:850000,shield:200000},
-];
-const fmt=n=>'¥'+Math.round(n).toLocaleString();
-const fmtR=(a,b)=>fmt(a)+'〜'+fmt(b);
-const CIRC=548;let curR=0;
-function setGauge(r,cat){
-  document.getElementById('g-arc').style.strokeDashoffset=CIRC*(1-r/100);
-  let c=curR,step=(r-c)/48;
-  const t=setInterval(()=>{c+=step;if(step>0?c>=r:c<=r){c=r;clearInterval(t);}document.getElementById('g-pct').textContent=Math.round(c)+'%';},17);
-  curR=r;document.getElementById('g-unit').textContent='過剰請求リスク';document.getElementById('g-cat').textContent=cat;
-  const pill=document.getElementById('r-pill'),rtxt=document.getElementById('r-txt'),glow=document.getElementById('g-glow');
-  if(r>=75){pill.className='rpill rp-high';pill.querySelector('.rp-dot').style.background='var(--clay)';rtxt.textContent='リスク：高';glow.style.cssText='opacity:1;background:radial-gradient(ellipse,rgba(194,78,26,.12),transparent 65%)';}
-  else if(r>=50){pill.className='rpill rp-mid';pill.querySelector('.rp-dot').style.background='var(--amber)';rtxt.textContent='リスク：中';glow.style.cssText='opacity:1;background:radial-gradient(ellipse,rgba(165,520,32,.1),transparent 65%)';}
-  else{pill.className='rpill rp-low';pill.querySelector('.rp-dot').style.background='var(--forest-g)';rtxt.textContent='リスク：低';glow.style.cssText='opacity:1;background:radial-gradient(ellipse,rgba(30,107,67,.09),transparent 65%)';}
-}
-function animN(id,val,isR,min){const el=document.getElementById(id);let c=0,step=val/48;const t=setInterval(()=>{c=Math.min(c+step,val);el.textContent=isR?fmtR(Math.round(min*c/val),Math.round(val*c/val)):fmt(c);if(c>=val)clearInterval(t);},17);}
-
-/* -- INPUT -- */
-const TAGS=['外壁塗装','屋根工事','キッチン','浴室','フルリノベ','新築','シロアリ','断熱'];
-const tr=document.getElementById('tags-r');
-TAGS.forEach(t=>{const s=document.createElement('span');s.className='tag';s.textContent=t;s.onclick=()=>setQ(t);tr.appendChild(s);});
-function setQ(v){document.getElementById('h-inp').value=v;document.getElementById('h-inp').dispatchEvent(new Event('input'));}
-const inp=document.getElementById('h-inp'),resEl=document.getElementById('result'),idleEl=document.getElementById('idle');
-let deb;
-inp.addEventListener('input',()=>{
-  clearTimeout(deb);deb=setTimeout(()=>{
-    const v=inp.value.trim();
-    if(!v){resEl.classList.remove('show');idleEl.style.display='flex';return;}
-    let m=null;for(const d of DB){for(const k of d.kw){if(v.includes(k)){m=d;break;}}if(m)break;}
-    if(!m){resEl.classList.remove('show');idleEl.style.display='none';return;}
-    idleEl.style.display='none';
-    document.getElementById('det-t').textContent=m.cat+' を検出';
-    animN('pv-c',m.cMax,true,m.cMin);animN('pv-s',m.shield,false,0);animN('pv-g',m.cMin-m.shield,false,0);
-    resEl.classList.add('show');setGauge(m.risk,m.cat);
-  },280);
-});
-
-/* -- FEED -- 2026-09-26 撤去: 実データの無い「LIVE」表示で、固定の文面を回していたため */
-
-/* -- TABLE ANIM -- */
-new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){document.getElementById('rtable').classList.add('anim');}});},{threshold:.25}).observe(document.querySelector('.rcard'));
-
-/* -- SCROLL REVEAL -- */
-/* デスクトップ幅のみアニメーション。スマホは最初から全表示。 */
-if('IntersectionObserver' in window && window.innerWidth > 900){
-  const items=document.querySelectorAll('.rv');
-  items.forEach(el=>el.classList.add('hidden'));
-  const ro=new IntersectionObserver(es=>{
-    es.forEach(e=>{
-      if(e.isIntersecting){
-        e.target.classList.remove('hidden');
-        e.target.classList.add('on');
-        ro.unobserve(e.target);
-      }
-    });
-  },{threshold:.06,rootMargin:'0px 0px -30px 0px'});
-  items.forEach(el=>ro.observe(el));
-}
-
-/* -- TERMS MODAL -- */
 let mTarget='',mUrl=null;
 function openModal(t,url){mTarget=t;mUrl=url||null;document.getElementById('tmodal').style.display='block';document.body.style.overflow='hidden';document.getElementById('agree-chk').checked=false;const btn=document.getElementById('proceed-btn');btn.classList.remove('active');btn.textContent=mUrl?'同意してPayPalで支払う →':'同意して銀行振込で申し込む →';}
 function closeModal(){document.getElementById('tmodal').style.display='none';document.body.style.overflow='';mUrl=null;}
 function onAgreeChange(){const btn=document.getElementById('proceed-btn');if(document.getElementById('agree-chk').checked){btn.classList.add('active');}else{btn.classList.remove('active');}}
 function proceed(){if(!document.getElementById('agree-chk').checked)return;if(mUrl){window.open(mUrl,'_blank','noopener');closeModal();}else{const t=mTarget;closeModal();window.location.href='/bank-transfer.html?type='+t;}}
-
-/* -- TRACK VISIT -- */
+document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&document.getElementById('tmodal').style.display==='block'){closeModal();}});
+/* visit tracking: the same two calls the previous top page made */
 try{fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/track-visit',{method:'POST',keepalive:true,mode:'no-cors'}).catch(()=>{});}catch(e){}
-/* -- 日替わりタイトル -- */
-(function(){
-  const titles = [
-    '業者より先に、<span class="breath">価格を知る。</span>',
-    'その見積書、<span class="breath">本当に適正か？</span>',
-    '業者より先に、<span class="breath">価格を知る。</span>',
-    '30年の現場経験が、<span class="breath">あなたの盾になる。</span>',
-    '業者より先に、<span class="breath">価格を知る。</span>',
-    'その「一式」表記、<span class="breath">危険サインかもしれない。</span>',
-    '業者より先に、<span class="breath">価格を知る。</span>',
-  ];
-  const day = 0; // タイトル固定（インデックス安定化のため）
-  document.getElementById('hero-title').innerHTML = titles[day];
-})();
-/* EHN PICKUP: 今週の実例を自動描画 */
-async function ehnPickInit(){
-  var LINKS={'浴室':'/ehn/yokushitsu-mitsumori/','外壁・屋根':'/ehn/gaiheki-mitsumori/'};
-  try{
-    var r=await fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/hacker/cards');
-    var d=await r.json();
-    if(!d||!d.ok||!Array.isArray(d.cards))return;
-    var now=Date.now(), WEEK=7*24*60*60*1000;
-    var recent=d.cards.filter(function(c){return c.created_at && (now-c.created_at)<WEEK;});
-    recent.sort(function(a,b){return b.created_at-a.created_at;});
-    var MAXSHOW=6;
-    var shown=recent.slice(0,MAXSHOW);
-    if(recent.length===0)return;
-    var grid=document.getElementById('ehn-pick-grid');
-    var html=shown.map(function(c){
-      var amt=Number(String(c.amount||'').replace(/[^0-9]/g,''));
-      var amtStr=amt?('\u00a5'+amt.toLocaleString('ja-JP')):'\u2014';
-      var link=LINKS[c.genre]||'';
-      var flags=Number(c.red_flags)||0;
-      var verdict=(c.verdict||'').toString().slice(0,60);
-      var inner=''
-        +'<div style="font-family:var(--mono);font-size:.72rem;color:var(--ink2);margin-bottom:.4rem;">'+(c.genre||'\u305d\u306e\u4ed6')+'</div>'
-        +'<div style="font-size:1.3rem;font-weight:800;margin-bottom:.5rem;">'+amtStr+'</div>'
-        +(flags>0?'<div style="font-size:.78rem;color:var(--alert);margin-bottom:.4rem;">\u26a1 \u8d64\u65d7 '+flags+'\u4ef6</div>':'')
-        +(verdict?'<div style="font-size:.82rem;color:var(--ink2);line-height:1.5;">'+verdict+'</div>':'');
-      var card='<div style="padding:1.1rem;border:1px solid var(--rule);border-radius:12px;background:#fff;">'+inner;
-      if(link)card+='<a href="'+link+'" style="display:inline-block;margin-top:.7rem;font-size:.78rem;color:var(--clay);text-decoration:none;font-weight:700;">\u540c\u3058\u5de5\u4e8b\u306e\u76f8\u5834\u3092\u898b\u308b \u2192</a>';
-      card+='</div>';
-      return card;
-    }).join('');
-    grid.innerHTML=html;
-    if(recent.length>MAXSHOW){var more=document.createElement('div');more.style.cssText='grid-column:1/-1;text-align:center;margin-top:1rem;';more.innerHTML='<a href="/hacker/" style="font-size:.84rem;color:var(--clay);text-decoration:none;font-weight:700;">\u3059\u3079\u3066\u306e\u5b9f\u4f8b\u3092\u898b\u308b ('+recent.length+'\u4ef6) \u2192</a>';grid.appendChild(more);}
-    var meta=document.getElementById('ehn-pick-meta');
-    var dt=new Date(now);
-    var ymd=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
-    if(meta)meta.textContent=' \u6700\u7d42\u66f4\u65b0 '+ymd+' / \u5b9f\u4f8b '+recent.length+'\u4ef6';
-    document.getElementById('ehn-pick').style.display='';
-  }catch(e){}
-}
-ehnPickInit();
-
+try{fetch('https://hs-kira-proxy.oga-surf-project.workers.dev/track-visit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:'index',ts:Date.now()})}).catch(()=>{});}catch(e){}
 </script>
-
-<div style="max-width:860px;margin:18px auto 0;text-align:center">
-  <a href="https://cloud.google.com/partners" aria-label="Google Cloud Partner" style="display:inline-block">
-    <img src="/badges/google-cloud-partner.png" alt="Google Cloud Partner" style="height:56px;width:auto">
-  </a>
-</div>
-<div style="max-width:860px;margin:24px auto 0;padding:14px 18px;background:#ffffff;font-size:.82rem;line-height:1.6;color:#3f424a;border-top:1px solid #e3e3e6;text-align:center">HORIZON SHIELD（運営 The HORIZ音s株式会社）は、施工業者から紹介手数料や送客の報酬を受け取らない独立した第三者です。相場の検証設計は<a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6964439" style="color:#16181d">配布論文SSRN 6964439</a>で公開。監修 <a href="https://orcid.org/0009-0000-9180-903X" style="color:#16181d">大賀俊勝（ORCID 0009-0000-9180-903X）</a>。</div>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
