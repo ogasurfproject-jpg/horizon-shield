@@ -268,6 +268,7 @@ hs-core-private/
 # 2026-09-20 作業ツリーの仕分け (ops/tree_sort_20260920.md)。入れ子の repo、客先の仕事、下書き、走り書きは公開ツリーに入れん。
 wedjat-check-action/
 workers/hs-apps-jimu/
+workers/hs-apps-line/
 docs/apps-ai-jimuin/
 drafts/
 localheaders_mainnet.bin
