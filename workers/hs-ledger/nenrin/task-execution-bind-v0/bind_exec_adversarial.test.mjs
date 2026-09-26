@@ -1,7 +1,7 @@
 // Adversarial test for task-execution-bind-v0 (content-addressed core, sig-free).
 // Probes the two properties this layer exists to supply (E1 action match, E2 outcome reconciliation),
 // the E3 grant binding, and the authorized-executor, tamper and window guards. The happy path is trivial.
-import { grantRef, receiptId, verifyExecution, reconcileOutcome } from "./bind_exec.mjs";
+import { grantRef, receiptId, verifyExecution, reconcileOutcome, withActionBinding, actionBinding, CANONICALIZATION } from "./bind_exec.mjs";
 
 const DASH = new RegExp("[" + String.fromCharCode(0x2012, 0x2013, 0x2014, 0x2015, 0x2212, 0xFF0D) + "]");
 let fail = 0;
@@ -104,9 +104,32 @@ chk("E2 conflicting outcomes yield equivocation (fail-closed, not the favorable 
 const vts = verifyExecution(A, mintReceipt(A, { ...okArgs, at: "2026-09-18T09:30:00+09:00" }));
 chk("non-UTC executed_at is rejected (invalid_timestamp)", vts.ok === false && vts.reason === "invalid_timestamp", vts.reason);
 
+// ---- AB: VATE-shaped action_binding (derived, optional, fail-closed when present) ----
+const gAB = withActionBinding(A, "action"), rAB = withActionBinding(okR, "executed_action");
+chk("AB1 attaching action_binding changes neither grant_ref nor receipt_id (derived, outside the preimage)", gAB.grant_ref === grantRef(gAB) && rAB.receipt_id === receiptId(rAB) && gAB.grant_ref === A.grant_ref && rAB.receipt_id === okR.receipt_id);
+const vAB = verifyExecution(gAB, rAB);
+chk("AB1 a pair carrying correct bindings verifies and reports both as recomputed", vAB.ok === true && vAB.action_binding.grant === "recomputed" && vAB.action_binding.receipt === "recomputed", JSON.stringify(vAB));
+chk("AB1 binding carries the VATE shape and the pinned canonicalization name", gAB.action_binding.type === "canonical_request_digest" && gAB.action_binding.canonicalization === CANONICALIZATION && gAB.action_binding.canonicalization === "musubi-canonical-v0" && gAB.action_binding.digest.alg === "sha-256" && /^[0-9a-f]{64}$/.test(gAB.action_binding.digest.value));
+chk("AB1 a pair without bindings reports absent, not an error", vb.action_binding.grant === "absent" && vb.action_binding.receipt === "absent");
+const gBad = withActionBinding(A, "action"); gBad.action_binding = { ...gBad.action_binding, digest: { alg: "sha-256", value: "0".repeat(64) } };
+const vBad = verifyExecution(gBad, rAB);
+chk("AB2 a grant binding whose digest does not recompute is refused (action_binding_mismatch, record grant)", vBad.ok === false && vBad.reason === "action_binding_mismatch" && vBad.record === "grant", vBad.reason);
+// the binding advertises the AUTHORIZED action's digest while executed_action diverged: caught before E1, as a lying binding
+const rLie = mintReceipt(A, { ...okArgs, target: "/attacker/acct" }); rLie.action_binding = actionBinding(A.action);
+const vLie = verifyExecution(gAB, rLie);
+chk("AB3 a receipt binding advertising the authorized digest over a diverged executed_action is refused (action_binding_mismatch, record receipt)", vLie.ok === false && vLie.reason === "action_binding_mismatch" && vLie.record === "receipt", vLie.reason);
+const rFor = withActionBinding(okR, "executed_action"); rFor.action_binding = { ...rFor.action_binding, canonicalization: "RFC8785" };
+const vFor = verifyExecution(gAB, rFor);
+chk("AB4 a binding under a canonicalization this verifier cannot recompute is refused, never accepted unchecked (action_binding_unknown_profile)", vFor.ok === false && vFor.reason === "action_binding_unknown_profile" && vFor.record === "receipt", vFor.reason);
+const gMal = withActionBinding(A, "action"); gMal.action_binding = { type: "external_reference", digest: { alg: "sha-512", value: "x" } };
+const vMal = verifyExecution(gMal, rAB);
+chk("AB5 a malformed or non-digest binding is refused (action_binding_malformed)", vMal.ok === false && vMal.reason === "action_binding_malformed" && vMal.record === "grant", vMal.reason);
+const gNull = withActionBinding(A, "action"); gNull.action_binding = null;
+chk("AB5 action_binding: null is malformed, not absent", verifyExecution(gNull, rAB).reason === "action_binding_malformed");
+
 // ---- determinism + no forbidden dashes ----
 chk("grant_ref and receipt_id are deterministic", grantRef(A) === A.grant_ref && receiptId(okR) === okR.receipt_id);
-chk("no em/en/bar dashes in records", !DASH.test(JSON.stringify([A, okR, conflict])));
+chk("no em/en/bar dashes in records", !DASH.test(JSON.stringify([A, okR, conflict, gAB, rAB])));
 
 console.log(fail ? ("\n" + fail + " FAILED") : "\nALL PASS (task-execution-bind-v0 adversarial)");
 process.exit(fail ? 1 : 0);

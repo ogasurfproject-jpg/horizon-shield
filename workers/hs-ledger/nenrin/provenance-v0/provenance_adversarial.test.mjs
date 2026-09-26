@@ -2,7 +2,7 @@
 // then attacks it ACROSS layers: the cases below are ones no single layer can catch on its own.
 import { evidenceId, chainContinuous } from "../task-delegation-bind-v0/bind.mjs";
 import { newAgentKey, signObservation, signEdge } from "../task-delegation-bind-v0/sign.mjs";
-import { grantRef, receiptId } from "../task-execution-bind-v0/bind_exec.mjs";
+import { grantRef, receiptId, withActionBinding } from "../task-execution-bind-v0/bind_exec.mjs";
 import { signGrant, signReceipt } from "../task-execution-bind-v0/sign_exec.mjs";
 import { verifyProvenance, chainContinuousSet, LINK_PREFIX } from "./provenance_verify.mjs";
 import { intentId, signIntent } from "../task-execution-bind-v0/preflight.mjs";
@@ -143,6 +143,19 @@ chk("P14 an intent not hashing to the grant is refused (preflight_invalid / inte
 // ---- P15 intent carrying a different task_id ----
 const r15 = verifyProvenance({ ...happy, intent: mintIntent(grant, { task: "task_other" }) });
 chk("P15 an intent with a different task_id is refused (task_id_mismatch)", r15.verdict === "refused" && has(r15.refusals, "task_id_mismatch"), JSON.stringify(r15.refusals));
+
+// ---- P16 VATE-shaped action_binding carried on grant and receipt (derived: signatures and the digest link stay valid) ----
+const gAB = withActionBinding(grant, "action"), rAB = withActionBinding(receipt, "executed_action");
+const r16 = verifyProvenance({ task_id: T, observations: [h0, h1], grant: gAB, receipt: rAB, resolve });
+chk("P16 bindings on both records are accepted with the same digest link (receipt_id unchanged)", r16.verdict === "accepted" && r16.layers.linkage.links === 1 && r16.layers.execution.action_binding.grant === "recomputed" && r16.layers.execution.action_binding.receipt === "recomputed", JSON.stringify(r16.refusals));
+chk("P16 rule AB is applied and establishes names musubi-canonical-v0", r16.rules.find((x) => x.id === "AB").applied === true && r16.establishes.some((s) => s.includes("musubi-canonical-v0")));
+chk("P0 without bindings rule AB is present but not applied, and action_binding reads absent", r0.rules.find((x) => x.id === "AB").applied === false && r0.layers.execution.action_binding.grant === "absent");
+
+// ---- P17 a receipt binding that does not recompute refuses the provenance even though every signature verifies ----
+const rLie = withActionBinding(receipt, "executed_action"); rLie.action_binding = { ...rLie.action_binding, digest: { alg: "sha-256", value: "0".repeat(64) } };
+const r17 = verifyProvenance({ task_id: T, observations: [h0, h1], grant: gAB, receipt: rLie, resolve });
+chk("P17 a lying action_binding is refused (execution_invalid / action_binding_mismatch, record receipt)", r17.verdict === "refused" && reasonOf(r17.refusals, "execution_invalid") === "action_binding_mismatch" && r17.refusals.find((x) => x.code === "execution_invalid").record === "receipt", JSON.stringify(r17.refusals));
+chk("P17 the signatures still verify (the lie is outside the signed bytes); the refusal is the content check", !has(r17.refusals, "execution_signature_invalid"));
 
 // ---- determinism + no forbidden dashes ----
 chk("report is deterministic for identical input", JSON.stringify(verifyProvenance(happy)) === JSON.stringify(r0));

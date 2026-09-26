@@ -22,8 +22,14 @@ def canonical(v):
 def sha256hex(s):
     return hashlib.sha256(s.encode("utf-8")).hexdigest()
 
-GRANT_DERIVED = ("grant_ref", "caller_sig")
-RECEIPT_DERIVED = ("receipt_id", "provider_sig")
+GRANT_DERIVED = ("grant_ref", "caller_sig", "action_binding")
+RECEIPT_DERIVED = ("receipt_id", "provider_sig", "action_binding")
+
+def action_binding(action):
+    # VATE-shaped, derived (outside the preimage): the JS side must recompute digest.value byte for byte
+    return {"type": "canonical_request_digest", "canonicalization": "musubi-canonical-v0",
+            "preimage_profile": "task-execution-bind-v0/action",
+            "digest": {"alg": "sha-256", "value": sha256hex(canonical(action))}}
 
 def stripped(rec, derived):
     return {k: v for k, v in rec.items() if k not in derived}
@@ -47,6 +53,7 @@ def fixture():
         "not_before": None,
     }
     grant["grant_ref"] = grant_ref(grant)
+    grant["action_binding"] = action_binding(grant["action"])
     receipt = {
         "provider_id": "did:key:PROVIDER",
         "outcome": {
@@ -61,6 +68,7 @@ def fixture():
         "executed_at": "2026-09-18T00:30:00Z",
     }
     receipt["receipt_id"] = receipt_id(receipt)
+    receipt["action_binding"] = action_binding(receipt["executed_action"])
     return {
         "grant": grant,
         "receipt": receipt,

@@ -50,6 +50,20 @@ a valid provider signature, so a third party cannot manufacture a false equivoca
 ## Cross-language determinism
 - exec_cross_lang "grant preimage bytes agree (python canonical == JS canonical)"
 - exec_cross_lang "receipt_id recomputed in JS equals the python value"
+- exec_cross_lang "python action_binding on the grant recomputes in JS (musubi-canonical-v0)"
+
+## AB: VATE-shaped action_binding (optional, derived, fail-closed when present)
+- bind_exec_adversarial "AB1 attaching action_binding changes neither grant_ref nor receipt_id (derived, outside the preimage)"
+- bind_exec_adversarial "AB2 a grant binding whose digest does not recompute is refused (action_binding_mismatch, record grant)"
+- bind_exec_adversarial "AB3 a receipt binding advertising the authorized digest over a diverged executed_action is refused"
+- bind_exec_adversarial "AB4 a binding under a canonicalization this verifier cannot recompute is refused, never accepted unchecked"
+- bind_exec_adversarial "AB5 a malformed or non-digest binding is refused (action_binding_malformed)"
+- sign_exec_adversarial "action_binding attached after signing leaves caller_sig and provider_sig valid"
+- sign_exec_adversarial "a lying binding does not break the provider signature; the content verifier is what refuses it"
+- provenance_adversarial "P16 bindings on both records are accepted with the same digest link (receipt_id unchanged)"
+- provenance_adversarial "P17 a lying action_binding is refused (execution_invalid / action_binding_mismatch, record receipt)"
+Honest scope: the binding is a second spelling of the signed action for a reader with a different profile. It adds
+no trust and establishes nothing E1 did not already establish.
 
 ## Pre-execution authorization (preflight)
 - preflight "a declared action outside the grant is caught pre-execution (action_diverged)"

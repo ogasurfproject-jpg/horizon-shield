@@ -38,7 +38,8 @@ Artifact identity is a SHA-256 over the UTF-8 bytes of canonical(preimage), wher
 evidence_id, witness_sig and edge_sig. The record's schema name sits inside the hashed bytes. There is no domain
 prefix in v0; the agreement and contract record families add one, this family commits its type through the schema
 field instead. The canonical rule is the one the sieve and contract layers already prove byte-identical across
-Python and Node (musubi-canonical-v0):
+Python and Node. Its name is musubi-canonical-v0, its vectors are ../musubi-v0/canonical_vectors.json, and that name
+is the value the execution layer writes into a VATE-shaped action_binding.canonicalization (one rule, one name):
 
 - object keys sorted by code point at every level; keys are printable ASCII (U+0020..U+007E), so code point order
   and UTF-16 order agree in every runtime;

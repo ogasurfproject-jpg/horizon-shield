@@ -5,7 +5,7 @@
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { canonical } from "../task-delegation-bind-v0/bind.mjs";
-import { grantRef, receiptId, grantPreimage, receiptPreimage, verifyExecution } from "./bind_exec.mjs";
+import { grantRef, receiptId, grantPreimage, receiptPreimage, verifyExecution, checkActionBinding, actionDigest } from "./bind_exec.mjs";
 import { verifyEvidence } from "./outcome_evidence.mjs";
 
 let fail = 0;
@@ -23,6 +23,13 @@ chk("receipt_id recomputed in JS equals the python value", receiptId(fx.receipt)
 chk("the python-built pair verifies in the JS verifier (E1 action_bound, null not_before honored)", verifyExecution(fx.grant, fx.receipt).ok === true);
 chk("the python-built evidence pointer is well-formed in JS", verifyEvidence(fx.receipt, null).reason === "evidence_bound_unchecked");
 chk("fixture exercised a null value and unsorted insertion order", fx.grant.not_before === null && Object.keys(fx.grant)[0] !== "action");
+// VATE-shaped action_binding: the python digest.value must equal the JS action digest, and being derived it must
+// not have entered either preimage (the ids above already matched with the binding present on both records).
+chk("python action_binding on the grant recomputes in JS (musubi-canonical-v0)", checkActionBinding(fx.grant, "action").status === "recomputed" && fx.grant.action_binding.digest.value === actionDigest(fx.grant.action));
+chk("python action_binding on the receipt recomputes in JS", checkActionBinding(fx.receipt, "executed_action").status === "recomputed");
+chk("action_binding is outside both preimages (stripping it leaves grant_ref and receipt_id unchanged)", (() => { const g = { ...fx.grant }; delete g.action_binding; const r = { ...fx.receipt }; delete r.action_binding; return grantRef(g) === fx.grant.grant_ref && receiptId(r) === fx.receipt.receipt_id && !("action_binding" in grantPreimage(fx.grant)) && !("action_binding" in receiptPreimage(fx.receipt)); })());
+const vx = verifyExecution(fx.grant, fx.receipt);
+chk("the JS verifier reports both bindings as recomputed", vx.action_binding && vx.action_binding.grant === "recomputed" && vx.action_binding.receipt === "recomputed", JSON.stringify(vx.action_binding));
 
 console.log(fail ? ("\n" + fail + " FAILED") : "\nALL PASS (task-execution-bind-v0 cross-lang: python == JS byte for byte)");
 process.exit(fail ? 1 : 0);

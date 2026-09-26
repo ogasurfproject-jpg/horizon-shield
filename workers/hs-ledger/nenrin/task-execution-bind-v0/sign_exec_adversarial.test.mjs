@@ -1,7 +1,7 @@
 // Adversarial test for the task-execution-bind-v0 signature layer. Real Ed25519 keys, a resolver id -> pubkey.
 // Focus: attribution (spoofed caller / provider), post-sign tamper, and the two griefing paths against
 // reconciliation, plus genuine attributable equivocation.
-import { grantRef, receiptId } from "./bind_exec.mjs";
+import { grantRef, receiptId, withActionBinding } from "./bind_exec.mjs";
 import { newAgentKey, signGrant, signReceipt, verifySignedExecution, reconcileSigned } from "./sign_exec.mjs";
 
 const DASH = new RegExp("[" + String.fromCharCode(0x2012, 0x2013, 0x2014, 0x2015, 0x2212, 0xFF0D) + "]");
@@ -71,8 +71,16 @@ chk("genuine equivocation by the authorized provider is surfaced (fail-closed)",
 const recNull = reconcileSigned([rSigned], g.grant_ref, null, resolve);
 chk("reconcileSigned with no authorized provider is explicit (no_authorized_provider)", recNull.status === "no_authorized_provider", recNull.status);
 
+// ---- action_binding is outside the signed bytes: attach before or after signing, the signatures still verify ----
+const gABafter = withActionBinding(gSigned, "action"), rABafter = withActionBinding(rSigned, "executed_action");
+chk("action_binding attached after signing leaves caller_sig and provider_sig valid", verifySignedExecution(gABafter, rABafter, resolve).ok === true);
+const gABbefore = signGrant(withActionBinding(g, "action"), priv(CALLER));
+chk("signing with the binding present yields the same signature bytes as signing without it (derived field)", gABbefore.caller_sig === gSigned.caller_sig && verifySignedExecution(gABbefore, rSigned, resolve).ok === true);
+const rABlie = withActionBinding(rSigned, "executed_action"); rABlie.action_binding.digest = { alg: "sha-256", value: "f".repeat(64) };
+chk("a lying binding does not break the provider signature (it is outside the signed bytes); the content verifier is what refuses it", verifySignedExecution(gSigned, rABlie, resolve).ok === true);
+
 // ---- no forbidden dashes ----
-chk("no em/en/bar dashes in signed records", !DASH.test(JSON.stringify([gSigned, rSigned, rAlt])));
+chk("no em/en/bar dashes in signed records", !DASH.test(JSON.stringify([gSigned, rSigned, rAlt, gABafter])));
 
 console.log(fail ? ("\n" + fail + " FAILED") : "\nALL PASS (task-execution-bind-v0 signature adversarial)");
 process.exit(fail ? 1 : 0);

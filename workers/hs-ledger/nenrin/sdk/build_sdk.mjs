@@ -5,6 +5,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
 const SOURCES = [
+  "../task-delegation-bind-v0/strict_json.mjs",
   "../task-delegation-bind-v0/bind.mjs",
   "../task-delegation-bind-v0/sign.mjs",
   "../task-execution-bind-v0/bind_exec.mjs",
@@ -89,6 +90,7 @@ for (const rel of SOURCES) {
       if (m) for (const part of m[1].split(",")) { const am = part.trim().match(/^(\S+)\s+as\s+(\S+)$/); if (am) aliasLines.push("const " + am[2] + " = " + am[1] + ";"); }
       continue;
     }
+    if (/^\s*export\s*\{[^}]*\}\s*;?\s*$/.test(line)) continue;             // bare re-export lists: one scope, already exported at definition
     if (/^\s*export function newAgentKey\s*\(/.test(line)) {                // dedupe the shared helper
       if (seenNewAgentKey) continue;
       seenNewAgentKey = true;

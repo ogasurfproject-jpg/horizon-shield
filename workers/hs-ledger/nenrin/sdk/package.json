@@ -1,6 +1,6 @@
 {
   "name": "nenrin-verify",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Single-file, zero-dependency, consumer-runnable verifiers for NENRIN evidence: a provenance bundle (nenrin_verify.mjs) and a TSUGI recovery chain with its random witness draw (tsugi_verify.mjs). Verify yourself, offline, with no trust in the operator.",
   "type": "module",
   "main": "nenrin_verify.mjs",

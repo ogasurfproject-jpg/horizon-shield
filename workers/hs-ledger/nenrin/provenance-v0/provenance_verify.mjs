@@ -19,7 +19,7 @@ import { verifySignedExecution, reconcileSigned } from "../task-execution-bind-v
 import { verifyEvidence } from "../task-execution-bind-v0/outcome_evidence.mjs";
 import { verifyPreflight, verifyIntentSig, intentMatchesReceipt } from "../task-execution-bind-v0/preflight.mjs";
 
-export const VERIFIER_VERSION = "0.1.1";
+export const VERIFIER_VERSION = "0.1.2";
 export const LINK_PREFIX = "nenrin-exec://";
 
 // R3 generalized to a SET with possibly several witnesses per hop: seqs contiguous from 0, every root has a
@@ -105,14 +105,14 @@ export function verifyProvenance(input) {
     const primary = primaryReceipt || receipts[0];
     const ve = verifyExecution(grant, primary);
     ve.findings.forEach((f) => note(f.code, f.why));
-    if (!ve.ok) refuse("execution_invalid", "the grant/receipt pair failed recompute, binding, window or E1", { reason: ve.reason });
+    if (!ve.ok) refuse("execution_invalid", "the grant/receipt pair failed recompute, binding, window or E1", Object.assign({ reason: ve.reason }, ve.record ? { record: ve.record } : {}));
     let sigs = { ok: true, reason: "signatures_not_required" };
     if (requireSigs) { sigs = verifySignedExecution(grant, primary, resolve); if (!sigs.ok) refuse("execution_signature_invalid", "caller_sig or provider_sig does not verify", { reason: sigs.reason }); }
     const rec = requireSigs ? reconcileSigned(receipts, grant.grant_ref, grant.provider_id, resolve) : reconcileOutcome(receipts, grant.grant_ref);
     if (rec.status === "equivocation") refuse("execution_equivocation", "the authorized provider signed conflicting outcomes for one grant; no single outcome can be established (E2, fail-closed)", { receipt_ids: rec.receipt_ids });
     else if (rec.status !== "reconciled") refuse("execution_unreconciled", "no authentic receipt reconciles this grant", { status: rec.status });
     else reconciledReceipt = receipts.find((r) => r.receipt_id === rec.receipt_id) || primary;
-    layers.execution = { present: true, complete: true, pair: ve.reason, signatures: sigs.reason, reconciliation: rec.status, receipt_id: rec.receipt_id || null, outcome: rec.outcome || null };
+    layers.execution = { present: true, complete: true, pair: ve.reason, signatures: sigs.reason, reconciliation: rec.status, receipt_id: rec.receipt_id || null, outcome: rec.outcome || null, action_binding: ve.action_binding || { grant: "absent", receipt: "absent" } };
   }
 
   // ---- 2b. preflight layer (pre-execution intent), when an intent is presented ----
@@ -124,7 +124,7 @@ export function verifyProvenance(input) {
   } else {
     const pf = verifyPreflight(grant, intent);
     pf.findings.forEach((f) => note(f.code, f.why));
-    if (!pf.ok) refuse("preflight_invalid", "the pre-execution intent is not authorized by the grant", { reason: pf.reason });
+    if (!pf.ok) refuse("preflight_invalid", "the pre-execution intent is not authorized by the grant", Object.assign({ reason: pf.reason }, pf.record ? { record: pf.record } : {}));
     let isig = { ok: true, reason: "signatures_not_required" };
     if (requireSigs) { const ok = verifyIntentSig(intent, resolve(intent.provider_id)); isig = { ok, reason: ok ? "intent_sig_valid" : "intent_sig_invalid" }; if (!ok) refuse("preflight_signature_invalid", "the intent signature does not verify", { reason: isig.reason }); }
     let declared_matches_executed = null;
@@ -181,6 +181,9 @@ export function verifyProvenance(input) {
       establishes.push("executed_at is a strict RFC3339 UTC instant inside the grant window");
       establishes.push("exactly one authentic outcome reconciles for this grant (E2)");
       if (requireSigs) establishes.push("caller_sig and provider_sig verify against the resolved keys");
+      const ab = layers.execution.action_binding || {};
+      const carried = ["grant", "receipt"].filter((k) => ab[k] === "recomputed");
+      if (carried.length) establishes.push("the VATE-shaped action_binding on the " + carried.join(" and ") + " recomputes from the signed action under musubi-canonical-v0 (AB); a recipient reading digest.value as effective_request_hash reads the same bytes E1 compared");
     }
     if (layers.preflight && layers.preflight.present && layers.preflight.complete) {
       establishes.push("the provider declared its action before execution and that declaration equals the caller authorization (preflight): the action was authorized before it ran");
@@ -215,6 +218,7 @@ export function verifyProvenance(input) {
     { id: "E1", layer: "execution", applied: !!(grant && receipts.length), statement: "the provider's signed executed_action equals the caller's signed authorization, byte for byte" },
     { id: "E2", layer: "execution", applied: !!(grant && receipts.length), statement: "exactly one authentic outcome reconciles for the grant; conflicting outcomes are equivocation" },
     { id: "E3", layer: "execution", applied: !!(grant && receipts.length), statement: "the receipt hash-references the grant and comes from the executor the grant authorized" },
+    { id: "AB", layer: "execution", applied: [grant, ...receipts, intent].some((x) => x && x.action_binding !== undefined), statement: "an action_binding, when carried, recomputes from the signed action under the named canonicalization (musubi-canonical-v0); it is derived, outside the preimage, and adds no trust; one that does not recompute refuses the record" },
     { id: "PF", layer: "preflight", applied: !!intent, statement: "the declared pre-execution action equals the caller's grant, from the authorized executor, in the window" },
     { id: "SIG", layer: "attribution", applied: requireSigs, statement: "witness_sig, edge_sig, caller_sig and provider_sig verify against keys resolved from the signer identities" },
   ];
@@ -232,7 +236,7 @@ export function verifyProvenance(input) {
     recompute: {
       offline: "this verifier opens no socket and has no clock; run it yourself on the same records and do not take this operator's word",
       layers: ["../task-delegation-bind-v0/bind.mjs + sign.mjs (R1..R4, witness_sig, edge_sig)", "../task-execution-bind-v0/bind_exec.mjs + sign_exec.mjs (E1..E3, caller_sig, provider_sig)", "../task-execution-bind-v0/outcome_evidence.mjs (evidence pointer shape and optional lookup)"],
-      cross_layer: ["every record must carry the same task_id", "an observation's detail_ref nenrin-exec://<receipt_id> must equal receiptId(reconciled receipt)", "if an intent is present, its proposed_action must equal the grant action (preflight) and the reconciled receipt executed_action (declared equals authorized equals executed)"],
+      cross_layer: ["every record must carry the same task_id", "an observation's detail_ref nenrin-exec://<receipt_id> must equal receiptId(reconciled receipt)", "if an intent is present, its proposed_action must equal the grant action (preflight) and the reconciled receipt executed_action (declared equals authorized equals executed)", "if a grant, receipt or intent carries action_binding, digest.value must equal sha256(canonical(its action)) under musubi-canonical-v0; the field is outside every preimage and signature"],
     },
   };
 }

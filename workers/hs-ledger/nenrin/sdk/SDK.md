@@ -71,6 +71,21 @@ account, no token, no trust in HS. A mismatch exits 2 and prints the two trees t
 attestation (who built it, from which commit) and this script (what that commit builds, on your
 machine), the chain source to package is closed at both ends by the reader, not by the operator.
 
+## 0.2.2 (2026-09-26): canonical pin, rules and signers on the report, VATE-shaped action_binding
+nenrin_verify.mjs is rebuilt from the sources at this commit (verifier_version 0.1.2). What a reader sees:
+- Strict canonical input. The bundled canonical() refuses what the pinned rule refuses (a non-integer or unsafe
+  number, a non printable-ASCII key) and the strict parser refuses duplicate keys at any depth, before anything
+  is hashed. The rule has a name, musubi-canonical-v0, and vectors in ../musubi-v0/canonical_vectors.json.
+- Every report carries rules[] (ID, R1 to R4, E1 to E3, AB, PF, SIG, each with applied and a statement) and
+  signers (which identities the checks resolved), so a recipient reads the verification contract off the report.
+- Optional action_binding on a grant, receipt or intent, in the shape Poke-nushi's VATE uses
+  ({type, canonicalization, preimage_profile, digest}). It is derived, outside every preimage and signature, adds
+  no trust, and is refused when it does not recompute (rule AB). See task-execution-bind-v0/SPEC.md.
+Honest note: between the 0.2.1 publish and this rebuild the committed bundle lagged the sources for part of one
+day (the canonical pin landed in the modules first); nenrin_verify.test.mjs caught it, and the publish workflow
+would have refused to ship it. The interop fixtures in ../interop-v0 reproduce their frozen verdict signatures
+under 0.2.2 unchanged.
+
 ## tsugi_verify.mjs (0.2.0): verify a TSUGI recovery chain yourself, in one file
 
 TSUGI (継) is the second pillar: proof of recovery. A chain is drift records, one proposal from a closed repair

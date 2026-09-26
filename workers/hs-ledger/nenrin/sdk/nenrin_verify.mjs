@@ -17,6 +17,135 @@ import { createHash, sign as nodeSign, verify as nodeVerify, generateKeyPairSync
 import { readFileSync, realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
+// ============================== task-delegation-bind-v0/strict_json.mjs ==============================
+// strict_json.mjs : the parse and input rules that make a content hash portable across runtimes.
+// Pure JS (no Node built-ins) so both the offline reference impl (bind.mjs) and the Workers ledger face
+// (task_ledger_v0.mjs) share one copy. Rule text lives in SPEC.md ("Canonical form, pinned").
+//
+// parseStrict(text): JSON parse that REFUSES, before anything is hashed,
+//   duplicate_key            an object with the same key twice at any depth (no first-wins, no last-wins)
+//   non_integer_number       a number with a fraction or exponent
+//   unsafe_number            an integer outside plus or minus 2^53 - 1
+//   key_not_printable_ascii  an object key with any character outside U+0020..U+007E
+//   bad_json                 anything else that is not one JSON value with nothing after it
+// checkCanonicalInput(v): the same number and key rules over an already-parsed value (objects handed in by code).
+// Both throw an Error whose .code is one of the names above.
+
+const MAX_SAFE = 9007199254740991;
+
+function err(code, at) { const e = new Error(code + (at != null ? " at " + at : "")); e.code = code; e.at = at; return e; }
+
+export function keyOk(k) {
+  if (typeof k !== "string") return false;
+  for (let i = 0; i < k.length; i++) { const c = k.charCodeAt(i); if (c < 0x20 || c > 0x7e) return false; }
+  return true;
+}
+
+export function checkCanonicalInput(v, path) {
+  const p = path || "$";
+  if (v === null || typeof v === "string" || typeof v === "boolean") return;
+  if (typeof v === "number") {
+    if (!Number.isFinite(v) || !Number.isInteger(v)) throw err("non_integer_number", p);
+    if (v > MAX_SAFE || v < -MAX_SAFE) throw err("unsafe_number", p);
+    return;
+  }
+  if (Array.isArray(v)) { v.forEach((x, i) => checkCanonicalInput(x, p + "[" + i + "]")); return; }
+  if (typeof v === "object") {
+    for (const k of Object.keys(v)) {
+      if (!keyOk(k)) throw err("key_not_printable_ascii", p + "." + k);
+      checkCanonicalInput(v[k], p + "." + k);
+    }
+    return;
+  }
+  throw err("bad_json", p);
+}
+
+export function parseStrict(text) {
+  if (typeof text !== "string") throw err("bad_json", 0);
+  let i = 0; const n = text.length;
+  const ws = () => { while (i < n) { const c = text.charCodeAt(i); if (c === 0x20 || c === 0x09 || c === 0x0a || c === 0x0d) i++; else break; } };
+  const value = (path) => {
+    ws();
+    if (i >= n) throw err("bad_json", i);
+    const c = text[i];
+    if (c === "{") return object(path);
+    if (c === "[") return array(path);
+    if (c === '"') return string();
+    if (c === "t") { if (text.startsWith("true", i)) { i += 4; return true; } throw err("bad_json", i); }
+    if (c === "f") { if (text.startsWith("false", i)) { i += 5; return false; } throw err("bad_json", i); }
+    if (c === "n") { if (text.startsWith("null", i)) { i += 4; return null; } throw err("bad_json", i); }
+    return number(path);
+  };
+  const number = (path) => {
+    const start = i;
+    if (text[i] === "-") i++;
+    if (i >= n) throw err("bad_json", i);
+    if (text[i] === "0") i++;
+    else if (text[i] >= "1" && text[i] <= "9") { while (i < n && text[i] >= "0" && text[i] <= "9") i++; }
+    else throw err("bad_json", i);
+    if (i < n && (text[i] === "." || text[i] === "e" || text[i] === "E")) throw err("non_integer_number", path);
+    const s = text.slice(start, i);
+    if (s.replace("-", "").length > 16) throw err("unsafe_number", path);
+    const v = Number(s);
+    if (!Number.isSafeInteger(v)) throw err("unsafe_number", path);
+    return v;
+  };
+  const string = () => {
+    i++; let out = "";
+    while (i < n) {
+      const c = text[i];
+      if (c === '"') { i++; return out; }
+      if (c === "\\") {
+        i++; if (i >= n) throw err("bad_json", i);
+        const e = text[i];
+        if (e === '"' || e === "\\" || e === "/") { out += e; i++; }
+        else if (e === "b") { out += "\b"; i++; } else if (e === "f") { out += "\f"; i++; }
+        else if (e === "n") { out += "\n"; i++; } else if (e === "r") { out += "\r"; i++; } else if (e === "t") { out += "\t"; i++; }
+        else if (e === "u") {
+          const h = text.slice(i + 1, i + 5);
+          if (!/^[0-9a-fA-F]{4}$/.test(h)) throw err("bad_json", i);
+          out += String.fromCharCode(parseInt(h, 16)); i += 5;
+        } else throw err("bad_json", i);
+      } else {
+        if (c.charCodeAt(0) < 0x20) throw err("bad_json", i);
+        out += c; i++;
+      }
+    }
+    throw err("bad_json", i);
+  };
+  const array = (path) => {
+    i++; const out = []; ws();
+    if (text[i] === "]") { i++; return out; }
+    for (;;) {
+      out.push(value(path + "[" + out.length + "]")); ws();
+      if (text[i] === ",") { i++; continue; }
+      if (text[i] === "]") { i++; return out; }
+      throw err("bad_json", i);
+    }
+  };
+  const object = (path) => {
+    i++; const out = {}; const seen = new Set(); ws();
+    if (text[i] === "}") { i++; return out; }
+    for (;;) {
+      ws();
+      if (text[i] !== '"') throw err("bad_json", i);
+      const k = string();
+      if (!keyOk(k)) throw err("key_not_printable_ascii", path + "." + k);
+      if (seen.has(k)) throw err("duplicate_key", path + "." + k);
+      seen.add(k);
+      ws(); if (text[i] !== ":") throw err("bad_json", i); i++;
+      out[k] = value(path + "." + k); ws();
+      if (text[i] === ",") { i++; continue; }
+      if (text[i] === "}") { i++; return out; }
+      throw err("bad_json", i);
+    }
+  };
+  const v = value("$"); ws();
+  if (i !== n) throw err("bad_json", i);
+  return v;
+}
+
+
 // ============================== task-delegation-bind-v0/bind.mjs ==============================
 // task-delegation-bind-v0 : deterministic binding of an A2A Task id to NENRIN conduct evidence.
 // 番人 reference impl (2026-09-16). Standard-track: anchors on the A2A Task `id` (v1.0 literal, tasks/get).
@@ -26,12 +155,19 @@ import { fileURLToPath } from "node:url";
 
 export const sha256hex = (s) => createHash("sha256").update(s, "utf8").digest("hex");
 
-// simplified JCS: recursive key sort, no whitespace. Deterministic across implementations.
-export function canonical(v) {
+// Canonical form, pinned (SPEC.md): keys sorted by code point (keys are printable ASCII, so every runtime sorts
+// them the same way), no whitespace, strings escaped only for '"', '\\' and U+0000..U+001F, non-ASCII raw,
+// integers only within plus or minus 2^53 - 1. canonical() refuses input outside the rule instead of producing
+// bytes another runtime might not reproduce; parseStrict() refuses duplicate keys before anything is hashed.
+function canon(v) {
   if (v === null || typeof v !== "object") return JSON.stringify(v);
-  if (Array.isArray(v)) return "[" + v.map(canonical).join(",") + "]";
+  if (Array.isArray(v)) return "[" + v.map(canon).join(",") + "]";
   const keys = Object.keys(v).sort();
-  return "{" + keys.map((k) => JSON.stringify(k) + ":" + canonical(v[k])).join(",") + "}";
+  return "{" + keys.map((k) => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}";
+}
+export function canonical(v) {
+  checkCanonicalInput(v);
+  return canon(v);
 }
 
 // evidence_id = content hash over the preimage (the record minus derived/envelope fields).
@@ -156,8 +292,8 @@ export function verifySigned(obs, resolve) {
 
 // Derived/envelope fields, excluded from the content hash so signing never changes the hash and the
 // signer signs the same bytes the verifier recomputes. Same discipline as evidence_id in bind.mjs.
-const GRANT_DERIVED = ["grant_ref", "caller_sig"];
-const RECEIPT_DERIVED = ["receipt_id", "provider_sig"];
+const GRANT_DERIVED = ["grant_ref", "caller_sig", "action_binding"];
+const RECEIPT_DERIVED = ["receipt_id", "provider_sig", "action_binding"];
 
 function stripped(rec, derived) {
   const b = Object.assign({}, rec);
@@ -215,13 +351,45 @@ export function actionMatch(g, r) {
 export function grantRecomputeOk(g) { return typeof g.grant_ref === "string" && g.grant_ref === grantRef(g); }
 export function receiptRecomputeOk(r) { return typeof r.receipt_id === "string" && r.receipt_id === receiptId(r); }
 
+// ---- interop: VATE-shaped action_binding (a2aproject/A2A#1769, Poke-nushi's admission-receipt / post-execution-receipt) ----
+// { type, canonicalization, preimage_profile, digest:{alg,value} } over the action, so a VATE recipient can compare
+// digest.value with its effective_request_hash without reading this spec. It is DERIVED, like grant_ref: excluded
+// from the preimage, so attaching it never changes grant_ref, receipt_id or any signature, and no published fixture
+// moves. It adds no trust: the action it digests is already inside the signed bytes. A verifier that finds one
+// recomputes it from the signed action and refuses a record whose binding does not recompute (fail-closed), so an
+// accepted report never vouches for a binding it did not check. The canonicalization name is the one rule this
+// repository already proves byte-identical across Python and Node (../musubi-v0/canonical_vectors.json).
+export const CANONICALIZATION = "musubi-canonical-v0";
+export const ACTION_PREIMAGE_PROFILE = "task-execution-bind-v0/action";
+export const actionDigest = (action) => sha256hex(canonical(action));
+export function actionBinding(action) {
+  return { type: "canonical_request_digest", canonicalization: CANONICALIZATION, preimage_profile: ACTION_PREIMAGE_PROFILE, digest: { alg: "sha-256", value: actionDigest(action) } };
+}
+// attach a binding over rec[key] (grant: "action", receipt: "executed_action", intent: "proposed_action").
+export const withActionBinding = (rec, key) => Object.assign({}, rec, { action_binding: actionBinding(rec[key]) });
+// status: absent | recomputed | malformed | unknown_profile | mismatch. Only absent and recomputed are acceptable.
+export function checkActionBinding(rec, key) {
+  const b = rec.action_binding;
+  if (b === undefined) return { status: "absent" };
+  if (!b || typeof b !== "object" || Array.isArray(b) || b.type !== "canonical_request_digest" || !b.digest || typeof b.digest !== "object" || b.digest.alg !== "sha-256" || typeof b.digest.value !== "string")
+    return { status: "malformed" };
+  if (b.canonicalization !== CANONICALIZATION || b.preimage_profile !== ACTION_PREIMAGE_PROFILE) return { status: "unknown_profile" };
+  if (rec[key] == null || b.digest.value !== actionDigest(rec[key])) return { status: "mismatch" };
+  return { status: "recomputed" };
+}
+export const actionBindingOk = (st) => st === "absent" || st === "recomputed";
+
 // verify a grant+receipt pair (content-addressed core; signatures handled in sign_exec.mjs).
 // findings carries DECLARED, non-fatal disclosures (mirrors the conduct_self_measured finding in agreement-v0).
 export function verifyExecution(g, r) {
   const findings = [];
   if (!grantRecomputeOk(g)) return { ok: false, reason: "grant_recompute_mismatch", findings };
   if (!receiptRecomputeOk(r)) return { ok: false, reason: "receipt_recompute_mismatch", findings };
-  if (!receiptBindsGrant(g, r)) return { ok: false, reason: "receipt_unbound", findings };
+  const gb = checkActionBinding(g, "action"), rb = checkActionBinding(r, "executed_action");
+  const action_binding = { grant: gb.status, receipt: rb.status };
+  if (!actionBindingOk(gb.status)) return { ok: false, reason: "action_binding_" + gb.status, record: "grant", findings, action_binding };
+  if (!actionBindingOk(rb.status)) return { ok: false, reason: "action_binding_" + rb.status, record: "receipt", findings, action_binding };
+  if (!receiptBindsGrant(g, r)) return { ok: false, reason: "receipt_unbound", findings, action_binding };
   if (!isRfc3339Utc(r.executed_at) || (g.not_before != null && !isRfc3339Utc(g.not_before)) || (g.not_after != null && !isRfc3339Utc(g.not_after)))
     return { ok: false, reason: "invalid_timestamp", findings };
   if (!providerAuthorized(g, r)) return { ok: false, reason: "provider_not_authorized", findings };
@@ -229,7 +397,7 @@ export function verifyExecution(g, r) {
   if (g.provider_id == null) findings.push({ code: "open_grant", why: "the grant names no provider_id, so any executor's receipt is accepted; this pair does not establish that the executor was the one the caller intended." });
   if (grantIsSelfAuthorized(g)) findings.push({ code: "self_authorized", why: "caller_id equals the grant's provider_id; the caller authorized its own executor. Declared, so recorded not refused; this pair does not establish that the authorization came from anyone other than the executor." });
   const e1 = actionMatch(g, r);
-  return { ok: e1.ok, reason: e1.ok ? "action_bound" : e1.reason, findings };
+  return { ok: e1.ok, reason: e1.ok ? "action_bound" : e1.reason, findings, action_binding };
 }
 
 // E2 (sig-free) reconciliation over a SET of receipts for one grant_ref. Fail-closed like R4: conflicting
@@ -375,7 +543,7 @@ export function verifyEvidence(receipt, lookup) {
 // the provider will execute that action; the receipt, checked afterward, is what catches a provider that
 // declared one thing and did another.
 
-const INTENT_DERIVED = ["intent_id", "intent_sig"];
+const INTENT_DERIVED = ["intent_id", "intent_sig", "action_binding"]; // action_binding is derived, see bind_exec.mjs
 export const intentPreimage = (i) => { const b = Object.assign({}, i); for (const k of INTENT_DERIVED) delete b[k]; return b; };
 export const intentId = (i) => sha256hex(canonical(intentPreimage(i)));
 export function intentRecomputeOk(i) { return typeof i.intent_id === "string" && i.intent_id === intentId(i); }
@@ -397,6 +565,8 @@ export function verifyPreflight(g, i) {
   const findings = [];
   if (!grantRecomputeOk(g)) return { ok: false, reason: "grant_recompute_mismatch", findings };
   if (!intentRecomputeOk(i)) return { ok: false, reason: "intent_recompute_mismatch", findings };
+  const ib = checkActionBinding(i, "proposed_action");
+  if (!actionBindingOk(ib.status)) return { ok: false, reason: "action_binding_" + ib.status, record: "intent", findings };
   if (!intentBindsGrant(g, i)) return { ok: false, reason: "intent_unbound", findings };
   if (!isRfc3339Utc(i.declared_at) || (g.not_before != null && !isRfc3339Utc(g.not_before)) || (g.not_after != null && !isRfc3339Utc(g.not_after)))
     return { ok: false, reason: "invalid_timestamp", findings };
@@ -495,7 +665,7 @@ export function preflightReport(input) {
 // never collapsed into the favorable outcome. The wall that no signature can cross (no side-effect oracle) is
 // written into does_not_establish on every report, accepted or refused.
 
-export const VERIFIER_VERSION = "0.1.0";
+export const VERIFIER_VERSION = "0.1.2";
 export const LINK_PREFIX = "nenrin-exec://";
 
 // R3 generalized to a SET with possibly several witnesses per hop: seqs contiguous from 0, every root has a
@@ -581,14 +751,14 @@ export function verifyProvenance(input) {
     const primary = primaryReceipt || receipts[0];
     const ve = verifyExecution(grant, primary);
     ve.findings.forEach((f) => note(f.code, f.why));
-    if (!ve.ok) refuse("execution_invalid", "the grant/receipt pair failed recompute, binding, window or E1", { reason: ve.reason });
+    if (!ve.ok) refuse("execution_invalid", "the grant/receipt pair failed recompute, binding, window or E1", Object.assign({ reason: ve.reason }, ve.record ? { record: ve.record } : {}));
     let sigs = { ok: true, reason: "signatures_not_required" };
     if (requireSigs) { sigs = verifySignedExecution(grant, primary, resolve); if (!sigs.ok) refuse("execution_signature_invalid", "caller_sig or provider_sig does not verify", { reason: sigs.reason }); }
     const rec = requireSigs ? reconcileSigned(receipts, grant.grant_ref, grant.provider_id, resolve) : reconcileOutcome(receipts, grant.grant_ref);
     if (rec.status === "equivocation") refuse("execution_equivocation", "the authorized provider signed conflicting outcomes for one grant; no single outcome can be established (E2, fail-closed)", { receipt_ids: rec.receipt_ids });
     else if (rec.status !== "reconciled") refuse("execution_unreconciled", "no authentic receipt reconciles this grant", { status: rec.status });
     else reconciledReceipt = receipts.find((r) => r.receipt_id === rec.receipt_id) || primary;
-    layers.execution = { present: true, complete: true, pair: ve.reason, signatures: sigs.reason, reconciliation: rec.status, receipt_id: rec.receipt_id || null, outcome: rec.outcome || null };
+    layers.execution = { present: true, complete: true, pair: ve.reason, signatures: sigs.reason, reconciliation: rec.status, receipt_id: rec.receipt_id || null, outcome: rec.outcome || null, action_binding: ve.action_binding || { grant: "absent", receipt: "absent" } };
   }
 
   // ---- 2b. preflight layer (pre-execution intent), when an intent is presented ----
@@ -600,7 +770,7 @@ export function verifyProvenance(input) {
   } else {
     const pf = verifyPreflight(grant, intent);
     pf.findings.forEach((f) => note(f.code, f.why));
-    if (!pf.ok) refuse("preflight_invalid", "the pre-execution intent is not authorized by the grant", { reason: pf.reason });
+    if (!pf.ok) refuse("preflight_invalid", "the pre-execution intent is not authorized by the grant", Object.assign({ reason: pf.reason }, pf.record ? { record: pf.record } : {}));
     let isig = { ok: true, reason: "signatures_not_required" };
     if (requireSigs) { const ok = verifyIntentSig(intent, resolve(intent.provider_id)); isig = { ok, reason: ok ? "intent_sig_valid" : "intent_sig_invalid" }; if (!ok) refuse("preflight_signature_invalid", "the intent signature does not verify", { reason: isig.reason }); }
     let declared_matches_executed = null;
@@ -657,6 +827,9 @@ export function verifyProvenance(input) {
       establishes.push("executed_at is a strict RFC3339 UTC instant inside the grant window");
       establishes.push("exactly one authentic outcome reconciles for this grant (E2)");
       if (requireSigs) establishes.push("caller_sig and provider_sig verify against the resolved keys");
+      const ab = layers.execution.action_binding || {};
+      const carried = ["grant", "receipt"].filter((k) => ab[k] === "recomputed");
+      if (carried.length) establishes.push("the VATE-shaped action_binding on the " + carried.join(" and ") + " recomputes from the signed action under musubi-canonical-v0 (AB); a recipient reading digest.value as effective_request_hash reads the same bytes E1 compared");
     }
     if (layers.preflight && layers.preflight.present && layers.preflight.complete) {
       establishes.push("the provider declared its action before execution and that declaration equals the caller authorization (preflight): the action was authorized before it ran");
@@ -679,12 +852,37 @@ export function verifyProvenance(input) {
     "anything about time beyond the record contents: this verifier has no clock and saw no anchor; a Bitcoin anchor, if one exists, bounds the records separately",
     "that this is the only provenance these parties produced for this task_id",
   ];
+  // the portable verification contract, stated on every report (SPEC.md "Canonical form, pinned"):
+  // which numbered rules the verdict was computed under, and which signer identities the checks resolved.
+  const uniq = (xs) => [...new Set(xs.filter((x) => typeof x === "string" && x.length))];
+  const rules = [
+    { id: "ID", layer: "cross", applied: true, statement: "every presented record carries the task_id under verification" },
+    { id: "R1", layer: "delegation", applied: observations.length > 0, statement: "witness_id differs from hop.from and hop.to (structural independence)" },
+    { id: "R2", layer: "delegation", applied: observations.length > 0, statement: "evidence_id recomputes from the canonical preimage" },
+    { id: "R3", layer: "delegation", applied: observations.length > 0, statement: "hops contiguous from seq 0, each prev_evidence_id resolves to a presented prior-hop observation" },
+    { id: "R4", layer: "delegation", applied: observations.length > 0, statement: "per-hop verdicts aggregate over the full witness set; disagreement is surfaced, never collapsed" },
+    { id: "E1", layer: "execution", applied: !!(grant && receipts.length), statement: "the provider's signed executed_action equals the caller's signed authorization, byte for byte" },
+    { id: "E2", layer: "execution", applied: !!(grant && receipts.length), statement: "exactly one authentic outcome reconciles for the grant; conflicting outcomes are equivocation" },
+    { id: "E3", layer: "execution", applied: !!(grant && receipts.length), statement: "the receipt hash-references the grant and comes from the executor the grant authorized" },
+    { id: "AB", layer: "execution", applied: [grant, ...receipts, intent].some((x) => x && x.action_binding !== undefined), statement: "an action_binding, when carried, recomputes from the signed action under the named canonicalization (musubi-canonical-v0); it is derived, outside the preimage, and adds no trust; one that does not recompute refuses the record" },
+    { id: "PF", layer: "preflight", applied: !!intent, statement: "the declared pre-execution action equals the caller's grant, from the authorized executor, in the window" },
+    { id: "SIG", layer: "attribution", applied: requireSigs, statement: "witness_sig, edge_sig, caller_sig and provider_sig verify against keys resolved from the signer identities" },
+  ];
+  const signers = {
+    signatures_required: requireSigs,
+    witnesses: uniq(observations.map((o) => o && o.witness_id)),
+    delegators: uniq(observations.map((o) => o && o.hop && o.hop.from)),
+    caller_id: grant && typeof grant.caller_id === "string" ? grant.caller_id : null,
+    provider_id: grant && typeof grant.provider_id === "string" ? grant.provider_id : null,
+    resolution: "identities are did:key or key_url; keys resolve offline from the identifier itself or from the resolve function the caller supplied",
+  };
   return {
     schema: "nenrin-provenance-verify-v0", verifier_version: VERIFIER_VERSION, task_id, verdict, refusals, findings, layers, establishes, does_not_establish,
+    rules, signers,
     recompute: {
       offline: "this verifier opens no socket and has no clock; run it yourself on the same records and do not take this operator's word",
       layers: ["../task-delegation-bind-v0/bind.mjs + sign.mjs (R1..R4, witness_sig, edge_sig)", "../task-execution-bind-v0/bind_exec.mjs + sign_exec.mjs (E1..E3, caller_sig, provider_sig)", "../task-execution-bind-v0/outcome_evidence.mjs (evidence pointer shape and optional lookup)"],
-      cross_layer: ["every record must carry the same task_id", "an observation's detail_ref nenrin-exec://<receipt_id> must equal receiptId(reconciled receipt)", "if an intent is present, its proposed_action must equal the grant action (preflight) and the reconciled receipt executed_action (declared equals authorized equals executed)"],
+      cross_layer: ["every record must carry the same task_id", "an observation's detail_ref nenrin-exec://<receipt_id> must equal receiptId(reconciled receipt)", "if an intent is present, its proposed_action must equal the grant action (preflight) and the reconciled receipt executed_action (declared equals authorized equals executed)", "if a grant, receipt or intent carries action_binding, digest.value must equal sha256(canonical(its action)) under musubi-canonical-v0; the field is outside every preimage and signature"],
     },
   };
 }

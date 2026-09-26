@@ -86,6 +86,32 @@ score; the caller's gateway decides. intentMatchesReceipt gives declared == exec
 Under a fixed-action grant that equality is implied when preflight and execution both pass, so the real value of
 the intent is temporal: a signed pre-execution promise, checkable before the receipt exists.
 
+## Interop: action_binding (VATE shape, optional, derived; 2026-09-26)
+Poke-nushi's VATE (a2aproject/A2A#1769, admission-receipt and post-execution-receipt) binds a request by
+    action_binding: { type, canonicalization, preimage_profile, digest: { alg, value } }
+A grant, receipt or intent here MAY carry the same object over its action (grant.action, receipt.executed_action,
+intent.proposed_action):
+    { type: "canonical_request_digest", canonicalization: "musubi-canonical-v0",
+      preimage_profile: "task-execution-bind-v0/action", digest: { alg: "sha-256", value: <64 hex> } }
+value = SHA-256(canonical(action)), the same bytes E1 compares. A VATE recipient reads digest.value as its
+effective_request_hash without reading this spec; it only needs the canonicalization name and its vectors
+(../musubi-v0/canonical_vectors.json, reproduced byte for byte in Python and Node).
+
+Rules:
+- action_binding is DERIVED, like grant_ref and receipt_id: it sits outside every preimage and every signature
+  (GRANT_DERIVED, RECEIPT_DERIVED, INTENT_DERIVED). Attaching it changes no id and no signature, so every published
+  fixture keeps its grant_ref and receipt_id, and a record signed without it can carry it later.
+- It adds no trust. The action it digests is already inside the signed bytes; the binding is a second spelling of
+  the same fact for a reader with a different profile.
+- Fail-closed when present (rule AB). A verifier that finds one recomputes it from the signed action and refuses
+  the record on action_binding_mismatch (digest differs), action_binding_unknown_profile (a canonicalization or
+  preimage_profile this verifier cannot recompute; accepting unchecked would let a claim ride on a verified record),
+  or action_binding_malformed (wrong shape, wrong alg, null). Absent is not an error. The refusal names the record
+  (grant, receipt or intent). Since the field is unsigned, a lying binding does not break provider_sig; the content
+  verifier is what refuses it (sign_exec_adversarial shows both halves).
+- The name is the one this repository already uses for its canonical bytes. One rule, one name; a second alias for
+  the same bytes would only give a recipient two things to check against each other.
+
 ## Composition (linkage, not authority)
 An observation may name an execution receipt by its content hash (detail_ref = nenrin-exec://<receipt_id>).
 That is linkage: the observation's verdict stays the witness's own and never inherits the receipt's outcome,
