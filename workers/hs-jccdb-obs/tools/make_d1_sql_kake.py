@@ -7,7 +7,7 @@
 
 入力(どれも非公開。公開のリポには入れない。出力の sql_us_kake/ も .gitignore 済み):
   --src      kake_us_wa_des_23623_prototype.csv, kake_us_wa_des_11121_prototype.csv, kake_us_naspo_mro_ak_prototype.csv,
-             margin_us_census_prototype.csv, margin_us_bea_2007_prototype.csv, markup_us_dot.csv,
+             margin_us_census_prototype.csv, margin_us_bea_2007_prototype.csv, markup_us_dot.csv, margin_ppi_us.csv(v0.4.1),
              chain_us_hs10_<ym>.csv, chain_summary_<ym>.json
   --imports  imports_us_hs10_<ym>.csv, imports_us_hs10_cty_<ym>.csv(filter_imdb.py の出力)
 検査(1 つでも外れたら何も書かずに止まる):
@@ -35,7 +35,7 @@ files = {
     "kake_23623": S("kake_us_wa_des_23623_prototype.csv"), "kake_11121": S("kake_us_wa_des_11121_prototype.csv"),
     "kake_naspo": S("kake_us_naspo_mro_ak_prototype.csv"), "margin_census": S("margin_us_census_prototype.csv"),
     "margin_bea": S("margin_us_bea_2007_prototype.csv"), "markup": S("markup_us_dot.csv"),
-    "chain": S(f"chain_us_hs10_{YM}.csv"), "chain_summary": S(f"chain_summary_{YM}.json"),
+    "chain": S(f"chain_us_hs10_{YM}.csv"), "chain_summary": S(f"chain_summary_{YM}.json"), "margin_ppi": S("margin_ppi_us.csv"),
     "import_hs10": I(f"imports_us_hs10_{YM}.csv"), "import_cty": I(f"imports_us_hs10_cty_{YM}.csv"),
 }
 missing = [p for p in files.values() if not os.path.exists(p)]
@@ -138,9 +138,34 @@ for r in rd("margin_bea"):
 markup = []
 for r in rd("markup"):
     markup.append({"agency": r["agency"], "spec": r["spec"], "section": r["section"], "component": r["component"], "markup": fnum(r["markup"]),
-                   "base": r["base"], "verified": 1 if r["verified"] == "true" else 0, "verified_how": r["verified_how"], "source_url": r["source_url"] or None, "note": r["note"] or None})
+                   "base": r["base"], "verified": 1 if r["verified"] == "true" else 0, "verified_how": r["verified_how"], "source_url": r["source_url"] or None,
+                   "source_sha256": r.get("source_sha256") or None, "source_page": r.get("source_page") or None, "note": r["note"] or None})
     if r["verified"] == "true" and fnum(r["markup"]) is None:
         bad("markup: verified row without value")
+    if r["verified"] == "true" and (len(r.get("source_sha256") or "") != 64 or not r.get("source_page")):
+        bad(f"markup: verified row without the original's sha256 and page ({r['agency']} {r['component']})")
+    if r["verified"] != "true" and fnum(r["markup"]) is not None:
+        bad(f"markup: unverified row carries a value ({r['agency']} {r['component']})")
+
+# ------------------------------------------------------------------ margin_ppi(v0.4.1)
+ppi = []
+seen = set()
+for r in rd("margin_ppi"):
+    v = fnum(r["value"])
+    if v is None or v <= 0:
+        bad(f"margin_ppi: value {r['series_id']} {r['month']}")
+    if len(r["month"]) != 7 or r["month"][4] != "-":
+        bad(f"margin_ppi: month {r['month']}")
+    if len(r["evidence_sha256"]) != 64:
+        bad("margin_ppi: evidence sha256")
+    if r["kind"] not in ("trade_margin", "commodity_price"):
+        bad(f"margin_ppi: kind {r['kind']}")
+    k = (r["series_id"], r["month"])
+    if k in seen:
+        bad(f"margin_ppi: duplicate {k}")
+    seen.add(k)
+    ppi.append({"series_id": r["series_id"], "title": r["title"], "units": r["units"], "base_period": r["base_period"], "naics_prefix": r["naics_prefix"] or None,
+                "kind": r["kind"], "month": r["month"], "value": v, "source": r["source"], "evidence_url": r["evidence_url"], "evidence_sha256": r["evidence_sha256"]})
 
 # ------------------------------------------------------------------ import_hs10 / import_hs10_cty
 imp, imp_by = [], {}
@@ -282,13 +307,14 @@ insert("kake_obs", kake)
 insert("margin_gm", margin)
 insert("margin_bea", bea)
 insert("markup_dot", markup)
+insert("margin_ppi", ppi)
 insert("import_hs10", imp)
 insert("import_hs10_cty", cty)
 insert("trade_chain", chain)
 built = {
     "built_at": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "ym": YM,
     "rows": {"kake_obs": len(kake), "margin_gm": len(margin), "margin_bea": len(bea), "markup_dot": len(markup),
-             "import_hs10": len(imp), "import_hs10_cty": len(cty), "trade_chain": len(chain)},
+             "import_hs10": len(imp), "import_hs10_cty": len(cty), "trade_chain": len(chain), "margin_ppi": len(ppi)},
     "inputs_sha256": sha,
     "sources": {
         "wa-des-23623": "https://apps.des.wa.gov/contracting/23623p_updated.xlsx",
@@ -300,6 +326,9 @@ built = {
         "census-arts-2022": "https://www2.census.gov/programs-surveys/arts/tables/2022benchmarked/gmper.xlsx",
         "bea-io-margins-2007": "https://apps.bea.gov/industry/xls/io-annual/Margins_Before_Redefinitions_2007_Detail.xlsx",
         "caltrans-ctss-9-1.04": "https://dot.ca.gov/-/media/dot-media/programs/local-assistance/documents/training/2025/8-payment-20260106.pdf",
+        "txdot-2024-item-9.7": "https://ftp.txdot.gov/pub/txdot-info/cmd/cserve/specs/2024/standard/s009.pdf",
+        "fdot-fy2026-27-4-3.2.1": "https://fdotwww.blob.core.windows.net/sitefinity/docs/default-source/specifications/by-year/fy-2026-27/ebook/fy-2026-27-ebook-compressed.pdf",
+        "bls-ppi-via-fred": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=<series_id>",
     },
 }
 emit("INSERT INTO kake_meta (k, v) VALUES ('built_kake', " + lit(json.dumps(built, ensure_ascii=False, sort_keys=True)) + ");\n")

@@ -1,4 +1,4 @@
-// hs-jccdb-obs v0.4 の検査(v0.3 の検査に、公開と内部の分け方と非公開の層の検査を足した)。
+// hs-jccdb-obs v0.4.1 の検査(v0.4.1: マージン物価指数・建設資材の物価指数・州 3 つの上乗せ率の幅の検査を足した。v0.3 の検査に、公開と内部の分け方と非公開の層の検査を足した)。
 // v0.4: 米国の値は内部(URL の host が jccdb-obs.internal = hs-mcp の service binding)だけで返すので、v0.3 までの検査は内部の host で叩く。
 // hs-jccdb-obs v0.3 の検査。D1 の代わりに node:sqlite に同じ SQL を流し、worker の関数をそのまま叩く。
 //
@@ -784,6 +784,32 @@ let kakeNote = "非公開の層の入力なし(省略)";
     ok(cvi.status === 403, "v0.4 still refused on the public URL after loading");
     const cvp = await get("/coverage?country=US");
     ok(cvp.us_private_layer.loaded === true && cvp.us_private_layer.rows.kake_obs === rows.kake_obs, "v0.4 coverage: private layer counts");
+    // ---- v0.4.1: マージン物価指数、建設資材の物価指数、州 3 つの上乗せ率の幅
+    const csvLine = (l) => { const out = []; let cur = "", q = false; for (let i = 0; i < l.length; i++) { const ch = l[i]; if (q) { if (ch === '"' && l[i + 1] === '"') { cur += '"'; i++; } else if (ch === '"') q = false; else cur += ch; } else if (ch === '"') q = true; else if (ch === ",") { out.push(cur); cur = ""; } else cur += ch; } out.push(cur); return out; };
+    const ppiCsv = fs.readFileSync(path.join(KSRC, "margin_ppi_us.csv"), "utf8").trim().split(/\r?\n/).slice(1).map(csvLine);
+    const ppiOf = (sid) => Object.fromEntries(ppiCsv.filter((c) => c[0] === sid).map((c) => [c[6], Number(c[7])]));
+    const p4233 = ppiOf("PCU423300423300");
+    const lastM = Object.keys(p4233).sort().pop(), prevY = String(Number(lastM.slice(0, 4)) - 1) + lastM.slice(4);
+    const mi = (await call("jccdb_us_margin", { naics: "4233" })).structuredContent;
+    const s4233 = (mi.margin_index || []).find((x) => x.series_id === "PCU423300423300");
+    ok(rows.margin_ppi > 2000 && s4233 && s4233.latest.month === lastM && s4233.latest.value === p4233[lastM] && Math.abs(s4233.yoy_pct - Math.round((p4233[lastM] / p4233[prevY] - 1) * 1e5) / 1e3) < 1e-9 && s4233.base_period === "2019-05" && /^[0-9a-f]{64}$/.test(s4233.evidence_sha256),
+      "v0.4.1 margin 4233: margin_index = BLS PCU423300423300 latest " + lastM + " " + (s4233 && s4233.latest.value) + ", yoy " + (s4233 && s4233.yoy_pct) + "% (recomputed from the CSV)");
+    ok(!(mi.margin_index || []).some((x) => x.series_id === "PCU424600424600") && (mi.margin_index || []).every((x) => x.kind === "trade_margin"), "v0.4.1 margin_index only carries the series for the asked NAICS");
+    const mr = (await call("jccdb_us_margin", { naics: "444110", history: true })).structuredContent;
+    const s4441 = (mr.margin_index || []).find((x) => x.series_id === "PCU444100444100");
+    ok(s4441 && s4441.history.length === 36 && s4441.history[35].month === s4441.latest.month, "v0.4.1 margin 444110 maps to the building-material dealers index, history 36 months");
+    const c2 = (await call("jccdb_us_price_chain", { hs: "2523290000" })).structuredContent.rows[0];
+    const ch2 = (await call("jccdb_us_price_chain", { hs: "2523290000" })).structuredContent;
+    const ag = c2.contractor.by_agency;
+    ok(ag.map((x) => x.agency + ":" + x.markup).join(",") === "Caltrans:0.15,FDOT:0.175,TxDOT:0.25" && ag.every((x) => near(x.unit_usd, c2.wholesale.unit_usd * (1 + x.markup))) && near(c2.contractor.range.unit_usd[0], c2.contractor.unit_usd) && near(c2.contractor.range.unit_usd[1], c2.wholesale.unit_usd * 1.25),
+      "v0.4.1 chain cement: contractor by agency Caltrans 15% / FDOT 17.5% / TxDOT 25% (" + ag.map((x) => x.unit_usd).join(" / ") + "), default stays Caltrans");
+    const wp = ppiOf("WPUSI012011"), wl = Object.keys(wp).sort().pop();
+    ok(ch2.materials_price_index && ch2.materials_price_index.series_id === "WPUSI012011" && ch2.materials_price_index.latest.month === wl && ch2.materials_price_index.latest.value === wp[wl], "v0.4.1 chain: construction materials PPI " + wl + " " + wp[wl]);
+    ok(ch2.markups.filter((m) => m.verified).every((m) => /^[0-9a-f]{64}$/.test(m.source_sha256) && m.source_page) && ch2.markups.some((m) => m.agency === "TxDOT" && m.component === "materials" && m.markup === 0.25) && ch2.markups.some((m) => m.agency === "FDOT" && m.markup === 0.175) && ch2.markups.every((m) => m.rid === undefined), "v0.4.1 markups: every verified row carries the original's sha256 and page");
+    dbu.exec("ALTER TABLE margin_ppi RENAME TO margin_ppi_hidden");
+    const mo = (await call("jccdb_us_margin", { naics: "4233" })).structuredContent, co = (await call("jccdb_us_price_chain", { hs: "2523290000" })).structuredContent;
+    ok(!mo.error && mo.margin_index === null && mo.rows.length > 0 && !co.error && co.materials_price_index === null && co.rows.length === 1, "v0.4.1 on a D1 loaded with the v0.4 schema (no margin_ppi): answers without the index, not an error");
+    dbu.exec("ALTER TABLE margin_ppi_hidden RENAME TO margin_ppi");
     kakeNote = `非公開の層 ${Object.entries(rows).map(([k, v]) => k + " " + v).join("、")}`;
   }
 }

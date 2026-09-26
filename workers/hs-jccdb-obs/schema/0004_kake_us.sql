@@ -1,4 +1,4 @@
--- hs-jccdb-obs v0.4: 米国の掛け率・マージン・輸入原価・各段の価格(非公開の計算層)。DB_US(hs-jccdb-obs-us)にだけ当てる。
+-- hs-jccdb-obs v0.4(v0.4.1 で markup_dot に原本の sha256 と頁、margin_ppi を足した): 米国の掛け率・マージン・輸入原価・各段の価格(非公開の計算層)。DB_US(hs-jccdb-obs-us)にだけ当てる。
 -- obs2 と台帳の表には触らない。流し直すときはこのファイルから(表を消して作り直す)。
 -- 中身は tools/make_d1_sql_kake.py の生成物だけ。値は hs-mcp の service binding からの呼び出しにだけ返す(worker の isInternal)。
 DROP TABLE IF EXISTS kake_meta;
@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS import_hs10;
 DROP TABLE IF EXISTS import_hs10_cty;
 DROP TABLE IF EXISTS trade_chain;
 DROP TABLE IF EXISTS markup_dot;
+DROP TABLE IF EXISTS margin_ppi;
 
 CREATE TABLE kake_meta (k TEXT PRIMARY KEY, v TEXT NOT NULL);
 
@@ -77,5 +78,12 @@ CREATE INDEX trade_chain_hs ON trade_chain(hs10);
 -- 元請の上乗せ率(州の交通局の force account)。verified=1 の行だけ計算に使う
 CREATE TABLE markup_dot (
   rid INTEGER PRIMARY KEY, agency TEXT NOT NULL, spec TEXT, section TEXT, component TEXT NOT NULL, markup REAL, base TEXT,
-  verified INTEGER NOT NULL, verified_how TEXT, source_url TEXT, note TEXT
+  verified INTEGER NOT NULL, verified_how TEXT, source_url TEXT, source_sha256 TEXT, source_page TEXT, note TEXT
 );
+
+-- v0.4.1: BLS の卸・小売のマージン物価指数と建設資材の特殊指数(FRED の CSV、月ごと、値は BLS のまま)
+CREATE TABLE margin_ppi (
+  rid INTEGER PRIMARY KEY, series_id TEXT NOT NULL, title TEXT, units TEXT, base_period TEXT, naics_prefix TEXT, kind TEXT NOT NULL,
+  month TEXT NOT NULL, value REAL NOT NULL, source TEXT, evidence_url TEXT NOT NULL, evidence_sha256 TEXT NOT NULL
+);
+CREATE INDEX margin_ppi_s ON margin_ppi(series_id, month);

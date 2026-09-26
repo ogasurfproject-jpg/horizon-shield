@@ -1,8 +1,17 @@
+# hs-jccdb-obs v0.4.1(2026-09-26 夜、v0.4 の上に足すだけ)
+
+- jccdb_us_margin に margin_index(BLS の卸・小売のマージン物価指数、月ごと。最新月・前年同月比・3 か月前比)を足した。粗利率そのものではなく、粗利の単価の値動き。
+- jccdb_us_price_chain に materials_price_index(BLS の建設資材の特殊指数 WPUSI012011)と、元請の段の by_agency / range を足した。材料の上乗せ率は原本で読んだ 3 州(Caltrans 15%、FDOT 17.5%、TxDOT 25%)。既定の元請の値は Caltrans のまま。
+- schema/0004_kake_us.sql に margin_ppi の表と、markup_dot の原本の sha256 と頁の列を足した。v0.4.0 の worker は新しい表と列を読まないので、先に D1 を流し直しても答えは変わらない。v0.4.1 の worker は margin_ppi が無い D1 でも指数を null で返し、落ちない。
+- 手順は ~/hs-core-private/ops-private/jccdb_us_kake_20260926/toshi_steps_kake2.sh の段 L1〜L5。
+
+---
+
 # hs-jccdb-obs v0.4 配備手順(TOshi の手、2026-09-26 夜)
 
 v0.4 で変わること: 米国の値は hs-mcp の service binding(host が jccdb-obs.internal)からの呼び出しにだけ返す。公開の URL で米国の値を求めると 403 us_private(値なし、hs-mcp の道具の名前つき)。
 日本の値、米国の出典台帳(/sources)、件数(/coverage、/search)は公開のまま。新しい4本(掛け率・粗利率・輸入原価・各段の価格)は DB_US の新しい表(schema/0004_kake_us.sql)から引く。
-手順は ~/hs-core-private/ops-private/jccdb_us_kake_20260926/toshi_steps_kake.sh(段 K1〜K7)にまとめた。芯だけ書く:
+手順は ~/hs-core-private/ops-private/jccdb_us_kake_20260926/toshi_steps_kake2.sh(段 K1〜K6)にまとめた。芯だけ書く:
 
 1. SQL を作る(入力は非公開。出力 sql_us_kake/ は .gitignore 済み)
        python3 tools/make_d1_sql_kake.py --src ~/hs-core-private/ops-private/jccdb_us_kake_20260926 --imports ~/horizon-shield/data/jccdb-obs-v2/raw/us/kake_20260926/derived --ym 202607 --out sql_us_kake

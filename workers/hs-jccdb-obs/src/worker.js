@@ -1,6 +1,12 @@
 /**
  * hs-jccdb-obs v0.3 : JCCDB の品目(v4, 95,403行)と観測層 v2(日本と米国、同じ列)を、AI からも人からも引ける口。
  *
+ * v0.4.1 の変更(2026-09-26 夜):
+ *   ・jccdb_us_margin に margin_index(BLS の卸・小売のマージン物価指数、月ごと。最新月・前年同月比・3 か月前比は computed:true)を足した。
+ *     粗利率(Census の年次)を月に動かす式には使わず、粗利の単価の値動きとして並べる。
+ *   ・jccdb_us_price_chain に materials_price_index(BLS の建設資材の特殊指数 WPUSI012011)と、元請の段の by_agency / range
+ *     (原本で読んだ州 3 つの材料の上乗せ率: Caltrans 15%、FDOT 17.5%、TxDOT 25%)を足した。各段の既定の値(Caltrans)は変えていない。
+ *
  * v0.4 の変更(2026-09-26 夜):
  *   ・米国の値は公開の口では返さない。hs-mcp の service binding(URL の host が jccdb-obs.internal)からの呼び出しにだけ答える。
  *     公開の URL(workers.dev)から米国の値を求めると、値を返さず us_private(restricted:true、fetch_failed:false、HTTP 403)と答え、
@@ -35,7 +41,7 @@
  */
 
 const PROTOCOL_VERSION = "2025-11-25";
-const SERVER = { name: "hs-jccdb-obs", version: "0.4.0" };
+const SERVER = { name: "hs-jccdb-obs", version: "0.4.1" };
 
 // v0.4: 米国の値を返すのは内部の呼び出し(hs-mcp の service binding。URL の host が INTERNAL_HOST)だけ。
 // 公開の URL の host は workers.dev か独自のドメインで、外から host を jccdb-obs.internal にして届かせることはできない。
@@ -1681,6 +1687,25 @@ async function usKake(ctx, a) {
   };
 }
 
+// v0.4.1: margin_ppi(月ごとの物価指数)の系列を要約する。表が無い(0004 が古い)ときは null を返す。
+async function ppiSummary(db, where, binds, history) {
+  let rs;
+  try { rs = (await db.prepare("SELECT series_id, title, units, base_period, naics_prefix, kind, month, value, source, evidence_url, evidence_sha256 FROM margin_ppi WHERE " + where + " ORDER BY series_id, month").bind(...binds).all()).results; }
+  catch (e) { if (/no such table/i.test(String(e && e.message))) return null; throw e; }
+  const by = {};
+  for (const r of rs) (by[r.series_id] = by[r.series_id] || []).push(r);
+  const pct = (a, b) => (a != null && b ? Math.round((a / b - 1) * 1e5) / 1e3 : null);
+  return Object.values(by).map((xs) => {
+    const last = xs[xs.length - 1], at = (m) => (xs.find((x) => x.month === m) || {}).value;
+    const [y, mo] = last.month.split("-").map(Number);
+    const back = (n) => { const t = y * 12 + (mo - 1) - n; return `${Math.floor(t / 12)}-${String((t % 12) + 1).padStart(2, "0")}`; };
+    return { series_id: last.series_id, title: last.title, units: last.units, base_period: last.base_period, naics_prefix: last.naics_prefix || null, kind: last.kind,
+      latest: { month: last.month, value: last.value }, yoy_pct: pct(last.value, at(back(12))), change_3m_pct: pct(last.value, at(back(3))), computed_fields: ["yoy_pct", "change_3m_pct"],
+      history: history ? xs.slice(-36).map((x) => ({ month: x.month, value: x.value })) : undefined,
+      source: last.source, evidence_url: last.evidence_url, evidence_sha256: last.evidence_sha256 };
+  });
+}
+
 async function usMargin(ctx, a) {
   const k = await kakePart(ctx);
   if (k.fail) return k.fail;
@@ -1712,8 +1737,20 @@ async function usMargin(ctx, a) {
       if (bw.length) bea = (await k.db.prepare("SELECT * FROM margin_bea WHERE " + bw.join(" AND ") + " ORDER BY buyer_group, purchasers_value_musd DESC LIMIT 20").bind(...bb).all()).results;
     }
   } catch (e) { return readFail(e, "US"); }
+  // v0.4.1: 当たった NAICS(か指定の naics)に対応するマージン物価指数
+  let marginIndex = null;
+  try {
+    const want = new Set(rows.map((r) => r.naics));
+    if (naics) want.add(naics);
+    const pre = [...want].filter(Boolean);
+    if (pre.length) {
+      const cond = "kind = 'trade_margin' AND (" + pre.map(() => "(? LIKE naics_prefix || '%' OR naics_prefix LIKE ? || '%')").join(" OR ") + ")";
+      marginIndex = await ppiSummary(k.db, cond, pre.flatMap((x) => [x, x]), bool(a.history));
+    }
+  } catch (e) { return readFail(e, "US"); }
   return {
     ...kakeMeta(k.built), layer: "margin", count: rows.length, returned: rows.length,
+    margin_index: marginIndex, margin_index_reading: marginIndex ? "BLS の卸・小売のマージン物価指数(粗利の単価の値動き。粗利率そのものではない)。値は BLS のまま、前年同月比と 3 か月前比は computed:true。/ BLS trade-margin PPIs (price of the margin service, not the margin rate); yoy and 3-month changes are computed." : undefined,
     rows: rows.map((r) => ({ source_id: r.source_id, trade: r.trade, naics: r.naics, label: r.label, type_of_operation: r.typop, geo: r.geo, year: r.year, revised: r.revised,
       gross_margin_pct: r.value, flag: r.flag, kake_cost_ratio: r.kake_cost_ratio, computed: r.computed === 1, method: r.method, cell: r.cell,
       evidence_url: r.evidence_url, evidence_sha256: r.evidence_sha256 })),
@@ -1777,13 +1814,18 @@ async function usPriceChain(ctx, a) {
   if (hs) { where.push("hs10 LIKE ?"); binds.push(hs + "%"); }
   else for (const w of likeWords(a.query)) { where.push("norm LIKE ? ESCAPE '\\'"); binds.push(w); }
   if (!bool(a.include_thin)) where.push("thin_trade = 0");
-  let n, rows, mk;
+  let n, rows, mk, matIdx = null;
   try {
     n = (await k.db.prepare("SELECT COUNT(*) AS n FROM trade_chain WHERE " + where.join(" AND ")).bind(...binds).first()).n;
     rows = (await k.db.prepare("SELECT * FROM trade_chain WHERE " + where.join(" AND ") + " ORDER BY landed_duty_paid_ytd_usd DESC LIMIT ?").bind(...binds, lim).all()).results;
-    mk = (await k.db.prepare("SELECT agency, spec, section, component, markup, base, verified, verified_how, source_url, note FROM markup_dot ORDER BY verified DESC, agency, component").all()).results;
+    mk = (await k.db.prepare("SELECT * FROM markup_dot ORDER BY verified DESC, agency, component").all()).results;
+    matIdx = await ppiSummary(k.db, "series_id = ?", ["WPUSI012011"], false);
   } catch (e) { return readFail(e, "US"); }
   const stage = (u, m) => (m == null ? null : { unit_usd: u, multiplier_on_landed: m, kake_landed_share: m ? Math.round((1 / m) * 1e6) / 1e6 : null });
+  const r8 = (x) => (x == null ? null : Math.round(x * 1e8) / 1e8);
+  const matMk = mk.filter((m) => m.verified === 1 && m.component === "materials" && m.markup != null).sort((x, y) => x.markup - y.markup);
+  const byAgency = (r) => matMk.map((m) => ({ agency: m.agency, section: m.section, markup: m.markup, multiplier_on_landed: r8(r.mult_wholesale * (1 + m.markup)),
+    unit_usd: r.unit_wholesale == null ? null : r8(r.unit_wholesale * (1 + m.markup)), computed: true }));
   return {
     ...kakeMeta(k.built), layer: "chain", hs: hs || null, query: a.query || null, count: n, returned: rows.length,
     rows: rows.map((r) => ({
@@ -1795,7 +1837,9 @@ async function usPriceChain(ctx, a) {
       retail: r.mult_retail_direct == null ? null : { naics: "444110", gross_margin: r.gm_retail_444110,
         direct_import: stage(r.unit_retail_direct, r.mult_retail_direct), via_wholesale: stage(r.unit_retail_via_wholesale, r.mult_retail_via_wholesale),
         alt_store: r.gm_retail_alt != null ? { naics: r.gm_retail_alt_naics, gross_margin: r.gm_retail_alt, multiplier_on_landed_via_wholesale: r.mult_retail_alt_via_wholesale } : undefined },
-      contractor: { markup_materials: r.contractor_markup_materials, rule: "Caltrans CTSS 9-1.04C: (purchase price + delivery) x 115%; delivery not included here", ...stage(r.unit_contractor, r.mult_contractor) },
+      contractor: { markup_materials: r.contractor_markup_materials, rule: "Caltrans CTSS 9-1.04C: (purchase price + delivery) x 115%; delivery not included here", ...stage(r.unit_contractor, r.mult_contractor),
+        by_agency: byAgency(r), range: matMk.length ? { markup: [matMk[0].markup, matMk[matMk.length - 1].markup], unit_usd: r.unit_wholesale == null ? null : [r8(r.unit_wholesale * (1 + matMk[0].markup)), r8(r.unit_wholesale * (1 + matMk[matMk.length - 1].markup))] } : null,
+        range_reading: "州の交通局の force account(追加工事の精算)の材料の上乗せ率を、原本で読んだ州ごとに当てた幅。民間の工事の相場の上乗せ率ではない。/ Range across state DOT force-account materials markups read in the originals; not a private-market markup." },
       cross_check_bea2007: r.bea2007_construction_producer_to_purchaser != null ? { commodity: r.bea2007_commodity, match: r.bea2007_match, construction_producer_to_purchaser: r.bea2007_construction_producer_to_purchaser,
         reading: "2007 年の建設業の購入で、購入者価格のうち生産者価格が占める割合。照合用で、計算には使っていない。" } : null,
       flags: { thin_trade: r.thin_trade === 1, unit_outlier_vs_hs6: r.unit_outlier_vs_hs6 === 1 },
@@ -1803,7 +1847,8 @@ async function usPriceChain(ctx, a) {
       sources: { import: r.src_import, import_sha256: r.src_import_sha256, gm_wholesale: r.src_gm_wholesale, gm_wholesale_sha256: r.src_gm_wholesale_sha256,
         gm_retail: r.src_gm_retail || undefined, markup: r.src_markup, trade_map_sha256: r.src_trade_map_sha256 },
     })),
-    markups: mk.map((m) => ({ ...m, verified: m.verified === 1 })),
+    markups: mk.map((m) => ({ ...m, rid: undefined, verified: m.verified === 1 })),
+    materials_price_index: matIdx && matIdx[0] ? { ...matIdx[0], reading: "BLS の建設資材の特殊指数(生産者価格)。陸揚げ原価は年初来の平均なので、その後の値動きはこの指数で見る。/ BLS construction materials special index; landed costs are year-to-date averages." } : null,
     basis: KAKE_NOTE.chain,
     reading: "thin_trade(陸揚げ原価 1 万ドル未満か数量 10 未満)の品目は既定で外す(include_thin:true で入れる)。map_confidence が low の品目は、卸の業種の当て方に自信が無い。/ Thin-trade items are excluded by default; low map_confidence means the wholesale mapping is uncertain.",
   };
