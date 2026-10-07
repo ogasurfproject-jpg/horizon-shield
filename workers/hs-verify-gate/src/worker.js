@@ -24,9 +24,9 @@ const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
 // これが無いと shield ドメインの検証ディレクトリから /self・/check を実測取得できない。
 const CORS_HEADERS = {
   "access-control-allow-origin": "*",
-  "access-control-allow-methods": "GET, POST, OPTIONS",
-  "access-control-allow-headers": "content-type, a2a-extensions, x-a2a-extensions, a2a-version",
-  "access-control-expose-headers": "a2a-extensions, x-a2a-extensions",
+  "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+  "access-control-allow-headers": "content-type, a2a-extensions, x-a2a-extensions, a2a-version, mcp-session-id, mcp-protocol-version",
+  "access-control-expose-headers": "a2a-extensions, x-a2a-extensions, mcp-session-id, mcp-protocol-version",
   "access-control-max-age": "86400"
 };
 
@@ -5420,6 +5420,14 @@ export default {
     }
 
     // MCP over Streamable HTTP。扉自身を MCP クライアントから呼べるようにする。
+    //
+    // 2026-10-07. Legacy session compatibility.
+    // Modern/stateless callers continue to work exactly as before. An initialize request, however,
+    // now receives Mcp-Session-Id so older SDKs that insist on a sticky session can complete the
+    // classic initialize -> notifications/initialized -> tools/list -> tools/call path. The gate
+    // stores no per-session state, because every exposed tool is already request-complete; the ID is
+    // a routing/compatibility token, not hidden mutable state. When a client echoes the ID, echo it
+    // back so an intermediary or validator can see that the same legacy leg remained selected.
     if (path === "/mcp" && request.method === "POST") {
       let body;
       try { body = await request.json(); }
@@ -5436,15 +5444,38 @@ export default {
         const _u = [_a.endpoint, _a.url, _a.server_url, _a.server, _a.endpoint_url, _a.agent].find((x) => typeof x === "string" && x);
         bumpRequests(env, ctx, "mcp", _tn, requesterClass(request), targetClass(_u));
       }
+
+      const responseHeaders = {};
+      const incomingSession = (request.headers.get("mcp-session-id") || "").trim();
+      const incomingProtocol = (request.headers.get("mcp-protocol-version") || "").trim();
+
+      if (body && body.method === "initialize") {
+        responseHeaders["Mcp-Session-Id"] = crypto.randomUUID();
+        const negotiated = body.params && typeof body.params.protocolVersion === "string"
+          ? body.params.protocolVersion
+          : "2024-11-05";
+        responseHeaders["MCP-Protocol-Version"] = negotiated;
+      } else if (incomingSession) {
+        responseHeaders["Mcp-Session-Id"] = incomingSession;
+        if (incomingProtocol) responseHeaders["MCP-Protocol-Version"] = incomingProtocol;
+      }
+
       const res = await handleMcp(body, env);
-      if (res === null) return new Response(null, { status: 202, headers: CORS_HEADERS });
-      return json(res);
+      if (res === null) {
+        return new Response(null, { status: 202, headers: { ...CORS_HEADERS, ...responseHeaders } });
+      }
+      return json(res, 200, responseHeaders);
+    }
+    if (path === "/mcp" && request.method === "DELETE") {
+      const session = (request.headers.get("mcp-session-id") || "").trim();
+      if (!session) return json({ error: "mcp_session_id_required" }, 400);
+      return new Response(null, { status: 204, headers: { ...CORS_HEADERS, "Mcp-Session-Id": session } });
     }
     if (path === "/mcp" && request.method === "GET") {
       return json({
         ok: true,
         transport: "MCP over Streamable HTTP (JSON-RPC 2.0)",
-        usage: "POST JSON-RPC to this URL. methods: initialize, tools/list, tools/call.",
+        usage: "POST JSON-RPC to this URL. methods: initialize, tools/list, tools/call. Legacy initialize receives Mcp-Session-Id; DELETE with that header closes the compatibility session.",
         tools: MCP_TOOLS.map((t) => t.name)
       });
     }
