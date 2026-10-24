@@ -3,6 +3,9 @@
 # Not covered on purpose: the npm package nenrin-verify (workers/hs-ledger/nenrin/sdk) has no dependencies, the
 # PyPI package declares only cryptography>=41 with no pinned or locked versions, and the Go module uses the
 # standard library only.
+# The pip entry keeps the one pinned test corpus current: agent-evidence-vectors, pinned exactly in
+# .github/requirements/agent-evidence-vectors.txt, which the conduct-walk, PyPI publish and occurrence-binding
+# workflows install. Each release opens one pull request, and those workflows run on it.
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -22,5 +25,12 @@ updates:
       github-actions:
         patterns:
           - "*"
+    commit-message:
+      prefix: "ci"
+  - package-ecosystem: pip
+    directory: "/.github/requirements"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 2
     commit-message:
       prefix: "ci"
