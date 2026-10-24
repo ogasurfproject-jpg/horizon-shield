@@ -1,0 +1,4 @@
+agree  HS-142-972686 expected=anchored                 got=anchored
+agree  HS-120-972141 expected=anchored                 got=anchored
+agree  HS-120-972145 expected=anchored                 got=anchored
+3/3
