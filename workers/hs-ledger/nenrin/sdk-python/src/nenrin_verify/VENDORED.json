@@ -514,6 +514,11 @@
     "source_sha256": "53b4ddb5b6a9c9908ef02e9d0d47717d7bc779171bb2611b664bc21ac1b93fdd",
     "vendored_sha256": "53b4ddb5b6a9c9908ef02e9d0d47717d7bc779171bb2611b664bc21ac1b93fdd"
   },
+  "_repo/musubi-v0/ca2a-companion-v0/pilot51/set2/audit_B.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/ca2a-companion-v0/pilot51/set2/audit_B.json",
+    "source_sha256": "40bc2a46f428b2cc5000e9d5e896adac218ebe3c2b76f78ba29afebf97887aea",
+    "vendored_sha256": "40bc2a46f428b2cc5000e9d5e896adac218ebe3c2b76f78ba29afebf97887aea"
+  },
   "_repo/musubi-v0/ca2a-companion-v0/pilot51/set2/bundle.json": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/ca2a-companion-v0/pilot51/set2/bundle.json",
     "source_sha256": "c4ecb8830a69f4a8e8c31f5c8d4c32460651d1cf63cabf77db08a7a4a62a3668",
