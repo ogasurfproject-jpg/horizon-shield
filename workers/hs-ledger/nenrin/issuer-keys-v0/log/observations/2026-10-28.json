@@ -1,0 +1,112 @@
+{
+  "kind": "nenrin-issuer-keys-v0",
+  "day": "2026-10-28",
+  "observer": "GitHub Actions, ogasurfproject-jpg/horizon-shield run 40667650632",
+  "observations": [
+    {
+      "name": "google",
+      "issuer": "https://accounts.google.com",
+      "fetched_at": "2026-10-28T09:52:46Z",
+      "discovery_url": "https://accounts.google.com/.well-known/openid-configuration",
+      "discovery_status": 200,
+      "discovery_sha256": "f86b185fd428f81d7efaa83ec256693b3abedb57ddfcc6a826f5f396b4827f02",
+      "jwks_uri": "https://www.googleapis.com/oauth2/v3/certs",
+      "jwks_status": 200,
+      "jwks_sha256": "858fc3977f02f4d3a1b3a988b1b924910098e2b14d1fa0de89e81933c99fde06",
+      "keys": [
+        {
+          "kid": "f10f87405a979c1df36df26606734f33cd85c271",
+          "kty": "RSA",
+          "alg": "RS256",
+          "thumbprint": "IfNM3apngkbozG7VnhAJThGwR4Z8jDQyPlOxxBiYB3s"
+        },
+        {
+          "kid": "943a3a5d7d919625a454e489b75c29adab57acba",
+          "kty": "RSA",
+          "alg": "RS256",
+          "thumbprint": "p_dOEsMQkLDleZxZbPpS5Q9UyDF_Q28MvbuOiw9ukFg"
+        }
+      ]
+    },
+    {
+      "name": "entra-defcf0d5",
+      "issuer": "https://login.microsoftonline.com/defcf0d5-8cff-40af-a160-a0aa1bb6a912/v2.0",
+      "fetched_at": "2026-10-28T09:52:46Z",
+      "discovery_url": "https://login.microsoftonline.com/defcf0d5-8cff-40af-a160-a0aa1bb6a912/v2.0/.well-known/openid-configuration",
+      "discovery_status": 200,
+      "discovery_sha256": "9011a2620f7f885e9aaa5323f5cae029ae8873cc872a92bc1bea79187d0fd7ad",
+      "jwks_uri": "https://login.microsoftonline.com/defcf0d5-8cff-40af-a160-a0aa1bb6a912/discovery/v2.0/keys",
+      "jwks_status": 200,
+      "jwks_sha256": "6d3942eea9448538aa6c75c6d14addf7694fdc18dc5e062f7c1dc88e71b02ad1",
+      "keys": [
+        {
+          "kid": "8YVc_ILzh3C3q96H1GVXnuKL8QQ",
+          "kty": "RSA",
+          "alg": null,
+          "thumbprint": "42DN1uzUK_X9wp7u-_Fwo5D5JJaCpVA05SDISv4pp_0"
+        },
+        {
+          "kid": "vEgXMKRi8IHKwAboBItSiOApgqo",
+          "kty": "RSA",
+          "alg": null,
+          "thumbprint": "ANfF3qEGxupamES3rDd-Mo6G9StdXAZaYvWG-qUYftQ"
+        },
+        {
+          "kid": "ryBx-65jNoxH4FQH_6zarNjaNf4",
+          "kty": "RSA",
+          "alg": null,
+          "thumbprint": "WV9ZOaKbCz4Z76k-B80cDP6uKAhWzPu_D-VoKocmcvE"
+        },
+        {
+          "kid": "Xqtg30yHerhLh5UO88-4NMblzWA",
+          "kty": "RSA",
+          "alg": null,
+          "thumbprint": "X-VxS8KqcbgSWWu_x0XiOwk9anN7ag273gF02PtfJeU"
+        },
+        {
+          "kid": "7zs6zYTk9g5j_b7e7ItWW-HaAL4",
+          "kty": "RSA",
+          "alg": null,
+          "thumbprint": "ZMjFTDh8tHE4-dpMgozu8EzKW_9xR_xz39333Os6pf4"
+        }
+      ]
+    },
+    {
+      "name": "github-actions",
+      "issuer": "https://token.actions.githubusercontent.com",
+      "fetched_at": "2026-10-28T09:52:46Z",
+      "discovery_url": "https://token.actions.githubusercontent.com/.well-known/openid-configuration",
+      "discovery_status": 200,
+      "discovery_sha256": "c3fba014c6fc3be9f3950c3ce883ceb2670d586dd2efbfec9342d49bef33516b",
+      "jwks_uri": "https://token.actions.githubusercontent.com/.well-known/jwks",
+      "jwks_status": 200,
+      "jwks_sha256": "5f8164c9696c27837ad18c5fe7c7022a433bd5390183e8ff15c74d82233270f4",
+      "keys": [
+        {
+          "kid": "4F3E9AD8C9A6F5EB3173006F4FA630E28F43DCE9",
+          "kty": "RSA",
+          "alg": "RS256",
+          "thumbprint": "7zUd_90sp1NZoxe9g4bDWNBy8kJsqmJOkpIK3TkaDao"
+        },
+        {
+          "kid": "cc413527-173f-5a05-976e-9c52b1d7b431",
+          "kty": "RSA",
+          "alg": "RS256",
+          "thumbprint": "IaUT3lQI9_oMUrAGSc5OfFvf_ydeKlfRLDfzlZpZg0I"
+        },
+        {
+          "kid": "38826b17-6a30-5f9b-b169-8beb8202f723",
+          "kty": "RSA",
+          "alg": "RS256",
+          "thumbprint": "KHUvQMUT0ESksixJdfmYF8g10iKPa4arCcHN7q4UjvQ"
+        },
+        {
+          "kid": "38E9B30B3A023A1B72309921A69A42FCC496C42C",
+          "kty": "RSA",
+          "alg": "RS256",
+          "thumbprint": "lYJVFtyAAOvNlyPJu6p3KhgNjkPFfPb8vrxKXsWuhEw"
+        }
+      ]
+    }
+  ]
+}
