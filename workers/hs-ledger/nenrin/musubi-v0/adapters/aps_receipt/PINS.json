@@ -1,0 +1,29 @@
+{
+  "schema": "hs-aps-receipt-adapter-pins-v0",
+  "aps": {
+    "package": "agent-passport-system",
+    "version": "8.0.1",
+    "npm_integrity": "sha512-g9/AlzqX+L/fKzdsFQICGj59rYnXgeFxZcnmwD8WFNOK8aPSxT8FZEQe/PzGpnpG31xTLeLuMyrInX2B/Id5oA==",
+    "package_tree_sha256": "4926ca17ecc588e1aad98866530a946ae000f589ec14937103f45994bacd1da5",
+    "package_tree_rule": "sha256 over, for every file of the installed package in sorted path order, its path relative to the package root, a newline, the sha256 hex of its bytes and a newline",
+    "source_repository": "https://github.com/agent-passport-system/agent-passport-system",
+    "source_tag": "v8.0.1",
+    "source_commit": "56e7b293c6cce232eff0b2891ddf7af85bfe01e3",
+    "source_notes": "the tag v8.0.1 resolves to this commit, and the package.json in the npm tarball is byte for byte the one at this commit (sha256 7ba3940946bca27fb824760ff124843bd69daccc42cbde0f3a3db7858b07cbf6). The dist files were not rebuilt from source here; the files below are the sources of the functions this adapter calls, at this commit, for a reader who wants to compare them.",
+    "source_files": [
+      { "path": "src/v2/receipt-core/composite.ts", "sha256": "9f4eb4c327ca326103523e37cb6a0a2091c8955dc0c6f89073207a088c883385" },
+      { "path": "src/v2/receipt-core/receipt.ts", "sha256": "3cee5e8f14c6eead33dd0484d319242ebd736880dd478998f2d0101bd30795ef" },
+      { "path": "src/v2/receipt-core/decision-ref.ts", "sha256": "d4a3bde61a7ffb28b1ffd62025a11df47a85e9a7c49a030c0e9edbe871923726" },
+      { "path": "src/v2/receipt-core/jcs.ts", "sha256": "60cb5277f2daa9a254709355a31c485fac5a244f4f7814cf1331582c1d844de4" },
+      { "path": "src/v2/receipt-core/stage.ts", "sha256": "a4e502d61992ee8d66cbf36de2ac3f55870a8bee3eea1fcd25ff084ee49bcf03" },
+      { "path": "src/v2/action-reference/v2.ts", "sha256": "d4111e6a7ebdf39af4e56f26520635971781eb52fecf602d9f998236c2c55da6" }
+    ]
+  },
+  "pic": {
+    "repository": "https://github.com/pic-standard/pic-standard",
+    "sdk_commit": "330fdd817ef81d43461ea1787939e0d1cc87d589",
+    "canonical_py_sha256": "1f9cdc59495b03ecdb962c83bd0702a55a7b7d9424f3b0361938282fc0418765",
+    "rfc8785_py_sha256": "72802f156d16cba7ec61b7dce78a8f0561253cb94aa6742838b9c776ec6b5ee5",
+    "notes": "the adapter does not run PIC. It recomputes args_digest (sha256 of PIC canonical JSON of the arguments), claims_digest (of the claims array) and intent_digest (of the raw UTF-8 intent) with its own RFC 8785 writer, held to the refund-approval example at pic-standard 74f980c6625098237a8d5d3333a0249a1fb47a25 by the selftest vectors."
+  }
+}

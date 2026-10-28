@@ -1,0 +1,44 @@
+name: aps-receipt adapter
+
+# The input checks of the admission door for the bounded refund sandbox (aeoess/agent-governance-vocabulary#193):
+# workers/hs-ledger/nenrin/musubi-v0/adapters/aps_receipt. Installs the pinned APS SDK from the lockfile without
+# install scripts and runs the adapter's selftest, which refuses to run on any package bytes other than PINS.json.
+# No secret, no network after the install.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "workers/hs-ledger/nenrin/musubi-v0/adapters/aps_receipt/**"
+      - "workers/hs-ledger/nenrin/musubi-v0/canonical_v0.mjs"
+      - "workers/hs-ledger/nenrin/agreement-v0/agreement_canonical.mjs"
+      - ".github/workflows/aps-receipt-adapter.yml"
+  pull_request:
+    paths:
+      - "workers/hs-ledger/nenrin/musubi-v0/adapters/aps_receipt/**"
+      - "workers/hs-ledger/nenrin/musubi-v0/canonical_v0.mjs"
+      - "workers/hs-ledger/nenrin/agreement-v0/agreement_canonical.mjs"
+      - ".github/workflows/aps-receipt-adapter.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  selftest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          package-manager-cache: false
+          node-version: "22"
+      - name: the pinned SDK, from the lockfile, without install scripts
+        working-directory: workers/hs-ledger/nenrin/musubi-v0/adapters/aps_receipt
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: selftest
+        working-directory: workers/hs-ledger/nenrin/musubi-v0/adapters/aps_receipt
+        run: node selftest_aps_receipt.mjs

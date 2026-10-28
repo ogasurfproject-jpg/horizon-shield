@@ -1,0 +1,14 @@
+{
+  "name": "hs-aps-receipt-adapter",
+  "private": true,
+  "type": "module",
+  "description": "The input checks of the HORIZON SHIELD admission door for the bounded refund sandbox (aeoess/agent-governance-vocabulary#193), over the pinned APS SDK.",
+  "license": "Apache-2.0",
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "agent-passport-system": "8.0.1"
+  },
+  "scripts": {
+    "selftest": "node selftest_aps_receipt.mjs"
+  }
+}
