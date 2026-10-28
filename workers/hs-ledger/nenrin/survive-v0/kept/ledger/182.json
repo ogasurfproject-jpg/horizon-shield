@@ -1,0 +1,13 @@
+{
+  "n": 182,
+  "work": "NENRIN agreement batch (4 records)",
+  "claim_sha256": "5e28d3d5efcaf5592c16c8c58a6c00964f8cd366809458d8fc37a7e14a6a8c3a",
+  "record_canonical": "{\"schema\":\"nenrin-agreement-batch-v1\",\"anchored_at\":\"2026-10-28T00:30:43.078Z\",\"count\":4,\"records\":[{\"canonical_sha256\":\"4fca720868077b246ca543f3086f3c7a6a7c3c45517ea2afdfc33037d85961e5\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.3.1\"},{\"canonical_sha256\":\"672583efefa58d2145cc171d8a206573ebdce9cd1e9ec98b6440366b7d3827fb\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.3.2\"},{\"canonical_sha256\":\"e6b2d24b656af2c6d50f568b5c1084d2ed2b43da8ad27ca6e473231048610f8f\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.3.1\"},{\"canonical_sha256\":\"f85d04e53718d56929ac20db41591563efad4d010fad03870d43490c7be41292\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.3.1\"}]}",
+  "schema": "v0-plain",
+  "created_at": "2026-10-28T00:30:43.411Z",
+  "ots_status": "confirmed",
+  "bitcoin_block": 973481,
+  "block_time": "2026-10-28 01:55 UTC",
+  "stamped_at": "2026-10-28T03:14:04.283Z",
+  "anchored_by": "schedule"
+}

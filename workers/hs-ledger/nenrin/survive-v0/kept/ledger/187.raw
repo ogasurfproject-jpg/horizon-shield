@@ -1,0 +1,33 @@
+# FURUI membrane v0: the fixed set and its lines, anchored before the daily runs
+
+**Status:** a pin record. It fixes the set of known attacks and the set of ordinary rows that the FURUI rule stage is run on every day, and the lines that turn the run red. It names only digests, row counts and lines; no row text is in it. No AI stage is run.
+
+    MEMBRANE_PIN.json  sha256 b7eb298b04ef2a303597af018783835f98efca4ec12d35c2021ae10a873efae4
+    SET_attacks.jsonl  sha256 397e9be0ffdcac677c6f59532abf3387cd6f3edcd91a89fc81b4c3c05e086874  rows 28589
+    SET_benign.jsonl   sha256 e20adafc8a5c28321c6fad9c442f28f4936f36ce812c7c10c82527c97f3451dc  rows 7583
+    rules_sha256       14a2fd1502490cf0204f539e716d76b62498ed4a0dc92f499f5c584ea35f8d0f  (furui_rules_id_v0.py sha256 ca44f27703f868b50898d385ce89935a76cb3a5bfc9ccbc169e8a5be8d593771, rule stage only)
+        fieldwise_v1.py    sha256 b251f8c8b41a6757e1246fc554c55ba928eb6a4f7e5efae55d354127a599c762
+        ja_fix_v1.py       sha256 c2e43d8221ba29c573b11ca0cd9a0b1b550084aa141f8acb7b7c7d3604a1197b
+        sieve_v0.py        sha256 5b2897a94e7232a2dca71c221b3ac4481e25f86e2e0e316c1ec87aada1849420
+
+Sources (BUILD halves of the public datasets and two corpora; the MEASURE halves and the blind-03 rows are not used):
+    build/deepset          sha256 7b3a6d2c145230d6f01e354a80d6f9ba0e07717359398d8a286990e25933e509  rows 320  attacks taken 45  ordinary rows taken 194
+    build/gandalf          sha256 d3fe4d51f252e684f11ed34d7589bf023521d9a5c6cc9c1bb8f93e667fc9135c  rows 504  attacks taken 408  ordinary rows taken 0
+    build/jackhhao         sha256 2a6f55f7302c18e4c3ec7b4f92c6b3c1e0e08a8ab24ee3a53cd427adc9d8bb1e  rows 999  attacks taken 227  ordinary rows taken 670
+    build/mosscap          sha256 a52a1b545d59b6c9cca09d2afacb503cb00956a72dfa1155bc13109cb13ec269  rows 110479  attacks taken 25227  ordinary rows taken 0
+    build/spml             sha256 9ac6b8fba36b989217b60579fd79d9c0f6bf22f10da991e8fe1dad2ef5ec4748  rows 7959  attacks taken 2566  ordinary rows taken 1667
+    corpus/attack-dev-v0   sha256 9ce3341c66c26a58166e353b5217bc712f9ad801c09cb64d507f6e9aa52e1ed4  rows 149  attacks taken 116  ordinary rows taken 0
+    corpus/benign-real-v0  sha256 df3961698f786293c28074552192c78f8f272e518921a4baaaf398755b9f4fe5  rows 3054  attacks taken 0  ordinary rows taken 3054
+    nonen/benign-2000      sha256 44ed7a3037d8d1e57ea9c088d37d6fa8359a69cbaf092ff10f66dd578d0658ca  rows 2000  attacks taken 0  ordinary rows taken 1998
+
+Only attacks the rule stage flags today are in the attack set, and only ordinary rows it does not flag are in the ordinary set. Attacks it does not flag today are counted in MEMBRANE_PIN.json and are not part of any line.
+
+Lines, fixed before the first daily run:
+    GREEN          every row of the attack set gets at least one flag, no row of the ordinary set gets one, and rules_sha256 is the one above
+    RED            one row of the attack set gets no flag
+    BENIGN_RED     one row of the ordinary set gets a flag; for adopting a new version it weighs the same as RED
+    RULES_CHANGED  no red, but rules_sha256 differs from the one above; shown apart from RED, the sets are not rebuilt
+    STOP           a set file, MEMBRANE_PIN.json or this record differs from what is pinned; nothing is counted
+A red run reports the row key, the source name and the rule names only.
+
+**The SHA-256 of this document is anchored to the JIDEC ledger and stamped to Bitcoin. After anchoring, this record cannot be altered. Corrections are later entries that cite this one.**

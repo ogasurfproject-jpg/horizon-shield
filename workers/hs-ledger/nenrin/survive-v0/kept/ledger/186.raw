@@ -1,0 +1,32 @@
+# FURUI blind-03: the score, anchored after opening, and the business validation opened with it
+
+**Status:** a result record, anchored to the JIDEC ledger after blind-03 was opened once and scored with the pinned versions, counting rules and scorer. For blind-03 it names digests only; the numbers are in the score file, whose SHA-256 is given here. The salt is published here and the selection manifest in horizon-shield. The business validation count that chose 0.2.9 (a) was sealed before the plan; it is opened here, after the blind-03 score, and its numbers are given below.
+
+    plan                    ledger entry 177, claim 0f176a152433416214df4a9beaaab47e55eb91766335bb8c8052d7205b15bd80
+    root                    ledger entry 179, claim 17a240784dc9a0e5e10da6c114a603b3dca80885be9c53dcc764d17b2d92b686
+    pin                     ledger entry 180, claim cb949dc94a6918a8dc413519b6c1d98e3b72c9ba4846962b19e33dfa0656acef
+    salt                    7e9240a0c328084add4762bac3291b39f9cb9bc6159ea3218b337443143bd79d (sha256 of its 32 bytes 3b4b732997eb34197eaf76ae115b32eaeabeb0a40352f618b2bb12607968e8f7, as in the plan)
+    block H hash            000000000000000000010ff7c836bfe7eab867d288a11ed2a5f159b869a41b95
+    manifest.json           sha256 50c84e73c9d1bc462209923ee34a6193157e8cc98506594959c1e43445f3f1c7, published at data/furui-blind-03/manifest.json in horizon-shield commit 60b63064c2ca698d3d4eefce922a0fa23a760ac3
+    SCORE_blind03.json      sha256 158b45c2e0d0f41d564fcf3c7ea09a7732f83a211de5f01539d4f204682dd6a2 (v_028, v_029a, v4_0)
+    stage answers files     sha256 v4_0 ad8589e595fac7b1e6c42f7ad86793d4edc0d49d6f0773faef165a348f35b123, v_028 e4b3bb009bf7b99942b0537cd40d30854d164efadcd39c3fe7ad32cd60096b18, v_029a 0fb17f22b50985c88819caf5205522d2ab998a3a0672fd856e183dcda6c53531 (kept by the opener, not handed over)
+    raw model answers       sha256 v4_0_h 53e2d4ea0803bff16d33bf70532c4fb39cf729cceace0fb2dc82dff53f8abfd4, v4_0_o f81242537dfe69845b002ac3f007dd66294588dbb852fd51bbea7890f2349516, v_028_h 4d4994f4d27f46032cf1c6a3f055d95e10581646aa904a944b15f23dcdc9a4d1, v_028_o a1f3be178b4168de075b3400371099210c2b18299565ff2ea63809619c9b5283, v_029a_h b6639cab79a8660d3890763a2dae0b95ff892c9acf03b52e8a09e5cb0d657d62, v_029a_o 2ca16de3986a2831e552a28f2bbd63d519800aaff4b76a7c3aad2122ed590f13 (kept by the opener, not handed over)
+    sentences chosen        fixed in the pin before opening and chosen from the numbers; sha256 of each sentence's UTF-8 text, per version in order, then the sentences common to all:
+        v4_0     c83a2c1e2e34a596b30df6da0cd8515193a8772d17d9714854002e74929849d7
+        v4_0     29de12fdcda393ff191a2ba9ab1b34ceafb86dfa5bbbc0010218a74afafb2a52
+        v4_0     57013faed1a20fa97ecbda70b979408fd67e49b44fe9b6b9e6c002afd2123339
+        v4_0     62718328e188c04edd38e9ab4599800319a723e750b588cead85d4e2beda3392
+        v_028    7710df99fd2a437f532b6829f274b253952179c89d41e1f7ece57be8fd492c3d
+        v_028    79a8cc4cfed183d270fb92886f644fa6555cf34d64762bb0bba472fa82e35d3c
+        v_029a   20ea038f56b5bf56277aac77f074f2183951cb0bcfb013011be048d84f2ef5e5
+        v_029a   eae493caa02ac7b907159f86d56ca8714618c117e7487e74d43f608135edd9fc
+        common   c4b3e55e87536ad274555d29c4b320501d942ee1671fc9923b3d6959bfbfa09f
+        common   41bb39ddb1770dfbac66883ccc178271ae191ee90387c78127de9dfb64f4b459
+
+Business validation (the validation half, 500 sentences, of the Enron e-mail and SEC EDGAR contract exhibit sentences, counted once to choose 0.2.9; sealed in sealed_business_validate.json sha256 646105f77247f73fafbfd848c26fae566fc83be81d754ad56cdad454b7b6d18f, F029_COUNT.json sha256 6be554167d8d0f9723086365eb200a5c4e72a7b9d516aaa7eb8fe06402675515, SELECTED.json sha256 dd4dd68f51abacdf985f65f379a99a9aadbe43bf6252030a27c5c73a172b37af, chosen a). The sealed file's contents, as they are:
+    biz|validate|benign {"028_fc": 0, "028_strict": 0, "a_fc": 0, "a_strict": 0, "b_fc": 0, "b_strict": 0, "n": 505}
+    business_validate_opened.json sha256 265f02d4ee98d38421b3480b6a4b3f8128ef94e34646b7c0ec9b708cce7bb01b, published at data/furui-blind-03/business_validate_opened.json in horizon-shield commit 60b63064c2ca698d3d4eefce922a0fa23a760ac3
+
+Anyone can recompute the seed, the selection and the root from the salt, the block hash and the public datasets (draw_blind03.py verify). blind-03 is used once; a version changed after opening is not measured on it.
+
+**The SHA-256 of this document is anchored to the JIDEC ledger and stamped to Bitcoin. After anchoring, this record cannot be altered. Corrections are later entries that cite this one.**
