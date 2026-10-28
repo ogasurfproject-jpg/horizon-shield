@@ -1,0 +1,21 @@
+{
+ "a_passes": true,
+ "b_passes": true,
+ "chosen": "a",
+ "counts": {
+  "biz|validate|benign": {
+   "028_fc": 0,
+   "028_strict": 0,
+   "a_fc": 0,
+   "a_strict": 0,
+   "b_fc": 0,
+   "b_strict": 0,
+   "n": 505
+  }
+ },
+ "f029_count_sha256": "6be554167d8d0f9723086365eb200a5c4e72a7b9d516aaa7eb8fe06402675515",
+ "opened_with": "blind-03 score 158b45c2e0d0f41d564fcf3c7ea09a7732f83a211de5f01539d4f204682dd6a2",
+ "schema": "furui-f029-business-validate-opened-v1",
+ "sealed_sha256": "646105f77247f73fafbfd848c26fae566fc83be81d754ad56cdad454b7b6d18f",
+ "selected_sha256": "dd4dd68f51abacdf985f65f379a99a9aadbe43bf6252030a27c5c73a172b37af"
+}
