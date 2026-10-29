@@ -12,6 +12,8 @@ are also sinkholed in /etc/hosts and a canary connection must fail.
     python3 survive.py drill --source swh    --out report.json   # copy from Software Heritage (preferred)
     python3 survive.py drill --source github --out report.json   # copy from a GitHub tarball (operator controlled)
     python3 survive.py drill --source dir:/path/to/mirror --out report.json   # your own copy (mirror-v0 layout)
+    python3 survive.py precook --out drills/swh-cook-ahead.json   # ask the vault now for the next drill's copy
+    python3 survive.py drill --source swh --ahead drills/swh-cook-ahead.json --out report.json
 
 What is checked, all from the copy plus two public block explorers:
   1. digests: sha256 of every ledger/<n>.raw equals the claim_sha256 of ledger/<n>.json
@@ -129,41 +131,36 @@ def copy_from_github(work):
                "note": "the operator can delete this account; this source proves the copy's form, not its survival"}
 
 
-def copy_from_swh(work, wait_s=1800):  # 2026-10-02: 900 s ran out once while the vault queue was busy
-    api = "https://archive.softwareheritage.org/api/1"
+SWH_API = "https://archive.softwareheritage.org/api/1"
+AHEAD_MAX_AGE_S = 48 * 3600
+
+
+def swh_latest_kept(get=http_get):
+    """The kept/ directory of the latest Software Heritage visit of the repository, as a swhid and its provenance."""
     o = urllib.parse.quote(REPO_ORIGIN, safe="")
-    st, b = http_get("%s/origin/%s/visit/latest/?require_snapshot=true" % (api, o))
+    st, b = get("%s/origin/%s/visit/latest/?require_snapshot=true" % (SWH_API, o))
     visit = json.loads(b)
     snap_id = visit["snapshot"]
-    st, b = http_get("%s/snapshot/%s/" % (api, snap_id))
+    st, b = get("%s/snapshot/%s/" % (SWH_API, snap_id))
     snap = json.loads(b)
     br = snap["branches"].get("HEAD") or snap["branches"].get("refs/heads/main")
     if br and br.get("target_type") == "alias":
         br = snap["branches"][br["target"]]
     rev = br["target"]
-    st, b = http_get("%s/revision/%s/" % (api, rev))
+    st, b = get("%s/revision/%s/" % (SWH_API, rev))
     root_dir = json.loads(b)["directory"]
-    st, b = http_get("%s/directory/%s/%s/" % (api, root_dir, KEPT_PATH))
+    st, b = get("%s/directory/%s/%s/" % (SWH_API, root_dir, KEPT_PATH))
     ent = json.loads(b)
     if ent.get("type") != "dir":
         raise RuntimeError("%s is not a directory in the archived revision" % KEPT_PATH)
-    dir_id = ent["target"]
-    swhid = "swh:1:dir:" + dir_id
-    cook = "%s/vault/flat/%s/" % (api, swhid)
-    st, b = http_get(cook, data=b"", method="POST")
-    t0 = time.time()
-    while True:
-        info = json.loads(b)
-        if info.get("status") == "done":
-            break
-        if info.get("status") == "failed" or time.time() - t0 > wait_s:
-            raise RuntimeError("Software Heritage vault did not finish: " + str(info.get("status")))
-        time.sleep(15)
-        st, b = http_get(cook)
+    return {"visit_date": visit.get("date"), "snapshot": snap_id, "revision": rev, "directory": "swh:1:dir:" + ent["target"]}
+
+
+def _swh_fetch(work, info, cook, get=http_get):
     fu = info.get("fetch_url") or (cook + "raw/")
     if not fu.startswith("https://"):
         fu = "https://archive.softwareheritage.org" + fu
-    st, tgz = http_get(fu, timeout=300)
+    st, tgz = get(fu, timeout=300)
     d = os.path.join(work, "kept")
     os.makedirs(d, exist_ok=True)
     with tarfile.open(fileobj=io.BytesIO(tgz), mode="r:*") as tf:
@@ -175,8 +172,75 @@ def copy_from_swh(work, wait_s=1800):  # 2026-10-02: 900 s ran out once while th
             os.makedirs(os.path.dirname(out), exist_ok=True)
             with open(out, "wb") as f:
                 f.write(tf.extractfile(m).read())
-    return d, {"custodian": "software-heritage", "visit_date": visit.get("date"), "snapshot": snap_id,
-               "revision": rev, "directory": swhid, "archive_sha256": sha256hex(tgz), "operator_controlled": False}
+    return d, sha256hex(tgz)
+
+
+def _read_ahead(path):
+    try:
+        with open(path, "rb") as f:
+            a = json.loads(f.read())
+    except (OSError, ValueError):
+        return None
+    if not isinstance(a, dict) or not str(a.get("directory", "")).startswith("swh:1:dir:"):
+        return None
+    # a record older than two days is not used: a precook that kept failing must not pin the drill to an old copy
+    try:
+        t = time.mktime(time.strptime(a.get("requested_at", ""), "%Y-%m-%dT%H:%M:%SZ")) - time.timezone
+    except (TypeError, ValueError):
+        return None
+    if time.time() - t > AHEAD_MAX_AGE_S:
+        return None
+    return a
+
+
+def copy_from_swh(work, wait_s=1800, ahead=None, get=http_get):  # 2026-10-02: 900 s ran out once while the vault queue was busy
+    # 2026-10-30. The vault often had not started cooking within the 30 minutes (status "new", 8 times from 10/02
+    # to 10/29). The previous drill now asks for the next copy at its end (precook below), so by the next day the
+    # copy is usually cooked. If that copy is ready it is used and named as such; otherwise the drill falls back to
+    # cooking the latest visit and waiting, as before.
+    a = _read_ahead(ahead) if ahead else None
+    if a:
+        cook = "%s/vault/flat/%s/" % (SWH_API, a["directory"])
+        try:
+            st, b = get(cook)
+            info = json.loads(b)
+        except Exception:
+            info = {}
+        if info.get("status") == "done":
+            d, tsha = _swh_fetch(work, info, cook, get)
+            return d, {"custodian": "software-heritage", "visit_date": a.get("visit_date"), "snapshot": a.get("snapshot"),
+                       "revision": a.get("revision"), "directory": a["directory"], "archive_sha256": tsha,
+                       "operator_controlled": False, "cooked_ahead": {"requested_at": a.get("requested_at"), "used": True}}
+    lk = swh_latest_kept(get)
+    cook = "%s/vault/flat/%s/" % (SWH_API, lk["directory"])
+    st, b = get(cook, data=b"", method="POST")
+    t0 = time.time()
+    while True:
+        info = json.loads(b)
+        if info.get("status") == "done":
+            break
+        if info.get("status") == "failed" or time.time() - t0 > wait_s:
+            raise RuntimeError("Software Heritage vault did not finish: " + str(info.get("status")))
+        time.sleep(15)
+        st, b = get(cook)
+    d, tsha = _swh_fetch(work, info, cook, get)
+    prov = {"custodian": "software-heritage", "visit_date": lk["visit_date"], "snapshot": lk["snapshot"],
+            "revision": lk["revision"], "directory": lk["directory"], "archive_sha256": tsha, "operator_controlled": False}
+    if a:
+        prov["cooked_ahead"] = {"requested_at": a.get("requested_at"), "used": False, "directory": a["directory"]}
+    return d, prov
+
+
+def precook(out, get=http_get):
+    """Ask the vault to cook the latest visit's kept/ now, for the next drill. Does not wait."""
+    lk = swh_latest_kept(get)
+    cook = "%s/vault/flat/%s/" % (SWH_API, lk["directory"])
+    st, b = get(cook, data=b"", method="POST")
+    rec = dict(lk, schema="nenrin-survive-precook-v0", requested_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+               status_at_request=json.loads(b).get("status"))
+    with open(out, "w", encoding="utf-8") as f:
+        f.write(json.dumps(rec, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
+    return rec
 
 
 # ---- checks -----------------------------------------------------------------------------------------------------
@@ -329,14 +393,14 @@ def canary():
     return {"host": CANARY_HOST, "reachable": False, "why": "connect_failed"}
 
 
-def drill(source, work, fenced, get=http_get):
+def drill(source, work, fenced, get=http_get, ahead=None):
     started = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     fence = canary() if fenced else {"checked": False}
     if fenced and fence.get("reachable"):
         return {"schema": SCHEMA, "version": VERSION, "drill_at": started, "outcome": "fence_failed", "fence": fence}
     try:
         if source == "swh":
-            d, prov = copy_from_swh(work)
+            d, prov = copy_from_swh(work, ahead=ahead) if ahead else copy_from_swh(work)
         elif source == "github":
             d, prov = copy_from_github(work)
         elif source.startswith("dir:"):
@@ -389,8 +453,15 @@ def main(argv=None):
     p.add_argument("--out", default="-")
     p.add_argument("--work", default=".survive-work")
     p.add_argument("--fenced", action="store_true", help="require the operator canary to be unreachable")
+    p.add_argument("--ahead", default=None, help="swh only: a precook record; its copy is used when the vault has it ready")
+    q = sub.add_parser("precook")
+    q.add_argument("--out", required=True)
     a = ap.parse_args(argv)
-    rep = drill(a.source, a.work, a.fenced)
+    if a.cmd == "precook":
+        rec = precook(a.out)
+        print("precook %s status=%s" % (rec["directory"], rec["status_at_request"]), file=sys.stderr)
+        return 0
+    rep = drill(a.source, a.work, a.fenced, ahead=a.ahead)
     txt = json.dumps(rep, ensure_ascii=False, indent=2, sort_keys=True)
     if a.out == "-":
         print(txt)

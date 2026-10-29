@@ -137,9 +137,13 @@ jobs:
           done
           getent hosts ledger.horizonshield.dev || true
       - name: drill from Software Heritage
-        run: python3 "$SV/survive.py" drill --source swh --fenced --work /tmp/sv-swh --out "$SV/drills/latest-swh.json" || true
+        # 2026-10-30: uses the copy the previous run asked the vault for (drills/swh-cook-ahead.json) when it is ready;
+        # otherwise cooks the latest visit and waits, as before
+        run: python3 "$SV/survive.py" drill --source swh --ahead "$SV/drills/swh-cook-ahead.json" --fenced --work /tmp/sv-swh --out "$SV/drills/latest-swh.json" || true
       - name: drill from the GitHub tarball
         run: python3 "$SV/survive.py" drill --source github --fenced --work /tmp/sv-gh --out "$SV/drills/latest-github.json" || true
+      - name: ask the vault now for the next drill's copy (does not fail the job)
+        run: python3 "$SV/survive.py" precook --out "$SV/drills/swh-cook-ahead.json" || true
       - name: summary and history
         run: |
           python3 - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
@@ -156,6 +160,7 @@ jobs:
                            "entries": r.get("entries"), "range": r.get("range"), "confirmed": a.get("confirmed"),
                            "pending": len(a.get("pending") or []), "chain_head": c.get("head"),
                            "stamped_heads_matched": c.get("stamped_heads_matched"), "report_sha256": r.get("report_sha256"),
+                           "cooked_ahead": ((r.get("source") or {}).get("cooked_ahead") or {}).get("used"),
                            "why": r.get("why")})
           with open(os.path.join(sv, "drills", "history.jsonl"), "a") as f:
               for row in rows:

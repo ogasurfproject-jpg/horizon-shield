@@ -183,6 +183,61 @@ try:
     r = S.drill("swh", os.path.join(tmp, ".w2"), fenced=False, get=Explorer({}))
     S.copy_from_swh = orig
     ok("custodian_unavailable with the reason", r["outcome"] == "custodian_unavailable" and "vault" in r["why"], r)
+    print("11. the copy cooked ahead (2026-10-30: the vault often had not started within 30 minutes)")
+    import tarfile, time as _t
+    src = os.path.join(tmp, "swhsrc"); build_ledger(src)
+    def tgz_of(d, top):
+        bio = io.BytesIO()
+        with tarfile.open(fileobj=bio, mode="w:gz") as tf:
+            for name in sorted(os.listdir(os.path.join(d, "ledger"))):
+                tf.add(os.path.join(d, "ledger", name), arcname=top + "/ledger/" + name)
+        return bio.getvalue()
+    TGZ = tgz_of(src, "swh:1:dir:" + "b" * 40)
+    class FakeSWH:
+        """latest visit -> kept dir bbbb...; an older dir aaaa... may be cooked already"""
+        def __init__(self, status=None):
+            self.status = dict(status or {}); self.posts = []; self.calls = []
+        def __call__(self, url, timeout=60, data=None, method=None):
+            S.guard(url); self.calls.append((method or "GET", url))
+            A = S.SWH_API
+            if "/visit/latest/" in url: return 200, json.dumps({"snapshot": "s" * 40, "date": "2026-10-29T10:00:00+00:00"}).encode()
+            if url == "%s/snapshot/%s/" % (A, "s" * 40): return 200, json.dumps({"branches": {"HEAD": {"target_type": "revision", "target": "r" * 40}}}).encode()
+            if url == "%s/revision/%s/" % (A, "r" * 40): return 200, json.dumps({"directory": "d" * 40}).encode()
+            if url.startswith("%s/directory/%s/" % (A, "d" * 40)): return 200, json.dumps({"type": "dir", "target": "b" * 40}).encode()
+            if "/vault/flat/" in url and not url.endswith("/raw/"):
+                swhid = url.split("/vault/flat/")[1].rstrip("/")
+                if method == "POST": self.posts.append(swhid); self.status.setdefault(swhid, "done")
+                st = self.status.get(swhid, "new")
+                return 200, json.dumps({"status": st, "fetch_url": "/api/1/vault/flat/%s/raw/" % swhid}).encode()
+            if url.endswith("/raw/"): return 200, TGZ
+            raise AssertionError("unexpected url " + url)
+    def ahead_file(swhid, age_s=3600):
+        pth = os.path.join(tmp, "ahead-%d.json" % age_s)
+        with open(pth, "w") as f:
+            json.dump({"schema": "nenrin-survive-precook-v0", "directory": swhid, "visit_date": "2026-10-28T10:00:00+00:00",
+                       "snapshot": "o" * 40, "revision": "q" * 40,
+                       "requested_at": _t.strftime("%Y-%m-%dT%H:%M:%SZ", _t.gmtime(_t.time() - age_s))}, f)
+        return pth
+    OLD = "swh:1:dir:" + "a" * 40; NEW = "swh:1:dir:" + "b" * 40
+    g = FakeSWH({OLD: "done"})
+    d, prov = S.copy_from_swh(os.path.join(tmp, ".a1"), ahead=ahead_file(OLD), get=g)
+    ok("a ready copy cooked ahead is used and named", prov["directory"] == OLD and prov["cooked_ahead"]["used"] is True, prov)
+    ok("no new cook is asked for and no wait", g.posts == [], g.posts)
+    ok("the copy is the one in the archive", sorted(os.listdir(os.path.join(d, "ledger")))[:2] == ["1.json", "1.ots"], os.listdir(d))
+    g = FakeSWH({OLD: "new"})
+    d, prov = S.copy_from_swh(os.path.join(tmp, ".a2"), ahead=ahead_file(OLD), get=g)
+    ok("a copy not ready yet falls back to the latest visit", prov["directory"] == NEW and g.posts == [NEW] and prov["cooked_ahead"]["used"] is False, prov)
+    g = FakeSWH({OLD: "done"})
+    d, prov = S.copy_from_swh(os.path.join(tmp, ".a3"), ahead=ahead_file(OLD, age_s=3 * 86400), get=g)
+    ok("a record older than two days is not used", prov["directory"] == NEW and "cooked_ahead" not in prov, prov)
+    g = FakeSWH()
+    d, prov = S.copy_from_swh(os.path.join(tmp, ".a4"), ahead=os.path.join(tmp, "no-such.json"), get=g)
+    ok("no record: the old path, unchanged", prov["directory"] == NEW and g.posts == [NEW] and "cooked_ahead" not in prov, prov)
+    g = FakeSWH({NEW: "new"})
+    out = os.path.join(tmp, "pre.json"); rec = S.precook(out, get=g)
+    on_disk = json.load(open(out))
+    ok("precook asks for the latest visit and does not wait", g.posts == [NEW] and rec["status_at_request"] == "new" and on_disk["directory"] == NEW, rec)
+    ok("precook record is read back as an ahead record", S._read_ahead(out)["directory"] == NEW)
 finally:
     shutil.rmtree(tmp, ignore_errors=True)
 
