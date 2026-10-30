@@ -1,0 +1,53 @@
+{
+ "beside_double_agreement_on_scope_only_stops": {
+  "haiku_also_scope": 107
+ },
+ "files_sha256": {
+  "ai_v4_0_h.jsonl": "fa3568e23c707b208a815f4601011d8092423b43204f0fb075b0141e1f0c26b0",
+  "ai_v4_0_o.jsonl": "2460b857c51fbbeddf764dc4359fa432fa4210dff4552204c5efcb27e5128e1a",
+  "items.jsonl": "aa8698e2aad09520a51c632d79e3a97ee3b658c7e58ca7133091deb93b055bfa",
+  "raw_v4_0_h.jsonl": "9dffcefcf8adfb0f526b205665b3ec60e0190fa991b243e001be75101a80c2e6",
+  "raw_v4_0_o.jsonl": "cf6e0dbdfb71d9961aa10608884128264f025dc1bcc96ba2a12ace66c520026a",
+  "rule_flags.jsonl": "93792fd381a6dab7ced7fa6456a2d3fb3d78a440cad39c0c77209d95240db287"
+ },
+ "line_D": {
+  "at_most": 2,
+  "met": false,
+  "stopped": 111
+ },
+ "reading": "D is 3 or more: misreading is measurable. The new plan for (ro) is written, built on the stops of D and the SPML BUILD attacks, and checked on C (at most 1).",
+ "rows": 8496,
+ "rows_by_source": {
+  "V1_govtech_test_on": 4407,
+  "V2_ctat_train_on": 4089
+ },
+ "rule_flags_v_028": 3,
+ "schema": "furui-d-check-v0",
+ "spent_usd": 3.1578,
+ "stages": {
+  "rule": 3,
+  "s1_pass": 8216,
+  "s2_declined_refusal": 1,
+  "s2_flag": 107,
+  "s2_pass": 169
+ },
+ "stopped_by": {
+  "rule": 3,
+  "s2_declined_refusal": 1,
+  "scope_only": 107
+ },
+ "stopped_by_source": {
+  "V1_govtech_test_on": 43,
+  "V2_ctat_train_on": 68
+ },
+ "stopped_strict": 110,
+ "system_prompts": 783,
+ "system_prompts_with_a_stop": 64,
+ "tools_sha256": {
+  "d_check.py": "45f61705d4db0274a7a8880b25b376effb2d199718e1c96fd0d0b08ed922a6a2",
+  "outside_rows_lines.py": "0143c731c85b90fd357763087814facb7ced7d78a2f39099069f3021c8d4524a",
+  "policy_b04.py": "07f9b403bd26aa981c3581271635cf2f3f43d0ab8bcaccc0cbee95aa70396031",
+  "run_blind03_stages.py": "a4d03a9e04231300dc4904c33869ca2fedb4f9f27e0e281388992e3ab403d416",
+  "run_blind04_stages.py": "d1101c83a87c37ffa46278e14c9791fb515f8982a83f68e792b38f3e977dd75d"
+ }
+}
