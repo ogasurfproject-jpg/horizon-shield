@@ -16,20 +16,21 @@ def t(name, ok):
     results.append((name, bool(ok)))
 
 
-def probity_from(o):
-    """A report shaped like Probity's, saying what Probity published: our outcomes, except the three declared."""
+def probity_from(o, declared=True, sha=None):
+    """A report shaped like Probity's, saying what Probity published: our outcomes, except the three declared
+    (revision 1; revision 2 declares nothing)."""
     cases = []
     for c in o["cases"]:
         r = c["reader"]
         layers = {"proof_of_possession": r.get("proof_of_possession", False), "key_authority": r.get("key_authority", "not_checked")}
         out = r["state"]
-        d = C.DECLARED.get(c["name"])
+        d = C.DECLARED.get(c["name"]) if declared else None
         if d:
             out = d["probity"][0]
             if d["probity"][1]:
                 layers["key_authority"] = d["probity"][1]
         cases.append({"name": c["name"], "readerOutcome": out, "layers": layers, "resolverRequests": c.get("resolver_requests") or []})
-    return {"fixtureSHA256": C.VECTORS_SHA256, "cases": cases}
+    return {"fixtureSHA256": sha or C.VECTORS_SHA256, "cases": cases}
 
 
 P = probity_from(ours)
@@ -52,13 +53,16 @@ p5 = dict(P, fixtureSHA256="0" * 64)
 t("a report over other vectors is a problem", any("not over the 407ca2d5" in p for p in C.compare(ours, p5)[1]))
 ours2 = json.load(open(C.OURS_R2, encoding="utf-8"))
 P_r1 = probity_from(ours)                       # what Probity published, over revision 1
-rows2, prob2 = C.compare(ours2, P_r1, revision=2)
-t("revision 2: our published results beside the same report: 20 agree, nothing declared, no problem",
+P_r2 = probity_from(ours2, declared=False, sha=C.VECTORS_R2_SHA256)   # what Probity published, over revision 2
+rows2, prob2 = C.compare(ours2, P_r2, revision=2)
+t("revision 2: our published results beside Probity's revision 2 report: 20 agree, nothing declared, no problem",
   not prob2 and sum(r["status"] == "agree" for r in rows2) == 20)
 o3 = copy.deepcopy(ours2)
 next(c for c in o3["cases"] if c["name"] == "version-changed")["reader"]["state"] = "invalid"
-t("revision 2: the revision 1 outcome on a superseded case is now a problem", any(p.startswith("version-changed:") for p in C.compare(o3, P_r1, revision=2)[1]))
-t("revision 2: results over revision 1 are refused as revision 2", any("e061462" in p for p in C.compare(ours, P_r1, revision=2)[1]))
+t("revision 2: the revision 1 outcome on a superseded case is now a problem", any(p.startswith("version-changed:") for p in C.compare(o3, P_r2, revision=2)[1]))
+t("revision 2: a report over the revision 1 vectors is refused", any("not over the e061462" in p for p in C.compare(ours2, P_r1, revision=2)[1]))
+t("the pinned revision 2 report is named by commit and sha256", C.PROBITY_PIN[2][2] == "055c2305" and len(C.PROBITY_R2_SHA256) == 64 and "055c23052f51b0d9022d58311e563031f673b134" in C.PROBITY_R2_URL)
+t("revision 2: results over revision 1 are refused as revision 2", any("e061462" in p for p in C.compare(ours, P_r2, revision=2)[1]))
 t("revision 2: our results name the reader commit, the file sha and the superseded vectors", ours2["reader"]["commit"] and len(ours2["reader"]["file_sha256"]) == 64
   and ours2["vectors"]["supersedes_sha256"] == C.VECTORS_SHA256 and ours2["summary"] == {"cases": 20, "agree_with_sdk_on_state_and_code": 20})
 t("our results name the closed reader, its commit and file sha, and the vectors", ours["reader"]["commit"] and len(ours["reader"]["file_sha256"]) == 64 and ours["summary"] == {"cases": 20, "agree_with_sdk_on_state_and_code": 20})

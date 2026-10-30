@@ -17,9 +17,11 @@ It does not run either reader: it compares what each published. Standard library
 Revision 2 (2026-10-12). aeoess published a second revision of the vectors (agent-passport-vectors-v2-r2.json, commit
 e061462, sha256 9bd1f184...): the same twenty passports, preimages, keys and resolver table, with the three outcomes
 above changed to what Probity reported. Our reader now follows revision 2; results-e061462.json is its output. The
-second comparison holds that file beside the same Probity report (which ran on revision 1: the inputs are identical,
-only the expected outcomes moved) and declares no difference: all twenty must agree. The first comparison stays as it
-was, over results-407ca2d5.json, the published output of the reader at 270502b. By default both run.
+second comparison holds that file beside Probity's report over revision 2 (probityai/agent-evidence at 055c2305,
+site/experiments/aps-corrected20-r2-2026-10-27/report.json, sha256 70f806ad...), pinned by commit and sha256, and declares
+no difference: all twenty must agree. Probity's revision 2 report is the same reader as its revision 1 report, run over
+the e061462 file. The first comparison stays as it was, over results-407ca2d5.json (the published output of the reader
+at 270502b) beside Probity's revision 1 report. By default both run, each against its own pinned report.
 """
 import argparse, hashlib, json, os, sys, urllib.request
 
@@ -31,6 +33,10 @@ VECTORS_R2_SHA256 = "9bd1f1849910c85f0555baf8efaa529aa9d057dce13c24606285b8643a0
 PROBITY_URL = ("https://raw.githubusercontent.com/probityai/agent-evidence-atlas/82436c01307d425960f3b3353af35a824a1d3b21/"
                "experiments/aps-corrected20-2026-10-10/report.json")
 PROBITY_SHA256 = "1598f87559130cb0e7a2e4ca59e5d6a2a584b402149bc28baad30dd9eaa01df1"
+PROBITY_R2_URL = ("https://raw.githubusercontent.com/probityai/agent-evidence/055c23052f51b0d9022d58311e563031f673b134/"
+                  "site/experiments/aps-corrected20-r2-2026-10-27/report.json")
+PROBITY_R2_SHA256 = "70f806adadeb42e659e5c2480f6beeb14e22bda9c4df125733a693ff178a4b88"
+PROBITY_PIN = {1: (PROBITY_URL, PROBITY_SHA256, "82436c01"), 2: (PROBITY_R2_URL, PROBITY_R2_SHA256, "055c2305")}
 VECTORS_SHA256 = "9fce76dbf13de9749a2ef52c8dedecce08e4874da0203b39a7d941eb479b5ac5"
 DECLARED = {
     "did-web-resolver-not-found": {"ours": ("invalid", "rejected"), "probity": ("indeterminate", "unresolved")},
@@ -54,8 +60,10 @@ def compare(ours, probity, declared=None, revision=1):
         prob.append("our results are not over the 407ca2d5 vectors")
     if revision == 2 and (ours.get("vectors", {}).get("sha256") != VECTORS_R2_SHA256 or ours.get("vectors", {}).get("supersedes_sha256") != VECTORS_SHA256):
         prob.append("our results are not over the e061462 vectors (revision 2 of the 407ca2d5 file)")
-    if probity.get("fixtureSHA256") != VECTORS_SHA256:
+    if revision == 1 and probity.get("fixtureSHA256") != VECTORS_SHA256:
         prob.append("Probity's report is not over the 407ca2d5 vectors")
+    if revision == 2 and probity.get("fixtureSHA256") != VECTORS_R2_SHA256:
+        prob.append("Probity's report is not over the e061462 vectors")
     theirs = {c["name"]: c for c in probity.get("cases", [])}
     rows = []
     for c in ours.get("cases", []):
@@ -94,19 +102,24 @@ def compare(ours, probity, declared=None, revision=1):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--report", help="a local copy of Probity's report.json (else fetched at the pinned commit)")
+    ap.add_argument("--report", help="a local copy of Probity's report.json for the one revision chosen with --revision "
+                                     "(else fetched at the pinned commit)")
     ap.add_argument("--ours", default=None, help="our results file (default: the one for the revision)")
     ap.add_argument("--revision", choices=("1", "2", "both"), default="both")
     a = ap.parse_args()
-    raw = open(a.report, "rb").read() if a.report else fetch(PROBITY_URL)
-    if hashlib.sha256(raw).hexdigest() != PROBITY_SHA256:
-        print("Probity's report is not the pinned file (sha256 %s, pinned %s)" % (hashlib.sha256(raw).hexdigest(), PROBITY_SHA256))
-        return 1
-    probity = json.loads(raw.decode("utf-8"))
+    if a.report and a.revision == "both":
+        ap.error("--report is one revision's report: choose it with --revision 1 or --revision 2")
     failed = False
     for rev in ((1, 2) if a.revision == "both" else (int(a.revision),)):
+        url, pinned, short = PROBITY_PIN[rev]
+        raw = open(a.report, "rb").read() if a.report else fetch(url)
+        if hashlib.sha256(raw).hexdigest() != pinned:
+            print("Probity's revision %d report is not the pinned file (sha256 %s, pinned %s)" % (rev, hashlib.sha256(raw).hexdigest(), pinned))
+            failed = True
+            continue
+        probity = json.loads(raw.decode("utf-8"))
         path = a.ours or (OURS if rev == 1 else OURS_R2)
-        print("== revision %d: %s beside Probity's report at 82436c01 ==" % (rev, os.path.basename(path)))
+        print("== revision %d: %s beside Probity's report at %s ==" % (rev, os.path.basename(path), short))
         rows, prob = compare(json.load(open(path, encoding="utf-8")), probity, revision=rev)
         for r in rows:
             print("%-36s %-20s %s" % (r["name"], r["status"], "; ".join(r["detail"])))

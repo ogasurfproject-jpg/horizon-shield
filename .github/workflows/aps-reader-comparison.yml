@@ -1,5 +1,6 @@
-# Our APS 2.0 reader's published output (verify-directory/admission/aps-v2/results-407ca2d5.json; the reader itself is
-# closed source) beside Probity's independent reader at a pinned commit and sha256, case by case: outcomes,
+# Our APS 2.0 reader's published output (verify-directory/admission/aps-v2/results-407ca2d5.json and results-e061462.json;
+# the reader itself is closed source) beside Probity's independent reader's report for each revision of the vectors, each
+# at a pinned commit and sha256, case by case: outcomes,
 # proof_of_possession, key_authority and resolver requests agree, and the three declared outcome differences are
 # exactly as declared. It compares what each reader published; it does not run either reader.
 name: aps-reader-comparison
@@ -34,5 +35,5 @@ jobs:
           python-version: "3.12"
       - name: the comparison's own refusals (offline)
         run: python3 tools/aps_compare/compare_probity_test.py
-      - name: our published output beside Probity's report at 82436c01 (sha256 pinned)
+      - name: our published outputs beside Probity's reports (revision 1 at 82436c01, revision 2 at 055c2305, sha256 pinned)
         run: python3 tools/aps_compare/compare_probity.py
