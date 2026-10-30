@@ -225,6 +225,7 @@ async function buildCard(env, n, sha, citation) {
     card.note = "This entry predates the v1 schemas (v0). Its bytes are still anchored and hash-checkable.";
   } else if (kind === "v0-plain") {
     // 2026-10-30: same as hs-ledger /cite. A plain-text record is not an estimate; the claim covers all its bytes.
+    // Reported on #194 by Federico Blanco (invinoveritas), credited by name with his consent.
     card.note = "This entry is a plain-text record. The claim is the SHA-256 of all its bytes, as the raw route serves them; what it does and does not establish is written inside the record itself.";
   } else {
     card.note = "This entry is a " + kind + " record. Its bytes are anchored and hash-checkable; what it does and does not establish is written inside the record itself.";

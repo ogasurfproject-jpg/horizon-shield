@@ -761,7 +761,8 @@ function receiptHtml(e, origin, env) {
   const named = sch !== "v1" && recSchema !== "";
   // 2026-10-30. A plain-text record (a plan, a pin, a score record: anything that is not JSON) was shown as
   // "schema v0 · concept-proof" with the note "only the estimate JSON is hashed". Both are wrong for it: there is
-  // no estimate, and the claim hash covers every byte of the record. Reported by an outside witness on #194.
+  // no estimate, and the claim hash covers every byte of the record. Reported on #194 by an outside witness,
+  // Federico Blanco (invinoveritas), credited by name with his consent (LinkedIn, 2026-10-30).
   const plain = !named && sch !== "v1" && parseClaimSchema(e.record_canonical).schema === "v0-plain";
   const schBadge = sch === "v1"
     ? `<span class="badge v1">schema v1 · independently verifiable</span>`
