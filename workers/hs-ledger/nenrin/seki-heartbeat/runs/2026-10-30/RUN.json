@@ -1,0 +1,58 @@
+{
+  "schema": "seki-heartbeat-run-v0",
+  "note": "a demonstration: the principal, the contractor and the relying party are all The HORIZONs Co., Ltd.; the door is exercised every day on its own paid path; this is not an arm's-length agreement and the pilot's tickets carry no monetary value",
+  "date": "2026-10-30",
+  "contract_sha256": "e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8",
+  "store": "hs-seki-demo",
+  "target": "https://hs-gateway.oga-surf-project.workers.dev/report?store=hs-seki-demo",
+  "door_public_key_ed25519_b64": "wbWKQTE9F1A2ixJzzhqfpITrU7GhDr9G2ri5YYGvCTE=",
+  "gateway": "https://hs-gateway.oga-surf-project.workers.dev",
+  "balance_before": 700,
+  "ran_at": "2026-10-30T01:07:25Z",
+  "calls": [
+    {
+      "service": "report",
+      "tickets": 20,
+      "request_sha256": "2361dbeefe146a4f69543b6c35b0a73f1df7d3e0b1873cbf6b82cf1b044e767b",
+      "nonce": "e82d5b8ad1236ec568369494e4a5a900",
+      "status": 200,
+      "decision": "admit",
+      "admission_sha256": "09716f8d6cadc36faeabaea1c383325eab750672581ba664b09407f6e9e8832d",
+      "record_sha256": "d3c726f111f77736ef454ea2ba1ad6a7dfea07f32f90ba5e5c1082b5b9e422ac",
+      "published": "accepted",
+      "tickets_spent": "20",
+      "report_sha256": "26d97bfbfd9c10e0e535cf777a1df7d2f288dc903efa7648b526e2052b655802",
+      "ledger_url": "https://ledger.horizonshield.dev/admission/d3c726f111f77736ef454ea2ba1ad6a7dfea07f32f90ba5e5c1082b5b9e422ac",
+      "execution_sha256": "5a165eec475ab1abfe0633d037c65fe65cda708fcb35479b6a4b7bee882a7abb",
+      "execution_url": "https://agreement.horizonshield.dev/execution/5a165eec475ab1abfe0633d037c65fe65cda708fcb35479b6a4b7bee882a7abb"
+    },
+    {
+      "service": "audit",
+      "tickets": 30,
+      "request_sha256": "ea38223e4cf2ccbbb60a57cde93f4056155b9e35bfd0834cee69823faa4b71e4",
+      "nonce": "267a034682192ca9419095edb2c57eac",
+      "status": 403,
+      "decision": "refuse",
+      "admission_sha256": "5b7f567a19f28e2c449a96938461789314666cb3a746e2f8d867f662f7453941",
+      "record_sha256": "7d3239c62d1559488fc5feae105a0c5206f2e5d3e56fcc3bdf546849f4eab94f",
+      "published": "accepted",
+      "tickets_spent": null,
+      "ledger_url": "https://ledger.horizonshield.dev/admission/7d3239c62d1559488fc5feae105a0c5206f2e5d3e56fcc3bdf546849f4eab94f"
+    },
+    {
+      "service": "compare",
+      "tickets": 50,
+      "request_sha256": "21b88375350e78a6906191e2df1706cc661b7c9361245631ae505a95948f360a",
+      "nonce": "d51458dfdb3316e02d1df72779121a3d",
+      "status": 403,
+      "decision": "refuse",
+      "admission_sha256": "d64993b5392ea393421baa06c9710ed65a259f1e3ccd3e68551d2d0bb55f5a02",
+      "record_sha256": "e534664edac6e0926eb280ae262e8e447b2709eebd28c6c7641a3caca914f3f4",
+      "published": "accepted",
+      "tickets_spent": null,
+      "ledger_url": "https://ledger.horizonshield.dev/admission/e534664edac6e0926eb280ae262e8e447b2709eebd28c6c7641a3caca914f3f4"
+    }
+  ],
+  "tip_height_at_request": 973757,
+  "result": "as expected"
+}
