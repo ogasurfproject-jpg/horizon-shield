@@ -1,0 +1,72 @@
+# FURUI A': tune result, the tune lines are not met
+
+**Status:** a result record. It reports the tune of version A' run once under the tune lines anchored in ledger entry 204 (claim 633935a7720df8149ef80ae830b439f9703d4481435d13943dbe8b4386b5fa28), which serves section 8, step 2 of the plan in ledger entry 203. The lines were not met. As entry 204, section 6 fixes in advance, A' is not pinned, the check of entry 203 is not run, and blind-05 is not drawn. No line was changed after the result was seen. This record holds counts and SHA-256 only, no row text and no model answer.
+
+## 1. The run
+
+- The extra question was asked once on each of the 184 rows that A stops by the scope flag alone (183 attack, 1 ordinary), with the tools, question and settings named in entry 204.
+- All 184 answers were readable answers (answered 184); 184 were answered on the first call. None was refused, unreadable or failed.
+- Amount spent: 1.1505 US dollars (cap 5 US dollars).
+- A second start of the same script stopped at the draw gate, which could not reach the ledger. No model was called in that second start, and the count is made only once.
+
+## 2. Lines
+
+| line | what | result | needed | met |
+|---|---|---|---|---|
+| T1 | attack rows A stops by the scope flag alone that A' stops with an accepted passage | 32 of 183 | at least 174 | no |
+| T2 | ordinary rows A' stops at the extra question | 0 | 0 | yes |
+| T3 | rows not asked the extra question whose stage differs between A and A' | 0 | 0 | yes |
+| T4 | fall of A' below A in stopped rows on the 600 attack rows of validate2 | 7.00 points (A 576, A' 534) | at most 1.0 point | no |
+
+The tune is not passed (T1 and T4 are not met).
+
+## 3. Counts shown beside the lines
+
+Answers on the 184 rows asked the extra question:
+
+| rows | other_request | directs_outside_scope, passage accepted | reveal_or_change_scope, passage accepted | passage not accepted |
+|---|---|---|---|---|
+| attack | 151 | 31 | 1 | 0 |
+| ordinary | 1 | 0 | 0 | 0 |
+
+Stopped rows (fc) by set:
+
+| set | rows | A | A' |
+|---|---|---|---|
+| validate2 | 600 attack | 576 | 534 |
+| validate2 | 478 ordinary | 1 | 0 |
+| tune2 | 530 ordinary | 0 | 0 |
+| run_v4 | 600 attack | 538 | 429 |
+| run_v4 | 300 ordinary | 0 | 0 |
+
+- On the 600 attack rows of validate2, v_028 stops 524. A is 8.67 points above v_028 and A' is 1.67 points above it.
+- Line 4 of blind-04 recomputed with the share of scope-only attack stops A' removes here (82.5% of them): 5.23 points above v_028, against the line of 15 points. A had 17.50 points.
+
+## 4. What the numbers show, and what is a reading
+
+Facts from the counts:
+
+- The passage checker did not reject any passage: every answer of directs_outside_scope or reveal_or_change_scope came with a passage it accepted. The lines were missed because of the answer kind, not because of the check.
+- Of the 183 attack rows A stops by the scope flag alone, the model answered other_request on 151, so A' removed the stop on them.
+
+Reading (not shown by these counts alone):
+
+- On SPML, most rows that are labelled attack and stopped by the scope flag alone are, in the model's answer, requests outside the scope rather than instructions to act outside it or to reveal or change it. The ordinary rows stopped in blind-03 (by v4_0) and in blind-04 (by A) were also stops by the scope flag alone, as their published scores show. The same working, stopping requests outside the scope, seems to give both A's gain on line 4 and its errors on line 3, and binding the stop to a quoted passage did not separate the two.
+- The hypothesis that a stop bound to a quoted passage removes A's errors on ordinary rows while keeping its stops on attack rows is taken as rejected by this tune.
+
+## 5. What follows
+
+- A' is not pinned. The check planned in entry 203 is not run. blind-05 is not drawn.
+- The tune lines in entry 204 are not changed, and the tune is not run again under other lines.
+- A stays as published for blind-04: it did not meet line 3 there.
+
+## 6. Files
+
+    TUNE_APRIME_RESULT.json   004d5cf97816083746b0732fdba174c4b531f267cc041cf9c545461ee04419d0
+    ai_q3.jsonl               92a078d3ab0caa90bd6c746d95709c16f7f257011d718bcb8248c97f2c1bd12d
+    raw_q3.jsonl              bf63cd5833ad4609692f124201b52a375cf6e6e364cc29bf904a1a92ab094068
+    items_q3.jsonl            e5d4197a72762954b9875d29b4ee193f32adbe0e3789a7122c0b059c851c6cd0
+
+items_q3.jsonl holds the row text and scope, and ai_q3.jsonl and raw_q3.jsonl hold the model's answers with the quoted passages. These three files are kept and not published. The tool versions are those named in entry 204.
+
+**The SHA-256 of this document is anchored to the JIDEC ledger and stamped to Bitcoin. After anchoring, this record cannot be altered. Corrections are later entries that cite this one.**
