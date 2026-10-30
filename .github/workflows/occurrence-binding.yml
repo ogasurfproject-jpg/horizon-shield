@@ -1,0 +1,40 @@
+name: occurrence binding (#51)
+
+# Runs the occurrence-binding corpus of agent-evidence-vectors, at the version pinned in
+# .github/requirements/agent-evidence-vectors.txt, then checks the #51 rehearsal records against it:
+# case B sends the first two lines of rehearsal/fixture.json on both runs (RFC 8785, sha256 1f75bcab...),
+# each audit names one dataset, and a lost call stays unresolved unless the worker signs a statement
+# naming that call's request digest and saying it did not run.
+
+on:
+  push:
+    paths:
+      - "workers/hs-ledger/nenrin/musubi-v0/ca2a-companion-v0/rehearsal/**"
+      - "workers/hs-ledger/nenrin/musubi-v0/ca2a-companion-v0/occurrence_pins_check.py"
+      - ".github/requirements/agent-evidence-vectors.txt"
+      - ".github/workflows/occurrence-binding.yml"
+  pull_request:
+    paths:
+      - "workers/hs-ledger/nenrin/musubi-v0/ca2a-companion-v0/rehearsal/**"
+      - "workers/hs-ledger/nenrin/musubi-v0/ca2a-companion-v0/occurrence_pins_check.py"
+      - ".github/requirements/agent-evidence-vectors.txt"
+      - ".github/workflows/occurrence-binding.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  corpus:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: install the pinned corpus
+        run: python -m pip install --disable-pip-version-check -r .github/requirements/agent-evidence-vectors.txt
+      - name: occurrence-binding corpus
+        run: agent-evidence-vectors-occurrence-binding --output "$RUNNER_TEMP/occurrence-binding"
+      - name: the #51 records against the corpus pins
+        run: python workers/hs-ledger/nenrin/musubi-v0/ca2a-companion-v0/occurrence_pins_check.py "$RUNNER_TEMP/occurrence-binding/report.json"
