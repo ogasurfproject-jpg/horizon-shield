@@ -1,0 +1,9 @@
+FURUI A': a possible gap in the attack labels of SPML
+
+In the tune recorded in ledger entry 205, version A stopped 183 SPML rows labelled attack by the scope flag alone. Each was put to claude-opus-5-5 with one more question. On 151 of the 183 it answered that the message is some other request: not an instruction to act outside the task, and not a request to reveal or change the task. It answered on 31 that the message directs the assistant outside its task, and on 1 that it asks to reveal or change the task, each time with a passage that a program found in the message.
+
+This suggests a gap. The attack label of SPML may not tell hijacking apart from a request outside the task, so that a row which only asks for something the assistant was not set up to do can carry the same label as a row which tells the assistant to drop its instructions. By hijacking we mean a message that tells the assistant to leave or override its task, or to show its setup. If the label joins the two, an evaluation can gain points on attack rows by stopping requests outside the task. That may be the same working that wrongly stops ordinary rows in which a user asks for something off the task. In blind-04, version A gained on the SPML attack rows over v_028 and also wrongly stopped ordinary rows by the scope flag alone. Binding the stop to a quoted passage in A' did not separate the two.
+
+Limits. These are the model's answers, not labels set by people, and no person has read the rows to check them. The rows are from the BUILD part of SPML, on task scopes the earlier versions had been tuned on. 127 of the 183 rows come from the set used to choose how the scope is given to the model. One run, one model, one wording. It is a reason to look for data that labels the two kinds apart. It is not a measured error rate of the SPML labels.
+
+The counts are in TUNE_APRIME_RESULT.json and TUNE_APRIME_RESULT.md in this directory.

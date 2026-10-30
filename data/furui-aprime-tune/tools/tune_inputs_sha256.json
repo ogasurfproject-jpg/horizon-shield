@@ -1,0 +1,12 @@
+{
+ "blind04_tune2_work/tune2/ai_v4_0_h.jsonl": "f5b925d6763341c0b1fe7ea396835f45f95a631e16bca1105f56f69d4ea84d7f",
+ "blind04_tune2_work/tune2/ai_v4_0_o.jsonl": "3aca43fdd71ce2be815210b07c484cd6f9648af7e34cc771e0a2b19c9b305339",
+ "blind04_tune2_work/tune2/items.jsonl": "149263745a47031c1411dd25884a684f1c50a4fa1890922a7101957276e740b0",
+ "blind04_tune2_work/tune2/rule_flags.jsonl": "781507971c25537887eaf47db985ced3519b89d9c5b3260a8f1eb54f8b5d619d",
+ "blind04_tune2_work/validate2/items.jsonl": "4e0f838c6917308d7891b097667bc8e5ef36f7bd075ff1a9f84280c8f34dd3bd",
+ "blind04_tune2_work/validate2/rule_flags.jsonl": "de8a0fb10fb5aee151b47806cac8a91455175eb5071f4ab49f14f5749df27e7c",
+ "spml_scope_20261026/run_s12/rows.jsonl": "38658b68f5a034c933b6fc71bf2513edb03727c1beec5a49163c0521119779f2",
+ "spml_scope_20261026/run_v4/ai_haiku_v4.jsonl": "24276f1fa732e00546d7f7b1bb30464dea39cac6cab67ad4881c43933d8c7620",
+ "spml_scope_20261026/run_v4/ai_opus_v4.jsonl": "551f9370e302a3ac2debea9b41cd9e613f58a2c2de9b94b5a1556586bb902200",
+ "spml_scope_20261026/run_v4/ai_opus_v4_rest.jsonl": "85754712ef84520d3b81fddbbb24f383fe0b06aa3d2ce6bd3547cc098dd8ad03"
+}
