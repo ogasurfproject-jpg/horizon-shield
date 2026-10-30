@@ -759,15 +759,23 @@ function receiptHtml(e, origin, env) {
   let recSchema = "";
   try { const j = JSON.parse(e.record_canonical || ""); if (j && typeof j === "object" && !Array.isArray(j) && typeof j.schema === "string" && j.schema !== "jidec-claim-v1") recSchema = j.schema; } catch {}
   const named = sch !== "v1" && recSchema !== "";
+  // 2026-10-30. A plain-text record (a plan, a pin, a score record: anything that is not JSON) was shown as
+  // "schema v0 · concept-proof" with the note "only the estimate JSON is hashed". Both are wrong for it: there is
+  // no estimate, and the claim hash covers every byte of the record. Reported by an outside witness on #194.
+  const plain = !named && sch !== "v1" && parseClaimSchema(e.record_canonical).schema === "v0-plain";
   const schBadge = sch === "v1"
     ? `<span class="badge v1">schema v1 · independently verifiable</span>`
     : named
     ? `<span class="badge v1">record schema ${esc(recSchema)}</span>`
+    : plain
+    ? `<span class="badge v1">plain-text record</span>`
     : `<span class="badge v0">schema v0 · concept-proof (see SPEC v1)</span>`;
   const verifyLink = sch === "v1"
     ? `<div class="card"><div class="k">Machine-readable verification recipe</div><div class="v"><a href="${origin}/verify/${e.n}">${origin}/verify/${e.n}</a></div><div class="sub" style="margin-top:.4rem">Lists every artifact a third party must fetch and hash to independently reproduce this audit, no trust in HORIZON SHIELD required.</div></div>`
     : named
     ? `<div class="card"><div class="k">Record</div><div class="sub">This entry is a ${esc(recSchema)} record. Its bytes, shown below, are what the claim hash commits to; what the record establishes and does not establish is written inside it. The Bitcoin anchor bounds it from above in time and settles nothing else.</div></div>`
+    : plain
+    ? `<div class="card"><div class="k">Record</div><div class="sub">This entry is a plain-text record. The claim is the SHA-256 of all the record bytes shown below, exactly as the raw route serves them; nothing is left out of the hash. What the record says it establishes, and what it does not, is written inside it. The Bitcoin anchor bounds it from above in time and settles nothing else.</div></div>`
     : `<div class="card"><div class="k">Schema note</div><div class="sub">This entry uses the v0 schema (only the estimate JSON is hashed). Independent verification per SPEC v1 §3 is available on entries #2 and later. This entry remains a valid timestamp proof for its content at the recorded time.</div></div>`;
   return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JIDEC Ledger #${e.n}: HORIZON SHIELD</title><style>
@@ -1355,7 +1363,9 @@ async function citationCard(env, origin, citation) {
          : obj && obj.schema === "jidec-claim-v1" ? "jidec-claim-v1"
          : namedRecordSchema(e.record_canonical) || "v0";
   } catch { obj = null; }
-  const estimateEra = kind === "jidec-path-v1" || kind === "jidec-claim-v1" || kind === "v0" || kind === "v0-plain";
+  // 2026-10-30: a plain-text record is not an estimate (estimates are JSON), so it gets its own note and the
+  // general limits, not "predates the v1 schemas" and "the estimate is fair".
+  const estimateEra = kind === "jidec-path-v1" || kind === "jidec-claim-v1" || kind === "v0";
 
   const bitcoin =
     e.ots_status === "confirmed" && e.bitcoin_block
@@ -1382,6 +1392,8 @@ async function citationCard(env, origin, citation) {
     for (const k of ["work_id", "input_sha256", "reference_bundle_sha256", "algorithm_commit", "thresholds_sha256", "result_sha256", "pdf_sha256", "issued_at"]) card.claim[k] = obj[k];
   } else if (estimateEra) {
     card.note = "This entry predates the v1 schemas. Its bytes are still anchored and hash-checkable.";
+  } else if (kind === "v0-plain") {
+    card.note = "This entry is a plain-text record. The claim is the SHA-256 of all its bytes, as the raw route serves them; what it does and does not establish is written inside the record itself.";
   } else {
     card.note = "This entry is a " + kind + " record. Its bytes are anchored and hash-checkable; what it does and does not establish is written inside the record itself.";
   }

@@ -221,8 +221,11 @@ async function buildCard(env, n, sha, citation) {
     for (const k of ["work_id", "input_sha256", "reference_bundle_sha256", "algorithm_commit",
                      "thresholds_sha256", "result_sha256", "pdf_sha256", "issued_at"])
       card.claim[k] = obj[k];
-  } else if (kind === "v0" || kind === "v0-plain") {
+  } else if (kind === "v0") {
     card.note = "This entry predates the v1 schemas (v0). Its bytes are still anchored and hash-checkable.";
+  } else if (kind === "v0-plain") {
+    // 2026-10-30: same as hs-ledger /cite. A plain-text record is not an estimate; the claim covers all its bytes.
+    card.note = "This entry is a plain-text record. The claim is the SHA-256 of all its bytes, as the raw route serves them; what it does and does not establish is written inside the record itself.";
   } else {
     card.note = "This entry is a " + kind + " record. Its bytes are anchored and hash-checkable; what it does and does not establish is written inside the record itself.";
   }
@@ -237,7 +240,7 @@ async function buildCard(env, n, sha, citation) {
       ". No trust in HORIZON SHIELD required."
     : "INTEGRITY FAILURE: the entry's bytes do NOT hash to the cited id. Do not rely on this citation.";
 
-  const estimateEra = kind === "jidec-claim-v1" || kind === "jidec-path-v1" || kind === "v0" || kind === "v0-plain";
+  const estimateEra = kind === "jidec-claim-v1" || kind === "jidec-path-v1" || kind === "v0";
   card.limits = estimateEra
     ? "What this proves: these exact bytes existed at or before the anchored time and have not changed. " +
       "What this does NOT prove: that the estimate is fair, that the input data is true, or that HORIZON SHIELD is competent. " +

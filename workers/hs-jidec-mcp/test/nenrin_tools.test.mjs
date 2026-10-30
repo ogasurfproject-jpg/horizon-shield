@@ -70,6 +70,14 @@ ok(!r.isError && r.structuredContent.integrity.match === true && r.structuredCon
 ok(/nenrin-agreement-batch-v1 record/.test(r.structuredContent.note) && !/estimate/.test(r.structuredContent.limits), "its note names the schema and its limits do not talk about an estimate");
 r = await call("jidec_cite", { citation: "jidec:entry:3" });
 ok(r.structuredContent.record_kind === "v0" && /predates the v1 schemas/.test(r.structuredContent.note) && /estimate is fair/.test(r.structuredContent.limits), "a record with no schema stays v0 with the estimate limits");
+// 2026-10-30: a plain-text record (#194, a plan) is named as one, with limits that do not talk about an estimate (same as hs-ledger /cite).
+const plainRec = "# FURUI blind-04: the plan\n\n**Status:** a plan record, anchored before the draw.\n";
+const pSha = await shaHex(plainRec);
+routes["/ledger/194?format=raw"] = [200, plainRec];
+routes["/ledger/194?format=json"] = [200, { n: 194, claim_sha256: pSha, ots_status: "confirmed", bitcoin_block: 973640 }];
+r = await call("jidec_cite", { citation: "jidec:entry:194" });
+ok(!r.isError && r.structuredContent.integrity.match === true && r.structuredContent.record_kind === "v0-plain", "a plain-text record keeps its kind v0-plain");
+ok(/plain-text record/.test(r.structuredContent.note) && !/predates/.test(r.structuredContent.note) && !/estimate/.test(r.structuredContent.limits), "its note says plain text and its limits do not talk about an estimate");
 const card = await (await worker.fetch(new Request("https://jidec.horizonshield.dev/.well-known/agent-card.json"), env)).json();
 ok(card.version === "1.2.2", "signed card version 1.2.2");
 ok(card.provider && card.provider.legalEntity && card.provider.legalEntity.id === "7021001075279", "provider.legalEntity houjin-bango");

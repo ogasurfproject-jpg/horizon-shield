@@ -9,7 +9,8 @@ const batch = JSON.stringify({ schema: "nenrin-agreement-batch-v1", count: 1, re
 const evil = JSON.stringify({ schema: "<img src=x onerror=alert(1)>", count: 0 });
 const v0 = JSON.stringify({ title: "SPEC_HASH_INDEPENDENCE_v1.md", sha256: "deadbeef" });
 const ent = async (n, rec) => [`entry:${n}`, JSON.stringify({ n, work: "x", claim_sha256: await sha256Hex(rec), record_canonical: rec, schema: "v0", created_at: "2026-10-12T00:45:17Z", ots_status: "confirmed", bitcoin_block: 971024, block_time: "2026-10-12 02:08 UTC" })];
-const kv = mockKV([["seq", "4"], await ent(2, v0), await ent(3, batch), await ent(4, evil)]);
+const plainRec = "# FURUI blind-04: the plan\n\n**Status:** a plan record, anchored before the draw.\n";
+const kv = mockKV([["seq", "5"], await ent(2, v0), await ent(3, batch), await ent(4, evil), await ent(5, plainRec)]);
 const env = { LEDGER: kv.binding };
 const page = async (n) => (await worker.fetch(new Request("https://ledger.example.dev/ledger/" + n), env)).text();
 const chk = checker("receipt_schema");
@@ -36,4 +37,12 @@ chk("/verify names a NENRIN batch by its own schema", v.record_kind === "nenrin-
 chk("/verify scope says what kind of record it is", /This entry is a nenrin-agreement-batch-v1 record/.test(v.scope), v.scope);
 v = await getj("/verify/2");
 chk("/verify keeps v0 for a record with no schema", v.record_kind === "v0" && /does not declare a jidec-claim-v1 audit/.test(v.scope));
+// 2026-10-30: a plain-text record (#194, a plan) was shown as v0 with "only the estimate JSON is hashed".
+t = await page(5);
+chk("a plain-text record is badged as one", t.includes("plain-text record"));
+chk("and not as a v0 estimate entry", !t.includes("concept-proof") && !t.includes("only the estimate JSON is hashed"));
+chk("its card says the hash covers all its bytes", t.includes("SHA-256 of all the record bytes shown below"));
+c = await getj("/cite/jidec:entry:5");
+chk("/cite names a plain-text record as v0-plain with its own note", c.record_kind === "v0-plain" && /plain-text record/.test(c.note || ""), c.note);
+chk("/cite limits do not mention an estimate for it", !/estimate/.test(c.limits), c.limits);
 process.exit(chk.done() ? 1 : 0);
