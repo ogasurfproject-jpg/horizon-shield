@@ -1,0 +1,9 @@
+{
+  "directory": "swh:1:dir:ddf8fa83377980089f71a7c8fafd3da4c5c41c20",
+  "requested_at": "2026-10-30T10:40:16Z",
+  "revision": "01c9b857deb70c108fc7173d3e0153481bdd1de2",
+  "schema": "nenrin-survive-precook-v0",
+  "snapshot": "d59fe9b3027b4390bb22c95145c8bbce8d8239a6",
+  "status_at_request": "new",
+  "visit_date": "2026-10-30T10:09:43.106000+00:00"
+}
