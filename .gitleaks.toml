@@ -30,6 +30,9 @@
 # 2026-10-27: musubi-v0 の settle v1.17 の vectors(vectors_v1_17/vectors.json と Python パッケージの写し)は、各ベクトルの
 # relying_keys.json(公開鍵の一覧の file)のバイトの sha256 を "relying_keys.json" の欄に持つ。file の digest で、鍵でも秘密でもない。
 # generic-api-key が名前の keys に反応する(3eba279d で 26 件)ので、その欄の形だけ許す。
+# 2026-10-30: FURUI blind-04 の公開(data/furui-blind-04)の生の答え、規則の旗、数え直しの記録は、各行が "key" の欄に行の key
+# (公開の datasets の行から作る sha256、64 桁の 16 進)を持つ。generic-api-key が名前の key に反応する(12,726 件)ので、その 3 つの形の
+# file だけ許す。鍵でも秘密でもない。公開の台本が、許す前に各行の欄の名と長さを照らす。
 title = "horizon-shield gitleaks config"
 
 [extend]
@@ -57,4 +60,7 @@ paths = [
   '''workers/hs-ledger/nenrin/idp-bind-v0/real-issuers/.*/.*\.json''',
   '''workers/hs-ledger/nenrin/kyoka-observe-v0/observed/.*/binding\.json''',
   '''workers/hs-ledger/nenrin/(sdk-python/src/nenrin_verify/_repo/)?musubi-v0/fixtures/admission_immune/(demo|cases)\.json''',
+  '''data/furui-blind-04/answers/(raw|ai)_(v_028|v4_0)_(h|o)\.jsonl''',
+  '''data/furui-blind-04/answers/rule_flags\.jsonl''',
+  '''data/furui-blind-04/RECOUNT_blind04\.json''',
 ]
