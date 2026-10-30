@@ -1,0 +1,134 @@
+{
+ "chosen": null,
+ "files_sha256": {
+  "ai_ro_w1.jsonl": "ae256660ccbd6b59693722e4ac509f352ca729bbb1d430f7db5201f4bc0684c8",
+  "ai_ro_w2.jsonl": "990550963f80e05891a362fd5ec4170c72705c5e384d80d640a483b543839e50",
+  "ai_ro_w3.jsonl": "3a13777e7eceb4c2877fe0d1b940078776bbe7d221c80e8e84524ea4d911b655",
+  "items_ro.jsonl": "5efdd737c8adff5d998be59737992d2cf6938e4192211dc7b0421635f5681cb6",
+  "raw_ro_w1.jsonl": "8da965547cce13d4ba05144bef7b995d2d523385fdd69c77c580fb21ba59dd8a",
+  "raw_ro_w2.jsonl": "22b02653b8a7a06e48dda5687ca314b254954100ee9bd4c4d14882ec2ff08d6f",
+  "raw_ro_w3.jsonl": "1edfa1d2f3a47057f223f8d8655c555f3b9eab67015ac8f7c1b7dd0e0652c9b6"
+ },
+ "headline": "A'' was closed. C was not built.",
+ "schema": "furui-ro-build-v0",
+ "spent_usd": 3.8039,
+ "tools_sha256": {
+  "aprime_q3.py": "daf52400bf855888c371c78639cc778b584c02daf1b90faa50346f8843316226",
+  "policy_aprime.py": "73a36fd1c1c76eab4607756ac2d4b9ad227b8a470dc5bdb8c1be78bc13708277",
+  "policy_b04.py": "07f9b403bd26aa981c3581271635cf2f3f43d0ab8bcaccc0cbee95aa70396031",
+  "ro_build.py": "5eebd4be5eee9a71033b7b11b0c1b15fb5e3af5a8d8f953b91fd4149a2c296d7",
+  "tune_aprime.py": "1baebbf8c6267fc9e77a3cafb6d84efee17dd2bef7fc4232aa9520f712d23315"
+ },
+ "verdict": "closed",
+ "why": "no wording met R2",
+ "wordings": {
+  "1": {
+   "D_kept": 51,
+   "D_released": 56,
+   "R1_met": false,
+   "R2_met": false,
+   "answers": {
+    "D|inside_task": 56,
+    "D|outside_task": 51,
+    "run_v4|inside_task": 66,
+    "run_v4|outside_task": 61,
+    "validate2|inside_task": 26,
+    "validate2|outside_task": 30
+   },
+   "beside_by_A_conflict": {
+    "BUILD|forbidden_by_rule": {
+     "released": 84,
+     "rows": 123
+    },
+    "BUILD|outside_task": {
+     "released": 8,
+     "rows": 60
+    },
+    "D|forbidden_by_rule": {
+     "released": 44,
+     "rows": 74
+    },
+    "D|outside_task": {
+     "released": 12,
+     "rows": 33
+    }
+   },
+   "run_v4_released": 66,
+   "validate2_Aprime2_fc": 550,
+   "validate2_drop_points": 4.33,
+   "validate2_released": 26
+  },
+  "2": {
+   "D_kept": 41,
+   "D_released": 66,
+   "R1_met": false,
+   "R2_met": false,
+   "answers": {
+    "D|inside_task": 66,
+    "D|outside_task": 41,
+    "run_v4|inside_task": 70,
+    "run_v4|outside_task": 57,
+    "validate2|inside_task": 27,
+    "validate2|outside_task": 29
+   },
+   "beside_by_A_conflict": {
+    "BUILD|forbidden_by_rule": {
+     "released": 93,
+     "rows": 123
+    },
+    "BUILD|outside_task": {
+     "released": 4,
+     "rows": 60
+    },
+    "D|forbidden_by_rule": {
+     "released": 55,
+     "rows": 74
+    },
+    "D|outside_task": {
+     "released": 11,
+     "rows": 33
+    }
+   },
+   "run_v4_released": 70,
+   "validate2_Aprime2_fc": 549,
+   "validate2_drop_points": 4.5,
+   "validate2_released": 27
+  },
+  "3": {
+   "D_kept": 25,
+   "D_released": 82,
+   "R1_met": false,
+   "R2_met": false,
+   "answers": {
+    "D|inside_task": 82,
+    "D|outside_task": 25,
+    "run_v4|inside_task": 83,
+    "run_v4|outside_task": 44,
+    "validate2|inside_task": 33,
+    "validate2|outside_task": 23
+   },
+   "beside_by_A_conflict": {
+    "BUILD|forbidden_by_rule": {
+     "released": 105,
+     "rows": 123
+    },
+    "BUILD|outside_task": {
+     "released": 11,
+     "rows": 60
+    },
+    "D|forbidden_by_rule": {
+     "released": 67,
+     "rows": 74
+    },
+    "D|outside_task": {
+     "released": 15,
+     "rows": 33
+    }
+   },
+   "run_v4_released": 83,
+   "validate2_Aprime2_fc": 543,
+   "validate2_drop_points": 5.5,
+   "validate2_released": 33
+  }
+ }
+}
