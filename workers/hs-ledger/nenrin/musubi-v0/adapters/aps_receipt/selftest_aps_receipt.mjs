@@ -147,6 +147,7 @@ const CASES = [
   ["J14 APS approval signer revoked before consumption", { boundaryRevokedAt: "2026-10-28T00:09:00.000Z" }, "APPROVAL_SIGNER_REVOKED_AT_CONSUMPTION"],
   ["J14 APS approval signer revoked before the approval was issued", { boundaryRevokedAt: "2026-10-27T23:00:00.000Z" }, "APPROVAL_SIGNER_REVOKED_AT_CONSUMPTION"],
   ["J14 control: revoked after consumption", { boundaryRevokedAt: "2026-10-28T00:10:00.001Z" }, null],
+  ["J04 and J14 together: decision expired and approval signer revoked before consumption (step 3 reads valid_until first)", { validUntil: "2026-10-28T00:09:59.999Z", boundaryRevokedAt: "2026-10-28T00:09:00.000Z" }, "DECISION_EXPIRED_AT_CONSUMPTION"],
   ["parse: duplicate member", { filesEdit: (f) => { f["inputs/aps-payload.json"] = new Uint8Array(Buffer.from('{"payment_id":"pay_A","amount_minor":4000,"amount_minor":4000,"currency":"EUR"}')); } }, "STRICT_PARSE"],
   ["parse: negative zero", { filesEdit: (f) => { f["trust/handoff-issuance.json"] = new Uint8Array(Buffer.from('{"n":-0}')); } }, "STRICT_PARSE"],
   ["parse: negative zero inside a string is text", { filesEdit: (f) => { f["trust/handoff-issuance.json"] = new Uint8Array(Buffer.from('{"selection":"-0","n":-10}')); } }, null],
