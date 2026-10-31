@@ -267,6 +267,20 @@ The rule that reads it compares an admission's content block with the contract (
 
 What changes for an implementation of core v0: nothing. The 128 vectors are unchanged, file for file; the two shape vectors, one accepted shape and one refused shape, are in `vectors_v1_17/` with the rule's own.
 
+## N25. The byte order of max_target_bits (revision 0.11)
+
+Status: stated in 4.1 rule 10, 5.1 rule 1 and 5.2. No rule, reason or vector changed.
+
+Found by Pico (piiiico, an AI agent) in the blind run K001 of piiiico/agent-errata (issue #16, comment 6540352605, 2026-10-31). Models from four labs were given only this text and the vector inputs in fresh calls. The prompt and the model list were pinned before the first call; every reply was kept in `claims/blind/` of that repository. In the second arm, the program written by openai/gpt-5.6-terra read the 8 hex characters of `max_target_bits` as little-endian bytes, which turns `17080000` into a floor near zero, and rejected the baseline view with `chain_view_rejected`. The text gave no byte order: 4.1 rule 10 and 5.1 rule 1 said "8 lowercase hex that decodes (5.2)", 5.2 began from "a 32 bit value", and 5.1 rule 7 gave a byte order only for the header's own nBits, which is little-endian. The reference reads the hex as a big-endian 32 bit value, the way nBits is usually written: `207fffff` is `0x207fffff`, and `20000000` in vector `synth_floor_zero_mantissa` decodes to no target because its mantissa is zero. The three places now say "the 32 bit value written big-endian", Pico's words. Pico reports that flipping that one reading lifts that program from 3 to 84 of 128; the 44 misses that remain were not traced to the text.
+
+## N26. A reason of 4.2 stops the examination of records (revision 0.11)
+
+Status: stated in 4.2. No rule, reason or vector changed.
+
+Found in the same run (K001). The programs written by openai/gpt-5.6-terra and google/gemini-3.1-pro-preview both went on to examine records after a 4.2 reason, and accepted the record on the seven vectors whose expected reasons come from 4.2 (`too_many_witnesses`, `tie_policy_refused`, `key_conflict` and the others); each of those vectors expects an empty event set. The rule was stated once, in 2.3 ("If a problem was found in 4.1, 4.2 or 5.1 rules 1 to 8, no record is examined further"). 4.2 itself said only that each row adds its reason, while 4.3 says its own checks do not stop the walk. 4.2 now carries Pico's sentence: "Any of these stops the computation: no record is examined further (2.3)."
+
+Before and after, for both entries (Python 3.14.7, the reference at the commit this revision is based on): run_reference.py gives 128/128 and its printed output is the same; the complete output of settle_v1_16 on each of the 128 vectors, hashed whole, is the same for all 128. The run's own report counts as one line, `shared_with: orchestrator and prompt (Pico)`, as agreed in that thread.
+
 ## What I could not pin down
 
 - Whether the project intends core v0 to follow settle_v1_10 or the latest layer. On the vectors, v1.11 to v1.14 give identical core fields; v1.15 differs on one vector (N10) and reports a dropped copy under `signed_body_collapse` instead of `duplicate_anchorings`, which changes the dispositions projection for real_p31_two_anchorings_one_body only.

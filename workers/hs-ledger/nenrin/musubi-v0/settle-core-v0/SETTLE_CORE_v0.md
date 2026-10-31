@@ -21,6 +21,8 @@ Revision 0.9, 2026-10-23: the reference added `unscoped_approvals_refused` when 
 
 Revision 0.10, 2026-10-27: section 17 is new, outside core v0: the one settle rule that reads `requirements.furui` (a2a-settlement-v1.17), which reads admissions (section 1), and the shape of `requirements.furui` it accepts. Core v0 does not change: the contract door of 4.1 gains no rule, the 128 vectors did not change, file for file, and an implementation of core v0 that does not read `requirements.furui` is unaffected. The two shape vectors and the rule's own are in `vectors_v1_17/`. The reference's contract door (contract_v0.py and contract_door_v0.mjs, 4.1) is unchanged, byte for byte; the shape is checked by requirements_furui_v0.py and its twin, which only contract builders (before signing), settle v1.17 and render_scope_v0 read. No core vector carries `requirements.furui`.
 
+Revision 0.11, 2026-10-31: two places where the text was silent on what the reference does (NOTES.md N25, N26), both found by Pico's blind run K001 (piiiico/agent-errata#16), in which programs written by models from the text and the vector inputs alone were compared with the vectors. The 8 hex characters of `max_target_bits` are the 32 bit value written big-endian, so `207fffff` is `0x207fffff` (4.1 rule 10, 5.1 rule 1, 5.2). A reason added by 4.2 stops the examination of records, as 2.3 already said; 4.2 now says so itself. Both sentences state what the reference and the vectors already did. No rule of the reference, reason or vector changed; on the 128 vectors the complete output of the reference is the same before and after.
+
 ## 0. Why this document exists
 
 Until now the MUSUBI settle function was defined only by Python code (settle_v1.py to settle_v1_16.py, each layer importing the ones below it).
@@ -173,7 +175,7 @@ The reference reports a list of refusal codes alongside; those codes are informa
     - `max_hops`, `expiry_height`: integer >= 0.
     - `delegation`: object with exactly one key, `allowed`, a list of non-empty strings. `{}` refuses the contract (vector `synth_delegation_empty_object`).
     - `conditional`: list of objects, each with a non-empty string `action`; actions unique; `requires`, when present, a string.
-    - `finality`: object with keys only from `depth`, `max_target_bits`. `depth`, when present, integer >= 1. `max_target_bits`, when present, 8 lowercase hex that decodes (5.2) to a positive target.
+    - `finality`: object with keys only from `depth`, `max_target_bits`. `depth`, when present, integer >= 1. `max_target_bits`, when present, 8 lowercase hex, the 32 bit value written big-endian (`207fffff` is `0x207fffff`), that decodes (5.2) to a positive target.
     - `witnesses`: list of objects, each with a non-empty string `name` and a `public_key_ed25519_b64` that decodes to 32 bytes.
     - `privacy`: non-empty string.
     - `ordering`: object with no key other than `same_height`, which is optional (`{}` is accepted, vector `synth_ordering_empty_object`); `same_height`, when present, a string or null.
@@ -204,6 +206,8 @@ Only when 4.1 accepts, each of these adds the underspecified reason shown:
 | `grant.finality.depth` is not an integer >= 1 (including a missing `finality` or `depth`) | `finality_policy_missing` |
 | `grant.expiry_height` is present, not null, and not an integer >= 0 | `bad_expiry_height` |
 | `grant.approval_policy.allow_unscoped` is truthy | `unscoped_approvals_refused` |
+
+Any of these stops the computation: no record is examined further (2.3).
 
 An empty `authorized_actions` list means nothing is authorized. It is not an error.
 
@@ -249,7 +253,7 @@ The parent must also pass 4.1 on its own. Vectors `synth_parent_full_*` take a p
 The view is checked under two contract terms: the difficulty floor `grant.finality.max_target_bits` and the checkpoint `lower_bound` (`height`, `hash`).
 Any failure below gives the underspecified reason `chain_view_rejected`. The view is checked even when section 4 already failed.
 
-1. `grant.finality.max_target_bits` is 8 lowercase hex and decodes (5.2) to a target, the floor.
+1. `grant.finality.max_target_bits` is 8 lowercase hex, the 32 bit value written big-endian, and decodes (5.2) to a target, the floor.
 2. `lower_bound` is an object with an integer `height` and a 64 lowercase hex `hash`.
 3. `view.headers` is a non-empty list.
 4. Each header is an object with an integer `height` >= 0 and a `hex` of 160 lowercase hex characters, optionally followed by one line feed (WRITTEN BEHAVIOUR of the lower layers; rule 9 below then refuses the line feed under its own reason).
@@ -269,6 +273,8 @@ Consensus rules beyond these (retargeting, timestamps, transactions) are not che
 If the view verifies but holds more than 200000 headers, the reason is `input_too_large` instead, and no record is examined.
 
 ### 5.2 Compact target decoding
+
+`max_target_bits` gives `bits` as 8 lowercase hex: the 32 bit value written big-endian, so `207fffff` is `0x207fffff` and `17080000` is `0x17080000`. A header's own nBits (5.1 rule 7) is the same kind of value stored little-endian in bytes 72 to 76.
 
 For a 32 bit value `bits`: `exp = bits >> 24`, `mant = bits & 0x007fffff`.
 If `bits & 0x00800000` is set, or `mant` is 0, there is no target (invalid).
