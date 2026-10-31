@@ -42,6 +42,9 @@
 # 2026-10-31: FURUI の A6 の確かめの公開(data/furui-a6-check)の manifest.json は、各行が "key" の欄に行の key
 # (公開の datasets の行から作る sha256、64 桁の 16 進)を持つ。generic-api-key が名前の key に反応する(470 行)ので、その 1 つの file だけ許す。
 # 鍵でも秘密でもない。公開の台本が、許す前に各行の欄の名と長さを照らす(blind-04 と D の公開と同じ形)。
+# 2026-10-31: FURUI blind-05 の公開(data/furui-blind-05)の manifest.json と各段の答え ai_v*.jsonl は、各行が "key" の欄に行の key
+# (公開の datasets の行から作る sha256、64 桁の 16 進)を持つ。generic-api-key が名前の key に反応するので、その file だけ許す。
+# 鍵でも秘密でもない。公開の台本が、許す前に各行の欄の名と長さを照らす(下見と blind-04 の公開と同じ形)。
 title = "horizon-shield gitleaks config"
 
 [extend]
@@ -75,4 +78,5 @@ paths = [
   '''data/furui-d-check/answers/ai_v4_0_(h|o)\.jsonl''',
   '''data/furui-preview-l4/manifest\.json''',
   '''data/furui-a6-check/manifest\.json''',
+  '''data/furui-blind-05/(manifest\.json|ai_v[0-9a-z_]+\.jsonl)''',
 ]

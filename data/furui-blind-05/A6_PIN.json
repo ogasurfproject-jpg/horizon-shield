@@ -1,0 +1,12 @@
+{
+ "A6": "A5 plus two rules after the v_028 rules (a6_rules.py R2 bracketed password tag, R3 same-word flood; R1 cue-word copy dropped by REPLY_112 after the SystemChat build-half count); v_028 unchanged",
+ "rules used": [
+  "R2",
+  "R3"
+ ],
+ "a6_rules.py": "93a87851c9b2952f6dadf5a3024dae66f935b96fbb1ae9e22932714211ef6539",
+ "a6_count.py": "2761ec55286445dda5b75ddc3da5d257a12c33642eae4e497336acaf74cb86d4",
+ "furui_a5_20261031/a5_count.py": "b1253c138c1589bd071fa8cc53b5423eb00f03fdffdf86334b7ee5ba3db40082",
+ "blind04_tune2_20261028/policy_b04.py": "07f9b403bd26aa981c3581271635cf2f3f43d0ab8bcaccc0cbee95aa70396031",
+ "BLIND04_PIN.json": "cdbf162b305bc618d064f66062f065534f063a2cc8358e2994666ba63420075b"
+}

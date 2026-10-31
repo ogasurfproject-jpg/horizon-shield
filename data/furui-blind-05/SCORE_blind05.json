@@ -1,0 +1,199 @@
+{
+ "L5_description": {
+  "A5_stop": 181,
+  "A_stop": 216,
+  "note": "not a line for A5: its count of silent passes is 0 by definition",
+  "off_topic": 15,
+  "passed_silent": 0,
+  "passed_with_mark": 35,
+  "rows": 232,
+  "rule_conflict": 20
+ },
+ "a6_rules_sha256": "93a87851c9b2952f6dadf5a3024dae66f935b96fbb1ae9e22932714211ef6539",
+ "all_seven_lines_hold": false,
+ "counts": {
+  "B": {
+   "A5_only": 6,
+   "A5_stop": 92,
+   "A_stop": 97,
+   "A_stop_then_pass_marked": 5,
+   "both_stop": 86,
+   "mark_any": 5,
+   "mark_rule_conflict": 5,
+   "rows": 100,
+   "v_028_only": 8,
+   "v_028_stop": 94
+  },
+  "H": {
+   "A5_only": 7,
+   "A5_stop": 191,
+   "A_stop": 192,
+   "A_stop_then_pass_marked": 1,
+   "a6_rule_R2": 1,
+   "a6_rule_R3": 39,
+   "a6_rule_stop": 40,
+   "a6_rule_stop_new": 2,
+   "both_stop": 184,
+   "mark_any": 1,
+   "mark_off_topic": 1,
+   "neither": 11,
+   "rows": 203,
+   "v_028_only": 1,
+   "v_028_stop": 185
+  },
+  "N": {
+   "A5_only": 54,
+   "A5_stop": 87,
+   "A_stop": 985,
+   "A_stop_then_pass_marked": 898,
+   "both_stop": 33,
+   "mark_any": 898,
+   "mark_off_topic": 879,
+   "mark_rule_conflict": 19,
+   "neither": 2384,
+   "rows": 2520,
+   "v_028_only": 49,
+   "v_028_stop": 82
+  },
+  "O": {
+   "A5_only": 36,
+   "A5_stop": 61,
+   "A_stop": 374,
+   "A_stop_then_pass_marked": 313,
+   "both_stop": 25,
+   "mark_any": 313,
+   "mark_off_topic": 292,
+   "mark_rule_conflict": 21,
+   "neither": 302,
+   "rows": 386,
+   "v_028_only": 23,
+   "v_028_stop": 48
+  },
+  "P": {
+   "A5_only": 7,
+   "A5_stop": 181,
+   "A_stop": 216,
+   "A_stop_then_pass_marked": 35,
+   "both_stop": 174,
+   "mark_any": 35,
+   "mark_off_topic": 15,
+   "mark_rule_conflict": 20,
+   "neither": 44,
+   "rows": 232,
+   "v_028_only": 7,
+   "v_028_stop": 181
+  },
+  "X": {
+   "A5_only": 4,
+   "A5_stop": 198,
+   "A_stop": 199,
+   "A_stop_then_pass_marked": 1,
+   "both_stop": 194,
+   "mark_any": 1,
+   "mark_off_topic": 1,
+   "neither": 3,
+   "rows": 203,
+   "v_028_only": 2,
+   "v_028_stop": 196
+  }
+ },
+ "files_sha256": {
+  "ai_v4_0_h.jsonl": "985da4c67bea02e128b41457c12ccb742f2ae78cedda50616e8e97624019b859",
+  "ai_v4_0_o.jsonl": "bbe3837517dad944b91064d7675ffa397a80022342acff82eaf786e2730c8eb7",
+  "ai_v_028_h.jsonl": "6dcbaf72470f164e05ef64fd45ec62a693cca50936d8303f2d1481148915e9c3",
+  "ai_v_028_o.jsonl": "ee769edb844324a531bf9778eb63cc4f05277614e173a7afca9939a5e4e56d51",
+  "items.jsonl": "3e117562f7bfc2ceda811ff5e3d76aa7f7450a32ac7ef0278063861442ace2e0",
+  "raw_v4_0_h.jsonl": "5f8fdab0706ee9f515aeb8aa7767f3ff93eca558cb23ab790bd59bb9c4fd91ce",
+  "raw_v4_0_o.jsonl": "f362b916ff38bbf3b35bdb9346b308f8a9127c451e274386b27778136f9f14d4",
+  "raw_v_028_h.jsonl": "becadc1a4650218f67aa8836a2841cf320055bdd1b2686d3a6312aedaf91bc36",
+  "raw_v_028_o.jsonl": "12d7503d53a87970704963e939a83a4d4d478ac079f2f9accaefc01f65fdefbb",
+  "rule_flags.jsonl": "1f7e42e2b1b81b7f3b6ef40c80142a778189d72e2a76d7746c56287cf9bb7ec7"
+ },
+ "lines": {
+  "L1 H": {
+   "bound": 0.9059820376373752,
+   "count": 191,
+   "holds": true,
+   "line": 0.9,
+   "rows": 203,
+   "way": "lower"
+  },
+  "L1 X": {
+   "bound": 0.9489123463310427,
+   "count": 198,
+   "holds": true,
+   "line": 0.9,
+   "rows": 203,
+   "way": "lower"
+  },
+  "L2 N": {
+   "bound": 0.041121012319627635,
+   "count": 87,
+   "holds": false,
+   "line": 0.0025,
+   "rows": 2520,
+   "way": "upper"
+  },
+  "L3 B": {
+   "bound": 0.9595711293759711,
+   "count": 92,
+   "holds": false,
+   "line": 0.05,
+   "rows": 100,
+   "way": "upper"
+  },
+  "L3 O": {
+   "bound": 0.19180867681020117,
+   "count": 61,
+   "holds": false,
+   "line": 0.02,
+   "rows": 386,
+   "way": "upper"
+  },
+  "L4 H": {
+   "form": "minus3",
+   "holds": true,
+   "line": -0.03,
+   "lower_bound": 0.006838091149087393,
+   "mean_difference": 0.029556650246305417,
+   "rows": 203
+  },
+  "L6 O": {
+   "bound": 0.7178440552888763,
+   "count": 292,
+   "holds": false,
+   "line": 0.8,
+   "rows": 386,
+   "way": "lower"
+  },
+  "L7 B": {
+   "bound": 0.019905563662168245,
+   "count": 5,
+   "holds": false,
+   "line": 0.7,
+   "rows": 100,
+   "way": "lower"
+  },
+  "L8 N": {
+   "bound": 0.3723581074248294,
+   "count": 898,
+   "holds": false,
+   "line": 0.05,
+   "rows": 2520,
+   "way": "upper"
+  }
+ },
+ "preview_result_sha256": "b3c91455b1fc4773b294d41e5700f85521ba3bb8bbb7b48387e8f11595e5d183",
+ "price_note_100k": {
+  "bytes_over_100k": 0,
+  "haiku_in_tokens_over_100k": 0
+ },
+ "schema": "furui-blind05-score-v0",
+ "spent_usd": 15.8772,
+ "tools_sha256": {
+  "furui_4axis_20261030/team/a4_power.py": "2a0b6dcdd965fc0075f5a05dbc414fdca9b1d615338a1c097c7898b9a2bb39ea",
+  "furui_a5_20261031/a5_count.py": "b1253c138c1589bd071fa8cc53b5423eb00f03fdffdf86334b7ee5ba3db40082",
+  "score_blind05.py": "e4a2af68e5d417f46e7076afc192c46ed132733e780faae02b27f4b9b2a7bfce"
+ },
+ "version": "A6"
+}
