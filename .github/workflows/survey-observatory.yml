@@ -107,4 +107,15 @@ jobs:
             exit 0
           fi
           git commit -m "observatory: $(date -u +%Y-%m-%d) の数え"
-          git push
+          # 2026-11-01 10:42Z、同じ時刻に別の commit が main に入り、素の git push が
+          # rejected (fetch first) で落ちた。数えは済んでいたのに記録が残らなかった。
+          # だから push の前に毎回 pull --rebase をして、押し合いなら 3 回までやり直す。
+          # 3 回とも落ちたら赤にする(記録が残っていない事を、次に見た人が気づけるように)。
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && exit 0
+            echo "push できませんでした(${i} 回目)。少し待ってやり直します。"
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          echo "3 回やり直しても push できませんでした。数えの記録は残っていません。" | tee -a "$GITHUB_STEP_SUMMARY"
+          exit 1
