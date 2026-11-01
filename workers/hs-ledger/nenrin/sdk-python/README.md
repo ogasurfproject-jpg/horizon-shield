@@ -160,6 +160,9 @@ after these are in place, and this section then takes its version number.
 - settle v1.18: an action run after the door escalated on the content, with no approval that counts, is a deviation,
   `executed_after_content_escalate`; settle core v0 revision 0.12, section 18, and its 14 vectors. An approval signs no
   admission's digest, so that an approval answers a particular escalate is not established.
+- settle v1.19: admissions of version 0.4 are read (the content gate, and the escalate rule over 0.3 and 0.4 in one
+  pass), and an action run after an escalate on the immune rules alone, with no approval that counts, is a deviation,
+  `executed_after_immune_escalate`; settle core v0 revision 0.13, section 19, and its 19 vectors.
 - settle core v0 revision 0.11 (text only): the byte order of `max_target_bits`, and a reason of 4.2 stops the
   examination of records.
 

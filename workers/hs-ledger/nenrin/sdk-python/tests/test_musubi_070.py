@@ -9,7 +9,7 @@ from nenrin_verify import musubi
 def test_settle_core_128_of_128():
     r = musubi.settle_core()
     assert r["ok"], r
-    assert r["vectors"].startswith("128/128") and r["v1_17"].split(" ")[0] == "13/13" and r["v1_18"].split(" ")[0] == "14/14"
+    assert r["vectors"].startswith("128/128") and r["v1_17"].split(" ")[0] == "13/13" and r["v1_18"].split(" ")[0] == "14/14" and r["v1_19"].split(" ")[0] == "19/19"
     assert musubi.main(["--settle-core"]) == 0
 
 

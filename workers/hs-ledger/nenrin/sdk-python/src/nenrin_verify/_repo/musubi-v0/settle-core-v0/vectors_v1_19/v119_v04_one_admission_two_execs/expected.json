@@ -1,0 +1,39 @@
+{
+ "bond_outcome": "forfeited",
+ "content_escalate_gate_counts": null,
+ "content_gate_counts": {
+  "content_not_checked": 0,
+  "content_rules_mismatch": 0
+ },
+ "content_gate_v04_counts": {
+  "content_not_checked": 0,
+  "content_rules_mismatch": 0
+ },
+ "content_marks": {
+  "off_topic": 1,
+  "rule_conflict": 0,
+  "unread": 0
+ },
+ "contract_sha256": "9c0511889e86c84e0ac1197e138523c3a26c33a498d0f18dacb23037020b387c",
+ "deviation_codes": [
+  "executed_after_content_escalate"
+ ],
+ "dispositions": {
+  "45f27c1d448af82c612b141bb5254f571a482082092f28ace71eb76b562d51f2": "duplicate_dropped",
+  "ae551493ff2325cdf08727d4b3646d63270ee775e84f84aad235fd35644da5f2": "accepted"
+ },
+ "escalate_gate_counts": {
+  "executed_after_content_escalate": 1,
+  "executed_after_immune_escalate": 0
+ },
+ "event_set": [
+  {
+   "height": 900002,
+   "kind": "execution",
+   "sha256": "ae551493ff2325cdf08727d4b3646d63270ee775e84f84aad235fd35644da5f2"
+  }
+ ],
+ "status": "final",
+ "underspecified_reasons": [],
+ "verdict": "deviation"
+}

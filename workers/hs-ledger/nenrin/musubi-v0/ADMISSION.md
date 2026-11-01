@@ -9,7 +9,7 @@ this directory.** This page describes the shape of the record and how to check a
 identity, and nobody but the relying party stops anything. HORIZON SHIELD anchors records sent to its ledger and
 settles after the fact. It renders no decision.
 
-**Changed 2026-11-01.** MUSUBI admission records can be at version 0.4, in the shape of FURUI A7.4, the version measured in the blind test FURUI blind-06 (plan: ledger entry 231; result: ledger entry 232; records in commit 200d5d96). The content block carries a salted commitment to the content (`input_commit`, so the content cannot be guessed from the public record), the digest of the check, the rule set (`furui-rules-id-v1`), a decision (stop or pass), two marks (`off_topic` and `rule_conflict`), and whether the check was read and answered. Off-topic content is marked and, by default, not stopped (`on_off_topic: mark_only`). A row the model refused to read at both stages is recorded as unchecked; under the default policy (`on_unchecked: refuse`) such a request is refused, which is stricter than the measurement, where it was not stopped (1 of 963 ordinary rows in blind-06). The rates measured in blind-06 hold for the scopes of the public datasets used there; a relying party's scope is rendered from the contract (musubi-scope-v0), and rates on such scopes have not been measured. A door whose policy does not require a content check still writes a v0.1 record with no content block. Settle v1.18 and earlier do not read the 0.4 content block. FURUI is not yet wired into the door.
+**Changed 2026-11-01.** MUSUBI admission records can be at version 0.4, in the shape of FURUI A7.4, the version measured in the blind test FURUI blind-06 (plan: ledger entry 231; result: ledger entry 232; records in commit 200d5d96). The content block carries a salted commitment to the content (`input_commit`, so the content cannot be guessed from the public record), the digest of the check, the rule set (`furui-rules-id-v1`), a decision (stop or pass), two marks (`off_topic` and `rule_conflict`), and whether the check was read and answered. Off-topic content is marked and, by default, not stopped (`on_off_topic: mark_only`). A row the model refused to read at both stages is recorded as unchecked; under the default policy (`on_unchecked: refuse`) such a request is refused, which is stricter than the measurement, where it was not stopped (1 of 963 ordinary rows in blind-06). The rates measured in blind-06 hold for the scopes of the public datasets used there; a relying party's scope is rendered from the contract (musubi-scope-v0), and rates on such scopes have not been measured. A door whose policy does not require a content check still writes a v0.1 record with no content block. Settle v1.18 and earlier do not read the 0.4 content block; settle v1.19 reads it (SETTLE_CORE_v0.md section 19). FURUI is not yet wired into the door.
 
 **Changed 2026-10-27.** MUSUBI admission records are now at version 0.3. A relying party that runs its own FURUI check can record the result as digests and three flags (instructions to an AI found, a conflict with the scope it gave, not checked), and settle v1.17 reads them. Records and settlements made before are unchanged byte for byte. FURUI is not yet wired into the door: its policy.furui is required = false, so a submission without a check is admitted as before. Public commit 3eba279d; the ledger intake is admission-intake 0.3.2.
 
@@ -154,6 +154,18 @@ that escalated on the content; otherwise v1.17's bytes (SETTLE_CORE_v0.md sectio
 | deviation | when |
 |---|---|
 | `executed_after_content_escalate` | the admission said escalate with a content reason, and the execution carries no approval that counts for the action, valid at its height and not already counted once if single_use (unless v1.11 already raised `executed_after_refusal`) |
+
+**v1.19.** Only for a contract that requires admission, and only when an execution names an admission of version 0.4,
+or an admission that escalated on the immune rules alone; otherwise v1.18's bytes (SETTLE_CORE_v0.md section 19).
+
+| deviation | when |
+|---|---|
+| `content_rules_mismatch` | the admission is version 0.4 and `content.rules_sha256` is not the contract's `requirements.furui.rules_sha256` |
+| `content_not_checked` | a 0.4 admit whose content block says checked or answered false (the verifier refuses such a record, so this stands for completeness) |
+| `executed_after_content_escalate` | as v1.18, read over versions 0.3 and 0.4 in one pass with one single_use spend; in 0.4 `content_off_topic` is a content reason |
+| `executed_after_immune_escalate` | the admission said escalate with `immune_hold` and no content reason, and the execution carries no approval that counts (the same test) |
+
+A mark under `on_off_topic: mark_only` is no deviation; settle v1.19 counts the marks of the 0.4 admissions it reads in `content_marks`.
 
 ## Immune rules (immune_v0.py)
 

@@ -1,0 +1,17 @@
+{
+ "bond_outcome": "undetermined",
+ "content_escalate_gate_counts": null,
+ "content_gate_counts": null,
+ "content_gate_v04_counts": null,
+ "content_marks": null,
+ "contract_sha256": "4a6e940572bd816548fea9ee544312842e216a42f39f30c421671563e220c3e5",
+ "deviation_codes": [],
+ "dispositions": {},
+ "escalate_gate_counts": null,
+ "event_set": [],
+ "status": "undetermined",
+ "underspecified_reasons": [
+  "contract_not_verified"
+ ],
+ "verdict": "underspecified"
+}

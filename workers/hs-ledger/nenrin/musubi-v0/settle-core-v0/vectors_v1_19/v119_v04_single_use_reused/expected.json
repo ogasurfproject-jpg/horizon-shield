@@ -1,0 +1,44 @@
+{
+ "bond_outcome": "forfeited",
+ "content_escalate_gate_counts": null,
+ "content_gate_counts": {
+  "content_not_checked": 0,
+  "content_rules_mismatch": 0
+ },
+ "content_gate_v04_counts": {
+  "content_not_checked": 0,
+  "content_rules_mismatch": 0
+ },
+ "content_marks": {
+  "off_topic": 2,
+  "rule_conflict": 0,
+  "unread": 0
+ },
+ "contract_sha256": "cb92eb4e451f384159c623d682986a7a76a8edc0b1456faa0cafb949f32d106d",
+ "deviation_codes": [
+  "executed_after_content_escalate"
+ ],
+ "dispositions": {
+  "0e24ffbaeb0c16ff9e75666743c319c9d992e8cb5e28c70c12b7af251c14cd0e": "accepted",
+  "71b555c825e397dfa9a5376467c51775785e0ad72f16639fef0ce6af471cb1dc": "accepted"
+ },
+ "escalate_gate_counts": {
+  "executed_after_content_escalate": 1,
+  "executed_after_immune_escalate": 0
+ },
+ "event_set": [
+  {
+   "height": 900002,
+   "kind": "execution",
+   "sha256": "71b555c825e397dfa9a5376467c51775785e0ad72f16639fef0ce6af471cb1dc"
+  },
+  {
+   "height": 900003,
+   "kind": "execution",
+   "sha256": "0e24ffbaeb0c16ff9e75666743c319c9d992e8cb5e28c70c12b7af251c14cd0e"
+  }
+ ],
+ "status": "final",
+ "underspecified_reasons": [],
+ "verdict": "deviation"
+}

@@ -175,7 +175,7 @@ def recompute_run0002():
 
 def settle_core():
     """settle core v0, offline: its vectors against settle_v1_16 (run_reference.py), the section 17 vectors against settle_v1_17
-    and the section 18 vectors against settle_v1_18 when they are present, and EXERCISE.txt."""
+    and the section 18 and 19 vectors against settle_v1_18 and settle_v1_19 when they are present, and EXERCISE.txt."""
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
     r = subprocess.run([sys.executable, os.path.join(SETTLE_CORE_DIR, "run_reference.py")], capture_output=True, text=True, env=env)
     e = subprocess.run([sys.executable, os.path.join(SETTLE_CORE_DIR, "exercise_inputs.py"), "--check"], capture_output=True, text=True, env=env)
@@ -187,7 +187,8 @@ def settle_core():
           and last(e) == "EXERCISE.txt agrees")
     v117 = next((l for l in r.stdout.splitlines() if " v1.17 vectors agree with the reference" in l), "")
     v118 = next((l for l in r.stdout.splitlines() if " v1.18 vectors agree with the reference" in l), "")
-    return {"ok": ok, "vectors": core.split(" (")[0], "v1_17": v117.split(" (")[0], "v1_18": v118.split(" (")[0], "exercise": last(e), "vectors_json_sha256": vectors,
+    v119 = next((l for l in r.stdout.splitlines() if " v1.19 vectors agree with the reference" in l), "")
+    return {"ok": ok, "vectors": core.split(" (")[0], "v1_17": v117.split(" (")[0], "v1_18": v118.split(" (")[0], "v1_19": v119.split(" (")[0], "exercise": last(e), "vectors_json_sha256": vectors,
             "why": "" if ok else (r.stderr or e.stderr or r.stdout)[-400:]}
 
 

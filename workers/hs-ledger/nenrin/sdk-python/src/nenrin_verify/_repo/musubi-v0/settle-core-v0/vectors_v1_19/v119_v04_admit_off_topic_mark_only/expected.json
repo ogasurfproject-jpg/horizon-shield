@@ -1,0 +1,36 @@
+{
+ "bond_outcome": "held",
+ "content_escalate_gate_counts": null,
+ "content_gate_counts": {
+  "content_not_checked": 1,
+  "content_rules_mismatch": 0
+ },
+ "content_gate_v04_counts": {
+  "content_not_checked": 0,
+  "content_rules_mismatch": 0
+ },
+ "content_marks": {
+  "off_topic": 1,
+  "rule_conflict": 0,
+  "unread": 0
+ },
+ "contract_sha256": "156df0cebe79bbde6469ce0eab6e1ccbed739ace940d8ab9b1c137f7035d0aa6",
+ "deviation_codes": [],
+ "dispositions": {
+  "8ab3ef737bfb9ae6b0e6ed5dbd5d81d1703dc25d45a144c4786ae185258ecf85": "accepted"
+ },
+ "escalate_gate_counts": {
+  "executed_after_content_escalate": 0,
+  "executed_after_immune_escalate": 0
+ },
+ "event_set": [
+  {
+   "height": 900002,
+   "kind": "execution",
+   "sha256": "8ab3ef737bfb9ae6b0e6ed5dbd5d81d1703dc25d45a144c4786ae185258ecf85"
+  }
+ ],
+ "status": "final",
+ "underspecified_reasons": [],
+ "verdict": "within_grant"
+}

@@ -2,7 +2,7 @@ name: core tests
 
 # The offline suites of the layers everything else stands on, run on every change to them and once a week
 # (2026-10-19). Before this they ran only by hand before a deploy: the ledger, the gate, the pilot responder,
-# settle core's vectors (and the section 17 and 18 vectors of settle v1.17 and v1.18) and its exercise record, TSUGI's recovery suites, the stamper, the SEKI heartbeat,
+# settle core's vectors (and the section 17, 18 and 19 vectors of settle v1.17, v1.18 and v1.19) and its exercise record, TSUGI's recovery suites, the stamper, the SEKI heartbeat,
 # the ledger token rotation, the receipt anchor, and the price bands hs-hearing copies from souba-db. Since 2026-10-20 also
 # MUSUBI's immune rules and the admission records with their JavaScript twin and the ledger intake. All of them inject their own fetch or serve on 127.0.0.1; none needs a secret.
 # Not here: the agreement suite (agreement-v0/run_all.mjs, longer than ten minutes) and hs-mcp (its source is not in
@@ -94,14 +94,15 @@ jobs:
           python-version: "3.13"
       - name: the one dependency (pinned)
         run: python -m pip install --disable-pip-version-check "cryptography==46.0.7"
-      - name: settle core, its vectors against the reference (and section 17 against settle v1.17, section 18 against settle v1.18)
+      - name: settle core, its vectors against the reference (and sections 17, 18 and 19 against settle v1.17, v1.18 and v1.19)
         working-directory: workers/hs-ledger/nenrin/musubi-v0/settle-core-v0
         run: python -I -B run_reference.py
-      - name: settle v1.17, settle v1.18, furui-rules-id-v0 and v1 and musubi-scope-v0 (self tests, with their JavaScript twins)
+      - name: settle v1.17, v1.18 and v1.19, furui-rules-id-v0 and v1 and musubi-scope-v0 (self tests, with their JavaScript twins)
         working-directory: workers/hs-ledger/nenrin/musubi-v0
         run: |
           python -I -B settle_v1_17.py --selftest | tail -1 | grep "^SELF-TEST PASSED"
           python -I -B settle_v1_18.py --selftest | tail -1 | grep "^SELF-TEST PASSED"
+          python -I -B settle_v1_19.py --selftest | tail -1 | grep "^SELF-TEST PASSED"
           python -I -B furui_rules_id_v0.py --selftest | tail -1 | grep "^SELF-TEST PASSED"
           python -I -B furui_rules_id_v1.py --selftest | tail -1 | grep "^SELF-TEST PASSED"
           python -I -B render_scope_v0.py --selftest | tail -1 | grep "^SELF-TEST PASSED"

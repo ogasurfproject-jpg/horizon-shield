@@ -25,6 +25,8 @@ Revision 0.11, 2026-10-31: two places where the text was silent on what the refe
 
 Revision 0.12, 2026-11-02: section 18 is new, outside core v0, beside section 17: an action run after the door escalated on the content (admission version 0.3, decision escalate, a content reason) with no approval that counts is a deviation, `executed_after_content_escalate` (a2a-settlement-v1.18). Core v0 does not change: the 128 vectors and the 13 vectors of section 17 did not change, file for file, and settle v1.18 gives v1.17's output byte for byte on all of them. The rule's vectors are in `vectors_v1_18/`.
 
+Revision 0.13, 2026-11-02: section 19 is new, outside core v0, beside sections 17 and 18: admissions of version 0.4 are read (the content gate of section 17 for 0.4, and section 18's rule over 0.3 and 0.4 in one pass), and an action run after an escalate on the immune rules alone with no approval that counts is a deviation, `executed_after_immune_escalate` (a2a-settlement-v1.19).
+
 ## 0. Why this document exists
 
 Until now the MUSUBI settle function was defined only by Python code (settle_v1.py to settle_v1_16.py, each layer importing the ones below it).
@@ -799,6 +801,30 @@ An approval (a2a-approval-v2, the bytes of clause_eval_v0.approver_approval_byte
 One fact can carry two names by height: for a conditional action whose approval is valid at the admission's height but expired at the execution's, v1.11 does not raise `executed_after_refusal` and this rule raises `executed_after_content_escalate`.
 
 Vectors. `vectors_v1_18/vectors.json` indexes them; each folder has the files of a section 17 vector, and `expected.json` adds `content_escalate_gate_counts`. `run_reference.py` checks them after the section 17 vectors.
+
+## 19. Admissions of version 0.4, and the immune escalate (a2a-settlement-v1.19), outside core v0
+
+This section is not part of core v0, for the reason section 17 gives. Its vectors are kept apart, in `vectors_v1_19/`.
+
+The reference is settle_v1_19.py, called as `settle_v1_19.settle_v1_19(contract, events, view, admissions=..., relying_keys=...)`. It is settle v1.18 plus the rules below.
+
+Why. Admission records of version 0.4 carry the content check in the shape of FURUI A7.4: a salted commitment to the content (`input_commit`), the rule set (`furui-rules-id-v1`), a decision (`stop` or `pass`), the marks `off_topic` and `rule_conflict`, `unread`, `answered` and `checked`, and the reason `content_off_topic`. Section 17 compares the content block only when the admission says `"0.3"`, so it reads a 0.4 admit as one that carries no content check (`content_not_checked`), and section 18 reads an escalate on the content only in 0.3. An escalate on the immune rules alone (`immune_hold`) was read by no rule.
+
+When it applies. To every contract that requires admission. When no accepted execution names an admission of version 0.4, and none names an escalate on the immune rules alone, the output is v1.18's, byte for byte, schema line included (checked over the 128 vectors of section 16, the 13 vectors of section 17, the 14 vectors of section 18, the admission fixture cases and run0002).
+
+What it reads. The admissions v1.11 reads, paired with actions as in section 17, each read once, in (anchor height, record sha256) order.
+
+The rules:
+
+1. The content gate for version 0.4, when the contract names a content check (`requirements.furui.rules_sha256`): `content_rules_mismatch` when the admission is version 0.4 and its `content.rules_sha256` is not the contract's; `content_not_checked` when a 0.4 admit says checked or answered false. A deviation section 17 raised for an admission of version 0.4 (a misreading of a version it did not know) is taken back. The rows read are in `content_gate_v04`.
+2. One escalate rule over versions 0.3 and 0.4, in one pass with one single_use spend, in place of section 18's: `executed_after_content_escalate` when the admission is version 0.3 or 0.4, its decision is `escalate`, its reasons name a content reason (in 0.4 also `content_off_topic`), and the execution carries no approval that counts for the action, valid at its height, under section 18's test. `executed_after_immune_escalate` when the decision is `escalate`, the reasons name `immune_hold` and no content reason, and the execution carries no approval that counts, under the same test. Where v1.11 raised `executed_after_refusal` for the same execution, action and admission, nothing is added. The rows read are in `escalate_gate`, which replaces section 18's `content_escalate_gate` when this section reads anything.
+3. `content_marks`: for the 0.4 admissions read, the number with each mark and with `unread`. A mark under the relying party's `on_off_topic: mark_only` is no deviation.
+
+When every deviation is taken back, the verdict and the bond outcome are v1.16's.
+
+What it does not do. It does not read the content, run a check, or recompute `input_commit`. A mark says what the relying party's own check marked. An approval signs no admission's digest (section 18), so that an approval answers a particular escalate is not established.
+
+Vectors. `vectors_v1_19/vectors.json` indexes them; each folder has the files of a section 17 vector, and `expected.json` adds `content_gate_v04_counts`, `escalate_gate_counts` and `content_marks`. `run_reference.py` checks them after the section 18 vectors.
 
 ## Appendix A. Codes
 

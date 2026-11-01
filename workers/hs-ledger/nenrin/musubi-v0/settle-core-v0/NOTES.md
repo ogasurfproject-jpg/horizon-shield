@@ -287,6 +287,16 @@ The end to end test of FURUI, the door, the intake and settlement (2026-10-28) f
 
 An approval (a2a-approval-v2, the bytes of clause_eval_v0.approver_approval_bytes) signs the contract's digest, the action, the approver's key, valid_until_height, the nonce and single_use. It signs no admission's digest, so no approval can show that it answers a particular escalate, and an approval signed before the door escalated counts the same as one signed after. A rule that asks for an answer to the escalate needs an approval that names the admission; that is not part of this revision.
 
+## N28. Admissions of version 0.4, and the immune escalate (revision 0.13)
+
+Status: section 19, outside core v0, beside sections 17 and 18. No rule, reason or vector of core v0 changed.
+
+Admission records of version 0.4 (2026-11-01) carry the content check in the shape of FURUI A7.4. Section 17 compares the content block only when the admission says "0.3", so a 0.4 admit settled as `content_not_checked` under v1.17, a reason that was wrong; and section 18 read an escalate on the content only in 0.3. A third gap was older: an action the grant authorizes, escalated by the door on the immune rules alone (`immune_hold`) and run with no approval, was read by no rule, the same hole section 18 closed for the content.
+
+Settle v1.19 reads 0.4 with section 17's gate, takes back section 17's misreading, runs section 18's rule over 0.3 and 0.4 in one pass with one single_use spend (so one single_use approval counts once across the two versions; vector `v119_v03_v04_single_use_once`), and adds `executed_after_immune_escalate`. Nineteen vectors, among them the case of a 0.1 admit under a contract that names a check (`content_not_checked`, unchanged from v1.17) and the immune escalate with and without an approval.
+
+What changes for an implementation of core v0: nothing. The 128 vectors, the 13 of section 17 and the 14 of section 18 are unchanged, file for file.
+
 ## What I could not pin down
 
 - Whether the project intends core v0 to follow settle_v1_10 or the latest layer. On the vectors, v1.11 to v1.14 give identical core fields; v1.15 differs on one vector (N10) and reports a dropped copy under `signed_body_collapse` instead of `duplicate_anchorings`, which changes the dispositions projection for real_p31_two_anchorings_one_body only.
