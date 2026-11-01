@@ -74,5 +74,17 @@ jobs:
             exit 0
           fi
           git commit -m "tsunagi: nightly board $(date -u +%Y-%m-%d)"
-          git pull --rebase origin main
-          git push
+          # A bare git push fails when another commit lands on main at the same moment
+          # (the 2026-11-01 survey-observatory run lost its record that way). Pull with
+          # rebase before each push, retry up to three times, and fail red if all three fail.
+          ok=0
+          for i in 1 2 3; do
+            if git pull --rebase origin main && git push; then ok=1; break; fi
+            echo "push failed (attempt ${i}); waiting and retrying."
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          if [ "$ok" != 1 ]; then
+            echo "push failed three times; the record was not kept." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi

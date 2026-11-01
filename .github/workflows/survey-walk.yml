@@ -171,7 +171,20 @@ jobs:
             exit 0
           fi
           git commit -m "observatory: $(date -u +%Y-%m-%d) の走行"
-          git push
+          # 素の git push は、同じ時刻に別の commit が main に入ると rejected で落ちる
+          # (2026-11-01 の survey-observatory で記録が失われた)。push の前に pull --rebase をし、
+          # 押し合いなら 3 回までやり直す。3 回とも落ちたら赤にする。
+          ok=0
+          for i in 1 2 3; do
+            if git pull --rebase origin main && git push; then ok=1; break; fi
+            echo "push できませんでした(${i} 回目)。少し待ってやり直します。"
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 10))
+          done
+          if [ "$ok" != 1 ]; then
+            echo "3 回やり直しても push できませんでした。記録は残っていません。" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
           {
             echo ""
             echo "照会口(hs-mcp-observatory)のデータは、まだこの走行に追従していません。"
