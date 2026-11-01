@@ -163,6 +163,16 @@
       "role": "primary"
     },
     {
+      "file": "survey1_walk_2026-11-01.jsonl",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey1_walk_2026-11-01.jsonl",
+      "bytes": 1679343,
+      "sha256": "381fdbd76ae0031a439da192849fcabfd07f40626841a7500604e912b05f48bb",
+      "lines": 2036,
+      "what": null,
+      "role": "undescribed",
+      "note": "This file has no description in tools/survey/build_dataset_index.py. It is listed anyway. A dataset index that quietly omits files is not an index."
+    },
+    {
       "file": "survey2_recheck_2026-08-24.jsonl",
       "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey2_recheck_2026-08-24.jsonl",
       "bytes": 427197,
@@ -240,6 +250,15 @@
       "what": "The 300 planned rows measured again with the walk's own instrument (robots re-read, control address, retries), the class written at write time, the vantage stated. Read only, no tool calls. Recompute: python3 tools/survey8_transport_recheck.py recompute <run2> <this file>.",
       "made_by": "tools/survey8_transport_recheck.py",
       "role": "correction"
+    },
+    {
+      "file": "survey_diff_2026-11-01.json",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey_diff_2026-11-01.json",
+      "bytes": 4357,
+      "sha256": "5f2283bd8bec2707d66a3f942127d1b709e242218b54b2fbd9776a8c808897f3",
+      "what": null,
+      "role": "undescribed",
+      "note": "This file has no description in tools/survey/build_dataset_index.py. It is listed anyway. A dataset index that quietly omits files is not an index."
     }
   ]
 }

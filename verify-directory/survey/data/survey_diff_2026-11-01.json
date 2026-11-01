@@ -1,0 +1,180 @@
+{
+  "kind": "walk",
+  "before": {
+    "file": "survey1_walk_2026-08-23_run2.jsonl",
+    "rows": 12429
+  },
+  "after": {
+    "file": "survey1_walk_2026-11-01.jsonl",
+    "rows": 2036
+  },
+  "population": {
+    "in_both": 1280,
+    "only_in_before": 11149,
+    "only_in_after": 756
+  },
+  "disclosure": {
+    "started_disclosing": [
+      {
+        "endpoint": "https://mcp.djzs.ai/mcp",
+        "fields": [
+          "payments"
+        ]
+      }
+    ],
+    "stopped_disclosing": [],
+    "net": 1,
+    "before_total": 152,
+    "after_total": 4
+  },
+  "state_moves": {
+    "held -> skipped": 139,
+    "measured -> skipped": 25,
+    "held -> measured": 18,
+    "measured -> held": 18,
+    "skipped -> measured": 10,
+    "measured -> pending": 9,
+    "pending -> held": 5,
+    "held -> pending": 4,
+    "skipped -> held": 3,
+    "pending -> skipped": 3,
+    "pending -> measured": 2,
+    "skipped -> pending": 1
+  },
+  "measured_then_unmeasurable": {
+    "count": 18,
+    "what_this_is": "前回は測れて今回は測れなかった数。これはあちらの状態ではなく、こちらの計器の話である。多ければ、この回の走行そのものを疑う。"
+  },
+  "host_shutdowns": {
+    "count": 0,
+    "events": [],
+    "what_this_is": "前回は測れて今回は測れなかった口のうち、運営者が告知して止めた中継のホストにあるもの。上の「測れなかった」には入れていない。"
+  },
+  "tool_count_moves_top20": [
+    {
+      "endpoint": "https://mcp.saber.app/mcp",
+      "before": 119,
+      "after": 76,
+      "delta": -43
+    },
+    {
+      "endpoint": "https://borealhost.ai/mcp/",
+      "before": 144,
+      "after": 184,
+      "delta": 40
+    },
+    {
+      "endpoint": "https://mcp.himalayas.app/mcp",
+      "before": 41,
+      "after": 78,
+      "delta": 37
+    },
+    {
+      "endpoint": "https://satohub.ai/api/mcp",
+      "before": 13,
+      "after": 48,
+      "delta": 35
+    },
+    {
+      "endpoint": "https://api.flowcastle.ai/api/mcp",
+      "before": 28,
+      "after": 60,
+      "delta": 32
+    },
+    {
+      "endpoint": "https://verticalmarketplace.ai/api/mcp",
+      "before": 27,
+      "after": 55,
+      "delta": 28
+    },
+    {
+      "endpoint": "https://api.bowmark.ai/mcp/registry",
+      "before": 3,
+      "after": 26,
+      "delta": 23
+    },
+    {
+      "endpoint": "https://mcp.creativescope.ai/mcp",
+      "before": 12,
+      "after": 35,
+      "delta": 23
+    },
+    {
+      "endpoint": "https://mcp.gondola.ai/mcp",
+      "before": 28,
+      "after": 49,
+      "delta": 21
+    },
+    {
+      "endpoint": "https://finestructure.ai/api/mcp",
+      "before": 82,
+      "after": 99,
+      "delta": 17
+    },
+    {
+      "endpoint": "https://mcp.signal8.ai/mcp",
+      "before": 92,
+      "after": 109,
+      "delta": 17
+    },
+    {
+      "endpoint": "https://api.novence.ai/mcp",
+      "before": 36,
+      "after": 52,
+      "delta": 16
+    },
+    {
+      "endpoint": "https://www.cannonstudio.app/mcp",
+      "before": 15,
+      "after": 31,
+      "delta": 16
+    },
+    {
+      "endpoint": "https://mcp.ludo.ai/mcp",
+      "before": 32,
+      "after": 46,
+      "delta": 14
+    },
+    {
+      "endpoint": "https://mcp.tickerscout.ai/mcp",
+      "before": 6,
+      "after": 20,
+      "delta": 14
+    },
+    {
+      "endpoint": "https://sorsa.app/mcp",
+      "before": 56,
+      "after": 70,
+      "delta": 14
+    },
+    {
+      "endpoint": "https://mcp.retrodiffusion.ai/mcp",
+      "before": 20,
+      "after": 33,
+      "delta": 13
+    },
+    {
+      "endpoint": "https://mcp-data.tunnelmind.ai/mcp",
+      "before": 93,
+      "after": 104,
+      "delta": 11
+    },
+    {
+      "endpoint": "https://api.mcpanalytics.ai/mcp/api-key",
+      "before": 17,
+      "after": 27,
+      "delta": 10
+    },
+    {
+      "endpoint": "https://gingerguide.app/mcp",
+      "before": 4,
+      "after": 14,
+      "delta": 10
+    }
+  ],
+  "caution": [
+    "前回に無く今回にある住所は「新しく建った」ではない。レジストリに載った、である。",
+    "前回にあり今回に無い住所は「落ちた」ではない。登録の一覧から消えた、である。",
+    "名乗るのをやめたように見える口は、書類が変わったのか読めなかったのかを、1件ずつ確かめてからでないと言えない。"
+  ]
+}
