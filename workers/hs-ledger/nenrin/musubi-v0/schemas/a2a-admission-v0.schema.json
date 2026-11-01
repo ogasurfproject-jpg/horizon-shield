@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/musubi-v0/schemas/a2a-admission-v0.schema.json",
   "title": "a2a-admission-v0",
-  "description": "What a relying party's door returned for one action under one signed MUSUBI contract, signed by the relying party. Signed bytes: the ASCII line a2a-admission-v0, a newline, then musubi-canonical-v0 of the record without signatures. Two versions of this record exist: v0 (no rules.version) and v0.1 (rules.version \"0.1\", 2026-10-10). They differ in presentation_ref (v0.1 may carry self_declared), revocations_seen (v0: sha256 strings; v0.1: objects that say whether each revocation carried an anchor) and the third line of does_not_establish. v0.2 (rules.version \"0.2\", 2026-10-20) adds immune (the verdict of a2a-immune-v0 as digests and codes) and the reasons immune_hold and immune_reject. v0.3 (rules.version \"0.3\", 2026-10-27) keeps immune and adds content: the relying party's account of its content check (a2a-content-check-v0) as digests and flags, never the content, and the reason content_scope_conflict. Each later version adds one line to does_not_establish. The seven rules that tie content to decision and reasons are in admission_verify_v0.content_problems. The reference is admission_verify_v0.py; this schema describes the shape and does not replace verify_admission. The implementation of a relying party's door is not public; a record is checked without it.",
+  "description": "What a relying party's door returned for one action under one signed MUSUBI contract, signed by the relying party. Signed bytes: the ASCII line a2a-admission-v0, a newline, then musubi-canonical-v0 of the record without signatures. Two versions of this record exist: v0 (no rules.version) and v0.1 (rules.version \"0.1\", 2026-10-10). They differ in presentation_ref (v0.1 may carry self_declared), revocations_seen (v0: sha256 strings; v0.1: objects that say whether each revocation carried an anchor) and the third line of does_not_establish. v0.2 (rules.version \"0.2\", 2026-10-20) adds immune (the verdict of a2a-immune-v0 as digests and codes) and the reasons immune_hold and immune_reject. v0.3 (rules.version \"0.3\", 2026-10-27) keeps immune and adds content: the relying party's account of its content check (a2a-content-check-v0) as digests and flags, never the content, and the reason content_scope_conflict. Each later version adds one line to does_not_establish. The seven rules that tie content to decision and reasons are in admission_verify_v0.content_problems. The reference is admission_verify_v0.py; this schema describes the shape and does not replace verify_admission. The implementation of a relying party's door is not public; a record is checked without it. v0.4 (rules.version \"0.4\", after FURUI blind-06) keeps immune and carries content in the shape of FURUI A7.4 (a2a-content-check-v1): a salted commitment input_commit instead of the content's digest, the decision (stop or pass), the marks (off_topic, rule_conflict), unread, answered and checked, the reason content_off_topic, and two lines of does_not_establish of its own. Its rules are in admission_verify_v0.content_problems_v04.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -248,7 +248,8 @@
           "exposure_full",
           "immune_hold",
           "immune_reject",
-          "content_scope_conflict"
+          "content_scope_conflict",
+          "content_off_topic"
         ]
       }
     },
@@ -279,7 +280,8 @@
           "enum": [
             "0.1",
             "0.2",
-            "0.3"
+            "0.3",
+            "0.4"
           ],
           "description": "Absent in a record written by admit v0."
         }
@@ -335,6 +337,18 @@
             "that this record is a legal authorization or determines liability"
           ],
           "description": "v0"
+        },
+        {
+          "const": [
+            "that HS allowed or blocked anything; the relying party ran the function at its own door",
+            "that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show",
+            "when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored",
+            "that the action was lawful, safe or wise; only that it was inside or outside the signed grant",
+            "that this record is a legal authorization or determines liability",
+            "that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record",
+            "that any content check ran, or that the same check would answer the same way again; the record carries a salted commitment to the bytes the relying party says it checked (only a holder of the bytes and the salt can recompute it), the digest of the check it says it read, the identifier of the rule set, the decision and the marks, and nothing else about the content",
+            "that the rates measured for the named rule set hold on this contract's scope; they were measured on the scopes of public datasets, not on a scope rendered from a contract"
+          ]
         }
       ]
     },
@@ -438,84 +452,190 @@
       }
     },
     "content": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "answered",
-        "check_sha256",
-        "checked",
-        "input_sha256",
-        "rules",
-        "rules_sha256",
-        "scope_conflict",
-        "scope_sha256",
-        "verdict"
-      ],
-      "description": "v0.3 only, and required there: what the relying party says its content check read. Digests and flags; the content is never in the record. null means absent.",
-      "properties": {
-        "rules": {
-          "const": "a2a-content-check-v0"
-        },
-        "input_sha256": {
-          "type": [
-            "string",
-            "null"
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "answered",
+            "check_sha256",
+            "checked",
+            "input_sha256",
+            "rules",
+            "rules_sha256",
+            "scope_conflict",
+            "scope_sha256",
+            "verdict"
           ],
-          "pattern": "^[0-9a-f]{64}$",
-          "description": "sha256 of the musubi-canonical-v0 bytes of the content the door received; null when none came"
+          "description": "v0.3 only, and required there: what the relying party says its content check read. Digests and flags; the content is never in the record. null means absent.",
+          "properties": {
+            "rules": {
+              "const": "a2a-content-check-v0"
+            },
+            "input_sha256": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^[0-9a-f]{64}$",
+              "description": "sha256 of the musubi-canonical-v0 bytes of the content the door received; null when none came"
+            },
+            "check_sha256": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^[0-9a-f]{64}$",
+              "description": "sha256 of the canonical bytes of the check's own record (furui-check-v0); null when there is none"
+            },
+            "rules_sha256": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^[0-9a-f]{64}$",
+              "description": "the identifier of the rule set (furui-rules-id-v0), the value the door's policy names"
+            },
+            "scope_sha256": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^[0-9a-f]{64}$",
+              "description": "the task scope the check was given (musubi-scope-v0); null when none was given"
+            },
+            "verdict": {
+              "enum": [
+                "instruction",
+                "none",
+                null
+              ]
+            },
+            "scope_conflict": {
+              "enum": [
+                "none",
+                "forbidden_by_rule",
+                "skips_required_step",
+                "outside_task",
+                null
+              ]
+            },
+            "answered": {
+              "type": "boolean",
+              "description": "false when the model returned no answer (a refusal before reading)"
+            },
+            "checked": {
+              "type": "boolean",
+              "description": "true only when the content and the check's record were both there, the digests matched and rules_sha256 is the policy's"
+            }
+          }
         },
-        "check_sha256": {
-          "type": [
-            "string",
-            "null"
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "answered",
+            "check_sha256",
+            "checked",
+            "decision",
+            "input_commit",
+            "marks",
+            "rules",
+            "rules_sha256",
+            "scope_sha256",
+            "unread"
           ],
-          "pattern": "^[0-9a-f]{64}$",
-          "description": "sha256 of the canonical bytes of the check's own record (furui-check-v0); null when there is none"
-        },
-        "rules_sha256": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "pattern": "^[0-9a-f]{64}$",
-          "description": "the identifier of the rule set (furui-rules-id-v0), the value the door's policy names"
-        },
-        "scope_sha256": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "pattern": "^[0-9a-f]{64}$",
-          "description": "the task scope the check was given (musubi-scope-v0); null when none was given"
-        },
-        "verdict": {
-          "enum": [
-            "instruction",
-            "none",
-            null
-          ]
-        },
-        "scope_conflict": {
-          "enum": [
-            "none",
-            "forbidden_by_rule",
-            "skips_required_step",
-            "outside_task",
-            null
-          ]
-        },
-        "answered": {
-          "type": "boolean",
-          "description": "false when the model returned no answer (a refusal before reading)"
-        },
-        "checked": {
-          "type": "boolean",
-          "description": "true only when the content and the check's record were both there, the digests matched and rules_sha256 is the policy's"
+          "description": "v0.4: the content check of FURUI A7.4 as a salted commitment, digests, the decision and the marks; the content and its salt are never in the record. The nine rules are in admission_verify_v0.content_problems_v04.",
+          "properties": {
+            "rules": {
+              "const": "a2a-content-check-v1"
+            },
+            "input_commit": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^[0-9a-f]{64}$",
+              "description": "sha256(r || musubi-canonical-v0 bytes of the content), r a 32 byte salt the door returns to the requester alone; null when unchecked"
+            },
+            "check_sha256": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^[0-9a-f]{64}$",
+              "description": "sha256 of the canonical furui-check-v1 record the door read"
+            },
+            "rules_sha256": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^[0-9a-f]{64}$",
+              "description": "the identifier of the rule set (furui-rules-id-v1), the value the door's policy names"
+            },
+            "scope_sha256": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^[0-9a-f]{64}$",
+              "description": "the scope rendered from the contract (musubi-scope-v0); required when a mark is set"
+            },
+            "decision": {
+              "enum": [
+                "stop",
+                "pass",
+                null
+              ]
+            },
+            "marks": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "off_topic",
+                  "rule_conflict"
+                ]
+              },
+              "uniqueItems": true
+            },
+            "unread": {
+              "type": "boolean"
+            },
+            "answered": {
+              "type": "boolean"
+            },
+            "checked": {
+              "type": "boolean"
+            }
+          }
         }
-      }
+      ]
     }
   },
   "allOf": [
+    {
+      "if": {
+        "properties": {
+          "rules": {
+            "properties": {
+              "version": {
+                "const": "0.4"
+              }
+            },
+            "required": [
+              "version"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "immune",
+          "content"
+        ]
+      }
+    },
     {
       "if": {
         "properties": {
@@ -573,7 +693,8 @@
                 "version": {
                   "enum": [
                     "0.2",
-                    "0.3"
+                    "0.3",
+                    "0.4"
                   ]
                 }
               },

@@ -20,14 +20,19 @@ clause evaluator it used (clause_eval_v0.py, which is public), and settlement re
 contract. A relying party is free to build its own door; what makes its records checkable is this file and the schema
 in schemas/a2a-admission-v0.schema.json.
 
-Three versions of the record exist. A v0 record has no rules.version. A v0.1 record (2026-10-10) says "0.1"; its
+Five versions of the record exist. A v0 record has no rules.version. A v0.1 record (2026-10-10) says "0.1"; its
 presentation_ref may carry self_declared, its revocations_seen are objects that say whether each revocation carried
 an anchor, and the third line of its does_not_establish differs. A v0.2 record (2026-10-20) says "0.2" and carries
 one more field, immune: the verdict of the immune rules (immune_v0.py, a2a-immune-v0) over the request, as digests and
 codes only, and two more reasons, immune_hold and immune_reject. Its does_not_establish adds one line. A v0.3 record
 (2026-10-27) says "0.3", carries immune and one more field, content: what the relying party says its content check
 read (a2a-content-check-v0), as digests and flags only, one more reason, content_scope_conflict, and one more line of
-does_not_establish. verify_admission accepts each with its own stated limits and refuses one that carries another's.
+does_not_establish. A v0.4 record (DESIGN_TASUKI_v2, after FURUI blind-06, ledger entry 232) says "0.4", carries
+immune and a content block in the shape of FURUI A7.4: a salted commitment to the content (input_commit, never the
+content's own digest), the digest of the check, the rule set (furui-rules-id-v1), the decision (stop or pass), the marks
+(off_topic, rule_conflict), unread, answered and checked, one more reason, content_off_topic, and two lines of
+does_not_establish of its own. A door whose policy does not require a content check writes a v0.1 record with no content
+block (rule 0). verify_admission accepts each with its own stated limits and refuses one that carries another's.
 
 A record read from bytes is checked with verify_admission_text, which reads it the way admission_verify_v0.mjs does
 (read_record: a duplicate key or nesting past READER_MAX_DEPTH is malformed). verify_admission takes a record already
@@ -71,6 +76,14 @@ CONTENT_VERDICTS = ("instruction", "none")
 CONTENT_CONFLICTS = ("none", "forbidden_by_rule", "skips_required_step", "outside_task")
 CONTENT_KEYS = frozenset(("rules", "input_sha256", "check_sha256", "rules_sha256", "scope_sha256", "verdict", "scope_conflict", "answered", "checked"))
 CONTENT_REASONS = ("content_flagged", "content_scope_conflict", "content_unchecked")
+VERSION_CONTENT_V04 = "0.4"
+REASONS_V04 = REASONS_V03 + ("content_off_topic",)
+CONTENT_RULES_V04 = "a2a-content-check-v1"
+CONTENT_DECISIONS_V04 = ("stop", "pass")
+CONTENT_MARKS_V04 = ("off_topic", "rule_conflict")
+CONTENT_KEYS_V04 = frozenset(("rules", "input_commit", "check_sha256", "rules_sha256", "scope_sha256", "decision", "marks", "unread", "answered", "checked"))
+CONTENT_REASONS_V04 = ("content_flagged", "content_scope_conflict", "content_off_topic", "content_unchecked")
+CONTENT_VERSIONS = (VERSION_CONTENT, VERSION_CONTENT_V04)
 HEX32 = re.compile(r"^[0-9a-f]{32}\Z")
 HEX64 = re.compile(r"^[0-9a-f]{64}\Z")
 DOES_NOT_ESTABLISH_V0 = [
@@ -92,6 +105,12 @@ DOES_NOT_ESTABLISH_V02 = DOES_NOT_ESTABLISH + [
 DOES_NOT_ESTABLISH_V03 = DOES_NOT_ESTABLISH_V02 + [
     "that any content check ran, or that the same check would answer the same way again; the record carries the digests of the bytes the relying "
     "party says it checked and of the verdict it says it read, the identifier of the rule set, and the flags, and nothing else about the content"]
+DOES_NOT_ESTABLISH_V04 = DOES_NOT_ESTABLISH_V02 + [
+    "that any content check ran, or that the same check would answer the same way again; the record carries a salted commitment to the bytes the "
+    "relying party says it checked (only a holder of the bytes and the salt can recompute it), the digest of the check it says it read, the "
+    "identifier of the rule set, the decision and the marks, and nothing else about the content",
+    "that the rates measured for the named rule set hold on this contract's scope; they were measured on the scopes of public datasets, not on "
+    "a scope rendered from a contract"]
 
 
 def sha256_hex(b):
@@ -266,6 +285,37 @@ def content_problems(record):
     return [] if ok else ["malformed"]
 
 
+def content_problems_v04(record):
+    """[] when a v0.4 record's content block is well formed and agrees with its decision and reasons (rules 1 to 9 of
+    DESIGN_TASUKI_v2 2.1.4). The block carries input_commit = sha256(r || canonical(content)), r a 32 byte salt the door
+    returns to the requester alone, never the content's own digest. Every rule here reads fields only. Rule 0 (no content
+    block when the door's policy does not require a check) is the door's: such a record is version 0.1 and has no content."""
+    c, reasons, d = record.get("content"), record.get("reasons"), record.get("decision")
+    if not isinstance(c, dict) or set(c) != CONTENT_KEYS_V04 or c.get("rules") != CONTENT_RULES_V04 or not isinstance(reasons, list):
+        return ["malformed"]
+    hexnull = lambda k: c.get(k) is None or (isinstance(c[k], str) and bool(HEX64.match(c[k])))
+    dec, mk, un, ans, chk = c.get("decision"), c.get("marks"), c.get("unread"), c.get("answered"), c.get("checked")
+    if not (all(hexnull(k) for k in ("input_commit", "check_sha256", "rules_sha256", "scope_sha256")) and dec in CONTENT_DECISIONS_V04 + (None,)
+            and isinstance(mk, list) and all(isinstance(m, str) for m in mk) and mk == [m for m in CONTENT_MARKS_V04 if m in mk]
+            and isinstance(un, bool) and isinstance(ans, bool) and isinstance(chk, bool)):
+        return ["malformed"]
+    r = set(reasons)
+    nothing = dec is None and mk == [] and un is False
+    ok = ((chk or (nothing and ans is False and "content_unchecked" in r))                                       # 1 unchecked: nothing read
+          and (not chk or all(c.get(k) is not None for k in ("input_commit", "check_sha256", "rules_sha256")))  # 2 checked: three digests
+          and (ans or (nothing and "content_unchecked" in r))                                                    # 3 no answer: no decision
+          and (ans is False or dec is not None)                                                                  # 3 an answer has a decision
+          and ((dec == "stop") == ("content_flagged" in r))                                                      # 4 the stop
+          and (("rule_conflict" in mk) == ("content_scope_conflict" in r))                                       # 5 rule_conflict
+          and (("off_topic" in mk) == ("content_off_topic" in r))                                                # 6 off_topic
+          and ((un or not ans or not chk) == ("content_unchecked" in r))                                         # 7 unread or no answer
+          and (dec != "stop" or (mk == [] and un is False))                                                      # 8 a stop has no marks and is read
+          and (not un or dec == "pass")                                                                          # 8 unread is a pass
+          and (not mk or c.get("scope_sha256") is not None)                                                      # a mark needs the scope
+          and (d != "admit" or not (r & {"content_flagged", "content_scope_conflict", "content_unchecked"})))    # 9 an admit carries only off_topic
+    return [] if ok else ["malformed"]
+
+
 MAX_SAFE = 2 ** 53 - 1
 
 
@@ -362,7 +412,7 @@ def immune_binding_problems(record, contract):
     if not isinstance(terms, dict):
         return []
     rules = record.get("rules") if isinstance(record.get("rules"), dict) else {}
-    if rules.get("version") not in (VERSION_IMMUNE, VERSION_CONTENT) or not isinstance(record.get("immune"), dict):
+    if rules.get("version") not in (VERSION_IMMUNE,) + CONTENT_VERSIONS or not isinstance(record.get("immune"), dict):
         return ["immune_missing"]
     im = record["immune"]
     if im.get("verdict") == "not_run":
@@ -395,25 +445,27 @@ def verify_admission(record, relying_key_b64, contract=None):
     ver = rules.get("version")
     if "version" in rules and ver is None:
         ref.append("malformed")             # an explicit null is not v0 (the intake reads it the same way)
-    keys = RECORD_KEYS | {"immune", "content"} if ver == VERSION_CONTENT else RECORD_KEYS | {"immune"} if ver == VERSION_IMMUNE else RECORD_KEYS
+    keys = RECORD_KEYS | {"immune", "content"} if ver in CONTENT_VERSIONS else RECORD_KEYS | {"immune"} if ver == VERSION_IMMUNE else RECORD_KEYS
     if set(record) - keys - {"publication"} or not keys <= set(record) or record.get("publication", "public") != "public":
         ref.append("malformed")
     if not isinstance(record.get("contract_ref"), dict):
         ref.append("malformed")
     rp = record.get("relying_party") if isinstance(record.get("relying_party"), dict) else {}
     dom = rp.get("domain") if isinstance(rp.get("domain"), str) else None
-    allowed = REASONS_V03 if ver == VERSION_CONTENT else REASONS_V02 if ver == VERSION_IMMUNE else REASONS
+    allowed = REASONS_V04 if ver == VERSION_CONTENT_V04 else REASONS_V03 if ver == VERSION_CONTENT else REASONS_V02 if ver == VERSION_IMMUNE else REASONS
     if record.get("decision") not in DECISIONS or not isinstance(record.get("reasons"), list) or not record.get("reasons") \
             or any(r not in allowed for r in record.get("reasons") or []):
         ref.append("malformed")
-    if ver not in (None, VERSION, VERSION_IMMUNE, VERSION_CONTENT):
+    if ver not in (None, VERSION, VERSION_IMMUNE, VERSION_CONTENT, VERSION_CONTENT_V04):
         ref.append("malformed")
-    if ver in (VERSION_IMMUNE, VERSION_CONTENT) and "immune" in record:
+    if ver in (VERSION_IMMUNE,) + CONTENT_VERSIONS and "immune" in record:
         ref.extend(immune_problems(record))
     if ver == VERSION_CONTENT and "content" in record:
         ref.extend(content_problems(record))
+    if ver == VERSION_CONTENT_V04 and "content" in record:
+        ref.extend(content_problems_v04(record))
     # each version carries its own stated limits, and none may carry another's
-    stated = (DOES_NOT_ESTABLISH_V03 if ver == VERSION_CONTENT else DOES_NOT_ESTABLISH_V02 if ver == VERSION_IMMUNE
+    stated = (DOES_NOT_ESTABLISH_V04 if ver == VERSION_CONTENT_V04 else DOES_NOT_ESTABLISH_V03 if ver == VERSION_CONTENT else DOES_NOT_ESTABLISH_V02 if ver == VERSION_IMMUNE
               else DOES_NOT_ESTABLISH if ver == VERSION else DOES_NOT_ESTABLISH_V0)
     dne = record.get("does_not_establish")
     if not isinstance(dne, list):
@@ -737,8 +789,71 @@ def _selftest():
                   "extra field and values off the closed lists; the JavaScript twin gives the same verdict and refusal set for all %d; "
                   "the %d records of fixtures/admission_content read as their names say" % (nok, len(ctexts) - nok, len(ctexts), len(CC["records"])))
 
-    print("\nSELF-TEST PASSED: MUSUBI admission records, the verifying side, %d checks (all four versions verify; what does not; the request and its digest; "
-          "the revocation record; the JavaScript twin agrees; v0.2's immune block; v0.3's content block)" % n)
+    # [8] v0.4 (DESIGN_TASUKI_v2 2.1): the content block of A7.4 (decision, marks, unread, answered, checked, input_commit), rules 1 to 9,
+    # and rule 0 (a door that does not require a check writes a v0.1 record with no content block), in both runtimes.
+    c4 = {"rules": CONTENT_RULES_V04, "input_commit": H("1"), "check_sha256": H("2"), "rules_sha256": H("3"), "scope_sha256": H("4"),
+          "decision": "pass", "marks": [], "unread": False, "answered": True, "checked": True}
+    un4 = dict(c4, input_commit=None, check_sha256=None, decision=None, answered=False, checked=False)
+
+    def v04(rec, content, **kw):
+        r = dict(rec, rules=dict(rec["rules"], version=VERSION_CONTENT_V04), does_not_establish=list(DOES_NOT_ESTABLISH_V04), content=content)
+        return T(signed(dict(r, **kw)))
+    rw4 = lambda content, *rs: v04(base, content, reasons=sorted(set(base["reasons"] + list(rs)), key=REASONS_V04.index))
+    wg = lambda *rs: ["within_grant"] + list(rs)
+    rule0 = {k_: v_ for k_, v_ in dict(adm, rules=dict(adm["rules"], version=VERSION), does_not_establish=list(DOES_NOT_ESTABLISH),
+                                        reasons=["within_grant"]).items() if k_ not in ("immune", "content", "signatures")}
+    d4 = {
+        "v04_pass_admitted": (v04(adm, c4), []),
+        "v04_off_topic_admitted_mark_only": (v04(adm, dict(c4, marks=["off_topic"]), reasons=wg("content_off_topic")), []),
+        "v04_stop_refused": (rw4(dict(c4, decision="stop"), "content_flagged"), []),
+        "v04_both_marks_refused": (rw4(dict(c4, marks=["off_topic", "rule_conflict"]), "content_scope_conflict", "content_off_topic"), []),
+        "v04_unread_pass_with_mark": (rw4(dict(c4, unread=True, marks=["off_topic"]), "content_off_topic", "content_unchecked"), []),
+        "v04_unanswered": (rw4(dict(c4, decision=None, answered=False), "content_unchecked"), []),
+        "v04_unchecked": (rw4(un4, "content_unchecked"), []),
+        "v04_no_scope_no_mark": (v04(adm, dict(c4, scope_sha256=None)), []),
+        "r1_unchecked_with_decision": (rw4(dict(un4, decision="pass", answered=True), "content_unchecked"), BS),
+        "r2_checked_without_commit": (v04(adm, dict(c4, input_commit=None)), BS),
+        "r3_unanswered_with_mark": (rw4(dict(c4, decision=None, answered=False, marks=["off_topic"]), "content_off_topic", "content_unchecked"), BS),
+        "r3_answered_without_decision": (v04(adm, dict(c4, decision=None)), BS),
+        "r4_stop_without_reason": (v04(base, dict(c4, decision="stop")), BS),
+        "r5_rule_conflict_without_reason": (v04(base, dict(c4, marks=["rule_conflict"])), BS),
+        "r6_off_topic_without_reason": (v04(adm, dict(c4, marks=["off_topic"])), BS),
+        "r7_unread_without_unchecked": (v04(base, dict(c4, unread=True)), BS),
+        "r8_stop_with_mark": (rw4(dict(c4, decision="stop", marks=["off_topic"]), "content_flagged", "content_off_topic"), BS),
+        "r8_stop_unread": (rw4(dict(c4, decision="stop", unread=True), "content_flagged", "content_unchecked"), BS),
+        "r9_admit_with_unchecked": (v04(adm, dict(c4, unread=True), reasons=wg("content_unchecked")), BS),
+        "r9_admit_with_flagged": (v04(adm, dict(c4, decision="stop"), reasons=wg("content_flagged")), BS),
+        "mark_without_scope": (v04(adm, dict(c4, marks=["off_topic"], scope_sha256=None), reasons=wg("content_off_topic")), BS),
+        "marks_out_of_order": (rw4(dict(c4, marks=["rule_conflict", "off_topic"]), "content_scope_conflict", "content_off_topic"), BS),
+        "marks_unknown": (v04(base, dict(c4, marks=["elsewhere"])), BS),
+        "old_field_input_sha256": (v04(base, dict({k_: v_ for k_, v_ in c4.items() if k_ != "input_commit"}, input_sha256=H("1"))), BS),
+        "v04_with_v03_block": (v04(base, ct0), BS),
+        "v03_with_v04_block": (v03(base, c4), BS),
+        "off_topic_reason_in_v03": (v03(adm, ct0, reasons=wg("content_off_topic")), BS),
+        "v04_with_v03_limits": (v04(base, c4, does_not_establish=list(DOES_NOT_ESTABLISH_V03)), ["does_not_establish_altered"]),
+        "v04_without_content": (T(signed({k_: v_ for k_, v_ in rd(v04(base, c4)).items() if k_ not in ("content", "signatures")})), BS),
+    }
+    for k_, (t, codes) in d4.items():
+        got = verify_admission_text(t, k6p, IP)
+        assert got == {"verdict": "refused" if codes else "accepted", "refusals": codes}, (k_, got)
+    r0 = T(signed(rule0))
+    assert verify_admission_text(r0, k6p) == {"verdict": "accepted", "refusals": []}, verify_admission_text(r0, k6p)
+    d4["a04_rule0_required_false_no_content"] = (r0, [])
+    feed = json.dumps({"contract_canonical": IC["contract_canonical"], "relying_pub_b64": k6p, "records": {k_: t for k_, (t, _c) in d4.items()}})
+    r = subprocess.run(["node", twin, "--verify-texts"], input=feed, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr[-600:]
+    J4 = json.loads(r.stdout)
+    py4 = {k_: verify_admission_text(t, k6p, IP) for k_, (t, _c) in d4.items()}
+    assert J4 == py4, [(k_, J4.get(k_), py4[k_]) for k_ in py4 if J4.get(k_) != py4[k_]]
+    n4 = sum(1 for _t, c_ in d4.values() if not c_)
+    n += 1; print("[8] v0.4 (the A7.4 content block with input_commit): %d records verify (pass, off_topic on an admit under mark_only, stop, both "
+                  "marks, unread with a mark, no answer, unchecked, no scope); %d are refused, one or more for each of rules 1 to 9, marks out of "
+                  "order or off the list, the old input_sha256 field, a v0.3 block in v0.4 and back, content_off_topic in v0.3, v0.3's limits, no "
+                  "content; rule 0: a v0.1 admit with no content block verifies; the JavaScript twin gives the same verdict and refusal set for all %d"
+                  % (n4 - 1, len(d4) - n4, len(d4)))
+
+    print("\nSELF-TEST PASSED: MUSUBI admission records, the verifying side, %d checks (all five versions verify; what does not; the request and its digest; "
+          "the revocation record; the JavaScript twin agrees; v0.2's immune block; v0.3's content block; v0.4's content block)" % n)
 
 
 def main():

@@ -46,6 +46,13 @@ export const CONTENT_VERDICTS = ["instruction", "none"];
 export const CONTENT_CONFLICTS = ["none", "forbidden_by_rule", "skips_required_step", "outside_task"];
 const CONTENT_KEYS = ["rules", "input_sha256", "check_sha256", "rules_sha256", "scope_sha256", "verdict", "scope_conflict", "answered", "checked"];
 const CONTENT_REASONS = ["content_flagged", "content_scope_conflict", "content_unchecked"];
+export const VERSION_CONTENT_V04 = "0.4";
+export const REASONS_V04 = [...REASONS_V03, "content_off_topic"];
+export const CONTENT_RULES_V04 = "a2a-content-check-v1";
+export const CONTENT_DECISIONS_V04 = ["stop", "pass"];
+export const CONTENT_MARKS_V04 = ["off_topic", "rule_conflict"];
+const CONTENT_KEYS_V04 = ["rules", "input_commit", "check_sha256", "rules_sha256", "scope_sha256", "decision", "marks", "unread", "answered", "checked"];
+const CONTENT_VERSIONS = [VERSION_CONTENT, VERSION_CONTENT_V04];
 export const DOES_NOT_ESTABLISH_V0 = [
   "that HS allowed or blocked anything; the relying party ran the function at its own door",
   "that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show",
@@ -65,6 +72,12 @@ export const DOES_NOT_ESTABLISH_V02 = [...DOES_NOT_ESTABLISH,
 export const DOES_NOT_ESTABLISH_V03 = [...DOES_NOT_ESTABLISH_V02,
   "that any content check ran, or that the same check would answer the same way again; the record carries the digests of the bytes the relying "
     + "party says it checked and of the verdict it says it read, the identifier of the rule set, and the flags, and nothing else about the content"];
+export const DOES_NOT_ESTABLISH_V04 = [...DOES_NOT_ESTABLISH_V02,
+  "that any content check ran, or that the same check would answer the same way again; the record carries a salted commitment to the bytes the "
+    + "relying party says it checked (only a holder of the bytes and the salt can recompute it), the digest of the check it says it read, the "
+    + "identifier of the rule set, the decision and the marks, and nothing else about the content",
+  "that the rates measured for the named rule set hold on this contract's scope; they were measured on the scopes of public datasets, not on "
+    + "a scope rendered from a contract"];
 const RECORD_KEYS = ["schema", "admission_id", "relying_party", "contract_ref", "action_ref", "presentation_ref", "chain_view",
   "revocations_seen", "decision", "reasons", "clause", "rules", "establishes", "does_not_establish", "signatures"];
 const HEX32 = /^[0-9a-f]{32}$/;
@@ -170,6 +183,33 @@ export function contentProblems(record) {
   return ok ? [] : ["malformed"];
 }
 
+// admission_verify_v0.content_problems_v04: a v0.4 record's content block (A7.4: decision, marks, unread, answered, checked,
+// input_commit) and rules 1 to 9 of DESIGN_TASUKI_v2 2.1.4. Fields only; the content and its salt are never in the record.
+export function contentProblemsV04(record) {
+  const c = get(record, "content"), reasons = get(record, "reasons"), d = get(record, "decision");
+  if (!isObj(c) || !same(Object.keys(c).sort(), [...CONTENT_KEYS_V04].sort()) || c.rules !== CONTENT_RULES_V04 || !Array.isArray(reasons)) return ["malformed"];
+  const hexNull = (k) => c[k] === null || (typeof c[k] === "string" && HEX64.test(c[k]));
+  const dec = c.decision, mk = c.marks, un = c.unread, ans = c.answered, chk = c.checked;
+  if (!(["input_commit", "check_sha256", "rules_sha256", "scope_sha256"].every(hexNull) && (dec === null || CONTENT_DECISIONS_V04.includes(dec))
+    && Array.isArray(mk) && mk.every((m) => typeof m === "string") && same(mk, CONTENT_MARKS_V04.filter((m) => mk.includes(m)))
+    && typeof un === "boolean" && typeof ans === "boolean" && typeof chk === "boolean")) return ["malformed"];
+  const r = new Set(reasons);
+  const nothing = dec === null && mk.length === 0 && un === false;
+  const ok = (chk || (nothing && ans === false && r.has("content_unchecked")))                                  // 1 unchecked: nothing read
+    && (!chk || ["input_commit", "check_sha256", "rules_sha256"].every((k) => c[k] !== null))                 // 2 checked: three digests
+    && (ans || (nothing && r.has("content_unchecked")))                                                       // 3 no answer: no decision
+    && (ans === false || dec !== null)                                                                        // 3 an answer has a decision
+    && ((dec === "stop") === r.has("content_flagged"))                                                        // 4 the stop
+    && (mk.includes("rule_conflict") === r.has("content_scope_conflict"))                                     // 5 rule_conflict
+    && (mk.includes("off_topic") === r.has("content_off_topic"))                                              // 6 off_topic
+    && ((un || !ans || !chk) === r.has("content_unchecked"))                                                  // 7 unread or no answer
+    && (dec !== "stop" || (mk.length === 0 && un === false))                                                  // 8 a stop has no marks and is read
+    && (!un || dec === "pass")                                                                                // 8 unread is a pass
+    && (mk.length === 0 || c.scope_sha256 !== null)                                                           // a mark needs the scope
+    && (d !== "admit" || !["content_flagged", "content_scope_conflict", "content_unchecked"].some((x) => r.has(x)));   // 9 an admit carries only off_topic
+  return ok ? [] : ["malformed"];
+}
+
 const MAX_SAFE = 2 ** 53 - 1;
 const MAX_SAFE_BIG = BigInt(MAX_SAFE);
 const safeBig = (v) => typeof v === "bigint" && v <= MAX_SAFE_BIG && v >= -MAX_SAFE_BIG;
@@ -205,7 +245,7 @@ export function immuneBindingProblems(record, contract) {
   const terms = isObj(get(contract, "requirements")) ? get(contract.requirements, "immune") : undefined;
   if (!isObj(terms)) return [];
   const ver = get(get(record, "rules"), "version");
-  if ((ver !== VERSION_IMMUNE && ver !== VERSION_CONTENT) || !isObj(get(record, "immune"))) return ["immune_missing"];
+  if ((ver !== VERSION_IMMUNE && !CONTENT_VERSIONS.includes(ver)) || !isObj(get(record, "immune"))) return ["immune_missing"];
   const im = record.immune;
   if (get(im, "verdict") === "not_run") return get(record, "decision") === "refuse" ? [] : ["immune_not_run"];
   if (get(im, "terms_sha256") !== createHash("sha256").update(canonical(terms), "utf8").digest("hex")) return ["immune_terms_not_this_contracts"];
@@ -261,20 +301,21 @@ function verifyParsed(record, relyingKeyB64, contract, proto) {
   if (!isObj(get(record, "contract_ref"))) ref.add("malformed");
   const rules = isObj(get(record, "rules")) ? record.rules : {};
   const version = get(rules, "version");
-  const want = version === VERSION_CONTENT ? [...RECORD_KEYS, "immune", "content"] : version === VERSION_IMMUNE ? [...RECORD_KEYS, "immune"] : RECORD_KEYS;
+  const want = CONTENT_VERSIONS.includes(version) ? [...RECORD_KEYS, "immune", "content"] : version === VERSION_IMMUNE ? [...RECORD_KEYS, "immune"] : RECORD_KEYS;
   if (keys.some((k) => !want.includes(k) && k !== "publication") || !want.every((k) => has(record, k))
     || (has(record, "publication") && record.publication !== "public")) ref.add("malformed");
   const rp = isObj(get(record, "relying_party")) ? record.relying_party : {};
   const dom = typeof get(rp, "domain") === "string" ? rp.domain : null;
   const reasons = get(record, "reasons");
-  const allowed = version === VERSION_CONTENT ? REASONS_V03 : version === VERSION_IMMUNE ? REASONS_V02 : REASONS;
+  const allowed = version === VERSION_CONTENT_V04 ? REASONS_V04 : version === VERSION_CONTENT ? REASONS_V03 : version === VERSION_IMMUNE ? REASONS_V02 : REASONS;
   if (!DECISIONS.includes(get(record, "decision")) || !Array.isArray(reasons) || !reasons.length || reasons.some((r) => !allowed.includes(r))) ref.add("malformed");
-  if (version !== null && version !== VERSION && version !== VERSION_IMMUNE && version !== VERSION_CONTENT) ref.add("malformed");
+  if (version !== null && version !== VERSION && version !== VERSION_IMMUNE && !CONTENT_VERSIONS.includes(version)) ref.add("malformed");
   if (has(rules, "version") && rules.version === null) ref.add("malformed");   // an explicit null is not v0
-  if ((version === VERSION_IMMUNE || version === VERSION_CONTENT) && has(record, "immune")) for (const c of immuneProblems(record)) ref.add(c);
+  if ((version === VERSION_IMMUNE || CONTENT_VERSIONS.includes(version)) && has(record, "immune")) for (const c of immuneProblems(record)) ref.add(c);
   if (version === VERSION_CONTENT && has(record, "content")) for (const c of contentProblems(record)) ref.add(c);
+  if (version === VERSION_CONTENT_V04 && has(record, "content")) for (const c of contentProblemsV04(record)) ref.add(c);
   const dne = get(record, "does_not_establish");
-  const stated = version === VERSION_CONTENT ? DOES_NOT_ESTABLISH_V03 : version === VERSION_IMMUNE ? DOES_NOT_ESTABLISH_V02
+  const stated = version === VERSION_CONTENT_V04 ? DOES_NOT_ESTABLISH_V04 : version === VERSION_CONTENT ? DOES_NOT_ESTABLISH_V03 : version === VERSION_IMMUNE ? DOES_NOT_ESTABLISH_V02
     : version === VERSION ? DOES_NOT_ESTABLISH : DOES_NOT_ESTABLISH_V0;
   if (!Array.isArray(dne)) ref.add("malformed");
   if (!sameStrings(dne, stated)) ref.add("does_not_establish_altered");
