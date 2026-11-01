@@ -48,6 +48,9 @@
 # 2026-11-01: FURUI blind-06 の公開(data/furui-blind-06)の manifest.json、census_blind06.json、各段の答え ai_*.jsonl は、"key" の欄に行の key か
 # 母集団の key の sha256(64 桁の 16 進)を持ち、答えの引用の欄も sha256 に替えてある。generic-api-key が反応するので、その file だけ許す。
 # 鍵でも秘密でもない。公開の道具が、許す前に各行の欄の名と長さを照らす(blind-05 の公開と同じ形)。
+# 2026-11-01: FURUI blind-06 の証人の道具の公開(data/furui-blind-06/witness)。key の欄と hash の行は、公開のデータセットの行の key と範囲の文の sha256、
+# 引用の照らしの旗だけで、鍵でも秘密でもない。generic-api-key が名前の key に反応するので、その file だけ許す。
+# a7_count.py は計画が名指す sha のままのバイトで替えられず、自己試験の作り話の行の password の語に反応する。欄の名と長さは公開の道具が照らす。
 title = "horizon-shield gitleaks config"
 
 [extend]
@@ -83,4 +86,5 @@ paths = [
   '''data/furui-a6-check/manifest\.json''',
   '''data/furui-blind-05/(manifest\.json|ai_v[0-9a-z_]+\.jsonl)''',
   '''data/furui-blind-06/(manifest\.json|census_blind06\.json|ai_[0-9a-z_]+\.jsonl)''',
+  '''data/furui-blind-06/witness/(quote_checks\.jsonl|row_scopes\.jsonl|excluded_keys\.txt|excluded_scopes\.txt|SHA256SUMS_WITNESS\.txt|a7_count\.py)''',
 ]

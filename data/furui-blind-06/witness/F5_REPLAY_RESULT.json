@@ -1,0 +1,115 @@
+{
+ "pins": {
+  "blind06_work/rule_flags.jsonl": "0a28c5a3",
+  "blind06_work/SCORE_blind06.json": "2b09cf40",
+  "blind06_work/items.jsonl": "774745c4",
+  "furui_a7_20261031/blind06/score_blind06.py": "f44533c4",
+  "furui_a7_20261031/blind06/run_blind06.py": "a5a325e6",
+  "furui_a7_20261031/a7_count.py": "283b3baf",
+  "aprime_team_20261030/quote_check.py": "46e1ee18"
+ },
+ "tools_sha256": {
+  "a74_rules_v1.py": "696954f9e5cadad85d67f5bf827f7bcaf3b09bfb38879f7f6d2e29c408c040e1",
+  "a74_decide_v1.py": "aaf9d4e2624dd6a081f6abd8ca1bb65a060f0482f969059ff2495be7d01ffb49",
+  "a74_decide_v1.mjs": "8bc0d9e6dfb408a2e9bdd8768412092a9f4d0d9d1b1fadf568dce66571968977",
+  "quote_check_v1.mjs": "8c23adcac5d09f59bad52b463f1c64c914d2d049769dfbf1b2cbb5e5c018830e",
+  "quote_check_tables_v1.json": "c251e2c31a379199739dd48d757b25ed9422c50276f2e44bbb5ed07a47e678f9",
+  "a74_prompt_v1.py": "014b80655ab9d4146e56fdeae5193c897da6bbf98b83924517a91c0d912b0d0e",
+  "a74_replay_blind06.py": "9441ef11c4c7ccada0c79a56cd08a8d1a9bb15b896da28c1bc3447c968148f65"
+ },
+ "rules": {
+  "blind06": {
+   "rows": 5533,
+   "ref_sha256": "0a28c5a3535e39eca0a7f7d48e87375c2240e12ffedc24baf3d402557b5c44a6",
+   "mine_sha256": "0a28c5a3535e39eca0a7f7d48e87375c2240e12ffedc24baf3d402557b5c44a6",
+   "byte_identical": true
+  },
+  "build_a7": {
+   "rows": 6095,
+   "ref_sha256": "a7fcdf1c44985ddf5336548dc2b63e9477384d439585d4335828709fac4df2b4",
+   "mine_sha256": "a7fcdf1c44985ddf5336548dc2b63e9477384d439585d4335828709fac4df2b4",
+   "byte_identical": true
+  },
+  "build_n2": {
+   "rows": 1000,
+   "ref_sha256": "9fcb96aca215b6c763f7c8d6bd05ba35f51829b23abb3f2a7eafc8602e4f6b4f",
+   "mine_sha256": "9fcb96aca215b6c763f7c8d6bd05ba35f51829b23abb3f2a7eafc8602e4f6b4f",
+   "byte_identical": true
+  }
+ },
+ "D1_reference_tally_equals_SCORE_counts": {
+  "rows": 5533,
+  "equal": {
+   "H": true,
+   "X": true,
+   "N": true,
+   "O_gov": true,
+   "O_ctat": true,
+   "N2": true
+  }
+ },
+ "D2_py_twin": {
+  "rows": 5533,
+  "per_row_match": 5533,
+  "tally_equals_SCORE": true
+ },
+ "D3_js_twin": {
+  "rows": 5533,
+  "per_row_match": 5533,
+  "tally_equals_SCORE": true,
+  "node": "v24.11.1 unicode 16.0"
+ },
+ "per_row_outcomes_sha256": "6b990e6a4ebcd17fcb123c8005a87560418060ba2502671509bfd89535bbf98f",
+ "Q1_quote_check_pairs": {
+  "pairs_py": 44113,
+  "pairs_js": 44113,
+  "reason_match": 44113,
+  "by_reason_py": {
+   "ok": 16382,
+   "empty": 27723,
+   "not_found": 7,
+   "ok_whole_text": 1
+  }
+ },
+ "P1_prompt_builder": {
+  "q21v4_o": {
+   "rows": 4643,
+   "match": 4643,
+   "answered_in_run": 4643
+  },
+  "q21b_o": {
+   "rows": 4643,
+   "match": 4643,
+   "answered_in_run": 4643
+  },
+  "q1v2_h": {
+   "rows": 5336,
+   "match": 5336,
+   "answered_in_run": 5336
+  },
+  "q1v2_o": {
+   "rows": 154,
+   "match": 154,
+   "answered_in_run": 154
+  },
+  "q22v4_h": {
+   "rows": 5068,
+   "match": 5068,
+   "answered_in_run": 5068
+  },
+  "q22v4_o": {
+   "rows": 3383,
+   "match": 3383,
+   "answered_in_run": 3383
+  }
+ },
+ "P2_call_args": {
+  "max_tokens": true,
+  "kw": true,
+  "retries": true,
+  "wait": true,
+  "timeout": true,
+  "transport_names_in_text": true
+ },
+ "prompt_builder_pin_sha256": "fea535a8f1e32ab6c64a2d874c0adcf1aec9c5f65bd16421ade5f4f28eed5d0e"
+}
