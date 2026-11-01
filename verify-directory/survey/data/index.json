@@ -69,6 +69,15 @@
       "do_not_use": true
     },
     {
+      "file": "survey0_v4_2026-11-01.json",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey0_v4_2026-11-01.json",
+      "bytes": 2970,
+      "sha256": "b968a4009032eb2c581af1deaa9f76b574fd64aa7e9326e1dc144854149cac04",
+      "what": null,
+      "role": "undescribed",
+      "note": "This file has no description in tools/survey/build_dataset_index.py. It is listed anyway. A dataset index that quietly omits files is not an index."
+    },
+    {
       "file": "survey0_v4_endpoints_active_2026-08-19.txt",
       "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey0_v4_endpoints_active_2026-08-19.txt",
       "bytes": 464573,
@@ -97,6 +106,15 @@
       "do_not_use": true
     },
     {
+      "file": "survey0_v4_endpoints_active_2026-11-01.txt",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey0_v4_endpoints_active_2026-11-01.txt",
+      "bytes": 1466225,
+      "sha256": "550df4c1a536ab2f00bea4226650731aa589b1bdaf6099d1cb7bb8967fb96a69",
+      "what": null,
+      "role": "undescribed",
+      "note": "This file has no description in tools/survey/build_dataset_index.py. It is listed anyway. A dataset index that quietly omits files is not an index."
+    },
+    {
       "file": "survey0_v4_progress_2026-09-01.jsonl",
       "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey0_v4_progress_2026-09-01.jsonl",
       "bytes": 16594,
@@ -115,6 +133,16 @@
       "what": "Page by page progress of the 2026-10-01 count. It ends at page 22, which is how the count is known to be partial.",
       "made_by": "tools/survey/count_registry.py",
       "role": "population"
+    },
+    {
+      "file": "survey0_v4_progress_2026-11-01.jsonl",
+      "url": "https://shield.the-horizons-innovation.com/verify-directory/survey/data/survey0_v4_progress_2026-11-01.jsonl",
+      "bytes": 34795,
+      "sha256": "3baff13cc830c9eaf9369811f3560d16b557bf1f4d94c91e06bc1f7f4e9bbd89",
+      "lines": 542,
+      "what": null,
+      "role": "undescribed",
+      "note": "This file has no description in tools/survey/build_dataset_index.py. It is listed anyway. A dataset index that quietly omits files is not an index."
     },
     {
       "file": "survey1_report_2026-08-23.json",

@@ -1,0 +1,190 @@
+{
+  "active": 53353,
+  "active_published_last_30_days": 24094,
+  "active_published_last_90_days": 40135,
+  "active_with_https_remote": 35755,
+  "by_status": {
+    "active": 53353,
+    "deprecated": 842
+  },
+  "complete": true,
+  "endpoints_on_shared_hosts": 10724,
+  "entries_returned": 54195,
+  "hosts_with_more_than_one_endpoint": 1111,
+  "https_endpoints_active": 36518,
+  "measured_at": "2026-11-01T13:40:41.560788+00:00",
+  "note": "declared endpoints only. liveness not measured here. active means the registry's own status field.",
+  "pages": 542,
+  "registrations_latest_all_statuses": 54195,
+  "source": "https://registry.modelcontextprotocol.io/v0/servers?version=latest",
+  "stop_reason": "cursor exhausted",
+  "tool": "survey0_count_v4",
+  "top_hosts": [
+    [
+      "agent-observatory-sensor.nolimit-observatory.workers.dev",
+      2365
+    ],
+    [
+      "gateway.pipeworx.io",
+      1916
+    ],
+    [
+      "api.mcp.ai",
+      1117
+    ],
+    [
+      "mcp.apify.com",
+      756
+    ],
+    [
+      "api.m2mcent.com",
+      276
+    ],
+    [
+      "server.smithery.ai",
+      217
+    ],
+    [
+      "textforagents.com",
+      128
+    ],
+    [
+      "a2awire.com",
+      121
+    ],
+    [
+      "mcp.zovo.one",
+      79
+    ],
+    [
+      "tooloracle.io",
+      57
+    ],
+    [
+      "api.lazy-mac.com",
+      54
+    ],
+    [
+      "mcp.jojapi.com",
+      49
+    ],
+    [
+      "modevc.com",
+      47
+    ],
+    [
+      "mcp.olyport.com",
+      38
+    ],
+    [
+      "www.edgethirteen.com",
+      35
+    ],
+    [
+      "bumiatlas.com",
+      33
+    ],
+    [
+      "nexgendata-mcp-proxy.steve-corbeil.workers.dev",
+      33
+    ],
+    [
+      "mcp.aisa.one",
+      32
+    ],
+    [
+      "mcp.viridisconservation.com",
+      30
+    ],
+    [
+      "goodturn-mcp.pages.dev",
+      28
+    ],
+    [
+      "mcp.hasdata.com",
+      28
+    ],
+    [
+      "{host}",
+      27
+    ],
+    [
+      "community.ukrdigital.org",
+      27
+    ],
+    [
+      "data.dataleads.pro",
+      25
+    ],
+    [
+      "cotlet.dev",
+      24
+    ],
+    [
+      "mcp.nexlab.net",
+      24
+    ],
+    [
+      "api.youraitools.co",
+      24
+    ],
+    [
+      "waystation.ai",
+      24
+    ],
+    [
+      "nova.civai.co",
+      23
+    ],
+    [
+      "mcp.yomitasu.jp",
+      22
+    ],
+    [
+      "mcp.moltlinestudio.com",
+      22
+    ],
+    [
+      "lab.flashalpha.com",
+      20
+    ],
+    [
+      "roxyapi.com",
+      19
+    ],
+    [
+      "hive-mcp-gateway.onrender.com",
+      19
+    ],
+    [
+      "faceabot.com",
+      19
+    ],
+    [
+      "mcp.chipp.ai",
+      19
+    ],
+    [
+      "databutler.dev",
+      18
+    ],
+    [
+      "mcp.infobip.com",
+      18
+    ],
+    [
+      "mcp.boykaf.com",
+      18
+    ],
+    [
+      "tanod.dev",
+      17
+    ]
+  ],
+  "transport_types_active": {
+    "sse": 1089,
+    "streamable-http": 35023
+  },
+  "unique_hosts_active": 26905,
+  "user_agent": "HorizonShieldSurvey/0.4 (+https://shield.the-horizons-innovation.com/verify-directory/survey/)"
+}
