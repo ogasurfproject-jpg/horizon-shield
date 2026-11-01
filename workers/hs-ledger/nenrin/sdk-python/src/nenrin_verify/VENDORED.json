@@ -846,13 +846,13 @@
   },
   "_repo/musubi-v0/settle-core-v0/NOTES.md": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/NOTES.md",
-    "source_sha256": "f9e2a32cbd80ec29cc5cd9b6622dddbe0a0d51c15e9d35f27d8aa8d56bf4a5bc",
-    "vendored_sha256": "f9e2a32cbd80ec29cc5cd9b6622dddbe0a0d51c15e9d35f27d8aa8d56bf4a5bc"
+    "source_sha256": "e9fe837832f52b1d54c9915fc7119a4bd02057ed9f74bb5e9ef0990d7831524d",
+    "vendored_sha256": "e9fe837832f52b1d54c9915fc7119a4bd02057ed9f74bb5e9ef0990d7831524d"
   },
   "_repo/musubi-v0/settle-core-v0/SETTLE_CORE_v0.md": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/SETTLE_CORE_v0.md",
-    "source_sha256": "7cfa341e22b2afd27cec348c855b14614bdb50fdf093c87a2f002fc206e2d575",
-    "vendored_sha256": "7cfa341e22b2afd27cec348c855b14614bdb50fdf093c87a2f002fc206e2d575"
+    "source_sha256": "2ffa7750bdd3014200ce394c9f148a6c96c5173fe3e456c2ba1399d1efb9df2e",
+    "vendored_sha256": "2ffa7750bdd3014200ce394c9f148a6c96c5173fe3e456c2ba1399d1efb9df2e"
   },
   "_repo/musubi-v0/settle-core-v0/exercise_inputs.py": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/exercise_inputs.py",
@@ -861,8 +861,8 @@
   },
   "_repo/musubi-v0/settle-core-v0/gen_vectors.py": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/gen_vectors.py",
-    "source_sha256": "e7034b85389e445774b059e1d35dcc54febcc358166d31fd7a9b62795fedc85a",
-    "vendored_sha256": "e7034b85389e445774b059e1d35dcc54febcc358166d31fd7a9b62795fedc85a"
+    "source_sha256": "f257b5cad929fd1574a1ede8acef1bf26ab317719f90bc3cf18f3ddf4131698f",
+    "vendored_sha256": "f257b5cad929fd1574a1ede8acef1bf26ab317719f90bc3cf18f3ddf4131698f"
   },
   "_repo/musubi-v0/settle-core-v0/inputs/peer31/c.AB.json": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/inputs/peer31/c.AB.json",
@@ -881,8 +881,8 @@
   },
   "_repo/musubi-v0/settle-core-v0/run_reference.py": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/run_reference.py",
-    "source_sha256": "830f884819dff7e78bfef1282d18df63f098deaf2eb86495d50285c9ca9d45cb",
-    "vendored_sha256": "830f884819dff7e78bfef1282d18df63f098deaf2eb86495d50285c9ca9d45cb"
+    "source_sha256": "958555124b81a5f0637aad522b952b5de295ed986f72432cfd748dfaf67f6c6e",
+    "vendored_sha256": "958555124b81a5f0637aad522b952b5de295ed986f72432cfd748dfaf67f6c6e"
   },
   "_repo/musubi-v0/settle-core-v0/vectors/real_cross_record_names_other_contract/contract.json": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors/real_cross_record_names_other_contract/contract.json",
@@ -4104,6 +4104,441 @@
     "source_sha256": "f16b9e39c88f68963f04093d0bec9f8ccbdcd3091b619b4462e0216da551f179",
     "vendored_sha256": "f16b9e39c88f68963f04093d0bec9f8ccbdcd3091b619b4462e0216da551f179"
   },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_admit_same_rules/admissions/a00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_admit_same_rules/admissions/a00.json",
+    "source_sha256": "ea17b367a4e690b816cc8531819dc92bc7676bbcd378e0da8b6c9d1cc8992fec",
+    "vendored_sha256": "ea17b367a4e690b816cc8531819dc92bc7676bbcd378e0da8b6c9d1cc8992fec"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_admit_same_rules/contract.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_admit_same_rules/contract.json",
+    "source_sha256": "a43d60b850f8271fa3c58b784ab2431919cf297e26bd7d035fcb163b910191b8",
+    "vendored_sha256": "a43d60b850f8271fa3c58b784ab2431919cf297e26bd7d035fcb163b910191b8"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_admit_same_rules/events/e00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_admit_same_rules/events/e00.json",
+    "source_sha256": "dd345b90d3f2eff781a8b84c3e0186d9140cb489b9fe0f8e6425476bd191903b",
+    "vendored_sha256": "dd345b90d3f2eff781a8b84c3e0186d9140cb489b9fe0f8e6425476bd191903b"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_admit_same_rules/expected.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_admit_same_rules/expected.json",
+    "source_sha256": "182298b2d26a67faa9c4d6ebb081021eb3a0b5383e9edcae3999e39821952fc9",
+    "vendored_sha256": "182298b2d26a67faa9c4d6ebb081021eb3a0b5383e9edcae3999e39821952fc9"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_admit_same_rules/relying_keys.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_admit_same_rules/relying_keys.json",
+    "source_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263",
+    "vendored_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_admit_same_rules/view.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_admit_same_rules/view.json",
+    "source_sha256": "d01a4b9cee1fceb16bce68b2e5842292589e77270ca480b64e8081f8fc38c135",
+    "vendored_sha256": "d01a4b9cee1fceb16bce68b2e5842292589e77270ca480b64e8081f8fc38c135"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_both_flags_no_approval/admissions/a00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_both_flags_no_approval/admissions/a00.json",
+    "source_sha256": "b571428b5cc1a619b2322ef98e7615c7944bb534e6fc8fe3cf0fae6c11433685",
+    "vendored_sha256": "b571428b5cc1a619b2322ef98e7615c7944bb534e6fc8fe3cf0fae6c11433685"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_both_flags_no_approval/contract.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_both_flags_no_approval/contract.json",
+    "source_sha256": "8f54eeaecf9d4417d1cc9e0aaf775b08cebabe573539eae4a407635a83c65a2f",
+    "vendored_sha256": "8f54eeaecf9d4417d1cc9e0aaf775b08cebabe573539eae4a407635a83c65a2f"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_both_flags_no_approval/events/e00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_both_flags_no_approval/events/e00.json",
+    "source_sha256": "6a0c5f1a183c2f584eae3234375a55e4131db401d2a33abb00dcba47f9835eec",
+    "vendored_sha256": "6a0c5f1a183c2f584eae3234375a55e4131db401d2a33abb00dcba47f9835eec"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_both_flags_no_approval/expected.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_both_flags_no_approval/expected.json",
+    "source_sha256": "5d9e482906a867361e6c82d6b0b5be1a95c5a9dc103a47906c16cf0f4e6e828d",
+    "vendored_sha256": "5d9e482906a867361e6c82d6b0b5be1a95c5a9dc103a47906c16cf0f4e6e828d"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_both_flags_no_approval/relying_keys.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_both_flags_no_approval/relying_keys.json",
+    "source_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263",
+    "vendored_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_both_flags_no_approval/view.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_both_flags_no_approval/view.json",
+    "source_sha256": "b47d15981871e3a3bb96bef4ce2b8d4c37e9e08aa33df2b4785bf0f3f15091ad",
+    "vendored_sha256": "b47d15981871e3a3bb96bef4ce2b8d4c37e9e08aa33df2b4785bf0f3f15091ad"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_carried/admissions/a00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_carried/admissions/a00.json",
+    "source_sha256": "757c2320bd9794cf5cff0a38242018687aaffba0afd85b7f68d7c3d87ab0ba31",
+    "vendored_sha256": "757c2320bd9794cf5cff0a38242018687aaffba0afd85b7f68d7c3d87ab0ba31"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_carried/contract.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_carried/contract.json",
+    "source_sha256": "3540d13496b3ab3dfce0f906aa9e0cf0f3725b455ef8b39f28ba39cc8478d272",
+    "vendored_sha256": "3540d13496b3ab3dfce0f906aa9e0cf0f3725b455ef8b39f28ba39cc8478d272"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_carried/events/e00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_carried/events/e00.json",
+    "source_sha256": "5a916641854fbb2db8f6d07ced6dcea43860918f66367adaecafb78524c0fd55",
+    "vendored_sha256": "5a916641854fbb2db8f6d07ced6dcea43860918f66367adaecafb78524c0fd55"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_carried/expected.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_carried/expected.json",
+    "source_sha256": "4b98aa8e7700e427b1d807bcab95153dd4ffad1796af49d1abeefa1a7fad563c",
+    "vendored_sha256": "4b98aa8e7700e427b1d807bcab95153dd4ffad1796af49d1abeefa1a7fad563c"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_carried/relying_keys.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_carried/relying_keys.json",
+    "source_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263",
+    "vendored_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_carried/view.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_carried/view.json",
+    "source_sha256": "6bd9201804937f138bfb69da19ffc6855628ec1f6dc6e337a1d22ac8f0e1950d",
+    "vendored_sha256": "6bd9201804937f138bfb69da19ffc6855628ec1f6dc6e337a1d22ac8f0e1950d"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_expired/admissions/a00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_expired/admissions/a00.json",
+    "source_sha256": "19c06bd6c81ff61a799c8bafbd36d353e4fcbb7814d3f5e9d417670159f4aa1d",
+    "vendored_sha256": "19c06bd6c81ff61a799c8bafbd36d353e4fcbb7814d3f5e9d417670159f4aa1d"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_expired/contract.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_expired/contract.json",
+    "source_sha256": "996708de2690a59a08c617d0db43dc2df861a2ba389ef58d2bcdb2f3cb173ce5",
+    "vendored_sha256": "996708de2690a59a08c617d0db43dc2df861a2ba389ef58d2bcdb2f3cb173ce5"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_expired/events/e00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_expired/events/e00.json",
+    "source_sha256": "2074ef2eee5028cb66cd7a55da26822ccbb0486d3c264f1821494fee7e427949",
+    "vendored_sha256": "2074ef2eee5028cb66cd7a55da26822ccbb0486d3c264f1821494fee7e427949"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_expired/expected.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_expired/expected.json",
+    "source_sha256": "b6aafd29544ccb3ec3e3c202f592bdfad622eef11b900f7fcfa1a39f5ce2eca4",
+    "vendored_sha256": "b6aafd29544ccb3ec3e3c202f592bdfad622eef11b900f7fcfa1a39f5ce2eca4"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_expired/relying_keys.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_expired/relying_keys.json",
+    "source_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263",
+    "vendored_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_expired/view.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_expired/view.json",
+    "source_sha256": "ac843047a4c8658f065133b340aed8ff426e24b73743d638d648b477b170be34",
+    "vendored_sha256": "ac843047a4c8658f065133b340aed8ff426e24b73743d638d648b477b170be34"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_other_action/admissions/a00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_other_action/admissions/a00.json",
+    "source_sha256": "17bb35f4b18496c42ef9aaea29e1939e179c703aa4c47055e0f4fe1a6e9e0ad0",
+    "vendored_sha256": "17bb35f4b18496c42ef9aaea29e1939e179c703aa4c47055e0f4fe1a6e9e0ad0"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_other_action/contract.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_other_action/contract.json",
+    "source_sha256": "172191bc6938f83cc0adf7399d6f0b75531884a131b2f69542a62b61a750db3f",
+    "vendored_sha256": "172191bc6938f83cc0adf7399d6f0b75531884a131b2f69542a62b61a750db3f"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_other_action/events/e00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_other_action/events/e00.json",
+    "source_sha256": "6d25d8e05a7378c9c3151a4fa644e5c75d145d6a19b44cab4dd5d3044415776e",
+    "vendored_sha256": "6d25d8e05a7378c9c3151a4fa644e5c75d145d6a19b44cab4dd5d3044415776e"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_other_action/expected.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_other_action/expected.json",
+    "source_sha256": "38d0f61cb5ad162cb0aebb39d1b623c5774cc8da1eab71f0973fb9c07d9ec935",
+    "vendored_sha256": "38d0f61cb5ad162cb0aebb39d1b623c5774cc8da1eab71f0973fb9c07d9ec935"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_other_action/relying_keys.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_other_action/relying_keys.json",
+    "source_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263",
+    "vendored_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_other_action/view.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approval_other_action/view.json",
+    "source_sha256": "26be989ea928210846ef9c6e0a0df0c6c3ab3c499c96e32bc7017d573c1bea59",
+    "vendored_sha256": "26be989ea928210846ef9c6e0a0df0c6c3ab3c499c96e32bc7017d573c1bea59"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approver_v3_carried/admissions/a00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approver_v3_carried/admissions/a00.json",
+    "source_sha256": "08b8b30a4f6f2e873e3640ad151787e30da85ae510e72fdf49c916baca24572f",
+    "vendored_sha256": "08b8b30a4f6f2e873e3640ad151787e30da85ae510e72fdf49c916baca24572f"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approver_v3_carried/contract.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approver_v3_carried/contract.json",
+    "source_sha256": "1f2cfc9d24e7f09a8b673bed3a1e2a815eda20aeb54d0cc8957cef1d929aeb44",
+    "vendored_sha256": "1f2cfc9d24e7f09a8b673bed3a1e2a815eda20aeb54d0cc8957cef1d929aeb44"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approver_v3_carried/events/e00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approver_v3_carried/events/e00.json",
+    "source_sha256": "993f0eb5e5a4a1b377fd1558dea78ded7218dd9e6f558a777353e07d8f6e7440",
+    "vendored_sha256": "993f0eb5e5a4a1b377fd1558dea78ded7218dd9e6f558a777353e07d8f6e7440"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approver_v3_carried/expected.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approver_v3_carried/expected.json",
+    "source_sha256": "9e8ba00a58277769149fb1e6ee70536816f35294183653ad83a1fb3371bf0305",
+    "vendored_sha256": "9e8ba00a58277769149fb1e6ee70536816f35294183653ad83a1fb3371bf0305"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approver_v3_carried/relying_keys.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approver_v3_carried/relying_keys.json",
+    "source_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263",
+    "vendored_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approver_v3_carried/view.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_approver_v3_carried/view.json",
+    "source_sha256": "ed79ead3e0411c1ccfd118034351f9ef947d4fb0f3291b43d9c4e4b520126b71",
+    "vendored_sha256": "ed79ead3e0411c1ccfd118034351f9ef947d4fb0f3291b43d9c4e4b520126b71"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_approval_carried/admissions/a00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_approval_carried/admissions/a00.json",
+    "source_sha256": "7f0c93555cf4d5ccd5a5c74a8a13ef6bca2b04bf26fe6594719d7130b1751ed7",
+    "vendored_sha256": "7f0c93555cf4d5ccd5a5c74a8a13ef6bca2b04bf26fe6594719d7130b1751ed7"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_approval_carried/contract.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_approval_carried/contract.json",
+    "source_sha256": "b9503401f6ab85890bfe07356e019ae488e79855449f715e60f76957d051a5b5",
+    "vendored_sha256": "b9503401f6ab85890bfe07356e019ae488e79855449f715e60f76957d051a5b5"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_approval_carried/events/e00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_approval_carried/events/e00.json",
+    "source_sha256": "744f4429a12bd105101438601d2b07312c39a2e576f7c40b06686ec187f6da35",
+    "vendored_sha256": "744f4429a12bd105101438601d2b07312c39a2e576f7c40b06686ec187f6da35"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_approval_carried/expected.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_approval_carried/expected.json",
+    "source_sha256": "aa469e893534e6eb946d2cb1bf5ad3346e47704e462782b7cd487ea8fff66bbf",
+    "vendored_sha256": "aa469e893534e6eb946d2cb1bf5ad3346e47704e462782b7cd487ea8fff66bbf"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_approval_carried/relying_keys.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_approval_carried/relying_keys.json",
+    "source_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263",
+    "vendored_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_approval_carried/view.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_approval_carried/view.json",
+    "source_sha256": "d33ad17b41932cbc41019b9bf8bceb56f5a445f71ea018c367fdd7628018bc96",
+    "vendored_sha256": "d33ad17b41932cbc41019b9bf8bceb56f5a445f71ea018c367fdd7628018bc96"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_no_approval/admissions/a00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_no_approval/admissions/a00.json",
+    "source_sha256": "535cb0dbd5ca4f02f7d99dc135d17d47d2b77d9161f078b33f13d70cab31a6ac",
+    "vendored_sha256": "535cb0dbd5ca4f02f7d99dc135d17d47d2b77d9161f078b33f13d70cab31a6ac"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_no_approval/contract.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_no_approval/contract.json",
+    "source_sha256": "c35259557b8e7e83ca0bb1e2edbcccb2a45ba4c5ce958040204445cab4dab01d",
+    "vendored_sha256": "c35259557b8e7e83ca0bb1e2edbcccb2a45ba4c5ce958040204445cab4dab01d"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_no_approval/events/e00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_no_approval/events/e00.json",
+    "source_sha256": "48b2ac48c506105545b935eee6f439cb407b8ec547c5ed39be52c3372df55370",
+    "vendored_sha256": "48b2ac48c506105545b935eee6f439cb407b8ec547c5ed39be52c3372df55370"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_no_approval/expected.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_no_approval/expected.json",
+    "source_sha256": "8fcc05c9d83548a166cee90156b2a8bb8fe12b3d49b2e27dab575822c2208d46",
+    "vendored_sha256": "8fcc05c9d83548a166cee90156b2a8bb8fe12b3d49b2e27dab575822c2208d46"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_no_approval/relying_keys.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_no_approval/relying_keys.json",
+    "source_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263",
+    "vendored_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_no_approval/view.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_conditional_no_approval/view.json",
+    "source_sha256": "014a469bad687e665e734d773e12b2c3019eb817955b39379716b20daa36f2ad",
+    "vendored_sha256": "014a469bad687e665e734d773e12b2c3019eb817955b39379716b20daa36f2ad"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_approval/admissions/a00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_approval/admissions/a00.json",
+    "source_sha256": "9fdc20c3582e07cab7be18da92dd859d0e54454af32fa591aed11a9e6afea3cd",
+    "vendored_sha256": "9fdc20c3582e07cab7be18da92dd859d0e54454af32fa591aed11a9e6afea3cd"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_approval/contract.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_approval/contract.json",
+    "source_sha256": "20ae7ef8a210d14b206e10cf7a061128d7d6a0e633b7d89b68b02c46da7ba4d8",
+    "vendored_sha256": "20ae7ef8a210d14b206e10cf7a061128d7d6a0e633b7d89b68b02c46da7ba4d8"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_approval/events/e00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_approval/events/e00.json",
+    "source_sha256": "eb82e072fcc534b8c44ed517e5c4534d05cb264f6d6e50da2d29b741348d78a7",
+    "vendored_sha256": "eb82e072fcc534b8c44ed517e5c4534d05cb264f6d6e50da2d29b741348d78a7"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_approval/expected.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_approval/expected.json",
+    "source_sha256": "53afde0b1391ae3df4dff2168280f7571c10783b906974bec6b9cf6518071441",
+    "vendored_sha256": "53afde0b1391ae3df4dff2168280f7571c10783b906974bec6b9cf6518071441"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_approval/relying_keys.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_approval/relying_keys.json",
+    "source_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263",
+    "vendored_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_approval/view.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_approval/view.json",
+    "source_sha256": "c694253aba858d04385c55314c1e0b966d7f10d41de1630d20fb31c4b6769a6e",
+    "vendored_sha256": "c694253aba858d04385c55314c1e0b966d7f10d41de1630d20fb31c4b6769a6e"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_check_named/admissions/a00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_check_named/admissions/a00.json",
+    "source_sha256": "fdcb7c88598bc2f0b87567766c53488c32c482129aa7f7ebb238adb41556186f",
+    "vendored_sha256": "fdcb7c88598bc2f0b87567766c53488c32c482129aa7f7ebb238adb41556186f"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_check_named/contract.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_check_named/contract.json",
+    "source_sha256": "12042fb84120774978381988a6c4597a71f872cf7a89875571c78fcd63571222",
+    "vendored_sha256": "12042fb84120774978381988a6c4597a71f872cf7a89875571c78fcd63571222"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_check_named/events/e00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_check_named/events/e00.json",
+    "source_sha256": "06b8dcadc413e80c1e8907d2c4ff572f70d747c9ffeb3d5faed48e1d2a2c7cd1",
+    "vendored_sha256": "06b8dcadc413e80c1e8907d2c4ff572f70d747c9ffeb3d5faed48e1d2a2c7cd1"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_check_named/expected.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_check_named/expected.json",
+    "source_sha256": "32c7735479459179543376f87e0f06f0996004d78079de46fec4b051b08bdd65",
+    "vendored_sha256": "32c7735479459179543376f87e0f06f0996004d78079de46fec4b051b08bdd65"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_check_named/relying_keys.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_check_named/relying_keys.json",
+    "source_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263",
+    "vendored_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_check_named/view.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_no_check_named/view.json",
+    "source_sha256": "986ce9849a408a2bf7788a69417179cd4e6807176d83920abd55ac3f26715be4",
+    "vendored_sha256": "986ce9849a408a2bf7788a69417179cd4e6807176d83920abd55ac3f26715be4"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_other_rules/admissions/a00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_other_rules/admissions/a00.json",
+    "source_sha256": "34d80fb134bca5393844f4602db3963e81f4dae629555e1b6b81dc9e38d34c37",
+    "vendored_sha256": "34d80fb134bca5393844f4602db3963e81f4dae629555e1b6b81dc9e38d34c37"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_other_rules/contract.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_other_rules/contract.json",
+    "source_sha256": "6b3db856beba6282a387cad497c5355c5f6f47646fcc58742e9c9ef31a045e57",
+    "vendored_sha256": "6b3db856beba6282a387cad497c5355c5f6f47646fcc58742e9c9ef31a045e57"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_other_rules/events/e00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_other_rules/events/e00.json",
+    "source_sha256": "87a169b5800471b67b8dfb0e2fe0c86d17b386c9ceab0e5d2bd5345946b294ea",
+    "vendored_sha256": "87a169b5800471b67b8dfb0e2fe0c86d17b386c9ceab0e5d2bd5345946b294ea"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_other_rules/expected.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_other_rules/expected.json",
+    "source_sha256": "85e466b897fc35d45c2d0f48bad3fda472d64ca6245fe0462c7ffe9ba1caea7b",
+    "vendored_sha256": "85e466b897fc35d45c2d0f48bad3fda472d64ca6245fe0462c7ffe9ba1caea7b"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_other_rules/relying_keys.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_other_rules/relying_keys.json",
+    "source_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263",
+    "vendored_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_other_rules/view.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_other_rules/view.json",
+    "source_sha256": "9a50b4d914460362c95014b4d8006790e2389fce7e8e66050fba654f36e23807",
+    "vendored_sha256": "9a50b4d914460362c95014b4d8006790e2389fce7e8e66050fba654f36e23807"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/admissions/a00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/admissions/a00.json",
+    "source_sha256": "931b769e4f75641431ab0dadf47c4a31fbcfb4cb4fa011f5015d1210deac69e6",
+    "vendored_sha256": "931b769e4f75641431ab0dadf47c4a31fbcfb4cb4fa011f5015d1210deac69e6"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/admissions/a01.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/admissions/a01.json",
+    "source_sha256": "f5c6c6273275ee4c184b04e6989b48f4b52a65c38d5c3d481587cd4880b4eb4c",
+    "vendored_sha256": "f5c6c6273275ee4c184b04e6989b48f4b52a65c38d5c3d481587cd4880b4eb4c"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/contract.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/contract.json",
+    "source_sha256": "531d92014b5bd2a538f96326487d6fa27094d06f436a9fda6237042c3cff903e",
+    "vendored_sha256": "531d92014b5bd2a538f96326487d6fa27094d06f436a9fda6237042c3cff903e"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/events/e00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/events/e00.json",
+    "source_sha256": "0c75803369a80c8109e2b59b8a03d8d0e0339c976ca429650fff9e4435cec674",
+    "vendored_sha256": "0c75803369a80c8109e2b59b8a03d8d0e0339c976ca429650fff9e4435cec674"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/events/e01.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/events/e01.json",
+    "source_sha256": "3ed843c1ed6d231efa6c2cf5f4e359e4ce09d0d5326fb6ba43361c9fe4da7cc5",
+    "vendored_sha256": "3ed843c1ed6d231efa6c2cf5f4e359e4ce09d0d5326fb6ba43361c9fe4da7cc5"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/expected.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/expected.json",
+    "source_sha256": "4ea3a352fcf1c590258a9428c73a4615f67605741c85b383fc0d666554fa0146",
+    "vendored_sha256": "4ea3a352fcf1c590258a9428c73a4615f67605741c85b383fc0d666554fa0146"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/relying_keys.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/relying_keys.json",
+    "source_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263",
+    "vendored_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/view.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_flagged_single_use_reused/view.json",
+    "source_sha256": "ce43736f4e0a48fcee803697ae19c1fec59d7d7cecb3016d90ceec3492adb35b",
+    "vendored_sha256": "ce43736f4e0a48fcee803697ae19c1fec59d7d7cecb3016d90ceec3492adb35b"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_scope_conflict_no_approval/admissions/a00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_scope_conflict_no_approval/admissions/a00.json",
+    "source_sha256": "b2c819570481c3c6e91af2eec8b65c932facb0a78054bb9698acc812371e0200",
+    "vendored_sha256": "b2c819570481c3c6e91af2eec8b65c932facb0a78054bb9698acc812371e0200"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_scope_conflict_no_approval/contract.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_scope_conflict_no_approval/contract.json",
+    "source_sha256": "f25e931198240fe6f6832bb2c8078642c895de56e26263e54d03a8d9e52e2d4f",
+    "vendored_sha256": "f25e931198240fe6f6832bb2c8078642c895de56e26263e54d03a8d9e52e2d4f"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_scope_conflict_no_approval/events/e00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_scope_conflict_no_approval/events/e00.json",
+    "source_sha256": "ac3592f46fb74a3d1d41d4cfb3208fb5e6d477a79ddc7a728ebda9f01512435f",
+    "vendored_sha256": "ac3592f46fb74a3d1d41d4cfb3208fb5e6d477a79ddc7a728ebda9f01512435f"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_scope_conflict_no_approval/expected.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_scope_conflict_no_approval/expected.json",
+    "source_sha256": "9b2cdeb9e449a8fcdbefaf6ca85c85b5ba02d3cb7c023c52f00561e81ecd6f2d",
+    "vendored_sha256": "9b2cdeb9e449a8fcdbefaf6ca85c85b5ba02d3cb7c023c52f00561e81ecd6f2d"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_scope_conflict_no_approval/relying_keys.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_scope_conflict_no_approval/relying_keys.json",
+    "source_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263",
+    "vendored_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_scope_conflict_no_approval/view.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_scope_conflict_no_approval/view.json",
+    "source_sha256": "d71b677a994b44878c9481078dd41a7375053982f3e3c1da7d267c8f7e3b9915",
+    "vendored_sha256": "d71b677a994b44878c9481078dd41a7375053982f3e3c1da7d267c8f7e3b9915"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_unchecked_no_approval/admissions/a00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_unchecked_no_approval/admissions/a00.json",
+    "source_sha256": "1ff961a153a6af1a501fd9034c3163fd8baccbac039a27200177f76417e29071",
+    "vendored_sha256": "1ff961a153a6af1a501fd9034c3163fd8baccbac039a27200177f76417e29071"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_unchecked_no_approval/contract.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_unchecked_no_approval/contract.json",
+    "source_sha256": "b540ae2a192bb947ff420f82a4d63becc81d43eafea35a47d53e4790014af5b6",
+    "vendored_sha256": "b540ae2a192bb947ff420f82a4d63becc81d43eafea35a47d53e4790014af5b6"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_unchecked_no_approval/events/e00.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_unchecked_no_approval/events/e00.json",
+    "source_sha256": "16b9baca0e43d53146e4d9a30e5a6a359d9e4a01401e6959e9f1e22d72eaed72",
+    "vendored_sha256": "16b9baca0e43d53146e4d9a30e5a6a359d9e4a01401e6959e9f1e22d72eaed72"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_unchecked_no_approval/expected.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_unchecked_no_approval/expected.json",
+    "source_sha256": "a4fbe2bc6b7dfda9355ddc2a44c07b11f9d2fa83a69a8612dd69a20f276fd00c",
+    "vendored_sha256": "a4fbe2bc6b7dfda9355ddc2a44c07b11f9d2fa83a69a8612dd69a20f276fd00c"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_unchecked_no_approval/relying_keys.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_unchecked_no_approval/relying_keys.json",
+    "source_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263",
+    "vendored_sha256": "4a7a0999e4c332540e7a3ec42ce77f6f4cfcfd992967381254dbb339ddc85263"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_unchecked_no_approval/view.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/v118_v03_escalate_unchecked_no_approval/view.json",
+    "source_sha256": "b3bd5ec93862de917897f625bad5cf2f3ed264f48dba9542d913873cca574064",
+    "vendored_sha256": "b3bd5ec93862de917897f625bad5cf2f3ed264f48dba9542d913873cca574064"
+  },
+  "_repo/musubi-v0/settle-core-v0/vectors_v1_18/vectors.json": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/vectors_v1_18/vectors.json",
+    "source_sha256": "2008311056cd6b069a8892c15f03387bde76a8a12094decdbbd708a75d6052a0",
+    "vendored_sha256": "2008311056cd6b069a8892c15f03387bde76a8a12094decdbbd708a75d6052a0"
+  },
   "_repo/musubi-v0/settle_v1.py": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/settle_v1.py",
     "source_sha256": "0e51350331c8931c639d4acb95cdf9d07deff2e4c4e231f6df254cd1ee4412ba",
@@ -4153,6 +4588,11 @@
     "source": "workers/hs-ledger/nenrin/musubi-v0/settle_v1_17.py",
     "source_sha256": "03a0915e2fcc8f646cf183c6c6dd4dc481f30f3035508fe9c874a18ddbbb200c",
     "vendored_sha256": "03a0915e2fcc8f646cf183c6c6dd4dc481f30f3035508fe9c874a18ddbbb200c"
+  },
+  "_repo/musubi-v0/settle_v1_18.py": {
+    "source": "workers/hs-ledger/nenrin/musubi-v0/settle_v1_18.py",
+    "source_sha256": "c3c356011aa5cadf0b219472a35625e34d480f319df6c0c3f795bcddd640493f",
+    "vendored_sha256": "c3c356011aa5cadf0b219472a35625e34d480f319df6c0c3f795bcddd640493f"
   },
   "_repo/musubi-v0/settle_v1_2.py": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/settle_v1_2.py",

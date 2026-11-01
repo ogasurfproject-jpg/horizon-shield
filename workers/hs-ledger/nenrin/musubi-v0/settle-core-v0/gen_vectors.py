@@ -39,7 +39,7 @@ import settle_v1_2 as v12                    # noqa: E402
 import settle_v1_6 as v16                    # noqa: E402
 import settle_v1_16 as s16                   # noqa: E402
 from contract_v0 import canonical, parse_strict, contract_sha256, EXEC_SCHEMA   # noqa: E402
-from run_reference import core_fields, settle_dir, settle_v1_17_dir, core_fields_v1_17                               # noqa: E402
+from run_reference import core_fields, settle_dir, settle_v1_17_dir, core_fields_v1_17, core_fields_v1_18                              # noqa: E402
 from cryptography.hazmat.primitives import serialization                        # noqa: E402
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey  # noqa: E402
 
@@ -1068,6 +1068,53 @@ def write_v1_17():
     print("%d v1.17 vectors written to %s (admission versions %s)" % (len(index["vectors"]), OUT_V117, ", ".join(index["admission_versions"])))
 
 
+# ----------------------------------------------------------------------------------------------- a2a-settlement-v1.18
+# Outside core v0, as v1.17: an action run after the door escalated on the content, with no approval that counts.
+# Written only when admission_verify_v0 knows version 0.3 (every v1.18 scenario carries a 0.3 admission).
+OUT_V118 = os.path.join(HERE, "vectors_v1_18")
+
+
+def write_v1_18():
+    import settle_v1_18 as s18
+    import admission_verify_v0 as A
+    if getattr(A, "VERSION_CONTENT", None) != "0.3":
+        print("admission_verify_v0 does not know version 0.3: no v1.18 vectors written")
+        return
+    if os.path.isdir(OUT_V118):
+        shutil.rmtree(OUT_V118)
+    os.makedirs(OUT_V118)
+    index = {"schema": "settle-v1.18-vectors", "spec": "SETTLE_CORE_v0.md section 18",
+             "reference": "settle_v1_18.settle_v1_18(contract, events, view, admissions=..., relying_keys=...) in musubi-v0 (a2a-settlement-v1.18)",
+             "admission_versions": ["0.3"], "vectors": []}
+    for name, furui, cond, build, want, _reads in s18.scenarios():
+        w = s18.make_world(furui, "settle v1.18 " + name, conditional=cond)
+        events, adms = build(w)
+        vid = "v118_" + name
+        d = os.path.join(OUT_V118, vid)
+        _emit(os.path.join(d, "contract.json"), w.contract)
+        _emit(os.path.join(d, "view.json"), w.view())
+        _emit(os.path.join(d, "relying_keys.json"), w.keys)
+        for i, e in enumerate(events):
+            _emit(os.path.join(d, "events", "e%02d.json" % i), e)
+        for i, a in enumerate(adms):
+            _emit(os.path.join(d, "admissions", "a%02d.json" % i), a)
+        got = core_fields_v1_18(settle_v1_17_dir(d, s18.settle_v1_18, parse_strict))
+        assert got["deviation_codes"] == want, (vid, got["deviation_codes"], want)
+        with open(os.path.join(d, "expected.json"), "w", encoding="utf-8", newline="") as f:
+            f.write(json.dumps(got, indent=1, sort_keys=True) + "\n")
+        files = {}
+        for root, _, fs in os.walk(d):
+            for f in fs:
+                p = os.path.join(root, f)
+                files[os.path.relpath(p, d).replace(os.sep, "/")] = sha_file(p)
+        index["vectors"].append({"id": vid, "expect": {k: got[k] for k in ("verdict", "status", "deviation_codes", "content_gate_counts",
+                                                                              "content_escalate_gate_counts")},
+                                 "files": dict(sorted(files.items()))})
+    with open(os.path.join(OUT_V118, "vectors.json"), "w", encoding="utf-8", newline="") as f:
+        f.write(json.dumps(index, indent=1, ensure_ascii=False) + "\n")
+    print("%d v1.18 vectors written to %s" % (len(index["vectors"]), OUT_V118))
+
+
 def main():
     if os.path.isdir(OUT):
         shutil.rmtree(OUT)
@@ -1108,7 +1155,11 @@ def main():
         print("%-52s %-14s %-12s %s" % (x["id"], e["verdict"], e["status"], ",".join(e["deviation_codes"] + e["underspecified_reasons"]) or "-"))
     print("\n%d vectors written to %s" % (len(index["vectors"]), OUT))
     write_v1_17()
+    write_v1_18()
 
 
 if __name__ == "__main__":
-    main()
+    if sys.argv[1:] == ["v1_18"]:            # only the v1.18 vectors; the 128 core and the v1.17 vectors are left as they are
+        write_v1_18()
+    else:
+        main()

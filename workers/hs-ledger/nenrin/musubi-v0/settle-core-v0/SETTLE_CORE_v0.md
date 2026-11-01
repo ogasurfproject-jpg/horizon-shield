@@ -23,6 +23,8 @@ Revision 0.10, 2026-10-27: section 17 is new, outside core v0: the one settle ru
 
 Revision 0.11, 2026-10-31: two places where the text was silent on what the reference does (NOTES.md N25, N26), both found by Pico's blind run K001 (piiiico/agent-errata#16), in which programs written by models from the text and the vector inputs alone were compared with the vectors. The 8 hex characters of `max_target_bits` are the 32 bit value written big-endian, so `207fffff` is `0x207fffff` (4.1 rule 10, 5.1 rule 1, 5.2). A reason added by 4.2 stops the examination of records, as 2.3 already said; 4.2 now says so itself. Both sentences state what the reference and the vectors already did. No rule of the reference, reason or vector changed; on the 128 vectors the complete output of the reference is the same before and after.
 
+Revision 0.12, 2026-11-02: section 18 is new, outside core v0, beside section 17: an action run after the door escalated on the content (admission version 0.3, decision escalate, a content reason) with no approval that counts is a deviation, `executed_after_content_escalate` (a2a-settlement-v1.18). Core v0 does not change: the 128 vectors and the 13 vectors of section 17 did not change, file for file, and settle v1.18 gives v1.17's output byte for byte on all of them. The rule's vectors are in `vectors_v1_18/`.
+
 ## 0. Why this document exists
 
 Until now the MUSUBI settle function was defined only by Python code (settle_v1.py to settle_v1_16.py, each layer importing the ones below it).
@@ -770,6 +772,33 @@ Any deviation makes the verdict `deviation`, and the bond outcome follows as in 
 What it does not do. It reads digests and two fields. It does not read the content, run a check, or recompute rules_sha256 from any file (furui_rules_id_v0.py says how that digest is made). That the door ran the check its admission names, or that the same check would answer the same way again, is not established.
 
 Vectors. `vectors_v1_17/vectors.json` indexes them, with `admission_versions` saying which admission versions the generator could write (version 0.3 only when admission_verify_v0 knows it). Each vector folder holds the core files of section 16 plus `admissions/aNN.json` (each with its anchor) and `relying_keys.json`; `expected.json` holds the core fields (9.1) and `content_gate_counts`. `run_reference.py` checks them after the core vectors.
+
+## 18. The content escalate rule (a2a-settlement-v1.18), outside core v0
+
+This section is not part of core v0, for the reason section 17 gives. Its vectors are kept apart, in `vectors_v1_18/`.
+
+The reference is settle_v1_18.py, called as `settle_v1_18.settle_v1_18(contract, events, view, admissions=..., relying_keys=...)`. It is settle v1.17 plus one rule.
+
+Why. A door that reads the content can escalate instead of refusing. Settle v1.11 counts an execution after escalate only when the grant's own clause for the action is conditional and no approval is carried, and section 17 reads the content block of admit only. So an action the grant authorizes, escalated on the content and run anyway with no approval, left nothing in the settlement.
+
+When it applies. To every contract that requires admission, whether or not it names a content check. When no accepted execution names an admission the rule reads (below), the output is v1.17's, byte for byte, schema line included (checked over the 128 vectors of section 16, the 13 vectors of section 17, run0002 and every admission fixture case).
+
+What it reads. The admissions v1.11 reads, paired with actions as in section 17, each read once, of which only those whose `rules.version` is `"0.3"`, whose decision is `escalate` and whose reasons name at least one of `content_flagged`, `content_scope_conflict` and `content_unchecked`. An escalate on the immune block alone is not read.
+
+The rule, for each such action and admission:
+
+1. If v1.11 raised `executed_after_refusal` for the same execution, action and admission, nothing is added.
+2. Else, if the execution's `approvals` carries no entry that counts for this action under these terms with `valid_until_height` at or above the execution's height: deviation `executed_after_content_escalate`. An entry counts as clause_eval_v0.approval_counts says under settle v1.13's approver rule: the principal's a2a-approval-v2 over this contract's sha256, or the pinned approver's a2a-approval-v2 or a2a-approval-v3 (approval_v3.py) for an action the approver lists. A `single_use` entry counts once: the rule walks the executions in (anchor height, record sha256) order, and an entry it already counted for an earlier escalate does not count again (the deviation's `why` names `approval_reused`; an expired one names `approval_expired`). The spend is the rule's own: an approval settle v1.6 spent on a conditional action is not carried into it.
+
+The deviation stands beside any other, `content_rules_mismatch` included. Any deviation makes the verdict `deviation`, and the bond outcome follows as in 9.3. When the rule read at least one admission, the output carries `content_escalate_gate`: the rule, the admissions read (with the approval found, if any) and the count, and its schema line is a2a-settlement-v1.18.
+
+What it does not do. It does not read the content or the content block's flags, and does not run a check. That an approval was given after the door escalated, or because of it, is not established: an approval carries a validity height, not the escalation it answers, so an approval signed before the escalate and still valid counts, and one long-lived approval can clear later escalates of the same action. Every row of `content_escalate_gate.admissions_read` says so with `approval_binds_escalate: false`. An approval that binds the admission it answers is left to a later version.
+
+An approval (a2a-approval-v2, the bytes of clause_eval_v0.approver_approval_bytes) signs the contract's digest, the action, the approver's key, valid_until_height, the nonce and single_use. It signs no admission's digest, so no approval can show that it answers a particular escalate, and an approval signed before the door escalated counts the same as one signed after. A rule that asks for an answer to the escalate needs an approval that names the admission; that is not part of this revision.
+
+One fact can carry two names by height: for a conditional action whose approval is valid at the admission's height but expired at the execution's, v1.11 does not raise `executed_after_refusal` and this rule raises `executed_after_content_escalate`.
+
+Vectors. `vectors_v1_18/vectors.json` indexes them; each folder has the files of a section 17 vector, and `expected.json` adds `content_escalate_gate_counts`. `run_reference.py` checks them after the section 17 vectors.
 
 ## Appendix A. Codes
 

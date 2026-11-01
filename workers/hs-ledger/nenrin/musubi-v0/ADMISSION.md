@@ -148,6 +148,13 @@ is stated only with its admission.
 
     python3 settle_v1_12.py --settle c.AB.json --event e.anchored.json --view headers.json --admission adm.anchored.json --relying-key shop.example=<base64>
 
+**v1.18.** Only for a contract that requires admission, and only when an execution names an admission of version 0.3
+that escalated on the content; otherwise v1.17's bytes (SETTLE_CORE_v0.md section 18).
+
+| deviation | when |
+|---|---|
+| `executed_after_content_escalate` | the admission said escalate with a content reason, and the execution carries no approval that counts for the action, valid at its height and not already counted once if single_use (unless v1.11 already raised `executed_after_refusal`) |
+
 ## Immune rules (immune_v0.py)
 
 The clauses ask whether a kind of act is inside the grant. The immune rules ask where the values of the act came from.

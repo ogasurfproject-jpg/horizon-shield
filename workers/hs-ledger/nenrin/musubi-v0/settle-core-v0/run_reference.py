@@ -107,6 +107,12 @@ def core_fields_v1_17(s):
     return got
 
 
+def core_fields_v1_18(s):
+    got = core_fields_v1_17(s)
+    got["content_escalate_gate_counts"] = (s.get("content_escalate_gate") or {}).get("counts")
+    return got
+
+
 
 def main():
     settle, parse_strict = load_reference()
@@ -134,7 +140,8 @@ def main():
             print("ok   %-44s %-14s %-12s %s" % (v["id"], got["verdict"], got["status"], ",".join(got["deviation_codes"] + got["underspecified_reasons"]) or "-"))
     print("\n%d/%d vectors agree with the reference (settle_v1_16.py at %s)" % (ok, n, REF))
     ok2, n2 = main_v1_17()
-    return 0 if ok == n and ok2 == n2 else 1
+    ok3, n3 = main_v1_18()
+    return 0 if ok == n and ok2 == n2 and ok3 == n3 else 1
 
 
 def main_v1_17():
@@ -170,6 +177,40 @@ def main_v1_17():
     print("\n%d/%d v1.17 vectors agree with the reference (settle_v1_17.py, section 17, admission versions %s)" % (ok, n, ", ".join(idx["admission_versions"])))
     return ok, n
 
+
+
+def main_v1_18():
+    """The vectors of section 18 (a2a-settlement-v1.18, outside core v0), when vectors_v1_18/ is present."""
+    base = os.path.join(HERE, "vectors_v1_18")
+    if not os.path.isfile(os.path.join(base, "vectors.json")):
+        return 0, 0
+    sys.path.insert(0, REF)
+    import settle_v1_18
+    from contract_v0 import parse_strict
+    idx = json.load(open(os.path.join(base, "vectors.json"), encoding="utf-8"))
+    n = ok = 0
+    for v in idx["vectors"]:
+        n += 1
+        vdir = os.path.join(base, v["id"])
+        problems = []
+        for rel, want in sorted(v["files"].items()):
+            got = hashlib.sha256(open(os.path.join(vdir, rel), "rb").read()).hexdigest()
+            if got != want:
+                problems.append("file %s sha256 %s, index says %s" % (rel, got[:12], want[:12]))
+        exp = json.load(open(os.path.join(vdir, "expected.json"), encoding="utf-8"))
+        got = core_fields_v1_18(settle_v1_17_dir(vdir, settle_v1_18.settle_v1_18, parse_strict))
+        for k in sorted(set(exp) | set(got)):
+            if exp.get(k) != got.get(k):
+                problems.append("%s: expected %s, got %s" % (k, json.dumps(exp.get(k))[:200], json.dumps(got.get(k))[:200]))
+        if problems:
+            print("FAIL %s" % v["id"])
+            for p in problems:
+                print("     " + p)
+        else:
+            ok += 1
+            print("ok   %-44s %-14s %-12s %s" % (v["id"], got["verdict"], got["status"], ",".join(got["deviation_codes"]) or "-"))
+    print("\n%d/%d v1.18 vectors agree with the reference (settle_v1_18.py, section 18, admission versions %s)" % (ok, n, ", ".join(idx["admission_versions"])))
+    return ok, n
 
 if __name__ == "__main__":
     sys.exit(main())

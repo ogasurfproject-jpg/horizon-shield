@@ -146,6 +146,23 @@ gives values a numeric comparator cannot order, `new URL(s).host`) goes through 
 whitespace, strings and numbers as JSON.stringify writes them. The JavaScript side of the same hash is
 `tests/parity/js_canon.mjs` (twelve lines).
 
+## Unreleased
+
+Not on PyPI yet. The repository's copies have moved past 0.7.0; the next release is published from the repository
+after these are in place, and this section then takes its version number.
+
+- settle v1.17 and requirements_furui_v0: when a contract names the content check it expects
+  (`requirements.furui.rules_sha256`), an admission of version 0.3 is read against it (`content_rules_mismatch`,
+  `content_not_checked`); settle core v0 revision 0.10, section 17.
+- Admission records of version 0.4 (admission_verify_v0): the content block in the shape of FURUI A7.4, with a salted
+  commitment to the content (`input_commit`), the decision, the marks `off_topic` and `rule_conflict`, `unread`,
+  `answered` and `checked`, and the reason `content_off_topic`.
+- settle v1.18: an action run after the door escalated on the content, with no approval that counts, is a deviation,
+  `executed_after_content_escalate`; settle core v0 revision 0.12, section 18, and its 14 vectors. An approval signs no
+  admission's digest, so that an approval answers a particular escalate is not established.
+- settle core v0 revision 0.11 (text only): the byte order of `max_target_bits`, and a reason of 4.2 stops the
+  examination of records.
+
 ## 0.7.0 (2026-10-22)
 
 - settle v1.13 to v1.16 and approval_v3, so the package carries the reference of settle core v0

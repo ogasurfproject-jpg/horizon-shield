@@ -281,6 +281,12 @@ Found in the same run (K001). The programs written by openai/gpt-5.6-terra and g
 
 Before and after, for both entries (Python 3.14.7, the reference at the commit this revision is based on): run_reference.py gives 128/128 and its printed output is the same; the complete output of settle_v1_16 on each of the 128 vectors, hashed whole, is the same for all 128. The run's own report counts as one line, `shared_with: orchestrator and prompt (Pico)`, as agreed in that thread.
 
+## N27. An action run after a content escalate (revision 0.12)
+
+The end to end test of FURUI, the door, the intake and settlement (2026-10-28) found that an action the grant authorizes, escalated by the door on the content and run with no approval, settled as within_grant under v1.17: v1.11 counts escalate only when the grant clause is conditional, and v1.17 reads admit only. Section 18 (settle_v1_18.py) adds one deviation, `executed_after_content_escalate`, outside core v0. The 128 vectors and the section 17 vectors are unchanged, file for file, and v1.18 gives v1.17's bytes on them; its own 14 vectors are in `vectors_v1_18/`. The rule counts approvals under settle v1.13's approver rule (a pinned approver's a2a-approval-v3 counts, as in the lower layers) and counts a single_use approval once across escalates; an approval is not bound to the escalate it answers (approval_binds_escalate: false), which a later version is to change. A door whose policy escalates on the content should not be relied on before a settler runs v1.18.
+
+An approval (a2a-approval-v2, the bytes of clause_eval_v0.approver_approval_bytes) signs the contract's digest, the action, the approver's key, valid_until_height, the nonce and single_use. It signs no admission's digest, so no approval can show that it answers a particular escalate, and an approval signed before the door escalated counts the same as one signed after. A rule that asks for an answer to the escalate needs an approval that names the admission; that is not part of this revision.
+
 ## What I could not pin down
 
 - Whether the project intends core v0 to follow settle_v1_10 or the latest layer. On the vectors, v1.11 to v1.14 give identical core fields; v1.15 differs on one vector (N10) and reports a dropped copy under `signed_body_collapse` instead of `duplicate_anchorings`, which changes the dispositions projection for real_p31_two_anchorings_one_body only.
