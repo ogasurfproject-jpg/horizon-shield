@@ -1,9 +1,9 @@
 {
-  "directory": "swh:1:dir:54d99a7dbf8891c013f25d08e32e22eeb159d340",
-  "requested_at": "2026-10-31T10:18:12Z",
-  "revision": "1680d6adf4a9de071c7f8a0888838c6ddcb50113",
+  "directory": "swh:1:dir:8cb4d7cc817f7a65ac42517bde655a4593d2f938",
+  "requested_at": "2026-11-01T11:05:24Z",
+  "revision": "e2bcb564eaca2130ecf6d6178913652718ec38dd",
   "schema": "nenrin-survive-precook-v0",
-  "snapshot": "9f4d427de68a9368749aaf4304f9fd2cbbb0cc54",
+  "snapshot": "38c6a5db896cc5a23f2a7344a973475a959c69b7",
   "status_at_request": "new",
-  "visit_date": "2026-10-31T09:43:28.113000+00:00"
+  "visit_date": "2026-11-01T10:32:29.127000+00:00"
 }
