@@ -11,6 +11,13 @@ name: seki heartbeat
 # a 32 byte Ed25519 seed in base64) and HSG_STORE_TOKEN_SEKI_DEMO (the gateway token of the store hs-seki-demo).
 # The door's key is not here; it stays in Cloudflare. Principal, agent and door are all The HORIZONs Co., Ltd.
 # Pushes made with GITHUB_TOKEN do not start other workflows.
+# 2026-10-24. A run is for the UTC day six hours before it starts (heartbeat.py responsible_day), so a run GitHub starts
+# after midnight is still for the day it was scheduled on. Before this, the late run took the next day's name and the
+# next evening's run ended "already ran" and green with nothing done (2026-10-20 and 2026-10-23; runs/2026-10-21 does not
+# exist). After every run, heartbeat.py gaps lists the last seven days that have no RUN.json. A missed day turns the run
+# red and goes to ONE open issue with the label heartbeat-missed: a comment when one is open, a new issue only when none
+# is open. A day is written once: its marker "seki-heartbeat missed day=<day>" on any heartbeat-missed issue (open or
+# closed) stops it from being written again. The issue is closed by a person; this workflow never closes it.
 
 on:
   schedule:
@@ -19,6 +26,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: seki-heartbeat
@@ -68,8 +76,68 @@ jobs:
             done
             [ "$ok" = 1 ] || { echo "::error::push failed 3 times"; exit 1; }
           fi
-      - name: a failed step is a failed run
-        if: steps.settle.outcome == 'failure' || steps.run.outcome == 'failure'
+      - name: days without a run (the last seven)
+        id: gaps
+        if: always()
+        shell: bash
         run: |
-          echo "settle: ${{ steps.settle.outcome }}, run: ${{ steps.run.outcome }}"
+          set +e
+          python3 workers/hs-ledger/nenrin/seki-heartbeat/heartbeat.py gaps --json gaps.json | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "rc=$?" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: record a missed day on the heartbeat-missed issue
+        id: missed
+        if: always() && steps.gaps.outputs.rc == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_OUTCOME: ${{ steps.run.outcome }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          RUN_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          gh label create heartbeat-missed --color b60205 --description "A UTC day on which the SEKI heartbeat made no calls" --force >/dev/null
+          : > seen.txt
+          for N in $(gh issue list --label heartbeat-missed --state all --limit 30 --json number --jq '.[].number'); do
+            gh issue view "$N" --json body --jq '.body' >> seen.txt
+            gh api "repos/$GH_REPO/issues/$N/comments" --paginate --jq '.[].body' >> seen.txt
+          done
+          NEW=0
+          : > markers.txt
+          for D in $(jq -r '.missed[]' gaps.json); do
+            M="seki-heartbeat missed day=$D"
+            C=$({ grep -o -F -- "$M" seen.txt || true; } | wc -l | tr -d ' ')
+            if [ "$C" = "0" ]; then
+              echo "<!-- $M -->" >> markers.txt
+              echo "- $D (UTC): no RUN.json covers this day; the door was not exercised" >> markers.txt
+              NEW=$((NEW + 1))
+            else
+              echo "$D already recorded" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+          echo "new=$NEW" >> "$GITHUB_OUTPUT"
+          if [ "$NEW" = "0" ]; then
+            echo "every missed day is already on a heartbeat-missed issue; nothing written" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          {
+            echo "### SEKI heartbeat: a day without a run"
+            echo
+            cat markers.txt
+            echo
+            echo "run step: $RUN_OUTCOME. A day counts as run when a RUN.json under workers/hs-ledger/nenrin/seki-heartbeat/runs/ is for it (day_rule, or by its ran_at six hours back). Recheck with \`python3 workers/hs-ledger/nenrin/seki-heartbeat/heartbeat.py gaps --through <day>\`; a run by hand (workflow_dispatch) is for the day six hours before it starts, so a day long past is not run afterwards. Run: $RUN_URL"
+          } > body.md
+          OPEN=$(gh issue list --label heartbeat-missed --state open --limit 20 --json number --jq '[.[].number] | length')
+          if [ "$OPEN" -gt 0 ]; then
+            NUM=$(gh issue list --label heartbeat-missed --state open --limit 20 --json number --jq '[.[].number] | min')
+            gh issue comment "$NUM" --body-file body.md
+            echo "commented on #$NUM" >> "$GITHUB_STEP_SUMMARY"
+          else
+            gh issue create --title "SEKI heartbeat: a day without a run" --label heartbeat-missed --body-file body.md
+            echo "opened a heartbeat-missed issue" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: a failed step is a failed run
+        if: always() && (steps.settle.outcome == 'failure' || steps.run.outcome == 'failure' || steps.missed.outputs.new != '0' && steps.gaps.outputs.rc == '1')
+        run: |
+          echo "settle: ${{ steps.settle.outcome }}, run: ${{ steps.run.outcome }}, missed days newly recorded: ${{ steps.missed.outputs.new }}"
           exit 1

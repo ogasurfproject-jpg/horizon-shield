@@ -7,7 +7,7 @@ The door (hs-seki-door) stands in front of HORIZON SHIELD's own paid tool, hs-ga
 hs-seki-demo, under the demonstration contract musubi-v0/run0003/contract.json. Principal, agent and door are all
 The HORIZONs Co., Ltd., and the contract says so. A door that is only exercised on the day it was built proves little,
 so once a day this file does two things, and the scheduled workflow .github/workflows/seki-heartbeat.yml commits what
-they wrote under runs/<UTC date>/:
+they wrote under runs/<day>/, the UTC day the run is for (see responsible_day):
 
   run      The agent makes the same three calls as run0003, each with a fresh nonce:
              report   20 tickets, the limit is 20      must be admitted, run, and filed as an execution record
@@ -27,6 +27,7 @@ Actions secrets) with the store's gateway token (HSG_STORE_TOKEN). The agent can
 allow and the tickets of the pilot carry no monetary value. The door's key never leaves Cloudflare and is not here.
 
   python3 heartbeat.py run    [--root runs] [--date YYYY-MM-DD]
+  python3 heartbeat.py gaps   [--root runs] [--through YYYY-MM-DD] [--days 7] [--json out.json]
   python3 heartbeat.py settle [--root runs] [--view-chunks view-chunks]
   python3 heartbeat.py --selftest
 """
@@ -122,6 +123,64 @@ def window_wait(now):
     return int((hi - t).total_seconds()) + 1 if lo <= t < hi else 0
 
 
+# --------------------------------------------------------------------------- the day a run is for
+# 2026-10-24. The schedule is 21:17 UTC and GitHub starts it up to about three hours late. The day used to be the UTC
+# date when the run started, so a run that started after midnight took the next day's name, and the next evening's run
+# found that name taken, printed "already ran" and was green although nothing was done: 2026-10-20 (started 23:56:20Z,
+# runs/2026-10-20 held the run that started 00:24:25Z for 10-19) and 2026-10-23 (started 23:52:15Z, runs/2026-10-23 held
+# the run that started 00:00:08Z for 10-22); runs/2026-10-21 does not exist. Now the day is the UTC date six hours
+# before the start: a run started from 21:17 to 06:00 the next morning is for the day it was scheduled on.
+# RUN.json written from now on says so (day_rule). The older ones are read by their ran_at with the same rule.
+DAY_RULE = "utc-date-of-start-minus-6h"
+DAY_SHIFT_HOURS = 6
+GAPS_FROM = "2026-10-11"            # the first day the heartbeat ran on its schedule
+
+
+def responsible_day(now):
+    """The UTC day a run started at `now` is for."""
+    return (now.astimezone(datetime.timezone.utc) - datetime.timedelta(hours=DAY_SHIFT_HOURS)).strftime("%Y-%m-%d")
+
+
+def day_of_run(r):
+    """The day a RUN.json covers: its date under the day rule, else the day of its ran_at (older runs)."""
+    if r.get("day_rule") == DAY_RULE and isinstance(r.get("date"), str):
+        return r["date"]
+    try:
+        return responsible_day(datetime.datetime.strptime(r["ran_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc))
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def covered_days(root):
+    """{day: [folder, ...]} for every RUN.json under root."""
+    out = {}
+    if not os.path.isdir(root):
+        return out
+    for d in sorted(os.listdir(root)):
+        p = os.path.join(root, d, "RUN.json")
+        if len(d) != 10 or not os.path.exists(p):
+            continue
+        try:
+            day = day_of_run(json.load(open(p, encoding="utf-8")))
+        except (ValueError, OSError):
+            day = None
+        if day:
+            out.setdefault(day, []).append(d)
+    return out
+
+
+def gaps(root, through, days=7):
+    """Days from max(GAPS_FROM, through - days + 1) to through that no RUN.json covers."""
+    end = datetime.datetime.strptime(through, "%Y-%m-%d")
+    cov = covered_days(root)
+    out = []
+    for i in range(days - 1, -1, -1):
+        d = (end - datetime.timedelta(days=i)).strftime("%Y-%m-%d")
+        if d >= GAPS_FROM and d not in cov:
+            out.append(d)
+    return out
+
+
 # --------------------------------------------------------------------------- run
 def run(root, date, now=None, sleep=time.sleep):
     from cryptography.hazmat.primitives import serialization
@@ -129,6 +188,12 @@ def run(root, date, now=None, sleep=time.sleep):
     out = os.path.join(root, date)
     if os.path.exists(os.path.join(out, "RUN.json")):
         prev = json.load(open(os.path.join(out, "RUN.json"), encoding="utf-8"))
+        held = day_of_run(prev) or date          # a RUN.json without ran_at says nothing else; its folder name stands
+        if held != date:
+            # The folder name is taken by a run for another day (named by the older rule). Doing nothing here would be
+            # the silent green of 2026-10-20 and 2026-10-23, so this is a failure, and gaps() reports the day.
+            print("FAIL: runs/%s already holds the run for %s (started %s); the calls for %s were NOT made" % (date, held, prev.get("ran_at"), date))
+            return 1
         print("already ran for %s (%s); nothing is spent twice" % (date, prev.get("result")))
         return 0 if prev.get("result") == "as expected" else 1
     wait = window_wait(now or datetime.datetime.now(datetime.timezone.utc))
@@ -172,7 +237,7 @@ def run(root, date, now=None, sleep=time.sleep):
     with os.fdopen(fd, "wb") as f:
         f.write(key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()))
     try:
-        record = {"schema": "seki-heartbeat-run-v0", "note": DISCLOSURE, "date": date, "contract_sha256": csha, "store": STORE,
+        record = {"schema": "seki-heartbeat-run-v0", "note": DISCLOSURE, "date": date, "day_rule": DAY_RULE, "contract_sha256": csha, "store": STORE,
                   "target": TARGET, "door_public_key_ed25519_b64": door_pub, "gateway": GATEWAY, "balance_before": bal,
                   "ran_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "calls": []}
         st, _h, b = http("POST", AGREEMENT + "/contract", ctext.encode("utf-8"), {"content-type": "application/json"})
@@ -658,14 +723,51 @@ def _selftest():
         os.environ.update(kept)
     assert slept == [24 * 60 + 54] and rc == 1           # it waited, then stopped at the missing secrets (none in the test)
     n += 1; print("[10] the calls wait out 00:20 to 00:55 UTC, between the ledger's admission cut and the intake's execution cut")
+
+    # [11] the day a run is for. The real start times of the runs of 2026-10-18 to 10-23 (Actions run list).
+    T = lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=U)
+    starts = ["2026-10-19T01:13:12Z", "2026-10-20T00:24:25Z", "2026-10-20T23:56:20Z", "2026-10-22T00:01:18Z", "2026-10-23T00:00:08Z", "2026-10-23T23:52:15Z"]
+    old = [T(x).strftime("%Y-%m-%d") for x in starts]
+    new = [responsible_day(T(x)) for x in starts]
+    assert old == ["2026-10-19", "2026-10-20", "2026-10-20", "2026-10-22", "2026-10-23", "2026-10-23"]   # two collisions, no 10-21
+    assert new == ["2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23"]   # one day each
+    assert responsible_day(T("2026-10-24T21:17:00Z")) == "2026-10-24" and responsible_day(T("2026-10-25T05:59:59Z")) == "2026-10-24"
+    assert responsible_day(T("2026-10-25T06:00:00Z")) == "2026-10-25"
+    n += 1; print("[11] the day is the one the run was scheduled on: the starts of 10-19 to 10-23 give six days, not two collisions")
+
+    # [12] the folders as they are (fixture: date and ran_at of runs/2026-10-18 .. 10-23 as committed): 10-20 and 10-23 missed
+    REAL = {"2026-10-18": "2026-10-18T01:01:04Z", "2026-10-19": "2026-10-19T01:14:20Z", "2026-10-20": "2026-10-20T00:30:07Z",
+            "2026-10-22": "2026-10-22T00:02:26Z", "2026-10-23": "2026-10-23T00:01:33Z"}
+    with tempfile.TemporaryDirectory() as td:
+        for d, ran in REAL.items():
+            os.makedirs(os.path.join(td, d))
+            with open(os.path.join(td, d, "RUN.json"), "w", encoding="utf-8") as f:
+                json.dump({"date": d, "ran_at": ran, "result": "as expected", "calls": []}, f)
+        assert gaps(td, "2026-10-23") == ["2026-10-20", "2026-10-23"], gaps(td, "2026-10-23")
+        assert gaps(td, "2026-10-22", days=3) == ["2026-10-20"]
+        # 2026-10-20 23:56Z and 2026-10-23 23:52Z again: the folder is taken by the run for the day before. Red, not "already ran".
+        for d in ("2026-10-20", "2026-10-23"):
+            rc = run(td, responsible_day(T({"2026-10-20": "2026-10-20T23:56:20Z", "2026-10-23": "2026-10-23T23:52:15Z"}[d])), now=T(d + "T23:56:20Z"), sleep=slept.append)
+            assert rc == 1, (d, rc)
+        # a second run for a day that is done under the rule is still "already ran", green
+        os.makedirs(os.path.join(td, "2026-10-24"))
+        with open(os.path.join(td, "2026-10-24", "RUN.json"), "w", encoding="utf-8") as f:
+            json.dump({"date": "2026-10-24", "day_rule": DAY_RULE, "ran_at": "2026-10-25T00:10:00Z", "result": "as expected", "calls": []}, f)
+        assert run(td, "2026-10-24", now=T("2026-10-25T02:00:00Z"), sleep=slept.append) == 0
+        assert gaps(td, "2026-10-24") == ["2026-10-20", "2026-10-23"] and gaps(td, "2026-10-25") == ["2026-10-20", "2026-10-23", "2026-10-25"]
+        assert gaps(td, "2026-10-12", days=7) == [d for d in ["2026-10-11", "2026-10-12"]]   # nothing before GAPS_FROM
+    n += 1; print("[12] the real folders: 10-20 and 10-23 have no run; a taken folder is a failure; a rerun of a done day stays green")
     print("ALL PASS (seki heartbeat: %d checks)" % n)
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("cmd", nargs="?", choices=["run", "settle", "index"])
+    ap.add_argument("cmd", nargs="?", choices=["run", "settle", "index", "gaps"])
     ap.add_argument("--root", default=os.path.join(HERE, "runs"))
-    ap.add_argument("--date", default=datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d"))
+    ap.add_argument("--date", default=responsible_day(datetime.datetime.now(datetime.timezone.utc)))
+    ap.add_argument("--through", default=None, help="gaps: the last day to check (default: the day a run started now is for)")
+    ap.add_argument("--days", type=int, default=7, help="gaps: how many days back, the last included")
+    ap.add_argument("--json", default=None, help="gaps: write {through, missed} here")
     ap.add_argument("--view-chunks", default=os.path.join(HERE, "view-chunks"))
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
@@ -675,6 +777,14 @@ def main():
         rc = run(a.root, a.date); write_index(a.root); return rc
     if a.cmd == "settle":
         rc = settle(a.root, a.view_chunks); write_index(a.root); return rc
+    if a.cmd == "gaps":
+        through = a.through or a.date
+        missed = gaps(a.root, through, a.days)
+        if a.json:
+            with open(a.json, "w", encoding="utf-8") as f:
+                json.dump({"through": through, "days": a.days, "missed": missed}, f)
+        print(("days without a heartbeat run (%s back to %d days): %s" % (through, a.days, ", ".join(missed))) if missed else "every day up to %s has a heartbeat run" % through)
+        return 1 if missed else 0
     if a.cmd == "index":
         write_index(a.root); return 0
     ap.print_help(); return 1

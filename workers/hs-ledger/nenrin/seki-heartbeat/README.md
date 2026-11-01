@@ -8,7 +8,7 @@ exercised every day, and every day is settled.
 | file | what it is |
 |---|---|
 | `heartbeat.py` | `run`: the agent's three calls of the day (report admitted, audit over its limit refused, compare prohibited refused), each with a fresh nonce; every record checked under the key `keys/seki-door.json` publishes and found on the ledger. `settle`: every earlier day whose ledger batch Bitcoin has confirmed, settled with settle v1.15 (v1.12 must agree on the verdict). `--selftest` runs offline |
-| `runs/<UTC date>/` | `RUN.json`, the signed requests, the door's records, the execution record; once settled, the anchored records, `settlement.json` and `SETTLED.json` (verdict, view, ledger entries, how to recompute) |
+| `runs/<day>/` (the UTC day the run is for: six hours before it started; until 2026-10-24 it was the date it started, see heartbeat.py responsible_day) | `RUN.json`, the signed requests, the door's records, the execution record; once settled, the anchored records, `settlement.json` and `SETTLED.json` (verdict, view, ledger entries, how to recompute) |
 | `runs/README.md` | one line per day |
 | `view-chunks/` | final Bitcoin headers from the contract's checkpoint, 1000 per file, written once and never rewritten; the whole view is checked under the contract's rules on every run |
 
