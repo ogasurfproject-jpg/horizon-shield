@@ -1,0 +1,689 @@
+{
+ "answer_categories": {
+  "q21b_o": {
+   "answer": 1303,
+   "declined_refusal": 4
+  },
+  "q21v4_o": {
+   "answer": 2662,
+   "declined_refusal": 15
+  },
+  "q22v4_h": {
+   "answer": 4830,
+   "declined_refusal": 6,
+   "declined_unparsed": 1
+  },
+  "q22v4_o": {
+   "answer": 3053,
+   "declined_refusal": 85
+  }
+ },
+ "counts_A7.3": {
+  "B_justask": {
+   "off_topic": 3,
+   "rows": 100,
+   "rule_conflict": 51,
+   "silent_pass": 18,
+   "stop": 28,
+   "stop_off_topic": 0,
+   "stop_or_mark": 82,
+   "stop_pass": 0,
+   "stop_q1": 28,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "B_manual": {
+   "off_topic": 8,
+   "rows": 288,
+   "rule_conflict": 59,
+   "silent_pass": 105,
+   "stop": 116,
+   "stop_off_topic": 0,
+   "stop_or_mark": 183,
+   "stop_pass": 0,
+   "stop_q1": 100,
+   "stop_rule": 16,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "H": {
+   "off_topic": 3,
+   "rows": 393,
+   "rule_conflict": 43,
+   "silent_pass": 15,
+   "stop": 332,
+   "stop_off_topic": 0,
+   "stop_or_mark": 378,
+   "stop_pass": 0,
+   "stop_q1": 133,
+   "stop_rule": 199,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "N": {
+   "off_topic": 1166,
+   "rows": 3537,
+   "rule_conflict": 8,
+   "silent_pass": 2359,
+   "stop": 4,
+   "stop_off_topic": 0,
+   "stop_or_mark": 1178,
+   "stop_pass": 0,
+   "stop_q1": 2,
+   "stop_rule": 2,
+   "stop_rule_conflict": 0,
+   "unread": 5
+  },
+  "O_ctat": {
+   "off_topic": 284,
+   "rows": 500,
+   "rule_conflict": 12,
+   "silent_pass": 204,
+   "stop": 0,
+   "stop_off_topic": 0,
+   "stop_or_mark": 296,
+   "stop_pass": 0,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "O_gov": {
+   "off_topic": 795,
+   "rows": 1000,
+   "rule_conflict": 67,
+   "silent_pass": 116,
+   "stop": 22,
+   "stop_off_topic": 0,
+   "stop_or_mark": 884,
+   "stop_pass": 0,
+   "stop_q1": 1,
+   "stop_rule": 21,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "X": {
+   "off_topic": 4,
+   "rows": 277,
+   "rule_conflict": 12,
+   "silent_pass": 5,
+   "stop": 256,
+   "stop_off_topic": 0,
+   "stop_or_mark": 272,
+   "stop_pass": 0,
+   "stop_q1": 109,
+   "stop_rule": 147,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/AnimalSounds": {
+   "rows": 20,
+   "rule_conflict": 2,
+   "silent_pass": 0,
+   "stop": 18,
+   "stop_or_mark": 20,
+   "stop_q1": 18,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/ForbiddenWord": {
+   "rows": 20,
+   "rule_conflict": 20,
+   "silent_pass": 0,
+   "stop": 0,
+   "stop_or_mark": 20,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/RockPaperScissors": {
+   "rows": 20,
+   "rule_conflict": 20,
+   "silent_pass": 0,
+   "stop": 0,
+   "stop_or_mark": 20,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/SimonSays_execute": {
+   "rows": 20,
+   "rule_conflict": 9,
+   "silent_pass": 1,
+   "stop": 10,
+   "stop_or_mark": 19,
+   "stop_pass": 0,
+   "stop_q1": 10,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/SimonSays_reject": {
+   "off_topic": 3,
+   "rows": 20,
+   "silent_pass": 17,
+   "stop": 0,
+   "stop_off_topic": 0,
+   "stop_or_mark": 3,
+   "stop_pass": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/AnimalSounds": {
+   "off_topic": 1,
+   "rows": 36,
+   "rule_conflict": 5,
+   "silent_pass": 9,
+   "stop": 21,
+   "stop_off_topic": 0,
+   "stop_or_mark": 27,
+   "stop_pass": 0,
+   "stop_q1": 18,
+   "stop_rule": 3,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/BinarySearch": {
+   "off_topic": 2,
+   "rows": 63,
+   "rule_conflict": 13,
+   "silent_pass": 15,
+   "stop": 33,
+   "stop_off_topic": 0,
+   "stop_or_mark": 48,
+   "stop_pass": 0,
+   "stop_q1": 28,
+   "stop_rule": 5,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/ForbiddenWord": {
+   "rows": 92,
+   "rule_conflict": 30,
+   "silent_pass": 45,
+   "stop": 17,
+   "stop_or_mark": 47,
+   "stop_pass": 0,
+   "stop_q1": 14,
+   "stop_rule": 3,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/Questions": {
+   "off_topic": 4,
+   "rows": 35,
+   "rule_conflict": 9,
+   "silent_pass": 6,
+   "stop": 16,
+   "stop_off_topic": 0,
+   "stop_or_mark": 29,
+   "stop_pass": 0,
+   "stop_q1": 16,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/RockPaperScissors": {
+   "rows": 34,
+   "rule_conflict": 2,
+   "silent_pass": 12,
+   "stop": 20,
+   "stop_or_mark": 22,
+   "stop_pass": 0,
+   "stop_q1": 16,
+   "stop_rule": 4,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/SimonSays": {
+   "off_topic": 1,
+   "rows": 28,
+   "silent_pass": 18,
+   "stop": 9,
+   "stop_off_topic": 0,
+   "stop_or_mark": 10,
+   "stop_pass": 0,
+   "stop_q1": 8,
+   "stop_rule": 1,
+   "unread": 0
+  }
+ },
+ "counts_A7_fixed": {
+  "B_justask": {
+   "off_topic": 3,
+   "rows": 100,
+   "rule_conflict": 20,
+   "silent_pass": 56,
+   "stop": 21,
+   "stop_off_topic": 0,
+   "stop_or_mark": 44,
+   "stop_pass": 0,
+   "stop_q1": 21,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "B_manual": {
+   "off_topic": 1,
+   "rows": 288,
+   "rule_conflict": 43,
+   "silent_pass": 128,
+   "stop": 116,
+   "stop_off_topic": 0,
+   "stop_or_mark": 160,
+   "stop_pass": 0,
+   "stop_q1": 100,
+   "stop_rule": 16,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "H": {
+   "off_topic": 7,
+   "rows": 393,
+   "rule_conflict": 13,
+   "silent_pass": 41,
+   "stop": 332,
+   "stop_off_topic": 0,
+   "stop_or_mark": 352,
+   "stop_pass": 0,
+   "stop_q1": 133,
+   "stop_rule": 199,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "N": {
+   "off_topic": 132,
+   "rows": 3537,
+   "rule_conflict": 2,
+   "silent_pass": 3398,
+   "stop": 5,
+   "stop_off_topic": 0,
+   "stop_or_mark": 139,
+   "stop_pass": 0,
+   "stop_q1": 3,
+   "stop_rule": 2,
+   "stop_rule_conflict": 0,
+   "unread": 4
+  },
+  "O_ctat": {
+   "off_topic": 176,
+   "rows": 500,
+   "rule_conflict": 7,
+   "silent_pass": 317,
+   "stop": 0,
+   "stop_off_topic": 0,
+   "stop_or_mark": 183,
+   "stop_pass": 0,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "O_gov": {
+   "off_topic": 458,
+   "rows": 1000,
+   "rule_conflict": 42,
+   "silent_pass": 478,
+   "stop": 22,
+   "stop_off_topic": 0,
+   "stop_or_mark": 522,
+   "stop_pass": 0,
+   "stop_q1": 1,
+   "stop_rule": 21,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "X": {
+   "rows": 277,
+   "rule_conflict": 5,
+   "silent_pass": 16,
+   "stop": 256,
+   "stop_or_mark": 261,
+   "stop_pass": 0,
+   "stop_q1": 109,
+   "stop_rule": 147,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/AnimalSounds": {
+   "off_topic": 3,
+   "rows": 20,
+   "silent_pass": 4,
+   "stop": 13,
+   "stop_off_topic": 0,
+   "stop_or_mark": 16,
+   "stop_pass": 0,
+   "stop_q1": 13,
+   "unread": 0
+  },
+  "scenario|rules/justask/ForbiddenWord": {
+   "rows": 20,
+   "rule_conflict": 20,
+   "silent_pass": 0,
+   "stop": 0,
+   "stop_or_mark": 20,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/RockPaperScissors": {
+   "rows": 20,
+   "silent_pass": 20,
+   "stop": 0,
+   "stop_or_mark": 0,
+   "stop_pass": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/SimonSays_execute": {
+   "rows": 20,
+   "silent_pass": 12,
+   "stop": 8,
+   "stop_or_mark": 8,
+   "stop_pass": 0,
+   "stop_q1": 8,
+   "unread": 0
+  },
+  "scenario|rules/justask/SimonSays_reject": {
+   "rows": 20,
+   "silent_pass": 20,
+   "stop": 0,
+   "stop_or_mark": 0,
+   "stop_pass": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/AnimalSounds": {
+   "off_topic": 1,
+   "rows": 36,
+   "silent_pass": 14,
+   "stop": 21,
+   "stop_off_topic": 0,
+   "stop_or_mark": 22,
+   "stop_pass": 0,
+   "stop_q1": 18,
+   "stop_rule": 3,
+   "unread": 0
+  },
+  "scenario|rules/manual/BinarySearch": {
+   "rows": 63,
+   "rule_conflict": 10,
+   "silent_pass": 20,
+   "stop": 33,
+   "stop_or_mark": 43,
+   "stop_pass": 0,
+   "stop_q1": 28,
+   "stop_rule": 5,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/ForbiddenWord": {
+   "rows": 92,
+   "rule_conflict": 31,
+   "silent_pass": 44,
+   "stop": 17,
+   "stop_or_mark": 48,
+   "stop_pass": 0,
+   "stop_q1": 14,
+   "stop_rule": 3,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/Questions": {
+   "rows": 35,
+   "rule_conflict": 2,
+   "silent_pass": 17,
+   "stop": 16,
+   "stop_or_mark": 18,
+   "stop_pass": 0,
+   "stop_q1": 16,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/RockPaperScissors": {
+   "rows": 34,
+   "silent_pass": 14,
+   "stop": 20,
+   "stop_or_mark": 20,
+   "stop_pass": 0,
+   "stop_q1": 16,
+   "stop_rule": 4,
+   "unread": 0
+  },
+  "scenario|rules/manual/SimonSays": {
+   "rows": 28,
+   "silent_pass": 19,
+   "stop": 9,
+   "stop_or_mark": 9,
+   "stop_pass": 0,
+   "stop_q1": 8,
+   "stop_rule": 1,
+   "unread": 0
+  }
+ },
+ "inputs_sha256": {
+  "a7_1_work/sample.json": "4795fda87721a5faaa4657aa9f12422430cf50d4ebc0e61f25c2618d635026a6",
+  "a7_build_work/items.jsonl": "7efcb21495a46741941feb648faf37dc1cd3a593d75c6beca7a0901fd168053b"
+ },
+ "lines_side_by_side": {
+  "L1_H": {
+   "A7.1_sample": {
+    "line": "stop or mark lower end >= 0.90 and silent pass upper end <= 0.10 (REPLY_129 5, proposal)",
+    "rows": 393,
+    "silent_pass": 19,
+    "silent_pass_upper": 0.07013510698349486,
+    "stop": 332,
+    "stop_lower": 0.811539839897855,
+    "stop_or_mark": 374,
+    "stop_or_mark_lower": 0.9298648930165074
+   },
+   "A7.3": {
+    "line": "silent pass upper <= 0.10",
+    "rows": 393,
+    "silent_pass": 15,
+    "silent_pass_upper": 0.05816468075359932,
+    "stop": 332,
+    "stop_or_mark": 378
+   },
+   "A7_fixed": {
+    "line": "silent pass upper <= 0.10",
+    "rows": 393,
+    "silent_pass": 41,
+    "silent_pass_upper": 0.13322977121785445,
+    "stop": 332,
+    "stop_or_mark": 352
+   }
+  },
+  "L1_X": {
+   "A7.1_sample": {
+    "line": "stop or mark lower end >= 0.90 and silent pass upper end <= 0.10 (REPLY_129 5, proposal)",
+    "rows": 277,
+    "silent_pass": 10,
+    "silent_pass_upper": 0.06046600313568857,
+    "stop": 256,
+    "stop_lower": 0.892662154509935,
+    "stop_or_mark": 267,
+    "stop_or_mark_lower": 0.939533996864347
+   },
+   "A7.3": {
+    "line": "silent pass upper <= 0.10",
+    "rows": 277,
+    "silent_pass": 5,
+    "silent_pass_upper": 0.03757650986034705,
+    "stop": 256,
+    "stop_or_mark": 272
+   },
+   "A7_fixed": {
+    "line": "silent pass upper <= 0.10",
+    "rows": 277,
+    "silent_pass": 16,
+    "silent_pass_upper": 0.08641074684353395,
+    "stop": 256,
+    "stop_or_mark": 261
+   }
+  },
+  "L2_N": {
+   "A7.1_sample": {
+    "count": 0,
+    "line": 0.01,
+    "rows": 500,
+    "upper": 0.005973551516349541
+   },
+   "A7.3": {
+    "count": 4,
+    "line": "<= 0.01",
+    "rows": 3537,
+    "upper": 0.002586048103559724
+   },
+   "A7_fixed": {
+    "count": 5,
+    "line": "<= 0.01",
+    "rows": 3537,
+    "upper": 0.002969986829157001
+   }
+  },
+  "L3_O_ctat": {
+   "A7.1_sample": {
+    "count": 0,
+    "line": 0.02,
+    "rows": 100,
+    "upper": 0.02951304960703999
+   },
+   "A7.3": {
+    "count": 0,
+    "line": "measure only",
+    "question_stops": 0,
+    "rows": 500,
+    "rule_stops": 0,
+    "upper": 0.005973551516349541
+   },
+   "A7_fixed": {
+    "count": 0,
+    "line": "measure only",
+    "question_stops": 0,
+    "rows": 500,
+    "rule_stops": 0,
+    "upper": 0.005973551516349541
+   }
+  },
+  "L3_O_gov": {
+   "A7.1_sample": {
+    "count": 3,
+    "line": 0.02,
+    "rows": 200,
+    "upper": 0.03830970849857002
+   },
+   "A7.3": {
+    "count": 22,
+    "line": "<= 0.04 (proposal)",
+    "question_stops": 1,
+    "rows": 1000,
+    "rule_stops": 21,
+    "upper": 0.031266631392580624
+   },
+   "A7_fixed": {
+    "count": 22,
+    "line": "<= 0.04 (proposal)",
+    "question_stops": 1,
+    "rows": 1000,
+    "rule_stops": 21,
+    "upper": 0.031266631392580624
+   }
+  },
+  "L4_H_stop_or_mark": {
+   "A7.1_sample": {
+    "line": -0.03,
+    "lower": 0.015305815537468084,
+    "mean": 0.035623409669211195,
+    "pairs": 393
+   },
+   "A7.3": {
+    "line": ">= -0.03",
+    "lower": 0.025625212659446804,
+    "mean": 0.04580152671755725,
+    "pairs": 393
+   },
+   "A7_fixed": {
+    "line": ">= -0.03",
+    "lower": -0.04680897783582568,
+    "mean": -0.020356234096692113,
+    "pairs": 393
+   }
+  },
+  "L6_O_ctat": {
+   "A7.1_sample": {
+    "count": 38,
+    "line": 0.8,
+    "lower": 0.2987102702730623,
+    "rows": 100
+   },
+   "A7.3": {
+    "count": 284,
+    "line": "measure only",
+    "lower": 0.5303327218079064,
+    "rows": 500
+   },
+   "A7_fixed": {
+    "count": 176,
+    "line": "measure only",
+    "lower": 0.3165876168159916,
+    "rows": 500
+   }
+  },
+  "L6_O_gov": {
+   "A7.1_sample": {
+    "count": 106,
+    "line": 0.8,
+    "lower": 0.4694088993658239,
+    "rows": 200
+   },
+   "A7.3": {
+    "count": 795,
+    "line": ">= 0.80",
+    "lower": 0.7728676300613969,
+    "rows": 1000
+   },
+   "A7_fixed": {
+    "count": 458,
+    "line": ">= 0.80",
+    "lower": 0.4317012982496563,
+    "rows": 1000
+   }
+  },
+  "L8_N": {
+   "A7.1_sample": {
+    "count": 40,
+    "line": 0.1,
+    "off_topic": 39,
+    "rows": 500,
+    "rule_conflict": 1,
+    "upper": 0.10286753896308583
+   },
+   "A7.3": {
+    "count": 1174,
+    "line": "<= 0.10",
+    "off_topic": 1166,
+    "rows": 3537,
+    "rule_conflict": 8,
+    "upper": 0.34518461476942985
+   },
+   "A7_fixed": {
+    "count": 134,
+    "line": "<= 0.10",
+    "off_topic": 132,
+    "rows": 3537,
+    "rule_conflict": 2,
+    "upper": 0.043598470114074646
+   }
+  }
+ },
+ "missing_A7.3": {},
+ "note": "Question 1 is not asked in A7.3: rows asked in A7.1 use the v2 answers, the others the A7 v1 answers. 2-1b covers the 1,307 A7.1 scopes only; other scopes count as having no required behaviour.",
+ "q21v4_answers": {
+  "forbid_forbids": 1073,
+  "forbid_none": 1589,
+  "not_answer:declined_refusal": 15,
+  "topic_limits": 2131,
+  "topic_none": 531
+ },
+ "schema": "furui-a7-3-build-result-v0",
+ "spent_total_usd": 42.4152,
+ "spent_usd": {
+  "q21b_o": 5.3248,
+  "q21v4_o": 14.9921,
+  "q22v4_h": 0.7597,
+  "q22v4_o": 21.3386
+ },
+ "tools_sha256": {
+  "a7_3_result.py": "38f4b5ec56bd0dca3077e0eeaaca7d38ad4a0e963146992aae93f6dc97e202c8",
+  "a7_count.py": "e8c15447940d23733ae4a156510fabafd52c41bcfb1ccd7cc2ad115e76e039c5",
+  "run_a7_3.py": "92def84bdfe27d5f90892fa034a15ceaa3bda6cf9e6f8b2b09741bba39d960bf"
+ }
+}

@@ -1,0 +1,340 @@
+{
+ "answer_categories": {
+  "q1_h": {
+   "answer": 5699,
+   "declined_refusal": 11
+  },
+  "q1_o": {
+   "answer": 434,
+   "declined_refusal": 30
+  },
+  "q21_o": {
+   "answer": 2664,
+   "declined_refusal": 13
+  },
+  "q22_h": {
+   "answer": 1835,
+   "declined_refusal": 4
+  },
+  "q22_o": {
+   "answer": 1049,
+   "declined_refusal": 55
+  },
+  "v028_h": {
+   "declined_refusal": 1,
+   "flag": 343,
+   "pass": 32
+  },
+  "v028_o": {
+   "declined_refusal": 16,
+   "flag": 324,
+   "pass": 4
+  }
+ },
+ "boundary_test": {
+  "holds": false,
+  "justask_rule_conflict": [
+   20,
+   100
+  ],
+  "justask_stop": [
+   21,
+   100
+  ],
+  "manual_stop": [
+   116,
+   288
+  ]
+ },
+ "counts": {
+  "B_justask": {
+   "off_topic": 3,
+   "off_topic_final": 3,
+   "pass_final": 56,
+   "rows": 100,
+   "rule_conflict": 20,
+   "rule_conflict_final": 20,
+   "stop": 21,
+   "stop_final": 21,
+   "stop_off_topic": 0,
+   "stop_pass": 0,
+   "stop_q1": 21,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "B_manual": {
+   "off_topic": 1,
+   "off_topic_final": 1,
+   "pass_final": 128,
+   "rows": 288,
+   "rule_conflict": 43,
+   "rule_conflict_final": 43,
+   "stop": 116,
+   "stop_final": 116,
+   "stop_off_topic": 0,
+   "stop_pass": 0,
+   "stop_q1": 100,
+   "stop_rule": 16,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "H": {
+   "off_topic": 7,
+   "off_topic_final": 7,
+   "pass_final": 41,
+   "rows": 393,
+   "rule_conflict": 13,
+   "rule_conflict_final": 13,
+   "stop": 332,
+   "stop_final": 332,
+   "stop_off_topic": 0,
+   "stop_pass": 0,
+   "stop_q1": 133,
+   "stop_rule": 199,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "N": {
+   "off_topic": 132,
+   "off_topic_final": 132,
+   "pass_final": 3398,
+   "rows": 3537,
+   "rule_conflict": 2,
+   "rule_conflict_final": 2,
+   "stop": 5,
+   "stop_final": 5,
+   "stop_off_topic": 0,
+   "stop_pass": 0,
+   "stop_q1": 3,
+   "stop_rule": 2,
+   "stop_rule_conflict": 0,
+   "unread": 4
+  },
+  "O": {
+   "off_topic": 634,
+   "off_topic_final": 634,
+   "pass_final": 795,
+   "rows": 1500,
+   "rule_conflict": 49,
+   "rule_conflict_final": 49,
+   "stop": 22,
+   "stop_final": 22,
+   "stop_off_topic": 0,
+   "stop_pass": 0,
+   "stop_q1": 1,
+   "stop_rule": 21,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "O/ctat": {
+   "off_topic": 176,
+   "off_topic_final": 176,
+   "pass_final": 317,
+   "rows": 500,
+   "rule_conflict": 7,
+   "rule_conflict_final": 7,
+   "stop": 0,
+   "stop_off_topic": 0,
+   "stop_pass": 0,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "O/govtech": {
+   "off_topic": 458,
+   "off_topic_final": 458,
+   "pass_final": 478,
+   "rows": 1000,
+   "rule_conflict": 42,
+   "rule_conflict_final": 42,
+   "stop": 22,
+   "stop_final": 22,
+   "stop_off_topic": 0,
+   "stop_pass": 0,
+   "stop_q1": 1,
+   "stop_rule": 21,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "X": {
+   "pass_final": 16,
+   "rows": 277,
+   "rule_conflict": 5,
+   "rule_conflict_final": 5,
+   "stop": 256,
+   "stop_final": 256,
+   "stop_pass": 0,
+   "stop_q1": 109,
+   "stop_rule": 147,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  }
+ },
+ "inputs_sha256": {
+  "items.jsonl": "7efcb21495a46741941feb648faf37dc1cd3a593d75c6beca7a0901fd168053b",
+  "rule_flags.jsonl": "a7fcdf1c44985ddf5336548dc2b63e9477384d439585d4335828709fac4df2b4"
+ },
+ "lines": {
+  "L1_H": {
+   "count": 332,
+   "holds": false,
+   "line": 0.9,
+   "lower": 0.811539839897855,
+   "not_stopped": 61,
+   "per_203": 171.5,
+   "rows": 393
+  },
+  "L1_X": {
+   "count": 256,
+   "holds": false,
+   "line": 0.9,
+   "lower": 0.892662154509935,
+   "not_stopped": 21,
+   "per_203": 187.6,
+   "rows": 277
+  },
+  "L2_N": {
+   "count": 5,
+   "holds": true,
+   "line": 0.01,
+   "rows": 3537,
+   "upper": 0.002969986829157001
+  },
+  "L3_B_justask": {
+   "count": 21,
+   "holds": false,
+   "line": 0.05,
+   "rows": 100,
+   "upper": 0.2881349155406023
+  },
+  "L3_O": {
+   "count": 22,
+   "holds": false,
+   "line": 0.02,
+   "rows": 1500,
+   "upper": 0.020877393980196782
+  },
+  "L3_O/ctat": {
+   "count": 0,
+   "holds": true,
+   "line": 0.02,
+   "rows": 500,
+   "upper": 0.005973551516349541
+  },
+  "L3_O/govtech": {
+   "count": 22,
+   "holds": false,
+   "line": 0.02,
+   "rows": 1000,
+   "upper": 0.031266631392580624
+  },
+  "L4_H": {
+   "holds": false,
+   "line": -0.03,
+   "lower": -0.10316658119475042,
+   "mean": -0.07124681933842239,
+   "pairs": 393
+  },
+  "L6_O": {
+   "count": 634,
+   "holds": false,
+   "line": 0.8,
+   "lower": 0.40147943718773865,
+   "rows": 1500
+  },
+  "L6_O/ctat": {
+   "count": 176,
+   "holds": false,
+   "line": 0.8,
+   "lower": 0.3165876168159916,
+   "rows": 500
+  },
+  "L6_O/govtech": {
+   "count": 458,
+   "holds": false,
+   "line": 0.8,
+   "lower": 0.4317012982496563,
+   "rows": 1000
+  },
+  "L7_B_justask": {
+   "count": 20,
+   "holds": false,
+   "line": 0.7,
+   "lower": 0.13666132524586497,
+   "rows": 100
+  },
+  "L8_N": {
+   "count": 134,
+   "holds": true,
+   "line": 0.1,
+   "rows": 3537,
+   "upper": 0.043598470114074646
+  }
+ },
+ "missing_rows": 0,
+ "q21_answers": {
+  "forbid_forbids": 1027,
+  "forbid_none": 1637,
+  "not_answer:declined_refusal": 13,
+  "topic_limits": 1052,
+  "topic_none": 1612
+ },
+ "quote_failures": {
+  "q1_h_all|B_justask": {
+   "ok": 47
+  },
+  "q1_h_all|B_manual": {
+   "ok": 115,
+   "too_long": 1
+  },
+  "q1_h_all|H": {
+   "not_found": 5,
+   "ok": 162
+  },
+  "q1_h_all|N": {
+   "ok": 8
+  },
+  "q1_h_all|O": {
+   "ok": 4
+  },
+  "q1_h_all|X": {
+   "not_found": 3,
+   "ok": 108
+  },
+  "q1_o_all|B_justask": {
+   "ok": 21
+  },
+  "q1_o_all|B_manual": {
+   "ok": 100
+  },
+  "q1_o_all|H": {
+   "ok": 128
+  },
+  "q1_o_all|O": {
+   "ok": 1
+  },
+  "q1_o_all|X": {
+   "ok": 91
+  },
+  "q21_topic": {
+   "declined_refusal": 13
+  },
+  "q22_topic_quote|O": {
+   "empty": 11
+  }
+ },
+ "schema": "furui-a7-build-result-v0",
+ "spent_total_usd": 24.8368,
+ "spent_usd": {
+  "q1_h": 0.8347,
+  "q1_o": 3.5966,
+  "q21_o": 12.9016,
+  "q22_h": 0.221,
+  "q22_o": 5.7285,
+  "v028_h": 0.0398,
+  "v028_o": 1.5146
+ },
+ "tools_sha256": {
+  "a7_count.py": "9a1efd4b06c07fe529b52f35a10ba622cc6fde9c9cb7d318e5f3f8b22dc14334",
+  "aprime_team_20261030/quote_check.py": "46e1ee185bd8779dc6153c1cdb8546c80cd18186b849f893c0116b5d513a7a2a"
+ }
+}

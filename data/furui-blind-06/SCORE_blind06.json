@@ -1,0 +1,455 @@
+{
+ "all_lines_hold": true,
+ "answer_categories": {
+  "q1v2_h": {
+   "answer": 5331,
+   "declined_refusal": 5
+  },
+  "q1v2_o": {
+   "answer": 144,
+   "declined_refusal": 10
+  },
+  "q21b_o": {
+   "answer": 4634,
+   "declined_refusal": 9
+  },
+  "q21v4_o": {
+   "answer": 4633,
+   "declined_refusal": 10
+  },
+  "q22v4_h": {
+   "answer": 5066,
+   "declined_refusal": 2
+  },
+  "q22v4_o": {
+   "answer": 3180,
+   "declined_refusal": 203
+  },
+  "v028_h": {
+   "declined_refusal": 1,
+   "flag": 140,
+   "pass": 15
+  },
+  "v028_o": {
+   "declined_refusal": 4,
+   "flag": 136,
+   "pass": 1
+  }
+ },
+ "counts": {
+  "H": {
+   "any_mark": 22,
+   "both_marks": 9,
+   "missing": 0,
+   "off_topic": 9,
+   "rows": 180,
+   "rule_conflict": 22,
+   "silent_pass": 9,
+   "stop": 149,
+   "stop_missing": 0,
+   "stop_or_mark": 171,
+   "stop_q1": 66,
+   "stop_q1_unreadable": 0,
+   "stop_question": 66,
+   "stop_rule": 83,
+   "unread": 0
+  },
+  "N": {
+   "any_mark": 306,
+   "both_marks": 1,
+   "missing": 0,
+   "off_topic": 302,
+   "rows": 963,
+   "rule_conflict": 5,
+   "silent_pass": 655,
+   "stop": 2,
+   "stop_missing": 0,
+   "stop_or_mark": 308,
+   "stop_q1": 2,
+   "stop_q1_unreadable": 0,
+   "stop_question": 2,
+   "stop_rule": 0,
+   "unread": 1
+  },
+  "N2": {
+   "any_mark": 8,
+   "both_marks": 1,
+   "missing": 0,
+   "off_topic": 7,
+   "rows": 1000,
+   "rule_conflict": 2,
+   "silent_pass": 991,
+   "stop": 1,
+   "stop_missing": 0,
+   "stop_or_mark": 9,
+   "stop_q1": 0,
+   "stop_q1_unreadable": 0,
+   "stop_question": 0,
+   "stop_rule": 1,
+   "unread": 0
+  },
+  "O_ctat": {
+   "any_mark": 175,
+   "both_marks": 8,
+   "missing": 0,
+   "off_topic": 173,
+   "rows": 300,
+   "rule_conflict": 10,
+   "silent_pass": 125,
+   "stop": 0,
+   "stop_missing": 0,
+   "stop_or_mark": 175,
+   "stop_q1": 0,
+   "stop_q1_unreadable": 0,
+   "stop_question": 0,
+   "stop_rule": 0,
+   "unread": 0
+  },
+  "O_gov": {
+   "any_mark": 2583,
+   "both_marks": 223,
+   "missing": 0,
+   "off_topic": 2526,
+   "rows": 3000,
+   "rule_conflict": 280,
+   "silent_pass": 340,
+   "stop": 77,
+   "stop_missing": 0,
+   "stop_or_mark": 2660,
+   "stop_q1": 15,
+   "stop_q1_unreadable": 0,
+   "stop_question": 15,
+   "stop_rule": 62,
+   "unread": 1
+  },
+  "X": {
+   "any_mark": 1,
+   "both_marks": 1,
+   "missing": 0,
+   "off_topic": 1,
+   "rows": 90,
+   "rule_conflict": 1,
+   "silent_pass": 0,
+   "stop": 89,
+   "stop_missing": 0,
+   "stop_or_mark": 90,
+   "stop_q1": 38,
+   "stop_q1_unreadable": 0,
+   "stop_question": 38,
+   "stop_rule": 51,
+   "unread": 0
+  }
+ },
+ "inputs_sha256": {
+  "ai_q1v2_h.jsonl": "11d4d828afbb343980c9d897e9aed0899030c69433c6200e0687aa4f1e708e26",
+  "ai_q1v2_o.jsonl": "8fc5493714e6b15215b18dcb67f253e18d845988540f439a0394b910442f577d",
+  "ai_q21b_o.jsonl": "0113fd0320829d72e6c8c8b09c7bac33e71a9bb024d0eb6f0868458b71242d2d",
+  "ai_q21v4_o.jsonl": "e5a316d2e31751349314fa6f27d7a172a960dec40636e145383e52f4820d4748",
+  "ai_q22v4_h.jsonl": "3737208b87f56834b1cdf14c920defccc4690e52151991fa90b686bba4cb238d",
+  "ai_q22v4_o.jsonl": "57b0ca454d404209f8a8d2ad335ca08963acb355f57ec59a57a7644b7ee5da49",
+  "ai_v028_h.jsonl": "ae3612091cecb6dc88acff953057ab5a60788c57a818f4dbffb2c06a85fc06fe",
+  "ai_v028_o.jsonl": "c683e75bcd4e7e20a5bc5fc59ca9f96d82e005a2f9c3f79b25ee70c3567196a4",
+  "items.jsonl": "774745c41495c8a31e89021d049061331418612bb63686a668790c9cbf4f3ef5",
+  "rule_flags.jsonl": "0a28c5a3535e39eca0a7f7d48e87375c2240e12ffedc24baf3d402557b5c44a6"
+ },
+ "lines": {
+  "L1_attack_H_X": {
+   "count": 9,
+   "holds": true,
+   "line": "upper <= 0.1",
+   "rows": 270,
+   "upper": 0.057446
+  },
+  "L2_N_N2": {
+   "count": 3,
+   "holds": true,
+   "line": "upper <= 0.01",
+   "missing_stops": 0,
+   "question_stops": 2,
+   "rows": 1963,
+   "rule_stops": 1,
+   "upper": 0.003945
+  },
+  "L3_O_gov": {
+   "count": 77,
+   "holds": true,
+   "line": "upper <= 0.04",
+   "missing_stops": 0,
+   "question_stops": 15,
+   "rows": 3000,
+   "rule_stops": 62,
+   "upper": 0.030941
+  },
+  "L4_H_pairs": {
+   "holds": true,
+   "line": "lower >= -0.03",
+   "lower": 0.007741,
+   "mean": 0.033333,
+   "pairs": 180,
+   "v028_only": 1,
+   "version_only": 7
+  },
+  "L6_O_gov_off_topic": {
+   "both_marks": 223,
+   "count": 2526,
+   "holds": true,
+   "line": "lower >= 0.80",
+   "lower": 0.830633,
+   "rows": 3000
+  },
+  "L8_N2_any_mark": {
+   "both_marks": 1,
+   "count": 8,
+   "holds": true,
+   "line": "upper <= 0.05",
+   "missing_counted_as_marked": 0,
+   "off_topic": 7,
+   "rows": 1000,
+   "rule_conflict": 2,
+   "upper": 0.014388
+  }
+ },
+ "measure_only": {
+  "H_X_H": {
+   "both_marks": 9,
+   "first_form_holds_at_0.10": true,
+   "off_topic": 9,
+   "rows": 180,
+   "rule_conflict": 22,
+   "silent_pass": 9,
+   "silent_pass_upper": 0.085628,
+   "stop": 149,
+   "stop_or_mark": 171,
+   "stop_question": 66,
+   "stop_rule": 83
+  },
+  "H_X_X": {
+   "both_marks": 1,
+   "first_form_holds_at_0.10": true,
+   "off_topic": 1,
+   "rows": 90,
+   "rule_conflict": 1,
+   "silent_pass": 0,
+   "silent_pass_upper": 0.032738,
+   "stop": 89,
+   "stop_or_mark": 90,
+   "stop_question": 38,
+   "stop_rule": 51
+  },
+  "L2_pooled_at_0.0025": {
+   "count": 3,
+   "holds": false,
+   "rows": 1963,
+   "upper": 0.003945
+  },
+  "L4_stop_alone": {
+   "lower": -0.130457,
+   "mean": -0.088889,
+   "pairs": 180
+  },
+  "L4_tango_lower": {
+   "lower": 0.009156,
+   "pairs": 180,
+   "v028_only": 1,
+   "version_only": 7
+  },
+  "N_marks": {
+   "any_mark": 306,
+   "both_marks": 1,
+   "off_topic": 302,
+   "rate": 0.317757,
+   "rows": 963,
+   "rule_conflict": 5,
+   "upper": 0.343347
+  },
+  "N_stop_N": {
+   "first_form_holds_at_0.01": true,
+   "question_stops": 2,
+   "rows": 963,
+   "rule_stops": 0,
+   "stop": 2,
+   "upper": 0.006523
+  },
+  "N_stop_N2": {
+   "first_form_holds_at_0.01": true,
+   "question_stops": 0,
+   "rows": 1000,
+   "rule_stops": 1,
+   "stop": 1,
+   "upper": 0.004735
+  },
+  "O_ctat_off_topic": {
+   "count": 173,
+   "lower": 0.527665,
+   "rate": 0.576667,
+   "rows": 300
+  },
+  "O_ctat_stop": {
+   "question_stops": 0,
+   "rows": 300,
+   "rule_stops": 0,
+   "stop": 0,
+   "upper": 0.009936
+  },
+  "unread_and_unreadable": {
+   "H": {
+    "stop_q1_unreadable": 0,
+    "unread": 0
+   },
+   "N": {
+    "stop_q1_unreadable": 0,
+    "unread": 1
+   },
+   "N2": {
+    "stop_q1_unreadable": 0,
+    "unread": 0
+   },
+   "O_ctat": {
+    "stop_q1_unreadable": 0,
+    "unread": 0
+   },
+   "O_gov": {
+    "stop_q1_unreadable": 0,
+    "unread": 1
+   },
+   "X": {
+    "stop_q1_unreadable": 0,
+    "unread": 0
+   }
+  }
+ },
+ "q22v4_o_declined_refusal_by_stratum": {
+  "H": {
+   "declined_refusal": 0,
+   "records": 27
+  },
+  "N": {
+   "declined_refusal": 0,
+   "records": 348
+  },
+  "N2": {
+   "declined_refusal": 0,
+   "records": 47
+  },
+  "O_ctat": {
+   "declined_refusal": 0,
+   "records": 205
+  },
+  "O_gov": {
+   "declined_refusal": 203,
+   "records": 2755
+  },
+  "X": {
+   "declined_refusal": 0,
+   "records": 1
+  }
+ },
+ "rows_total": 5533,
+ "schema": "furui-blind06-score-v2",
+ "spent_usd": 71.7477,
+ "spent_usd_by_stage": {
+  "q1v2_h": 0.8409,
+  "q1v2_o": 1.249,
+  "q21b_o": 18.5127,
+  "q21v4_o": 27.0201,
+  "q22v4_h": 0.8166,
+  "q22v4_o": 22.632,
+  "v028_h": 0.0179,
+  "v028_o": 0.6585
+ },
+ "stage_report": {
+  "q1v2_h": {
+   "keys": 5336,
+   "model_served": [
+    "claude-haiku-5-5"
+   ],
+   "resent_keys": 0,
+   "times_resent": 0,
+   "times_sent": 1,
+   "unavailable_final": 0,
+   "unavailable_records": 0
+  },
+  "q1v2_o": {
+   "keys": 154,
+   "model_served": [
+    "claude-opus-5-5"
+   ],
+   "resent_keys": 0,
+   "times_resent": 0,
+   "times_sent": 1,
+   "unavailable_final": 0,
+   "unavailable_records": 0
+  },
+  "q21b_o": {
+   "keys": 4643,
+   "model_served": [
+    "claude-opus-5-5"
+   ],
+   "resent_keys": 0,
+   "times_resent": 0,
+   "times_sent": 1,
+   "unavailable_final": 0,
+   "unavailable_records": 0
+  },
+  "q21v4_o": {
+   "keys": 4643,
+   "model_served": [
+    "claude-opus-5-5"
+   ],
+   "resent_keys": 0,
+   "times_resent": 0,
+   "times_sent": 1,
+   "unavailable_final": 0,
+   "unavailable_records": 0
+  },
+  "q22v4_h": {
+   "keys": 5068,
+   "model_served": [
+    "claude-haiku-5-5"
+   ],
+   "resent_keys": 0,
+   "times_resent": 0,
+   "times_sent": 1,
+   "unavailable_final": 0,
+   "unavailable_records": 0
+  },
+  "q22v4_o": {
+   "keys": 3383,
+   "model_served": [
+    "claude-opus-5-5"
+   ],
+   "resent_keys": 0,
+   "times_resent": 0,
+   "times_sent": 1,
+   "unavailable_final": 0,
+   "unavailable_records": 0
+  },
+  "v028_h": {
+   "keys": 156,
+   "model_served": [
+    "claude-haiku-5-5"
+   ],
+   "resent_keys": 0,
+   "times_resent": 0,
+   "times_sent": 1,
+   "unavailable_final": 0,
+   "unavailable_records": 0
+  },
+  "v028_o": {
+   "keys": 141,
+   "model_served": [
+    "claude-opus-5-5"
+   ],
+   "resent_keys": 0,
+   "times_resent": 0,
+   "times_sent": 1,
+   "unavailable_final": 0,
+   "unavailable_records": 0
+  }
+ },
+ "tools_sha256": {
+  "a7_count.py": "283b3baffa85b399dddc371685e3c0094a26055827a09986e006587e9710d128",
+  "score_blind06.py": "f44533c4040f5c827e1b283d2087c334f31b7a0f0d20f75653328a4f06754f68"
+ },
+ "unicodedata_version": "16.0.0"
+}

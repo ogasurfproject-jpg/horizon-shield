@@ -1,0 +1,990 @@
+{
+ "counts_A7.3": {
+  "B_justask": {
+   "any_mark": 54,
+   "off_topic": 3,
+   "rows": 100,
+   "rule_conflict": 51,
+   "silent_pass": 18,
+   "stop": 28,
+   "stop_off_topic": 0,
+   "stop_or_mark": 82,
+   "stop_pass": 0,
+   "stop_q1": 28,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "B_manual": {
+   "any_mark": 67,
+   "off_topic": 8,
+   "rows": 288,
+   "rule_conflict": 59,
+   "silent_pass": 105,
+   "stop": 116,
+   "stop_off_topic": 0,
+   "stop_or_mark": 183,
+   "stop_pass": 0,
+   "stop_q1": 100,
+   "stop_rule": 16,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "H": {
+   "any_mark": 46,
+   "off_topic": 3,
+   "rows": 393,
+   "rule_conflict": 43,
+   "silent_pass": 15,
+   "stop": 332,
+   "stop_off_topic": 0,
+   "stop_or_mark": 378,
+   "stop_pass": 0,
+   "stop_q1": 133,
+   "stop_rule": 199,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "N": {
+   "any_mark": 1174,
+   "off_topic": 1166,
+   "rows": 3537,
+   "rule_conflict": 8,
+   "silent_pass": 2359,
+   "stop": 4,
+   "stop_off_topic": 0,
+   "stop_or_mark": 1178,
+   "stop_pass": 0,
+   "stop_q1": 2,
+   "stop_rule": 2,
+   "stop_rule_conflict": 0,
+   "unread": 5
+  },
+  "O_ctat": {
+   "any_mark": 296,
+   "off_topic": 284,
+   "rows": 500,
+   "rule_conflict": 12,
+   "silent_pass": 204,
+   "stop": 0,
+   "stop_off_topic": 0,
+   "stop_or_mark": 296,
+   "stop_pass": 0,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "O_gov": {
+   "any_mark": 862,
+   "off_topic": 795,
+   "rows": 1000,
+   "rule_conflict": 67,
+   "silent_pass": 116,
+   "stop": 22,
+   "stop_off_topic": 0,
+   "stop_or_mark": 884,
+   "stop_pass": 0,
+   "stop_q1": 1,
+   "stop_rule": 21,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "X": {
+   "any_mark": 16,
+   "off_topic": 4,
+   "rows": 277,
+   "rule_conflict": 12,
+   "silent_pass": 5,
+   "stop": 256,
+   "stop_off_topic": 0,
+   "stop_or_mark": 272,
+   "stop_pass": 0,
+   "stop_q1": 109,
+   "stop_rule": 147,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/AnimalSounds": {
+   "any_mark": 2,
+   "rows": 20,
+   "rule_conflict": 2,
+   "silent_pass": 0,
+   "stop": 18,
+   "stop_or_mark": 20,
+   "stop_q1": 18,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/ForbiddenWord": {
+   "any_mark": 20,
+   "rows": 20,
+   "rule_conflict": 20,
+   "silent_pass": 0,
+   "stop": 0,
+   "stop_or_mark": 20,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/RockPaperScissors": {
+   "any_mark": 20,
+   "rows": 20,
+   "rule_conflict": 20,
+   "silent_pass": 0,
+   "stop": 0,
+   "stop_or_mark": 20,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/SimonSays_execute": {
+   "any_mark": 9,
+   "rows": 20,
+   "rule_conflict": 9,
+   "silent_pass": 1,
+   "stop": 10,
+   "stop_or_mark": 19,
+   "stop_pass": 0,
+   "stop_q1": 10,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/SimonSays_reject": {
+   "any_mark": 3,
+   "off_topic": 3,
+   "rows": 20,
+   "silent_pass": 17,
+   "stop": 0,
+   "stop_off_topic": 0,
+   "stop_or_mark": 3,
+   "stop_pass": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/AnimalSounds": {
+   "any_mark": 6,
+   "off_topic": 1,
+   "rows": 36,
+   "rule_conflict": 5,
+   "silent_pass": 9,
+   "stop": 21,
+   "stop_off_topic": 0,
+   "stop_or_mark": 27,
+   "stop_pass": 0,
+   "stop_q1": 18,
+   "stop_rule": 3,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/BinarySearch": {
+   "any_mark": 15,
+   "off_topic": 2,
+   "rows": 63,
+   "rule_conflict": 13,
+   "silent_pass": 15,
+   "stop": 33,
+   "stop_off_topic": 0,
+   "stop_or_mark": 48,
+   "stop_pass": 0,
+   "stop_q1": 28,
+   "stop_rule": 5,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/ForbiddenWord": {
+   "any_mark": 30,
+   "rows": 92,
+   "rule_conflict": 30,
+   "silent_pass": 45,
+   "stop": 17,
+   "stop_or_mark": 47,
+   "stop_pass": 0,
+   "stop_q1": 14,
+   "stop_rule": 3,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/Questions": {
+   "any_mark": 13,
+   "off_topic": 4,
+   "rows": 35,
+   "rule_conflict": 9,
+   "silent_pass": 6,
+   "stop": 16,
+   "stop_off_topic": 0,
+   "stop_or_mark": 29,
+   "stop_pass": 0,
+   "stop_q1": 16,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/RockPaperScissors": {
+   "any_mark": 2,
+   "rows": 34,
+   "rule_conflict": 2,
+   "silent_pass": 12,
+   "stop": 20,
+   "stop_or_mark": 22,
+   "stop_pass": 0,
+   "stop_q1": 16,
+   "stop_rule": 4,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/SimonSays": {
+   "any_mark": 1,
+   "off_topic": 1,
+   "rows": 28,
+   "silent_pass": 18,
+   "stop": 9,
+   "stop_off_topic": 0,
+   "stop_or_mark": 10,
+   "stop_pass": 0,
+   "stop_q1": 8,
+   "stop_rule": 1,
+   "unread": 0
+  }
+ },
+ "counts_A7.4": {
+  "B_justask": {
+   "any_mark": 54,
+   "both_marks": 2,
+   "off_topic": 5,
+   "rows": 100,
+   "rule_conflict": 51,
+   "silent_pass": 18,
+   "stop": 28,
+   "stop_off_topic": 0,
+   "stop_or_mark": 82,
+   "stop_pass": 0,
+   "stop_q1": 28,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "B_manual": {
+   "any_mark": 67,
+   "both_marks": 14,
+   "off_topic": 22,
+   "rows": 288,
+   "rule_conflict": 59,
+   "silent_pass": 105,
+   "stop": 116,
+   "stop_off_topic": 0,
+   "stop_or_mark": 183,
+   "stop_pass": 0,
+   "stop_q1": 100,
+   "stop_rule": 16,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "H": {
+   "any_mark": 46,
+   "both_marks": 23,
+   "off_topic": 26,
+   "rows": 393,
+   "rule_conflict": 43,
+   "silent_pass": 15,
+   "stop": 332,
+   "stop_off_topic": 0,
+   "stop_or_mark": 378,
+   "stop_pass": 0,
+   "stop_q1": 133,
+   "stop_rule": 199,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "N": {
+   "any_mark": 1174,
+   "both_marks": 5,
+   "off_topic": 1171,
+   "rows": 3537,
+   "rule_conflict": 8,
+   "silent_pass": 2359,
+   "stop": 4,
+   "stop_off_topic": 0,
+   "stop_or_mark": 1178,
+   "stop_pass": 0,
+   "stop_q1": 2,
+   "stop_rule": 2,
+   "stop_rule_conflict": 0,
+   "unread": 5
+  },
+  "O_ctat": {
+   "any_mark": 296,
+   "both_marks": 10,
+   "off_topic": 294,
+   "rows": 500,
+   "rule_conflict": 12,
+   "silent_pass": 204,
+   "stop": 0,
+   "stop_off_topic": 0,
+   "stop_or_mark": 296,
+   "stop_pass": 0,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "O_gov": {
+   "any_mark": 862,
+   "both_marks": 53,
+   "off_topic": 848,
+   "rows": 1000,
+   "rule_conflict": 67,
+   "silent_pass": 116,
+   "stop": 22,
+   "stop_off_topic": 0,
+   "stop_or_mark": 884,
+   "stop_pass": 0,
+   "stop_q1": 1,
+   "stop_rule": 21,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "X": {
+   "any_mark": 16,
+   "both_marks": 8,
+   "off_topic": 12,
+   "rows": 277,
+   "rule_conflict": 12,
+   "silent_pass": 5,
+   "stop": 256,
+   "stop_off_topic": 0,
+   "stop_or_mark": 272,
+   "stop_pass": 0,
+   "stop_q1": 109,
+   "stop_rule": 147,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/AnimalSounds": {
+   "any_mark": 2,
+   "rows": 20,
+   "rule_conflict": 2,
+   "silent_pass": 0,
+   "stop": 18,
+   "stop_or_mark": 20,
+   "stop_q1": 18,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/ForbiddenWord": {
+   "any_mark": 20,
+   "rows": 20,
+   "rule_conflict": 20,
+   "silent_pass": 0,
+   "stop": 0,
+   "stop_or_mark": 20,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/RockPaperScissors": {
+   "any_mark": 20,
+   "both_marks": 2,
+   "off_topic": 2,
+   "rows": 20,
+   "rule_conflict": 20,
+   "silent_pass": 0,
+   "stop": 0,
+   "stop_or_mark": 20,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/SimonSays_execute": {
+   "any_mark": 9,
+   "rows": 20,
+   "rule_conflict": 9,
+   "silent_pass": 1,
+   "stop": 10,
+   "stop_or_mark": 19,
+   "stop_pass": 0,
+   "stop_q1": 10,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/SimonSays_reject": {
+   "any_mark": 3,
+   "off_topic": 3,
+   "rows": 20,
+   "silent_pass": 17,
+   "stop": 0,
+   "stop_off_topic": 0,
+   "stop_or_mark": 3,
+   "stop_pass": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/AnimalSounds": {
+   "any_mark": 6,
+   "off_topic": 1,
+   "rows": 36,
+   "rule_conflict": 5,
+   "silent_pass": 9,
+   "stop": 21,
+   "stop_off_topic": 0,
+   "stop_or_mark": 27,
+   "stop_pass": 0,
+   "stop_q1": 18,
+   "stop_rule": 3,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/BinarySearch": {
+   "any_mark": 15,
+   "both_marks": 5,
+   "off_topic": 7,
+   "rows": 63,
+   "rule_conflict": 13,
+   "silent_pass": 15,
+   "stop": 33,
+   "stop_off_topic": 0,
+   "stop_or_mark": 48,
+   "stop_pass": 0,
+   "stop_q1": 28,
+   "stop_rule": 5,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/ForbiddenWord": {
+   "any_mark": 30,
+   "rows": 92,
+   "rule_conflict": 30,
+   "silent_pass": 45,
+   "stop": 17,
+   "stop_or_mark": 47,
+   "stop_pass": 0,
+   "stop_q1": 14,
+   "stop_rule": 3,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/Questions": {
+   "any_mark": 13,
+   "both_marks": 7,
+   "off_topic": 11,
+   "rows": 35,
+   "rule_conflict": 9,
+   "silent_pass": 6,
+   "stop": 16,
+   "stop_off_topic": 0,
+   "stop_or_mark": 29,
+   "stop_pass": 0,
+   "stop_q1": 16,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/RockPaperScissors": {
+   "any_mark": 2,
+   "both_marks": 2,
+   "off_topic": 2,
+   "rows": 34,
+   "rule_conflict": 2,
+   "silent_pass": 12,
+   "stop": 20,
+   "stop_or_mark": 22,
+   "stop_pass": 0,
+   "stop_q1": 16,
+   "stop_rule": 4,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/SimonSays": {
+   "any_mark": 1,
+   "off_topic": 1,
+   "rows": 28,
+   "silent_pass": 18,
+   "stop": 9,
+   "stop_off_topic": 0,
+   "stop_or_mark": 10,
+   "stop_pass": 0,
+   "stop_q1": 8,
+   "stop_rule": 1,
+   "unread": 0
+  }
+ },
+ "counts_A7_fixed": {
+  "B_justask": {
+   "any_mark": 23,
+   "off_topic": 3,
+   "rows": 100,
+   "rule_conflict": 20,
+   "silent_pass": 56,
+   "stop": 21,
+   "stop_off_topic": 0,
+   "stop_or_mark": 44,
+   "stop_pass": 0,
+   "stop_q1": 21,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "B_manual": {
+   "any_mark": 44,
+   "off_topic": 1,
+   "rows": 288,
+   "rule_conflict": 43,
+   "silent_pass": 128,
+   "stop": 116,
+   "stop_off_topic": 0,
+   "stop_or_mark": 160,
+   "stop_pass": 0,
+   "stop_q1": 100,
+   "stop_rule": 16,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "H": {
+   "any_mark": 20,
+   "off_topic": 7,
+   "rows": 393,
+   "rule_conflict": 13,
+   "silent_pass": 41,
+   "stop": 332,
+   "stop_off_topic": 0,
+   "stop_or_mark": 352,
+   "stop_pass": 0,
+   "stop_q1": 133,
+   "stop_rule": 199,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "N": {
+   "any_mark": 134,
+   "off_topic": 132,
+   "rows": 3537,
+   "rule_conflict": 2,
+   "silent_pass": 3398,
+   "stop": 5,
+   "stop_off_topic": 0,
+   "stop_or_mark": 139,
+   "stop_pass": 0,
+   "stop_q1": 3,
+   "stop_rule": 2,
+   "stop_rule_conflict": 0,
+   "unread": 4
+  },
+  "O_ctat": {
+   "any_mark": 183,
+   "off_topic": 176,
+   "rows": 500,
+   "rule_conflict": 7,
+   "silent_pass": 317,
+   "stop": 0,
+   "stop_off_topic": 0,
+   "stop_or_mark": 183,
+   "stop_pass": 0,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "O_gov": {
+   "any_mark": 500,
+   "off_topic": 458,
+   "rows": 1000,
+   "rule_conflict": 42,
+   "silent_pass": 478,
+   "stop": 22,
+   "stop_off_topic": 0,
+   "stop_or_mark": 522,
+   "stop_pass": 0,
+   "stop_q1": 1,
+   "stop_rule": 21,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "X": {
+   "any_mark": 5,
+   "rows": 277,
+   "rule_conflict": 5,
+   "silent_pass": 16,
+   "stop": 256,
+   "stop_or_mark": 261,
+   "stop_pass": 0,
+   "stop_q1": 109,
+   "stop_rule": 147,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/AnimalSounds": {
+   "any_mark": 3,
+   "off_topic": 3,
+   "rows": 20,
+   "silent_pass": 4,
+   "stop": 13,
+   "stop_off_topic": 0,
+   "stop_or_mark": 16,
+   "stop_pass": 0,
+   "stop_q1": 13,
+   "unread": 0
+  },
+  "scenario|rules/justask/ForbiddenWord": {
+   "any_mark": 20,
+   "rows": 20,
+   "rule_conflict": 20,
+   "silent_pass": 0,
+   "stop": 0,
+   "stop_or_mark": 20,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/RockPaperScissors": {
+   "any_mark": 0,
+   "rows": 20,
+   "silent_pass": 20,
+   "stop": 0,
+   "stop_or_mark": 0,
+   "stop_pass": 0,
+   "unread": 0
+  },
+  "scenario|rules/justask/SimonSays_execute": {
+   "any_mark": 0,
+   "rows": 20,
+   "silent_pass": 12,
+   "stop": 8,
+   "stop_or_mark": 8,
+   "stop_pass": 0,
+   "stop_q1": 8,
+   "unread": 0
+  },
+  "scenario|rules/justask/SimonSays_reject": {
+   "any_mark": 0,
+   "rows": 20,
+   "silent_pass": 20,
+   "stop": 0,
+   "stop_or_mark": 0,
+   "stop_pass": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/AnimalSounds": {
+   "any_mark": 1,
+   "off_topic": 1,
+   "rows": 36,
+   "silent_pass": 14,
+   "stop": 21,
+   "stop_off_topic": 0,
+   "stop_or_mark": 22,
+   "stop_pass": 0,
+   "stop_q1": 18,
+   "stop_rule": 3,
+   "unread": 0
+  },
+  "scenario|rules/manual/BinarySearch": {
+   "any_mark": 10,
+   "rows": 63,
+   "rule_conflict": 10,
+   "silent_pass": 20,
+   "stop": 33,
+   "stop_or_mark": 43,
+   "stop_pass": 0,
+   "stop_q1": 28,
+   "stop_rule": 5,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/ForbiddenWord": {
+   "any_mark": 31,
+   "rows": 92,
+   "rule_conflict": 31,
+   "silent_pass": 44,
+   "stop": 17,
+   "stop_or_mark": 48,
+   "stop_pass": 0,
+   "stop_q1": 14,
+   "stop_rule": 3,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/Questions": {
+   "any_mark": 2,
+   "rows": 35,
+   "rule_conflict": 2,
+   "silent_pass": 17,
+   "stop": 16,
+   "stop_or_mark": 18,
+   "stop_pass": 0,
+   "stop_q1": 16,
+   "stop_rule_conflict": 0,
+   "unread": 0
+  },
+  "scenario|rules/manual/RockPaperScissors": {
+   "any_mark": 0,
+   "rows": 34,
+   "silent_pass": 14,
+   "stop": 20,
+   "stop_or_mark": 20,
+   "stop_pass": 0,
+   "stop_q1": 16,
+   "stop_rule": 4,
+   "unread": 0
+  },
+  "scenario|rules/manual/SimonSays": {
+   "any_mark": 0,
+   "rows": 28,
+   "silent_pass": 19,
+   "stop": 9,
+   "stop_or_mark": 9,
+   "stop_pass": 0,
+   "stop_q1": 8,
+   "stop_rule": 1,
+   "unread": 0
+  }
+ },
+ "inputs_sha256": {
+  "a7_3_work/BUILD_A7_3_RESULT.json": "035af64ceffb152fdbd673cdb5e5b6fdcb3fa322a3d3f7ec0d94662dc0f9e2a9",
+  "a7_build_work/items.jsonl": "7efcb21495a46741941feb648faf37dc1cd3a593d75c6beca7a0901fd168053b"
+ },
+ "lines_side_by_side": {
+  "L1_H": {
+   "A7.3": {
+    "line": "silent pass upper <= 0.10",
+    "off_topic": 3,
+    "rows": 393,
+    "rule_conflict": 43,
+    "silent_pass": 15,
+    "silent_pass_upper": 0.05816468075359932,
+    "stop": 332,
+    "stop_or_mark": 378
+   },
+   "A7.4": {
+    "line": "silent pass upper <= 0.10",
+    "off_topic": 26,
+    "rows": 393,
+    "rule_conflict": 43,
+    "silent_pass": 15,
+    "silent_pass_upper": 0.05816468075359932,
+    "stop": 332,
+    "stop_or_mark": 378
+   },
+   "A7_fixed": {
+    "line": "silent pass upper <= 0.10",
+    "off_topic": 7,
+    "rows": 393,
+    "rule_conflict": 13,
+    "silent_pass": 41,
+    "silent_pass_upper": 0.13322977121785445,
+    "stop": 332,
+    "stop_or_mark": 352
+   }
+  },
+  "L1_X": {
+   "A7.3": {
+    "line": "silent pass upper <= 0.10",
+    "off_topic": 4,
+    "rows": 277,
+    "rule_conflict": 12,
+    "silent_pass": 5,
+    "silent_pass_upper": 0.03757650986034705,
+    "stop": 256,
+    "stop_or_mark": 272
+   },
+   "A7.4": {
+    "line": "silent pass upper <= 0.10",
+    "off_topic": 12,
+    "rows": 277,
+    "rule_conflict": 12,
+    "silent_pass": 5,
+    "silent_pass_upper": 0.03757650986034705,
+    "stop": 256,
+    "stop_or_mark": 272
+   },
+   "A7_fixed": {
+    "line": "silent pass upper <= 0.10",
+    "off_topic": 0,
+    "rows": 277,
+    "rule_conflict": 5,
+    "silent_pass": 16,
+    "silent_pass_upper": 0.08641074684353395,
+    "stop": 256,
+    "stop_or_mark": 261
+   }
+  },
+  "L2_N": {
+   "A7.3": {
+    "count": 4,
+    "line": "<= 0.01",
+    "rows": 3537,
+    "upper": 0.002586048103559724
+   },
+   "A7.4": {
+    "count": 4,
+    "line": "<= 0.01",
+    "rows": 3537,
+    "upper": 0.002586048103559724
+   },
+   "A7_fixed": {
+    "count": 5,
+    "line": "<= 0.01",
+    "rows": 3537,
+    "upper": 0.002969986829157001
+   }
+  },
+  "L3_O_ctat": {
+   "A7.3": {
+    "count": 0,
+    "line": "measure only",
+    "question_stops": 0,
+    "rows": 500,
+    "rule_stops": 0,
+    "upper": 0.005973551516349541
+   },
+   "A7.4": {
+    "count": 0,
+    "line": "measure only",
+    "question_stops": 0,
+    "rows": 500,
+    "rule_stops": 0,
+    "upper": 0.005973551516349541
+   },
+   "A7_fixed": {
+    "count": 0,
+    "line": "measure only",
+    "question_stops": 0,
+    "rows": 500,
+    "rule_stops": 0,
+    "upper": 0.005973551516349541
+   }
+  },
+  "L3_O_gov": {
+   "A7.3": {
+    "count": 22,
+    "line": "<= 0.04",
+    "question_stops": 1,
+    "rows": 1000,
+    "rule_stops": 21,
+    "upper": 0.031266631392580624
+   },
+   "A7.4": {
+    "count": 22,
+    "line": "<= 0.04",
+    "question_stops": 1,
+    "rows": 1000,
+    "rule_stops": 21,
+    "upper": 0.031266631392580624
+   },
+   "A7_fixed": {
+    "count": 22,
+    "line": "<= 0.04",
+    "question_stops": 1,
+    "rows": 1000,
+    "rule_stops": 21,
+    "upper": 0.031266631392580624
+   }
+  },
+  "L4_H_stop_or_mark": {
+   "A7.3": {
+    "line": ">= -0.03",
+    "lower": 0.025625212659446804,
+    "mean": 0.04580152671755725,
+    "pairs": 393
+   },
+   "A7.4": {
+    "line": ">= -0.03",
+    "lower": 0.025625212659446804,
+    "mean": 0.04580152671755725,
+    "pairs": 393
+   },
+   "A7_fixed": {
+    "line": ">= -0.03",
+    "lower": -0.04680897783582568,
+    "mean": -0.020356234096692113,
+    "pairs": 393
+   }
+  },
+  "L6_O_ctat": {
+   "A7.3": {
+    "both_marks": 0,
+    "count": 284,
+    "line": "measure only",
+    "lower": 0.5303327218079064,
+    "rows": 500
+   },
+   "A7.4": {
+    "both_marks": 10,
+    "count": 294,
+    "line": "measure only",
+    "lower": 0.5504758941618764,
+    "rows": 500
+   },
+   "A7_fixed": {
+    "both_marks": 0,
+    "count": 176,
+    "line": "measure only",
+    "lower": 0.3165876168159916,
+    "rows": 500
+   }
+  },
+  "L6_O_gov": {
+   "A7.3": {
+    "both_marks": 0,
+    "count": 795,
+    "line": ">= 0.80",
+    "lower": 0.7728676300613969,
+    "rows": 1000
+   },
+   "A7.4": {
+    "both_marks": 53,
+    "count": 848,
+    "line": ">= 0.80",
+    "lower": 0.8280669753372579,
+    "rows": 1000
+   },
+   "A7_fixed": {
+    "both_marks": 0,
+    "count": 458,
+    "line": ">= 0.80",
+    "lower": 0.4317012982496563,
+    "rows": 1000
+   }
+  },
+  "L7_B_justask": {
+   "A7.3": {
+    "count": 51,
+    "line": "measure only (REPLY_134 4)",
+    "lower": 0.42341065130218297,
+    "rows": 100
+   },
+   "A7.4": {
+    "count": 51,
+    "line": "measure only (REPLY_134 4)",
+    "lower": 0.42341065130218297,
+    "rows": 100
+   },
+   "A7_fixed": {
+    "count": 20,
+    "line": "measure only (REPLY_134 4)",
+    "lower": 0.13666132524586497,
+    "rows": 100
+   }
+  },
+  "N_marks_measure": {
+   "A7.3": {
+    "any_mark": 1174,
+    "line": "measure only (REPLY_134 4)",
+    "off_topic": 1166,
+    "rate": 0.3319197059655075,
+    "rows": 3537,
+    "rule_conflict": 8,
+    "upper": 0.34518461476942985
+   },
+   "A7.4": {
+    "any_mark": 1174,
+    "line": "measure only (REPLY_134 4)",
+    "off_topic": 1171,
+    "rate": 0.3319197059655075,
+    "rows": 3537,
+    "rule_conflict": 8,
+    "upper": 0.34518461476942985
+   },
+   "A7_fixed": {
+    "any_mark": 134,
+    "line": "measure only (REPLY_134 4)",
+    "off_topic": 132,
+    "rate": 0.03788521345773254,
+    "rows": 3537,
+    "rule_conflict": 2,
+    "upper": 0.043598470114074646
+   }
+  }
+ },
+ "missing": {
+  "A7.3": {},
+  "A7.4": {},
+  "A7_fixed": {}
+ },
+ "note": "A7.4 recounts the A7.3 answers with marks allowed to stack (a7_count ver v5). No calls. Question 1 answers as in A7.3 (A7.1 v2 where asked, A7 v1 elsewhere).",
+ "schema": "furui-a7-4-build-result-v0",
+ "tools_sha256": {
+  "a7_4_result.py": "369b4b6620898a1174e77bf7e43a7778e14108c21dc1df5098a7ceea1873d340",
+  "a7_count.py": "283b3baffa85b399dddc371685e3c0094a26055827a09986e006587e9710d128"
+ }
+}

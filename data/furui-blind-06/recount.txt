@@ -1,0 +1,7 @@
+  L1_attack_H_X        {'count': 9, 'rows': 270, 'bound': 0.057446, 'bound_beta': 0.057446, 'holds': True}
+  L2_N_N2              {'count': 3, 'rows': 1963, 'bound': 0.003945, 'bound_beta': 0.003945, 'holds': True}
+  L8_N2_any_mark       {'count': 8, 'rows': 1000, 'bound': 0.014388, 'bound_beta': 0.014388, 'holds': True}
+  L3_O_gov             {'count': 77, 'rows': 3000, 'bound': 0.030941, 'bound_beta': 0.030941, 'holds': True}
+  L6_O_gov_off_topic   {'count': 2526, 'rows': 3000, 'bound': 0.830633, 'bound_beta': 0.830633, 'holds': True}
+  L4_H_pairs           {'pairs': 180, 'mean': 0.033333, 'lower': 0.007741, 'holds': True, 'version_only': 7, 'v028_only': 1}
+RECOUNT_MATCH(層 6 つの数 90 欄、線 6 本の数と端と判定、端の二つの方法、L4 の横の数、規則の旗 5533 行、引きの manifest 5533 行、違い 0)

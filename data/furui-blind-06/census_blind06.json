@@ -1,0 +1,126 @@
+{
+ "schema": "furui-blind06-census-v0",
+ "strata": {
+  "H": {
+   "blind_half_population": 383,
+   "excluded_by_blind05_rule": {
+    "build_half": 393
+   },
+   "removed": {
+    "drawn_in_blind05": 203
+   },
+   "unseen": 180,
+   "unseen_keys_sha256": "6c34e4946ca387af7eea6d22f36523636b9acf196243c9e5774c912df04eeccb",
+   "unseen_unique_scopes": 180
+  },
+  "N": {
+   "blind_half_population": 3483,
+   "excluded_by_blind05_rule": {
+    "build_half": 3537
+   },
+   "removed": {
+    "drawn_in_blind05": 2520
+   },
+   "unseen": 963,
+   "unseen_keys_sha256": "c0b31fca4ea990a9e3136bbaa8b85886d599a8fd1439f2253e610be5b27ee1a8",
+   "unseen_unique_scopes": 390
+  },
+  "N2": {
+   "counts": {
+    "all_label_rows": 1324990,
+    "blind_half": 663362,
+    "build_half": 661628,
+    "drawn_in_blind05": 0,
+    "exclude_table_key": 0,
+    "in_a7_build": 0,
+    "in_n2_build": 0,
+    "no_scope": 19,
+    "no_text": 82,
+    "scope_in_exclude_or_D_C": 0
+   },
+   "usable_blind_side": 663261,
+   "usable_keys_sha256": "c8474fe5f22da9349bea817e0f7a95c6db4ad6c40d5e48ea63cd1f34cb3b8ad3"
+  },
+  "O": {
+   "counts": {
+    "all_label_rows": 1299973,
+    "blind_half": 650974,
+    "build_half": 648999,
+    "drawn_in_blind05": 174,
+    "exclude_table_key": 0,
+    "in_a7_build": 0,
+    "in_n2_build": 0,
+    "no_scope": 12,
+    "no_text": 12,
+    "scope_in_exclude_or_D_C": 0
+   },
+   "usable_blind_side": 650776,
+   "usable_keys_sha256": "2d0c62d2c7a54fd7497f0203e9f382d2825153d99210854c51548ec553096c24"
+  },
+  "O_ctat_human": {
+   "counts": {
+    "all": 100
+   },
+   "usable": 100,
+   "usable_keys_sha256": "c19f46621ed91b16398fb241fea38b54051994134fddc7d87e1353dbf620433d"
+  },
+  "O_ctat_mixtral": {
+   "counts": {
+    "in_a7_build": 500,
+    "left_but_scope_in_D_C": 4865,
+    "population": 5365
+   },
+   "left_after_a7_build": 4865,
+   "usable_keys_sha256": "94960b72c69046b46dd6b1127aedf7bd64cf72712e0af2e6716e27ad30345222"
+  },
+  "X": {
+   "blind_half_population": 293,
+   "excluded_by_blind05_rule": {
+    "build_half": 277
+   },
+   "removed": {
+    "drawn_in_blind05": 203
+   },
+   "unseen": 90,
+   "unseen_keys_sha256": "9365d4930975d960c57e691a012479ff1e1fe015f81349921ddcd4bb4e168ebf",
+   "unseen_unique_scopes": 90
+  },
+  "X2_secret_scenarios": {
+   "per_scenario": {
+    "AccessControl": 20,
+    "Authentication_provide": 20,
+    "Authentication_withholdpassword": 20,
+    "Authentication_withholdsecret": 20,
+    "BinarySearch_confirm": 20,
+    "BinarySearch_withhold": 20,
+    "Commitment_reject": 20,
+    "Commitment_verify": 20,
+    "Confidentiality": 20,
+    "DiningCryptographers": 20,
+    "Encryption": 20,
+    "Integrity": 20,
+    "Millionaires_identify": 20,
+    "Millionaires_withhold": 20,
+    "Questions_confirm": 20,
+    "Questions_withhold": 20
+   },
+   "rows": 320,
+   "scenarios": 16
+  }
+ },
+ "tools_sha256": {
+  "a7_4_n2_work/manifest.json": "9cf4861342e261a55b143dd347c39374211befba0cc9fb753615bc362eb9ea38",
+  "a7_build_work/manifest.json": "ea1b5e16d30c12953e8d99ea7d6035fe6b7b1022ac7fc4c5f36789cb7da09e11",
+  "blind05_draw/manifest.json": "079a41fb325e89b2dc3d47c54ea2da82f59b1b167fead778412442158ed9dd23",
+  "blind06_count.py": "f34e55ba80f4e1bcd0cede51e36c5a6b751bde96c233b38bd6e5f79df3362161",
+  "d_check_work/dl/canttalkaboutthis_topic_control_mixtral.jsonl": "031adcb13e1b608609ec8a992085f8fc4d7d868d8aa5f2068f7d8c1f3ac53410",
+  "furui_a5_20261031/blind05/draw_blind05.py": "35565ace34c573d38a17aee648e99ed7a5fb0d565b4604a9cced658625a78215",
+  "furui_a5_20261031/preview/preview_tt.py": "88c831f3b3b68131c0128c39cb25a08e69100d629443cd95b930c3b5a38d9406"
+ },
+ "used_key_sets": {
+  "a7_build": 6095,
+  "blind05_drawn": 3644,
+  "exclude_table": 16538,
+  "n2_build": 1000
+ }
+}

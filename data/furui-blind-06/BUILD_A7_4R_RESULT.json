@@ -1,0 +1,133 @@
+{
+ "A7.4_record": {
+  "L3_O_gov_stops": 22,
+  "L3_O_gov_upper": 0.031266631392580624,
+  "L6_O_gov_lower": 0.8280669753372579,
+  "L6_O_gov_off_topic": 848,
+  "file_sha256": "6402065c2b9cffd61e51b629649ec049647fa351bcfebb6fde81e6859e88199b"
+ },
+ "counts_A7.4_recounted": {
+  "O_gov": {
+   "any_mark": 862,
+   "both_marks": 53,
+   "off_topic": 848,
+   "rows": 1000,
+   "rule_conflict": 67,
+   "stop": 22,
+   "stop_off_topic": 0,
+   "stop_pass": 0,
+   "stop_q1": 1,
+   "stop_rule": 21,
+   "stop_rule_conflict": 0
+  }
+ },
+ "counts_remeasured": {
+  "O_gov": {
+   "any_mark": 869,
+   "both_marks": 71,
+   "off_topic": 855,
+   "rows": 1000,
+   "rule_conflict": 85,
+   "stop": 22,
+   "stop_off_topic": 0,
+   "stop_pass": 0,
+   "stop_q1": 1,
+   "stop_rule": 21,
+   "stop_rule_conflict": 0
+  }
+ },
+ "inputs_sha256": {
+  "a7_3_work/ai_q21b_o.jsonl": "ef8763b04c1998c2769721db647d1fc39ee2a3334581a1a5b734c1447e058d15",
+  "a7_3_work/ai_q22v4_h.jsonl": "4bc45f39f80e86d88e197503758dfe96b827729892b0a8375c0c9b86eaac532f",
+  "a7_3_work/ai_q22v4_o.jsonl": "0128dd3aed4a7277331182af61e4413843bb88861ee2bcfd905e4ece46366ff1",
+  "a7_4_n2_work/ai_q21b_o.jsonl": "fff0a13ea63f142be9ebbaec229bf5a2411006383a21ef2d8525815a0e52baee",
+  "a7_build_work/items.jsonl": "7efcb21495a46741941feb648faf37dc1cd3a593d75c6beca7a0901fd168053b"
+ },
+ "lines": {
+  "L3_O_gov": {
+   "A7.4_recounted": {
+    "count": 22,
+    "held_as_stop": 0,
+    "line": "<= 0.04",
+    "question_stops": 1,
+    "rows": 1000,
+    "rule_stops": 21,
+    "upper": 0.031266631392580624
+   },
+   "remeasured": {
+    "count": 22,
+    "held_as_stop": 0,
+    "line": "<= 0.04",
+    "question_stops": 1,
+    "rows": 1000,
+    "rule_stops": 21,
+    "upper": 0.031266631392580624
+   }
+  },
+  "L6_O_gov": {
+   "A7.4_recounted": {
+    "any_mark": 862,
+    "both_marks": 53,
+    "count": 848,
+    "held_as_unmarked": 0,
+    "line": ">= 0.80",
+    "lower": 0.8280669753372579,
+    "rows": 1000,
+    "rule_conflict": 67
+   },
+   "remeasured": {
+    "any_mark": 869,
+    "both_marks": 71,
+    "count": 855,
+    "held_as_unmarked": 0,
+    "line": ">= 0.80",
+    "lower": 0.8354100882342496,
+    "rows": 1000,
+    "rule_conflict": 85
+   }
+  }
+ },
+ "moved_rows": {
+  "O_gov|off_topic_gained": 25,
+  "O_gov|off_topic_lost": 18,
+  "O_gov|rule_conflict_gained": 23,
+  "O_gov|rule_conflict_lost": 5
+ },
+ "new_scopes": {
+  "asked_2_1b": 776,
+  "by_stratum": {
+   "O_gov": 776
+  },
+  "requires": 726
+ },
+ "note": "Build side only. 2-1b on every scope as blind-06 does; the 2-2 answers of the rows whose scope gained a required behaviour replaced by the re-asked ones. Held rows count as stops in L3 and as unmarked in L6.",
+ "rows_held": 0,
+ "rows_reasked_2_2": 727,
+ "schema": "furui-a7-4-remeasure-build-v0",
+ "served_models": {
+  "q21b_o": {
+   "claude-opus-5-5": 776
+  },
+  "q22v4_h": {
+   "claude-haiku-5-5": 727
+  },
+  "q22v4_o": {
+   "claude-opus-5-5": 689
+  }
+ },
+ "spent_by_stage_usd": {
+  "q21b_o": 3.0897,
+  "q22v4_h": 0.1194,
+  "q22v4_o": 4.5804
+ },
+ "spent_usd": 7.7894,
+ "strata": [
+  "O_gov"
+ ],
+ "tools_sha256": {
+  "a7_4_result.py": "369b4b6620898a1174e77bf7e43a7778e14108c21dc1df5098a7ceea1873d340",
+  "a7_4r_result.py": "26f0a460e250b515e78fc32d99dd004cdd57047943586b59466b7731e66882f6",
+  "a7_count.py": "283b3baffa85b399dddc371685e3c0094a26055827a09986e006587e9710d128",
+  "run_a7_4r.py": "e1d4e71ddbc9873df237efa68742a07caf7109ef1d108bbbb6e92f6b93c5fe05"
+ }
+}

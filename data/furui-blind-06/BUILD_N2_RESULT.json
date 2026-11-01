@@ -1,0 +1,85 @@
+{
+ "answer_categories": {
+  "q1v2_h": {
+   "answer": 1000
+  },
+  "q1v2_o": {},
+  "q21b_o": {
+   "answer": 994
+  },
+  "q21v4_o": {
+   "answer": 991
+  },
+  "q22v4_h": {
+   "answer": 1000
+  },
+  "q22v4_o": {
+   "answer": 38,
+   "declined_refusal": 1
+  }
+ },
+ "counts": {
+  "any_mark": 10,
+  "both_marks": 0,
+  "off_topic": 9,
+  "rows": 1000,
+  "rule_conflict": 1,
+  "stop": 0,
+  "stop_off_topic": 0,
+  "stop_pass": 0,
+  "stop_rule_conflict": 0,
+  "unread": 0
+ },
+ "inputs_sha256": {
+  "n2_work/items.jsonl": "f9a4b01ad36c7b97daa1891c21d96c4ffab08af867c5984bc91bbb69c1d84045",
+  "n2_work/manifest.json": "9cf4861342e261a55b143dd347c39374211befba0cc9fb753615bc362eb9ea38"
+ },
+ "lines": {
+  "L2_N2_stop": {
+   "count": 0,
+   "line": "<= 0.01 (REPLY_134 4)",
+   "question_stops": 0,
+   "rows": 1000,
+   "rule_stops": 0,
+   "upper": 0.0029912495450952767
+  },
+  "L8_N2_any_mark": {
+   "both_marks": 0,
+   "count": 10,
+   "line": "<= 0.10 (REPLY_134 3, proposal)",
+   "off_topic": 9,
+   "rate": 0.01,
+   "rows": 1000,
+   "rule_conflict": 1,
+   "upper": 0.016903175120561557
+  },
+  "off_topic": {
+   "count": 9,
+   "rows": 1000,
+   "upper": 0.015652573749606106
+  },
+  "rule_conflict": {
+   "count": 1,
+   "rows": 1000,
+   "upper": 0.004734993575499835
+  }
+ },
+ "missing": {},
+ "note": "N2 = GovTech train rows with off_topic=0 on the build side of the GovTech split. Decision A7.4 (marks stack). 2-1 v4 and 2-1b answers combine A7.3 and N2. Question 1 was asked to count stops; REPLY_134 section 3 did not list it.",
+ "schema": "furui-n2-build-result-v0",
+ "spent_question1_usd": 0.1575,
+ "spent_total_usd": 10.3157,
+ "spent_usd": {
+  "q1v2_h": 0.1575,
+  "q1v2_o": 0,
+  "q21b_o": 3.9684,
+  "q21v4_o": 5.772,
+  "q22v4_h": 0.1595,
+  "q22v4_o": 0.2583
+ },
+ "tools_sha256": {
+  "a7_count.py": "283b3baffa85b399dddc371685e3c0094a26055827a09986e006587e9710d128",
+  "n2_result.py": "da313a6314eab18003187baa8db48da917e225b8ce95e0309f8371285e246cf5",
+  "run_n2.py": "ffab202822f72309f04213ffd8f18364fbbc4758454cb5b54fea5be3b55d6266"
+ }
+}

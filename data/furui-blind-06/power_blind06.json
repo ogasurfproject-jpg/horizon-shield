@@ -1,0 +1,493 @@
+{
+ "schema": "furui-blind06-power-v2",
+ "rows": [
+  {
+   "line": "L1",
+   "stratum": "H silent pass",
+   "n": 180,
+   "rule": "upper <= 0.1",
+   "pass_if_count_at_most": 11,
+   "build": "15/393",
+   "assumed_rate": 0.03817,
+   "power": 0.9556,
+   "note": ""
+  },
+  {
+   "line": "L1",
+   "stratum": "X silent pass",
+   "n": 90,
+   "rule": "upper <= 0.1",
+   "pass_if_count_at_most": 4,
+   "build": "5/277",
+   "assumed_rate": 0.01805,
+   "power": 0.9762,
+   "note": ""
+  },
+  {
+   "line": "L2",
+   "stratum": "N stop",
+   "n": 963,
+   "rule": "upper <= 0.01",
+   "pass_if_count_at_most": 4,
+   "build": "4/3537",
+   "assumed_rate": 0.00113,
+   "power": 0.9948,
+   "note": ""
+  },
+  {
+   "line": "L2",
+   "stratum": "N2 stop",
+   "n": 1000,
+   "rule": "upper <= 0.01",
+   "pass_if_count_at_most": 4,
+   "build": "0/1000",
+   "assumed_rate": 0.0,
+   "power": 1.0,
+   "note": "build 0/1000; at rate 0 the power is 1"
+  },
+  {
+   "line": "L2",
+   "stratum": "N2 stop (at the build upper end 0.30%)",
+   "n": 1000,
+   "rule": "upper <= 0.01",
+   "pass_if_count_at_most": 4,
+   "build": "3/1000",
+   "assumed_rate": 0.003,
+   "power": 0.8155,
+   "note": "sensitivity: rate set to 0.3%"
+  },
+  {
+   "line": "L8",
+   "stratum": "N2 any mark",
+   "n": 1000,
+   "rule": "upper <= 0.1",
+   "pass_if_count_at_most": 84,
+   "build": "10/1000",
+   "assumed_rate": 0.01,
+   "power": 1.0,
+   "note": ""
+  },
+  {
+   "line": "L3",
+   "stratum": "O stop",
+   "n": 1000,
+   "rule": "upper <= 0.04",
+   "pass_if_count_at_most": 29,
+   "build": "22/1000",
+   "assumed_rate": 0.022,
+   "power": 0.9419,
+   "note": ""
+  },
+  {
+   "line": "L6",
+   "stratum": "O off_topic",
+   "n": 1000,
+   "rule": "lower >= 0.8",
+   "pass_if_count_at_least": 822,
+   "build": "848/1000",
+   "assumed_rate": 0.848,
+   "power": 0.9891,
+   "note": ""
+  },
+  {
+   "line": "L3",
+   "stratum": "O stop (sensitivity)",
+   "n": 1000,
+   "rule": "upper <= 0.04",
+   "pass_if_count_at_most": 29,
+   "build": "25/1000",
+   "assumed_rate": 0.025,
+   "power": 0.8207,
+   "note": ""
+  },
+  {
+   "line": "L3",
+   "stratum": "O stop (sensitivity)",
+   "n": 1000,
+   "rule": "upper <= 0.04",
+   "pass_if_count_at_most": 29,
+   "build": "28/1000",
+   "assumed_rate": 0.028,
+   "power": 0.6237,
+   "note": ""
+  },
+  {
+   "line": "L3",
+   "stratum": "O stop (sensitivity)",
+   "n": 1000,
+   "rule": "upper <= 0.04",
+   "pass_if_count_at_most": 29,
+   "build": "30/1000",
+   "assumed_rate": 0.03,
+   "power": 0.4746,
+   "note": ""
+  },
+  {
+   "line": "L6",
+   "stratum": "O off_topic (sensitivity)",
+   "n": 1000,
+   "rule": "lower >= 0.8",
+   "pass_if_count_at_least": 822,
+   "build": "840/1000",
+   "assumed_rate": 0.84,
+   "power": 0.9431,
+   "note": ""
+  },
+  {
+   "line": "L6",
+   "stratum": "O off_topic (sensitivity)",
+   "n": 1000,
+   "rule": "lower >= 0.8",
+   "pass_if_count_at_least": 822,
+   "build": "830/1000",
+   "assumed_rate": 0.83,
+   "power": 0.7643,
+   "note": ""
+  },
+  {
+   "line": "L6",
+   "stratum": "O off_topic (sensitivity)",
+   "n": 1000,
+   "rule": "lower >= 0.8",
+   "pass_if_count_at_least": 822,
+   "build": "820/1000",
+   "assumed_rate": 0.82,
+   "power": 0.4543,
+   "note": ""
+  },
+  {
+   "line": "L1 pooled",
+   "stratum": "H+X silent pass",
+   "n": 270,
+   "rule": "upper <= 0.1",
+   "pass_if_count_at_most": 18,
+   "build": "H 15/393, X 5/277",
+   "assumed_rate": "expected 8.5",
+   "power": 0.999,
+   "note": "pooled; sum of binomials"
+  },
+  {
+   "line": "L3 pooled",
+   "stratum": "O govtech 1,000 + ctat 300 stop",
+   "n": 1300,
+   "rule": "upper <= 0.04",
+   "pass_if_count_at_most": 40,
+   "build": "govtech 22/1000, ctat 0/500 (mixtral build)",
+   "assumed_rate": "expected 22.0",
+   "power": 0.9998,
+   "note": "pooled; sum of binomials"
+  },
+  {
+   "line": "L3 pooled",
+   "stratum": "O govtech 1,000 + ctat 100 stop",
+   "n": 1100,
+   "rule": "upper <= 0.04",
+   "pass_if_count_at_most": 33,
+   "build": "ctat option A, 100 rows",
+   "assumed_rate": "expected 22.0",
+   "power": 0.9903,
+   "note": "pooled; sum of binomials"
+  },
+  {
+   "line": "L3 pooled",
+   "stratum": "O govtech 1,000 + ctat 300 stop (ctat at 0.6%)",
+   "n": 1300,
+   "rule": "upper <= 0.04",
+   "pass_if_count_at_most": 40,
+   "build": "sensitivity: ctat at its build upper end",
+   "assumed_rate": "expected 23.8",
+   "power": 0.9993,
+   "note": "pooled; sum of binomials"
+  },
+  {
+   "line": "L3 pooled",
+   "stratum": "O govtech 1,000 + ctat 300 stop (govtech at 3.0%)",
+   "n": 1300,
+   "rule": "upper <= 0.04",
+   "pass_if_count_at_most": 40,
+   "build": "sensitivity",
+   "assumed_rate": "expected 30.0",
+   "power": 0.9698,
+   "note": "pooled; sum of binomials"
+  },
+  {
+   "line": "L4",
+   "stratum": "H stop-or-mark minus v_028 stop",
+   "n": 180,
+   "rule": "normal lower >= -0.03",
+   "build": "a=21 v=3 of 393 (mean +0.0458, lower +0.0256)",
+   "assumed_rate": "pa=0.05344 pv=0.00763",
+   "power": 0.9989,
+   "note": "a and v are recovered from the build mean and lower end"
+  },
+  {
+   "line": "L4",
+   "stratum": "H stop-or-mark minus v_028 stop (normal approximation)",
+   "n": 180,
+   "rule": "normal lower >= -0.03",
+   "build": "same",
+   "assumed_rate": "mean +0.0458 sd 0.2431",
+   "power": 0.9944,
+   "note": "P(mean >= -0.03 + 1.645 sd / sqrt(180)), mean normal"
+  },
+  {
+   "line": "joint",
+   "stratum": "all lines, as if unrelated (L4 by enumeration)",
+   "before_pooling": 0.8636,
+   "after_pooling": 0.9817
+  },
+  {
+   "line": "joint",
+   "stratum": "all lines, as if unrelated (L4 by normal approximation)",
+   "before_pooling": 0.8597,
+   "after_pooling": 0.9773
+  }
+ ],
+ "uncertainty": {
+  "flat": {
+   "lines": {
+    "L1 H+X 270": {
+     "pass_bound": 18,
+     "power": 0.9889
+    },
+    "L2 N 963": {
+     "pass_bound": 4,
+     "power": 0.9742
+    },
+    "L2 N2 1000": {
+     "pass_bound": 4,
+     "power": 0.969
+    },
+    "L2 N+N2 1963": {
+     "pass_bound": 12,
+     "power": 0.9994
+    },
+    "L8 N2 1000": {
+     "pass_bound": 84,
+     "power": 1.0
+    },
+    "L3 O all gov 1000": {
+     "pass_bound": 40,
+     "power": 0.9873
+    },
+    "L6 gov 1000": {
+     "pass_bound": 822,
+     "power": 0.978
+    },
+    "L3 O all gov 2000": {
+     "pass_bound": 76,
+     "power": 0.9892
+    },
+    "L6 gov 2000": {
+     "pass_bound": 1630,
+     "power": 0.9971
+    },
+    "L3 O all gov 3000": {
+     "pass_bound": 113,
+     "power": 0.9913
+    },
+    "L6 gov 3000": {
+     "pass_bound": 2437,
+     "power": 0.999
+    }
+   },
+   "all_current_plan": 0.8963,
+   "all_pooled_L2_by_govtech": {
+    "1000": 0.949,
+    "2000": 0.9694,
+    "3000": 0.9733
+   }
+  },
+  "jeffreys": {
+   "lines": {
+    "L1 H+X 270": {
+     "pass_bound": 18,
+     "power": 0.9917
+    },
+    "L2 N 963": {
+     "pass_bound": 4,
+     "power": 0.9807
+    },
+    "L2 N2 1000": {
+     "pass_bound": 4,
+     "power": 0.9899
+    },
+    "L2 N+N2 1963": {
+     "pass_bound": 12,
+     "power": 0.9999
+    },
+    "L8 N2 1000": {
+     "pass_bound": 84,
+     "power": 1.0
+    },
+    "L3 O all gov 1000": {
+     "pass_bound": 40,
+     "power": 0.9906
+    },
+    "L6 gov 1000": {
+     "pass_bound": 822,
+     "power": 0.9791
+    },
+    "L3 O all gov 2000": {
+     "pass_bound": 76,
+     "power": 0.9918
+    },
+    "L6 gov 2000": {
+     "pass_bound": 1630,
+     "power": 0.9973
+    },
+    "L3 O all gov 3000": {
+     "pass_bound": 113,
+     "power": 0.9933
+    },
+    "L6 gov 3000": {
+     "pass_bound": 2437,
+     "power": 0.9991
+    }
+   },
+   "all_current_plan": 0.9285,
+   "all_pooled_L2_by_govtech": {
+    "1000": 0.9563,
+    "2000": 0.9753,
+    "3000": 0.9786
+   }
+  },
+  "build_rate_as_true": {
+   "lines": {
+    "L1 H+X 270": {
+     "pass_bound": 18,
+     "power": 0.999
+    },
+    "L2 N+N2 1963": {
+     "pass_bound": 12,
+     "power": 1.0
+    },
+    "L8 N2 1000": {
+     "pass_bound": 84,
+     "power": 1.0
+    },
+    "L3 O all gov 1000": {
+     "pass_bound": 40,
+     "power": 0.9998
+    },
+    "L6 gov 1000": {
+     "pass_bound": 822,
+     "power": 0.9983
+    },
+    "L3 O all gov 2000": {
+     "pass_bound": 76,
+     "power": 1.0
+    },
+    "L6 gov 2000": {
+     "pass_bound": 1630,
+     "power": 1.0
+    },
+    "L3 O all gov 3000": {
+     "pass_bound": 113,
+     "power": 1.0
+    },
+    "L6 gov 3000": {
+     "pass_bound": 2437,
+     "power": 1.0
+    }
+   },
+   "L4_enumeration": 0.9989,
+   "all_pooled_L2_by_govtech": {
+    "1000": 0.9961,
+    "2000": 0.9979,
+    "3000": 0.9979
+   }
+  },
+  "monte_carlo_check": {
+   "L6 gov 1000 flat (20,000 draws)": 0.9781,
+   "L2 N 963 flat (20,000 draws)": 0.9744
+  }
+ },
+ "final_lines": {
+  "flat": {
+   "lines": {
+    "L1 H+X 270": 0.9889,
+    "L2 N+N2 1963": 0.9994,
+    "L8 N2 1000 at 5%": 1.0,
+    "L4 Dirichlet": 0.9887,
+    "L3 GovTech only 2000": 0.9445,
+    "L6 GovTech 2000": 0.9971,
+    "L3 GovTech only 3000": 0.9705,
+    "L6 GovTech 3000": 0.999
+   },
+   "all_by_govtech": {
+    "2000": 0.9203,
+    "3000": 0.9474
+   },
+   "pooled_L1_holds_first_form_fails": 0.1519
+  },
+  "jeffreys": {
+   "lines": {
+    "L1 H+X 270": 0.9917,
+    "L2 N+N2 1963": 0.9999,
+    "L8 N2 1000 at 5%": 1.0,
+    "L4 Dirichlet": 0.9916,
+    "L3 GovTech only 2000": 0.953,
+    "L6 GovTech 2000": 0.9973,
+    "L3 GovTech only 3000": 0.9757,
+    "L6 GovTech 3000": 0.9991
+   },
+   "all_by_govtech": {
+    "2000": 0.9345,
+    "3000": 0.9585
+   },
+   "pooled_L1_holds_first_form_fails": 0.1316
+  },
+  "with_disclosed_counts": {
+   "flat": {
+    "L1": 0.9855,
+    "L2": 0.9997,
+    "L3": 0.9813,
+    "L8": 1.0,
+    "L6": 0.999,
+    "L4": 0.9887,
+    "all": 0.9549
+   },
+   "jeffreys": {
+    "L1": 0.9887,
+    "L2": 0.9999,
+    "L3": 0.9879,
+    "L8": 1.0,
+    "L6": 0.9991,
+    "L4": 0.9916,
+    "all": 0.9676
+   }
+  },
+  "build_rate_as_true": {
+   "lines": {
+    "L1 H+X 270": 0.999,
+    "L2 N+N2 1963": 1.0,
+    "L8 N2 1000 at 5%": 1.0,
+    "L4 enumeration": 0.9989,
+    "L3 GovTech only 2000": 0.999,
+    "L6 GovTech 2000": 1.0,
+    "L3 GovTech only 3000": 1.0,
+    "L6 GovTech 3000": 1.0
+   },
+   "all_by_govtech": {
+    "2000": 0.9969,
+    "3000": 0.9979
+   },
+   "pass_bounds": {
+    "L3 2000": 65,
+    "L3 3000": 102,
+    "L8 1000 at 5%": 38
+   }
+  }
+ },
+ "check": {
+  "cp_upper(15,393)": 0.0582,
+  "cp_upper(5,277)": 0.0376,
+  "cp_upper(4,3537)": 0.0026,
+  "cp_upper(22,1000)": 0.0313,
+  "cp_lower(848,1000)": 0.8281,
+  "cp_upper(10,1000)": 0.0169,
+  "cp_upper(0,1000)": 0.003
+ },
+ "check_ok": true
+}
