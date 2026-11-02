@@ -1,6 +1,6 @@
 {
   "schema": "hs-adoption-count-v1",
-  "measured_at": "2026-10-26T04:47:41Z",
+  "measured_at": "2026-11-02T06:03:42Z",
   "metrics": {
     "independent_implementations": {
       "count": 19,
@@ -267,9 +267,9 @@
     "independent_witnesses": {
       "count": 3,
       "ledger": {
-        "ledger_n": 165,
-        "ledger_head": "f9769b0ca107e4c8ab4ad36f60ac7367a4d5ebcbd19f0116700c50e6c3dd5617",
-        "witness_batches": 34,
+        "ledger_n": 237,
+        "ledger_head": "f42d2322d83285dfcef3cc848ff105714b4423406733eca91c9322e3298ea77f",
+        "witness_batches": 41,
         "unreadable_entries": [],
         "refused_shared_host": [],
         "signed_domains": {
@@ -298,7 +298,14 @@
             138,
             144,
             152,
-            159
+            159,
+            168,
+            181,
+            189,
+            197,
+            213,
+            226,
+            233
           ],
           "pipavlo82.github.io": [
             65,
@@ -626,7 +633,7 @@
         "dirs": [
           "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0"
         ],
-        "json_files": 570
+        "json_files": 854
       }
     },
     "external_evidence_producers": {
@@ -681,7 +688,7 @@
           "repo": "kuangmi-bit/conduct-witness",
           "created_from_template": true,
           "reproduce_success_last_30_days": true,
-          "last_success": "2026-10-19T11:16:25Z"
+          "last_success": "2026-10-26T11:32:39Z"
         }
       ],
       "method": "GitHub search for repositories named like conduct-witness, kept when template_repository is ogasurfproject-jpg/conduct-witness-template and reproduce.yml has a successful run in the last 30 days"

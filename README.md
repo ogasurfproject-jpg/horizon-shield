@@ -80,7 +80,7 @@ Every night the [TSUNAGI board](ops/tsunagi/BOARD.md) runs these outside impleme
 | Rows on the public register that are not ours | 2 of 10: one still pending, one added anonymously with `POST /watch` and not measured yet | `curl -s https://gate.horizonshield.dev/register` |
 
 <!-- adoption-count:start -->
-Counted every week by [`tools/adoption/count_adoption.py`](tools/adoption/count_adoption.py), last on 2026-10-26. Every number comes from a source you can read; one that could not be read says so instead of counting zero. The whole count: [`ops/adoption/latest.json`](ops/adoption/latest.json).
+Counted every week by [`tools/adoption/count_adoption.py`](tools/adoption/count_adoption.py), last on 2026-11-02. Every number comes from a source you can read; one that could not be read says so instead of counting zero. The whole count: [`ops/adoption/latest.json`](ops/adoption/latest.json).
 
 | What | Count | From |
 |---|---|---|
