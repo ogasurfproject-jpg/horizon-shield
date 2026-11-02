@@ -430,6 +430,28 @@ async function agreementRateLimit(env, request) {
   }
 }
 
+// POST /furui-check-day (2026-11-02): a runner writes one record a day, so the caps are small. Counted before anything is
+// parsed, as /agreement counts. Global 50 a day, 10 a day per network (the salted /24 or /48 of the caller, as above).
+const FURUI_DAY_DAILY_GLOBAL = 50, FURUI_DAY_DAILY_PER_NETWORK = 10;
+async function furuiDayRateLimit(env, request) {
+  try {
+    const day = netDay();
+    const g = Number((await env.LEDGER.get("fcd:count:" + day)) || 0);
+    if (g >= FURUI_DAY_DAILY_GLOBAL) return { ok: false, error: "daily_global_cap_reached", cap: FURUI_DAY_DAILY_GLOBAL, scope: "global" };
+    const ip = request.headers.get("cf-connecting-ip") || "unknown";
+    const pre = netPrefix(ip) || ("raw:" + ip);
+    const mark = (await sha256hex((await netSalt(env, day)) + "|" + pre)).slice(0, 32);
+    const lk = "fcd:net:" + day + ":" + mark;
+    const n = Number((await env.LEDGER.get(lk)) || 0);
+    if (n >= FURUI_DAY_DAILY_PER_NETWORK) return { ok: false, error: "daily_per_network_cap_reached", cap: FURUI_DAY_DAILY_PER_NETWORK, scope: "network" };
+    await env.LEDGER.put("fcd:count:" + day, String(g + 1), { expirationTtl: 90000 });
+    await env.LEDGER.put(lk, String(n + 1), { expirationTtl: 90000 });
+    return { ok: true };
+  } catch (_e) {
+    return { ok: true }; // a spam counter must never take down the intake
+  }
+}
+
 // nenrin-response-v0 dependencies: the subject's key from its own domain (same fetch and cache as witness keys),
 // and a gate verdict's exact bytes through the service binding (a Worker cannot fetch its own zone over HTTP).
 function responseDeps(env) {
@@ -1855,6 +1877,8 @@ async function handle(request, env) {
     if (p === FURUI_KEYS_PATH && request.method === "GET") return json(FURUI_CHECK_KEYS);
     if (p === "/furui-check-day" && request.method === "GET") return json(furuiDaySelfDescription(origin));
     if (p === "/furui-check-day" && request.method === "POST") {
+      const rl = await furuiDayRateLimit(env, request);
+      if (!rl.ok) return json({ error: rl.error, cap: rl.cap, scope: rl.scope }, 429);
       const out = await handleFuruiDayIntake(request, { keysDoc: FURUI_CHECK_KEYS, ledgerKeyUrl: origin + FURUI_KEYS_PATH, store: agreementStore(env),
         now: () => new Date().toISOString(), origin });
       return json(out.body, out.status, out.headers);

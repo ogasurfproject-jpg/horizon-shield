@@ -61,6 +61,14 @@ t("GET /furui-check-day: the self description names the schema, the 00:30 batch 
 r = await call("POST", "/furui-check-day", { record_canonical: dayRecord() });
 t("POST /furui-check-day with no key listed: 422 key_not_listed, nothing stored, nothing queued", r.status === 422 && r.j.refusals[0] === "key_not_listed" && (await call("GET", "/agreement/pending")).j.count === 0, r);
 
+// ---- the rate limit: 10 a day from one network, then 429 before anything is parsed ----
+reset();
+let codes = [];
+for (let i = 0; i < 11; i++) codes.push((await call("POST", "/furui-check-day", { record_canonical: "{}" })).status);
+t("POST /furui-check-day: 10 from one network are read (422 here), the 11th is 429", codes.slice(0, 10).every((c) => c === 422) && codes[10] === 429, codes);
+r = await call("POST", "/furui-check-day", { record_canonical: "{}" }, { "cf-connecting-ip": "198.51.100.7" });
+t("another network is not held by the first one's count", r.status === 422, r);
+
 // ---- the intake with a keys document that lists the runner's key ----
 reset();
 const good = dayRecord();
