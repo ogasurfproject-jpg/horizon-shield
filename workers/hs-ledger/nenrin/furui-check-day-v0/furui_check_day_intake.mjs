@@ -4,10 +4,12 @@
 // as the ledger serves it at /.well-known/furui-check-keys.json, and the signature; it stores the record under its sha256
 // and queues it for the ledger's daily batch at 00:30 UTC (the public pool, the same as /agreement and /admission).
 // One record per runner per day. It never sees an envelope, a content or a check: only the root and the counts.
+// A second record for a day whose first record has the same root (a runner sending its day again) is answered 200 with the
+// first record's sha and is not stored: the day holds one record and the root it commits to is the same (0.2.0).
 import { parseStrict, canonicalUtf8, CanonicalError } from "../agreement-v0/agreement_canonical.mjs";
 import { ed25519Verify } from "../agreement-v0/agreement_verify.mjs";
 
-export const FURUI_DAY_INTAKE_VERSION = "furui-check-day-intake 0.1.0";
+export const FURUI_DAY_INTAKE_VERSION = "furui-check-day-intake 0.2.0";
 export const FURUI_DAY_SCHEMA = "furui-check-day-v0";
 export const KEYS_PATH = "/.well-known/furui-check-keys.json";
 export const MAX_BYTES = 8192;
@@ -90,7 +92,13 @@ export async function handleFuruiDayIntake(request, deps) {
   if (mark && mark.unbound) return res(503, { error: "dedupe_gate_unbound", note: "fail closed" });
   if (mark && mark.duplicate) {
     const first = mark.stored && mark.stored.day_of;
-    if (first !== canonicalSha) return refused(["day_already_recorded"], { why: "one record per runner per day; this day already has " + first, first_canonical_sha256: first });
+    if (first !== canonicalSha) {
+      let prior = null, priorRoot = null;
+      try { prior = typeof first === "string" && store.getAccepted ? await store.getAccepted(first) : null; priorRoot = prior && typeof prior.record_canonical === "string" ? parseStrict(prior.record_canonical).root : null; } catch (_e) { priorRoot = null; }
+      if (priorRoot === r.root) return res(200, { status: (prior && prior.status) || "pending_anchor", dedup: true, same_root: true, verdict: "accepted", canonical_sha256: first,
+        url: origin + "/furui-check-day/" + first, note: "this day already holds a record with the same root; the first record stands and these bytes are not stored" });
+      return refused(["day_already_recorded"], { why: "one record per runner per day; this day already has " + first, first_canonical_sha256: first });
+    }
   }
   const nowVal = typeof now === "function" ? now() : now;
   const report = { record_schema: FURUI_DAY_SCHEMA, verdict: "accepted", canonical_sha256: canonicalSha, signer: r.signer.domain, day: r.day, n: num(r.n),
@@ -125,5 +133,7 @@ export function furuiDaySelfDescription(origin) {
     keys: o + KEYS_PATH, max_bytes: MAX_BYTES, tree: TREE, leaf: LEAF,
     what_this_does: "stores a content check runner's signed daily root under its sha256 and anchors it with the ledger's daily batch at 00:30 UTC; one record per runner per day",
     what_this_does_not_do: ["hold or read any envelope, content or check", "say whether any check was right"],
-    empty_days: "a runner writes no record for a day without checks; its own status endpoint says so" };
+    empty_days: "a runner writes no record for a day without checks; its own status endpoint says so",
+    same_day_again: "the same bytes again, or another record for the day with the same root, is answered 200 with the first record's sha and not stored; another root for the day is refused (day_already_recorded)",
+    caps: "50 a day in all and 10 a day per network on this public POST; the runner of this ledger's operator sends through a service binding entrypoint (FuruiDayIntake), which runs the same checks and is not counted in these caps" };
 }

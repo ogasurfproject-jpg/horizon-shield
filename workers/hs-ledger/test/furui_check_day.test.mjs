@@ -5,7 +5,7 @@
 //
 // Run: node test/furui_check_day.test.mjs
 import crypto from "node:crypto";
-import { loadWorker, mockKV } from "./load.mjs";
+import { loadWorker, loadWorkerModule, mockKV } from "./load.mjs";
 import { AgreementDedupeDO, doStore } from "../nenrin/agreement-v0/agreement_intake.mjs";
 import { handleFuruiDayIntake, handleFuruiDayGet, FURUI_DAY_SCHEMA } from "../nenrin/furui-check-day-v0/furui_check_day_intake.mjs";
 import { FURUI_CHECK_KEYS } from "../nenrin/furui-check-day-v0/furui_check_keys.mjs";
@@ -14,6 +14,7 @@ import { canonicalUtf8 } from "../nenrin/agreement-v0/agreement_canonical.mjs";
 const ORIGIN = "https://ledger.horizonshield.dev";
 const KEY_URL = ORIGIN + "/.well-known/furui-check-keys.json";
 const worker = await loadWorker("src/worker.js");
+const { FuruiDayIntake } = await loadWorkerModule("src/worker.js");
 const sha = (s) => crypto.createHash("sha256").update(s, "utf8").digest("hex");
 let pass = 0, fail = 0;
 const t = (name, ok, detail) => { if (ok) { pass++; console.log("ok   " + name); } else { fail++; console.log("NG   " + name + (detail !== undefined ? "   <<< " + JSON.stringify(detail).slice(0, 600) : "")); } };
@@ -59,7 +60,8 @@ t("GET /.well-known/furui-check-keys.json: the keys document the worker carries 
 r = await call("GET", "/furui-check-day");
 t("GET /furui-check-day: the self description names the schema, the 00:30 batch and what it does not do", r.status === 200 && r.j.schema === FURUI_DAY_SCHEMA && /00:30/.test(r.j.what_this_does) && r.j.what_this_does_not_do.length === 2, r);
 r = await call("POST", "/furui-check-day", { record_canonical: dayRecord() });
-t("POST /furui-check-day with no key listed: 422 key_not_listed, nothing stored, nothing queued", r.status === 422 && r.j.refusals[0] === "key_not_listed" && (await call("GET", "/agreement/pending")).j.count === 0, r);
+const LIVE_EXPECT = FURUI_CHECK_KEYS.keys.length ? "bad_signature" : "key_not_listed";
+t("POST /furui-check-day with a key made here (not the listed one, or none listed): 422 " + LIVE_EXPECT + ", nothing stored, nothing queued", r.status === 422 && r.j.refusals[0] === LIVE_EXPECT && (await call("GET", "/agreement/pending")).j.count === 0, r);
 
 // ---- the rate limit: 10 a day from one network, then 429 before anything is parsed ----
 reset();
@@ -78,6 +80,11 @@ r = await handleFuruiDayIntake(post(good), deps(DOC));
 t("the same bytes again: 200, dedup", r.status === 200 && r.body.dedup === true, r.body);
 r = await handleFuruiDayIntake(post(dayRecord({ root: "cd".repeat(32) })), deps(DOC));
 t("another record for the same runner and day: 422 day_already_recorded", r.status === 422 && r.body.refusals[0] === "day_already_recorded" && r.body.first_canonical_sha256 === sha(good), r.body);
+r = await handleFuruiDayIntake(post(dayRecord({ last_height: 974241, late: 1 })), deps(DOC));
+t("another record for the same day with the same root (sent again, other heights): 200, same_root, the first sha, nothing stored", r.status === 200 && r.body.same_root === true && r.body.dedup === true && r.body.canonical_sha256 === sha(good)
+  && (await doStore(env).getAccepted(sha(dayRecord({ last_height: 974241, late: 1 })))) == null, r.body);
+r = await handleFuruiDayIntake(post(good), deps(DOC));
+t("the first bytes once more after that: still 200 dedup with the same sha", r.status === 200 && r.body.dedup === true && r.body.canonical_sha256 === sha(good), r.body);
 r = await handleFuruiDayIntake(post(dayRecord({ day: "2026-11-03" })), deps(DOC));
 t("the next day: 201", r.status === 201, r.body);
 const refuse = async (name, text, code, doc) => {
@@ -151,6 +158,37 @@ t("an agreement in a batch not yet anchored is not counted (not_yet_anchored)", 
 t("another host's agreement and the admission row in the same batch are not listed", !JSON.stringify(ag || []).includes(theirs.canonical_sha256) && !JSON.stringify(ag || []).includes(admissionRow.canonical_sha256));
 r = await call("GET", "/resume?endpoint=" + encodeURIComponent("https://nobody.example/mcp"));
 t("an endpoint with no agreement: agreements[] empty, as before", r.status === 200 && Array.isArray(r.j.agreements) && r.j.agreements.length === 0, r.j);
+
+// ---- the runner's way in (baton5): the named entrypoint FuruiDayIntake, outside the public caps, with every check ----
+const today = new Date().toISOString().slice(0, 10);
+reset([["fcd:count:" + today, "50"]]);
+r = await call("POST", "/furui-check-day", { record_canonical: dayRecord() });
+t("the public POST after the day's 50: 429 daily_global_cap_reached", r.status === 429 && r.j.error === "daily_global_cap_reached", r);
+const ep = new FuruiDayIntake({ waitUntil: () => {} }, env);
+let er = await ep.submit(dayRecord());
+t("the entrypoint after the day's 50: not 429; it reaches the checks (422 " + LIVE_EXPECT + ")", er.status === 422 && er.body.refusals[0] === LIVE_EXPECT, er);
+t("the entrypoint does not count: the day's global count is still 50", kv.store.get("fcd:count:" + today) === "50");
+reset();
+for (let i = 0; i < 10; i++) await call("POST", "/furui-check-day", { record_canonical: "{}" });
+r = await call("POST", "/furui-check-day", { record_canonical: "{}" });
+const ep2 = new FuruiDayIntake({ waitUntil: () => {} }, env);
+const er2 = await ep2.submit("{}");
+t("after one network's 10 the public POST is 429, and the entrypoint still reads the record (422 malformed, not 429)", r.status === 429 && er2.status === 422 && er2.body.refusals[0] === "malformed", { r, er2 });
+t("the entrypoint refuses a non string (400)", (await ep2.submit({ record_canonical: "x" })).status === 400);
+const saved = FURUI_CHECK_KEYS.keys.splice(0);
+FURUI_CHECK_KEYS.keys.push(DOC.keys[0]);
+try {
+  reset([["fcd:count:" + today, "50"]]);
+  const e3 = new FuruiDayIntake({ waitUntil: () => {} }, env);
+  const g1 = await e3.submit(good), g2 = await e3.submit(good), g3 = await e3.submit(dayRecord({ last_height: 974241 })), g4 = await e3.submit(dayRecord({ root: "ef".repeat(32) }));
+  t("the entrypoint with the key listed: 201 and queued for the 00:30 batch, though the public caps are spent", g1.status === 201 && g1.body.canonical_sha256 === sha(good) && (await call("GET", "/agreement/pending")).j.count === 1, { g1, pending: (await call("GET", "/agreement/pending")).j });
+  t("the same bytes through the entrypoint again: 200 dedup; the same root with other heights: 200 same_root; one record for the day", g2.status === 200 && g2.body.dedup === true && g3.status === 200 && g3.body.same_root === true && g3.body.canonical_sha256 === sha(good) && (await call("GET", "/agreement/pending")).j.count === 1, { g2, g3 });
+  t("another root for the day through the entrypoint: 422 day_already_recorded", g4.status === 422 && g4.body.refusals[0] === "day_already_recorded", g4);
+  r = await call("GET", "/furui-check-day/" + sha(good));
+  t("the record that came through the entrypoint is served by its sha on the public read", r.status === 200 && r.j.record_canonical === good, r);
+} finally { FURUI_CHECK_KEYS.keys.splice(0); FURUI_CHECK_KEYS.keys.push(...saved); }
+r = await call("GET", "/furui-check-day");
+t("the self description says the same day again is 200 and that the runner's entrypoint is not in the public caps", /200/.test(r.j.same_day_again) && /FuruiDayIntake/.test(r.j.caps), r.j);
 
 console.log("");
 if (fail) { console.log("FAIL " + fail + " of " + (pass + fail) + " (furui-check-day and the Résumé's agreements on the live worker)"); process.exit(1); }

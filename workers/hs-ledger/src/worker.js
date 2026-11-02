@@ -38,6 +38,7 @@ import { handleAdmissionIntake, handleRevocationIntake, handleStoredGet, admissi
 // furui-check-day-v0 (2026-11-02): a content check runner's signed daily root, into the same public pool and daily batch.
 import { handleFuruiDayIntake, handleFuruiDayGet, furuiDaySelfDescription, KEYS_PATH as FURUI_KEYS_PATH, FURUI_DAY_SCHEMA } from "../nenrin/furui-check-day-v0/furui_check_day_intake.mjs";
 import { FURUI_CHECK_KEYS } from "../nenrin/furui-check-day-v0/furui_check_keys.mjs";
+import { WorkerEntrypoint } from "cloudflare:workers";
 
 const enc = new TextEncoder();
 
@@ -2537,6 +2538,23 @@ async function anchorAgreementPool(env, origin, trigger) {
     await env.LEDGER.delete(`agr:pending:${s.canonical_sha256}`);
   }
   return { status: 201, body: { n, url: `${origin}/ledger/${n}`, anchored: items.length, trigger, note: "the batch anchor covers every record listed in it; the Bitcoin stamp follows on the operator's stamping run" } };
+}
+
+// FuruiDayIntake (baton5, 2026-11-02): the runner's way in, as a named entrypoint for a service binding (the runner's
+// wrangler.toml: services LEDGER, service hs-ledger, entrypoint FuruiDayIntake; it calls env.LEDGER.submit(text)).
+// A named entrypoint has no public URL: the public route and workers.dev reach only the default export below. So the
+// runner's day record never goes through the public POST /furui-check-day and is not counted in its caps (50 a day,
+// 10 a day per network), and nothing on the public path has to guess whether a request is internal. Every check of the
+// public path still runs (canonical bytes, shape, the key this ledger serves, the signature, one record a day).
+export class FuruiDayIntake extends WorkerEntrypoint {
+  async submit(recordCanonical) {
+    if (typeof recordCanonical !== "string") return { status: 400, body: { error: "record_canonical (string) required" } };
+    const origin = "https://ledger.horizonshield.dev";
+    const request = new Request(origin + "/furui-check-day", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ record_canonical: recordCanonical }) });
+    const out = await handleFuruiDayIntake(request, { keysDoc: FURUI_CHECK_KEYS, ledgerKeyUrl: origin + FURUI_KEYS_PATH, store: agreementStore(this.env),
+      now: () => new Date().toISOString(), origin });
+    return { status: out.status, body: out.body };
+  }
 }
 
 export default {

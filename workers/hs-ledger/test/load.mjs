@@ -21,8 +21,16 @@
 // 本番ファイルには指一本触れない、という元の約束はそのまま守られている。
 
 import { stat } from "node:fs/promises";
+import { register } from "node:module";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+
+// 2026-11-02 追記: worker.js は名前付きの入口 FuruiDayIntake のために "cloudflare:workers" の WorkerEntrypoint を
+// import する。Node にこの組み込みは無いので、試験の間だけ、その名を同じ形の小さな代わり(ctx と env を持つだけの
+// class)に解決する。本番の worker.js には触らない。wrangler は "cloudflare:workers" を本物の組み込みとして扱う。
+const CF_STUB = "export class WorkerEntrypoint { constructor(ctx, env) { this.ctx = ctx; this.env = env; } }";
+register("data:text/javascript," + encodeURIComponent(
+  "export async function resolve(s, c, n) { if (s === 'cloudflare:workers') return { url: 'data:text/javascript,' + encodeURIComponent(" + JSON.stringify(CF_STUB) + "), shortCircuit: true }; return n(s, c); }"));
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "..");
@@ -37,6 +45,13 @@ export async function loadWorker(rel) {
   await stat(abs); // 無ければ ENOENT を投げる（呼び出し側はこの code で「次の候補へ」を判断する）
   const m = await import(pathToFileURL(abs).href);
   return m.default;
+}
+
+/** loadWorker と同じ読み方で、default 以外の export(名前付きの入口など)も含むモジュール全体を返す。 */
+export async function loadWorkerModule(rel) {
+  const abs = join(ROOT, rel);
+  await stat(abs);
+  return import(pathToFileURL(abs).href);
 }
 
 /** SHA-256 を16進で返す（台帳と同じ計算を、台帳のコードを使わずに行う）。 */
