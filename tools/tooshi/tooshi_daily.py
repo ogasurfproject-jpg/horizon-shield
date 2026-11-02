@@ -12,8 +12,28 @@ Each check ends in one of four states:
 The verdict is red if any check is red; green only if every check is ok or notice; otherwise not_all_checked.
 Exit 0 for green or not_all_checked, 1 for red, 2 if this script itself failed.
 The result is canonical JSON (sorted keys, no spaces); its sha256 is printed on the last line.
+
+Added with the door's daily check call (2026-11-03):
+    6b_daily_leaf  the day before yesterday's first and last leaf, read at GET /furui/day/<D>/leaf/<i>: the envelope has the
+                   closed shape, hashes to the leaf, carries runner-1's signature, and its RFC 6962 audit path rebuilds the
+                   root of the day record the ledger serves.
+    1, 2, 3        from the door's daily check call (03:47 UTC), read at GET /seki .furui.check_call:
+                   1 sieve to admission: the call's record carries a checked v0.4 content block; its check_sha256 is the
+                     sha256 of the check of a runner envelope. The envelope of a call is served from the next day and the
+                     door shows only its last call, so this binding is made on the previous call (.furui.check_call_prev)
+                     and stays not_yet while the door does not show one.
+                   2 admission to ledger: the ledger serves the call's record under its sha (/admission/<sha>).
+                   3 ledger to door: the door serves the same bytes (/seki/record/<sha>), and the content block is the
+                     fixed answer (checked, pass, no marks, the door's rules id).
+    4              door to Resume: the previous call's record (.furui.check_call_prev, yesterday's) is listed by its
+                   record_sha256 in the admissions[] of the relying party's Resume (GET /resume?endpoint=<its endpoint>),
+                   as admit, not revoked, with the fixed content answer. An admission is listed only once its batch is
+                   anchored, so yesterday's call is read, after the ledger's batch of today: not_yet before 01:05 UTC, and
+                   not_yet while the Resume names it in not_counted as not yet anchored. Missing from both: red.
+                   not_yet while the door shows no previous call or the Resume carries no admissions[].
+A check that cannot be made because a shape is not fixed yet says why and is never reported ok.
 """
-import datetime, hashlib, json, sys, time, urllib.error, urllib.request
+import base64, datetime, hashlib, json, re, sys, time, urllib.error, urllib.parse, urllib.request
 
 RUNNER = "https://furui.horizonshield.dev"
 LEDGER = "https://ledger.horizonshield.dev"
@@ -24,23 +44,34 @@ FIRST_CLOSED_DAY = "2026-11-02"      # the first UTC day the runner 0.2.0 closes
 HEARTBEAT_AFTER = (3, 17)            # the cron 17 3 * * *
 HEARTBEAT_EXPECT = {"decision": "pass", "answered": True, "marks": []}  # the fixed in scope question of the scene
 UA = {"user-agent": "tooshi-daily/0.1", "accept": "application/json"}
+DOOR_RECORD = DOOR_POLICY + "/record/"   # hs-seki-door has no public route of its own; the gateway's /seki path
+CHECK_CALL_AFTER = (3, 47)               # the door's cron 47 3 * * *
+FIRST_KEPT_DAY = "2026-11-03"            # the first day whose envelopes runner 0.3.0 keeps (its leaves answer from 11-04 00:47 UTC)
+LEAF_SCAN_MAX = 32                       # at most this many leaves of one day are read to find the check call's envelope
+SIGNER = {"domain": "horizonshield.dev", "key_url": LEDGER + "/.well-known/furui-check-keys.json"}
+H64 = re.compile(r"^[0-9a-f]{64}$")
+RESUME_ENDPOINT = "https://shield.the-horizons-innovation.com/"   # the door's relying party (shield.the-horizons-innovation.com)
+BATCH_DONE = (1, 5)                      # the ledger's daily batch window ends at 01:05 UTC
+UNANCHORED = ("not_yet_anchored", "confirmed_without_block_time")
 
 
 class Unreachable(Exception):
     pass
 
 
-def http_get(url, tries=3, wait=10, timeout=30):
-    """(status, parsed JSON). A network failure or a 5xx is tried three times; then Unreachable."""
+def http_get(url, tries=3, wait=10, timeout=30, raw=False):
+    """(status, parsed JSON), or (status, the body as text) with raw. A network failure or a 5xx is tried three times; then Unreachable."""
     last = None
     for i in range(tries):
         try:
             with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=timeout) as r:
-                return r.status, json.loads(r.read().decode("utf-8"))
+                t = r.read().decode("utf-8")
+                return r.status, (t if raw else json.loads(t))
         except urllib.error.HTTPError as e:
             if e.code < 500:
                 try:
-                    return e.code, json.loads(e.read().decode("utf-8"))
+                    t = e.read().decode("utf-8")
+                    return e.code, (t if raw else json.loads(t))
                 except ValueError:
                     return e.code, None
             last = "http %d" % e.code
@@ -77,6 +108,10 @@ def check_door_runner(get):
         bad.append("the model key is not set")
     if (h.get("rules_sha256") or None) != (door_rules or None):
         bad.append("rules_sha256 differs: runner %s, door %s" % (h.get("rules_sha256"), door_rules))
+    if pol.get("required") is True and not (isinstance(door_rules, str) and H64.match(door_rules)):
+        bad.append("the door requires the check but names no rules id")
+    if pol.get("runner_public_key_ed25519_b64") is not None and pol.get("runner_public_key_ed25519_b64") != h.get("public_key_ed25519_b64"):
+        bad.append("the door checks envelopes with a public half other than the runner's")
     facts = {"runner": h.get("runner"), "rules_sha256": h.get("rules_sha256"), "door_required": pol.get("required")}
     return c(cid, "red" if bad else "ok", "; ".join(bad) or "the runner's key, caps, model key and rules id agree with the ledger and the door", **facts)
 
@@ -154,18 +189,493 @@ def check_day_root(get, now):
         return c(cid, "red", "batch entry %s is from %s, not %s (the day after the close)" % (n, str(e.get("created_at"))[:10], d2), day=d, record=sha, entry=n)
     return c(cid, "ok", "%s was accepted, is served by the ledger and is in batch entry %d of %s" % (d, n, d2), day=d, record=sha, entry=n)
 
+# ---- the closed envelope, its leaf and audit path (runner 0.3.0 keepProblems, leafHash, rootFromPath), Ed25519 (RFC 8032) ----
+SAFE = 9007199254740991
 
-NOT_YET = [
-    ("1_sieve_admission", "the door does not call the runner while policy.furui.required is false, so no admission carries a content block yet"),
-    ("2_admission_ledger", "no admission with a content block has been sent to the ledger yet"),
-    ("3_ledger_door", "the door reads no content check record from the ledger yet"),
-    ("4_door_resume", "the Resume carries no content check yet"),
-]
+
+def canonical(o):
+    """musubi-canonical-v0 for the closed values these checks read (no float; printable ASCII keys)."""
+    def chk(v):
+        if isinstance(v, float):
+            raise ValueError("float")
+        if isinstance(v, int) and not isinstance(v, bool) and not -SAFE <= v <= SAFE:
+            raise ValueError("integer out of range")
+        if isinstance(v, str) and any(0xD800 <= ord(x) <= 0xDFFF for x in v):
+            raise ValueError("lone surrogate")
+        if isinstance(v, list):
+            for x in v:
+                chk(x)
+        if isinstance(v, dict):
+            for k, x in v.items():
+                if not all(0x20 <= ord(ch) <= 0x7E for ch in k):
+                    raise ValueError("key")
+                chk(x)
+    chk(o)
+    return json.dumps(o, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def sha(b):
+    return hashlib.sha256(b if isinstance(b, bytes) else b.encode("utf-8")).hexdigest()
+
+
+CHECK_KEYS = sorted(["action_binding_digest", "answered", "checked_at_height", "contract_sha256", "decision", "input_commit", "marks", "nonce", "rules_sha256",
+                     "schema", "scope_sha256", "signed_at", "stage_reached", "trace_sha256", "unread"])
+
+
+def _keys(o, ks):
+    return isinstance(o, dict) and sorted(o) == sorted(ks)
+
+
+def _int(x, lo=0):
+    return isinstance(x, int) and not isinstance(x, bool) and x >= lo
+
+
+def keep_problems(e):
+    if not _keys(e, ["check", "schema", "signatures", "signer"]) or e["schema"] != "furui-check-signed-v1":
+        return "envelope_keys"
+    k = e["check"]
+    if not _keys(k, CHECK_KEYS) or k["schema"] != "furui-check-v1":
+        return "check_keys"
+    for f in ("input_commit", "action_binding_digest", "contract_sha256", "trace_sha256"):
+        if not (isinstance(k[f], str) and H64.match(k[f])):
+            return "check_" + f
+    for f in ("rules_sha256", "scope_sha256"):
+        if k[f] is not None and not (isinstance(k[f], str) and H64.match(k[f])):
+            return "check_" + f
+    if k["decision"] not in (None, "stop", "pass"):
+        return "check_decision"
+    if not isinstance(k["marks"], list) or not all(isinstance(x, str) for x in k["marks"]) or ",".join(k["marks"]) not in ("", "off_topic", "rule_conflict", "off_topic,rule_conflict"):
+        return "check_marks"
+    if not isinstance(k["unread"], bool) or not isinstance(k["answered"], bool):
+        return "check_flags"
+    if not _int(k["stage_reached"]) or k["stage_reached"] > 4 or not _int(k["checked_at_height"]) or k["checked_at_height"] > SAFE:
+        return "check_numbers"
+    if not (isinstance(k["nonce"], str) and re.match(r"^(?:[0-9a-f]{32}|heartbeat-\d{4}-\d{2}-\d{2})$", k["nonce"])):
+        return "check_nonce"
+    if not (isinstance(k["signed_at"], str) and re.match(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$", k["signed_at"])):
+        return "check_signed_at"
+    if e["signer"] != SIGNER:
+        return "signer"
+    g = e["signatures"][0] if isinstance(e["signatures"], list) and len(e["signatures"]) == 1 else None
+    if not _keys(g, ["alg", "domain", "key_id", "sig"]) or g["alg"] != "ed25519" or g["domain"] != SIGNER["domain"] or g["key_id"] != "runner-1" or not (isinstance(g["sig"], str) and re.match(r"^[A-Za-z0-9+/]{86}==$", g["sig"])):
+        return "signature"
+    return None
+
+
+def leaf_hash(e):
+    return sha(b"\x00" + canonical(e).encode("utf-8"))
+
+
+def _node(a, b):
+    return sha(b"\x01" + bytes.fromhex(a) + bytes.fromhex(b))
+
+
+def _split(n):
+    k = 1
+    while k * 2 < n:
+        k *= 2
+    return k
+
+
+def root_from_path(leaf, m, n, path):
+    if n == 1:
+        return leaf if not path else None
+    if not path:
+        return None
+    k, top, rest = _split(n), path[-1], path[:-1]
+    if m < k:
+        l = root_from_path(leaf, m, k, rest)
+        return None if l is None else _node(l, top)
+    r = root_from_path(leaf, m - k, n - k, rest)
+    return None if r is None else _node(top, r)
+
+
+_P = 2 ** 255 - 19
+_Q = 2 ** 252 + 27742317777372353535851937790883648493
+_D = -121665 * pow(121666, _P - 2, _P) % _P
+_I = pow(2, (_P - 1) // 4, _P)
+
+
+def _add(a, b):
+    A, B = (a[1] - a[0]) * (b[1] - b[0]) % _P, (a[1] + a[0]) * (b[1] + b[0]) % _P
+    C, D = 2 * a[3] * b[3] * _D % _P, 2 * a[2] * b[2] % _P
+    E, F, G, H = B - A, D - C, D + C, B + A
+    return (E * F, G * H, F * G, E * H)
+
+
+def _mul(s, pt):
+    q = (0, 1, 1, 0)
+    while s > 0:
+        if s & 1:
+            q = _add(q, pt)
+        pt = _add(pt, pt)
+        s >>= 1
+    return q
+
+
+def _xrec(y, sign):
+    if y >= _P:
+        return None
+    x2 = (y * y - 1) * pow(_D * y * y + 1, _P - 2, _P)
+    if x2 % _P == 0:
+        return None if sign else 0
+    x = pow(x2, (_P + 3) // 8, _P)
+    if (x * x - x2) % _P:
+        x = x * _I % _P
+    if (x * x - x2) % _P:
+        return None
+    return _P - x if (x & 1) != sign else x
+
+
+_GY = 4 * pow(5, _P - 2, _P) % _P
+_GX = _xrec(_GY, 0)
+_G = (_GX, _GY, 1, _GX * _GY % _P)
+
+
+def _enc(pt):
+    zi = pow(pt[2], _P - 2, _P)
+    x, y = pt[0] * zi % _P, pt[1] * zi % _P
+    return int.to_bytes(y | ((x & 1) << 255), 32, "little")
+
+
+def _dec(b):
+    y = int.from_bytes(b, "little")
+    sign, y = y >> 255, y & ((1 << 255) - 1)
+    x = _xrec(y, sign)
+    return None if x is None else (x, y, 1, x * y % _P)
+
+
+def _hq(m):
+    return int.from_bytes(hashlib.sha512(m).digest(), "little") % _Q
+
+
+def _scalar(secret):
+    h = hashlib.sha512(secret).digest()
+    return (int.from_bytes(h[:32], "little") & ((1 << 254) - 8)) | (1 << 254), h[32:]
+
+
+def ed25519_sign(secret, msg):
+    """used by the self test only"""
+    a, prefix = _scalar(secret)
+    A = _enc(_mul(a, _G))
+    r = _hq(prefix + msg)
+    R = _enc(_mul(r, _G))
+    return R + int.to_bytes((r + _hq(R + A + msg) * a) % _Q, 32, "little")
+
+
+def ed25519_public(secret):
+    return _enc(_mul(_scalar(secret)[0], _G))
+
+
+def ed25519_verify(pub_b64, msg, sig_b64):
+    try:
+        pub, sg = base64.b64decode(pub_b64, validate=True), base64.b64decode(sig_b64, validate=True)
+    except (ValueError, TypeError):
+        return False
+    if len(pub) != 32 or len(sg) != 64:
+        return False
+    A, R = _dec(pub), _dec(sg[:32])
+    s = int.from_bytes(sg[32:], "little")
+    if A is None or R is None or s >= _Q:
+        return False
+    sB, rhs = _mul(s, _G), _add(R, _mul(_hq(sg[:32] + pub + msg), A))
+    return (sB[0] * rhs[2] - rhs[0] * sB[2]) % _P == 0 and (sB[1] * rhs[2] - rhs[1] * sB[2]) % _P == 0
+
+
+def envelope_message(e):
+    return ("furui-check-signed-v1\n" + canonical({"schema": e["schema"], "check": e["check"], "signer": e["signer"]})).encode("utf-8")
+
+
+def ledger_day(get, d):
+    """the runner's closed status of day d and the day record the ledger serves for it: (problem or None, facts)"""
+    s, st = get(RUNNER + "/furui/day/%s/status" % d)
+    v = st.get("status") if s == 200 and isinstance(st, dict) else None
+    if not isinstance(v, dict):
+        return "the runner holds no closed status for %s (http %s)" % (d, s), None
+    if v.get("state") == "empty":
+        return "empty", None
+    rs = v.get("ledger_canonical_sha256")
+    if v.get("state") != "accepted" or not (isinstance(rs, str) and H64.match(rs)):
+        return "%s is %s, so there is no accepted root to read leaves against" % (d, v.get("state")), None
+    ls, r = get(LEDGER + "/furui-check-day/" + rs)
+    rc = r.get("record_canonical") if ls == 200 and isinstance(r, dict) else None
+    if not isinstance(rc, str) or sha(rc) != rs:
+        return "the ledger does not serve the day record %s as bytes that hash to it (http %s)" % (rs, ls), None
+    rec = json.loads(rc)
+    if rec.get("day") != d or not _int(rec.get("n"), 1) or rec.get("root") != v.get("root") or rec.get("n") != v.get("n"):
+        return "the ledger's day record of %s does not name the runner's n and root" % d, None
+    return None, {"sha": rs, "n": rec["n"], "root": rec["root"]}
+
+
+def leaf_problems(get, d, i, day, pub):
+    """read leaf i of day d and hold it to the ledger's day record: the closed envelope, the leaf hash, the envelope sha,
+    runner-1's signature and the audit path to the root. (problem words, the envelope)"""
+    s, a = get(RUNNER + "/furui/day/%s/leaf/%d" % (d, i))
+    if s != 200 or not isinstance(a, dict):
+        return ["leaf_http_%s_%s" % (s, (a or {}).get("error") if isinstance(a, dict) else None)], None
+    bad = []
+    if a.get("day") != d or a.get("index") != i or a.get("n") != day["n"] or a.get("root") != day["root"]:
+        bad.append("day_index_n_or_root_differs_from_the_ledger_record")
+    e = a.get("envelope")
+    p = keep_problems(e)
+    if p:
+        return bad + ["envelope_shape:" + p], None
+    lh = leaf_hash(e)
+    if a.get("leaf_sha256") != lh:
+        bad.append("leaf_is_not_the_envelope")
+    if a.get("envelope_sha256") != sha(canonical(e)):
+        bad.append("envelope_sha256_is_not_the_envelope")
+    pr = a.get("proof")
+    if a.get("proof_kind") != "rfc6962-audit-path" or not isinstance(pr, list) or not all(isinstance(x, str) and H64.match(x) for x in pr) or root_from_path(lh, i, day["n"], pr) != day["root"]:
+        bad.append("audit_path_does_not_rebuild_the_root")
+    dr = a.get("day_record")
+    if not isinstance(dr, dict) or dr.get("ledger_canonical_sha256") != day["sha"]:
+        bad.append("day_record_is_not_the_ledger_record")
+    if not ed25519_verify(pub, envelope_message(e), e["signatures"][0]["sig"]):
+        bad.append("signature_does_not_verify_with_runner_1")
+    return bad, e
+
+
+def runner_key(get):
+    s, k = get(LEDGER + "/.well-known/furui-check-keys.json")
+    listed = [x.get("public_key_ed25519_b64") for x in (k.get("keys", []) if s == 200 and isinstance(k, dict) else []) if isinstance(x, dict) and x.get("key_id") == "runner-1" and x.get("revoked_height") is None]
+    return listed[0] if len(listed) == 1 else None
+
+
+def check_leaves(get, now):
+    cid = "6b_daily_leaf"
+    d = (now - datetime.timedelta(days=2)).strftime("%Y-%m-%d")
+    if d < FIRST_KEPT_DAY:
+        return c(cid, "not_yet", "the day before yesterday (%s) is before the first day whose envelopes the runner keeps (%s)" % (d, FIRST_KEPT_DAY), day=d)
+    try:
+        why, day = ledger_day(get, d)
+        if why == "empty":
+            return c(cid, "notice", "%s had no checks, so there is no leaf to read (not red)" % d, day=d)
+        if why:
+            return c(cid, "red", why, day=d)
+        pub = runner_key(get)
+        if not pub:
+            return c(cid, "red", "the ledger lists no single live runner-1 key", day=d)
+        idx = sorted({0, day["n"] - 1})
+        bad = []
+        for i in idx:
+            b, _e = leaf_problems(get, d, i, day, pub)
+            bad += ["leaf %d: %s" % (i, w) for w in b]
+    except Unreachable as e:
+        return c(cid, "red", "an endpoint did not answer: " + str(e), day=d)
+    except (ValueError, KeyError, TypeError) as e:
+        return c(cid, "red", "an answer did not have its shape: %s" % type(e).__name__, day=d)
+    if bad:
+        return c(cid, "red", "; ".join(bad), day=d, leaves=idx)
+    return c(cid, "ok", "%s: leaves %s match their envelopes, carry runner-1's signature, and their audit paths rebuild the root of the day record the ledger serves" % (d, ",".join(str(i) for i in idx)), day=d, leaves=idx, record=day["sha"])
+
+
+CHECK_REASONS = ["within_grant"]
+CONTENT_KEYS = sorted(["answered", "check_sha256", "checked", "decision", "input_commit", "marks", "rules", "rules_sha256", "scope_sha256", "unread"])
+
+
+def door_record(get, sha_):
+    """the door's record bytes and the ledger's, for one record sha: (problem or None, the parsed record, the ledger answer)"""
+    if not (isinstance(sha_, str) and H64.match(sha_)):
+        return "the call names no record sha", None, None
+    ls, la = get(LEDGER + "/admission/" + sha_)
+    lrc = la.get("record_canonical") if ls == 200 and isinstance(la, dict) else None
+    if not isinstance(lrc, str) or sha(lrc) != sha_ or la.get("canonical_sha256") != sha_:
+        return "ledger: /admission/%s does not serve bytes that hash to it (http %s)" % (sha_, ls), None, la
+    ds, dt = get(DOOR_RECORD + sha_, raw=True)
+    if ds != 200 or not isinstance(dt, str) or sha(dt) != sha_:
+        return "door: /seki/record/%s does not serve bytes that hash to it (http %s)" % (sha_, ds), None, la
+    if dt.encode("utf-8") != lrc.encode("utf-8"):
+        return "door and ledger serve different bytes for %s" % sha_, None, la
+    return None, json.loads(dt), la
+
+
+def content_problems(rec, rules):
+    k = rec.get("content") if isinstance(rec, dict) else None
+    if not _keys(k, CONTENT_KEYS) or k.get("rules") != "a2a-content-check-v1":
+        return ["the record has no closed v0.4 content block"]
+    bad = []
+    if (rec.get("rules") or {}).get("version") != "0.4":
+        bad.append("the record is not admission 0.4")
+    if not all(isinstance(k[f], str) and H64.match(k[f]) for f in ("input_commit", "check_sha256", "scope_sha256")):
+        bad.append("input_commit, check_sha256 or scope_sha256 is not a 64 hex digest")
+    if k.get("checked") is not True or k.get("decision") != "pass" or k.get("marks") != [] or k.get("unread") is not False or k.get("answered") is not True:
+        bad.append("the content block is not the fixed answer (checked, pass, no marks, answered, nothing unread)")
+    if not (isinstance(rules, str) and H64.match(rules)) or k.get("rules_sha256") != rules:
+        bad.append("the content block's rules id %s is not the door's %s" % (k.get("rules_sha256"), rules))
+    if rec.get("reasons") != CHECK_REASONS:
+        bad.append("the record's reasons are %s, not %s" % (json.dumps(rec.get("reasons")), json.dumps(CHECK_REASONS)))
+    return bad
+
+
+def check_call_checks(get, now):
+    """checks 1, 2 and 3 from the door's daily check call"""
+    ids = ("1_sieve_admission", "2_admission_ledger", "3_ledger_door")
+    def all3(state, why, **f):
+        return [c(i, state, why, **f) for i in ids]
+    today = now.strftime("%Y-%m-%d")
+    try:
+        ps, p = get(DOOR_POLICY)
+    except Unreachable as e:
+        return all3("red", "the door policy did not answer: " + str(e))
+    fu = p.get("furui") if ps == 200 and isinstance(p, dict) else None
+    if not isinstance(fu, dict):
+        return all3("red", "the door policy answered %s without a furui block" % ps)
+    if "check_call" not in fu:
+        return all3("not_yet", "the door shows no check call (furui.check_call): its daily check call is not in production")
+    after = now.replace(hour=CHECK_CALL_AFTER[0], minute=CHECK_CALL_AFTER[1], second=0, microsecond=0)
+    if now < after:
+        return all3("not_yet", "today's check call runs at 03:47 UTC; this check ran before it")
+    cc = fu.get("check_call")
+    if cc is None:
+        return all3("not_yet", "the door has recorded no check call yet")
+    if not isinstance(cc, dict):
+        return all3("red", "furui.check_call is not an object")
+    facts = {"day": cc.get("day"), "record": cc.get("record_sha256"), "decision": cc.get("decision")}
+    if cc.get("day") != today or str(cc.get("at") or "")[:19] < after.strftime("%Y-%m-%dT%H:%M:%S"):
+        return all3("red", "the last check call is from %s, not after today's 03:47 UTC" % cc.get("at"), **facts)
+    if cc.get("ok") is not True or cc.get("error"):
+        return all3("red", "today's check call failed: %s" % (cc.get("error") or "ok is not true"), **facts)
+    rules = ((fu.get("policy") or {}).get("rules_sha256"))
+    out = {}
+    pub = cc.get("published")
+    if not isinstance(pub, dict) or pub.get("accepted") is not True:
+        out["2_admission_ledger"] = c(ids[1], "red", "the door did not hand the call's record to the ledger (published %s)" % json.dumps(pub), **facts)
+    try:
+        why, rec, _la = door_record(get, cc.get("record_sha256"))
+    except Unreachable as e:
+        return all3("red", "an endpoint did not answer: " + str(e), **facts)
+    except (ValueError, KeyError, TypeError) as e:
+        return all3("red", "an answer did not have its shape: %s" % type(e).__name__, **facts)
+    if why:
+        if why.startswith("ledger"):
+            out.setdefault("2_admission_ledger", c(ids[1], "red", why, **facts))
+            out["3_ledger_door"] = c(ids[2], "not_yet", "the ledger does not serve the record yet, so door and ledger cannot be compared", **facts)
+        else:
+            out.setdefault("2_admission_ledger", c(ids[1], "ok", "the ledger serves the call's record under its sha", **facts))
+            out["3_ledger_door"] = c(ids[2], "red", why, **facts)
+        out["1_sieve_admission"] = c(ids[0], "red", "the call's record could not be read from both ends: " + why, **facts)
+        return [out[i] for i in ids]
+    out.setdefault("2_admission_ledger", c(ids[1], "ok", "the ledger serves the call's record %s under its sha" % cc["record_sha256"], **facts))
+    bad = content_problems(rec, rules)
+    k = rec["content"] if isinstance(rec.get("content"), dict) else {}
+    cc_content = cc.get("content")
+    if cc_content != {"checked": k.get("checked"), "decision": k.get("decision"), "marks": k.get("marks"), "rules_sha256": k.get("rules_sha256")}:
+        bad.append("the door's summary of the call differs from its record")
+    if cc.get("decision") != "admit" or cc.get("reasons") != CHECK_REASONS or cc.get("version") != "0.4" or not (isinstance(cc.get("admission_sha256"), str) and H64.match(cc["admission_sha256"])):
+        bad.append("the call is not admit / within_grant / 0.4 with an admission sha")
+    if bad:
+        out["3_ledger_door"] = c(ids[2], "red", "; ".join(bad), **facts)
+        out["1_sieve_admission"] = c(ids[0], "red", "today's content block does not hold: " + "; ".join(bad), **facts)
+        return [out[i] for i in ids]
+    out["3_ledger_door"] = c(ids[2], "ok", "the door serves the same bytes as the ledger, a v0.4 record with the fixed content answer under the door's rules id", **facts)
+    out["1_sieve_admission"] = check_binding(get, now, fu, rules, facts)
+    return [out[i] for i in ids]
+
+
+def check_binding(get, now, fu, rules, facts):
+    """1: the previous call's content block names the check of a runner envelope kept in that day's leaves"""
+    cid = "1_sieve_admission"
+    prev = fu.get("check_call_prev")
+    if prev is None:
+        return c(cid, "not_yet", "today's content block holds, but the envelope behind it is served by the runner only from tomorrow and the door shows only its last call; "
+                 "the binding to the runner's envelope waits for furui.check_call_prev (not in the door yet)", **facts)
+    y = (now - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+    if not isinstance(prev, dict) or prev.get("day") != y or prev.get("ok") is not True:
+        return c(cid, "red", "furui.check_call_prev is not yesterday's good call (%s)" % (prev.get("day") if isinstance(prev, dict) else prev), **facts)
+    try:
+        why, rec, _la = door_record(get, prev.get("record_sha256"))
+        if why:
+            return c(cid, "red", "yesterday's call: " + why, **facts)
+        bad = content_problems(rec, rules)
+        if bad:
+            return c(cid, "red", "yesterday's content block: " + "; ".join(bad), **facts)
+        k = rec["content"]
+        why, day = ledger_day(get, y)
+        if why:
+            return c(cid, "red", "yesterday's runner day: " + ("no checks at all" if why == "empty" else why), **facts)
+        pub = runner_key(get)
+        if not pub:
+            return c(cid, "red", "the ledger lists no single live runner-1 key", **facts)
+        for i in range(min(day["n"], LEAF_SCAN_MAX)):
+            bad, e = leaf_problems(get, y, i, day, pub)
+            if e is not None and sha(canonical(e["check"])) == k["check_sha256"]:
+                if bad:
+                    return c(cid, "red", "the call's envelope (leaf %d of %s) does not hold: %s" % (i, y, "; ".join(bad)), **facts)
+                ch = e["check"]
+                if ch["input_commit"] != k["input_commit"] or ch["rules_sha256"] != k["rules_sha256"] or ch["scope_sha256"] != k["scope_sha256"] or ch["decision"] != k["decision"] or ch["marks"] != k["marks"]:
+                    return c(cid, "red", "the call's envelope (leaf %d) and the record's content block differ" % i, **facts)
+                return c(cid, "ok", "yesterday's call: its content block's check_sha256 is the check of leaf %d of %s, signed by runner-1, in the day root the ledger serves, with the same input_commit, rules, scope and answer" % (i, y), leaf=i, **facts)
+    except Unreachable as e:
+        return c(cid, "red", "an endpoint did not answer: " + str(e), **facts)
+    except (ValueError, KeyError, TypeError) as e:
+        return c(cid, "red", "an answer did not have its shape: %s" % type(e).__name__, **facts)
+    return c(cid, "red", "no leaf among the first %d of %s carries the check named by yesterday's record" % (min(day["n"], LEAF_SCAN_MAX), y), **facts)
+
+
+def check_resume(get, now):
+    """4: yesterday's check call record is in the admissions[] of the relying party's Resume"""
+    cid = "4_door_resume"
+    y = (now - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+    try:
+        ps, p = get(DOOR_POLICY)
+    except Unreachable as e:
+        return c(cid, "red", "the door policy did not answer: " + str(e))
+    fu = p.get("furui") if ps == 200 and isinstance(p, dict) else None
+    if not isinstance(fu, dict):
+        return c(cid, "red", "the door policy answered %s without a furui block" % ps)
+    if "check_call_prev" not in fu:
+        return c(cid, "not_yet", "the door does not show its previous check call (furui.check_call_prev) yet")
+    prev = fu.get("check_call_prev")
+    if prev is None:
+        return c(cid, "not_yet", "the door has no previous check call yet (the first call has no earlier one)")
+    if not isinstance(prev, dict):
+        return c(cid, "red", "furui.check_call_prev is not an object")
+    rs = prev.get("record_sha256")
+    facts = {"day": prev.get("day"), "record": rs}
+    if prev.get("day") != y or prev.get("ok") is not True or not (isinstance(rs, str) and H64.match(rs)):
+        return c(cid, "red", "furui.check_call_prev is not yesterday's good call with a record sha (day %s, ok %s)" % (prev.get("day"), prev.get("ok")), **facts)
+    if now < now.replace(hour=BATCH_DONE[0], minute=BATCH_DONE[1], second=0, microsecond=0):
+        return c(cid, "not_yet", "yesterday's record is batched by the ledger between 00:20 and 01:05 UTC; this check ran before 01:05", **facts)
+    try:
+        s, r = get(LEDGER + "/resume?endpoint=" + urllib.parse.quote(RESUME_ENDPOINT, safe=""))
+    except Unreachable as e:
+        return c(cid, "red", "the Resume did not answer: " + str(e), **facts)
+    if s != 200 or not isinstance(r, dict):
+        return c(cid, "red", "the Resume of %s answered http %s" % (RESUME_ENDPOINT, s), **facts)
+    adm = r.get("admissions")
+    if "admissions" not in r:
+        return c(cid, "not_yet", "the Resume carries no admissions[] yet, so the door's record cannot be looked up there", **facts)
+    if not isinstance(adm, list):
+        return c(cid, "red", "the Resume's admissions is not a list", **facts)
+    hit = [x for x in adm if isinstance(x, dict) and x.get("record_sha256") == rs]
+    if hit:
+        x = hit[0]
+        rules = (fu.get("policy") or {}).get("rules_sha256")
+        bad = []
+        if len(hit) != 1:
+            bad.append("listed %d times" % len(hit))
+        if x.get("decision") != "admit":
+            bad.append("decision %s, not admit" % json.dumps(x.get("decision")))
+        if x.get("revoked") is not False:
+            bad.append("revoked is %s" % json.dumps(x.get("revoked")))
+        if x.get("content") != {"checked": True, "decision": "pass", "marks": [], "rules_sha256": rules}:
+            bad.append("the content is not the fixed answer under the door's rules id")
+        if bad:
+            return c(cid, "red", "yesterday's record is in the Resume, but " + "; ".join(bad), ledger_n=x.get("ledger_n"), **facts)
+        return c(cid, "ok", "yesterday's check call record is in the Resume of %s: admit, not revoked, the fixed content answer, ledger entry %s" % (RESUME_ENDPOINT, x.get("ledger_n")), ledger_n=x.get("ledger_n"), **facts)
+    nc = [x for x in (r.get("not_counted") or []) if isinstance(x, dict) and x.get("record_sha256") == rs]
+    if nc and all(x.get("why") in UNANCHORED for x in nc):
+        return c(cid, "not_yet", "yesterday's record is batched but its batch is not anchored yet (%s), so the Resume does not list it yet" % nc[0].get("why"), **facts)
+    if nc:
+        return c(cid, "red", "the Resume does not count yesterday's record: %s" % ", ".join(str(x.get("why")) for x in nc), **facts)
+    return c(cid, "red", "yesterday's check call record is in neither admissions[] nor not_counted of the Resume of %s" % RESUME_ENDPOINT, **facts)
 
 
 def run(get, now):
-    checks = [c(i, "not_yet", why) for i, why in NOT_YET]
-    checks += [check_door_runner(get), check_day_root(get, now), check_heartbeat(get, now)]
+    checks = check_call_checks(get, now)
+    checks.append(check_resume(get, now))
+    checks += [check_door_runner(get), check_day_root(get, now), check_leaves(get, now), check_heartbeat(get, now)]
     checks.sort(key=lambda x: x["id"])
     counts = {k: sum(1 for x in checks if x["state"] == k) for k in ("ok", "red", "notice", "not_yet")}
     verdict = "red" if counts["red"] else ("green" if counts["not_yet"] == 0 else "not_all_checked")
@@ -185,25 +695,92 @@ def body(res, sha):
 
 def selftest():
     now = datetime.datetime(2026, 11, 5, 4, 5, tzinfo=datetime.timezone.utc)
-    PUB = "A" * 43 + "="
-    sha = "ab" * 32
+    hsh = globals()["sha"]
+    SK, SK2 = b"\x05" * 32, b"\x06" * 32
+    PUB = base64.b64encode(ed25519_public(SK)).decode()
+    RULES = "2c5a1089a90265717175dd1056be7075472aed44fab5581e6be6e73b1746f195"
 
-    def world(**over):
+    def tree(l):
+        if len(l) == 1:
+            return l[0]
+        k = _split(len(l))
+        return _node(tree(l[:k]), tree(l[k:]))
+
+    def path(m, l):
+        if len(l) <= 1:
+            return []
+        k = _split(len(l))
+        return path(m, l[:k]) + [tree(l[k:])] if m < k else path(m - k, l[k:]) + [tree(l[:k])]
+
+    def envelope(d, i, key=SK, **chk):
+        k = {"schema": "furui-check-v1", "input_commit": hsh("ic%s%d" % (d, i)), "rules_sha256": RULES, "scope_sha256": hsh("scope"), "action_binding_digest": "3" * 64,
+             "contract_sha256": "4" * 64, "trace_sha256": "5" * 64, "decision": "pass", "marks": [], "unread": False, "answered": True, "stage_reached": 4,
+             "checked_at_height": 100 + i, "nonce": "%032x" % (i + 1), "signed_at": d + "T03:47:1%d.000Z" % i}
+        k.update(chk)
+        e = {"schema": "furui-check-signed-v1", "check": k, "signer": dict(SIGNER), "signatures": []}
+        e["signatures"] = [{"alg": "ed25519", "domain": "horizonshield.dev", "key_id": "runner-1", "sig": base64.b64encode(ed25519_sign(key, envelope_message(e))).decode()}]
+        return e
+
+    def day_world(d, envs, entry, batch_day):
+        lv = [leaf_hash(e) for e in envs]
+        root = tree(lv)
+        rc = canonical({"schema": "furui-check-day-v0", "day": d, "signer": SIGNER, "n": len(lv), "tree": "rfc6962-sha256", "root": root})
+        s_ = hsh(rc)
+        w = {RUNNER + "/furui/day/%s/status" % d: (200, {"day": d, "status": {"state": "accepted", "accepted": True, "refused": False, "http": 201, "attempts": 1, "n": len(lv), "root": root, "ledger_canonical_sha256": s_}}),
+             LEDGER + "/furui-check-day/" + s_: (200, {"canonical_sha256": s_, "record_canonical": rc, "status": "anchored", "ledger_entry": entry}),
+             LEDGER + "/ledger/%d?format=json" % entry: (200, {"n": entry, "created_at": batch_day + "T00:30:40.000Z", "record_canonical": '{"records":[{"canonical_sha256":"%s"}]}' % s_})}
+        for i, e in enumerate(envs):
+            w[RUNNER + "/furui/day/%s/leaf/%d" % (d, i)] = (200, {"day": d, "index": i, "n": len(lv), "root": root, "leaf_sha256": lv[i], "envelope_sha256": hsh(canonical(e)), "envelope": e,
+                                                                 "proof": path(i, lv), "proof_kind": "rfc6962-audit-path", "day_record": {"state": "accepted", "ledger_canonical_sha256": s_}, "kept_until": "2026-11-11"})
+        return w, s_
+
+    def admission(e, **content):
+        k = e["check"]
+        b = {"rules": "a2a-content-check-v1", "input_commit": k["input_commit"], "check_sha256": hsh(canonical(k)), "rules_sha256": k["rules_sha256"], "scope_sha256": k["scope_sha256"],
+             "decision": k["decision"], "marks": k["marks"], "unread": k["unread"], "answered": k["answered"], "checked": True}
+        b.update(content)
+        t = canonical({"schema": "a2a-admission-v0", "rules": {"version": "0.4"}, "decision": "admit", "reasons": ["within_grant"], "content": b})
+        return t, hsh(t)
+
+    RESUME_URL = LEDGER + "/resume?endpoint=https%3A%2F%2Fshield.the-horizons-innovation.com%2F"
+    D3 = [envelope("2026-11-03", 0, nonce="heartbeat-2026-11-03"), envelope("2026-11-03", 1), envelope("2026-11-03", 2)]
+    W3, sha = day_world("2026-11-03", D3, 250, "2026-11-05")
+
+    def world(cc=False, prev=True, d4key=SK, adm_today=None, adm_prev=None, **over):
         w = {
-            RUNNER + "/health": (200, {"runner": "hs-furui-runner 0.2.0", "key_id": "runner-1", "public_key_ed25519_b64": PUB, "rules_sha256": None, "caps": dict(CAPS), "anthropic_key_set": True}),
+            RUNNER + "/health": (200, {"runner": "hs-furui-runner 0.4.0", "key_id": "runner-1", "public_key_ed25519_b64": PUB, "rules_sha256": RULES if cc else None, "caps": dict(CAPS), "anthropic_key_set": True}),
             LEDGER + "/.well-known/furui-check-keys.json": (200, {"use": "furui-check", "keys": [{"key_id": "runner-1", "public_key_ed25519_b64": PUB, "from_height": 0, "revoked_height": None}]}),
             DOOR_POLICY: (200, {"furui": {"policy": {"required": False}}}),
             RUNNER + "/furui/heartbeat": (200, {"at": "2026-11-05T03:17:09.000Z", "ok": True, "decision": "pass", "answered": True, "marks": [], "capped": False, "spent_usd": 0.03}),
-            RUNNER + "/furui/day/2026-11-03/status": (200, {"day": "2026-11-03", "status": {"state": "accepted", "accepted": True, "refused": False, "http": 201, "attempts": 1, "ledger_canonical_sha256": sha}}),
-            LEDGER + "/furui-check-day/" + sha: (200, {"canonical_sha256": sha, "status": "anchored", "ledger_entry": 250}),
-            LEDGER + "/ledger/250?format=json": (200, {"n": 250, "created_at": "2026-11-05T00:30:40.000Z", "record_canonical": '{"records":[{"canonical_sha256":"%s"}]}' % sha}),
         }
+        w.update(W3)
+        if cc:
+            e5 = envelope("2026-11-05", 0)
+            t5, r5 = adm_today or admission(e5)
+            D4 = [envelope("2026-11-04", 0, key=d4key, nonce="heartbeat-2026-11-04"), envelope("2026-11-04", 1, key=d4key)]
+            W4, _s4 = day_world("2026-11-04", D4, 260, "2026-11-06")
+            w.update(W4)
+            t4, r4 = adm_prev or admission(D4[1])
+            call = {"at": "2026-11-05T03:47:12.345Z", "day": "2026-11-05", "ok": True, "decision": "admit", "reasons": ["within_grant"], "admission_sha256": hsh("adm5"),
+                    "record_sha256": r5, "version": "0.4", "content": {"checked": True, "decision": "pass", "marks": [], "rules_sha256": RULES}, "published": {"status": 201, "accepted": True}}
+            fu = {"policy": {"required": False, "rules_sha256": RULES, "runner_wait_ms": 25000, "runner_public_key_ed25519_b64": PUB}, "check_call": call}
+            if prev:
+                fu["check_call_prev"] = dict(call, at="2026-11-04T03:47:12.345Z", day="2026-11-04", record_sha256=r4, admission_sha256=hsh("adm4"))
+            w[DOOR_POLICY] = (200, {"furui": fu})
+            w[RESUME_URL] = (200, {"schema": "nenrin-resume-v1", "agreements": [], "not_counted": [{"n": 271, "record_sha256": r5, "why": "not_yet_anchored", "kind": "admission"}],
+                                   "admissions": [{"record_sha256": r4, "ledger_n": 261, "decision": "admit", "revoked": False,
+                                                   "content": {"checked": True, "decision": "pass", "marks": [], "rules_sha256": RULES}}]})
+            for t, r in ((t5, r5), (t4, r4)):
+                w[LEDGER + "/admission/" + r] = (200, {"canonical_sha256": r, "record_canonical": t, "status": "pending_anchor", "ledger_entry": None})
+                w[DOOR_RECORD + r] = (200, t)
         w.update(over)
 
-        def get(url):
+        def get(url, raw=False):
             v = w.get(url, (404, {"error": "not_found"}))
             if v == "down":
                 raise Unreachable(url + ": http 503 after 3 tries")
+            if callable(v):
+                return v(w)
             return v
         return get
 
@@ -244,6 +821,95 @@ def selftest():
     cases.append(("the runner's health answers 5xx three times: red", (v, s["5_door_runner"]), ("red", "red")))
     v, s = states(world(**{RUNNER + "/furui/day/2026-11-03/status": "down", RUNNER + "/furui/heartbeat": "down"}))
     cases.append(("the day status and the heartbeat answer 5xx: both red", (s["6_daily_root"], s["7_heartbeat_scene"]), ("red", "red")))
+    # the leaves (6b) and the door's check call (1 to 3); 4 stays not_yet; nothing here is ever green while 4 is not_yet
+    v, s = states(world())
+    cases.append(("before the door stage: 1 to 3 not_yet (no furui.check_call), 4 not_yet, the leaves of 11-03 ok", (s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_door"], s["4_door_resume"], s["6b_daily_leaf"]), ("not_yet", "not_yet", "not_yet", "not_yet", "ok")))
+    v, s = states(world(cc=True))
+    cases.append(("the door's check call, everything holds: 1 to 7 and 6b ok, the verdict green", (v, s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_door"], s["4_door_resume"], s["5_door_runner"], s["6_daily_root"], s["6b_daily_leaf"], s["7_heartbeat_scene"]), ("green", "ok", "ok", "ok", "ok", "ok", "ok", "ok", "ok")))
+    v, s = states(world(cc=True, prev=False))
+    cases.append(("no check_call_prev in the door yet: 1 and 4 stay not_yet (never ok), 2 and 3 ok, the verdict not green", (v, s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_door"], s["4_door_resume"]), ("not_all_checked", "not_yet", "ok", "ok", "not_yet")))
+    v, s = states(world(**{DOOR_POLICY: (200, {"furui": {"policy": {"required": False}, "check_call": None}})}))
+    cases.append(("the door shows check_call null (no call yet): 1 to 3 not_yet, never ok", (s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_door"]), ("not_yet", "not_yet", "not_yet")))
+    v, s = states(world(cc=True), datetime.datetime(2026, 11, 5, 3, 40, tzinfo=datetime.timezone.utc))
+    cases.append(("a run before 03:47 UTC: 1 to 3 not_yet", (s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_door"]), ("not_yet", "not_yet", "not_yet")))
+    g = world(cc=True)
+    pol = json.loads(json.dumps(g(DOOR_POLICY)[1]))
+    def door_with(**ccf):
+        p2 = json.loads(json.dumps(pol)); p2["furui"]["check_call"].update(ccf); return (200, p2)
+    v, s = states(world(cc=True, **{DOOR_POLICY: door_with(day="2026-11-04", at="2026-11-04T03:47:12.345Z")}))
+    cases.append(("red: the last call is yesterday's (the cron did not run today)", (v, s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_door"]), ("red", "red", "red", "red")))
+    v, s = states(world(cc=True, **{DOOR_POLICY: door_with(ok=False, error="chain_view_unavailable")}))
+    cases.append(("red: today's call failed", (v, s["2_admission_ledger"]), ("red", "red")))
+    v, s = states(world(cc=True, **{DOOR_POLICY: door_with(published={"status": 503, "accepted": False})}))
+    cases.append(("red: the door did not hand the record to the ledger", (v, s["2_admission_ledger"]), ("red", "red")))
+    r5 = pol["furui"]["check_call"]["record_sha256"]
+    v, s = states(world(cc=True, **{LEDGER + "/admission/" + r5: (404, {"error": "not_found"})}))
+    cases.append(("red: the ledger does not serve the record (2 red, 3 not_yet, 1 red)", (v, s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_door"]), ("red", "red", "red", "not_yet")))
+    t5 = g(DOOR_RECORD + r5)[1]
+    v, s = states(world(cc=True, **{DOOR_RECORD + r5: (200, t5 + " ")}))
+    cases.append(("red: the door serves other bytes than the ledger", (v, s["3_ledger_door"]), ("red", "red")))
+    e5 = envelope("2026-11-05", 0, marks=["off_topic"])
+    v, s = states(world(cc=True, adm_today=admission(e5)))
+    cases.append(("red: today's record says off_topic (not the fixed answer)", (v, s["1_sieve_admission"], s["3_ledger_door"]), ("red", "red", "red")))
+    v, s = states(world(cc=True, adm_today=admission(envelope("2026-11-05", 0, rules_sha256="77" * 32))))
+    cases.append(("red: the record's rules id is not the door's", (v, s["3_ledger_door"]), ("red", "red")))
+    v, s = states(world(cc=True, adm_today=admission(envelope("2026-11-05", 0), note="free text in the block")))
+    cases.append(("red: the content block carries a field outside the closed list", (v, s["3_ledger_door"]), ("red", "red")))
+    v, s = states(world(cc=True, adm_prev=admission(envelope("2026-11-04", 7))))
+    cases.append(("red: yesterday's record names a check no leaf of that day carries", (v, s["1_sieve_admission"]), ("red", "red")))
+    v, s = states(world(cc=True, d4key=SK2))
+    cases.append(("red: yesterday's envelope is not signed by runner-1", (v, s["1_sieve_admission"]), ("red", "red")))
+    v, s = states(world(**{RUNNER + "/furui/day/2026-11-03/leaf/2": (410, {"error": "gone"})}))
+    cases.append(("red: a leaf of the day before yesterday is gone (410) inside the 7 days", (v, s["6b_daily_leaf"]), ("red", "red")))
+    lf = json.loads(json.dumps(W3[RUNNER + "/furui/day/2026-11-03/leaf/0"][1])); lf["proof"] = list(reversed(lf["proof"]))
+    v, s = states(world(**{RUNNER + "/furui/day/2026-11-03/leaf/0": (200, lf)}))
+    cases.append(("red: a leaf's audit path does not rebuild the root", (v, s["6b_daily_leaf"]), ("red", "red")))
+    lf = json.loads(json.dumps(W3[RUNNER + "/furui/day/2026-11-03/leaf/2"][1])); lf["envelope"]["check"]["decision"] = "stop"
+    v, s = states(world(**{RUNNER + "/furui/day/2026-11-03/leaf/2": (200, lf)}))
+    cases.append(("red: a leaf's envelope was changed after it was hashed", (v, s["6b_daily_leaf"]), ("red", "red")))
+    lf = json.loads(json.dumps(W3[RUNNER + "/furui/day/2026-11-03/leaf/1"][1])); lf["envelope"]["check"]["note"] = "LEAK"
+    cases.append(("a leaf that is not read (1 of 0..2) is not checked; 0 and n-1 are", states(world(**{RUNNER + "/furui/day/2026-11-03/leaf/1": (200, lf)}))[1]["6b_daily_leaf"], "ok"))
+    v, s = states(world(), datetime.datetime(2026, 11, 4, 4, 5, tzinfo=datetime.timezone.utc))
+    cases.append(("before the first kept day (11-02 is read on 11-04): the leaves are not_yet", s["6b_daily_leaf"], "not_yet"))
+    v, s = states(world(**{RUNNER + "/furui/day/2026-11-03/status": (200, {"status": {"state": "empty", "accepted": False}})}))
+    cases.append(("an empty day: the leaves are a notice, not red", s["6b_daily_leaf"], "notice"))
+    v, s = states(world(cc=True, **{DOOR_POLICY: (200, dict(pol, furui=dict(pol["furui"], policy={"required": True})))}))
+    cases.append(("red: the door requires the check but names no rules id", s["5_door_runner"], "red"))
+    v, s = states(world(cc=True, **{DOOR_POLICY: (200, dict(pol, furui=dict(pol["furui"], policy=dict(pol["furui"]["policy"], runner_public_key_ed25519_b64="B" * 43 + "="))))}))
+    cases.append(("red: the door checks envelopes with another public half than the runner's", s["5_door_runner"], "red"))
+    # 4: yesterday's record in the relying party's Resume
+    rj = json.loads(json.dumps(g(RESUME_URL)[1]))
+    r4 = pol["furui"]["check_call_prev"]["record_sha256"]
+    def resume_with(**f):
+        x = json.loads(json.dumps(rj)); x.update(f); return (200, x)
+    cases.append(("4 ok: the Resume of shield.the-horizons-innovation.com lists yesterday's record (admit, not revoked, the fixed content)", states(world(cc=True))[1]["4_door_resume"], "ok"))
+    v, s = states(world(cc=True, **{RESUME_URL: resume_with(admissions=[])}))
+    cases.append(("4 red: yesterday's record is in neither admissions[] nor not_counted", (v, s["4_door_resume"]), ("red", "red")))
+    v, s = states(world(cc=True, **{RESUME_URL: resume_with(admissions=[], not_counted=[{"n": 261, "record_sha256": r4, "why": "not_yet_anchored", "kind": "admission"}])}))
+    cases.append(("4 not_yet: batched, not anchored yet (not_counted not_yet_anchored); the verdict is not green", (v, s["4_door_resume"]), ("not_all_checked", "not_yet")))
+    v, s = states(world(cc=True, **{RESUME_URL: resume_with(admissions=[], not_counted=[{"n": 261, "record_sha256": r4, "why": "admission_fields_not_closed", "kind": "admission"}])}))
+    cases.append(("4 red: the Resume refuses to count yesterday's record (not closed)", (v, s["4_door_resume"]), ("red", "red")))
+    v, s = states(world(cc=True), datetime.datetime(2026, 11, 5, 0, 50, tzinfo=datetime.timezone.utc))
+    cases.append(("4 not_yet: before the ledger's batch window ends (00:50 UTC), the Resume is not read", s["4_door_resume"], "not_yet"))
+    v, s = states(world(cc=True, **{RESUME_URL: "down"}))
+    cases.append(("4 red: the Resume answers 5xx three times", (v, s["4_door_resume"]), ("red", "red")))
+    v, s = states(world(cc=True, **{RESUME_URL: (200, {"schema": "nenrin-resume-v1", "agreements": []})}))
+    cases.append(("4 not_yet: the Resume carries no admissions[] (never ok)", (v, s["4_door_resume"]), ("not_all_checked", "not_yet")))
+    a4 = rj["admissions"][0]
+    v, s = states(world(cc=True, **{RESUME_URL: resume_with(admissions=[dict(a4, revoked=True)])}))
+    cases.append(("4 red: listed but revoked", s["4_door_resume"], "red"))
+    v, s = states(world(cc=True, **{RESUME_URL: resume_with(admissions=[dict(a4, content=dict(a4["content"], marks=["off_topic"], decision="stop"))])}))
+    cases.append(("4 red: listed with another content answer than the fixed one", s["4_door_resume"], "red"))
+    v, s = states(world(cc=True, **{DOOR_POLICY: (200, dict(pol, furui=dict(pol["furui"], check_call_prev=None)))}))
+    cases.append(("4 not_yet: the door's previous call is null (its first day)", s["4_door_resume"], "not_yet"))
+    v, s = states(world(cc=True, **{DOOR_POLICY: (200, dict(pol, furui=dict(pol["furui"], check_call_prev=dict(pol["furui"]["check_call_prev"], day="2026-11-03"))))}))
+    cases.append(("4 red: the door's previous call is not yesterday's", s["4_door_resume"], "red"))
+    v, s = states(world())
+    cases.append(("4 not_yet: the door shows no check call at all", s["4_door_resume"], "not_yet"))
+    sk = bytes.fromhex("9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60")
+    cases.append(("Ed25519: RFC 8032 test 1 (public half, signature, a changed message fails)", (ed25519_public(sk).hex(), ed25519_verify(base64.b64encode(ed25519_public(sk)).decode(), b"", base64.b64encode(ed25519_sign(sk, b"")).decode()),
+                  ed25519_verify(base64.b64encode(ed25519_public(sk)).decode(), b"x", base64.b64encode(ed25519_sign(sk, b"")).decode())), ("d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a", True, False)))
+    cases.append(("the leaf hash of a fixed envelope is the runner's (node canonical_v0.mjs, a fixed vector)", leaf_hash(json.loads(VEC_ENVELOPE)), "56054ab73249bca2d4b7af50788fffe5e0309a628dff691d6b380f3bb06198b4"))
     r1 = run(world(), now)[2]; r2 = run(world(), now)[2]
     cases.append(("the result sha is the same for the same day and answers", r1 == r2 and len(r1) == 64, True))
     bad = [n for n, got, want in cases if got != want]
@@ -251,6 +917,10 @@ def selftest():
         print(("  ok   " if got == want else "  NG   ") + n + ("" if got == want else " (got %r, want %r)" % (got, want)))
     print("tooshi selftest %d / %d %s" % (len(cases) - len(bad), len(cases), "all green" if not bad else "NG"))
     return 1 if bad else 0
+
+
+# a fixed envelope (no signature that verifies); its leaf hash was computed with the runner's canonical_v0.mjs in node
+VEC_ENVELOPE = '{"check":{"action_binding_digest":"3333333333333333333333333333333333333333333333333333333333333333","answered":true,"checked_at_height":100,"contract_sha256":"4444444444444444444444444444444444444444444444444444444444444444","decision":"pass","input_commit":"1111111111111111111111111111111111111111111111111111111111111111","marks":[],"nonce":"heartbeat-2026-11-03","rules_sha256":null,"schema":"furui-check-v1","scope_sha256":"2222222222222222222222222222222222222222222222222222222222222222","signed_at":"2026-11-03T03:17:09.123Z","stage_reached":4,"trace_sha256":"5555555555555555555555555555555555555555555555555555555555555555","unread":false},"schema":"furui-check-signed-v1","signatures":[{"alg":"ed25519","domain":"horizonshield.dev","key_id":"runner-1","sig":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="}],"signer":{"domain":"horizonshield.dev","key_url":"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json"}}'
 
 
 def main(argv):
