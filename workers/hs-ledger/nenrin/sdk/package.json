@@ -1,6 +1,6 @@
 {
   "name": "nenrin-verify",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Zero-dependency, consumer-runnable verifiers for NENRIN evidence: a provenance bundle (nenrin_verify.mjs), a two-party agreement record (nenrin-agreement-verify) and a TSUGI recovery chain with its random witness draw (tsugi_verify.mjs), and the TSUNAGI board's referee (nenrin-tsunagi) to score your own verifier offline the way the board does. The same reports as the Python package nenrin-verify. Verify yourself, offline, with no trust in the operator.",
   "type": "module",
   "main": "nenrin_verify.mjs",
@@ -10,7 +10,8 @@
     "./agreement": "./agreement_verify.mjs",
     "./tsunagi": "./tsunagi.mjs",
     "./trace": "./trace_verify.mjs",
-    "./trace-pin": "./trace_pin_cli.mjs"
+    "./trace-pin": "./trace_pin_cli.mjs",
+    "./furui-day": "./furui_day.mjs"
   },
   "bin": {
     "nenrin-verify": "nenrin_verify.mjs",
@@ -32,6 +33,7 @@
     "tsunagi_reference_batch.mjs",
     "trace_verify.mjs",
     "trace_pin_cli.mjs",
+    "furui_day.mjs",
     "SDK.md",
     "LICENSE"
   ],

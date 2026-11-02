@@ -1,0 +1,106 @@
+name: nenrin-verify furui-day, four languages, one verdict
+
+# nenrin-verify furui-day and resume-admission have ports in Python (sdk-python, PyPI) and JavaScript (sdk, npm), and,
+# when their files are in the tree, Go (sdk-go/cmd/nenrin-verify) and Java (sdk-java, a jar built with javac alone).
+# This workflow runs every port present on the shared vectors
+# (workers/hs-ledger/nenrin/furui-check-day-v0/verify_vectors.json) and on seeded mutations of them, and fails unless
+# every port prints the same answer, line by line, and every vector gives its expected answer.
+# No network: every case reads its own small world. No secret is used.
+
+on:
+  push:
+    paths:
+      - "workers/hs-ledger/nenrin/furui-check-day-v0/**"
+      - "workers/hs-ledger/nenrin/sdk-python/src/nenrin_verify/furui_day.py"
+      - "workers/hs-ledger/nenrin/sdk-python/tests/test_furui_day.py"
+      - "workers/hs-ledger/nenrin/sdk-python/tests/parity/mutate_furui.py"
+      - "workers/hs-ledger/nenrin/sdk/furui_day.mjs"
+      - "workers/hs-ledger/nenrin/sdk/furui_day.test.mjs"
+      - "workers/hs-ledger/nenrin/sdk-go/**"
+      - "workers/hs-ledger/nenrin/sdk-java/**"
+      - ".github/workflows/furui-verify-xlang.yml"
+  pull_request:
+    paths:
+      - "workers/hs-ledger/nenrin/furui-check-day-v0/**"
+      - "workers/hs-ledger/nenrin/sdk-python/src/nenrin_verify/furui_day.py"
+      - "workers/hs-ledger/nenrin/sdk/furui_day.mjs"
+      - "workers/hs-ledger/nenrin/sdk-go/**"
+      - "workers/hs-ledger/nenrin/sdk-java/**"
+      - ".github/workflows/furui-verify-xlang.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  xlang:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: workers/hs-ledger/nenrin
+    env:
+      GOTOOLCHAIN: local
+      V: furui-check-day-v0/verify_vectors.json
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          package-manager-cache: false
+          node-version: 24
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: workers/hs-ledger/nenrin/sdk-go/go.mod
+          cache: false
+      - name: Toolchains (Java 17 is on the runner image)
+        run: |
+          echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
+          "$JAVA_HOME_17_X64/bin/java" -version
+          python --version; node --version; go version
+      - name: Build the ports present in the tree
+        run: |
+          set -o pipefail
+          python -m pip install -q ./sdk-python
+          printf '%s\n' "nenrin-verify" > "$RUNNER_TEMP/py.cmd"
+          P="py js"
+          if [ -f sdk-go/nenrinverify/furui.go ]; then (cd sdk-go && go build -o "$RUNNER_TEMP/nv-go" ./cmd/nenrin-verify); P="$P go"; fi
+          if [ -d sdk-java/src ]; then
+            mkdir -p "$RUNNER_TEMP/jc"
+            "$JAVA_HOME/bin/javac" --release 17 -Xlint:all -Werror -d "$RUNNER_TEMP/jc" $(find sdk-java/src -name '*.java')
+            printf 'Main-Class: dev.horizonshield.nenrin.Main\n' > "$RUNNER_TEMP/manifest.txt"
+            "$JAVA_HOME/bin/jar" --create --file "$RUNNER_TEMP/nenrin-verify.jar" --manifest "$RUNNER_TEMP/manifest.txt" -C "$RUNNER_TEMP/jc" .
+            P="$P java"
+          fi
+          echo "PORTS=$P" >> "$GITHUB_ENV"
+          echo "ports: $P"
+      - name: The vectors file is what its generator writes
+        run: python -I furui-check-day-v0/make_verify_vectors.py --check
+      - name: Each port gives every vector its expected answer, and the answers are the same line by line
+        run: |
+          set -o pipefail
+          run(){ case "$1" in py) nenrin-verify furui-vectors "$2" ;; js) node sdk/nenrin_verify.mjs furui-vectors "$2" ;; go) "$RUNNER_TEMP/nv-go" furui-vectors "$2" ;; java) "$JAVA_HOME/bin/java" -jar "$RUNNER_TEMP/nenrin-verify.jar" furui-vectors "$2" ;; esac; }
+          for l in $PORTS; do run "$l" "$V" > "$RUNNER_TEMP/$l.txt"; tail -1 "$RUNNER_TEMP/$l.txt"; sed '$d' "$RUNNER_TEMP/$l.txt" > "$RUNNER_TEMP/$l.cmp"; done
+          for l in $PORTS; do cmp "$RUNNER_TEMP/py.cmp" "$RUNNER_TEMP/$l.cmp" || { echo "python and $l differ"; diff "$RUNNER_TEMP/py.cmp" "$RUNNER_TEMP/$l.cmp" | head -20; exit 1; }; done
+          echo "$PORTS: $(wc -l < "$RUNNER_TEMP/py.cmp") lines, identical"
+      - name: The same on seeded mutations of the vectors
+        run: |
+          set -o pipefail
+          run(){ case "$1" in py) nenrin-verify furui-vectors "$2" ;; js) node sdk/nenrin_verify.mjs furui-vectors "$2" ;; go) "$RUNNER_TEMP/nv-go" furui-vectors "$2" ;; java) "$JAVA_HOME/bin/java" -jar "$RUNNER_TEMP/nenrin-verify.jar" furui-vectors "$2" ;; esac; }
+          for seed in 1 2 3; do
+            M="$RUNNER_TEMP/mut$seed.json"
+            python -I sdk-python/tests/parity/mutate_furui.py "$V" "$M" --per-body 20 --seed "$seed"
+            for l in $PORTS; do (run "$l" "$M" || true) | sed '$d' > "$RUNNER_TEMP/m.$l"; done
+            n=$(wc -l < "$RUNNER_TEMP/m.py")
+            [ "$n" -gt 1000 ] || { echo "only $n mutated answers from python"; exit 1; }
+            for l in $PORTS; do cmp "$RUNNER_TEMP/m.py" "$RUNNER_TEMP/m.$l" || { echo "seed $seed: python and $l differ"; diff "$RUNNER_TEMP/m.py" "$RUNNER_TEMP/m.$l" | head -10; exit 1; }; done
+            echo "seed $seed: $n mutated cases, $PORTS give the same answer"
+          done
+      - name: Each port's own tests
+        run: |
+          set -o pipefail
+          node sdk/furui_day.test.mjs
+          if [ -f sdk-go/nenrinverify/furui_test.go ]; then (cd sdk-go && go test ./nenrinverify -run Furui -v | tail -5); fi
+          python -m pip install -q pytest
+          (cd sdk-python/tests && python -m pytest -q -p no:cacheprovider --rootdir=. --import-mode=importlib test_furui_day.py)

@@ -146,11 +146,36 @@ gives values a numeric comparator cannot order, `new URL(s).host`) goes through 
 whitespace, strings and numbers as JSON.stringify writes them. The JavaScript side of the same hash is
 `tests/parity/js_canon.mjs` (twelve lines).
 
-## Unreleased
+## Check a day of the content check runner (0.8.0, `furui-day`, `resume-admission`)
 
-Not on PyPI yet. The repository's copies have moved past 0.7.0; the next release is published from the repository
-after these are in place, and this section then takes its version number.
+```sh
+nenrin-verify furui-day 2026-11-03 --leaf 0
+nenrin-verify resume-admission https://shield.the-horizons-innovation.com/ <record_sha256>
+```
 
+Six checks on one leaf of the runner's day: the envelope's closed shape, the leaf sha256, the RFC 6962 audit path to
+the root of the day record the ledger serves, runner-1's Ed25519 signature on the day record and on the envelope, the
+key in the ledger's `/.well-known/furui-check-keys.json` inside `from_height`, and the ledger batch entry with its
+OpenTimestamps proof to a Bitcoin block header (`not_yet` before the anchor). The second command holds one
+admissions[] line of a Resume to the stored admission, the batch entry and its proof. Exit 0 ok, 1 fail, 3 not_yet,
+2 usage or network error; GET only, only ledger.horizonshield.dev and furui.horizonshield.dev. The same commands and
+verdicts in npm `nenrin-verify`: both run `../furui-check-day-v0/verify_vectors.json`. Details:
+`../furui-check-day-v0/VERIFY.md`.
+
+The chain these commands sit in has five names: FURUI (篩, the content check runner) → SEKI admission (関の扉, the door that
+signs an admission) → MUSUBI settle (結の精算, the settlement of a contract) → NENRIN ledger (年輪の台帳, anchored to
+Bitcoin) → Résumé. TOOSHI checks the whole chain every day, and TSUGI (継) calls outside witnesses by a public draw.
+`furui-day` checks one FURUI leaf up to the NENRIN ledger and its Bitcoin anchor; `resume-admission` checks one SEKI
+admission as the Résumé lists it, back to the ledger.
+
+## 0.8.0
+
+- `nenrin-verify furui-day <day> --leaf <i>` and `nenrin-verify resume-admission <endpoint> <record_sha256>`
+  (`nenrin_verify.furui_day`), with the shared vectors and `nenrin-verify furui-vectors <file>`. The tests run the
+  JavaScript twin on the vectors and on mutations of them and compare the answers line by line.
+- The first release on PyPI that reads admission records of version 0.4 (the content block) and 0.3, and settle v1.17
+  to v1.19: `musubi-verify admission_verify_v0 --selftest` runs the 0.4 checks from the installed package (8 records
+  verify, 21 are refused, the JavaScript twin agrees on all 30).
 - settle v1.17 and requirements_furui_v0: when a contract names the content check it expects
   (`requirements.furui.rules_sha256`), an admission of version 0.3 is read against it (`content_rules_mismatch`,
   `content_not_checked`); settle core v0 revision 0.10, section 17.

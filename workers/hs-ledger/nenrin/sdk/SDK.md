@@ -72,6 +72,29 @@ account, no token, no trust in HS. A mismatch exits 2 and prints the two trees t
 attestation (who built it, from which commit) and this script (what that commit builds, on your
 machine), the chain source to package is closed at both ends by the reader, not by the operator.
 
+## 0.8.0: check a day of the content check runner (`furui-day`, `resume-admission`)
+
+```sh
+npx nenrin-verify furui-day 2026-11-03 --leaf 0
+npx nenrin-verify resume-admission https://shield.the-horizons-innovation.com/ <record_sha256>
+```
+
+`furui_day.mjs` (also `import ... from "nenrin-verify/furui-day"`): six checks on one leaf of the runner's day (the
+envelope's closed shape, the leaf sha256, the RFC 6962 audit path to the day record the ledger serves, runner-1's
+Ed25519 signatures, the key in the ledger's keys document inside `from_height`, and the ledger batch entry with its
+OpenTimestamps proof to a Bitcoin block header), and one admissions[] line of a Resume against the ledger. Exit 0 ok,
+1 fail, 3 not_yet, 2 usage or network error; GET only, only ledger.horizonshield.dev and furui.horizonshield.dev.
+The Python package runs the same vectors
+(`../furui-check-day-v0/verify_vectors.json`) and give the same answers: `node furui_day.test.mjs`. The provenance
+verifier is unchanged; the bin `nenrin-verify` passes these three subcommands to `furui_day.mjs` and everything else
+to the bundle verifier as before. Details: `../furui-check-day-v0/VERIFY.md`.
+
+The chain these commands sit in has five names: FURUI (篩, the content check runner) → SEKI admission (関の扉, the door that
+signs an admission) → MUSUBI settle (結の精算, the settlement of a contract) → NENRIN ledger (年輪の台帳, anchored to
+Bitcoin) → Résumé. TOOSHI checks the whole chain every day, and TSUGI (継) calls outside witnesses by a public draw.
+`furui-day` checks one FURUI leaf up to the NENRIN ledger and its Bitcoin anchor; `resume-admission` checks one SEKI
+admission as the Résumé lists it, back to the ledger.
+
 ## 0.7.0 (2026-10-22): no JavaScript change; the version follows the Python package
 
 The JavaScript files are the same as in 0.6.0. 0.7.0 is published so that npm and PyPI keep one version number; the

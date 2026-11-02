@@ -66,9 +66,13 @@ export function publicKeyFromDidKey(did) {
 export const didKeyResolver = (id) => { try { return publicKeyFromDidKey(id); } catch (e) { return null; } };
 
 // ---- CLI: verify a bundle file offline and print the provenance report ----
-function nenrinMain() {
+async function nenrinMain() {
+  if (["furui-day", "resume-admission", "furui-vectors"].includes(process.argv[2])) {
+    const { furuiMain } = await import("./furui_day.mjs");
+    process.exit(await furuiMain(process.argv.slice(2)));
+  }
   const path = process.argv[2];
-  if (!path) { console.error("usage: node nenrin_verify.mjs <bundle.json>"); process.exit(2); }
+  if (!path) { console.error("usage: node nenrin_verify.mjs <bundle.json> | furui-day <YYYY-MM-DD> --leaf <i> | resume-admission <endpoint> <record_sha256>"); process.exit(2); }
   const bundle = JSON.parse(readFileSync(path, "utf8"));
   const input = Object.assign({}, bundle, { resolve: didKeyResolver });
   const report = verifyProvenance(input);

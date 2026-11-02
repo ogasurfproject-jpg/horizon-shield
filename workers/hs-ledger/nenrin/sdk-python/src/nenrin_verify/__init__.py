@@ -38,7 +38,7 @@ from . import agreement_verify, tsugi, musubi, policy, trace
 from .trace import (verify_trace_intake, verify_trace_bind, check_trace_record, span_attributes, annotate_span,
                     check_span_attributes)
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 
 __all__ = ["verify_provenance", "consume_evidence", "posture_line", "candidate_evidence_set", "preflight_report",
            "public_key_from_did_key", "did_key_resolver", "evidence_id", "grant_ref", "receipt_id", "intent_id",
