@@ -67,7 +67,12 @@ self_asserted(バイト無し / jidec-path-v1 でない / witness{name,vantage} 
 
 - backdating(現実より古い walked_at)は前方 anchor では捕まらない = 再測定(ring)のみ。freshness は fail-closed(period 外は current_now:false)。
 - 履歴の厚みは format では作れない。今日の本番は自前の証人が大半で薄い。厚みは時間と独立証人でしか積めない。
-- rings[] / agreements[] は核が受けられるが、v1 の route はまだ渡していない(空)。次版で ring entry と合意録を同じ二段認証で載せる。
+- agreements[] は 2026-11-02 から route が渡す。入れるのは、その端点の host(またはその親の domain)の当事者が署名した合意のうち、次の 2 つを満たす物だけ。測りと同じ二段の照らし。
+  - 保存したバイトの sha256 が、合意の束(nenrin-agreement-batch-v1)に載った sha と合う。
+  - その束が錨の付いた entry である(OTS が確定し、block と時刻がある)。
+- 満たさない合意は not_counted に理由つきで入る: 保存したバイトが束の sha と合わない物は agreement_bytes_do_not_hash_to_the_listed_sha、束にまだ錨の無い物は not_yet_anchored(確定して時刻の無い物は confirmed_without_block_time)。同じ束の admission、revocation、furui-check-day の行は合意でないので読まない。
+- 合意のある端点では agreements[] が入るので、resume_sha256 が前と替わる。合意の無い端点は前と同じ空の list で、resume_sha256 も替わらない。
+- rings[] は核が受けられるが、route はまだ渡していない(空)。次版で ring entry を同じ二段認証で載せる。
 
 ## 10. 堀の正体(まとめ)
 

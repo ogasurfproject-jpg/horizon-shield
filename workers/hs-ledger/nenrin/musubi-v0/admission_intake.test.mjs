@@ -5,8 +5,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { createHash, generateKeyPairSync, sign as cryptoSign } from "node:crypto";
-import { handleAdmissionIntake, handleRevocationIntake, handleStoredGet, admissionSelfDescription, MAX_BYTES } from "./admission_intake.mjs";
-import { verifyAdmissionText } from "./admission_verify_v0.mjs";
+import { handleAdmissionIntake, handleRevocationIntake, handleStoredGet, admissionSelfDescription, MAX_BYTES, LIMITS_BY_VERSION } from "./admission_intake.mjs";
+import { verifyAdmissionText, DOES_NOT_ESTABLISH_V04 } from "./admission_verify_v0.mjs";
 import { canonical as musubiCanonical } from "./canonical_v0.mjs";
 import { canonicalUtf8, parseStrict } from "../agreement-v0/agreement_canonical.mjs";
 
@@ -250,6 +250,68 @@ t("the self description says what the intake does not do", d.what_this_does_not_
   await refusal("a v0.3 record carrying v0.2's stated limits", edit(CC.records.A_clear_refused_by_immune, (o) => { o.does_not_establish.pop(); }), "does_not_establish_altered",
     world({ keys: { [keyUrl]: CC.relying_pub_b64 } }));
   t("the intake says it reads v0.3", admissionSelfDescription().versions.some((x) => x.startsWith("0.3")));
+}
+
+// ---- v0.4: the content block of FURUI A7.4 (records moved from the v0.3 fixture to v0.4 and signed here by a fresh key) ----
+{
+  const CC = JSON.parse(readFileSync(path.join(HERE, "fixtures", "admission_content", "cases.json"), "utf8"));
+  const kp = generateKeyPairSync("ed25519");
+  const pub = kp.publicKey.export({ format: "der", type: "spki" }).subarray(-32).toString("base64");
+  const base = JSON.parse(CC.records.A_clear_refused_by_immune), adm = JSON.parse(CC.records.B_clear_admitted);
+  const keyUrl = base.relying_party.key_url;
+  const R4 = ["within_grant", "conditional_needs_approval", "prohibited_action", "outside_grant", "amount_over_limit", "delegation_exceeds_parent",
+    "contract_expired", "nonce_reused", "grant_revoked", "key_revoked", "presentation_unverifiable", "signer_not_on_own_domain", "action_digest_mismatch",
+    "content_flagged", "content_unchecked", "exposure_full", "immune_hold", "immune_reject", "content_scope_conflict", "content_off_topic"];
+  const H = (ch) => ch.repeat(64);
+  const c4 = { rules: "a2a-content-check-v1", input_commit: H("1"), check_sha256: H("2"), rules_sha256: H("3"), scope_sha256: H("4"),
+    decision: "pass", marks: [], unread: false, answered: true, checked: true };
+  const un4 = { ...c4, input_commit: null, check_sha256: null, decision: null, answered: false, checked: false };
+  const signRec = (o) => {
+    const b = Object.fromEntries(Object.entries(o).filter(([k]) => k !== "signatures"));
+    const sig = cryptoSign(null, Buffer.from("a2a-admission-v0\n" + musubiCanonical(b), "utf8"), kp.privateKey).toString("base64");
+    return musubiCanonical({ ...b, signatures: [{ alg: "ed25519", domain: o.relying_party.domain, sig }] });
+  };
+  const v04 = (rec, content, extra) => signRec({ ...rec, rules: { ...rec.rules, version: "0.4" }, does_not_establish: [...LIMITS_BY_VERSION["0.4"]], content, ...(extra || {}) });
+  const rw = (content, ...rs) => v04(base, content, { reasons: [...new Set([...base.reasons, ...rs])].sort((x, y) => R4.indexOf(x) - R4.indexOf(y)) });
+  const wg = (...rs) => ({ reasons: ["within_grant", ...rs] });
+  t("v0.4: the intake's stated limits for 0.4 are the verifier's, line for line", JSON.stringify(LIMITS_BY_VERSION["0.4"]) === JSON.stringify(DOES_NOT_ESTABLISH_V04));
+  const cases = {
+    pass_admitted: [v04(adm, c4), null],
+    off_topic_admitted_mark_only: [v04(adm, { ...c4, marks: ["off_topic"] }, wg("content_off_topic")), null],
+    stop_refused: [rw({ ...c4, decision: "stop" }, "content_flagged"), null],
+    both_marks_refused: [rw({ ...c4, marks: ["off_topic", "rule_conflict"] }, "content_scope_conflict", "content_off_topic"), null],
+    unread_pass_with_mark: [rw({ ...c4, unread: true, marks: ["off_topic"] }, "content_off_topic", "content_unchecked"), null],
+    unanswered: [rw({ ...c4, decision: null, answered: false }, "content_unchecked"), null],
+    unchecked: [rw(un4, "content_unchecked"), null],
+    r1_unchecked_with_decision: [rw({ ...un4, decision: "pass", answered: true }, "content_unchecked"), "malformed"],
+    r2_checked_without_commit: [v04(adm, { ...c4, input_commit: null }), "malformed"],
+    r3_answered_without_decision: [v04(adm, { ...c4, decision: null }), "malformed"],
+    r4_stop_without_reason: [v04(base, { ...c4, decision: "stop" }), "malformed"],
+    r5_rule_conflict_without_reason: [v04(base, { ...c4, marks: ["rule_conflict"] }), "malformed"],
+    r6_off_topic_without_reason: [v04(adm, { ...c4, marks: ["off_topic"] }), "malformed"],
+    r7_unread_without_unchecked: [v04(base, { ...c4, unread: true }), "malformed"],
+    r8_stop_with_mark: [rw({ ...c4, decision: "stop", marks: ["off_topic"] }, "content_flagged", "content_off_topic"), "malformed"],
+    r9_admit_with_unchecked: [v04(adm, { ...c4, unread: true }, wg("content_unchecked")), "malformed"],
+    mark_without_scope: [v04(adm, { ...c4, marks: ["off_topic"], scope_sha256: null }, wg("content_off_topic")), "malformed"],
+    marks_out_of_order: [rw({ ...c4, marks: ["rule_conflict", "off_topic"] }, "content_scope_conflict", "content_off_topic"), "malformed"],
+    old_field_input_sha256: [v04(base, Object.fromEntries([...Object.entries(c4).filter(([k]) => k !== "input_commit"), ["input_sha256", H("1")]])), "malformed"],
+    v03_limits_in_v04: [v04(base, c4, { does_not_establish: [...LIMITS_BY_VERSION["0.3"]] }), "does_not_establish_altered"],
+    version_not_known: [signRec({ ...JSON.parse(v04(base, c4)), rules: { ...base.rules, version: "0.5" } }), "malformed"],
+  };
+  const ws = world({ keys: { [keyUrl]: pub } });
+  let agreeAll = true, n = 0;
+  for (const [k, [text, code]] of Object.entries(cases)) {
+    const w1 = world({ keys: { [keyUrl]: pub } });
+    const rr = await handleAdmissionIntake(post({ record_canonical: text }), w1.deps);
+    const v = verifyAdmissionText(text, pub);
+    const ok = code === null ? rr.status === 201 && rr.body.report.admit_version === "0.4" && v.verdict === "accepted"
+      : rr.status === 422 && rr.body.refusals.includes(code) && v.verdict === "refused" && v.refusals.includes(code);
+    t("v0.4 " + k + (code ? " is refused (" + code + ") by the intake and the verifier" : " is accepted by the intake and the verifier"), ok, { intake: rr.status, body: rr.body, verifier: v });
+    agreeAll = agreeAll && ok; n++;
+  }
+  const rr = await handleAdmissionIntake(post({ record_canonical: cases.off_topic_admitted_mark_only[0] }), ws.deps);
+  t("v0.4: the report says the content block's nine rules were checked, and the record goes to the daily batch", rr.status === 201 && rr.body.report.checked.some((x) => /nine rules/.test(x)) && ws.queued.length === 1);
+  t("the intake says it reads v0.4", admissionSelfDescription().versions.some((x) => x.startsWith("0.4")));
 }
 
 console.log("");

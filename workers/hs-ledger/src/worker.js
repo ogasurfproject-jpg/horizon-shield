@@ -35,6 +35,9 @@ export { AgreementDedupeDO } from "../nenrin/agreement-v0/agreement_intake.mjs";
 // a2a-admission-v0 and a2a-revocation-v0 (2026-10-10). The relying party runs admit() at its own door and signs; this
 // ledger stores what was signed and anchors it with the agreement pool's daily batch. It renders no decision.
 import { handleAdmissionIntake, handleRevocationIntake, handleStoredGet, admissionSelfDescription } from "../nenrin/musubi-v0/admission_intake.mjs";
+// furui-check-day-v0 (2026-11-02): a content check runner's signed daily root, into the same public pool and daily batch.
+import { handleFuruiDayIntake, handleFuruiDayGet, furuiDaySelfDescription, KEYS_PATH as FURUI_KEYS_PATH, FURUI_DAY_SCHEMA } from "../nenrin/furui-check-day-v0/furui_check_day_intake.mjs";
+import { FURUI_CHECK_KEYS } from "../nenrin/furui-check-day-v0/furui_check_keys.mjs";
 
 const enc = new TextEncoder();
 
@@ -1848,6 +1851,19 @@ async function handle(request, env) {
       });
       return json(out.body, out.status, out.headers);
     }
+    // furui-check-day-v0: the runner's daily root, and the runner's keys as this ledger serves them (D10: a fixed path here)
+    if (p === FURUI_KEYS_PATH && request.method === "GET") return json(FURUI_CHECK_KEYS);
+    if (p === "/furui-check-day" && request.method === "GET") return json(furuiDaySelfDescription(origin));
+    if (p === "/furui-check-day" && request.method === "POST") {
+      const out = await handleFuruiDayIntake(request, { keysDoc: FURUI_CHECK_KEYS, ledgerKeyUrl: origin + FURUI_KEYS_PATH, store: agreementStore(env),
+        now: () => new Date().toISOString(), origin });
+      return json(out.body, out.status, out.headers);
+    }
+    const fdM = p.match(/^\/furui-check-day\/([0-9a-f]{64})$/i);
+    if (fdM && request.method === "GET") {
+      const out = await handleFuruiDayGet(fdM[1], { store: agreementStore(env), origin });
+      return json(out.body, out.status);
+    }
     const admM = p.match(/^\/(admission|revocation)\/([0-9a-f]{64})$/i);
     if (admM && request.method === "GET") {
       const out = await handleStoredGet(admM[1].toLowerCase(), admM[2], { store: agreementStore(env), origin });
@@ -2049,6 +2065,7 @@ async function handle(request, env) {
       for (let n = seq; n >= 1 && ns.length < 400; n--) ns.push(n);
       const entries = await Promise.all(ns.map((n) => getEntry(env, n).then((e) => [n, e])));
       const measurements = [];
+      const agreements = [];
       const not_counted = [];
       let out_of_scope = 0;
       const anchoredOf = (e) => Boolean(e.ots_status === "confirmed" && e.bitcoin_block && e.block_time);
@@ -2093,6 +2110,37 @@ async function handle(request, env) {
           }
           continue;
         }
+        // (a2) an agreement batch (nenrin-agreement-batch-v1, 2026-11-02): the agreements a party on this endpoint's host signed.
+        //      The same two hops as (a): sha256(stored bytes) == the sha the batch lists, and the batch is the anchored entry.
+        //      Admissions, revocations and furui-check-day records in the same pool are not agreements and are skipped.
+        {
+          let ab = null;
+          try { ab = JSON.parse(e.record_canonical); } catch { ab = null; }
+          if (ab && ab.schema === "nenrin-agreement-batch-v1" && Array.isArray(ab.records)) {
+            const host = epUrl.hostname.toLowerCase();
+            const skip = new Set(["a2a-admission-v0", "a2a-revocation-v0", FURUI_DAY_SCHEMA]);
+            const rows = ab.records.map((r, idx) => [r, idx]).filter(([r]) => r && typeof r.canonical_sha256 === "string" && !skip.has(r.record_schema));
+            const items = await Promise.all(rows.map(([r, idx]) => env.LEDGER.get(`agr:anchored:${r.canonical_sha256.toLowerCase()}`)
+              .then((raw) => { let a = null; try { a = raw ? JSON.parse(raw) : null; } catch { a = null; } return [r, idx, a]; })));
+            for (const [r, idx, a] of items) {
+              const sha = r.canonical_sha256.toLowerCase();
+              const st = a && a.stored;
+              const aurl = `${origin}/agreement/${sha}`;
+              let rec = null;
+              try { rec = st && typeof st.record_canonical === "string" ? JSON.parse(st.record_canonical) : null; } catch { rec = null; }
+              const doms = rec && Array.isArray(rec.parties) ? rec.parties.map((x) => {
+                if (!x || typeof x !== "object") return null;
+                if (typeof x.domain === "string") return x.domain.toLowerCase();
+                try { return new URL(x.key_url).hostname.toLowerCase(); } catch { return null; }
+              }).filter(Boolean) : [];
+              if (!doms.some((d) => host === d || host.endsWith("." + d))) continue;
+              if ((await sha256hex(st.record_canonical)).toLowerCase() !== sha) { not_counted.push({ n, record_sha256: sha, why: "agreement_bytes_do_not_hash_to_the_listed_sha", url: aurl }); continue; }
+              if (!anchoredOf(e)) { not_counted.push({ n, record_sha256: sha, ots_status: e.ots_status || "unstamped", why: anchorWhy(e), kind: "agreement", url: aurl }); continue; }
+              agreements.push({ record_sha256: sha, source_ledger_n: n, _k: [n, idx] });
+            }
+            continue;
+          }
+        }
         // (b) a witness walk anchored as its own entry (per-record path).
         const obj = asPathV1(e.record_canonical);
         if (!obj) continue;
@@ -2126,11 +2174,13 @@ async function handle(request, env) {
       // ascending ledger entry, then batch order: an order a third party can reproduce
       measurements.sort((x, y) => (x._k[0] - y._k[0]) || (x._k[1] - y._k[1]));
       for (const m of measurements) delete m._k;
+      agreements.sort((x, y) => (x._k[0] - y._k[0]) || (x._k[1] - y._k[1]));
+      for (const a of agreements) delete a._k;
       const evaluated_at = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
       let resume;
       try {
         resume = await assembleResumeV1(epOrigin, ep, `${epOrigin}/.well-known/agent-card.json`, measurements,
-          { sha256Hex: sha256hex, now: evaluated_at, period_days: 30 });
+          { sha256Hex: sha256hex, now: evaluated_at, period_days: 30, agreements });
       } catch (err) {
         if (err instanceof ResumeReject)
           return json({ error: "resume_refused", code: err.code, why: err.why, endpoint: ep,

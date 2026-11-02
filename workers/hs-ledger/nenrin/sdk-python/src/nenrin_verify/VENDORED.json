@@ -846,8 +846,8 @@
   },
   "_repo/musubi-v0/settle-core-v0/NOTES.md": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/NOTES.md",
-    "source_sha256": "84e9dcb78797c219eac36d1af539fc7529675b0972a1227ce64436574002ab10",
-    "vendored_sha256": "84e9dcb78797c219eac36d1af539fc7529675b0972a1227ce64436574002ab10"
+    "source_sha256": "beb5e4fa653bd5f45ac13824af6aa1209b13d426d2c2a0fd62889d1c622f3e2b",
+    "vendored_sha256": "beb5e4fa653bd5f45ac13824af6aa1209b13d426d2c2a0fd62889d1c622f3e2b"
   },
   "_repo/musubi-v0/settle-core-v0/SETTLE_CORE_v0.md": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0/SETTLE_CORE_v0.md",
