@@ -1,0 +1,61 @@
+name: tooshi-daily
+
+# TOOSHI: the daily end to end check of the content check chain (tools/tooshi/tooshi_daily.py). It reads public
+# endpoints only (the runner's three GET reads, the ledger, the door's public policy) and uses no secret.
+# 04:05 UTC: after the ledger's batch (00:30), the runner's close of the day before (00:47) and the heartbeat scene (03:17).
+# A red day opens one issue labelled tooshi-red (never a second one for the same day). Every day writes the verdict,
+# the counts and the sha256 of the result in the run summary. A check that cannot be made yet is counted as not_yet,
+# never as ok.
+
+on:
+  schedule:
+    - cron: "5 4 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: tooshi-daily
+  cancel-in-progress: false
+
+jobs:
+  tooshi:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - name: self test (the red scenes on fixed answers)
+        run: python -I -B tools/tooshi/tooshi_daily.py --selftest
+      - name: the daily check
+        id: run
+        run: |
+          set +e
+          python -I -B tools/tooshi/tooshi_daily.py --out tooshi_result.json --body tooshi_body.md > tooshi_out.txt 2>&1
+          rc=$?
+          cat tooshi_out.txt
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          { echo "### TOOSHI"; echo; echo '```'; tail -n 1 tooshi_out.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+      - name: a red day opens one issue (once a day)
+        if: steps.run.outputs.rc == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          T="TOOSHI red $(date -u +%Y-%m-%d)"
+          gh label create tooshi-red --color b60205 --description "TOOSHI daily check found a red" --force >/dev/null
+          N=$(gh issue list --label tooshi-red --state all --limit 100 --json title --jq "[.[] | select(.title == \"$T\")] | length")
+          if [ "$N" -gt 0 ]; then echo "an issue for this day exists already; not writing a second one"; else gh issue create --title "$T" --label tooshi-red --body-file tooshi_body.md; fi
+      - name: the verdict
+        run: |
+          rc="${{ steps.run.outputs.rc }}"
+          if [ "$rc" = "0" ]; then echo "no red (green or not all checked; see the summary)"; exit 0; fi
+          if [ "$rc" = "1" ]; then echo "red"; exit 1; fi
+          echo "the check itself failed (exit $rc)"; exit 1
