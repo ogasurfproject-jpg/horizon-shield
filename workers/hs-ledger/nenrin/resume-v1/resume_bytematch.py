@@ -7,7 +7,7 @@ import sys, os, json, shutil, subprocess, tempfile
 HERE = os.path.dirname(os.path.abspath(__file__)) or "."
 sys.path.insert(0, HERE)
 from resume_v1 import assemble_resume, canonical, sha256_hex, Reject
-from resume_fixtures import rec, meas, ring, args, NOW, END, PID, CARD
+from resume_fixtures import rec, meas, ring, args, adm, c04, NOW, END, PID, CARD
 
 orig_disc_sha = sha256_hex(canonical(rec(discrepancies=[{"id": "disc-0001"}])))
 cases = [
@@ -40,13 +40,28 @@ cases = [
     ("A9_unparseable_block_time", args([meas(rec(), block_time="yesterday")])),
     ("A10_calendar_overflow", args([meas(rec(), block_time="2026-02-30 01:08 UTC")])),
     ("L1_backdating_stale", args([meas(rec(walked_at="2026-01-01T00:00:00Z"))])),
+    # admissions[] (2026-11-02, DESIGN_RESUME_ADMISSIONS_v0 test 5): the same lines and the same refusals from both cores
+    ("D1_admissions_three_kinds", args([meas(rec())], agreements=[{"record_sha256": "ab" * 32, "source_ledger_n": 41}],
+                                       admissions=[adm(41), adm(42, "refuse", c04(decision="stop", marks=[]), sha="d1" * 32),
+                                                   adm(43, "escalate", c04(checked=False, decision=None, rules_sha256=None), revoked=True, sha="d2" * 32)])),
+    ("D2_admission_marks_and_text_dropped", args([], admissions=[adm(44, "refuse", c04(marks=["off_topic", "rule_conflict"], input_commit="aa" * 32,
+                                                                                         scope_sha256="bb" * 32, unread=False, answered=True, rules="a2a-content-check-v1"))])),
+    ("D3_admission_utf8_never_copied", args([], admissions=[dict(adm(45), key_url="https://shield.example/鍵", admission_id="入場-1")])),
+    ("D4_admission_decision_not_closed", args([], admissions=[adm(46, "allow")])),
+    ("D5_admission_marks_out_of_order", args([], admissions=[adm(47, "refuse", c04(marks=["rule_conflict", "off_topic"]))])),
+    ("D6_admission_sha_not_hex", args([], admissions=[adm(48, sha="CD" * 32)])),
+    ("D7_admission_content_text_in_closed_field", args([], admissions=[adm(49, "admit", c04(decision="pass because the text says so"))])),
+    ("D8_admission_revoked_not_bool", args([], admissions=[adm(50, revoked=1)])),
+    ("D9_admission_ledger_n_bool", args([], admissions=[adm(True)])),
+    ("D10_no_admissions_empty_list", args([meas(rec())])),
 ]
 
 
 def run_py(a):
     try:
         r = assemble_resume(a["perma_id"], a["endpoint"], a["agent_card_url"], a["measurements"],
-                            rings=a["rings"], agreements=a["agreements"], period_days=a["period_days"], now=a["now"])
+                            rings=a["rings"], agreements=a["agreements"], period_days=a["period_days"], now=a["now"],
+                            admissions=a.get("admissions"))
         return {"ok": True, "sha": r["resume_sha256"]}
     except Reject as e:
         return {"ok": False, "code": e.code}

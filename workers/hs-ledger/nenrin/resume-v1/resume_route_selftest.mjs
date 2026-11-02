@@ -96,7 +96,9 @@ ok("R7_out_of_scope_2", body.scan && body.scan.out_of_scope === 2 && body.scan.s
 ok("R8_witness_diversity_3_3", body.witness_diversity.distinct_names === 3 && body.witness_diversity.distinct_vantages === 3, JSON.stringify(body.witness_diversity));
 ok("R9_no_score_keys_anywhere", !/"(score|rating|stars|points|rank|grade|trust_score)"\s*:/i.test(JSON.stringify(body)));
 {
-  const core = { ...body }; for (const k of ["evaluated_at", "not_counted", "scan", "recompute", "resume_sha256"]) delete core[k];
+  // the envelope fields around the resume bytes, subject_responses among them (record-privacy-v1 carries the subject's replies
+  // outside the resume bytes; the selftest left it in before 2026-11-02 and R10 failed on that, not on the sha)
+  const core = { ...body }; for (const k of ["evaluated_at", "subject_responses", "not_counted", "scan", "recompute", "resume_sha256"]) delete core[k];
   ok("R10_resume_sha_recomputes_from_envelope", (await shaSubtle(canonical(core))) === body.resume_sha256);
 }
 ok("R11_perma_id_is_origin", body.perma_id === BASE && body.measured_endpoint === EP);

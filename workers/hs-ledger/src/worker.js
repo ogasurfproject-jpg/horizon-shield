@@ -10,7 +10,7 @@
 import { ed25519PointOk } from "./ed25519_point.mjs";
 import { walkChain, exportRow, boundHeadRecord, markerSha, CHAIN_SCHEMA, CHAIN_ROOT, CHAIN_FIELDS, CHAIN_RECIPE, HEAD_FIELDS, HEAD_RECIPE } from "./chain_v1.mjs";
 import { appendEntry, LEDGER_SEQUENCER } from "./ledger_append.mjs";
-import { assembleResume as assembleResumeV1, Reject as ResumeReject, checkMeasurement as resumeCheckMeasurement } from "../nenrin/resume-v1/resume_v1.mjs";
+import { assembleResume as assembleResumeV1, Reject as ResumeReject, checkMeasurement as resumeCheckMeasurement, admissionLine as resumeAdmissionLine } from "../nenrin/resume-v1/resume_v1.mjs";
 import { resumeToTrustSignal, toA2ATrustSignal } from "../nenrin/trust-signal-v1/trust_signal_v1.mjs";
 import { handleTaskWitness, handleTaskTrustSignal, anchorTaskWitnessPool, handleTaskEvidence } from "../nenrin/task-delegation-bind-v0/task_ledger_v0.mjs";
 // record-privacy-v1 (2026-09-28): the measured party's own reply, shown beside the measurement. See nenrin/response-v0.
@@ -2091,6 +2091,8 @@ async function handle(request, env) {
       const entries = await Promise.all(ns.map((n) => getEntry(env, n).then((e) => [n, e])));
       const measurements = [];
       const agreements = [];
+      const admissionsSeen = [];
+      const revokedAt = new Map();
       const not_counted = [];
       let out_of_scope = 0;
       const anchoredOf = (e) => Boolean(e.ots_status === "confirmed" && e.bitcoin_block && e.block_time);
@@ -2163,6 +2165,38 @@ async function handle(request, env) {
               if (!anchoredOf(e)) { not_counted.push({ n, record_sha256: sha, ots_status: e.ots_status || "unstamped", why: anchorWhy(e), kind: "agreement", url: aurl }); continue; }
               agreements.push({ record_sha256: sha, source_ledger_n: n, _k: [n, idx] });
             }
+            // (a3) admissions (2026-11-02, DESIGN_RESUME_ADMISSIONS_v0, R-1): the a2a-admission-v0 rows whose relying party is on
+            //      this endpoint's host (or its parent domain), with the same two hops as the agreements. Revocations are read
+            //      only to mark an admission whose contract a principal revoked in a later anchored entry (revoked: true).
+            const arows = ab.records.map((r, idx) => [r, idx]).filter(([r]) => r && typeof r.canonical_sha256 === "string"
+              && (r.record_schema === "a2a-admission-v0" || r.record_schema === "a2a-revocation-v0"));
+            const aitems = await Promise.all(arows.map(([r, idx]) => env.LEDGER.get(`agr:anchored:${r.canonical_sha256.toLowerCase()}`)
+              .then((raw) => { let a = null; try { a = raw ? JSON.parse(raw) : null; } catch { a = null; } return [r, idx, a]; })));
+            for (const [r, idx, a] of aitems) {
+              const sha = r.canonical_sha256.toLowerCase();
+              const st = a && a.stored;
+              let rec = null;
+              try { rec = st && typeof st.record_canonical === "string" ? JSON.parse(st.record_canonical) : null; } catch { rec = null; }
+              if (!rec || typeof rec !== "object" || rec.schema !== r.record_schema) continue;
+              if (r.record_schema === "a2a-revocation-v0") {
+                const cs = rec.contract_ref && typeof rec.contract_ref.contract_sha256 === "string" ? rec.contract_ref.contract_sha256.toLowerCase() : null;
+                if (!cs || !anchoredOf(e) || (await sha256hex(st.record_canonical)).toLowerCase() !== sha) continue;
+                if (!revokedAt.has(cs)) revokedAt.set(cs, []);
+                revokedAt.get(cs).push(n);
+                continue;
+              }
+              const rp = rec.relying_party && typeof rec.relying_party.domain === "string" ? rec.relying_party.domain.toLowerCase() : null;
+              if (!rp || !(host === rp || host.endsWith("." + rp))) continue;
+              const durl = `${origin}/admission/${sha}`;
+              if ((await sha256hex(st.record_canonical)).toLowerCase() !== sha) { not_counted.push({ n, record_sha256: sha, why: "admission_bytes_do_not_hash_to_the_listed_sha", kind: "admission", url: durl }); continue; }
+              if (!anchoredOf(e)) { not_counted.push({ n, record_sha256: sha, ots_status: e.ots_status || "unstamped", why: anchorWhy(e), kind: "admission", url: durl }); continue; }
+              const v04 = rec.rules && typeof rec.rules === "object" && rec.rules.version === "0.4";
+              const cb = v04 && rec.content && typeof rec.content === "object" && !Array.isArray(rec.content) ? rec.content : null;
+              admissionsSeen.push({ record_sha256: sha, source_ledger_n: n, decision: rec.decision,
+                content: cb ? { checked: cb.checked, decision: cb.decision, marks: cb.marks, rules_sha256: cb.rules_sha256 } : null,
+                _contract: rec.contract_ref && typeof rec.contract_ref.contract_sha256 === "string" ? rec.contract_ref.contract_sha256.toLowerCase() : null,
+                _url: durl, _k: [n, idx] });
+            }
             continue;
           }
         }
@@ -2201,11 +2235,24 @@ async function handle(request, env) {
       for (const m of measurements) delete m._k;
       agreements.sort((x, y) => (x._k[0] - y._k[0]) || (x._k[1] - y._k[1]));
       for (const a of agreements) delete a._k;
+      // an admission line carries closed fields only; one that would not (the intake checks the shape, so this is a
+      // second lock) is named in not_counted instead of failing the whole resume
+      const admissions = [];
+      admissionsSeen.sort((x, y) => (x._k[0] - y._k[0]) || (x._k[1] - y._k[1]));
+      for (const a of admissionsSeen) {
+        const line = { record_sha256: a.record_sha256, source_ledger_n: a.source_ledger_n, decision: a.decision, content: a.content,
+          revoked: Boolean(a._contract && (revokedAt.get(a._contract) || []).some((rn) => rn > a.source_ledger_n)) };
+        try { resumeAdmissionLine(line); admissions.push(line); }
+        catch (err) {
+          if (!(err instanceof ResumeReject)) throw err;
+          not_counted.push({ n: a.source_ledger_n, record_sha256: a.record_sha256, why: "admission_fields_not_closed", detail: err.code, kind: "admission", url: a._url });
+        }
+      }
       const evaluated_at = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
       let resume;
       try {
         resume = await assembleResumeV1(epOrigin, ep, `${epOrigin}/.well-known/agent-card.json`, measurements,
-          { sha256Hex: sha256hex, now: evaluated_at, period_days: 30, agreements });
+          { sha256Hex: sha256hex, now: evaluated_at, period_days: 30, agreements, admissions });
       } catch (err) {
         if (err instanceof ResumeReject)
           return json({ error: "resume_refused", code: err.code, why: err.why, endpoint: ep,

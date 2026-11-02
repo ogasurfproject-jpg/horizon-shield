@@ -4,6 +4,8 @@ Started on 2026-10-30. Earlier changes are in the git history.
 
 ## 2026-11-02
 
+- GET /resume carries admissions[] (nenrin-resume-v1, the schema name unchanged): the admissions a door on the endpoint's host signed and the ledger anchored, each with its decision and the closed fields of its content block (or null), checked by the same two hops as agreements[]. On the day this is deployed every endpoint's resume_sha256 changes, because an empty admissions list is now part of the bytes; no field changes its meaning. RESUME_SPEC_v1.md section 11 says the same.
+- nenrin/resume-v1/resume_route_selftest.mjs: R10 recomputes resume_sha256 after taking out every envelope field around the resume bytes, subject_responses among them (it was left in, and R10 failed on that, not on the sha).
 - The content check runner (hs-furui-runner) sends its daily root through a service binding to a named entrypoint, FuruiDayIntake, instead of the public POST /furui-check-day. The entrypoint runs every check the public path runs and is not counted in the public caps, so a flood of public posts can no longer push the runner's record out of the day. The public caps stay as they are. A named entrypoint has no public URL.
 - furui-check-day-intake 0.2.0: another record for a day whose first record has the same root is answered 200 with the first record's sha and is not stored. Another root for the day is still refused (day_already_recorded).
 - runner-1's public half is listed in /.well-known/furui-check-keys.json, from height 0, so the runner's daily records can be accepted.

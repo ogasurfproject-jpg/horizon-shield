@@ -132,10 +132,58 @@ def _copy_ring(r, discrepancies):
     }
 
 
+# admissions[] (2026-11-02, DESIGN_RESUME_ADMISSIONS_v0): one line per anchored a2a-admission-v0 whose relying party is
+# on the endpoint's host. Closed fields only (a hex sha, an integer, words from closed lists, booleans): nothing the
+# relying party wrote as text is copied. content is the closed part of a 0.4 content block, or None.
+ADMISSION_DECISIONS = ["admit", "escalate", "refuse"]
+ADMISSION_CONTENT_DECISIONS = [None, "stop", "pass"]
+ADMISSION_MARKS = ["off_topic", "rule_conflict"]
+_HEX64 = re.compile(r"^[0-9a-f]{64}$")
+
+
+def _int53(n):
+    return isinstance(n, int) and not isinstance(n, bool) and 0 <= n <= 9007199254740991
+
+
+def _in_closed(v, closed):
+    # a closed list holds strings and None; compare by type too, so True never equals 1 and 1 never equals True
+    return any(v is x if x is None else (isinstance(v, str) and v == x) for x in closed)
+
+
+def admission_line(a):
+    def no(why):
+        raise Reject("admission_not_closed", why)
+    sha, n, d, c, rv = a.get("record_sha256"), a.get("source_ledger_n"), a.get("decision"), a.get("content"), a.get("revoked")
+    if not isinstance(sha, str) or not _HEX64.fullmatch(sha):
+        no("record_sha256 is not 64 lowercase hex")
+    if not _int53(n):
+        no("source_ledger_n is not a non negative integer")
+    if not _in_closed(d, ADMISSION_DECISIONS):
+        no("decision is not one of " + ", ".join(ADMISSION_DECISIONS))
+    if not isinstance(rv, bool):
+        no("revoked is not a boolean")
+    content = None
+    if c is not None:
+        if not isinstance(c, dict):
+            no("content is neither null nor an object")
+        chk, cd, mk, rs = c.get("checked"), c.get("decision"), c.get("marks"), c.get("rules_sha256")
+        if not isinstance(chk, bool):
+            no("content.checked is not a boolean")
+        if not _in_closed(cd, ADMISSION_CONTENT_DECISIONS):
+            no("content.decision is not null, stop or pass")
+        if not isinstance(mk, list) or any(not isinstance(x, str) for x in mk) or mk != [x for x in ADMISSION_MARKS if x in mk]:
+            no("content.marks is not an ordered subset of " + ", ".join(ADMISSION_MARKS))
+        if not (rs is None or (isinstance(rs, str) and _HEX64.fullmatch(rs))):
+            no("content.rules_sha256 is neither null nor 64 lowercase hex")
+        content = {"checked": chk, "decision": cd, "marks": list(mk), "rules_sha256": rs}
+    return {"record_sha256": sha, "ledger_n": n, "decision": d, "content": content, "revoked": rv}
+
+
 def assemble_resume(perma_id, endpoint, agent_card_url, measurements,
-                    rings=None, agreements=None, period_days=30, now=None):
+                    rings=None, agreements=None, period_days=30, now=None, admissions=None):
     rings = rings or []
     agreements = agreements or []
+    admissions = admissions or []
     out_meas = []
     discrepancies = []
     counts = {"PASS": 0, "FAIL": 0}
@@ -179,6 +227,7 @@ def assemble_resume(perma_id, endpoint, agent_card_url, measurements,
         "discrepancies": discrepancies,
         "rings": out_rings,
         "agreements": [{"record_sha256": a.get("record_sha256"), "ledger_n": a.get("source_ledger_n")} for a in agreements],
+        "admissions": [admission_line(a) for a in admissions],
         "freshness": {"last_measured": last, "oldest_measurement": oldest, "current_now": current_now, "period_days": period_days},
     }
     resume["resume_sha256"] = sha256_hex(canonical(resume))

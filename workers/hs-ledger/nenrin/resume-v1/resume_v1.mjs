@@ -108,10 +108,37 @@ async function copyRing(r, discrepancies, sha256Hex) {
   };
 }
 
+// admissions[] (2026-11-02, DESIGN_RESUME_ADMISSIONS_v0): one line per anchored a2a-admission-v0 whose relying party is
+// on the endpoint's host. Closed fields only (a hex sha, an integer, words from closed lists, booleans): nothing the
+// relying party wrote as text is copied. content is the closed part of a 0.4 content block, or null.
+export const ADMISSION_DECISIONS = ["admit", "escalate", "refuse"];
+export const ADMISSION_CONTENT_DECISIONS = [null, "stop", "pass"];
+export const ADMISSION_MARKS = ["off_topic", "rule_conflict"];
+const HEX64 = /^[0-9a-f]{64}$/;
+export function admissionLine(a) {
+  const no = (why) => { throw new Reject("admission_not_closed", why); };
+  const sha = g(a, "record_sha256"), n = g(a, "source_ledger_n"), d = g(a, "decision"), c = g(a, "content"), rv = g(a, "revoked");
+  if (typeof sha !== "string" || !HEX64.test(sha)) no("record_sha256 is not 64 lowercase hex");
+  if (!Number.isSafeInteger(n) || n < 0) no("source_ledger_n is not a non negative integer");
+  if (!ADMISSION_DECISIONS.includes(d)) no("decision is not one of " + ADMISSION_DECISIONS.join(", "));
+  if (typeof rv !== "boolean") no("revoked is not a boolean");
+  let content = null;
+  if (c !== null) {
+    if (typeof c !== "object" || Array.isArray(c)) no("content is neither null nor an object");
+    const chk = g(c, "checked"), cd = g(c, "decision"), mk = g(c, "marks"), rs = g(c, "rules_sha256");
+    if (typeof chk !== "boolean") no("content.checked is not a boolean");
+    if (!ADMISSION_CONTENT_DECISIONS.includes(cd)) no("content.decision is not null, stop or pass");
+    if (!Array.isArray(mk) || mk.some((x) => typeof x !== "string") || canonical(mk) !== canonical(ADMISSION_MARKS.filter((x) => mk.includes(x)))) no("content.marks is not an ordered subset of " + ADMISSION_MARKS.join(", "));
+    if (!(rs === null || (typeof rs === "string" && HEX64.test(rs)))) no("content.rules_sha256 is neither null nor 64 lowercase hex");
+    content = { checked: chk, decision: cd, marks: [...mk], rules_sha256: rs };
+  }
+  return { record_sha256: sha, ledger_n: n, decision: d, content, revoked: rv };
+}
+
 export async function assembleResume(permaId, endpoint, agentCardUrl, measurements, opts = {}) {
   const sha256Hex = opts.sha256Hex;
   if (typeof sha256Hex !== "function") throw new Error("assembleResume: opts.sha256Hex (string -> hex, sync or async) is required");
-  const rings = opts.rings || [], agreements = opts.agreements || [];
+  const rings = opts.rings || [], agreements = opts.agreements || [], admissions = opts.admissions || [];
   const periodDays = opts.period_days === undefined ? 30 : opts.period_days;
   const now = opts.now === undefined ? null : opts.now;
   const outMeas = [], discrepancies = [], counts = { PASS: 0, FAIL: 0 };
@@ -147,6 +174,7 @@ export async function assembleResume(permaId, endpoint, agentCardUrl, measuremen
     witness_diversity: { distinct_names: names.size, distinct_vantages: vantages.size },
     measurements: outMeas, discrepancies, rings: outRings,
     agreements: agreements.map((a) => ({ record_sha256: g(a, "record_sha256"), ledger_n: g(a, "source_ledger_n") })),
+    admissions: admissions.map(admissionLine),
     freshness: { last_measured: last, oldest_measurement: oldest, current_now: currentNow, period_days: periodDays },
   };
   resume.resume_sha256 = await sha256Hex(canonical(resume));

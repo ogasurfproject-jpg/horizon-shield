@@ -13,7 +13,7 @@ for (const c of cases) {
   try {
     const a = c.args;
     const r = await assembleResume(a.perma_id, a.endpoint, a.agent_card_url, a.measurements,
-      { rings: a.rings, agreements: a.agreements, period_days: a.period_days, now: a.now, sha256Hex });
+      { rings: a.rings, agreements: a.agreements, admissions: a.admissions, period_days: a.period_days, now: a.now, sha256Hex });
     out.push({ name: c.name, ok: true, sha: r.resume_sha256 });
   } catch (e) {
     out.push({ name: c.name, ok: false, code: e instanceof Reject ? e.code : "ERROR:" + e.message });

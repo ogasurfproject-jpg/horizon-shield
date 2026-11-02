@@ -14,7 +14,7 @@
 
 ## テスト(この dir で)
     python3 resume_redteam.py                                             期待 total 19 pass 19
-    python3 resume_bytematch.py                                           期待 cases 26 match 26
+    python3 resume_bytematch.py                                           期待 cases 36 match 36
     node resume_route_selftest.mjs     期待 route selftest all green (19)
 
 ## 配備(TOshi の手)

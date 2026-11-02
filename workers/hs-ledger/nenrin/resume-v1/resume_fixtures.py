@@ -44,6 +44,22 @@ def ring(month="2026-08", discrepancies=None, counts=None):
     return {"record_canonical": rc, "record_sha256": sha256_hex(rc), "source_ledger_n": 32}
 
 
-def args(measurements, rings=None, agreements=None, period_days=30, now=NOW):
+def args(measurements, rings=None, agreements=None, period_days=30, now=NOW, admissions=None):
     return {"perma_id": PID, "endpoint": END, "agent_card_url": CARD, "measurements": measurements,
-            "rings": rings or [], "agreements": agreements or [], "period_days": period_days, "now": now}
+            "rings": rings or [], "agreements": agreements or [], "period_days": period_days, "now": now,
+            "admissions": admissions or []}
+
+
+def adm(n=41, decision="admit", content="none", revoked=False, sha="cd" * 32):
+    """an admission line as the route passes it (2026-11-02). content "none" is no block (before 0.4)."""
+    a = {"record_sha256": sha, "source_ledger_n": n, "decision": decision, "revoked": revoked, "content": None}
+    if content != "none":
+        a["content"] = content
+    return a
+
+
+def c04(checked=True, decision="pass", marks=None, rules_sha256="ef" * 32, **extra):
+    """the closed part of a 0.4 content block, plus whatever else the route passes (the core copies four keys)."""
+    c = {"checked": checked, "decision": decision, "marks": marks or [], "rules_sha256": rules_sha256}
+    c.update(extra)
+    return c

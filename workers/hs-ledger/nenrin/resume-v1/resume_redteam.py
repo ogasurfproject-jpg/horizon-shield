@@ -12,7 +12,8 @@ results = []
 
 def A(a):
     return lambda: assemble_resume(a["perma_id"], a["endpoint"], a["agent_card_url"], a["measurements"],
-                                   rings=a["rings"], agreements=a["agreements"], period_days=a["period_days"], now=a["now"])
+                                   rings=a["rings"], agreements=a["agreements"], period_days=a["period_days"], now=a["now"],
+                                   admissions=a.get("admissions"))
 
 
 def expect_ok(name, fn):
