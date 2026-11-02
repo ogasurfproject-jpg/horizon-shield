@@ -21,16 +21,13 @@
 // 本番ファイルには指一本触れない、という元の約束はそのまま守られている。
 
 import { stat } from "node:fs/promises";
-import { register } from "node:module";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 // 2026-11-02 追記: worker.js は名前付きの入口 FuruiDayIntake のために "cloudflare:workers" の WorkerEntrypoint を
-// import する。Node にこの組み込みは無いので、試験の間だけ、その名を同じ形の小さな代わり(ctx と env を持つだけの
-// class)に解決する。本番の worker.js には触らない。wrangler は "cloudflare:workers" を本物の組み込みとして扱う。
-const CF_STUB = "export class WorkerEntrypoint { constructor(ctx, env) { this.ctx = ctx; this.env = env; } }";
-register("data:text/javascript," + encodeURIComponent(
-  "export async function resolve(s, c, n) { if (s === 'cloudflare:workers') return { url: 'data:text/javascript,' + encodeURIComponent(" + JSON.stringify(CF_STUB) + "), shortCircuit: true }; return n(s, c); }"));
+// import する。Node にこの組み込みは無いので、その名を同じ形の小さな代わりに解決する file を先に読む
+// (src/node_cloudflare_workers.mjs。worker.js を Node で読む他の所も同じ file を使う)。本番の worker.js には触らない。
+import "../src/node_cloudflare_workers.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "..");

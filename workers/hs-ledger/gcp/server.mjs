@@ -7,6 +7,9 @@ import { makeKv } from "./kv_firestore.mjs";
 import { makeNodeHandler } from "./http_bridge.mjs";
 import { makeAgreementDedupeDO } from "./firestore_dedupe_do.mjs";
 
+// worker.js は名前付きの入口のために "cloudflare:workers" を import する(2026-11-02)。Node には無いので、
+// 同じ形の代わりに解決してから読む(Cloud Run では入口の RPC は使わない。fetch と scheduled だけを使う)。
+import "../src/node_cloudflare_workers.mjs";
 const worker = (await import("../src/worker.js")).default;
 
 const PORT = Number(process.env.PORT || 8080);

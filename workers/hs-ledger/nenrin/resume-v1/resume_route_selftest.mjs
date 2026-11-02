@@ -5,7 +5,9 @@
 //   node resume_route_selftest.mjs
 import { createHash } from "node:crypto";
 import { canonical, assembleResume } from "./resume_v1.mjs";
-import worker from "../../src/worker.js";
+// worker.js は "cloudflare:workers" を import する(2026-11-02)。先に代わりの解決を入れてから動的に読む。
+import "../../src/node_cloudflare_workers.mjs";
+const worker = (await import("../../src/worker.js")).default;
 
 const shaNode = (s) => createHash("sha256").update(s, "utf8").digest("hex");
 const enc = new TextEncoder();

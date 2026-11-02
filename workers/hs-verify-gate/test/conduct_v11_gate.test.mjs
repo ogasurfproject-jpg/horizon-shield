@@ -7,7 +7,9 @@
 // 台帳は ../../hs-ledger/src/worker.js をそのまま読む(写しを持たん。写しを持った瞬間に台帳とズレて嘘をつく)。
 // 走らせ方: node test/conduct_v11_gate.test.mjs   (workers/hs-verify-gate で)   1 つでも落ちたら exit 1。
 import worker from "../src/worker.js";
-import ledger from "../../hs-ledger/src/worker.js";
+// 台帳の worker.js は "cloudflare:workers" を import する(2026-11-02)。Node で読めるよう、先に代わりの解決を入れてから動的に読む。
+import "../../hs-ledger/src/node_cloudflare_workers.mjs";
+const ledger = (await import("../../hs-ledger/src/worker.js")).default;
 import { createHash } from "node:crypto";
 
 const CTX = { waitUntil(p) { if (p && p.catch) p.catch(() => {}); } };

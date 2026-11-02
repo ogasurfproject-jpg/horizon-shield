@@ -12,6 +12,8 @@ import { tmpdir } from "node:os";
 import { join, resolve, dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 import { createHash } from "node:crypto";
+// hs-ledger の worker.js は "cloudflare:workers" を import する(2026-11-02)。loadWorker で読めるよう、先に代わりの解決を入れる。
+import "../../hs-ledger/src/node_cloudflare_workers.mjs";
 
 export async function loadWorker(rel) {
   const abs = resolve(rel);
