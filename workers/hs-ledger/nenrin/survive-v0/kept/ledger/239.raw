@@ -1,0 +1,1 @@
+{"schema":"nenrin-task-witness-batch-v1","anchored_at":"2026-11-03T00:30:37.004Z","count":1,"records":[{"evidence_id":"afeffd79ed4e02d8ea2b4f238ec0eb1fd93dac5e79167090001609fa1f791033","task_id":"5c61ade3-fb24-4738-bf14-6f21a8cfca9a","hop_seq":0,"witness_id":"did:key:z6Mkqeqwn8UPqgeaRj3hYgaAGY2KJMffd1PjdCt3dfakooJJ","verdict":"PASS","witness_sig":true,"edge_sig":true}]}
