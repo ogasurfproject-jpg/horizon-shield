@@ -2,6 +2,7 @@
 Resume, runner, the daily root, the heartbeat). It reads public endpoints only, holds no secret and writes nothing.
 
     python3 -I -B tools/tooshi/tooshi_daily.py [--now 2026-11-03T04:05:00Z] [--trigger schedule|second|dispatch|manual] [--out result.json] [--body body.md]
+    python3 -I -B tools/tooshi/tooshi_daily.py --witness <your name> [--vantage <your network or tool>] [--dry-run] [--ledger URL]
     python3 -I -B tools/tooshi/tooshi_daily.py --selftest
 
 Each check ends in one of four states:
@@ -46,12 +47,16 @@ Added with the door's daily check call (2026-11-03):
                    is not confirmed in Bitcoin; red when its batch is confirmed and the Resume does not list it.
 A check that cannot be made because a shape is not fixed yet says why and is never reported ok.
 
-Added with the published days (2026-11-03):
+Added with the published days and the witness (2026-11-03):
     trigger        the result names what started it: schedule (the 04:05 cron), second (the 04:35 cron, which runs only when
-                   the day has no published result yet), dispatch (by hand in Actions), manual (any other run).
+                   the day has no published result yet), dispatch (by hand in Actions), manual (any other run), witness.
     day_sha256     the sha256 of the day view: the result without checked_at and trigger, with day added (canonical JSON).
                    Two runs of the same day after 03:47 UTC that read the same answers give the same day_sha256, on any
                    machine; result_sha256 differs between them because it covers checked_at.
+    --witness      anyone runs the checks on their own machine and files the day_sha256 as an unsigned commitment
+                   (jidec-path-v1, mode commitment) at the ledger's witness intake, POST /witness. No key, no account.
+                   Refused before 03:47 UTC (the day's answers are not all in yet) and with --now (the answers are read now).
+                   --dry-run prints the record and sends nothing.
 """
 import base64, datetime, hashlib, json, re, sys, time, urllib.error, urllib.parse, urllib.request
 
@@ -78,7 +83,9 @@ SETTLE_LOOKBACK = 7                      # the stall is read on the filed days o
 RESUME_ENDPOINT = "https://shield.the-horizons-innovation.com/"   # the door's relying party (shield.the-horizons-innovation.com)
 BATCH_DONE = (1, 5)                      # the ledger's daily batch window ends at 01:05 UTC
 UNANCHORED = ("not_yet_anchored", "confirmed_without_block_time")
-TRIGGERS = ("schedule", "second", "dispatch", "manual")
+TRIGGERS = ("schedule", "second", "dispatch", "manual", "witness")
+DAY_READY = (3, 47)                      # after this UTC time every check of the day can be made (01:05, 03:17, 03:47)
+DAY_URL = "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/tooshi/days/%s.json"   # the published day (tooshi_publish.py)
 
 
 class Unreachable(Exception):
@@ -835,6 +842,42 @@ def day_sha256(res):
     return hashlib.sha256(json.dumps(day_view(res), sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")).hexdigest()
 
 
+def tool_sha256():
+    with open(__file__, "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()
+
+
+def witness_record(res, name, vantage, now, tool):
+    """an unsigned jidec-path-v1 commitment record for POST /witness: the witness's own day_sha256 of day D"""
+    d = res["checked_at"][:10]
+    ds = day_sha256(res)
+    rec = {
+        "schema": "jidec-path-v1", "purpose": "tooshi-day-v0: " + d, "walked_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "base": DAY_URL % d,
+        "mode": "commitment", "commitment": ds,
+        "witness": {"name": name, "vantage": vantage},
+        "establishes": ["the witness ran tools/tooshi/tooshi_daily.py (sha256 %s) on its own machine on %s after 03:47 UTC and read the public endpoints itself" % (tool, d),
+                        "commitment is the sha256 of the canonical day view it got (the result without checked_at and trigger, with day); salt is empty"],
+        "does_not_establish": ["that the witness is independent of the operator (the record is unsigned; the name is what the witness typed)",
+                               "that every reader got the same answers from the endpoints",
+                               "anything beyond what the checks read"],
+        "tooshi": {"schema": "tooshi-witness-v0", "day": d, "day_sha256": ds, "verdict": res["verdict"], "counts": res["counts"], "tool_sha256": tool},
+    }
+    return json.dumps(rec, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+def http_post(url, obj, timeout=30):
+    data = json.dumps(obj, separators=(",", ":")).encode("utf-8")
+    req = urllib.request.Request(url, data=data, method="POST", headers=dict(UA, **{"content-type": "application/json"}))
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return r.status, json.loads(r.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        try:
+            return e.code, json.loads(e.read().decode("utf-8"))
+        except ValueError:
+            return e.code, None
+
+
 def body(res, sha):
     lines = ["TOOSHI %s: %s" % (res["checked_at"][:10], res["verdict"]), "",
              "ok %(ok)d, red %(red)d, notice %(notice)d, not yet %(not_yet)d" % res["counts"], ""]
@@ -1153,6 +1196,12 @@ def selftest():
     except ValueError:
         t_ok = True
     cases.append(("an unknown trigger is refused", t_ok, True))
+    w = json.loads(witness_record(ra, "anonymous", "test", now, "ab" * 32))
+    cases.append(("the witness record: an unsigned jidec-path-v1 commitment of the day_sha256, for the published day's URL",
+                  (w["schema"], w["mode"], w["commitment"], w["purpose"], w["base"], w["tooshi"]["day_sha256"], sorted(w["witness"]), bool(w["establishes"]) and bool(w["does_not_establish"])),
+                  ("jidec-path-v1", "commitment", day_sha256(ra), "tooshi-day-v0: 2026-11-05", DAY_URL % "2026-11-05", day_sha256(ra), ["name", "vantage"], True)))
+    cases.append(("the witness record carries no key, no signature and no answer text beyond the counts", any(k in w for k in ("signature_ed25519_b64", "public_key_ed25519_b64", "checks", "nodes")) or "key_url" in w["witness"], False))
+    cases.append(("witness: refused before 03:47 UTC, with --now, and without a name", (main(["--witness", "x", "--now", "2026-11-05T04:05:00Z"]), witness_refusal(datetime.datetime(2026, 11, 5, 3, 46, tzinfo=datetime.timezone.utc), "x"), witness_refusal(now, "")), (2, "too_early", "no_name")))
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:
         print(("  ok   " if got == want else "  NG   ") + n + ("" if got == want else " (got %r, want %r)" % (got, want)))
@@ -1164,31 +1213,83 @@ def selftest():
 VEC_ENVELOPE = '{"check":{"action_binding_digest":"3333333333333333333333333333333333333333333333333333333333333333","answered":true,"checked_at_height":100,"contract_sha256":"4444444444444444444444444444444444444444444444444444444444444444","decision":"pass","input_commit":"1111111111111111111111111111111111111111111111111111111111111111","marks":[],"nonce":"heartbeat-2026-11-03","rules_sha256":null,"schema":"furui-check-v1","scope_sha256":"2222222222222222222222222222222222222222222222222222222222222222","signed_at":"2026-11-03T03:17:09.123Z","stage_reached":4,"trace_sha256":"5555555555555555555555555555555555555555555555555555555555555555","unread":false},"schema":"furui-check-signed-v1","signatures":[{"alg":"ed25519","domain":"horizonshield.dev","key_id":"runner-1","sig":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="}],"signer":{"domain":"horizonshield.dev","key_url":"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json"}}'
 
 
+def witness_refusal(now, name):
+    if not name or not name.strip():
+        return "no_name"
+    if (now.hour, now.minute) < DAY_READY:
+        return "too_early"
+    return None
+
+
+def witness_main(now, name, vantage, ledger, dry):
+    why = witness_refusal(now, name)
+    if why == "no_name":
+        print("witness: give a name (anonymous is allowed)")
+        return 2
+    if why == "too_early":
+        print("witness: the day's checks are not all in before 03:47 UTC (01:05 batch, 03:17 heartbeat, 03:47 door call); run after it")
+        return 2
+    res, text, sha = run(http_get, now, "witness")
+    for x in res["checks"]:
+        print("%-8s %s: %s" % (x["state"], x["id"], x["why"]))
+    rc = witness_record(res, name.strip(), vantage, now, tool_sha256())
+    print("TOOSHI witness %s %s ok %d red %d notice %d not_yet %d day_sha256 %s (published day: %s)" % (res["checked_at"][:10], res["verdict"], res["counts"]["ok"], res["counts"]["red"], res["counts"]["notice"], res["counts"]["not_yet"], day_sha256(res), DAY_URL % res["checked_at"][:10]))
+    if dry:
+        print("record_canonical " + rc)
+        print("dry run: nothing sent")
+        return 0
+    try:
+        s, a = http_post(ledger.rstrip("/") + "/witness", {"record_canonical": rc})
+    except (urllib.error.URLError, OSError, ValueError) as e:
+        print("witness: the ledger did not answer: %s" % type(e).__name__)
+        return 2
+    a = a if isinstance(a, dict) else {}
+    if s in (200, 201) and isinstance(a.get("sha"), str):
+        print("WITNESS_FILED http %d sha %s status %s counted %s url %s" % (s, a["sha"], a.get("status"), a.get("counted"), a.get("url")))
+        return 0
+    print("WITNESS_REFUSED http %s %s %s" % (s, a.get("error"), a.get("why") or a.get("note") or ""))
+    return 3
+
+
 def main(argv):
     if argv == ["--selftest"]:
         return selftest()
-    now, out, bodyf, trigger = datetime.datetime.now(datetime.timezone.utc), None, None, "manual"
-    usage = "usage: tooshi_daily.py [--now T] [--trigger %s] [--out file] [--body file] | --selftest" % "|".join(TRIGGERS)
+    now, out, bodyf, trigger, fixed = datetime.datetime.now(datetime.timezone.utc), None, None, "manual", False
+    wname, vantage, ledger, dry = None, "unspecified", LEDGER, False
+    usage = "usage: tooshi_daily.py [--now T] [--trigger %s] [--out file] [--body file] | --witness NAME [--vantage V] [--dry-run] [--ledger URL] | --selftest" % "|".join(TRIGGERS[:4])
     it = iter(argv)
     try:
         for a in it:
             if a == "--now":
-                now = datetime.datetime.strptime(next(it), "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)
+                now, fixed = datetime.datetime.strptime(next(it), "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc), True
             elif a == "--out":
                 out = next(it)
             elif a == "--body":
                 bodyf = next(it)
             elif a == "--trigger":
                 trigger = next(it)
-                if trigger not in TRIGGERS:
+                if trigger not in TRIGGERS[:4]:
                     print(usage)
                     return 2
+            elif a == "--witness":
+                wname = next(it)
+            elif a == "--vantage":
+                vantage = next(it)
+            elif a == "--ledger":
+                ledger = next(it)
+            elif a == "--dry-run":
+                dry = True
             else:
                 print(usage)
                 return 2
     except StopIteration:
         print(usage)
         return 2
+    if wname is not None:
+        if fixed or out or bodyf or trigger != "manual":
+            print("witness: --now, --out, --body and --trigger do not go with --witness (the answers are read now, by you)")
+            return 2
+        return witness_main(now, wname, vantage, ledger, dry)
     res, text, sha = run(http_get, now, trigger)
     if out:
         open(out, "w", encoding="utf-8").write(text + "\n")

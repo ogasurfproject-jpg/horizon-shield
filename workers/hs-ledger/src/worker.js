@@ -490,7 +490,11 @@ async function witnessVerifySig(recordCanonical, sigB64, pubB64) {
 // 台帳の entry・錨・証人プール・輪の数え方は 1 バイトも動かさん。動くのは GET /witness の中身だけ。
 const NET_COUNTING_SINCE = "2026-09-15";
 const NET_TTL_SECONDS = 60 * 60 * 48;
-const NET_FACES = ["witness", "a2a"];
+const NET_FACES = ["witness", "a2a", "tooshi"];
+// 2026-11-03. tooshi: the networks that filed an accepted TOOSHI witness record (POST /witness, purpose "tooshi-day-v0: <day>",
+// tools/tooshi/tooshi_daily.py --witness). Marked by the intake after the record is stored, so a refused record leaves no
+// mark here (the witness face above still counts every POST, as before). Same salt, same hash, same 48 hours.
+const NET_TOOSHI_PURPOSE = /^tooshi-day-v0: \d{4}-\d{2}-\d{2}$/;
 
 function netPrefix(ip) {
   if (typeof ip !== "string" || !ip) return null;
@@ -550,6 +554,18 @@ function noteSubmitterNetwork(env, ctx, request) {
   } catch (_e) { /* same */ }
 }
 
+async function noteNetworkFace(env, request, face) {
+  try {
+    const prefix = netPrefix(request.headers.get("cf-connecting-ip"));
+    if (!prefix || !env || !env.LEDGER) return;
+    const day = netDay();
+    const salt = await netSalt(env, day);
+    const h = (await sha256hex(salt + "|" + prefix)).slice(0, 32);
+    const k = netMarkPrefix(day, face) + h;
+    if (!(await env.LEDGER.get(k))) await env.LEDGER.put(k, "1", { expirationTtl: NET_TTL_SECONDS });
+  } catch (_e) { /* 計数の失敗で台帳を止めない */ }
+}
+
 async function netCountLive(env, day) {
   const countPrefix = async (p) => {
     let n = 0, cursor;
@@ -601,7 +617,7 @@ async function netReport(env, n) {
   }
   return {
     counting_since: NET_COUNTING_SINCE,
-    faces: { witness: "POST /witness", a2a: "POST /a2a" },
+    faces: { witness: "POST /witness", a2a: "POST /a2a", tooshi: "POST /witness, accepted records with purpose tooshi-day-v0 (TOOSHI witnesses, tools/tooshi/tooshi_daily.py --witness)" },
     days_counted: days_counted,
     max_networks_in_a_day: max,
     by_day: by_day,
@@ -1835,6 +1851,7 @@ async function handle(request, env) {
       await env.LEDGER.put(`wit:pending:${sha}`, JSON.stringify(stored));
       await env.LEDGER.put(`wit:count:${day}`, String(g + 1), { expirationTtl: 90000 });
       await env.LEDGER.put(laneKey, String(gl + 1), { expirationTtl: 90000 });
+      if (NET_TOOSHI_PURPOSE.test(v.purpose)) await noteNetworkFace(env, request, "tooshi");
       return json({
         sha, status: "pending", signed, signed_domain: signedDomain, mode: v.mode, counted, count_reason: countReason, url: `${origin}/witness/${sha}`,
         anchor_policy: "pending submissions are bundled into a nenrin-witness-batch-v1 ledger entry daily at 00:30 UTC by the ledger's schedule when the pool is not empty; the batch anchor fixes the existence time of every record in it; the Bitcoin stamp follows on the operator's stamping run"
