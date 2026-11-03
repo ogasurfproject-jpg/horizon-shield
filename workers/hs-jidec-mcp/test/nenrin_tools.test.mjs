@@ -27,7 +27,7 @@ async function rpc(method, params) {
 const call = (name, args) => rpc("tools/call", { name, arguments: args || {} });
 
 const init = await rpc("initialize", {});
-ok(init.serverInfo.version === "1.3.0" && init.instructions.includes("nenrin_resume"), "initialize 1.3.0 names nenrin_resume");
+ok(init.serverInfo.version === "1.4.0" && init.instructions.includes("nenrin_resume"), "initialize 1.4.0 names nenrin_resume");
 const list = (await rpc("tools/list", {})).tools;
 const names = list.map((t) => t.name);
 for (const t of ["jidec_cite", "jidec_replay", "jidec_list_paths", "jidec_how_to_verify", "nenrin_resume", "nenrin_trust_signal", "nenrin_witness", "nenrin_ledger_head", "nenrin_ledger_entry"]) ok(names.includes(t), "tool listed: " + t);

@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ogasurfproject-jpg/jidec",
   "title": "JIDEC: Bitcoin-anchored public verification ledger (NENRIN)",
-  "description": "Read agents' Bitcoin-anchored conduct history (NENRIN) and cite and recompute ledger records.",
-  "version": "1.3.0",
+  "description": "Read Bitcoin-anchored conduct history (NENRIN), admissions and daily check roots; cite records.",
+  "version": "1.4.0",
   "websiteUrl": "https://ledger.horizonshield.dev/llms.txt",
   "icons": [
     {

@@ -121,7 +121,9 @@ x = await call({ jsonrpc: "2.0", id: 2, method: "tools/list" });
 const tools = x.j.result.tools;
 // 本数ではなく名前で見る(ledger.test.mjs の route と同じ理由)。2026-10-10 まで「4 本」のままで、nenrin_* の 5 本が足された後も直されずに落ちていた。
 const EXPECTED_TOOLS = ["jidec_cite", "jidec_replay", "jidec_list_paths", "jidec_how_to_verify",
-  "nenrin_resume", "nenrin_trust_signal", "nenrin_witness", "nenrin_ledger_head", "nenrin_ledger_entry"];
+  "nenrin_resume", "nenrin_trust_signal", "nenrin_witness", "nenrin_ledger_head", "nenrin_ledger_entry",
+  // 1.4.0 (2026-11-03): admission and agreement records by sha, the content check runner's day record and one of its envelopes
+  "nenrin_admission", "nenrin_agreement", "nenrin_furui_day", "nenrin_furui_leaf"];
 chk("tools are exactly the named set", JSON.stringify(tools.map((t) => t.name).sort()) === JSON.stringify([...EXPECTED_TOOLS].sort()), JSON.stringify(tools.map((t) => t.name)));
 chk("every tool has title", tools.every((t) => typeof t.title === "string" && t.title));
 chk("every tool readOnlyHint:true", tools.every((t) => t.annotations && t.annotations.readOnlyHint === true));

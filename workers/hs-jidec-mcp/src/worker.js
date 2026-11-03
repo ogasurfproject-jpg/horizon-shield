@@ -3,7 +3,8 @@
 // Phase 4 of jidec-path-v1. Lets any MCP-capable agent cite and re-check a
 // Bitcoin-anchored verification path by URI, without trusting HORIZON SHIELD.
 //
-// Tools (1.3.0 adds nenrin_resume, nenrin_trust_signal, nenrin_witness, nenrin_ledger_head, nenrin_ledger_entry):
+// Tools (1.3.0 adds nenrin_resume, nenrin_trust_signal, nenrin_witness, nenrin_ledger_head, nenrin_ledger_entry;
+// 1.4.0 adds nenrin_admission, nenrin_agreement, nenrin_furui_day, nenrin_furui_leaf):
 //   jidec_cite(citation)            resolve + independently verify any citation
 //   jidec_replay(citation)          re-observe the anchored path live, report drift
 //   jidec_list_paths()              list anchored verification paths
@@ -48,6 +49,8 @@
 //     the CLI and the MCP server agree field-for-field.
 // ---------------------------------------------------------------------------
 
+import { dayChecks, leafChecks } from "./furui_read.mjs";
+
 // 2026-08-11: advertised origin moved to the domain we control. hs-ledger
 // accepts both hostnames for replay (SELF_LEDGER_HOSTS), so records anchored
 // under the old hostname still re-observe correctly when reached through this.
@@ -55,9 +58,17 @@ const LEDGER_ORIGIN = "https://ledger.horizonshield.dev";
 const HEX64 = /^[0-9a-f]{64}$/i;
 // 1.3.0 (2026-09-30): NENRIN read tools. The A2A card keeps its own version (CARD_VERSION) because its bytes are
 // signed and its A2A face did not change; re-signing is a separate step, not a side effect of adding MCP tools.
-const VERSION = "1.3.0";
+// 1.4.0 (2026-11-03): admission and agreement records by sha, the content check runner's day record (furui-check-day-v0)
+// and one envelope of a day (a leaf) with its checks recomputed here. The A2A card does not list MCP tools, so it is not
+// re-signed for this.
+const VERSION = "1.4.0";
 const CARD_VERSION = "1.2.2";
 const PROTOCOL_VERSION = "2025-11-25";
+// The content check runner's public reads (GET only; no content, scope or answer text). A custom domain, so a plain
+// fetch reaches it from this worker; RUNNER_SVC, when bound, is used instead.
+const RUNNER_ORIGIN = "https://furui.horizonshield.dev";
+const FURUI_KEYS_PATH = "/.well-known/furui-check-keys.json";
+const DAY_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 /* ------------------------------ origin policy ------------------------------ */
 
@@ -93,6 +104,14 @@ function corsHeaders(origin) {
 
 async function ledgerGet(env, path) {
   const r = await env.LEDGER_SVC.fetch(new Request(LEDGER_ORIGIN + path));
+  const text = await r.text();
+  let body; try { body = JSON.parse(text); } catch { body = text; }
+  return { status: r.status, body };
+}
+
+async function runnerGet(env, path) {
+  const req = new Request(RUNNER_ORIGIN + path, { headers: { accept: "application/json", "user-agent": "hs-jidec-mcp/" + VERSION } });
+  const r = env && env.RUNNER_SVC ? await env.RUNNER_SVC.fetch(req) : await fetch(req, { signal: AbortSignal.timeout(15000) });
   const text = await r.text();
   let body; try { body = JSON.parse(text); } catch { body = text; }
   return { status: r.status, body };
@@ -429,7 +448,7 @@ const TOOLS = [
     name: "nenrin_resume",
     title: "Recorded conduct history of an endpoint (NENRIN résumé)",
     description:
-      "Return the NENRIN résumé of an agent or MCP endpoint: every recorded measurement that touches its origin (by the gate and by outside witnesses, signed or not), which are Bitcoin-anchored, discrepancies, rings, agreements, and the records not counted with the reason. Includes resume_sha256 and a recompute recipe. A history, not a score. Absent means no record, not a negative finding.",
+      "Return the NENRIN résumé of an agent or MCP endpoint: every recorded measurement that touches its origin (by the gate and by outside witnesses, signed or not), which are Bitcoin-anchored, discrepancies, rings, agreements[] (anchored agreements), admissions[] (the anchored admissions whose relying party is on the endpoint's host: record_sha256, ledger entry, decision, the closed part of a 0.4 content block, revoked; no text), and the records not counted with the reason. Includes resume_sha256 and a recompute recipe. A history, not a score. Absent means no record, not a negative finding.",
     inputSchema: {
       type: "object",
       properties: { endpoint: { type: "string", description: "https URL of the agent or MCP endpoint, e.g. https://mcp.horizonshield.dev/mcp" } },
@@ -485,6 +504,63 @@ const TOOLS = [
     },
     outputSchema: NENRIN_OUTPUT_SCHEMA,
     annotations: { title: "One ledger entry by number", ...READ_ONLY },
+  },
+  {
+    name: "nenrin_admission",
+    title: "One admission record by its SHA-256",
+    description:
+      "Return one admission record (a2a-admission-v0) as the ledger stores it, by its canonical SHA-256: the exact record bytes, pending or anchored, and the ledger entry once anchored. A door writes one before it lets an agent's action run; version 0.4 carries the content check as fields only (a salted commitment to the content, the digest of the check, the rule set, decision, marks), no text. The anchored admissions of a relying party are also listed in admissions[] of its Résumé (nenrin_resume).",
+    inputSchema: {
+      type: "object",
+      properties: { sha256: { type: "string", description: "64-hex canonical SHA-256 of the admission record" } },
+      required: ["sha256"],
+    },
+    outputSchema: NENRIN_OUTPUT_SCHEMA,
+    annotations: { title: "One admission record by its SHA-256", ...READ_ONLY },
+  },
+  {
+    name: "nenrin_agreement",
+    title: "One agreement record by its SHA-256",
+    description:
+      "Return one agreement record as the ledger stores it, by its canonical SHA-256: the exact record bytes, pending or anchored, and the ledger entry once anchored. The anchored agreements of an endpoint are listed in agreements[] of its Résumé (nenrin_resume).",
+    inputSchema: {
+      type: "object",
+      properties: { sha256: { type: "string", description: "64-hex canonical SHA-256 of the agreement record" } },
+      required: ["sha256"],
+    },
+    outputSchema: NENRIN_OUTPUT_SCHEMA,
+    annotations: { title: "One agreement record by its SHA-256", ...READ_ONLY },
+  },
+  {
+    name: "nenrin_furui_day",
+    title: "A content check runner's day record, checked",
+    description:
+      "Return the day record (furui-check-day-v0) of the content check runner: the signed RFC 6962 root of one UTC day's check envelopes and their count. Give its SHA-256, or a day (YYYY-MM-DD) to find it through the runner's day status. This server reads the record from the ledger and the key from the ledger's /.well-known/furui-check-keys.json, and recomputes: the bytes hash to the SHA-256, the shape is closed, the key is listed for the record's heights, the Ed25519 signature verifies, and whether the record is anchored. No content, scope or answer text is in it.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sha256: { type: "string", description: "64-hex canonical SHA-256 of the day record" },
+        day: { type: "string", description: "UTC day YYYY-MM-DD, used when sha256 is not given" },
+      },
+    },
+    outputSchema: NENRIN_OUTPUT_SCHEMA,
+    annotations: { title: "A content check runner's day record, checked", ...READ_ONLY },
+  },
+  {
+    name: "nenrin_furui_leaf",
+    title: "One check envelope of a day (a leaf), checked against the day record",
+    description:
+      "Return envelope i of a closed UTC day as the content check runner serves it (kept 7 days after the day), with its RFC 6962 audit path. This server recomputes: the envelope has the closed shape (digests, numbers, booleans, fixed words; no text), the leaf hash is sha256(0x00 || canonical envelope), the audit path rebuilds the root of the day record the ledger stores, and the runner's Ed25519 signature verifies under the key the ledger lists. An admission of version 0.4 names the check of such an envelope by its digest.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        day: { type: "string", description: "UTC day YYYY-MM-DD" },
+        index: { type: "integer", minimum: 0, description: "leaf index, 0 to n-1" },
+      },
+      required: ["day", "index"],
+    },
+    outputSchema: NENRIN_OUTPUT_SCHEMA,
+    annotations: { title: "One check envelope of a day (a leaf), checked against the day record", ...READ_ONLY },
   },
 ];
 
@@ -581,7 +657,95 @@ async function callTool(name, args, env) {
     return await nenrinRead(env, "/ledger/" + n + "?format=json", "entry " + n);
   }
 
+  if (name === "nenrin_admission" || name === "nenrin_agreement") {
+    const sha = String(args.sha256 || "").toLowerCase();
+    if (!HEX64.test(sha)) throw new Error("sha256 must be 64 hex characters");
+    const kind = name === "nenrin_admission" ? "admission" : "agreement";
+    return await nenrinRead(env, "/" + kind + "/" + sha, kind + " record " + sha);
+  }
+
+  if (name === "nenrin_furui_day") return await furuiDay(env, args);
+  if (name === "nenrin_furui_leaf") return await furuiLeaf(env, args);
+
   throw new Error("unknown tool: " + name);
+}
+
+const FURUI_LIMITS = [
+  "a day record shows that checks were made and signed and that their root has not changed; it does not show that any check was right",
+  "no content, scope, question or answer text is kept, so none can be read here",
+  "the runner keeps a day's envelopes 7 days after the day; after that only the root remains",
+  "not yet anchored is not false, and absent is not a negative finding",
+];
+function realDay(s) {
+  const m = DAY_RE.exec(String(s || "")); if (!m) return false;
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+  return d.getUTCFullYear() === +m[1] && d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3];
+}
+async function ledgerKeys(env) {
+  const k = await ledgerGet(env, FURUI_KEYS_PATH);
+  if (k.status !== 200 || !k.body || typeof k.body !== "object") throw new Error("the ledger's furui-check keys could not be read: HTTP " + k.status + ". Nothing was checked.");
+  return k.body;
+}
+// The runner's status of a closed day: { sha } of its day record at the ledger, or { absent } with the runner's words.
+async function runnerDaySha(env, day) {
+  const r = await runnerGet(env, "/furui/day/" + day + "/status");
+  if (r.status !== 200 || !r.body || typeof r.body !== "object") throw new Error("the runner's day status could not be read for " + day + ": HTTP " + r.status + ". This is NOT a statement that the day has no record.");
+  const st = r.body.status;
+  const sha = st && typeof st.ledger_canonical_sha256 === "string" ? st.ledger_canonical_sha256.toLowerCase() : null;
+  if (!st || !sha || !HEX64.test(sha)) return { absent: true, runner_status: r.body, source_url: RUNNER_ORIGIN + "/furui/day/" + day + "/status" };
+  return { sha, runner_status: r.body };
+}
+async function furuiDay(env, args) {
+  let sha = args.sha256 ? String(args.sha256).toLowerCase() : null, viaDay = null;
+  if (sha !== null && !HEX64.test(sha)) throw new Error("sha256 must be 64 hex characters");
+  if (sha === null) {
+    if (!realDay(args.day)) throw new Error("give sha256 (64 hex) or day (YYYY-MM-DD)");
+    viaDay = await runnerDaySha(env, args.day);
+    if (viaDay.absent) return { lookup: "absent", source_url: viaDay.source_url, day: args.day, runner_status: viaDay.runner_status, does_not_establish: FURUI_LIMITS,
+      note: "The runner holds no accepted day record for " + args.day + " (a day without checks has none, and a day answers after it closes, from about 00:47 UTC the next day)." };
+    sha = viaDay.sha;
+  }
+  const path = "/furui-check-day/" + sha, source_url = LEDGER_ORIGIN + path;
+  const r = await ledgerGet(env, path);
+  if (r.status === 404) return { lookup: "absent", source_url, canonical_sha256: sha, does_not_establish: FURUI_LIMITS, note: "The ledger was read and holds no day record under this sha." };
+  if (r.status !== 200 || !r.body || typeof r.body !== "object") throw new Error("the ledger could not be read for day record " + sha + ": HTTP " + r.status + ". This is NOT a statement that the record does not exist.");
+  const keys = await ledgerKeys(env);
+  const { checks, record, problem } = await dayChecks(sha, r.body, keys);
+  const hold = ["bytes_hash_to_the_sha", "closed_shape", "key_listed", "signature_valid"].every((k) => checks[k] === true);
+  return { lookup: "ok", source_url, canonical_sha256: sha, record_canonical: r.body.record_canonical, status: r.body.status, ledger_entry: r.body.ledger_entry ?? null,
+    day: record && record.day, n: record && record.n, root: record && record.root, checks, all_hold: hold, problem: problem || null,
+    keys_url: LEDGER_ORIGIN + FURUI_KEYS_PATH, runner_status: viaDay ? viaDay.runner_status : undefined,
+    how_to_check: "sha256 of record_canonical must equal canonical_sha256; the Ed25519 signature is over 'furui-check-day-v0\\n' + the canonical record without signatures, under the key listed at keys_url; anchored records carry ledger_entry, whose OpenTimestamps proof is at " + LEDGER_ORIGIN + "/ledger/{ledger_entry}/ots",
+    does_not_establish: FURUI_LIMITS };
+}
+async function furuiLeaf(env, args) {
+  const day = String(args.day || ""), i = Number(args.index);
+  if (!realDay(day)) throw new Error("day must be YYYY-MM-DD");
+  if (!Number.isInteger(i) || i < 0 || i > 999999) throw new Error("index must be an integer from 0");
+  const path = "/furui/day/" + day + "/leaf/" + i, source_url = RUNNER_ORIGIN + path;
+  const r = await runnerGet(env, path);
+  if (r.status === 410 || r.status === 404) {
+    const why = r.body && typeof r.body === "object" ? r.body.error : null;
+    if (r.status === 404 && !["day_open", "no_leaf", "not_kept"].includes(why)) throw new Error("the runner answered 404 without a known reason for " + path + ". This is NOT a statement that the leaf does not exist.");
+    return { lookup: "absent", source_url, day, index: i, gone: r.status === 410, runner_says: why, does_not_establish: FURUI_LIMITS,
+      note: r.status === 410 ? "The runner kept this day's envelopes 7 days and has deleted them; the day record and its root remain (nenrin_furui_day)." : "The runner has no such leaf (" + why + ")." };
+  }
+  if (r.status !== 200 || !r.body || typeof r.body !== "object") throw new Error("the runner could not be read for " + path + ": HTTP " + r.status + ". Nothing was checked.");
+  const ds = await runnerDaySha(env, day);
+  if (ds.absent) throw new Error("the runner serves a leaf for " + day + " but no accepted day record at the ledger; the leaf cannot be held to a ledger root.");
+  const dr = await ledgerGet(env, "/furui-check-day/" + ds.sha);
+  if (dr.status !== 200 || !dr.body || typeof dr.body !== "object") throw new Error("the ledger's day record " + ds.sha + " could not be read: HTTP " + dr.status + ". Nothing was checked.");
+  const keys = await ledgerKeys(env);
+  const d = await dayChecks(ds.sha, dr.body, keys);
+  const l = await leafChecks(r.body, d.record, ds.sha, keys, LEDGER_ORIGIN + FURUI_KEYS_PATH);
+  const dayHold = ["bytes_hash_to_the_sha", "closed_shape", "key_listed", "signature_valid"].every((k) => d.checks[k] === true);
+  const hold = dayHold && Object.values(l.checks).every((v) => v === true);
+  return { lookup: "ok", source_url, day, index: i, n: r.body.n, root: r.body.root, leaf_sha256: r.body.leaf_sha256, envelope_sha256: r.body.envelope_sha256,
+    envelope: r.body.envelope, proof: r.body.proof, kept_until: r.body.kept_until ?? null,
+    day_record: { canonical_sha256: ds.sha, source_url: LEDGER_ORIGIN + "/furui-check-day/" + ds.sha, status: dr.body.status, ledger_entry: dr.body.ledger_entry ?? null, checks: d.checks },
+    checks: l.checks, all_hold: hold, problem: l.problem || d.problem || null, keys_url: LEDGER_ORIGIN + FURUI_KEYS_PATH,
+    how_to_check: "leaf_sha256 = sha256(0x00 || canonical envelope); fold the proof (RFC 6962 audit path) to the day record's root; the envelope's Ed25519 signature is over 'furui-check-signed-v1\\n' + canonical {schema, check, signer}",
+    does_not_establish: FURUI_LIMITS };
 }
 
 /* ---------------------------------- rpc ------------------------------------ */
@@ -591,7 +755,7 @@ const SERVER_INFO = {
   capabilities: { tools: { listChanged: false } },
   serverInfo: { name: "hs-jidec-mcp", title: "HORIZON SHIELD JIDEC", version: VERSION },
   instructions:
-    "JIDEC / NENRIN is a Bitcoin-anchored public verification ledger. Every tool here is read-only and requires no trust in HORIZON SHIELD: you fetch the bytes, you recompute the hash, you check the timestamp. For what an agent or MCP endpoint has done over time, call nenrin_resume (or nenrin_trust_signal for the compact form); for one submitted walk, nenrin_witness; for the chain itself, nenrin_ledger_head and nenrin_ledger_entry. To cite and recompute a record, jidec_cite then jidec_how_to_verify. A NENRIN history is not a score: a signature proves who asserted, not that it is true, and absence is not a negative finding. Offline verifier for NENRIN bundles: npx nenrin-verify.",
+    "JIDEC / NENRIN is a Bitcoin-anchored public verification ledger. Every tool here is read-only and requires no trust in HORIZON SHIELD: you fetch the bytes, you recompute the hash, you check the timestamp. For what an agent or MCP endpoint has done over time, call nenrin_resume (or nenrin_trust_signal for the compact form); for one submitted walk, nenrin_witness; for one admission or agreement record, nenrin_admission or nenrin_agreement (the Résumé lists them in admissions[] and agreements[]); for the content check runner's day record and one of its envelopes, nenrin_furui_day and nenrin_furui_leaf; for the chain itself, nenrin_ledger_head and nenrin_ledger_entry. To cite and recompute a record, jidec_cite then jidec_how_to_verify. A NENRIN history is not a score: a signature proves who asserted, not that it is true, and absence is not a negative finding. Offline verifier for NENRIN bundles: npx nenrin-verify.",
 };
 
 
