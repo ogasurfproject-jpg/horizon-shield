@@ -1,7 +1,7 @@
 """tooshi_daily.py: TOOSHI, the daily end to end check of the content check chain (sieve, admission, ledger, door,
 Resume, runner, the daily root, the heartbeat). It reads public endpoints only, holds no secret and writes nothing.
 
-    python3 -I -B tools/tooshi/tooshi_daily.py [--now 2026-11-03T04:05:00Z] [--out result.json] [--body body.md]
+    python3 -I -B tools/tooshi/tooshi_daily.py [--now 2026-11-03T04:05:00Z] [--trigger schedule|second|dispatch|manual] [--out result.json] [--body body.md]
     python3 -I -B tools/tooshi/tooshi_daily.py --selftest
 
 Each check ends in one of four states:
@@ -31,8 +31,10 @@ Added with the door's daily check call (2026-11-03):
                    within_grant, final. Read from check-runs/index.json and the day's settlement.json in this
                    repository (its sha256 must be the one SETTLED.json names), the admission on the ledger and the
                    execution at the intake. not_yet before the loop's first day and while Bitcoin has not confirmed
-                   both records (72 hours after filing); red when the day was not filed, did not settle in time, or
-                   settled as anything but within_grant, final.
+                   both records; red when the day was not filed, or settled as anything but within_grant, final.
+                   A day is filed at 21:17 UTC of its own day (seki-heartbeat), so the day before yesterday is always
+                   less than 72 hours past its filing at the run; the stall is read on the earlier filed days of the
+                   last 7 days: one of them still not settled final 72 hours after 21:17 UTC of its day is red.
     4              door to Resume: the previous call's record (.furui.check_call_prev, yesterday's) is listed by its
                    record_sha256 in the admissions[] of the relying party's Resume (GET /resume?endpoint=<its endpoint>),
                    as admit, not revoked, with the fixed content answer. An admission is listed only once its batch is
@@ -43,6 +45,13 @@ Added with the door's daily check call (2026-11-03):
                    agreements[] of the same Resume. not_yet while it is not on file, not in a ledger batch, or its batch
                    is not confirmed in Bitcoin; red when its batch is confirmed and the Resume does not list it.
 A check that cannot be made because a shape is not fixed yet says why and is never reported ok.
+
+Added with the published days (2026-11-03):
+    trigger        the result names what started it: schedule (the 04:05 cron), second (the 04:35 cron, which runs only when
+                   the day has no published result yet), dispatch (by hand in Actions), manual (any other run).
+    day_sha256     the sha256 of the day view: the result without checked_at and trigger, with day added (canonical JSON).
+                   Two runs of the same day after 03:47 UTC that read the same answers give the same day_sha256, on any
+                   machine; result_sha256 differs between them because it covers checked_at.
 """
 import base64, datetime, hashlib, json, re, sys, time, urllib.error, urllib.parse, urllib.request
 
@@ -63,10 +72,13 @@ SIGNER = {"domain": "horizonshield.dev", "key_url": LEDGER + "/.well-known/furui
 H64 = re.compile(r"^[0-9a-f]{64}$")
 AGREEMENT = "https://agreement.horizonshield.dev"   # the MUSUBI intake (contracts and execution records)
 CHECK_RUNS = "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-ledger/nenrin/seki-heartbeat/check-runs/"
-SETTLE_STALL = datetime.timedelta(hours=72 + 21)    # filed at 21:17 UTC of the call's day; unsettled 72 hours after that is red
+SETTLE_FILED = (21, 17)                  # seki-heartbeat (cron 17 21 * * *) files the check call of a day at 21:17 UTC of that day
+SETTLE_STALL = datetime.timedelta(hours=72)   # a filed day not settled final 72 hours after its filing is red
+SETTLE_LOOKBACK = 7                      # the stall is read on the filed days of the last 7 days (before the day before yesterday)
 RESUME_ENDPOINT = "https://shield.the-horizons-innovation.com/"   # the door's relying party (shield.the-horizons-innovation.com)
 BATCH_DONE = (1, 5)                      # the ledger's daily batch window ends at 01:05 UTC
 UNANCHORED = ("not_yet_anchored", "confirmed_without_block_time")
+TRIGGERS = ("schedule", "second", "dispatch", "manual")
 
 
 class Unreachable(Exception):
@@ -693,6 +705,29 @@ def _index(get):
     return None, "", ix
 
 
+def _filed_at(d):
+    """when seki-heartbeat files the check call of day d: 21:17 UTC of that day"""
+    return datetime.datetime.strptime(d, "%Y-%m-%d").replace(hour=SETTLE_FILED[0], minute=SETTLE_FILED[1], tzinfo=datetime.timezone.utc)
+
+
+def _stalled(ix, first, d, now):
+    """the filed days before d, not before the loop's first day nor SETTLE_LOOKBACK days before now, still not settled final
+    SETTLE_STALL after 21:17 UTC of their day"""
+    lo = (now - datetime.timedelta(days=SETTLE_LOOKBACK)).strftime("%Y-%m-%d")
+    late = []
+    for e in sorted(k for k in ix["days"] if isinstance(k, str)):
+        x = ix["days"][e]
+        if not (first <= e < d and e >= lo and isinstance(x, dict)):
+            continue
+        try:
+            fa = _filed_at(e)
+        except ValueError:
+            continue
+        if now - fa >= SETTLE_STALL and not (x.get("settled") is True and x.get("status") == "final"):
+            late.append(e)
+    return late
+
+
 def check_settle(get, now):
     """3: the check call of the day before yesterday, settled with MUSUBI settle v1.19 as within_grant, final"""
     cid = "3_ledger_settle"
@@ -703,11 +738,14 @@ def check_settle(get, now):
     first = ix.get("first_day")
     if not isinstance(first, str) or d < first:
         return c(cid, "not_yet", "%s is before the first day the loop filed (%s)" % (d, first), day=d)
+    late = _stalled(ix, first, d, now)
+    if late:
+        return c(cid, "red", "%s still not settled final more than 72 hours after it was filed (21:17 UTC of its day)" % ", ".join(late), day=d, stalled=late)
     x = ix["days"].get(d)
     if not isinstance(x, dict):
         return c(cid, "red", "the check call of %s was not carried through MUSUBI (no execution filed for it)" % d, day=d)
     facts = {"day": d, "record": x.get("record_sha256"), "execution": x.get("execution_sha256"), "contract": ix["contract_sha256"]}
-    filed_at = datetime.datetime.strptime(d, "%Y-%m-%d").replace(tzinfo=datetime.timezone.utc)
+    filed_at = _filed_at(d)
     if x.get("settled") is not True or x.get("status") != "final":
         if now - filed_at < SETTLE_STALL:
             return c(cid, "not_yet", "%s is filed and waits for Bitcoin to confirm its admission and execution (%s)" % (d, x.get("status") or "not settled"), **facts)
@@ -769,7 +807,9 @@ def check_resume_agreement(get, now):
     return c(cid, "red", "the check contract's batch (ledger entry %d) is confirmed, and the Resume of %s does not list it in agreements[] or not_counted" % (n, RESUME_ENDPOINT), contract=csha, entry=n)
 
 
-def run(get, now):
+def run(get, now, trigger="manual"):
+    if trigger not in TRIGGERS:
+        raise ValueError("trigger must be one of " + ", ".join(TRIGGERS))
     checks = check_call_checks(get, now)
     checks.append(check_settle(get, now))
     checks.append(check_resume(get, now))
@@ -778,9 +818,21 @@ def run(get, now):
     checks.sort(key=lambda x: x["id"])
     counts = {k: sum(1 for x in checks if x["state"] == k) for k in ("ok", "red", "notice", "not_yet")}
     verdict = "red" if counts["red"] else ("green" if counts["not_yet"] == 0 else "not_all_checked")
-    res = {"schema": "tooshi-daily-v0", "checked_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "verdict": verdict, "counts": counts, "checks": checks}
+    res = {"schema": "tooshi-daily-v0", "checked_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "trigger": trigger, "verdict": verdict, "counts": counts, "checks": checks}
     text = json.dumps(res, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return res, text, hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def day_view(res):
+    """the result without the run's own time and trigger: what every run of the same day after 03:47 UTC should agree on"""
+    v = {k: x for k, x in res.items() if k not in ("checked_at", "trigger")}
+    v["schema"] = "tooshi-day-view-v0"
+    v["day"] = res["checked_at"][:10]
+    return v
+
+
+def day_sha256(res):
+    return hashlib.sha256(json.dumps(day_view(res), sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")).hexdigest()
 
 
 def body(res, sha):
@@ -788,7 +840,7 @@ def body(res, sha):
              "ok %(ok)d, red %(red)d, notice %(notice)d, not yet %(not_yet)d" % res["counts"], ""]
     for x in res["checks"]:
         lines.append("- %s: %s. %s" % (x["id"], x["state"], x["why"]))
-    lines += ["", "result sha256 " + sha]
+    lines += ["", "trigger " + res.get("trigger", "manual"), "result sha256 " + sha, "day sha256 " + day_sha256(res)]
     return "\n".join(lines) + "\n"
 
 
@@ -1033,8 +1085,27 @@ def selftest():
     cases.append(("3 red: the day is not filed after the loop's first day", (v, s["3_ledger_settle"]), ("red", "red")))
     v, s = states(world(cc=True, **{CHECK_RUNS + "index.json": loop_with(day={"settled": False, "status": None, "verdict": None})}))
     cases.append(("3 not_yet: filed, waiting for Bitcoin (within 72 hours of filing)", (v, s["3_ledger_settle"]), ("not_all_checked", "not_yet")))
-    v, s = states(world(cc=True, **{CHECK_RUNS + "index.json": loop_with(day={"settled": False, "status": None, "verdict": None})}), datetime.datetime(2026, 11, 7, 4, 5, tzinfo=datetime.timezone.utc))
-    cases.append(("3 red: still unsettled more than 72 hours after filing", s["3_ledger_settle"], "red"))
+    UNS = {"settled": False, "status": None, "verdict": None}
+
+    def settle_at(when, days):
+        ix = json.loads(json.dumps(INDEX))
+        for k, f in days.items():
+            ix["days"][k] = dict(DAY3, **f)
+        r = check_settle(world(cc=True, **{CHECK_RUNS + "index.json": (200, ix)}), when)
+        return r["state"], r["facts"].get("stalled")
+    at = lambda d, h, m: datetime.datetime.strptime(d, "%Y-%m-%d").replace(hour=h, minute=m, tzinfo=datetime.timezone.utc)
+    cases.append(("3 not_yet: 11-03 unsettled at 11-06 21:16, one minute before 72 hours after its filing at 11-03 21:17 (11-04 the day before yesterday, unsettled)",
+                  settle_at(at("2026-11-06", 21, 16), {"2026-11-03": UNS, "2026-11-04": UNS}), ("not_yet", None)))
+    cases.append(("3 red: 11-03 unsettled at 11-06 21:17, 72 hours after its filing at 11-03 21:17",
+                  settle_at(at("2026-11-06", 21, 17), {"2026-11-03": UNS, "2026-11-04": UNS}), ("red", ["2026-11-03"])))
+    cases.append(("3 red: at the 04:05 run of 11-07, 11-03 still unsettled (the day before yesterday 11-05 filed and waiting)",
+                  settle_at(at("2026-11-07", 4, 5), {"2026-11-03": UNS, "2026-11-05": UNS}), ("red", ["2026-11-03"])))
+    cases.append(("3 not_yet: at the 04:05 run of 11-07, 11-03 settled final, 11-04 unsettled but within 72 hours of 11-04 21:17, 11-05 waiting",
+                  settle_at(at("2026-11-07", 4, 5), {"2026-11-04": UNS, "2026-11-05": UNS}), ("not_yet", None)))
+    cases.append(("3 not_yet: at the 04:05 run of 11-11, 11-03 is unsettled but more than 7 days back, 11-09 waiting",
+                  settle_at(at("2026-11-11", 4, 5), {"2026-11-03": UNS, "2026-11-09": UNS}), ("not_yet", None)))
+    cases.append(("3 red: at the 04:05 run of 11-11, 11-04 to 11-07 unsettled are named, 11-08 is within 72 hours",
+                  settle_at(at("2026-11-11", 4, 5), {d_: UNS for d_ in ("2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09")}), ("red", ["2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07"])))
     v, s = states(world(cc=True, **{CHECK_RUNS + "index.json": loop_with(day={"verdict": "deviation"})}))
     cases.append(("3 red: settled as a deviation", (v, s["3_ledger_settle"]), ("red", "red")))
     v, s = states(world(cc=True, **{CHECK_RUNS + "index.json": loop_with(day={"settle": "v1.15"})}))
@@ -1069,6 +1140,19 @@ def selftest():
     cases.append(("the leaf hash of a fixed envelope is the runner's (node canonical_v0.mjs, a fixed vector)", leaf_hash(json.loads(VEC_ENVELOPE)), "56054ab73249bca2d4b7af50788fffe5e0309a628dff691d6b380f3bb06198b4"))
     r1 = run(world(), now)[2]; r2 = run(world(), now)[2]
     cases.append(("the result sha is the same for the same day and answers", r1 == r2 and len(r1) == 64, True))
+    ra, ta, sa = run(world(cc=True), now, "schedule")
+    rb, tb, sb = run(world(cc=True), now.replace(hour=11, minute=50, second=32), "dispatch")
+    cases.append(("the result names its trigger", (ra["trigger"], rb["trigger"]), ("schedule", "dispatch")))
+    cases.append(("two runs of one day: result_sha256 differs (checked_at, trigger), day_sha256 is the same", (sa != sb, day_sha256(ra) == day_sha256(rb), len(day_sha256(ra))), (True, True, 64)))
+    rc_, _, _ = run(world(cc=True, prev=False), now)
+    cases.append(("a day whose answers differ has another day_sha256", day_sha256(ra) != day_sha256(rc_), True))
+    rd, _, _ = run(world(cc=True), now + datetime.timedelta(days=1))
+    cases.append(("the same answers on another day have another day_sha256 (the day is in the view)", day_sha256(ra) != day_sha256(rd), True))
+    try:
+        run(world(), now, "nightly"); t_ok = False
+    except ValueError:
+        t_ok = True
+    cases.append(("an unknown trigger is refused", t_ok, True))
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:
         print(("  ok   " if got == want else "  NG   ") + n + ("" if got == want else " (got %r, want %r)" % (got, want)))
@@ -1083,26 +1167,36 @@ VEC_ENVELOPE = '{"check":{"action_binding_digest":"33333333333333333333333333333
 def main(argv):
     if argv == ["--selftest"]:
         return selftest()
-    now, out, bodyf = datetime.datetime.now(datetime.timezone.utc), None, None
+    now, out, bodyf, trigger = datetime.datetime.now(datetime.timezone.utc), None, None, "manual"
+    usage = "usage: tooshi_daily.py [--now T] [--trigger %s] [--out file] [--body file] | --selftest" % "|".join(TRIGGERS)
     it = iter(argv)
-    for a in it:
-        if a == "--now":
-            now = datetime.datetime.strptime(next(it), "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)
-        elif a == "--out":
-            out = next(it)
-        elif a == "--body":
-            bodyf = next(it)
-        else:
-            print("usage: tooshi_daily.py [--now T] [--out file] [--body file] | --selftest")
-            return 2
-    res, text, sha = run(http_get, now)
+    try:
+        for a in it:
+            if a == "--now":
+                now = datetime.datetime.strptime(next(it), "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)
+            elif a == "--out":
+                out = next(it)
+            elif a == "--body":
+                bodyf = next(it)
+            elif a == "--trigger":
+                trigger = next(it)
+                if trigger not in TRIGGERS:
+                    print(usage)
+                    return 2
+            else:
+                print(usage)
+                return 2
+    except StopIteration:
+        print(usage)
+        return 2
+    res, text, sha = run(http_get, now, trigger)
     if out:
         open(out, "w", encoding="utf-8").write(text + "\n")
     if bodyf:
         open(bodyf, "w", encoding="utf-8").write(body(res, sha))
     for x in res["checks"]:
         print("%-8s %s: %s" % (x["state"], x["id"], x["why"]))
-    print("TOOSHI %s %s ok %d red %d notice %d not_yet %d result_sha256 %s" % (res["checked_at"], res["verdict"], res["counts"]["ok"], res["counts"]["red"], res["counts"]["notice"], res["counts"]["not_yet"], sha))
+    print("TOOSHI %s %s ok %d red %d notice %d not_yet %d result_sha256 %s day_sha256 %s trigger %s" % (res["checked_at"], res["verdict"], res["counts"]["ok"], res["counts"]["red"], res["counts"]["notice"], res["counts"]["not_yet"], sha, day_sha256(res), trigger))
     return 1 if res["verdict"] == "red" else 0
 
 

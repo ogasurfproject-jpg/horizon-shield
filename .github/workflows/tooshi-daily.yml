@@ -3,18 +3,23 @@ name: tooshi-daily
 # TOOSHI: the daily end to end check of the content check chain (tools/tooshi/tooshi_daily.py). It reads public
 # endpoints only (the runner's three GET reads, the ledger, the door's public policy) and uses no secret.
 # 04:05 UTC: after the ledger's batch (00:30), the runner's close of the day before (00:47) and the heartbeat scene (03:17).
-# A red day opens one issue labelled tooshi-red (never a second one for the same day). Every day writes the verdict,
-# the counts and the sha256 of the result in the run summary. A check that cannot be made yet is counted as not_yet,
-# never as ok.
+# 04:35 UTC: a second cron for the days GitHub drops or delays the first (2026-11-03: the 04:05 run came at 11:50).
+# A scheduled run (either cron) does nothing when the day already has a published result (tooshi/days/<day>.json on
+# main) or when it starts before 03:47 UTC (a late run of the day before). A dispatch always runs; the day's earlier
+# result is kept in the day file under earlier. The result names its trigger (schedule, second, dispatch).
+# A red day opens one issue labelled tooshi-red (never a second one for the same day). Every run that checks writes the
+# verdict, the counts, result_sha256 and day_sha256 in the run summary, and the keep job commits tooshi/days/<day>.json,
+# tooshi/latest.json and tooshi/index.json (tools/tooshi/tooshi_publish.py) and starts the Pages deploy, because a push
+# made with the GITHUB_TOKEN does not start static.yml. A check that cannot be made yet is counted as not_yet, never as ok.
 
 on:
   schedule:
     - cron: "5 4 * * *"
+    - cron: "35 4 * * *"
   workflow_dispatch: {}
 
 permissions:
   contents: read
-  issues: write
 
 concurrency:
   group: tooshi-daily
@@ -24,6 +29,13 @@ jobs:
   tooshi:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+    outputs:
+      ran: ${{ steps.decide.outputs.ran }}
+      rc: ${{ steps.run.outputs.rc }}
+      trigger: ${{ steps.decide.outputs.trigger }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -31,18 +43,50 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.13"
-      - name: self test (the red scenes on fixed answers)
-        run: python -I -B tools/tooshi/tooshi_daily.py --selftest
+      - name: self test (the red scenes on fixed answers, the publishing on a scratch folder)
+        run: |
+          python -I -B tools/tooshi/tooshi_daily.py --selftest
+          python -I -B tools/tooshi/tooshi_publish.py --selftest
+      - name: which trigger, and has the day a result already
+        id: decide
+        env:
+          EVENT: ${{ github.event_name }}
+          CRON: ${{ github.event.schedule }}
+        run: |
+          case "$EVENT:$CRON" in
+            "schedule:5 4 * * *") T=schedule ;;
+            "schedule:35 4 * * *") T=second ;;
+            workflow_dispatch:*) T=dispatch ;;
+            *) echo "unknown trigger $EVENT $CRON"; exit 1 ;;
+          esac
+          NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          D=${NOW:0:10}
+          git fetch --no-tags --depth=1 origin main
+          if git cat-file -e "FETCH_HEAD:tooshi/days/$D.json" 2>/dev/null; then HAVE=1; else HAVE=0; fi
+          OUT=$(python -I -B tools/tooshi/tooshi_publish.py decide --trigger "$T" --now "$NOW" --have-day "$HAVE")
+          echo "$OUT"
+          { echo "### TOOSHI ($T)"; echo; echo "$OUT"; echo; } >> "$GITHUB_STEP_SUMMARY"
+          echo "trigger=$T" >> "$GITHUB_OUTPUT"
+          if [ "${OUT%% *}" = "run" ]; then echo "ran=true" >> "$GITHUB_OUTPUT"; else echo "ran=false" >> "$GITHUB_OUTPUT"; fi
       - name: the daily check
         id: run
+        if: steps.decide.outputs.ran == 'true'
+        env:
+          T: ${{ steps.decide.outputs.trigger }}
         run: |
           set +e
-          python -I -B tools/tooshi/tooshi_daily.py --out tooshi_result.json --body tooshi_body.md > tooshi_out.txt 2>&1
+          python -I -B tools/tooshi/tooshi_daily.py --trigger "$T" --out tooshi_result.json --body tooshi_body.md > tooshi_out.txt 2>&1
           rc=$?
           cat tooshi_out.txt
           echo "rc=$rc" >> "$GITHUB_OUTPUT"
-          { echo "### TOOSHI"; echo; echo '```'; tail -n 1 tooshi_out.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          { echo '```'; tail -n 1 tooshi_out.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
           exit 0
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: steps.decide.outputs.ran == 'true' && (steps.run.outputs.rc == '0' || steps.run.outputs.rc == '1')
+        with:
+          name: tooshi-result
+          path: tooshi_result.json
+          retention-days: 7
       - name: a red day opens one issue (once a day)
         if: steps.run.outputs.rc == '1'
         env:
@@ -53,9 +97,65 @@ jobs:
           gh label create tooshi-red --color b60205 --description "TOOSHI daily check found a red" --force >/dev/null
           N=$(gh issue list --label tooshi-red --state all --limit 100 --json title --jq "[.[] | select(.title == \"$T\")] | length")
           if [ "$N" -gt 0 ]; then echo "an issue for this day exists already; not writing a second one"; else gh issue create --title "$T" --label tooshi-red --body-file tooshi_body.md; fi
-      - name: the verdict
+
+  keep:
+    needs: tooshi
+    if: always() && needs.tooshi.outputs.ran == 'true' && (needs.tooshi.outputs.rc == '0' || needs.tooshi.outputs.rc == '1')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: tooshi-result
+          path: tooshi-out
+      - name: keep the day (tooshi/days, latest, index)
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          rc="${{ steps.run.outputs.rc }}"
-          if [ "$rc" = "0" ]; then echo "no red (green or not all checked; see the summary)"; exit 0; fi
-          if [ "$rc" = "1" ]; then echo "red"; exit 1; fi
-          echo "the check itself failed (exit $rc)"; exit 1
+          set -e
+          git config user.name "horizon-shield-tooshi"
+          git config user.email "contact@the-horizons-innovation.com"
+          ok=0
+          for i in 1 2 3; do
+            git fetch --no-tags origin main
+            git reset --hard origin/main
+            OUT=$(python3 -I -B tools/tooshi/tooshi_publish.py write --result tooshi-out/tooshi_result.json --run-url "$RUN_URL" --dir tooshi)
+            echo "$OUT" | tee -a "$GITHUB_STEP_SUMMARY"
+            git add tooshi/days tooshi/latest.json tooshi/index.json
+            if git diff --cached --quiet; then echo "nothing changed"; ok=1; break; fi
+            set -- $OUT
+            git commit -m "tooshi: $2 kept (result $(printf %.8s "$3"), day $(printf %.8s "$4"))"
+            if git push origin HEAD:main; then ok=1; break; fi
+            sleep 5
+          done
+          [ "$ok" = 1 ] || { echo "push failed 3 times"; exit 1; }
+      - name: start the Pages deploy (a GITHUB_TOKEN push does not start static.yml)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run static.yml --ref main -R "$GITHUB_REPOSITORY"
+
+  verdict:
+    needs: [tooshi, keep]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: the verdict
+        env:
+          RAN: ${{ needs.tooshi.outputs.ran }}
+          RC: ${{ needs.tooshi.outputs.rc }}
+          TJOB: ${{ needs.tooshi.result }}
+          KJOB: ${{ needs.keep.result }}
+        run: |
+          if [ "$TJOB" != "success" ]; then echo "the check job itself failed ($TJOB)"; exit 1; fi
+          if [ "$RAN" != "true" ]; then echo "nothing to do (see the summary of the check job)"; exit 0; fi
+          if [ "$KJOB" != "success" ]; then echo "the day was checked but not kept ($KJOB)"; exit 1; fi
+          if [ "$RC" = "0" ]; then echo "no red (green or not all checked; see the summary)"; exit 0; fi
+          if [ "$RC" = "1" ]; then echo "red"; exit 1; fi
+          echo "the check itself failed (exit $RC)"; exit 1
