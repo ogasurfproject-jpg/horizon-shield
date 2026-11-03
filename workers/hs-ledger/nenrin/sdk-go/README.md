@@ -66,6 +66,30 @@ interoperability vectors and reference verifiers. Zenodo. https://doi.org/10.528
 `VerifyTraceBind`, `SpanAttributes`, `CheckSpanAttributes`. `nenrin-verify-go --trace-batch intake|bind|span in out`
 is the TSUNAGI batch form. `go test ./...` runs the three corpora (28, 28, 16); the board referees them nightly.
 
+## nenrin-verify furui-day and resume-admission (0.4.0)
+
+```sh
+go install github.com/ogasurfproject-jpg/horizon-shield/workers/hs-ledger/nenrin/sdk-go/cmd/nenrin-verify@latest
+
+nenrin-verify furui-day 2026-11-03 --leaf 0
+nenrin-verify resume-admission https://shield.the-horizons-innovation.com/ <record_sha256>
+nenrin-verify furui-vectors ../furui-check-day-v0/verify_vectors.json
+```
+
+A new command, `cmd/nenrin-verify`, with `nenrinverify/furui.go`: check one leaf of the content check runner's day
+(six checks: the envelope's closed shape, the leaf sha256, the RFC 6962 audit path to the day record the ledger
+serves, runner-1's Ed25519 signatures, the key in the ledger's keys document inside `from_height`, the ledger batch
+entry with its OpenTimestamps proof), or one admissions[] line of a Resume against the ledger. Unlike the provenance
+verifier this command reads the network: GET only, only ledger.horizonshield.dev and furui.horizonshield.dev. The
+same verdicts as npm and PyPI `nenrin-verify` on the shared vectors (`go test ./...` runs them).
+`PortVersion` is 0.4.0; the provenance verifier is unchanged. Details: `../furui-check-day-v0/VERIFY.md`.
+
+The chain these commands sit in has five names: FURUI (篩, the content check runner) → SEKI admission (関の扉, the door that
+signs an admission) → MUSUBI settle (結の精算, the settlement of a contract) → NENRIN ledger (年輪の台帳, anchored to
+Bitcoin) → Résumé. TOOSHI checks the whole chain every day, and TSUGI (継) calls outside witnesses by a public draw.
+`furui-day` checks one FURUI leaf up to the NENRIN ledger and its Bitcoin anchor; `resume-admission` checks one SEKI
+admission as the Résumé lists it, back to the ledger.
+
 ## 0.2.2 (2026-10-15)
 
 Verifier change (VerifierVersion 0.1.7, with npm 0.5.3 and PyPI 0.5.5): `without` (the preimage copy) keeps every

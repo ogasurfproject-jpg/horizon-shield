@@ -18,7 +18,7 @@ import (
 const VerifierVersion = "0.1.7"
 
 // PortVersion is the version of this Go port.
-const PortVersion = "0.3.0"
+const PortVersion = "0.4.0"
 
 const (
 	linkPrefix           = "nenrin-exec://"
