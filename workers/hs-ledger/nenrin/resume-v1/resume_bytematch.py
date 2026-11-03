@@ -40,7 +40,7 @@ cases = [
     ("A9_unparseable_block_time", args([meas(rec(), block_time="yesterday")])),
     ("A10_calendar_overflow", args([meas(rec(), block_time="2026-02-30 01:08 UTC")])),
     ("L1_backdating_stale", args([meas(rec(walked_at="2026-01-01T00:00:00Z"))])),
-    # admissions[] (2026-11-02, DESIGN_RESUME_ADMISSIONS_v0 test 5): the same lines and the same refusals from both cores
+    # admissions[] (2026-11-02): the same lines and the same refusals from both cores
     ("D1_admissions_three_kinds", args([meas(rec())], agreements=[{"record_sha256": "ab" * 32, "source_ledger_n": 41}],
                                        admissions=[adm(41), adm(42, "refuse", c04(decision="stop", marks=[]), sha="d1" * 32),
                                                    adm(43, "escalate", c04(checked=False, decision=None, rules_sha256=None), revoked=True, sha="d2" * 32)])),

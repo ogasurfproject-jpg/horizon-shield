@@ -1,7 +1,7 @@
 // test/resume_admissions.test.mjs
-// The Résumé's admissions[] (2026-11-02, DESIGN_RESUME_ADMISSIONS_v0, decisions R-1 and R-2) on the LIVE worker
+// The Résumé's admissions[] (2026-11-02; only on the relying party's Résumé, schema still nenrin-resume-v1) on the LIVE worker
 // (src/worker.js) with a mock KV shaped like the agreement pool's daily batch (nenrin-agreement-batch-v1, the stored
-// bytes at agr:anchored:<sha>). The six tests of section 4 of the design, plus the revocation mark. No network.
+// bytes at agr:anchored:<sha>). Six cases (whose Résumé, the two checks, closed fields, refusals, both cores), plus the revocation mark. No network.
 //
 // Run: node test/resume_admissions.test.mjs
 import crypto from "node:crypto";
@@ -97,7 +97,7 @@ let r = await resume(EP);
 t("1. admissions[] lists only the admission whose relying party is the endpoint's host", r.status === 200 && Array.isArray(r.j.admissions) && r.j.admissions.length === 1
   && r.j.admissions[0].record_sha256 === mine.canonical_sha256 && r.j.admissions[0].ledger_n === 3 && r.j.admissions[0].decision === "admit", r.j);
 t("1. agreements[] is as before (the agreement, by ledger entry; no admission in it)", JSON.stringify(r.j.agreements) === JSON.stringify([{ record_sha256: ag.canonical_sha256, ledger_n: 3 }]), r.j.agreements);
-t("1. the schema stays nenrin-resume-v1 (R-2)", r.j.schema === "nenrin-resume-v1", r.j.schema);
+t("1. the schema stays nenrin-resume-v1", r.j.schema === "nenrin-resume-v1", r.j.schema);
 const sub = await resume("https://door." + RP + "/mcp");
 t("1. an endpoint on a subdomain of the relying party's domain carries it too (the parent domain, as for agreements)", sub.status === 200 && sub.j.admissions.length === 1 && sub.j.admissions[0].record_sha256 === mine.canonical_sha256, sub.j && sub.j.admissions);
 const parent = await resume("https://example.org/");

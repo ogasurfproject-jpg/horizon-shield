@@ -184,7 +184,7 @@ export function contentProblems(record) {
 }
 
 // admission_verify_v0.content_problems_v04: a v0.4 record's content block (A7.4: decision, marks, unread, answered, checked,
-// input_commit) and rules 1 to 9 of DESIGN_TASUKI_v2 2.1.4. Fields only; the content and its salt are never in the record.
+// input_commit) and rules 1 to 9 of the 0.4 content block. Fields only; the content and its salt are never in the record.
 export function contentProblemsV04(record) {
   const c = get(record, "content"), reasons = get(record, "reasons"), d = get(record, "decision");
   if (!isObj(c) || !same(Object.keys(c).sort(), [...CONTENT_KEYS_V04].sort()) || c.rules !== CONTENT_RULES_V04 || !Array.isArray(reasons)) return ["malformed"];

@@ -27,7 +27,7 @@ one more field, immune: the verdict of the immune rules (immune_v0.py, a2a-immun
 codes only, and two more reasons, immune_hold and immune_reject. Its does_not_establish adds one line. A v0.3 record
 (2026-10-27) says "0.3", carries immune and one more field, content: what the relying party says its content check
 read (a2a-content-check-v0), as digests and flags only, one more reason, content_scope_conflict, and one more line of
-does_not_establish. A v0.4 record (DESIGN_TASUKI_v2, after FURUI blind-06, ledger entry 232) says "0.4", carries
+does_not_establish. A v0.4 record (after FURUI blind-06, ledger entry 232) says "0.4", carries
 immune and a content block in the shape of FURUI A7.4: a salted commitment to the content (input_commit, never the
 content's own digest), the digest of the check, the rule set (furui-rules-id-v1), the decision (stop or pass), the marks
 (off_topic, rule_conflict), unread, answered and checked, one more reason, content_off_topic, and two lines of
@@ -287,7 +287,7 @@ def content_problems(record):
 
 def content_problems_v04(record):
     """[] when a v0.4 record's content block is well formed and agrees with its decision and reasons (rules 1 to 9 of
-    DESIGN_TASUKI_v2 2.1.4). The block carries input_commit = sha256(r || canonical(content)), r a 32 byte salt the door
+    the 0.4 content block). The block carries input_commit = sha256(r || canonical(content)), r a 32 byte salt the door
     returns to the requester alone, never the content's own digest. Every rule here reads fields only. Rule 0 (no content
     block when the door's policy does not require a check) is the door's: such a record is version 0.1 and has no content."""
     c, reasons, d = record.get("content"), record.get("reasons"), record.get("decision")
@@ -789,7 +789,7 @@ def _selftest():
                   "extra field and values off the closed lists; the JavaScript twin gives the same verdict and refusal set for all %d; "
                   "the %d records of fixtures/admission_content read as their names say" % (nok, len(ctexts) - nok, len(ctexts), len(CC["records"])))
 
-    # [8] v0.4 (DESIGN_TASUKI_v2 2.1): the content block of A7.4 (decision, marks, unread, answered, checked, input_commit), rules 1 to 9,
+    # [8] v0.4: the content block of A7.4 (decision, marks, unread, answered, checked, input_commit), rules 1 to 9,
     # and rule 0 (a door that does not require a check writes a v0.1 record with no content block), in both runtimes.
     c4 = {"rules": CONTENT_RULES_V04, "input_commit": H("1"), "check_sha256": H("2"), "rules_sha256": H("3"), "scope_sha256": H("4"),
           "decision": "pass", "marks": [], "unread": False, "answered": True, "checked": True}

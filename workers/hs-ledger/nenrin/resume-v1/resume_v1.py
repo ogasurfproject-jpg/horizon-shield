@@ -132,7 +132,7 @@ def _copy_ring(r, discrepancies):
     }
 
 
-# admissions[] (2026-11-02, DESIGN_RESUME_ADMISSIONS_v0): one line per anchored a2a-admission-v0 whose relying party is
+# admissions[] (2026-11-02, schema still nenrin-resume-v1): one line per anchored a2a-admission-v0 whose relying party is
 # on the endpoint's host. Closed fields only (a hex sha, an integer, words from closed lists, booleans): nothing the
 # relying party wrote as text is copied. content is the closed part of a 0.4 content block, or None.
 ADMISSION_DECISIONS = ["admit", "escalate", "refuse"]

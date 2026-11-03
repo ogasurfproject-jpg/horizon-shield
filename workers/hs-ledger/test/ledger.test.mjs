@@ -4,7 +4,7 @@
 //
 // このテストが守っているもの:
 //   1. /health の routes 配列が **ちょうど14本**（9 + witness3 + /resume + /trust-signal）であること。
-//      引き継ぎ書がこの9本を文字単位で固定し、番人v4 点検⑩ がこれを数えている。
+//      引き継ぎ書がこの9本を文字単位で固定し、運用の点検がこれを数えている。
 //      看板の追加でここが動いたら、それは設計の失敗であってテストの失敗ではない。
 //   2. 看板が RFC / 仕様に**本当に**準拠していること（形だけの .well-known を置かない）。
 //   3. 台帳が自分の限界を公言し続けること（transparency.conformance の "NOT a conformant"）。
@@ -68,6 +68,8 @@ const EXPECTED_ROUTES = [
   "/resume?endpoint={url}",
   "/trust-signal?endpoint={url}",
   "/agreement", "/agreement/pending", "/agreement/{canonical_sha256}", "/admission", "/admission/{canonical_sha256}", "/revocation", "/revocation/{canonical_sha256}",
+  // 2026-11-03: the content check runner's day record (furui-check-day-v0) and the runner's keys as this ledger serves them.
+  "/furui-check-day", "/furui-check-day/{canonical_sha256}", "/.well-known/furui-check-keys.json",
   // 2026-10-10: /evidence/trace (trace-pin-v0) and the three /evidence/vouch routes (vouch-pin-v0) were added to /health
   // without being named here, so this check had been failing since; named now, with slot-witness-v0's three.
   "/evidence/trace",

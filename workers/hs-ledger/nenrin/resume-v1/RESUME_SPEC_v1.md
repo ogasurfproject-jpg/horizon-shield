@@ -81,9 +81,9 @@ route 自体は MIT で fork 可。でも fork は空の台帳・証人ゼロ・
 
 ## 11. admissions[](2026-11-02 に足した。schema は nenrin-resume-v1 のまま)
 
-- 足した日: 2026-11-02(DESIGN_RESUME_ADMISSIONS_v0、決め R-1 と R-2)。既存の欄は替えていない。古い読み手は知らない欄 admissions を飛ばす。
+- 足した日: 2026-11-02。schema の名は nenrin-resume-v1 のままにし、既存の欄は替えていない。古い読み手は知らない欄 admissions を飛ばす。
 - resume_sha256 は admissions[] を含めて計る。admission の無い端点でも空の list が入る。**足した日に全部の端点の resume_sha256 が替わる、欄の意味は替わらない。**(CHANGELOG にも書いた)
-- 誰の Résumé に載るか(R-1): その端点の host(またはその親の domain)が、admission(a2a-admission-v0)の relying_party.domain である物だけ。扉の側の Résumé で、その扉が何をどう通したかを示す。契約の当事者の側の Résumé には、まだ載せない(台帳が契約を sha で引けるようになった後)。
+- 誰の Résumé に載るか: その端点の host(またはその親の domain)が、admission(a2a-admission-v0)の relying_party.domain である物だけ。扉の側の Résumé で、その扉が何をどう通したかを示す。契約の当事者の側の Résumé には、まだ載せない(台帳が契約を sha で引けるようになった後)。
 - 数え方は agreements[] と同じ二段の照らし。
   - 保存したバイトの sha256 が、束(nenrin-agreement-batch-v1)に載った sha と合う。合わない物は not_counted に admission_bytes_do_not_hash_to_the_listed_sha、kind "admission"。
   - その束が錨の付いた entry である。錨の無い物は not_counted に not_yet_anchored(確定して時刻の無い物は confirmed_without_block_time)、kind "admission"。

@@ -69,10 +69,10 @@ const CARD_SIGNATURE = {
   "jku": "https://ledger.horizonshield.dev/.well-known/jwks.json",
   "alg": "ES256",
   "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9sZWRnZXIuaG9yaXpvbnNoaWVsZC5kZXYvLndlbGwta25vd24vandrcy5qc29uIn0",
-  "signature": "T85LuiES6KgTLUtxTZqlHvMCNQgekIf5MI3dK2sWuroYEE0vtTffHAu1kWhDCc4IClfiVkiIHPX6Ge0BP7QQng",
+  "signature": "w_HwG_7y52wyz2jb6UJ-OYUaDA9qpgPvIDpVCo-f39i15HLuCDJohsDosrMkIVh6FfvkuFt8k2SfyyAuW2ONlw",
   "plain": {
     "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9sZWRnZXIuaG9yaXpvbnNoaWVsZC5kZXYvLndlbGwta25vd24vandrcy5qc29uIn0",
-    "signature": "K9Q3tTQYBTXCa0xwfheJGkp1WsD2KF3mVot4mY3iEK2OGqYCRTbKfNoEZzkVu79NXPnCD5TH2jfmB9SSDlDQIA"
+    "signature": "BlJFYTuAFqx-AEz0ulppT7ude2m8ZiKK2IugexhkpijHVZTYSPbE5x9IEujesB8d4A17M8ylnLlFmR3UTtmKnw"
   },
   "jwk": {
     "kty": "EC",
@@ -83,8 +83,8 @@ const CARD_SIGNATURE = {
     "alg": "ES256",
     "use": "sig"
   },
-  "canonical_sha256": "d9cf967d3b33c4b4c6935c2600c5bccb13dad1999d3c02842939b3cd47ea083a",
-  "jcs_sha256": "d33a7febed5fd9d85d471e5a4a4e88ee61528ddc692a3c2ef0a963b669d98d2c"
+  "canonical_sha256": "54fa206b7348722394ffb942a7b34cab425e510cdba04f4f9d23a557dc42aa2e",
+  "jcs_sha256": "43074a90951b526bde64de05a01cc0a44451201842ca4148fb330a41c47cdf55"
 };
 /* @@CARD_SIGNATURE_END */
 const CARD_CANONICAL_ORIGIN = "https://ledger.horizonshield.dev";
@@ -997,6 +997,13 @@ function routeLabel(p, url) {
     const f = url.searchParams.get("format");
     return f === "raw" ? "entry-raw" : f === "json" ? "entry-json" : "entry";
   }
+  // 2026-11-03: the content check runner's day record and its keys, and the admission, revocation and agreement records
+  // by sha. One closed word each; the sha itself is never recorded.
+  if (p === "/furui-check-day" || /^\/furui-check-day\/[0-9a-f]{64}$/i.test(p)) return "furui-day";
+  if (p === "/.well-known/furui-check-keys.json") return "furui-keys";
+  if (p === "/admission" || /^\/admission\/[0-9a-f]{64}$/i.test(p)) return "admission";
+  if (p === "/revocation" || /^\/revocation\/[0-9a-f]{64}$/i.test(p)) return "revocation";
+  if (p === "/agreement" || /^\/agreement\/[0-9a-f]{64}$/i.test(p)) return "agreement";
   return "other";
 }
 
@@ -1060,6 +1067,11 @@ const apiCatalog = (origin) => ({
         { href: origin + "/cite/{citation}", title: "resolve and verify any citation", type: "application/json" },
         { href: origin + "/verify/{n}", title: "executable verification recipe for a v1 claim", type: "application/json" },
         { href: origin + "/reference/{sha}", title: "content-addressed pinned reference bundle", type: "application/json" },
+        { href: origin + "/resume?endpoint={url}", title: "Résumé of an endpoint: anchored conduct, agreements[] and admissions[]", type: "application/json" },
+        { href: origin + "/admission/{canonical_sha256}", title: "admission record (a2a-admission-v0) by its sha256, with its anchoring status", type: "application/json" },
+        { href: origin + "/agreement/{canonical_sha256}", title: "agreement record by its sha256, with its anchoring status", type: "application/json" },
+        { href: origin + "/furui-check-day/{canonical_sha256}", title: "a content check runner's signed daily root (furui-check-day-v0) by its sha256", type: "application/json" },
+        { href: origin + "/.well-known/furui-check-keys.json", title: "the content check runner's public keys, as this ledger serves them", type: "application/json" },
         { href: origin + "/.well-known/agent-card.json", title: "A2A agent card", type: "application/json" },
         { href: origin + "/a2a", title: "A2A JSON-RPC endpoint (SendMessage, 1.0; message/send, 0.3)", type: "application/json" },
         { href: MCP_ORIGIN + "/mcp", title: "Model Context Protocol endpoint", type: "application/json" },
@@ -1075,8 +1087,8 @@ const apiCatalog = (origin) => ({
 const agentCard = (origin) => ({
   name: "HORIZON SHIELD JIDEC",
   description:
-    "Bitcoin-anchored public verification ledger for construction-estimate audits. Resolves a citation to the exact anchored bytes, recomputes their hash, and reports the Bitcoin anchoring status, so that a third party can confirm a result without trusting HORIZON SHIELD.",
-  version: "1.1.0",
+    "Bitcoin-anchored public verification ledger for construction-estimate audits. Resolves a citation to the exact anchored bytes, recomputes their hash, and reports the Bitcoin anchoring status, so that a third party can confirm a result without trusting HORIZON SHIELD. It also serves, read-only by sha256: admission records (a2a-admission-v0; version 0.4 carries a content check block of fields only), a content check runner's signed daily root (furui-check-day-v0, verified under the keys at /.well-known/furui-check-keys.json), and the Résumé of an endpoint (/resume?endpoint=), whose admissions[] lists the anchored admissions of the relying party on that endpoint's host.",
+  version: "1.2.0",
   documentationUrl: origin + "/llms.txt",
   iconUrl: null,
   capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false, extensions: [conductExtension()] },
@@ -1108,7 +1120,8 @@ const agentCard = (origin) => ({
   security: [],
   supportsAuthenticatedExtendedCard: false,
   // Non-A2A discovery pointers, kept outside the required fields on purpose.
-  additionalDiscovery: { apiCatalog: origin + "/.well-known/api-catalog", mcp: MCP_ORIGIN + "/mcp" },
+  additionalDiscovery: { apiCatalog: origin + "/.well-known/api-catalog", mcp: MCP_ORIGIN + "/mcp", resume: origin + "/resume?endpoint={url}",
+    admission: origin + "/admission/{canonical_sha256}", furuiCheckDay: origin + "/furui-check-day/{canonical_sha256}", furuiCheckKeys: origin + FURUI_KEYS_PATH },
 });
 
 const securityTxt = (origin) =>
@@ -1206,6 +1219,31 @@ is a three-step byte-level recipe: fetch, hash, check the timestamp. That is les
 than a full audit reproduction, and the route says so rather than pretending
 otherwise. Either way our assertion is not needed.
 
+## 5. Admissions, the Résumé and the daily check record
+
+A door that admits an agent's action writes an admission record
+(a2a-admission-v0) and sends it here. Version 0.4 carries a content check block
+of fields only: a salted commitment to the content, the digest of the check,
+the rule set, the decision and the marks. No content text is in the record.
+
+- \`GET ${origin}/admission/{canonical_sha256}\`, the stored admission bytes and
+  their anchoring status. \`GET ${origin}/admission\` describes the intake.
+- \`GET ${origin}/resume?endpoint={url}\`, the Résumé of an endpoint. Its
+  \`admissions[]\` lists the anchored admissions whose relying party is on that
+  endpoint's host (record_sha256, ledger_n, decision, the closed part of a 0.4
+  content block, revoked; no text). \`agreements[]\` lists the anchored agreements.
+- \`GET ${origin}/furui-check-day/{canonical_sha256}\`, a content check runner's
+  signed daily root (furui-check-day-v0): the RFC 6962 root of the day's signed
+  check envelopes and their count, nothing else. \`GET ${origin}/furui-check-day\`
+  describes the format and the intake.
+- \`GET ${origin}/.well-known/furui-check-keys.json\`, the runner's public keys
+  as this ledger serves them. A day record is accepted only under a key listed here.
+
+The runner serves each envelope of a closed day, with its audit path to the
+day's root, for 7 days: https://furui.horizonshield.dev/furui/day/{YYYY-MM-DD}/leaf/{i}.
+How these records connect is written up at
+https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/furui-check-day-v0/README.md
+
 ## Endpoints
 
 - ${origin}/health, service descriptor
@@ -1214,6 +1252,10 @@ otherwise. Either way our assertion is not needed.
 - ${origin}/cite/{citation}, resolve and verify any citation
 - ${origin}/verify/{n}, executable verification recipe
 - ${origin}/paths/{sha}/replay, re-observe an anchored path and report drift
+- ${origin}/resume?endpoint={url}, the Résumé of an endpoint (agreements[], admissions[])
+- ${origin}/admission/{canonical_sha256}, an admission record by sha
+- ${origin}/furui-check-day/{canonical_sha256}, a runner's signed daily root by sha
+- ${origin}/.well-known/furui-check-keys.json, the runner's public keys
 - ${origin}/.well-known/api-catalog, RFC 9727 catalog of the above
 - ${MCP_ORIGIN}/mcp, Model Context Protocol endpoint (read-only tools)
 
@@ -1571,14 +1613,14 @@ async function handle(request, env) {
     if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
 
     if (p === "/" || p === "/health")
-      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/head", "/ledger/export.jsonl", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query", "/witness", "/witness/pending", "/witness/{sha}", "/resume?endpoint={url}", "/trust-signal?endpoint={url}", "/agreement", "/agreement/pending", "/agreement/{canonical_sha256}", "/admission", "/admission/{canonical_sha256}", "/revocation", "/revocation/{canonical_sha256}", "/evidence/trace", "/evidence/vouch", "/evidence/vouch/{sha}", "/evidence/vouch/id/{credential id}", "/evidence/slot", "/evidence/slot/{sha}", "/evidence/slot/s/{request_slot}", "/evidence/slot-log", "/evidence/slot-log/{date}", "/evidence/slot-log/{date}.ots"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", jwks: "/.well-known/jwks.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", precedence: "/precedence/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY, privacy: PRIVACY, sequencer: LEDGER_SEQUENCER, chain_read: LEDGER_CHAIN_READ });
+      return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/head", "/ledger/export.jsonl", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query", "/witness", "/witness/pending", "/witness/{sha}", "/resume?endpoint={url}", "/trust-signal?endpoint={url}", "/agreement", "/agreement/pending", "/agreement/{canonical_sha256}", "/admission", "/admission/{canonical_sha256}", "/revocation", "/revocation/{canonical_sha256}", "/furui-check-day", "/furui-check-day/{canonical_sha256}", "/.well-known/furui-check-keys.json", "/evidence/trace", "/evidence/vouch", "/evidence/vouch/{sha}", "/evidence/vouch/id/{credential id}", "/evidence/slot", "/evidence/slot/{sha}", "/evidence/slot/s/{request_slot}", "/evidence/slot-log", "/evidence/slot-log/{date}", "/evidence/slot-log/{date}.ots"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", jwks: "/.well-known/jwks.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", precedence: "/precedence/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY, privacy: PRIVACY, sequencer: LEDGER_SEQUENCER, chain_read: LEDGER_CHAIN_READ });
 
     /* ---------------------- 看板 routes (additive, read-only) ---------------------- */
 
     if (p === "/.well-known/api-catalog" && request.method === "GET") {
       // RFC 9727 の既定は application/linkset+json である。既定は変えない。
       // ただし 2026-07-26 の実測で、その Content-Type を「バイナリ」として扱い本文を
-      // 読めない取得クライアントが実在することが分かった（番人の点検⑭でも同じ結果）。
+      // 読めない取得クライアントが実在することが分かった（別の取得クライアントで試しても同じ結果）。
       // 親看板が読めないのは発見可能性にとって致命的なので、明示的に JSON を求めてきた
       // クライアントには同じ本文を application/json で返す。Vary: Accept を必ず付ける。
       const body = JSON.stringify(apiCatalog(origin), null, 2);
@@ -1874,7 +1916,7 @@ async function handle(request, env) {
       });
       return json(out.body, out.status, out.headers);
     }
-    // furui-check-day-v0: the runner's daily root, and the runner's keys as this ledger serves them (D10: a fixed path here)
+    // furui-check-day-v0: the runner's daily root, and the runner's keys as this ledger serves them (the keys list is served at one fixed path)
     if (p === FURUI_KEYS_PATH && request.method === "GET") return json(FURUI_CHECK_KEYS);
     if (p === "/furui-check-day" && request.method === "GET") return json(furuiDaySelfDescription(origin));
     if (p === "/furui-check-day" && request.method === "POST") {
@@ -2165,7 +2207,7 @@ async function handle(request, env) {
               if (!anchoredOf(e)) { not_counted.push({ n, record_sha256: sha, ots_status: e.ots_status || "unstamped", why: anchorWhy(e), kind: "agreement", url: aurl }); continue; }
               agreements.push({ record_sha256: sha, source_ledger_n: n, _k: [n, idx] });
             }
-            // (a3) admissions (2026-11-02, DESIGN_RESUME_ADMISSIONS_v0, R-1): the a2a-admission-v0 rows whose relying party is on
+            // (a3) admissions (2026-11-02, only on the relying party's own Résumé): the a2a-admission-v0 rows whose relying party is on
             //      this endpoint's host (or its parent domain), with the same two hops as the agreements. Revocations are read
             //      only to mark an admission whose contract a principal revoked in a later anchored entry (revoked: true).
             const arows = ab.records.map((r, idx) => [r, idx]).filter(([r]) => r && typeof r.canonical_sha256 === "string"
