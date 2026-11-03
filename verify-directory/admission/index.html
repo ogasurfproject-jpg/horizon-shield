@@ -126,22 +126,27 @@
     <div class="kh">Check it yourself</div>
     <h2>The record is public. The door is not.</h2>
     <p class="slead">The implementation of the door is not published. The record format, the evaluator, the settlement and a verifier are, so that nobody has to trust the operator of the door, or us.</p>
-    <pre class="mono" style="white-space:pre-wrap;overflow-wrap:anywhere">pip install "nenrin-verify>=0.5.2"
+    <pre class="mono" style="white-space:pre-wrap;overflow-wrap:anywhere">pip install "nenrin-verify>=0.8.0"
 musubi-verify admission_verify_v0 --selftest
-musubi-verify settle_v1_12 --selftest</pre>
+musubi-verify settle_v1_19 --selftest
+nenrin-verify resume-admission https://shield.the-horizons-innovation.com/ &lt;record_sha256&gt;
+nenrin-verify furui-day 2026-11-03 --leaf 0</pre>
+    <p class="slead"><code>resume-admission</code> holds one line of a Résumé's admissions[] to the stored admission, the ledger batch that lists it and that batch's OpenTimestamps proof to a Bitcoin block header. <code>furui-day</code> checks one leaf of the content check runner's day: the envelope's closed shape, the leaf hash, the RFC 6962 audit path to the day root the ledger serves, runner-1's Ed25519 signatures, the key in the ledger's keys document, and the anchor (not_yet before it). The same two commands are in npm <code>nenrin-verify</code> 0.8.0 (<code>npx nenrin-verify ...</code>). Exit 0 ok, 1 fail, 3 not_yet.</p>
     <div class="linkset">
       <a href="https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/musubi-v0/ADMISSION.md">The record, and how to check it</a>
       <a href="https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/musubi-v0/schemas/a2a-admission-v0.schema.json">JSON Schema</a>
       <a href="https://github.com/ogasurfproject-jpg/horizon-shield/tree/main/workers/hs-ledger/nenrin/musubi-v0">MUSUBI, the contract layer it sits on</a>
+      <a href="https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/furui-check-day-v0/VERIFY.md">furui-day and resume-admission, step by step</a>
     </div>
   </div>
 </section>
 
 <section>
   <div class="wrap">
-    <div class="kh">Changed 27 October 2026</div>
-    <h2>Admission records at version 0.3</h2>
-    <p class="slead">MUSUBI admission records are now at version 0.3. A relying party that runs its own FURUI check can record the result as digests and three flags (instructions to an AI found, a conflict with the scope it gave, not checked), and settle v1.17 reads them. Records and settlements made before are unchanged byte for byte. FURUI is not yet wired into the door: its policy.furui is required = false, so a submission without a check is admitted as before. Public commit 3eba279d; the ledger intake is admission-intake 0.3.2.</p>
+    <div class="kh">Changed 3 November 2026</div>
+    <h2>Admission records at version 0.4</h2>
+    <p class="slead">MUSUBI admission records are now at version 0.4. The content block of a 0.4 record carries a salted commitment to the content (<code>input_commit</code>, so the text cannot be guessed from it), the check's decision, the marks <code>off_topic</code> and <code>rule_conflict</code>, <code>unread</code>, <code>answered</code> and <code>checked</code>, and an admit on off topic content keeps the reason <code>content_off_topic</code>. Settle v1.19 reads 0.3 and 0.4 records in one pass. Records and settlements made before are unchanged byte for byte. Version 0.3 (27 October) recorded a relying party's own check as digests and three flags; those records still verify. The ledger intake is admission-intake 0.4.0, and nenrin-verify 0.8.0 on PyPI is the first release that reads 0.4.</p>
+    <p class="slead">The chain an admission sits in has five names: FURUI (篩, the content check runner) &rarr; SEKI admission (関の扉, this door) &rarr; MUSUBI settle (結の精算, the settlement of the contract) &rarr; NENRIN ledger (年輪の台帳, anchored to Bitcoin) &rarr; Résumé. TOOSHI checks the whole chain every day, and TSUGI (継) calls outside witnesses by a public draw.</p>
   </div>
 </section>
 
@@ -155,7 +160,7 @@ musubi-verify settle_v1_12 --selftest</pre>
       <li><span class="x">&#10007;</span><span><b>Not that the action was lawful, safe or wise.</b> Only that it was inside or outside the grant both parties signed.</span></li>
       <li><span class="x">&#10007;</span><span><b>Not that a revocation published after the door's view of the chain was known.</b> The record says which revocations the door saw and whether each was anchored.</span></li>
       <li><span class="x">&#10007;</span><span><b>Not a legal authorization, and not a finding of liability.</b> It anchors facts by which others may judge.</span></li>
-      <li><span class="x">&#10007;</span><span><b>Not a content check at our door, yet.</b> FURUI is not yet wired into the door; so far a content check has run in tests only.</span></li>
+      <li><span class="x">&#10007;</span><span><b>Not that the content check was right.</b> A 0.4 record says which check ran and what it answered, signed by the runner and the door; it does not show that the answer is true. At our door a content check runs on the door's own daily check call, and is not yet required of every submission.</span></li>
       <li><span class="x">&#10007;</span><span><b>Not yet any identity format other than a signed MUSUBI contract.</b> Other formats are read only once they can be checked against their issuer's own fixed test vectors. Until then they are reported as unverified, and the door does not admit on them.</span></li>
     </ul>
   </div>
