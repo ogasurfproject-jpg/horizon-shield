@@ -16,6 +16,29 @@ The workflow is `.github/workflows/seki-heartbeat.yml`, daily at 21:17 UTC (GitH
 some days), so the records usually reach the ledger before its 00:30 UTC batch. It uses only the agent's key (an Actions secret) and the store's gateway token. The door's key
 stays in Cloudflare. The pilot's tickets carry no monetary value.
 
+## The door's daily check call, through the whole chain (since 2026-11-03)
+
+The chain has five names: the content check (FURUI) reads a request, the door (SEKI) admits it with a signed admission,
+the contract and its settlement (MUSUBI) say whether what ran was within the grant, the public ledger (NENRIN) holds every
+record and anchors it in Bitcoin, and the endpoint's Resume lists what is anchored. TOOSHI checks the chain every day, and
+TSUGI draws outside witnesses by lot.
+
+Once a day at 03:47 UTC the door sends one fixed request to its check store under the check contract
+(`check-contract.json`, contract_sha256 `d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580`): one action,
+check, with an amount of 0. Its two keys are made from public labels (`keys/seki-check-principal.json`,
+`keys/seki-check-agent.json`), so anyone can recompute them. `check_loop.py` carries that call through MUSUBI:
+
+| step | where | by |
+|---|---|---|
+| the content check of the request | the runner's signed envelope, in the day's root on the ledger | the runner, at the call |
+| the admission (version 0.4, admit, within_grant) | `https://ledger.horizonshield.dev/admission/<sha>` and the door's `/seki/record/<sha>` | the door, at the call |
+| the contract on file | `https://agreement.horizonshield.dev/contract/d8f28e81...` | `check_loop.py file`, once |
+| the execution record naming the admission | `https://agreement.horizonshield.dev/execution/<sha>` | `check_loop.py file`, the same day at 21:17 UTC |
+| the settlement (settle v1.19, within_grant, final) | `check-runs/<day>/settlement.json` and `SETTLED.json` | `check_loop.py settle`, once Bitcoin has confirmed both records |
+
+`check-runs/index.json` lists every day; TOOSHI reads it. A day filed and still unsettled 72 hours later fails the run.
+Recompute a settled day from `check-runs/<day>/` as `SETTLED.json` says (`recompute`).
+
 ## The deviations of 2026-10-19 and 2026-10-20
 
 2026-10-19 settled as `deviation` under the clause `admission_after_execution`, final, and 2026-10-20 will settle the

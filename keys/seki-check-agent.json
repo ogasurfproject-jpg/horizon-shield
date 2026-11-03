@@ -1,0 +1,9 @@
+{
+  "public_key_ed25519_b64": "lYSMUTTSJ68wliA8NolFMXvnkgJ3UBAR4MbLgdIHfNU=",
+  "alg": "ed25519",
+  "domain": "shield.the-horizons-innovation.com",
+  "key_url": "https://shield.the-horizons-innovation.com/keys/seki-check-agent.json",
+  "role": "contractor of the SEKI door's check contract (signs a2a-contract-v0, a2a-action-request-v0, a2a-execution-v0); the key is made from the public label seki-check-v0:agent",
+  "operator": "The HORIZONs Co., Ltd.",
+  "note": "a check contract: its two keys are made from public labels (sha256 of 'seki-check-v0:' and the role), so anyone can recompute them and sign under it; the door reaches the store only from its own daily schedule, and the grant allows one action, check, with an amount of 0"
+}

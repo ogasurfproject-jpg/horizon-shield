@@ -10,6 +10,9 @@ name: seki heartbeat
 # Secrets (repository Actions secrets, never printed): SEKI_AGENT_SEED_B64 (the demonstration contract's contractor key,
 # a 32 byte Ed25519 seed in base64) and HSG_STORE_TOKEN_SEKI_DEMO (the gateway token of the store hs-seki-demo).
 # The door's key is not here; it stays in Cloudflare. Principal, agent and door are all The HORIZONs Co., Ltd.
+# 2026-11-03. The door's own 03:47 UTC check call is carried through MUSUBI here too (check_loop.py): its execution record
+# is filed under the check contract at the MUSUBI intake and each earlier day is settled with settle v1.19 once Bitcoin
+# has confirmed it (check-runs/). The check contract's contractor key is made from a public label, so this needs no secret.
 # Pushes made with GITHUB_TOKEN do not start other workflows.
 # 2026-10-24. A run is for the UTC day six hours before it starts (heartbeat.py responsible_day), so a run GitHub starts
 # after midnight is still for the day it was scheduled on. Before this, the late run took the next day's name and the
@@ -58,13 +61,25 @@ jobs:
           HSG_STORE_TOKEN: ${{ secrets.HSG_STORE_TOKEN_SEKI_DEMO }}
         shell: bash
         run: python3 workers/hs-ledger/nenrin/seki-heartbeat/heartbeat.py run | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: the door's check call through MUSUBI (settle the earlier days, then file today's execution)
+        id: check
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          D=workers/hs-ledger/nenrin/seki-heartbeat
+          python3 "$D/check_loop.py" --selftest
+          rc=0
+          python3 "$D/check_loop.py" settle | tee -a "$GITHUB_STEP_SUMMARY" || rc=1
+          python3 "$D/check_loop.py" file | tee -a "$GITHUB_STEP_SUMMARY" || rc=1
+          exit $rc
       - name: record
         if: always()
         run: |
           git config user.name "hs-seki-heartbeat"
           git config user.email "contact@the-horizons-innovation.com"
           D=workers/hs-ledger/nenrin/seki-heartbeat
-          for x in runs view-chunks; do [ -e "$D/$x" ] && git add "$D/$x"; done; true
+          for x in runs view-chunks check-runs check-view-chunks; do [ -e "$D/$x" ] && git add "$D/$x"; done; true
           if git diff --cached --quiet; then
             echo "Nothing new to record." | tee -a "$GITHUB_STEP_SUMMARY"
           else
@@ -137,7 +152,7 @@ jobs:
             echo "opened a heartbeat-missed issue" >> "$GITHUB_STEP_SUMMARY"
           fi
       - name: a failed step is a failed run
-        if: always() && (steps.settle.outcome == 'failure' || steps.run.outcome == 'failure' || steps.missed.outputs.new != '0' && steps.gaps.outputs.rc == '1')
+        if: always() && (steps.settle.outcome == 'failure' || steps.run.outcome == 'failure' || steps.check.outcome == 'failure' || steps.missed.outputs.new != '0' && steps.gaps.outputs.rc == '1')
         run: |
-          echo "settle: ${{ steps.settle.outcome }}, run: ${{ steps.run.outcome }}, missed days newly recorded: ${{ steps.missed.outputs.new }}"
+          echo "settle: ${{ steps.settle.outcome }}, run: ${{ steps.run.outcome }}, check call: ${{ steps.check.outcome }}, missed days newly recorded: ${{ steps.missed.outputs.new }}"
           exit 1
