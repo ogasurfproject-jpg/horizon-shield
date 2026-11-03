@@ -38,6 +38,8 @@ import { handleAdmissionIntake, handleRevocationIntake, handleStoredGet, admissi
 // furui-check-day-v0 (2026-11-02): a content check runner's signed daily root, into the same public pool and daily batch.
 import { handleFuruiDayIntake, handleFuruiDayGet, furuiDaySelfDescription, KEYS_PATH as FURUI_KEYS_PATH, FURUI_DAY_SCHEMA } from "../nenrin/furui-check-day-v0/furui_check_day_intake.mjs";
 import { FURUI_CHECK_KEYS } from "../nenrin/furui-check-day-v0/furui_check_keys.mjs";
+// 2026-11-03: the agreement intake's rows (MUSUBI contracts and agreements) in the Résumé's agreements[]
+import { intakeAgreementRows } from "../nenrin/resume-v1/intake_rows.mjs";
 import { WorkerEntrypoint } from "cloudflare:workers";
 
 const enc = new TextEncoder();
@@ -969,6 +971,20 @@ const PRIVACY = {
 
 // 管理ルート：計測対象から外す。
 const AE_SKIP = new Set(["/ledger/append", "/reference/pin", "/ledger/pending", "/witness/anchor"]);
+
+// The agreement intake serves a record's bytes by its sha (GET /contract/{sha}, /agreement/{sha}). Read through the service
+// binding: a fetch to another worker on the same zone by its public host does not reach it.
+async function intakeBytes(env, u) {
+  const svc = env && env.AGREEMENT_INTAKE;
+  if (!svc || typeof svc.fetch !== "function") return { ok: false, detail: "no_binding" };
+  try {
+    const r = await svc.fetch(new Request(u, { headers: { accept: "application/json" } }));
+    if (r.status !== 200) return { ok: false, detail: "http_" + r.status };
+    return { ok: true, text: await r.text() };
+  } catch {
+    return { ok: false, detail: "fetch_failed" };
+  }
+}
 
 // パスを固定語彙に落とす。ここが可変語を返すとカーディナリティが爆発するので、
 // 番号もSHAも必ず捨てる。未知のパスは "other" にまとめる（404 の山として見える）。
@@ -2206,6 +2222,15 @@ async function handle(request, env) {
               if ((await sha256hex(st.record_canonical)).toLowerCase() !== sha) { not_counted.push({ n, record_sha256: sha, why: "agreement_bytes_do_not_hash_to_the_listed_sha", url: aurl }); continue; }
               if (!anchoredOf(e)) { not_counted.push({ n, record_sha256: sha, ots_status: e.ots_status || "unstamped", why: anchorWhy(e), kind: "agreement", url: aurl }); continue; }
               agreements.push({ record_sha256: sha, source_ledger_n: n, _k: [n, idx] });
+            }
+            // (a2b) 2026-11-03: rows the agreement intake wrote ({sha, kind, parties, bytes_url}). Their bytes are at the intake,
+            //      read through the AGREEMENT_INTAKE service binding; a contract is checked by its contract_sha256. A row that
+            //      cannot be checked is named in not_counted. The rows above (canonical_sha256) are read exactly as before.
+            {
+              const ir = await intakeAgreementRows(ab.records, { n, host, anchored: anchoredOf(e), anchorWhy: anchorWhy(e), otsStatus: e.ots_status || "unstamped",
+                fetchBytes: (u) => intakeBytes(env, u), sha256hex });
+              agreements.push(...ir.lines);
+              not_counted.push(...ir.not_counted);
             }
             // (a3) admissions (2026-11-02, only on the relying party's own Résumé): the a2a-admission-v0 rows whose relying party is on
             //      this endpoint's host (or its parent domain), with the same two hops as the agreements. Revocations are read

@@ -96,3 +96,24 @@ route 自体は MIT で fork 可。でも fork は空の台帳・証人ゼロ・
 - 写さない物: admission_id、relying_party(domain と key_url)、contract_ref、action_ref、presentation_ref、clause、reasons、establishes、does_not_establish、immune、signatures、content の input_commit と scope_sha256 と check_sha256。record_sha256 から元のバイトを引けば全部ある。
 - 閉じた形でない行(intake が形を照らすので、ふつうは起きない二つ目の鍵)は Résumé を落とさず、not_counted に admission_fields_not_closed(detail admission_not_closed)で入る。
 - 言わない事: 扉の判断が正しかったか。admissions[] は、扉が自分の鍵で署名して台帳に積んだ記録が、錨の付いた束にある事だけを言う。content も、扉がそう言った事であって、照らしが走った事の証明ではない。
+
+## 12. 結の受け口の契約と合意を agreements[] に入れる(2026-11-03 に足した。足すだけで、既存の行の読みは替えていない)
+
+- 対象: 結の受け口(agreement.horizonshield.dev)が書いた nenrin-agreement-batch-v1 の行。形は {sha, kind, schema, parties, bytes_url}(契約の後の実行には contract_sha256 も付く)。台帳自身の pool の行(canonical_sha256 を持つ)は今までどおり読み、1 バイトも替えない。
+- 読む kind は contract(a2a-contract-v0)と agreement。execution は契約の下の証拠で、合意ではないので読まない。
+- 誰の Résumé に載るか: 行の parties に、その端点の host(またはその親の domain)がある物。照らした後の記録の parties にもその host が無ければ載せない。
+- bytes は受け口から、kind と sha で決まった道(/contract/{sha}、/agreement/{sha})で引く。台帳は同じ zone の公開の host を引けないので、service binding(AGREEMENT_INTAKE、hs-agreement-intake)で引く。行の bytes_url がその道でなければ引かない。
+- 照らしは二段で、agreements[] と同じ:
+  - bytes が束の sha と合う。契約は contract_sha256 = sha256("a2a-contract-v0\n" + 署名を除いた canonical)、合意は bytes の sha256。契約の sha は条項を名指し、bytes の並べ方は名指さない。
+  - その束が錨の付いた entry である。
+- 行の形は今までと同じ {record_sha256, ledger_n}。契約の record_sha256 は contract_sha256。
+- 照らせない行は落とさず、not_counted に kind と url を付けて入れる。why は次のどれか:
+  - intake_row_sha_is_not_64_hex
+  - intake_row_bytes_url_is_not_the_intake
+  - intake_bytes_unavailable(detail に no_binding、http_<番号>、fetch_failed、too_large)
+  - contract_bytes_do_not_match_the_contract_sha256
+  - agreement_bytes_do_not_hash_to_the_listed_sha
+  - record_parties_do_not_name_this_host
+  - not_yet_anchored、confirmed_without_block_time
+- 足した日に、受け口の契約か合意を持つ端点の resume_sha256 が替わる。持たない端点の Résumé は 1 バイトも替わらない。
+- 言わない事: 契約が守られたか。それは結の精算(settle)が言う。agreements[] は、両者が署名した条項が錨の付いた束にある事だけを言う。

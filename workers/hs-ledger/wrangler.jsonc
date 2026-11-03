@@ -33,7 +33,9 @@
     // 第二の掟：同一アカウントの workers.dev を fetch すると自分に戻ってくる。
     // 過去にこれで FALSE DRIFT を出した。だから公開URLではなくバインディングで呼ぶ。
     { "binding": "PDF_GEN", "service": "hs-pdf-gen" },
-    { "binding": "GATE", "service": "hs-verify-gate" }
+    { "binding": "GATE", "service": "hs-verify-gate" },
+    // 2026-11-03: the Résumé reads the agreement intake's record bytes by sha (MUSUBI contracts in agreements[])
+    { "binding": "AGREEMENT_INTAKE", "service": "hs-agreement-intake" }
   ],
   // ★2026-07-26 追加：看板の実測。
   //   dataset はこの deploy で自動的に作られる。事前に作る操作は要らない。
