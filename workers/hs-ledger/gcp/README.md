@@ -4,7 +4,7 @@ hs-ledger/src/worker.js を **無改変**で Cloud Run に載せる一式。Clou
 (ledger.horizonshield.dev / workers.dev)はそのまま生かす。これは追加であって移行やない。
 Bitcoin に固定済みの JIDEC 記録は旧ホストを永久に指すので、Cloudflare 側は落とさん。
 
-## 中身(番人が書いた、全部テスト済み)
+## 中身(全部テスト済み)
 
 - `kv_firestore.mjs`        Cloudflare KV(LEDGER)を Firestore で満たす adapter。**扉の twin と同一バイトの複製**
 - `http_bridge.mjs`         Node http <-> Worker fetch の橋。/__scheduled 込み。**扉の twin と同一バイトの複製**
@@ -29,10 +29,12 @@ worker.js への変更: **ゼロ**。台帳側は扉と違い card 署名を持�
 
 - `GATE` / `PDF_GEN`  GCP では素の HTTPS fetch(passthrough)。Cloud Run は Cloudflare
   アカウントの外なので、公開 gate / pdf-gen を叩いても自ゾーン loopback(false drift)にならん。
+- `AGREEMENT_INTAKE`(2026-11-03)  結の受け口(agreement.horizonshield.dev)。Résumé の agreements[] が受け口の契約と合意の bytes を sha で引く。
+  GCP では GATE と同じ素の HTTPS fetch。束ねは `bindings.mjs` に置き、`test/resume_twin_parity.test.mjs` が Cloudflare と同じ agreements[] と not_counted になる事を照らす。
 - `KANBAN_AE`(Analytics Engine)  GCP に等価物なし。worker 側が `typeof ae.writeDataPoint === "function"`
   で守るので渡さない。計測が減るだけで検証能力は落ちん。
 
-## デプロイ(TOshi の手。番人は deploy / secret / 課金をやらない)
+## デプロイ(運用者の手で行う)
 
 前提: 扉の twin と同じ GCP プロジェクト(tsugi-marketplace)を流用可。REGION=asia-northeast1。
 
@@ -40,7 +42,7 @@ worker.js への変更: **ゼロ**。台帳側は扉と違い card 署名を持�
    (KV_COLLECTION=hs_ledger_kv、DEDUPE_COLLECTION=hs_ledger_agreement_dedupe)。同一 DB で衝突せん。
 
 2. Secret Manager: 台帳が読む秘密(LEDGER_ADMIN_TOKEN 等)を入れる。CRON_TOKEN は新規の強いランダム値。
-   値は自分の手だけ。番人は見ない。
+   値は運用者の手だけで入れる。
 
 3. ビルド + デプロイ(build context は hs-ledger/)
    cd workers/hs-ledger
@@ -54,7 +56,7 @@ worker.js への変更: **ゼロ**。台帳側は扉と違い card 署名を持�
      --schedule "30 0 * * *" --uri https://<service-url>/__scheduled --http-method POST \
      --headers "Authorization=Bearer <CRON_TOKEN>" --location asia-northeast1
 
-## まだ残っとる(番人の次の手)
+## まだ残っとる(次の手)
 
 - 台帳の KV データ移送(Cloudflare KV -> Firestore)。twin を「空の新台帳」で立てるか、
   既存記録を写すかは別判断。写すなら seq / entry:N / hash: / ots:N の一括 export/import 手順を用意する。

@@ -6,6 +6,7 @@ import { Firestore } from "@google-cloud/firestore";
 import { makeKv } from "./kv_firestore.mjs";
 import { makeNodeHandler } from "./http_bridge.mjs";
 import { makeAgreementDedupeDO } from "./firestore_dedupe_do.mjs";
+import { serviceBindings } from "./bindings.mjs";
 
 // worker.js は名前付きの入口のために "cloudflare:workers" を import する(2026-11-02)。Node には無いので、
 // 同じ形の代わりに解決してから読む(Cloud Run では入口の RPC は使わない。fetch と scheduled だけを使う)。
@@ -30,14 +31,13 @@ const AGREEMENT_DEDUPE_DO = makeAgreementDedupeDO(
 // KANBAN_AE(Analytics Engine)は GCP に等価物が無い。worker 側は
 // typeof ae.writeDataPoint === "function" で守っており、無ければ静かに飛ばすので、
 // あえて渡さない(計測が減るだけで検証能力は落ちない)。
-const passthrough = { fetch: (...a) => fetch(...a) };
+// 2026-11-03: the bindings, AGREEMENT_INTAKE included, come from bindings.mjs (the same file the parity test reads).
 
 const env = {
   ...process.env,
   LEDGER,
   AGREEMENT_DEDUPE_DO,
-  GATE: passthrough,
-  PDF_GEN: passthrough,
+  ...serviceBindings(),
 };
 
 const handler = makeNodeHandler({ worker, env, cronToken: process.env.CRON_TOKEN || "" });
