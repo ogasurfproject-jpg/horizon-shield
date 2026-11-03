@@ -17,20 +17,31 @@ Added with the door's daily check call (2026-11-03):
     6b_daily_leaf  the day before yesterday's first and last leaf, read at GET /furui/day/<D>/leaf/<i>: the envelope has the
                    closed shape, hashes to the leaf, carries runner-1's signature, and its RFC 6962 audit path rebuilds the
                    root of the day record the ledger serves.
-    1, 2, 3        from the door's daily check call (03:47 UTC), read at GET /seki .furui.check_call:
+    1, 2           from the door's daily check call (03:47 UTC), read at GET /seki .furui.check_call:
                    1 sieve to admission: the call's record carries a checked v0.4 content block; its check_sha256 is the
                      sha256 of the check of a runner envelope. The envelope of a call is served from the next day and the
                      door shows only its last call, so this binding is made on the previous call (.furui.check_call_prev)
                      and stays not_yet while the door does not show one.
-                   2 admission to ledger: the ledger serves the call's record under its sha (/admission/<sha>).
-                   3 ledger to door: the door serves the same bytes (/seki/record/<sha>), and the content block is the
-                     fixed answer (checked, pass, no marks, the door's rules id).
+                   2 admission to ledger: the ledger serves the call's record under its sha (/admission/<sha>), the
+                     door serves the same bytes (/seki/record/<sha>), and the content block is the fixed answer
+                     (checked, pass, no marks, the door's rules id).
+    3              ledger to MUSUBI settlement (settle): the call of the day before yesterday was carried through MUSUBI
+                   (workers/hs-ledger/nenrin/seki-heartbeat/check_loop.py): its execution record names the admission
+                   under the check contract at the MUSUBI intake, and the day is settled with settle v1.19 as
+                   within_grant, final. Read from check-runs/index.json and the day's settlement.json in this
+                   repository (its sha256 must be the one SETTLED.json names), the admission on the ledger and the
+                   execution at the intake. not_yet before the loop's first day and while Bitcoin has not confirmed
+                   both records (72 hours after filing); red when the day was not filed, did not settle in time, or
+                   settled as anything but within_grant, final.
     4              door to Resume: the previous call's record (.furui.check_call_prev, yesterday's) is listed by its
                    record_sha256 in the admissions[] of the relying party's Resume (GET /resume?endpoint=<its endpoint>),
                    as admit, not revoked, with the fixed content answer. An admission is listed only once its batch is
                    anchored, so yesterday's call is read, after the ledger's batch of today: not_yet before 01:05 UTC, and
                    not_yet while the Resume names it in not_counted as not yet anchored. Missing from both: red.
                    not_yet while the door shows no previous call or the Resume carries no admissions[].
+    4b             MUSUBI agreement to Resume: the check contract, on file at the MUSUBI intake, is listed in the
+                   agreements[] of the same Resume. not_yet while it is not on file, not in a ledger batch, or its batch
+                   is not confirmed in Bitcoin; red when its batch is confirmed and the Resume does not list it.
 A check that cannot be made because a shape is not fixed yet says why and is never reported ok.
 """
 import base64, datetime, hashlib, json, re, sys, time, urllib.error, urllib.parse, urllib.request
@@ -50,6 +61,9 @@ FIRST_KEPT_DAY = "2026-11-03"            # the first day whose envelopes runner 
 LEAF_SCAN_MAX = 32                       # at most this many leaves of one day are read to find the check call's envelope
 SIGNER = {"domain": "horizonshield.dev", "key_url": LEDGER + "/.well-known/furui-check-keys.json"}
 H64 = re.compile(r"^[0-9a-f]{64}$")
+AGREEMENT = "https://agreement.horizonshield.dev"   # the MUSUBI intake (contracts and execution records)
+CHECK_RUNS = "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-ledger/nenrin/seki-heartbeat/check-runs/"
+SETTLE_STALL = datetime.timedelta(hours=72 + 21)    # filed at 21:17 UTC of the call's day; unsettled 72 hours after that is red
 RESUME_ENDPOINT = "https://shield.the-horizons-innovation.com/"   # the door's relying party (shield.the-horizons-innovation.com)
 BATCH_DONE = (1, 5)                      # the ledger's daily batch window ends at 01:05 UTC
 UNANCHORED = ("not_yet_anchored", "confirmed_without_block_time")
@@ -509,55 +523,48 @@ def content_problems(rec, rules):
 
 
 def check_call_checks(get, now):
-    """checks 1, 2 and 3 from the door's daily check call"""
-    ids = ("1_sieve_admission", "2_admission_ledger", "3_ledger_door")
-    def all3(state, why, **f):
+    """checks 1 and 2 from the door's daily check call"""
+    ids = ("1_sieve_admission", "2_admission_ledger")
+    def all2(state, why, **f):
         return [c(i, state, why, **f) for i in ids]
     today = now.strftime("%Y-%m-%d")
     try:
         ps, p = get(DOOR_POLICY)
     except Unreachable as e:
-        return all3("red", "the door policy did not answer: " + str(e))
+        return all2("red", "the door policy did not answer: " + str(e))
     fu = p.get("furui") if ps == 200 and isinstance(p, dict) else None
     if not isinstance(fu, dict):
-        return all3("red", "the door policy answered %s without a furui block" % ps)
+        return all2("red", "the door policy answered %s without a furui block" % ps)
     if "check_call" not in fu:
-        return all3("not_yet", "the door shows no check call (furui.check_call): its daily check call is not in production")
+        return all2("not_yet", "the door shows no check call (furui.check_call): its daily check call is not in production")
     after = now.replace(hour=CHECK_CALL_AFTER[0], minute=CHECK_CALL_AFTER[1], second=0, microsecond=0)
     if now < after:
-        return all3("not_yet", "today's check call runs at 03:47 UTC; this check ran before it")
+        return all2("not_yet", "today's check call runs at 03:47 UTC; this check ran before it")
     cc = fu.get("check_call")
     if cc is None:
-        return all3("not_yet", "the door has recorded no check call yet")
+        return all2("not_yet", "the door has recorded no check call yet")
     if not isinstance(cc, dict):
-        return all3("red", "furui.check_call is not an object")
+        return all2("red", "furui.check_call is not an object")
     facts = {"day": cc.get("day"), "record": cc.get("record_sha256"), "decision": cc.get("decision")}
     if cc.get("day") != today or str(cc.get("at") or "")[:19] < after.strftime("%Y-%m-%dT%H:%M:%S"):
-        return all3("red", "the last check call is from %s, not after today's 03:47 UTC" % cc.get("at"), **facts)
+        return all2("red", "the last check call is from %s, not after today's 03:47 UTC" % cc.get("at"), **facts)
     if cc.get("ok") is not True or cc.get("error"):
-        return all3("red", "today's check call failed: %s" % (cc.get("error") or "ok is not true"), **facts)
+        return all2("red", "today's check call failed: %s" % (cc.get("error") or "ok is not true"), **facts)
     rules = ((fu.get("policy") or {}).get("rules_sha256"))
     out = {}
     pub = cc.get("published")
-    if not isinstance(pub, dict) or pub.get("accepted") is not True:
-        out["2_admission_ledger"] = c(ids[1], "red", "the door did not hand the call's record to the ledger (published %s)" % json.dumps(pub), **facts)
+    unpublished = None if isinstance(pub, dict) and pub.get("accepted") is True else "the door did not hand the call's record to the ledger (published %s)" % json.dumps(pub)
     try:
         why, rec, _la = door_record(get, cc.get("record_sha256"))
     except Unreachable as e:
-        return all3("red", "an endpoint did not answer: " + str(e), **facts)
+        return all2("red", "an endpoint did not answer: " + str(e), **facts)
     except (ValueError, KeyError, TypeError) as e:
-        return all3("red", "an answer did not have its shape: %s" % type(e).__name__, **facts)
+        return all2("red", "an answer did not have its shape: %s" % type(e).__name__, **facts)
     if why:
-        if why.startswith("ledger"):
-            out.setdefault("2_admission_ledger", c(ids[1], "red", why, **facts))
-            out["3_ledger_door"] = c(ids[2], "not_yet", "the ledger does not serve the record yet, so door and ledger cannot be compared", **facts)
-        else:
-            out.setdefault("2_admission_ledger", c(ids[1], "ok", "the ledger serves the call's record under its sha", **facts))
-            out["3_ledger_door"] = c(ids[2], "red", why, **facts)
+        out["2_admission_ledger"] = c(ids[1], "red", "; ".join(x for x in (unpublished, why) if x), **facts)
         out["1_sieve_admission"] = c(ids[0], "red", "the call's record could not be read from both ends: " + why, **facts)
         return [out[i] for i in ids]
-    out.setdefault("2_admission_ledger", c(ids[1], "ok", "the ledger serves the call's record %s under its sha" % cc["record_sha256"], **facts))
-    bad = content_problems(rec, rules)
+    bad = ([unpublished] if unpublished else []) + content_problems(rec, rules)
     k = rec["content"] if isinstance(rec.get("content"), dict) else {}
     cc_content = cc.get("content")
     if cc_content != {"checked": k.get("checked"), "decision": k.get("decision"), "marks": k.get("marks"), "rules_sha256": k.get("rules_sha256")}:
@@ -565,10 +572,10 @@ def check_call_checks(get, now):
     if cc.get("decision") != "admit" or cc.get("reasons") != CHECK_REASONS or cc.get("version") != "0.4" or not (isinstance(cc.get("admission_sha256"), str) and H64.match(cc["admission_sha256"])):
         bad.append("the call is not admit / within_grant / 0.4 with an admission sha")
     if bad:
-        out["3_ledger_door"] = c(ids[2], "red", "; ".join(bad), **facts)
+        out["2_admission_ledger"] = c(ids[1], "red", "; ".join(bad), **facts)
         out["1_sieve_admission"] = c(ids[0], "red", "today's content block does not hold: " + "; ".join(bad), **facts)
         return [out[i] for i in ids]
-    out["3_ledger_door"] = c(ids[2], "ok", "the door serves the same bytes as the ledger, a v0.4 record with the fixed content answer under the door's rules id", **facts)
+    out["2_admission_ledger"] = c(ids[1], "ok", "the ledger serves the call's record %s under its sha, the door serves the same bytes, a v0.4 record with the fixed content answer under the door's rules id" % cc["record_sha256"], **facts)
     out["1_sieve_admission"] = check_binding(get, now, fu, rules, facts)
     return [out[i] for i in ids]
 
@@ -672,9 +679,101 @@ def check_resume(get, now):
     return c(cid, "red", "yesterday's check call record is in neither admissions[] nor not_counted of the Resume of %s" % RESUME_ENDPOINT, **facts)
 
 
+def _index(get):
+    """(state or None, why, index): the check call's MUSUBI loop index, or why it cannot be read"""
+    try:
+        s, ix = get(CHECK_RUNS + "index.json")
+    except Unreachable as e:
+        return "red", "the loop's index did not answer: " + str(e), None
+    if s == 404:
+        return "not_yet", "the check call's MUSUBI loop is not in production yet (no check-runs/index.json)", None
+    if s != 200 or not isinstance(ix, dict) or ix.get("schema") != "seki-check-loop-index-v0" or not isinstance(ix.get("days"), dict) \
+            or not (isinstance(ix.get("contract_sha256"), str) and H64.match(ix["contract_sha256"])):
+        return "red", "check-runs/index.json answered http %s without the index shape" % s, None
+    return None, "", ix
+
+
+def check_settle(get, now):
+    """3: the check call of the day before yesterday, settled with MUSUBI settle v1.19 as within_grant, final"""
+    cid = "3_ledger_settle"
+    d = (now - datetime.timedelta(days=2)).strftime("%Y-%m-%d")
+    st, why, ix = _index(get)
+    if st:
+        return c(cid, st, why, day=d)
+    first = ix.get("first_day")
+    if not isinstance(first, str) or d < first:
+        return c(cid, "not_yet", "%s is before the first day the loop filed (%s)" % (d, first), day=d)
+    x = ix["days"].get(d)
+    if not isinstance(x, dict):
+        return c(cid, "red", "the check call of %s was not carried through MUSUBI (no execution filed for it)" % d, day=d)
+    facts = {"day": d, "record": x.get("record_sha256"), "execution": x.get("execution_sha256"), "contract": ix["contract_sha256"]}
+    filed_at = datetime.datetime.strptime(d, "%Y-%m-%d").replace(tzinfo=datetime.timezone.utc)
+    if x.get("settled") is not True or x.get("status") != "final":
+        if now - filed_at < SETTLE_STALL:
+            return c(cid, "not_yet", "%s is filed and waits for Bitcoin to confirm its admission and execution (%s)" % (d, x.get("status") or "not settled"), **facts)
+        return c(cid, "red", "%s is still not settled final more than 72 hours after it was filed" % d, **facts)
+    if x.get("settle") != "v1.19" or x.get("verdict") != "within_grant":
+        return c(cid, "red", "%s settled as %s under settle %s, not within_grant under v1.19" % (d, x.get("verdict"), x.get("settle")), **facts)
+    try:
+        ss, stext = get(CHECK_RUNS + d + "/settlement.json", raw=True)
+        if ss != 200 or not isinstance(stext, str) or sha(stext) != x.get("settlement_sha256"):
+            return c(cid, "red", "the settlement of %s is not served as the bytes its index names (http %s)" % (d, ss), **facts)
+        sm = json.loads(stext)
+        if sm.get("schema") != "a2a-settlement-v1.19" or sm.get("verdict") != "within_grant" or sm.get("status") != "final" or sm.get("contract_sha256") != ix["contract_sha256"]:
+            return c(cid, "red", "the settlement of %s is not a v1.19 within_grant, final settlement of the check contract" % d, **facts)
+        ls, la = get(LEDGER + "/admission/" + str(x.get("record_sha256")))
+        if ls != 200 or not isinstance(la, dict) or la.get("canonical_sha256") != x.get("record_sha256") or la.get("status") != "anchored":
+            return c(cid, "red", "the ledger does not serve the admission of %s as anchored (http %s)" % (d, ls), **facts)
+        es, et = get(AGREEMENT + "/execution/" + str(x.get("execution_sha256")), raw=True)
+        if es != 200 or not isinstance(et, str) or sha(et) != x.get("execution_sha256"):
+            return c(cid, "red", "the MUSUBI intake does not serve the execution of %s as bytes that hash to it (http %s)" % (d, es), **facts)
+    except Unreachable as e:
+        return c(cid, "red", "an endpoint did not answer: " + str(e), **facts)
+    except (ValueError, KeyError, TypeError) as e:
+        return c(cid, "red", "an answer did not have its shape: %s" % type(e).__name__, **facts)
+    return c(cid, "ok", "the check call of %s is settled within_grant, final, under settle v1.19: the admission is anchored on the ledger and the execution naming it is at the MUSUBI intake" % d, **facts)
+
+
+def check_resume_agreement(get, now):
+    """4b: the check contract, on file at the MUSUBI intake, is listed in the agreements[] of the relying party's Resume"""
+    cid = "4b_resume_agreement"
+    st, why, ix = _index(get)
+    if st:
+        return c(cid, st, why)
+    csha = ix["contract_sha256"]
+    try:
+        s, r = get(AGREEMENT + "/contract/" + csha + "/report")
+        if s == 404:
+            return c(cid, "not_yet", "the check contract is not on file at the MUSUBI intake yet", contract=csha)
+        an = ((r or {}).get("intake") or {}).get("anchor") if s == 200 and isinstance(r, dict) else None
+        if s != 200 or ((r.get("intake") or {}).get("verdict")) != "accepted":
+            return c(cid, "red", "the MUSUBI intake answered http %s for the check contract, not an accepted contract" % s, contract=csha)
+        n = an.get("ledger_entry") if isinstance(an, dict) else None
+        if not isinstance(n, int):
+            return c(cid, "not_yet", "the check contract is on file but not in a ledger batch yet", contract=csha)
+        vs, v = get(LEDGER + "/verify/%d" % n)
+        if vs != 200 or not isinstance(v, dict) or v.get("bitcoin_status") != "confirmed":
+            return c(cid, "not_yet", "the check contract's batch (ledger entry %d) is not confirmed in Bitcoin yet" % n, contract=csha, entry=n)
+        rs, rj = get(LEDGER + "/resume?endpoint=" + urllib.parse.quote(RESUME_ENDPOINT, safe=""))
+    except Unreachable as e:
+        return c(cid, "red", "an endpoint did not answer: " + str(e), contract=csha)
+    if rs != 200 or not isinstance(rj, dict) or not isinstance(rj.get("agreements"), list):
+        return c(cid, "red", "the Resume of %s answered http %s without an agreements list" % (RESUME_ENDPOINT, rs), contract=csha, entry=n)
+    if any(isinstance(y, dict) and y.get("record_sha256") == csha for y in rj["agreements"]):
+        return c(cid, "ok", "the check contract is listed in the agreements[] of the Resume of %s (ledger entry %d)" % (RESUME_ENDPOINT, n), contract=csha, entry=n)
+    nc = [y for y in (rj.get("not_counted") or []) if isinstance(y, dict) and y.get("record_sha256") == csha]
+    if nc and all(y.get("why") in UNANCHORED for y in nc):
+        return c(cid, "not_yet", "the Resume names the check contract as not yet anchored (%s)" % nc[0].get("why"), contract=csha, entry=n)
+    if nc:
+        return c(cid, "red", "the Resume does not count the check contract: %s" % ", ".join(str(y.get("why")) for y in nc), contract=csha, entry=n)
+    return c(cid, "red", "the check contract's batch (ledger entry %d) is confirmed, and the Resume of %s does not list it in agreements[] or not_counted" % (n, RESUME_ENDPOINT), contract=csha, entry=n)
+
+
 def run(get, now):
     checks = check_call_checks(get, now)
+    checks.append(check_settle(get, now))
     checks.append(check_resume(get, now))
+    checks.append(check_resume_agreement(get, now))
     checks += [check_door_runner(get), check_day_root(get, now), check_leaves(get, now), check_heartbeat(get, now)]
     checks.sort(key=lambda x: x["id"])
     counts = {k: sum(1 for x in checks if x["state"] == k) for k in ("ok", "red", "notice", "not_yet")}
@@ -746,6 +845,21 @@ def selftest():
     D3 = [envelope("2026-11-03", 0, nonce="heartbeat-2026-11-03"), envelope("2026-11-03", 1), envelope("2026-11-03", 2)]
     W3, sha = day_world("2026-11-03", D3, 250, "2026-11-05")
 
+    CSHA = hsh("the check contract")
+    REC3 = hsh("the admission of 11-03")
+    EXE3 = canonical({"schema": "a2a-execution-v0", "admission_ref": [{"admission_sha256": hsh("adm3")}]})
+    SET3 = canonical({"schema": "a2a-settlement-v1.19", "verdict": "within_grant", "status": "final", "contract_sha256": CSHA})
+    DAY3 = {"record_sha256": REC3, "admission_sha256": hsh("adm3"), "execution_sha256": hsh(EXE3), "settled": True, "settle": "v1.19",
+            "verdict": "within_grant", "status": "final", "settlement_sha256": hsh(SET3)}
+    INDEX = {"schema": "seki-check-loop-index-v0", "contract_sha256": CSHA, "first_day": "2026-11-03", "days": {"2026-11-03": DAY3}}
+
+    def loop_world():
+        return {CHECK_RUNS + "index.json": (200, json.loads(json.dumps(INDEX))), CHECK_RUNS + "2026-11-03/settlement.json": (200, SET3),
+                LEDGER + "/admission/" + REC3: (200, {"canonical_sha256": REC3, "status": "anchored", "ledger_entry": 300}),
+                AGREEMENT + "/execution/" + hsh(EXE3): (200, EXE3),
+                AGREEMENT + "/contract/" + CSHA + "/report": (200, {"intake": {"verdict": "accepted", "anchor": {"status": "batched", "ledger_entry": 300}}}),
+                LEDGER + "/verify/300": (200, {"bitcoin_status": "confirmed"})}
+
     def world(cc=False, prev=True, d4key=SK, adm_today=None, adm_prev=None, **over):
         w = {
             RUNNER + "/health": (200, {"runner": "hs-furui-runner 0.4.0", "key_id": "runner-1", "public_key_ed25519_b64": PUB, "rules_sha256": RULES if cc else None, "caps": dict(CAPS), "anthropic_key_set": True}),
@@ -767,7 +881,8 @@ def selftest():
             if prev:
                 fu["check_call_prev"] = dict(call, at="2026-11-04T03:47:12.345Z", day="2026-11-04", record_sha256=r4, admission_sha256=hsh("adm4"))
             w[DOOR_POLICY] = (200, {"furui": fu})
-            w[RESUME_URL] = (200, {"schema": "nenrin-resume-v1", "agreements": [], "not_counted": [{"n": 271, "record_sha256": r5, "why": "not_yet_anchored", "kind": "admission"}],
+            w.update(loop_world())
+            w[RESUME_URL] = (200, {"schema": "nenrin-resume-v1", "agreements": [{"record_sha256": CSHA, "source_ledger_n": 300}], "not_counted": [{"n": 271, "record_sha256": r5, "why": "not_yet_anchored", "kind": "admission"}],
                                    "admissions": [{"record_sha256": r4, "ledger_n": 261, "decision": "admit", "revoked": False,
                                                    "content": {"checked": True, "decision": "pass", "marks": [], "rules_sha256": RULES}}]})
             for t, r in ((t5, r5), (t4, r4)):
@@ -823,38 +938,38 @@ def selftest():
     cases.append(("the day status and the heartbeat answer 5xx: both red", (s["6_daily_root"], s["7_heartbeat_scene"]), ("red", "red")))
     # the leaves (6b) and the door's check call (1 to 3); 4 stays not_yet; nothing here is ever green while 4 is not_yet
     v, s = states(world())
-    cases.append(("before the door stage: 1 to 3 not_yet (no furui.check_call), 4 not_yet, the leaves of 11-03 ok", (s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_door"], s["4_door_resume"], s["6b_daily_leaf"]), ("not_yet", "not_yet", "not_yet", "not_yet", "ok")))
+    cases.append(("before the door stage and the loop: 1 to 4 and 4b not_yet (no furui.check_call, no check-runs index), the leaves of 11-03 ok", (s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_settle"], s["4_door_resume"], s["4b_resume_agreement"], s["6b_daily_leaf"]), ("not_yet", "not_yet", "not_yet", "not_yet", "not_yet", "ok")))
     v, s = states(world(cc=True))
-    cases.append(("the door's check call, everything holds: 1 to 7 and 6b ok, the verdict green", (v, s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_door"], s["4_door_resume"], s["5_door_runner"], s["6_daily_root"], s["6b_daily_leaf"], s["7_heartbeat_scene"]), ("green", "ok", "ok", "ok", "ok", "ok", "ok", "ok", "ok")))
+    cases.append(("the door's check call and its MUSUBI loop, everything holds: 1 to 7, 4b and 6b ok, the verdict green", (v, s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_settle"], s["4_door_resume"], s["4b_resume_agreement"], s["5_door_runner"], s["6_daily_root"], s["6b_daily_leaf"], s["7_heartbeat_scene"]), ("green", "ok", "ok", "ok", "ok", "ok", "ok", "ok", "ok", "ok")))
     v, s = states(world(cc=True, prev=False))
-    cases.append(("no check_call_prev in the door yet: 1 and 4 stay not_yet (never ok), 2 and 3 ok, the verdict not green", (v, s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_door"], s["4_door_resume"]), ("not_all_checked", "not_yet", "ok", "ok", "not_yet")))
+    cases.append(("no check_call_prev in the door yet: 1 and 4 stay not_yet (never ok), 2 and 3 ok, the verdict not green", (v, s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_settle"], s["4_door_resume"]), ("not_all_checked", "not_yet", "ok", "ok", "not_yet")))
     v, s = states(world(**{DOOR_POLICY: (200, {"furui": {"policy": {"required": False}, "check_call": None}})}))
-    cases.append(("the door shows check_call null (no call yet): 1 to 3 not_yet, never ok", (s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_door"]), ("not_yet", "not_yet", "not_yet")))
+    cases.append(("the door shows check_call null (no call yet): 1 and 2 not_yet, never ok", (s["1_sieve_admission"], s["2_admission_ledger"]), ("not_yet", "not_yet")))
     v, s = states(world(cc=True), datetime.datetime(2026, 11, 5, 3, 40, tzinfo=datetime.timezone.utc))
-    cases.append(("a run before 03:47 UTC: 1 to 3 not_yet", (s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_door"]), ("not_yet", "not_yet", "not_yet")))
+    cases.append(("a run before 03:47 UTC: 1 and 2 not_yet (3 reads the day before yesterday and does not wait)", (s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_settle"]), ("not_yet", "not_yet", "ok")))
     g = world(cc=True)
     pol = json.loads(json.dumps(g(DOOR_POLICY)[1]))
     def door_with(**ccf):
         p2 = json.loads(json.dumps(pol)); p2["furui"]["check_call"].update(ccf); return (200, p2)
     v, s = states(world(cc=True, **{DOOR_POLICY: door_with(day="2026-11-04", at="2026-11-04T03:47:12.345Z")}))
-    cases.append(("red: the last call is yesterday's (the cron did not run today)", (v, s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_door"]), ("red", "red", "red", "red")))
+    cases.append(("red: the last call is yesterday's (the cron did not run today)", (v, s["1_sieve_admission"], s["2_admission_ledger"]), ("red", "red", "red")))
     v, s = states(world(cc=True, **{DOOR_POLICY: door_with(ok=False, error="chain_view_unavailable")}))
     cases.append(("red: today's call failed", (v, s["2_admission_ledger"]), ("red", "red")))
     v, s = states(world(cc=True, **{DOOR_POLICY: door_with(published={"status": 503, "accepted": False})}))
     cases.append(("red: the door did not hand the record to the ledger", (v, s["2_admission_ledger"]), ("red", "red")))
     r5 = pol["furui"]["check_call"]["record_sha256"]
     v, s = states(world(cc=True, **{LEDGER + "/admission/" + r5: (404, {"error": "not_found"})}))
-    cases.append(("red: the ledger does not serve the record (2 red, 3 not_yet, 1 red)", (v, s["1_sieve_admission"], s["2_admission_ledger"], s["3_ledger_door"]), ("red", "red", "red", "not_yet")))
+    cases.append(("red: the ledger does not serve the record (1 and 2 red)", (v, s["1_sieve_admission"], s["2_admission_ledger"]), ("red", "red", "red")))
     t5 = g(DOOR_RECORD + r5)[1]
     v, s = states(world(cc=True, **{DOOR_RECORD + r5: (200, t5 + " ")}))
-    cases.append(("red: the door serves other bytes than the ledger", (v, s["3_ledger_door"]), ("red", "red")))
+    cases.append(("red: the door serves other bytes than the ledger", (v, s["2_admission_ledger"]), ("red", "red")))
     e5 = envelope("2026-11-05", 0, marks=["off_topic"])
     v, s = states(world(cc=True, adm_today=admission(e5)))
-    cases.append(("red: today's record says off_topic (not the fixed answer)", (v, s["1_sieve_admission"], s["3_ledger_door"]), ("red", "red", "red")))
+    cases.append(("red: today's record says off_topic (not the fixed answer)", (v, s["1_sieve_admission"], s["2_admission_ledger"]), ("red", "red", "red")))
     v, s = states(world(cc=True, adm_today=admission(envelope("2026-11-05", 0, rules_sha256="77" * 32))))
-    cases.append(("red: the record's rules id is not the door's", (v, s["3_ledger_door"]), ("red", "red")))
+    cases.append(("red: the record's rules id is not the door's", (v, s["2_admission_ledger"]), ("red", "red")))
     v, s = states(world(cc=True, adm_today=admission(envelope("2026-11-05", 0), note="free text in the block")))
-    cases.append(("red: the content block carries a field outside the closed list", (v, s["3_ledger_door"]), ("red", "red")))
+    cases.append(("red: the content block carries a field outside the closed list", (v, s["2_admission_ledger"]), ("red", "red")))
     v, s = states(world(cc=True, adm_prev=admission(envelope("2026-11-04", 7))))
     cases.append(("red: yesterday's record names a check no leaf of that day carries", (v, s["1_sieve_admission"]), ("red", "red")))
     v, s = states(world(cc=True, d4key=SK2))
@@ -893,7 +1008,7 @@ def selftest():
     cases.append(("4 not_yet: before the ledger's batch window ends (00:50 UTC), the Resume is not read", s["4_door_resume"], "not_yet"))
     v, s = states(world(cc=True, **{RESUME_URL: "down"}))
     cases.append(("4 red: the Resume answers 5xx three times", (v, s["4_door_resume"]), ("red", "red")))
-    v, s = states(world(cc=True, **{RESUME_URL: (200, {"schema": "nenrin-resume-v1", "agreements": []})}))
+    v, s = states(world(cc=True, **{RESUME_URL: (200, {"schema": "nenrin-resume-v1", "agreements": [{"record_sha256": CSHA, "source_ledger_n": 300}]})}))
     cases.append(("4 not_yet: the Resume carries no admissions[] (never ok)", (v, s["4_door_resume"]), ("not_all_checked", "not_yet")))
     a4 = rj["admissions"][0]
     v, s = states(world(cc=True, **{RESUME_URL: resume_with(admissions=[dict(a4, revoked=True)])}))
@@ -906,6 +1021,48 @@ def selftest():
     cases.append(("4 red: the door's previous call is not yesterday's", s["4_door_resume"], "red"))
     v, s = states(world())
     cases.append(("4 not_yet: the door shows no check call at all", s["4_door_resume"], "not_yet"))
+    # 3: the check call's MUSUBI settlement; 4b: the check contract in the Resume's agreements[]
+    def loop_with(day=None, **f):
+        ix = json.loads(json.dumps(INDEX)); ix["days"]["2026-11-03"].update(day or {}); ix.update(f); return (200, ix)
+    cases.append(("3 ok: the call of 11-03 settled within_grant, final under v1.19, admission anchored, execution served", states(world(cc=True))[1]["3_ledger_settle"], "ok"))
+    v, s = states(world(cc=True, **{CHECK_RUNS + "index.json": (404, None)}))
+    cases.append(("3 and 4b not_yet: the loop is not in production (no index), never ok, the verdict not green", (v, s["3_ledger_settle"], s["4b_resume_agreement"]), ("not_all_checked", "not_yet", "not_yet")))
+    v, s = states(world(cc=True, **{CHECK_RUNS + "index.json": loop_with(first_day="2026-11-04")}))
+    cases.append(("3 not_yet: the day before yesterday is before the loop's first day", s["3_ledger_settle"], "not_yet"))
+    v, s = states(world(cc=True, **{CHECK_RUNS + "index.json": (200, dict(INDEX, days={}))}))
+    cases.append(("3 red: the day is not filed after the loop's first day", (v, s["3_ledger_settle"]), ("red", "red")))
+    v, s = states(world(cc=True, **{CHECK_RUNS + "index.json": loop_with(day={"settled": False, "status": None, "verdict": None})}))
+    cases.append(("3 not_yet: filed, waiting for Bitcoin (within 72 hours of filing)", (v, s["3_ledger_settle"]), ("not_all_checked", "not_yet")))
+    v, s = states(world(cc=True, **{CHECK_RUNS + "index.json": loop_with(day={"settled": False, "status": None, "verdict": None})}), datetime.datetime(2026, 11, 7, 4, 5, tzinfo=datetime.timezone.utc))
+    cases.append(("3 red: still unsettled more than 72 hours after filing", s["3_ledger_settle"], "red"))
+    v, s = states(world(cc=True, **{CHECK_RUNS + "index.json": loop_with(day={"verdict": "deviation"})}))
+    cases.append(("3 red: settled as a deviation", (v, s["3_ledger_settle"]), ("red", "red")))
+    v, s = states(world(cc=True, **{CHECK_RUNS + "index.json": loop_with(day={"settle": "v1.15"})}))
+    cases.append(("3 red: settled under another settle than v1.19", s["3_ledger_settle"], "red"))
+    v, s = states(world(cc=True, **{CHECK_RUNS + "2026-11-03/settlement.json": (200, SET3 + " ")}))
+    cases.append(("3 red: the settlement's bytes are not the ones its index names", s["3_ledger_settle"], "red"))
+    v, s = states(world(cc=True, **{LEDGER + "/admission/" + REC3: (200, {"canonical_sha256": REC3, "status": "pending_anchor"})}))
+    cases.append(("3 red: the settled admission is not anchored on the ledger", s["3_ledger_settle"], "red"))
+    v, s = states(world(cc=True, **{AGREEMENT + "/execution/" + hsh(EXE3): (404, "{}")}))
+    cases.append(("3 red: the MUSUBI intake does not serve the execution", s["3_ledger_settle"], "red"))
+    v, s = states(world(cc=True, **{CHECK_RUNS + "index.json": "down"}))
+    cases.append(("3 and 4b red: the index answers 5xx three times", (v, s["3_ledger_settle"], s["4b_resume_agreement"]), ("red", "red", "red")))
+    cases.append(("4b ok: the check contract is in the Resume's agreements[] after its batch is confirmed", states(world(cc=True))[1]["4b_resume_agreement"], "ok"))
+    v, s = states(world(cc=True, **{AGREEMENT + "/contract/" + CSHA + "/report": (404, {"error": "not_found"})}))
+    cases.append(("4b not_yet: the check contract is not on file at the MUSUBI intake", (v, s["4b_resume_agreement"]), ("not_all_checked", "not_yet")))
+    v, s = states(world(cc=True, **{AGREEMENT + "/contract/" + CSHA + "/report": (200, {"intake": {"verdict": "accepted", "anchor": {"status": "pending"}}})}))
+    cases.append(("4b not_yet: on file, not in a ledger batch yet", s["4b_resume_agreement"], "not_yet"))
+    v, s = states(world(cc=True, **{LEDGER + "/verify/300": (200, {"bitcoin_status": "pending"})}))
+    cases.append(("4b not_yet: its batch is not confirmed in Bitcoin yet", s["4b_resume_agreement"], "not_yet"))
+    rj4 = json.loads(json.dumps(g(RESUME_URL)[1]))
+    v, s = states(world(cc=True, **{RESUME_URL: (200, dict(rj4, agreements=[]))}))
+    cases.append(("4b red: the batch is confirmed and the Resume lists the contract nowhere", (v, s["4b_resume_agreement"]), ("red", "red")))
+    v, s = states(world(cc=True, **{RESUME_URL: (200, dict(rj4, agreements=[], not_counted=[{"record_sha256": CSHA, "why": "not_yet_anchored", "kind": "agreement"}]))}))
+    cases.append(("4b not_yet: the Resume names the contract as not yet anchored", s["4b_resume_agreement"], "not_yet"))
+    v, s = states(world(cc=True, **{RESUME_URL: (200, dict(rj4, agreements=[], not_counted=[{"record_sha256": CSHA, "why": "agreement_bytes_do_not_hash_to_the_listed_sha"}]))}))
+    cases.append(("4b red: the Resume refuses to count the contract", s["4b_resume_agreement"], "red"))
+    v, s = states(world(cc=True, **{AGREEMENT + "/contract/" + CSHA + "/report": "down"}))
+    cases.append(("4b red: the MUSUBI intake answers 5xx three times", s["4b_resume_agreement"], "red"))
     sk = bytes.fromhex("9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60")
     cases.append(("Ed25519: RFC 8032 test 1 (public half, signature, a changed message fails)", (ed25519_public(sk).hex(), ed25519_verify(base64.b64encode(ed25519_public(sk)).decode(), b"", base64.b64encode(ed25519_sign(sk, b"")).decode()),
                   ed25519_verify(base64.b64encode(ed25519_public(sk)).decode(), b"x", base64.b64encode(ed25519_sign(sk, b"")).decode())), ("d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a", True, False)))
