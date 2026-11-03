@@ -92,6 +92,11 @@ jobs:
           include-hidden-files: true
           # Publish only the pruned copy, not the whole repository
           path: '_public'
+          # 打ち直し(gh run rerun --failed)でも束の名が 1 つになるよう、試行の番号を名に入れる。
+          # deploy-pages は同じ run の束を名で探し、同じ名が 2 つあると落ちる(2026-11-03 run 41640082685)。
+          name: github-pages-${{ github.run_attempt }}
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
