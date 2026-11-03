@@ -2,7 +2,8 @@
 
 `nenrin-verify` has two commands that read only the public ledger (https://ledger.horizonshield.dev) and the content
 check runner (https://furui.horizonshield.dev). Every port of them runs the shared vectors in this directory and must
-give the same verdicts; CI compares the ports line by line.
+give the same verdicts; CI compares the ports line by line, on the vectors and on seeded mutations of them. That the
+ports agree is established on those inputs, not on every input.
 
 The chain these commands sit in has five names: FURUI (篩, the content check runner) → SEKI admission (関の扉, the door that
 signs an admission) → MUSUBI settle (結の精算, the settlement of a contract) → NENRIN ledger (年輪の台帳, anchored to
@@ -63,3 +64,17 @@ document of each world lists a test key as runner-1; no production key or record
 OpenTimestamps proof of ledger entry 80 for the parser. `make_verify_vectors.py` writes the file (`--check` says
 whether the file is what it writes). The repository's CI runs every port on it and on mutations of it, and compares
 their answers line by line.
+
+### Closed strings are exact (0.8.1)
+
+A 64 hex value (every sha256, the record and envelope fields, each audit path hash, the day record's root, a Resume
+line's `rules_sha256`) is exactly 64 characters of `0-9a-f`, with nothing before or after it. The day, `signed_at`,
+the nonce and the signature are held the same way, and their digits are ASCII digits only. Up to 0.8.0 the Python
+port read these with `re.match` and a final `$`, which also passes one trailing line feed, and with `\d`, which takes
+any Unicode digit; `bytes.fromhex` then skipped the line feed, so an audit path hash with a trailing `"\n"` rebuilt
+the root in Python and was a `proof_shape` fail in JavaScript, Go and Java. 0.8.1 uses `fullmatch` and `[0-9]`. The
+vectors carry 21 cases for this (a trailing line feed, carriage return, CR LF or space, a leading line feed or space,
+uppercase, fullwidth digits; on the audit path, the day record's root and day, the leaf's record sha, five envelope
+fields and its signature, and a Resume line), and the mutations give string values the same edges, so a port that
+reads them loosely differs from the others in CI. The values are signed where they sit, so only the shape check can
+refuse them.

@@ -54,3 +54,37 @@ def test_annotate_span_sets_the_identifiers():
     s = trace.annotate_span(Span(), b["bind"])
     assert s.attrs["nenrin.trace.sha256"] == b["bind"]["trace_sha256"]
     assert trace.check_span_attributes(s.attrs, b)["verdict"] == "span_bound"
+
+
+def test_bind_hex_and_thumbprint_exactly_as_javascript():
+    """0.8.1: record_sha256, trace_sha256 and trace_key_thumbprint with a character before or after them, and the two
+    sha256 in uppercase, are bind_malformed, as trace_verify.mjs says (re.match with "$" passed a trailing "\n" before).
+    Uppercase is base64url, so a thumbprint in uppercase is well formed and left out here."""
+    import shutil
+    import subprocess
+    batch = loads(tsunagi.batch_text("nenrin-trace-bind-v0"))
+    base = [c for c in batch if trace.verify_trace_bind(c["bundle"])["verdict"] == "bound"]
+    assert base
+    out = []
+    for c in base[:3]:
+        for k in ("record_sha256", "trace_sha256", "trace_key_thumbprint"):
+            edges = [lambda t: t + "\n", lambda t: t + "\r", lambda t: t + " ", lambda t: "\n" + t]
+            for f in edges + ([lambda t: t.upper()] if k != "trace_key_thumbprint" else []):
+                b = json.loads(json.dumps(c["bundle"]))
+                v = f(b["bind"][k])
+                if v == b["bind"][k]:
+                    continue
+                b["bind"][k] = v
+                got = trace.verify_trace_bind(b)
+                assert got["refusals"] == ["bind_malformed"], (k, repr(v), got)
+                out.append(b)
+    node = shutil.which("node")
+    if node is None:
+        return
+    js = os.path.normpath(os.path.join(REPO, "sdk", "trace_verify.mjs"))
+    src = ("import { verifyTraceBind } from %s; const inp = JSON.parse(require_fs().readFileSync(0, 'utf8'));"
+           "process.stdout.write(JSON.stringify(inp.map((b) => verifyTraceBind(b).refusals)));") % json.dumps("file://" + js)
+    src = "import { readFileSync } from 'node:fs'; const require_fs = () => ({ readFileSync });" + src
+    r = subprocess.run([node, "--input-type=module", "-e", src], input=json.dumps(out), capture_output=True, text=True, timeout=120)
+    assert r.returncode == 0, r.stderr
+    assert json.loads(r.stdout) == [["bind_malformed"]] * len(out)

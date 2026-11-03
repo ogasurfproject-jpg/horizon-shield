@@ -65,7 +65,7 @@ export const MUTANTS = [
   ["語境界の前を ASCII の \\b に", 'const WB = "(?<![\\\\p{L}\\\\p{N}_])";', 'const WB = "\\\\b";'],
   ["語境界の後ろを ASCII の \\b に", 'const WE = "(?![\\\\p{L}\\\\p{N}_])";', 'const WE = "\\\\b";'],
   // ドメイン
-  ["hostOfHttps が http も通す", "/^https:\\/\\/([^/?#\\s@]+)(?:[/?#][\\s\\S]*)?$/", "/^https?:\\/\\/([^/?#\\s@]+)(?:[/?#][\\s\\S]*)?$/"],
+  ["hostOfHttps が http も通す", "new RegExp(\"^https://([^/?#@\"", "new RegExp(\"^https?://([^/?#@\""],
   ["underDomain から点を落とす", 'host === domain || (host || "").endsWith("." + domain)', 'host === domain || (host || "").endsWith(domain)'],
   ["normDomain がラベル 1 つでも通す", "if (labels.length < 2) return null;", ""],
   ["b64Raw が書き戻しの照合をやめる", "if (btoa(back) !== str) return null;", ""],

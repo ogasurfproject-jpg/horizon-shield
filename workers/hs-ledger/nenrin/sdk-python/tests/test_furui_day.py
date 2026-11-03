@@ -1,4 +1,4 @@
-"""nenrin-verify furui-day and resume-admission (0.8.0): the shared vectors, the CLI's usage and exit codes, the
+"""nenrin-verify furui-day and resume-admission (0.8.0, exact closed strings in 0.8.1): the shared vectors, the CLI's usage and exit codes, the
 vectors file is what its generator writes, and the JavaScript twin gives the same answer on the vectors and on
 mutations of them (skipped when node is not on PATH)."""
 import base64
@@ -53,11 +53,24 @@ def test_generator_writes_the_same_file():
 
 @pytest.mark.parametrize("argv", [[], ["furui-day"], ["furui-day", "2026-11-31", "--leaf", "0"], ["furui-day", "2026-11-03", "--leaf", "-1"],
                                   ["furui-day", "2026-11-03", "--leaf", "01"], ["furui-day", "2026-11-03", "0"],
-                                  ["resume-admission", "http://example.org/", "a" * 64], ["resume-admission", "https://example.org/", "A" * 64]])
+                                  ["resume-admission", "http://example.org/", "a" * 64], ["resume-admission", "https://example.org/", "A" * 64],
+                                  # 0.8.1: nothing after the value, and ASCII digits only (re.match with "$" passed a trailing "\n")
+                                  ["furui-day", "2026-11-03\n", "--leaf", "0"], ["furui-day", "\uff12\uff10\uff12\uff16-11-03", "--leaf", "0"],
+                                  ["furui-day", "2026-11-03", "--leaf", "0\n"], ["furui-day", "2026-11-03", "--leaf", "\u0663"],
+                                  ["resume-admission", "https://example.org/", "a" * 64 + "\n"], ["resume-admission", "https://example.org/\n", "a" * 64]])
 def test_usage_exit_2(argv, capsys):
     if not argv:
         return
     assert cli.main(argv) == 2
+
+
+def test_exactly_64_lowercase_hex():
+    for v in ["0" * 64 + "\n", "0" * 64 + "\r", "0" * 64 + " ", "\n" + "0" * 64, "0" * 63, "0" * 65, "A" * 64, "\uff10" * 64]:
+        assert not F.H64.fullmatch(v), repr(v)
+    assert F.H64.fullmatch("0123456789abcdef" * 4)
+    for v in ["2026-11-03\n", "\uff12\uff10\uff12\uff16-11-03", "2026-11-31"]:
+        assert not F._real_day(v), repr(v)
+    assert F._b64("A" * 86 + "==\n", 64) is None
 
 
 def test_no_other_host(monkeypatch):

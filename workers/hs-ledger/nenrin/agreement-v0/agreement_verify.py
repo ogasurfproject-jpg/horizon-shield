@@ -624,7 +624,8 @@ def verify(record, keys=None, recorder_domain=None, now=None, input_text=None,
 
     # 5. agreed_at
     at = record.get("agreed_at")
-    pattern = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\Z" if strict else r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z\Z"
+    # [0-9], not \d: \d takes any Unicode digit (fullwidth, Arabic-Indic) and the JavaScript twin takes ASCII only
+    pattern = r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\Z" if strict else r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?Z\Z"
     if not isinstance(at, str) or not re.match(pattern, at):
         r.refuse("bad_agreed_at", "agreed_at must be an ISO-8601 UTC instant%s, found %r"
                  % (" of the form YYYY-MM-DDTHH:MM:SSZ" if strict else " ending in Z", at))

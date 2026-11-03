@@ -39,11 +39,14 @@ KEYS_URL = LEDGER + "/.well-known/furui-check-keys.json"
 SIGNER = {"domain": "horizonshield.dev", "key_url": KEYS_URL}
 ALLOWED_HOSTS = ("ledger.horizonshield.dev", "furui.horizonshield.dev")
 SAFE = 9007199254740991
-H64 = re.compile(r"^[0-9a-f]{64}$")
-DAY = re.compile(r"^(\d{4})-(\d{2})-(\d{2})$")
-ISO_MS = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$")
-NONCE = re.compile(r"^(?:[0-9a-f]{32}|heartbeat-\d{4}-\d{2}-\d{2})$")
-SIG88 = re.compile(r"^[A-Za-z0-9+/]{86}==$")
+# Every pattern is used with fullmatch and spelled with [0-9], never \d: with re.match a final "$" also passes one
+# trailing "\n", and \d takes any Unicode digit (int() reads them too). The JavaScript, Go and Java ports refuse both.
+H64 = re.compile(r"[0-9a-f]{64}")
+DAY = re.compile(r"([0-9]{4})-([0-9]{2})-([0-9]{2})")
+ISO_MS = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z")
+NONCE = re.compile(r"[0-9a-f]{32}|heartbeat-[0-9]{4}-[0-9]{2}-[0-9]{2}")
+SIG88 = re.compile(r"[A-Za-z0-9+/]{86}==")
+B64 = re.compile(r"[A-Za-z0-9+/]*={0,2}")
 CHECK_KEYS = sorted(["action_binding_digest", "answered", "checked_at_height", "contract_sha256", "decision", "input_commit", "marks",
                      "nonce", "rules_sha256", "schema", "scope_sha256", "signed_at", "stage_reached", "trace_sha256", "unread"])
 DAY_KEYS = sorted(["clock_skew", "day", "first_height", "last_height", "late", "leaf", "n", "publication", "root", "schema",
@@ -73,7 +76,7 @@ def _num(s):
     if v != v or v in (float("inf"), float("-inf")):
         return v
     if v == int(v) and abs(v) <= SAFE:
-        if re.match(r"^-?\d+$", s):
+        if re.fullmatch(r"-?[0-9]+", s):
             i = int(s)
             return i if abs(i) <= SAFE else v
         return int(v)
@@ -130,7 +133,7 @@ def _keys(o, ks):
 
 
 def _real_day(s):
-    m = DAY.match(s) if isinstance(s, str) else None
+    m = DAY.fullmatch(s) if isinstance(s, str) else None
     if not m:
         return False
     try:
@@ -142,7 +145,7 @@ def _real_day(s):
 
 def _b64(s, n):
     """strict standard base64 of exactly n bytes, or None"""
-    if not isinstance(s, str) or not re.match(r"^[A-Za-z0-9+/]*={0,2}$", s) or len(s) % 4:
+    if not isinstance(s, str) or not B64.fullmatch(s) or len(s) % 4:
         return None
     try:
         b = base64.b64decode(s, validate=True)
@@ -169,10 +172,10 @@ def envelope_problem(e):
     if not _keys(c, CHECK_KEYS) or c["schema"] != "furui-check-v1":
         return "check_keys"
     for k in ("input_commit", "action_binding_digest", "contract_sha256", "trace_sha256"):
-        if not (isinstance(c[k], str) and H64.match(c[k])):
+        if not (isinstance(c[k], str) and H64.fullmatch(c[k])):
             return "check_" + k
     for k in ("rules_sha256", "scope_sha256"):
-        if c[k] is not None and not (isinstance(c[k], str) and H64.match(c[k])):
+        if c[k] is not None and not (isinstance(c[k], str) and H64.fullmatch(c[k])):
             return "check_" + k
     if not (c["decision"] is None or (isinstance(c["decision"], str) and c["decision"] in ("stop", "pass"))):
         return "check_decision"
@@ -185,9 +188,9 @@ def envelope_problem(e):
         return "check_stage_reached"
     if not _isint(c["checked_at_height"]):
         return "check_height"
-    if not (isinstance(c["nonce"], str) and NONCE.match(c["nonce"])):
+    if not (isinstance(c["nonce"], str) and NONCE.fullmatch(c["nonce"])):
         return "check_nonce"
-    if not (isinstance(c["signed_at"], str) and ISO_MS.match(c["signed_at"])):
+    if not (isinstance(c["signed_at"], str) and ISO_MS.fullmatch(c["signed_at"])):
         return "check_signed_at"
     if not _keys(e["signer"], ["domain", "key_url"]) or e["signer"] != SIGNER:
         return "signer"
@@ -195,7 +198,7 @@ def envelope_problem(e):
         return "signatures"
     g = e["signatures"][0]
     if (not _keys(g, ["alg", "domain", "key_id", "sig"]) or g["alg"] != "ed25519" or g["domain"] != SIGNER["domain"]
-            or g["key_id"] != "runner-1" or not (isinstance(g["sig"], str) and SIG88.match(g["sig"]))):
+            or g["key_id"] != "runner-1" or not (isinstance(g["sig"], str) and SIG88.fullmatch(g["sig"]))):
         return "signature"
     return None
 
@@ -215,7 +218,7 @@ def day_record_problem(r):
     s = r["signer"]
     ok = (_real_day(r["day"]) and _keys(s, ["domain", "key_url"]) and isinstance(s["domain"], str) and s["domain"]
           and isinstance(s["key_url"], str) and _isint(r["n"], 1) and r["tree"] == "rfc6962-sha256" and r["leaf"] == DAY_LEAF
-          and isinstance(r["root"], str) and H64.match(r["root"]) and _isint(r["first_height"]) and _isint(r["last_height"])
+          and isinstance(r["root"], str) and H64.fullmatch(r["root"]) and _isint(r["first_height"]) and _isint(r["last_height"])
           and r["first_height"] <= r["last_height"] and _isint(r["late"]) and _isint(r["clock_skew"]) and r["publication"] == "public"
           and isinstance(r["signatures"], list) and len(r["signatures"]) == 1)
     if not ok:
@@ -359,7 +362,7 @@ def ots_parse(b):
 
 # ---- fetching ----
 def _enc_component(s):
-    return "".join(ch if re.match(r"[A-Za-z0-9\-_.~]", ch) else "".join("%%%02X" % x for x in ch.encode("utf-8")) for ch in s)
+    return "".join(ch if re.fullmatch(r"[A-Za-z0-9\-_.~]", ch) else "".join("%%%02X" % x for x in ch.encode("utf-8")) for ch in s)
 
 
 def http_get(url, timeout=30):
@@ -504,7 +507,7 @@ def furui_day(day, leaf, get=http_get):
         run.put("not_yet", "day_record_not_accepted")
         return run.result("furui-day", args)
     rs = dr.get("ledger_canonical_sha256")
-    if not (isinstance(rs, str) and H64.match(rs)):
+    if not (isinstance(rs, str) and H64.fullmatch(rs)):
         run.put("fail", "no_day_record")
         return run.result("furui-day", args)
     s, lr = run.getj(LEDGER + "/furui-check-day/" + rs)
@@ -534,7 +537,7 @@ def furui_day(day, leaf, get=http_get):
         run.put("fail", "n_or_root_differs_from_the_ledger_record")
         return run.result("furui-day", args)
     pr = a.get("proof")
-    if a.get("proof_kind") != "rfc6962-audit-path" or not isinstance(pr, list) or not all(isinstance(x, str) and H64.match(x) for x in pr) or len(pr) > 64:
+    if a.get("proof_kind") != "rfc6962-audit-path" or not isinstance(pr, list) or not all(isinstance(x, str) and H64.fullmatch(x) for x in pr) or len(pr) > 64:
         run.put("fail", "proof_shape")
         return run.result("furui-day", args)
     if not leaf < rec["n"] or root_from_path(lh, leaf, rec["n"], pr) != rec["root"]:
@@ -655,7 +658,7 @@ def resume_admission(endpoint, record_sha, get=http_get):
               and (c is None or (_keys(c, ["checked", "decision", "marks", "rules_sha256"]) and isinstance(c["checked"], bool)
                                  and (c["decision"] is None or (isinstance(c["decision"], str) and c["decision"] in ("stop", "pass")))
                                  and isinstance(c["marks"], list) and c["marks"] in ([], ["off_topic"], ["rule_conflict"], ["off_topic", "rule_conflict"])
-                                 and (c["rules_sha256"] is None or (isinstance(c["rules_sha256"], str) and H64.match(c["rules_sha256"]))))))
+                                 and (c["rules_sha256"] is None or (isinstance(c["rules_sha256"], str) and H64.fullmatch(c["rules_sha256"]))))))
     if not closed:
         run.put("fail", "line_not_closed")
         return run.result("resume-admission", args)
@@ -773,11 +776,11 @@ EXIT = {"ok": 0, "fail": 1, "not_yet": 3}
 def main(argv):
     try:
         if len(argv) == 4 and argv[0] == "furui-day" and argv[2] == "--leaf":
-            if not _real_day(argv[1]) or not re.match(r"^(0|[1-9]\d{0,8})$", argv[3]):
+            if not _real_day(argv[1]) or not re.fullmatch(r"0|[1-9][0-9]{0,8}", argv[3]):
                 raise ValueError
             res = furui_day(argv[1], int(argv[3]))
         elif len(argv) == 3 and argv[0] == "resume-admission":
-            if not re.match(r"^https://[^\s]+$", argv[1]) or not H64.match(argv[2]) or not _host(argv[1]):
+            if not re.fullmatch(r"https://[^\s]+", argv[1]) or not H64.fullmatch(argv[2]) or not _host(argv[1]):
                 raise ValueError
             res = resume_admission(argv[1], argv[2])
         elif len(argv) == 2 and argv[0] == "furui-vectors":

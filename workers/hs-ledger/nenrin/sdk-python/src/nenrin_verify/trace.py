@@ -112,12 +112,12 @@ def sha256hex(s):
     return hashlib.sha256(s.encode("utf-8")).hexdigest()
 
 
-_B64URL = re.compile(r"^[A-Za-z0-9_-]*$")
-_B64STD = re.compile(r"^[A-Za-z0-9+/]*={0,2}$")
+_B64URL = re.compile(r"[A-Za-z0-9_-]*")
+_B64STD = re.compile(r"[A-Za-z0-9+/]*={0,2}")
 
 
 def _b64url_canonical(s):
-    if not isinstance(s, str) or not _B64URL.match(s) or len(s) % 4 == 1:
+    if not isinstance(s, str) or not _B64URL.fullmatch(s) or len(s) % 4 == 1:
         return None
     try:
         b = base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
@@ -127,7 +127,7 @@ def _b64url_canonical(s):
 
 
 def _b64std_canonical(s):
-    if not isinstance(s, str) or not _B64STD.match(s) or len(s) % 4 != 0:
+    if not isinstance(s, str) or not _B64STD.fullmatch(s) or len(s) % 4 != 0:
         return None
     try:
         b = base64.b64decode(s, validate=True)
@@ -220,8 +220,9 @@ def bind_signing_bytes(bind):
     return (BIND_CONTEXT + jcs(body)).encode("utf-8")
 
 
-_HEX64 = re.compile(r"^[0-9a-f]{64}$")
-_THUMB = re.compile(r"^[A-Za-z0-9_-]{43}$")
+# fullmatch, never match with "$" (which also passes one trailing "\n"; trace_verify.mjs and trace.go refuse it)
+_HEX64 = re.compile(r"[0-9a-f]{64}")
+_THUMB = re.compile(r"[A-Za-z0-9_-]{43}")
 
 
 def _str_list(a):
@@ -249,9 +250,9 @@ def verify_trace_bind(bundle):
         return stop("bind_schema")
     shape_ok = (tuple(sorted(bind, key=_u16)) == BIND_KEYS
                 and isinstance(bind["relation"], str) and bind["relation"] == "performed_under"
-                and isinstance(bind["record_sha256"], str) and bool(_HEX64.match(bind["record_sha256"]))
-                and isinstance(bind["trace_sha256"], str) and bool(_HEX64.match(bind["trace_sha256"]))
-                and isinstance(bind["trace_key_thumbprint"], str) and bool(_THUMB.match(bind["trace_key_thumbprint"]))
+                and isinstance(bind["record_sha256"], str) and bool(_HEX64.fullmatch(bind["record_sha256"]))
+                and isinstance(bind["trace_sha256"], str) and bool(_HEX64.fullmatch(bind["trace_sha256"]))
+                and isinstance(bind["trace_key_thumbprint"], str) and bool(_THUMB.fullmatch(bind["trace_key_thumbprint"]))
                 and _is_int(bind["acted_at"]) and 1700000000 <= bind["acted_at"] <= MAX_SAFE)
     key = _b64std_canonical(bind["binder_public_key_ed25519_b64"]) if shape_ok else None
     sig = _b64std_canonical(bind["sig_b64"]) if shape_ok else None

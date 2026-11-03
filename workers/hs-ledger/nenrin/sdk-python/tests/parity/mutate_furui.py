@@ -1,5 +1,7 @@
 """Mutations of the shared furui vectors: every JSON body of every world, one value at a time replaced by a value of
-another type (or removed), and the OpenTimestamps proofs cut or flipped at one byte. Seeded, so every port reads the
+another type (or removed), a string value given a character before or after it or put in uppercase (a 64 hex value
+with a trailing "\n" passed Python's re.match and "$" before 0.8.1, and nowhere else), and the OpenTimestamps proofs
+cut or flipped at one byte. Seeded, so every port reads the
 same mutated cases. Written as a vectors file without expect: the ports are compared with each other, not with a
 frozen answer.
 
@@ -10,7 +12,17 @@ import json
 import random
 import sys
 
-REPL = [None, True, False, 0, 1, -1, 1.5, 9007199254740993, "", "x", "runner-1", [], {}, ["off_topic"], "0" * 64]
+REPL = [None, True, False, 0, 1, -1, 1.5, 9007199254740993, "", "x", "runner-1", [], {}, ["off_topic"], "0" * 64,
+        "0" * 64 + "\n", "0" * 64 + "\r", "0" * 64 + " ", "\n" + "0" * 64, "A" * 64, "\uff10" * 64]
+# what a string value becomes when it is kept and edged: a character after it, before it, or the value in uppercase
+EDGE = [lambda t: t + "\n", lambda t: t + "\r", lambda t: t + " ", lambda t: t + "\r\n", lambda t: "\n" + t, lambda t: " " + t,
+        lambda t: t.upper()]
+
+
+def getp(v, p):
+    for k in p:
+        v = v[k]
+    return v
 
 
 def paths(v, p=()):
@@ -66,9 +78,14 @@ def main(a):
             ps = list(paths(body))
             for j in range(per):
                 p = ps[rnd.randrange(len(ps))]
+                cur = getp(body, p)
                 if p and rnd.random() < 0.25:
                     nb = setp(body, p, None, delete=True)
                     what = "del"
+                elif isinstance(cur, str) and rnd.random() < 0.4:
+                    k = rnd.randrange(len(EDGE))
+                    nb = setp(body, p, EDGE[k](cur))
+                    what = "edge%d" % k
                 else:
                     r = REPL[rnd.randrange(len(REPL))]
                     nb = setp(body, p, r)

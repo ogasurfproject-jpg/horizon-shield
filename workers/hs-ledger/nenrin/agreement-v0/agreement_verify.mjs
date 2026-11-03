@@ -154,6 +154,9 @@ export const FEE_BASES_BAD = ["percent_of_amount", "percent", "share_of_amount",
 // "\bpaid\b" は "支払paid済" の中で、python は当たらんが JS は当たる。
 // せやから \b を書かずに、Unicode の見回しで同じ境界を作る。
 const WB = "(?<![\\p{L}\\p{N}_])";
+// python の \s(str の正規表現)が当たる文字の集合。JS の \s とは違い、\x1c〜\x1f と \x85 を含み、\ufeff を含まない。
+// "paid\x85for this record" を python は払った事の主張と見ず、JS の \s のままでは見ていた(2026-11-04、0.8.1)。
+const PY_WS = "\\t-\\r\\x1c-\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000";
 const WE = "(?![\\p{L}\\p{N}_])";
 const w = (body) => new RegExp(WB + "(?:" + body + ")" + WE, "u");
 
@@ -164,7 +167,7 @@ export const OVERCLAIM = [
   [w("deliver(?:ed|y)"), "delivery"],
   [w("money (?:moved|was sent)"), "movement of money"],
   [w("funds? (?:moved|were sent|were transferred)"), "movement of funds"],
-  [new RegExp(WB + "paid" + WE + "(?!\\s+for\\s+(?:this|the)\\s+record)", "u"), "payment"],
+  [new RegExp(WB + "paid" + WE + "(?![" + PY_WS + "]+for[" + PY_WS + "]+(?:this|the)[" + PY_WS + "]+record)", "u"), "payment"],
   [w("payment (?:was|has been) (?:made|completed|settled|received)"), "payment"],
   [w("contract"), "formation of a contract"],
   [w("binding"), "legal effect"],
@@ -220,7 +223,7 @@ export function normDomain(d) {
 // https の URL のホスト。https でないか読めん時は null。
 export function hostOfHttps(u) {
   if (typeof u !== "string") return null;
-  const m = /^https:\/\/([^/?#\s@]+)(?:[/?#][\s\S]*)?$/.exec(pyStrip(u));
+  const m = new RegExp("^https://([^/?#@" + PY_WS + "]+)(?:[/?#][^\\n]*)?$").exec(pyStrip(u));
   if (!m) return null;
   const host = rstripDot(m[1].split(":")[0].toLowerCase());
   return host || null;
@@ -545,13 +548,12 @@ export async function buildReport(r, record, schema, checked, urlsChecked, perSi
 // 骨。規則はまだ 1 本も無い。計算できる鍵だけ埋めて、あとは空で返す。
 // 空で返すこと自体は嘘やない。嘘になるんは、これを「合格」と呼んだときや。
 
-// python の re.match は、pattern の末尾の $ が「文字列の終わり、または終わりの直前の
-// 改行 1 つ」に当たる。JS の $ は改行を許さん。ここを写さんかったら、末尾に改行の付いた
-// 値で片方だけ通る。scan_text が制御文字を先に断るから今は届かんが、規則の写しは
-// 届く届かんで決めるもんやない。
+// python の側の照らしは全部 re.match と末尾の \Z で、末尾の改行 1 つも通さない(\Z は文字列の終わりだけ)。
+// 前はここが \n? で、python が $ だった頃の写しのまま改行 1 つを通していた。scan_text が制御文字を先に断るので
+// 届かなかったが、写しは届くかどうかでなく元の規則にそろえる(2026-11-04、0.8.1)。
 export function pyFullMatch(body, s) {
   if (typeof s !== "string") return false;
-  return new RegExp("^(?:" + body + ")\\n?$").test(s);
+  return new RegExp("^(?:" + body + ")$").test(s);
 }
 
 // python の str(x)。文字列はそのまま、それ以外は repr と同じ物が出る。

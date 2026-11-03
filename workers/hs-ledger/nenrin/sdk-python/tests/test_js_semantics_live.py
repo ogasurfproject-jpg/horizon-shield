@@ -19,6 +19,7 @@ const out = {
   b64: inp.b64.map((s) => Buffer.from(s, "base64").toString("hex")),
   quote: inp.quote.map((s) => JSON.stringify(s)),
   sort: inp.sort.map((a) => JSON.stringify(a.slice().sort((x, y) => x - y))),
+  keys: inp.keys.map((ks) => { const o = {}; for (const k of ks) o[k] = 0; return Object.keys(o); }),
 };
 process.stdout.write(JSON.stringify(out));
 """
@@ -40,7 +41,10 @@ def test_against_node():
     quotes = [q for q in quotes if not any(0xD800 <= ord(c) <= 0xDFFF for c in q)] + ["\ud800", "a\udc00b"]
     pool = [0, 1, 2, "1", "0", "", " 2 ", "0x10", "1e1", True, False, None, [], [3], [1, 2], {}, "abc", -1, 0.5, "Infinity"]
     sorts = [[rnd.choice(pool) for _ in range(rnd.randint(2, 9))] for _ in range(1500)]
-    payload = {"num": nums, "date": dates, "b64": b64, "quote": quotes, "sort": sorts}
+    # own property order: "1\n", " 1", "01" and "\u0661" are not array indexes in JavaScript (0.8.1: _INDEX is fullmatch)
+    kpool = ["0", "1", "2", "10", "01", "1\n", "2\n", " 1", "1 ", "\u0661", "-1", "1.0", "4294967294", "4294967295", "a", "b", ""]
+    keys = [list(dict.fromkeys(rnd.choice(kpool) for _ in range(rnd.randint(1, 8)))) for _ in range(500)]
+    payload = {"num": nums, "date": dates, "b64": b64, "quote": quotes, "sort": sorts, "keys": keys}
     text = json.dumps(payload, ensure_ascii=True)
     p = subprocess.run(["node", "-e", NODE], input=text, capture_output=True, text=True)
     assert p.returncode == 0, p.stderr
@@ -52,3 +56,4 @@ def test_against_node():
     assert [_js.quote(s) for s in back["quote"]] == js["quote"]
     for a, want in zip(back["sort"], js["sort"]):
         assert _js.stringify(_js.sort_numeric(a)) == want, a
+    assert [_js._js_key_order(ks) for ks in back["keys"]] == js["keys"]

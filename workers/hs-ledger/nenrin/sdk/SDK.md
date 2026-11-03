@@ -72,6 +72,23 @@ account, no token, no trust in HS. A mismatch exits 2 and prints the two trees t
 attestation (who built it, from which commit) and this script (what that commit builds, on your
 machine), the chain source to package is closed at both ends by the reader, not by the operator.
 
+## 0.8.1: the furui commands wait for stdout before they exit
+
+`furui-vectors`, `furui-day` and `resume-admission` now wait until stdout has taken every line before the process
+exits. On macOS a write to a pipe is asynchronous, and 0.8.0 exited at once, so `nenrin-verify furui-vectors <file> |
+<a slow reader>` lost what was past the pipe's buffer (110 of 11,201 lines in our run). On Linux a pipe is
+synchronous and nothing was lost. The verdicts are unchanged. PyPI `nenrin-verify` 0.8.1 reads every 64 hex value of
+`furui-day` and `resume-admission` as exactly 64 characters of `0-9a-f` with nothing before or after (0.8.0 let one
+trailing line feed through in Python only, where this package refused it), and the shared vectors gained 21 cases for
+it (75). `furui_day.test.mjs` also holds the command line to the same refusals (a line feed after the day, the leaf or
+the sha, fullwidth digits).
+
+`agreement_verify.mjs` reads Python's whitespace where the Python reference writes `\s` (the words after "paid", and
+the host of an https URL): JavaScript's `\s` takes `\ufeff` and not `\x85`, Python's the other way round, so a record
+with one of them got two different reports. `pyFullMatch` no longer lets one trailing line feed through (the Python
+side ends every pattern with `\Z`; `scan_text` refused such a record first, so no report changes). The Python reference
+reads `agreed_at` with `[0-9]` instead of `\d`. The frozen reports are the same.
+
 ## 0.8.0: check a day of the content check runner (`furui-day`, `resume-admission`)
 
 ```sh
@@ -85,7 +102,8 @@ Ed25519 signatures, the key in the ledger's keys document inside `from_height`, 
 OpenTimestamps proof to a Bitcoin block header), and one admissions[] line of a Resume against the ledger. Exit 0 ok,
 1 fail, 3 not_yet, 2 usage or network error; GET only, only ledger.horizonshield.dev and furui.horizonshield.dev.
 The Python package runs the same vectors
-(`../furui-check-day-v0/verify_vectors.json`) and give the same answers: `node furui_day.test.mjs`. The provenance
+(`../furui-check-day-v0/verify_vectors.json`) and gives the same answers on them and on seeded mutations of them:
+`node furui_day.test.mjs`. The provenance
 verifier is unchanged; the bin `nenrin-verify` passes these three subcommands to `furui_day.mjs` and everything else
 to the bundle verifier as before. Details: `../furui-check-day-v0/VERIFY.md`.
 

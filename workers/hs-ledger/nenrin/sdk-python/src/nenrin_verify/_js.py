@@ -350,7 +350,7 @@ def num_str(v):
         return "0"
     sign = "-" if v < 0 else ""
     r = repr(abs(v))
-    m = re.match(r"^(\d+)(?:\.(\d+))?(?:e([+-]\d+))?$", r)
+    m = re.fullmatch(r"([0-9]+)(?:\.([0-9]+))?(?:e([+-][0-9]+))?", r)
     ip, fp, ex = m.group(1), m.group(2) or "", int(m.group(3) or 0)
     digits = (ip + fp).lstrip("0")
     point = len(ip) + ex - (len(ip + fp) - len((ip + fp).lstrip("0")))
@@ -419,13 +419,14 @@ def stringify(v, indent=None, sort_keys=False, _level=0):
     return "{" + pad + ("," + pad).join(items) + end + "}"
 
 
-_INDEX = re.compile(r"^(0|[1-9][0-9]*)$")
+# fullmatch: with match and "$", the key "1\n" would count as an array index; in JavaScript it is not one
+_INDEX = re.compile(r"0|[1-9][0-9]*")
 
 
 def _js_key_order(keys):
     """Own property order of a JavaScript object: array-index keys ascending, then the rest in insertion order."""
-    idx = sorted((k for k in keys if _INDEX.match(k) and int(k) < 4294967295), key=int)
-    return idx + [k for k in keys if not (_INDEX.match(k) and int(k) < 4294967295)]
+    idx = sorted((k for k in keys if _INDEX.fullmatch(k) and int(k) < 4294967295), key=int)
+    return idx + [k for k in keys if not (_INDEX.fullmatch(k) and int(k) < 4294967295)]
 
 
 def loads(text):

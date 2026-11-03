@@ -158,8 +158,9 @@ the root of the day record the ledger serves, runner-1's Ed25519 signature on th
 key in the ledger's `/.well-known/furui-check-keys.json` inside `from_height`, and the ledger batch entry with its
 OpenTimestamps proof to a Bitcoin block header (`not_yet` before the anchor). The second command holds one
 admissions[] line of a Resume to the stored admission, the batch entry and its proof. Exit 0 ok, 1 fail, 3 not_yet,
-2 usage or network error; GET only, only ledger.horizonshield.dev and furui.horizonshield.dev. The same commands and
-verdicts in npm `nenrin-verify`: both run `../furui-check-day-v0/verify_vectors.json`. Details:
+2 usage or network error; GET only, only ledger.horizonshield.dev and furui.horizonshield.dev. The same commands in
+npm `nenrin-verify`; both give the same verdicts on the shared vectors (`../furui-check-day-v0/verify_vectors.json`)
+and on seeded mutations of them, which is what the tests compare. Details:
 `../furui-check-day-v0/VERIFY.md`.
 
 The chain these commands sit in has five names: FURUI (篩, the content check runner) → SEKI admission (関の扉, the door that
@@ -167,6 +168,27 @@ signs an admission) → MUSUBI settle (結の精算, the settlement of a contrac
 Bitcoin) → Résumé. TOOSHI checks the whole chain every day, and TSUGI (継) calls outside witnesses by a public draw.
 `furui-day` checks one FURUI leaf up to the NENRIN ledger and its Bitcoin anchor; `resume-admission` checks one SEKI
 admission as the Résumé lists it, back to the ledger.
+
+## 0.8.1
+
+- `furui-day` and `resume-admission` read every 64 hex value (each sha256, the audit path, the day record's root, a
+  Resume line's `rules_sha256`, the second argument of `resume-admission`) as exactly 64 characters of `0-9a-f`, and
+  the day, `signed_at`, the nonce, the signature and `--leaf` the same way, with ASCII digits only (`fullmatch` and
+  `[0-9]`). 0.8.0 read them with `re.match` and a final `$`, which also passes one trailing line feed, and with `\d`,
+  which takes any Unicode digit: an audit path hash with a trailing `"\n"` rebuilt the root (`bytes.fromhex` skips
+  whitespace), and a signed envelope with a line feed after `input_commit` passed all six checks. The JavaScript, Go
+  and Java ports refused these already. The shared vectors have 21 more cases (75), and the mutations of the tests
+  edge string values (a character before or after, uppercase), so this difference fails the comparison.
+- `nenrin_verify.trace` (the bind record's `record_sha256`, `trace_sha256` and `trace_key_thumbprint`, and the
+  base64 forms) and the JavaScript property order in `_js` (an array index key) use `fullmatch` as well; the TRACE
+  corpora give the same verdicts as before.
+- The agreement verifier (`nenrin_verify.agreement_verify`, vendored from agreement-v0) reads `agreed_at` with `[0-9]`: `\d` took
+  fullwidth and other Unicode digits, which the JavaScript twin refuses (`bad_agreed_at`). The JavaScript twin now
+  reads Python's whitespace where Python's `\s` stands (after "paid", and in the host of an https URL: `\x85` is a
+  space there and `\ufeff` is not). `tests/test_agreement_edges.py` holds both verifiers to the same report on these
+  inputs; the 5,286 frozen reports are unchanged.
+- The JavaScript reference the self-test names is npm `nenrin-verify` 0.8.1 (its furui commands now wait for stdout
+  before they exit; the reports are the same).
 
 ## 0.8.0
 

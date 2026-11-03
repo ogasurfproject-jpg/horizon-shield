@@ -462,19 +462,24 @@ const USAGE = "usage: nenrin-verify furui-day <YYYY-MM-DD> --leaf <i>\n       ne
 const EXIT = { ok: 0, fail: 1, not_yet: 3 };
 export const FURUI_COMMANDS = ["furui-day", "resume-admission", "furui-vectors"];
 
+// The callers end with process.exit. On macOS a write to a pipe is asynchronous, so exiting at once cut the vectors'
+// output at the pipe's buffer (about 110 lines when the reader is slow; 0.8.1). Wait until stdout has taken every line.
+const drained = () => new Promise((resolve) => process.stdout.write("", resolve));
+
 // argv without node and the script: returns the exit code
 export async function furuiMain(argv) {
   let res;
   try {
     if (argv.length === 4 && argv[0] === "furui-day" && argv[2] === "--leaf" && realDay(argv[1]) && /^(0|[1-9]\d{0,8})$/.test(argv[3])) res = await furuiDay(argv[1], Number(argv[3]));
     else if (argv.length === 3 && argv[0] === "resume-admission" && /^https:\/\/\S+$/.test(argv[1]) && H64.test(argv[2]) && hostOf(argv[1])) res = await resumeAdmission(argv[1], argv[2]);
-    else if (argv.length === 2 && argv[0] === "furui-vectors") return await runVectors(argv[1]);
+    else if (argv.length === 2 && argv[0] === "furui-vectors") { const rc = await runVectors(argv[1]); await drained(); return rc; }
     else { process.stderr.write(USAGE + "\n"); return 2; }
   } catch (e) {
     if (e instanceof NetError) { process.stderr.write("nenrin-verify: network: " + e.message + "\n"); return 2; }
     throw e;
   }
   process.stdout.write(JSON.stringify(sortDeep(res), null, 2) + "\n");
+  await drained();
   return EXIT[res.verdict];
 }
 function sortDeep(v) {

@@ -96,12 +96,12 @@ def jbody(o):
     return {"status": 200, "body": json.dumps(o, ensure_ascii=False, indent=1)}
 
 
-def day_world(day="2026-11-03", n=5, entry=301, height=971234, seed=SEED, env_over=None, rec_over=None, keys=None, status="anchored", ots_status="confirmed"):
+def day_world(day="2026-11-03", n=5, entry=301, height=971234, seed=SEED, env_over=None, rec_over=None, keys=None, status="anchored", ots_status="confirmed", root_tail=""):
     envs = [envelope(day, i, seed=seed) for i in range(n)]
     for i, e in (env_over or {}).items():
         envs[i] = e
     lv = [F.leaf_hash(e) for e in envs]
-    root = F.tree_hash(lv)
+    root = F.tree_hash(lv) + root_tail
     rec = {"schema": "furui-check-day-v0", "day": day, "signer": dict(F.SIGNER), "n": n, "tree": "rfc6962-sha256", "leaf": F.DAY_LEAF, "root": root,
            "first_height": 100, "last_height": 100 + n - 1, "late": 0, "clock_skew": 0, "publication": "public", "signatures": []}
     rec.update(rec_over or {})
@@ -270,6 +270,38 @@ add("fail 6: the entry says confirmed, the proof has only a pending calendar", "
 b, _ = ots(e["claim_sha256"], 971234)
 add("fail 6: a truncated proof", "furui-day", dict(DA, leaf=1), dict(w, **{LEDGER + "/ledger/320/ots": {"status": 200, "body_b64": base64.b64encode(b[:-3]).decode()}}), "fail", 6, "ots_parse")
 
+# ---- 64 hex and the other closed strings, exactly: nothing before or after, lowercase, ASCII digits (0.8.1) ----
+# Python's re.match with a final "$" also passes one trailing "\n", and bytes.fromhex skips whitespace, so before 0.8.1
+# an audit path hash with a trailing line feed rebuilt the root in Python and nowhere else. Each value below is signed
+# where it sits, so the only thing that can refuse it is the shape check.
+w, rs, e = day_world(entry=330)
+L1 = FURUI + "/furui/day/%s/leaf/1" % D
+for tail, what in (("\n", "a trailing line feed"), ("\r", "a trailing carriage return"), (" ", "a trailing space"), ("\r\n", "a trailing CR LF")):
+    add("fail 3: an audit path hash with %s" % what, "furui-day", dict(DA, leaf=1), edit(dict(w), L1, lambda o, t=tail: o["proof"].__setitem__(0, o["proof"][0] + t)), "fail", 3, "proof_shape")
+add("fail 3: an audit path hash with a leading line feed", "furui-day", dict(DA, leaf=1), edit(dict(w), L1, lambda o: o["proof"].__setitem__(0, "\n" + o["proof"][0])), "fail", 3, "proof_shape")
+add("fail 3: an audit path hash in uppercase", "furui-day", dict(DA, leaf=1), edit(dict(w), L1, lambda o: o["proof"].__setitem__(0, o["proof"][0].upper())), "fail", 3, "proof_shape")
+add("fail 3: the leaf names its day record sha with a trailing line feed", "furui-day", dict(DA, leaf=1),
+    edit(dict(w), L1, lambda o: o["day_record"].__setitem__("ledger_canonical_sha256", o["day_record"]["ledger_canonical_sha256"] + "\n")), "fail", 3, "no_day_record")
+wx, _, _ = day_world(entry=331, root_tail="\n")
+add("fail 3: the signed day record's root has a trailing line feed", "furui-day", dict(DA, leaf=1), wx, "fail", 3, "day_record_shape")
+wx, _, _ = day_world(entry=332, rec_over={"day": D + "\n"})
+add("fail 3: the signed day record's day has a trailing line feed", "furui-day", dict(DA, leaf=1), wx, "fail", 3, "day_record_shape")
+wx, _, _ = day_world(entry=333, rec_over={"day": "\uff12\uff10\uff12\uff16-11-03"})
+add("fail 3: the signed day record's day in fullwidth digits", "furui-day", dict(DA, leaf=1), wx, "fail", 3, "day_record_shape")
+for k, v, what in (("input_commit", h("ic") + "\n", "with a trailing line feed"), ("rules_sha256", h("rules") + "\n", "with a trailing line feed"),
+                   ("contract_sha256", h("contract").upper(), "in uppercase"), ("trace_sha256", " " + h("trace1"), "with a leading space"),
+                   ("nonce", h("nonce1")[:32] + "\n", "with a trailing line feed"), ("signed_at", D + "T03:18:09.123Z\n", "with a trailing line feed")):
+    wx, _, _ = day_world(entry=334, env_over={1: envelope(D, 1, **{k: v})})
+    add("fail 1: a signed envelope, check.%s %s" % (k, what), "furui-day", dict(DA, leaf=1), wx, "fail", 1, "envelope_shape:check_" + k)
+ex = envelope(D, 1)
+ex["signatures"][0]["sig"] += "\n"
+wx, _, _ = day_world(entry=335, env_over={1: ex})
+add("fail 1: the envelope's signature with a trailing line feed", "furui-day", dict(DA, leaf=1), wx, "fail", 1, "envelope_shape:signature")
+DW = "\uff12\uff10\uff12\uff16-11-03"
+wx, _, _ = day_world(day=DW, entry=336)
+add("fail 1: a day in fullwidth digits, the heartbeat nonce", "furui-day", {"day": DW, "leaf": 0}, wx, "fail", 1, "envelope_shape:check_nonce")
+add("fail 1: a day in fullwidth digits, signed_at", "furui-day", {"day": DW, "leaf": 1}, wx, "fail", 1, "envelope_shape:check_signed_at")
+
 # ---- resume-admission ----
 w, rs, ep = resume_world()
 add("resume ok: a 0.4 admission with its content block", "resume-admission", {"endpoint": ep, "record_sha256": rs}, w, "ok")
@@ -306,6 +338,11 @@ add("resume fail 5: the proof reaches another block height", "resume-admission",
 w, rs, ep = resume_world()
 add("resume fail 5: the entry the Resume lists is not anchored", "resume-admission", {"endpoint": ep, "record_sha256": rs},
     edit(dict(w), LEDGER + "/ledger/280?format=json", lambda o: o.update({"ots_status": "pending", "bitcoin_block": None, "block_time": None})), "fail", 5, "entry_listed_by_the_resume_is_not_anchored")
+
+w, rs, ep = resume_world(line_over={"content": {"checked": True, "decision": "pass", "marks": [], "rules_sha256": h("rules") + "\n"}})
+add("resume fail 2: the line's content rules_sha256 has a trailing line feed", "resume-admission", {"endpoint": ep, "record_sha256": rs}, w, "fail", 2, "line_not_closed")
+w, rs, ep = resume_world(line_over={"content": {"checked": True, "decision": "pass", "marks": [], "rules_sha256": h("rules").upper()}})
+add("resume fail 2: the line's content rules_sha256 in uppercase", "resume-admission", {"endpoint": ep, "record_sha256": rs}, w, "fail", 2, "line_not_closed")
 
 # ---- the parser alone, on a real proof (ledger entry 80, anchored 2026-10-11) ----
 real = os.path.join(HERE, "ots_entry80.ots.b64")

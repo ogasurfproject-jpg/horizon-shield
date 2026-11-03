@@ -6,13 +6,13 @@
   },
   "_repo/agreement-v0/agreement_verify.mjs": {
     "source": "workers/hs-ledger/nenrin/agreement-v0/agreement_verify.mjs",
-    "source_sha256": "27b5492cbd3612be8db7f084a2b0f8384c3b912388496247e08016efa03aa61c",
-    "vendored_sha256": "27b5492cbd3612be8db7f084a2b0f8384c3b912388496247e08016efa03aa61c"
+    "source_sha256": "5281eb0bed0d52a9aa8288a8c92bd6bffc86cc4b62cfd482019642d797384024",
+    "vendored_sha256": "5281eb0bed0d52a9aa8288a8c92bd6bffc86cc4b62cfd482019642d797384024"
   },
   "_repo/agreement-v0/agreement_verify.py": {
     "source": "workers/hs-ledger/nenrin/agreement-v0/agreement_verify.py",
-    "source_sha256": "fd8c34ce8a11cf427cc4675050f467e0cce203501a5bc035ecfce2f95dd13058",
-    "vendored_sha256": "fd8c34ce8a11cf427cc4675050f467e0cce203501a5bc035ecfce2f95dd13058"
+    "source_sha256": "7c54b644a0ca8f32dbe95c80e428f31e6cbac8beeead28648acef03f5324bf03",
+    "vendored_sha256": "7c54b644a0ca8f32dbe95c80e428f31e6cbac8beeead28648acef03f5324bf03"
   },
   "_repo/agreement-v0/key_succession.mjs": {
     "source": "workers/hs-ledger/nenrin/agreement-v0/key_succession.mjs",
@@ -5996,8 +5996,8 @@
   },
   "agreement_verify.py": {
     "source": "workers/hs-ledger/nenrin/agreement-v0/agreement_verify.py",
-    "source_sha256": "fd8c34ce8a11cf427cc4675050f467e0cce203501a5bc035ecfce2f95dd13058",
-    "vendored_sha256": "72990326ac4a0a650a9e74ad6c6cfde5c098c2a251b4500b5340a0d242defe8d"
+    "source_sha256": "7c54b644a0ca8f32dbe95c80e428f31e6cbac8beeead28648acef03f5324bf03",
+    "vendored_sha256": "a87a951df12eec3b8fdfac2eedcdf7ddaca1cc539b206f89322dc8ece41d5f44"
   },
   "key_succession.py": {
     "source": "workers/hs-ledger/nenrin/agreement-v0/key_succession.py",
