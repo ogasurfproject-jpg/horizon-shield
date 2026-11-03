@@ -1,0 +1,65 @@
+name: nenrin-verify (Java) release
+
+# Builds the Java port of nenrin-verify (workers/hs-ledger/nenrin/sdk-java) with javac alone (Java 17, no build tool,
+# no dependency), runs the shared vectors with the jar, and publishes a GitHub release nenrin-verify-java-vX.Y.Z with
+# the jar, the source zip and SHA256SUMS, on the dispatching commit of main. Nothing else is published.
+# Bump VERSION in sdk-java/src/dev/horizonshield/nenrin/Main.java, commit and push first, then dispatch with the same version.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "X.Y.Z, equal to VERSION in sdk-java/src/dev/horizonshield/nenrin/Main.java"
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nenrin-verify-java-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: workers/hs-ledger/nenrin/sdk-java
+    env:
+      WANT: ${{ github.event.inputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Guard, the version is well formed, matches the code, and is not released yet
+        run: |
+          set -o pipefail
+          printf '%s' "$WANT" | grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' || { echo "refuse: version must be X.Y.Z"; exit 1; }
+          HAVE=$(sed -n 's/^    public static final String VERSION = "\(.*\)";$/\1/p' src/dev/horizonshield/nenrin/Main.java)
+          [ "$HAVE" = "$WANT" ] || { echo "refuse: Main.java says $HAVE, you asked for $WANT"; exit 1; }
+          if gh release view "nenrin-verify-java-v$WANT" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "refuse: release nenrin-verify-java-v$WANT exists. Bump."; exit 1; fi
+          if git ls-remote --exit-code --tags origin "refs/tags/nenrin-verify-java-v$WANT" >/dev/null; then echo "refuse: tag nenrin-verify-java-v$WANT exists. Bump."; exit 1; fi
+      - name: Build the jar with javac (Java 17)
+        run: |
+          set -o pipefail
+          J="$JAVA_HOME_17_X64/bin"
+          "$J/java" -version
+          mkdir -p "$RUNNER_TEMP/out" "$RUNNER_TEMP/dist"
+          "$J/javac" --release 17 -Xlint:all -Werror -d "$RUNNER_TEMP/out" $(find src -name '*.java')
+          printf 'Main-Class: dev.horizonshield.nenrin.Main\nImplementation-Title: nenrin-verify-java\nImplementation-Version: %s\n' "$WANT" > "$RUNNER_TEMP/manifest.txt"
+          "$J/jar" --create --file "$RUNNER_TEMP/dist/nenrin-verify-java-$WANT.jar" --manifest "$RUNNER_TEMP/manifest.txt" -C "$RUNNER_TEMP/out" .
+          (cd ../../../.. && git archive --format=zip --prefix="nenrin-verify-java-$WANT/" -o "$RUNNER_TEMP/dist/nenrin-verify-java-$WANT-src.zip" HEAD workers/hs-ledger/nenrin/sdk-java workers/hs-ledger/nenrin/furui-check-day-v0)
+          cp ../furui-check-day-v0/verify_vectors.json "$RUNNER_TEMP/dist/verify_vectors.json"
+          "$J/java" -jar "$RUNNER_TEMP/dist/nenrin-verify-java-$WANT.jar" --version
+          "$J/java" -jar "$RUNNER_TEMP/dist/nenrin-verify-java-$WANT.jar" furui-vectors ../furui-check-day-v0/verify_vectors.json | tail -1
+          (cd "$RUNNER_TEMP/dist" && sha256sum nenrin-verify-java-$WANT.jar nenrin-verify-java-$WANT-src.zip verify_vectors.json > SHA256SUMS && cat SHA256SUMS)
+      - name: Publish the GitHub release on the dispatching commit
+        run: |
+          set -o pipefail
+          gh release create "nenrin-verify-java-v$WANT" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "nenrin-verify (Java) $WANT" \
+            --notes "furui-day and resume-admission in Java 17, standard library only, one jar. Built by this workflow from ${GITHUB_SHA}; the jar runs the shared vectors (workers/hs-ledger/nenrin/furui-check-day-v0/verify_vectors.json) with the same answers as the Python and JavaScript ports. Check the files with: shasum -a 256 -c SHA256SUMS" \
+            "$RUNNER_TEMP/dist/nenrin-verify-java-$WANT.jar" "$RUNNER_TEMP/dist/nenrin-verify-java-$WANT-src.zip" "$RUNNER_TEMP/dist/verify_vectors.json" "$RUNNER_TEMP/dist/SHA256SUMS"
+          gh release view "nenrin-verify-java-v$WANT" --repo "$GITHUB_REPOSITORY" --json tagName,targetCommitish,assets --jq '.tagName, .targetCommitish, (.assets[]|.name)'
