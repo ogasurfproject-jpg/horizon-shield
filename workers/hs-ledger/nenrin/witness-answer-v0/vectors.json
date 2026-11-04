@@ -1,0 +1,255 @@
+{
+  "cases": [
+    {
+      "expect": "ok",
+      "key_doc": {
+        "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo="
+      },
+      "name": "furui_day_ok",
+      "object": {
+        "day": "2026-11-03",
+        "day_sha256": "cb41b38387d6fca01272be03380f63568fccbd724c299ae58e8d548d91b67a58",
+        "kind": "furui-day",
+        "leaf_index": [
+          0,
+          1
+        ],
+        "limits": [
+          "digest and inclusion checks only; not the correctness of the content",
+          "not the completeness of the day's log",
+          "the runner key was taken from the key list the ledger serves; its history was not authenticated separately"
+        ],
+        "n": 2,
+        "observed_at": "2026-11-04T02:36:00Z",
+        "recomputed": [
+          "envelope_shape",
+          "leaf_sha256",
+          "audit_path",
+          "signature",
+          "runner_key"
+        ],
+        "root": "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2",
+        "schema": "witness-answer-v0",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "zyIyKbpxFynB5CJz7THEH9mCBOlTCNcaLTPM/iZJsi6JsqMmzk1GWTvhNLD4lIDCqICJX0DbwBH/l1KYMr4PAg=="
+        },
+        "tool": "nenrin-verify 0.8.1 furui-day",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://witness.example/keys/witness.json",
+          "name": "pipavlo82"
+        }
+      },
+      "preimage_sha256": "b65826e8b091f646f1c6c8d2ffa81e7b243d8a2454f70d4940108bc4ece84b70",
+      "schema": "witness-answer-v0"
+    },
+    {
+      "expect": "ok",
+      "key_doc": {
+        "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo="
+      },
+      "name": "tooshi_day_ok",
+      "object": {
+        "day": "2026-11-06",
+        "day_sha256": "7f49844f6bf0a6ac3919a32897acec01cb0b0d15ba9a5c7444bfb48814d6e01b",
+        "kind": "tooshi-day",
+        "leaf_index": [],
+        "limits": [
+          "digest and inclusion checks only; not the correctness of the content",
+          "not the completeness of the day's log",
+          "the runner key was taken from the key list the ledger serves; its history was not authenticated separately"
+        ],
+        "n": null,
+        "observed_at": "2026-11-06T05:00:00Z",
+        "recomputed": [
+          "day_view",
+          "1_sieve_admission",
+          "5_door_runner"
+        ],
+        "root": null,
+        "schema": "witness-answer-v0",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "nc5AuPKa6S0xETrxnWSjmdB1P6kbmLR0vbineBl2OcAesX+VAsQhde85KGIjScXbau3q6IkIKEFdcM6yMehVAA=="
+        },
+        "tool": "tools/tooshi/tooshi_daily.py sha256:7c9bbe5ec9b3fb774e8fa0f54247e93c34ddf8e5d16fe3073420de0ae81a262d",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://witness.example/keys/witness.json",
+          "name": "pipavlo82"
+        }
+      },
+      "preimage_sha256": "b80b2b23ecf17abd8421ef30fdaffd1d905a30810bd10380e1538d1ebc7bdbfc",
+      "schema": "witness-answer-v0"
+    },
+    {
+      "expect": "fail:signature",
+      "key_doc": {
+        "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo="
+      },
+      "name": "furui_day_changed_after_signing",
+      "object": {
+        "day": "2026-11-03",
+        "day_sha256": "d9298a10d1b0735837dc4bd85dac641b0f3cef27a47e5d53a54f2f3f5b2fcffa",
+        "kind": "furui-day",
+        "leaf_index": [
+          0,
+          1
+        ],
+        "limits": [
+          "digest and inclusion checks only; not the correctness of the content",
+          "not the completeness of the day's log",
+          "the runner key was taken from the key list the ledger serves; its history was not authenticated separately"
+        ],
+        "n": 2,
+        "observed_at": "2026-11-04T02:36:00Z",
+        "recomputed": [
+          "envelope_shape",
+          "leaf_sha256",
+          "audit_path",
+          "signature",
+          "runner_key"
+        ],
+        "root": "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2",
+        "schema": "witness-answer-v0",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "zyIyKbpxFynB5CJz7THEH9mCBOlTCNcaLTPM/iZJsi6JsqMmzk1GWTvhNLD4lIDCqICJX0DbwBH/l1KYMr4PAg=="
+        },
+        "tool": "nenrin-verify 0.8.1 furui-day",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://witness.example/keys/witness.json",
+          "name": "pipavlo82"
+        }
+      },
+      "preimage_sha256": "59e2912f22c4881dcbc12460bf15ab72f7f1bbf0558657e032147087e626ec02",
+      "schema": "witness-answer-v0"
+    },
+    {
+      "expect": "fail:key_id",
+      "key_doc": {
+        "public_key_ed25519_b64": "PUAXw+hDiVqStwqnTRt+vJyYLM8uxJaMwM1V8Sr0Zgw="
+      },
+      "name": "furui_day_key_url_serves_another_key",
+      "object": {
+        "day": "2026-11-03",
+        "day_sha256": "cb41b38387d6fca01272be03380f63568fccbd724c299ae58e8d548d91b67a58",
+        "kind": "furui-day",
+        "leaf_index": [
+          0,
+          1
+        ],
+        "limits": [
+          "digest and inclusion checks only; not the correctness of the content",
+          "not the completeness of the day's log",
+          "the runner key was taken from the key list the ledger serves; its history was not authenticated separately"
+        ],
+        "n": 2,
+        "observed_at": "2026-11-04T02:36:00Z",
+        "recomputed": [
+          "envelope_shape",
+          "leaf_sha256",
+          "audit_path",
+          "signature",
+          "runner_key"
+        ],
+        "root": "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2",
+        "schema": "witness-answer-v0",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "zyIyKbpxFynB5CJz7THEH9mCBOlTCNcaLTPM/iZJsi6JsqMmzk1GWTvhNLD4lIDCqICJX0DbwBH/l1KYMr4PAg=="
+        },
+        "tool": "nenrin-verify 0.8.1 furui-day",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://witness.example/keys/witness.json",
+          "name": "pipavlo82"
+        }
+      },
+      "preimage_sha256": "b65826e8b091f646f1c6c8d2ffa81e7b243d8a2454f70d4940108bc4ece84b70",
+      "schema": "witness-answer-v0"
+    },
+    {
+      "expect": "fail:shape",
+      "key_doc": {
+        "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo="
+      },
+      "name": "tooshi_day_extra_field",
+      "object": {
+        "day": "2026-11-06",
+        "day_sha256": "7f49844f6bf0a6ac3919a32897acec01cb0b0d15ba9a5c7444bfb48814d6e01b",
+        "extra": true,
+        "kind": "tooshi-day",
+        "leaf_index": [],
+        "limits": [
+          "digest and inclusion checks only; not the correctness of the content",
+          "not the completeness of the day's log",
+          "the runner key was taken from the key list the ledger serves; its history was not authenticated separately"
+        ],
+        "n": null,
+        "observed_at": "2026-11-06T05:00:00Z",
+        "recomputed": [
+          "day_view",
+          "1_sieve_admission",
+          "5_door_runner"
+        ],
+        "root": null,
+        "schema": "witness-answer-v0",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "nc5AuPKa6S0xETrxnWSjmdB1P6kbmLR0vbineBl2OcAesX+VAsQhde85KGIjScXbau3q6IkIKEFdcM6yMehVAA=="
+        },
+        "tool": "tools/tooshi/tooshi_daily.py sha256:7c9bbe5ec9b3fb774e8fa0f54247e93c34ddf8e5d16fe3073420de0ae81a262d",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://witness.example/keys/witness.json",
+          "name": "pipavlo82"
+        }
+      },
+      "preimage_sha256": "c7825aa504e3e05e3b3c28ae2091b823b2dc4fa80a9cca270ab48295264947a9",
+      "schema": "witness-answer-v0"
+    },
+    {
+      "expect": "ok",
+      "key_doc": {
+        "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo="
+      },
+      "name": "enroll_ok",
+      "object": {
+        "enrolled_at": "2026-11-04T03:00:00Z",
+        "kinds": [
+          "furui-day",
+          "tooshi-day"
+        ],
+        "limits": [
+          "digest and inclusion checks only; not the correctness of the content",
+          "not the completeness of the day's log",
+          "the runner key was taken from the key list the ledger serves; its history was not authenticated separately"
+        ],
+        "schema": "witness-enroll-v0",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "27z3NyYPOQmx/iBEdC4P48/tqqCe8d+xJmocf2v56mdMKnCfF19HBGF3/NCj1ARSx851RgxnLdjjsIGN5GqBBg=="
+        },
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://witness.example/keys/witness.json",
+          "name": "pipavlo82"
+        }
+      },
+      "preimage_sha256": "17fdbc243f8806f383f5bf8cb655f84e557c50b587b4485ab014089484b5f8c2",
+      "schema": "witness-enroll-v0"
+    }
+  ],
+  "key": "RFC 8032 section 7.1 TEST 1 (a public test key)",
+  "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=",
+  "schema": "witness-answer-v0-vectors"
+}
