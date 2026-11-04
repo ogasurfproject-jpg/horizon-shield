@@ -1,15 +1,58 @@
 {
-  "drill_at": "2026-11-03T10:58:04Z",
+  "drill_at": "2026-11-04T11:01:46Z",
   "fence": {
     "host": "ledger.horizonshield.dev",
     "reachable": false,
     "why": "sinkholed:0.0.0.0"
   },
   "outcome": "custodian_unavailable",
-  "report_sha256": "3969c9059e479e55a8d11bfdc19f2984afb78e426747f385e09917dfb22c60db",
+  "report_sha256": "05ab864a93ae053bffe3bec2969f9e82ff2bf0bcd8bf48be6626c84b2b14541e",
   "schema": "nenrin-survive-drill-v0",
   "source": {
-    "requested": "swh"
+    "cooked_ahead": {
+      "candidates": 1,
+      "directory": "swh:1:dir:4bfeb89c5f80cd7e1c175eb028574609b5a3fac3",
+      "requested_at": "2026-11-03T11:30:43Z",
+      "used": false
+    },
+    "requested": "swh",
+    "vault": {
+      "ahead_get": [
+        {
+          "at": "2026-11-04T11:01:50Z",
+          "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:4bfeb89c5f80cd7e1c175eb028574609b5a3fac3/raw/\",\"progress_message\":null,\"id\":422372118,\"status\":\"new\",\"swhid\":\"swh:1:dir:4bfeb89c5f80cd7e1c175eb028574609b5a3fac3\"}",
+          "body_sha256": "aeab241da4de7ef5a88100bd8a09009d694fede3314832bf832b1eba651d9990",
+          "http_status": 200,
+          "method": "GET",
+          "status": "new",
+          "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:4bfeb89c5f80cd7e1c175eb028574609b5a3fac3/",
+          "vault_id": 422372118
+        }
+      ],
+      "directory": "swh:1:dir:a64248d54f22b44b843268b0c9484a5d1ce9c65c",
+      "last_get": {
+        "at": "2026-11-04T11:32:00Z",
+        "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:a64248d54f22b44b843268b0c9484a5d1ce9c65c/raw/\",\"progress_message\":null,\"id\":422375994,\"status\":\"new\",\"swhid\":\"swh:1:dir:a64248d54f22b44b843268b0c9484a5d1ce9c65c\"}",
+        "body_sha256": "936535330a1220b8b45f792048b107419bd1da1f71bde8ba428d1cea7430cace",
+        "http_status": 200,
+        "method": "GET",
+        "status": "new",
+        "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:a64248d54f22b44b843268b0c9484a5d1ce9c65c/",
+        "vault_id": 422375994
+      },
+      "polls": 117,
+      "post": {
+        "at": "2026-11-04T11:01:49Z",
+        "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:a64248d54f22b44b843268b0c9484a5d1ce9c65c/raw/\",\"progress_message\":null,\"id\":422375994,\"status\":\"new\",\"swhid\":\"swh:1:dir:a64248d54f22b44b843268b0c9484a5d1ce9c65c\"}",
+        "body_sha256": "936535330a1220b8b45f792048b107419bd1da1f71bde8ba428d1cea7430cace",
+        "http_status": 200,
+        "method": "POST",
+        "status": "new",
+        "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:a64248d54f22b44b843268b0c9484a5d1ce9c65c/",
+        "vault_id": 422375994
+      },
+      "waited_s": 1810
+    }
   },
   "version": "0.1.0",
   "why": "RuntimeError: Software Heritage vault did not finish: new"
