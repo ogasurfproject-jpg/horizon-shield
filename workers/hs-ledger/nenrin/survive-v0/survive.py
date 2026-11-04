@@ -24,7 +24,7 @@ What is checked, all from the copy plus two public block explorers:
 
 Dependencies: Python 3.8+, opentimestamps (pinned in requirements.txt). Nothing else.
 """
-import argparse, hashlib, io, json, os, socket, sys, tarfile, time, urllib.parse, urllib.request
+import argparse, datetime, hashlib, io, json, os, socket, sys, tarfile, time, urllib.error, urllib.parse, urllib.request
 
 SCHEMA = "nenrin-survive-drill-v0"
 VERSION = "0.1.0"
@@ -133,6 +133,7 @@ def copy_from_github(work):
 
 SWH_API = "https://archive.softwareheritage.org/api/1"
 AHEAD_MAX_AGE_S = 48 * 3600
+AHEAD_KEEP = 3  # precook requests kept in the record (newest first), so a copy that finishes a day late is still found
 
 
 def swh_latest_kept(get=http_get):
@@ -148,12 +149,47 @@ def swh_latest_kept(get=http_get):
         br = snap["branches"][br["target"]]
     rev = br["target"]
     st, b = get("%s/revision/%s/" % (SWH_API, rev))
-    root_dir = json.loads(b)["directory"]
+    rv = json.loads(b)
+    root_dir = rv["directory"]
     st, b = get("%s/directory/%s/%s/" % (SWH_API, root_dir, KEPT_PATH))
     ent = json.loads(b)
     if ent.get("type") != "dir":
         raise RuntimeError("%s is not a directory in the archived revision" % KEPT_PATH)
-    return {"visit_date": visit.get("date"), "snapshot": snap_id, "revision": rev, "directory": "swh:1:dir:" + ent["target"]}
+    return {"visit_date": visit.get("date"), "snapshot": snap_id, "revision": rev,
+            "revision_date": rv.get("committer_date") or rv.get("date"), "directory": "swh:1:dir:" + ent["target"]}
+
+
+BODY_KEEP = 600  # bytes of a vault answer kept in a record, as text
+
+
+class VaultNotReady(RuntimeError):
+    """The vault did not hand over a copy. Carries what each vault call answered, for the report."""
+    def __init__(self, msg, trail):
+        RuntimeError.__init__(self, msg)
+        self.trail = trail
+
+
+def _vault_call(get, url, data=None, method=None):
+    """One vault call. An HTTP error status is returned as (code, body) instead of raised, so its code and body
+    reach the record; a network error still raises."""
+    try:
+        st, b = get(url, data=data, method=method)
+    except urllib.error.HTTPError as e:
+        try:
+            b = e.read() or b""
+        except Exception:
+            b = b""
+        st = e.code
+    try:
+        info = json.loads(b)
+        if not isinstance(info, dict):
+            info = {}
+    except (TypeError, ValueError):
+        info = {}
+    ans = {"at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "method": method or "GET", "url": url,
+           "http_status": st, "vault_id": info.get("id"), "status": info.get("status"),
+           "body": (b or b"")[:BODY_KEEP].decode("utf-8", "replace"), "body_sha256": sha256hex(b or b"")}
+    return st, b, info, ans
 
 
 def _swh_fetch(work, info, cook, get=http_get):
@@ -175,69 +211,144 @@ def _swh_fetch(work, info, cook, get=http_get):
     return d, sha256hex(tgz)
 
 
-def _read_ahead(path):
+AHEAD_FIELDS = ("directory", "requested_at", "visit_date", "snapshot", "revision", "revision_date", "status_at_request", "answer")
+
+
+def _utc(ts):
+    try:
+        return time.mktime(time.strptime(ts or "", "%Y-%m-%dT%H:%M:%SZ")) - time.timezone
+    except (TypeError, ValueError):
+        return None
+
+
+def _ahead_list(path):
+    """The precook requests in a record that are under two days old, newest first, one per directory. A record of
+    the 2026-10-30 form (one request, no "recent") is read as a list of one."""
     try:
         with open(path, "rb") as f:
             a = json.loads(f.read())
     except (OSError, ValueError):
+        return []
+    if not isinstance(a, dict):
+        return []
+    items = a.get("recent") if isinstance(a.get("recent"), list) else [a]
+    out, seen = [], set()
+    for it in items:
+        if not isinstance(it, dict) or not str(it.get("directory", "")).startswith("swh:1:dir:"):
+            continue
+        t = _utc(it.get("requested_at"))
+        # a request older than two days is not used: a precook that kept failing must not pin the drill to an old copy
+        if t is None or time.time() - t > AHEAD_MAX_AGE_S:
+            continue
+        out.append((t, it))
+    out.sort(key=lambda x: -x[0])
+    res = []
+    for t, it in out:
+        if it["directory"] in seen:
+            continue
+        seen.add(it["directory"])
+        res.append(it)
+    return res
+
+
+def _read_ahead(path):
+    """The newest usable precook request in a record, or None."""
+    lst = _ahead_list(path)
+    return lst[0] if lst else None
+
+
+def _age_any(iso, now):
+    """Hours from an ISO 8601 time with an offset (as Software Heritage writes it) to now, or None."""
+    if not iso:
         return None
-    if not isinstance(a, dict) or not str(a.get("directory", "")).startswith("swh:1:dir:"):
-        return None
-    # a record older than two days is not used: a precook that kept failing must not pin the drill to an old copy
     try:
-        t = time.mktime(time.strptime(a.get("requested_at", ""), "%Y-%m-%dT%H:%M:%SZ")) - time.timezone
-    except (TypeError, ValueError):
+        d = datetime.datetime.fromisoformat(str(iso).replace("Z", "+00:00"))
+        if d.tzinfo is None:
+            d = d.replace(tzinfo=datetime.timezone.utc)
+        return round((now - d.timestamp()) / 3600.0, 1)
+    except ValueError:
         return None
-    if time.time() - t > AHEAD_MAX_AGE_S:
-        return None
-    return a
+
+
+def _copy_dates(kind, src, drill_t):
+    """What day the copy is from, so a copy asked for on an earlier day is never reported as today's."""
+    return {"kind": kind, "directory": src.get("directory"), "precooked_at": src.get("requested_at"),
+            "visit_date": src.get("visit_date"), "revision": src.get("revision"), "revision_date": src.get("revision_date"),
+            "revision_age_hours": _age_any(src.get("revision_date"), drill_t),
+            "is_todays_visit": kind == "latest_visit"}
 
 
 def copy_from_swh(work, wait_s=1800, ahead=None, get=http_get):  # 2026-10-02: 900 s ran out once while the vault queue was busy
     # 2026-10-30. The vault often had not started cooking within the 30 minutes (status "new", 8 times from 10/02
-    # to 10/29). The previous drill now asks for the next copy at its end (precook below), so by the next day the
-    # copy is usually cooked. If that copy is ready it is used and named as such; otherwise the drill falls back to
-    # cooking the latest visit and waiting, as before.
-    a = _read_ahead(ahead) if ahead else None
-    if a:
-        cook = "%s/vault/flat/%s/" % (SWH_API, a["directory"])
-        try:
-            st, b = get(cook)
-            info = json.loads(b)
-        except Exception:
-            info = {}
-        if info.get("status") == "done":
-            d, tsha = _swh_fetch(work, info, cook, get)
-            return d, {"custodian": "software-heritage", "visit_date": a.get("visit_date"), "snapshot": a.get("snapshot"),
-                       "revision": a.get("revision"), "directory": a["directory"], "archive_sha256": tsha,
-                       "operator_controlled": False, "cooked_ahead": {"requested_at": a.get("requested_at"), "used": True}}
+    # to 10/29). The previous drill asks for the next copy at its end (precook below).
+    # 2026-11-03. Every vault call's code, id, status and the head of its body are kept (trail), on success in the
+    # provenance and on failure in the report, so a day the vault does not move can be shown from the record alone.
+    # 2026-11-04. From 10/29 to 11/03 the vault took more than a day to cook each request, and finished them later
+    # (10/29 to 11/01 were done by 11/03). The record now keeps the precook requests of the last two days. Today's
+    # latest visit is asked for first; when it is not done at once, the newest earlier request that is done is used,
+    # and the report names the day of that copy (copy.kind "cooked_ahead", precooked_at, revision_date). Only when
+    # none is done does the drill wait for today's, as before.
+    drill_t = time.time()
+    trail = {}
+    cands = _ahead_list(ahead) if ahead else []
+    ca = {"requested_at": cands[0].get("requested_at"), "used": False, "directory": cands[0]["directory"],
+          "candidates": len(cands)} if cands else None
     lk = swh_latest_kept(get)
+    trail["directory"] = lk["directory"]
     cook = "%s/vault/flat/%s/" % (SWH_API, lk["directory"])
-    st, b = get(cook, data=b"", method="POST")
-    t0 = time.time()
+    st, b, info, trail["post"] = _vault_call(get, cook, data=b"", method="POST")
+    if info.get("status") != "done" and cands:
+        trail["ahead_get"] = []
+        for c in cands:
+            if c["directory"] == lk["directory"]:
+                continue
+            cu = "%s/vault/flat/%s/" % (SWH_API, c["directory"])
+            try:
+                _st, _b, ci, an = _vault_call(get, cu)
+            except Exception as ex:
+                ci, an = {}, {"url": cu, "error": "%s: %s" % (type(ex).__name__, str(ex)[:200])}
+            trail["ahead_get"].append(an)
+            if ci.get("status") == "done" and 200 <= _st < 300:
+                d, tsha = _swh_fetch(work, ci, cu, get)
+                return d, {"custodian": "software-heritage", "visit_date": c.get("visit_date"), "snapshot": c.get("snapshot"),
+                           "revision": c.get("revision"), "directory": c["directory"], "archive_sha256": tsha,
+                           "operator_controlled": False,
+                           "cooked_ahead": {"requested_at": c.get("requested_at"), "used": True, "candidates": len(cands)},
+                           "copy": _copy_dates("cooked_ahead", c, drill_t), "todays_visit": lk, "vault": trail}
+    t0 = time.time(); polls = 0
     while True:
-        info = json.loads(b)
         if info.get("status") == "done":
             break
-        if info.get("status") == "failed" or time.time() - t0 > wait_s:
-            raise RuntimeError("Software Heritage vault did not finish: " + str(info.get("status")))
+        if not (200 <= st < 300) or info.get("status") == "failed" or time.time() - t0 > wait_s:
+            trail["polls"] = polls; trail["waited_s"] = int(time.time() - t0)
+            raise VaultNotReady("Software Heritage vault did not finish: " + str(info.get("status") if 200 <= st < 300 else "http %s" % st),
+                                dict(trail, cooked_ahead=ca))
         time.sleep(15)
-        st, b = get(cook)
+        st, b, info, trail["last_get"] = _vault_call(get, cook)
+        polls += 1
+    trail["polls"] = polls; trail["waited_s"] = int(time.time() - t0)
     d, tsha = _swh_fetch(work, info, cook, get)
     prov = {"custodian": "software-heritage", "visit_date": lk["visit_date"], "snapshot": lk["snapshot"],
-            "revision": lk["revision"], "directory": lk["directory"], "archive_sha256": tsha, "operator_controlled": False}
-    if a:
-        prov["cooked_ahead"] = {"requested_at": a.get("requested_at"), "used": False, "directory": a["directory"]}
+            "revision": lk["revision"], "directory": lk["directory"], "archive_sha256": tsha, "operator_controlled": False,
+            "copy": _copy_dates("latest_visit", lk, drill_t), "vault": trail}
+    if ca:
+        prov["cooked_ahead"] = ca
     return d, prov
 
 
 def precook(out, get=http_get):
-    """Ask the vault to cook the latest visit's kept/ now, for the next drill. Does not wait."""
+    """Ask the vault to cook the latest visit's kept/ now, for the next drill. Does not wait. The record keeps this
+    request on top (the 2026-10-30 fields, for readers of that form) and, in "recent", up to AHEAD_KEEP requests
+    of the last two days, newest first."""
+    prev = _ahead_list(out)
     lk = swh_latest_kept(get)
     cook = "%s/vault/flat/%s/" % (SWH_API, lk["directory"])
-    st, b = get(cook, data=b"", method="POST")
+    st, b, info, ans = _vault_call(get, cook, data=b"", method="POST")
+    # 2026-11-03: the answer itself (http code, vault id, the head of the body) is kept, not only its status
     rec = dict(lk, schema="nenrin-survive-precook-v0", requested_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-               status_at_request=json.loads(b).get("status"))
+               status_at_request=info.get("status"), answer=ans)
+    core = {k: rec.get(k) for k in AHEAD_FIELDS}
+    rec["recent"] = [core] + [{k: p.get(k) for k in AHEAD_FIELDS} for p in prev if p["directory"] != lk["directory"]][:AHEAD_KEEP - 1]
     with open(out, "w", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
     return rec
@@ -415,7 +526,14 @@ def drill(source, work, fenced, get=http_get, ahead=None):
         # The custodian could not hand over a copy. That is a finding about availability, not about the ledger,
         # and it is reported as such rather than as a crash or as a pass.
         rep = {"schema": SCHEMA, "version": VERSION, "drill_at": started, "outcome": "custodian_unavailable",
-               "source": {"requested": source}, "fence": fence, "why": "%s: %s" % (type(ex).__name__, str(ex)[:300])}
+               "source": {"requested": source}, "fence": fence,
+               # VaultNotReady keeps the old prefix so history.jsonl reads the same from day to day
+               "why": "%s: %s" % ("RuntimeError" if isinstance(ex, VaultNotReady) else type(ex).__name__, str(ex)[:300])}
+        tr = getattr(ex, "trail", None)
+        if isinstance(tr, dict):
+            if tr.get("cooked_ahead"):
+                rep["source"]["cooked_ahead"] = tr["cooked_ahead"]
+            rep["source"]["vault"] = {k: v for k, v in tr.items() if k != "cooked_ahead"}
         rep["report_sha256"] = sha256hex(canon(rep).encode("ascii"))
         return rep
     entries = load_entries(d)
@@ -441,6 +559,14 @@ def drill(source, work, fenced, get=http_get, ahead=None):
             "anything about entries whose proofs are still pending; they are listed, not counted",
         ],
     }
+    cp = prov.get("copy") if isinstance(prov, dict) else None
+    if cp:
+        rep["copy"] = cp
+        if cp.get("kind") != "latest_visit":
+            # 2026-11-04: an earlier day's copy is named as such, never as today's
+            rep["does_not_establish"].append(
+                "that the copy is today's: it is the copy asked for at %s, of the revision committed at %s (%s hours before the drill); "
+                "entries added after that are not in it" % (cp.get("precooked_at"), cp.get("revision_date"), cp.get("revision_age_hours")))
     rep["report_sha256"] = sha256hex(canon(rep).encode("ascii"))
     return rep
 
@@ -459,7 +585,9 @@ def main(argv=None):
     a = ap.parse_args(argv)
     if a.cmd == "precook":
         rec = precook(a.out)
-        print("precook %s status=%s" % (rec["directory"], rec["status_at_request"]), file=sys.stderr)
+        ans = rec.get("answer") or {}
+        print("precook %s http=%s vault_id=%s status=%s body=%s" % (rec["directory"], ans.get("http_status"), ans.get("vault_id"),
+              rec["status_at_request"], json.dumps(ans.get("body", ""))[:300]), file=sys.stderr)
         return 0
     rep = drill(a.source, a.work, a.fenced, ahead=a.ahead)
     txt = json.dumps(rep, ensure_ascii=False, indent=2, sort_keys=True)

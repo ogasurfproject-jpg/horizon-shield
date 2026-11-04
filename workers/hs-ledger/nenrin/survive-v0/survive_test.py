@@ -202,7 +202,7 @@ try:
             A = S.SWH_API
             if "/visit/latest/" in url: return 200, json.dumps({"snapshot": "s" * 40, "date": "2026-10-29T10:00:00+00:00"}).encode()
             if url == "%s/snapshot/%s/" % (A, "s" * 40): return 200, json.dumps({"branches": {"HEAD": {"target_type": "revision", "target": "r" * 40}}}).encode()
-            if url == "%s/revision/%s/" % (A, "r" * 40): return 200, json.dumps({"directory": "d" * 40}).encode()
+            if url == "%s/revision/%s/" % (A, "r" * 40): return 200, json.dumps({"directory": "d" * 40, "committer_date": "2026-11-03T10:50:00+00:00"}).encode()
             if url.startswith("%s/directory/%s/" % (A, "d" * 40)): return 200, json.dumps({"type": "dir", "target": "b" * 40}).encode()
             if "/vault/flat/" in url and not url.endswith("/raw/"):
                 swhid = url.split("/vault/flat/")[1].rstrip("/")
@@ -219,10 +219,10 @@ try:
                        "requested_at": _t.strftime("%Y-%m-%dT%H:%M:%SZ", _t.gmtime(_t.time() - age_s))}, f)
         return pth
     OLD = "swh:1:dir:" + "a" * 40; NEW = "swh:1:dir:" + "b" * 40
-    g = FakeSWH({OLD: "done"})
+    g = FakeSWH({OLD: "done", NEW: "new"})
     d, prov = S.copy_from_swh(os.path.join(tmp, ".a1"), ahead=ahead_file(OLD), get=g)
     ok("a ready copy cooked ahead is used and named", prov["directory"] == OLD and prov["cooked_ahead"]["used"] is True, prov)
-    ok("no new cook is asked for and no wait", g.posts == [], g.posts)
+    ok("today's is asked for once (2026-11-04: first), and there is no wait", g.posts == [NEW] and prov["vault"].get("polls") is None, (g.posts, prov.get("vault")))
     ok("the copy is the one in the archive", sorted(os.listdir(os.path.join(d, "ledger")))[:2] == ["1.json", "1.ots"], os.listdir(d))
     g = FakeSWH({OLD: "new"})
     d, prov = S.copy_from_swh(os.path.join(tmp, ".a2"), ahead=ahead_file(OLD), get=g)
@@ -238,6 +238,127 @@ try:
     on_disk = json.load(open(out))
     ok("precook asks for the latest visit and does not wait", g.posts == [NEW] and rec["status_at_request"] == "new" and on_disk["directory"] == NEW, rec)
     ok("precook record is read back as an ahead record", S._read_ahead(out)["directory"] == NEW)
+    print("12. what the vault answered is kept (2026-11-03: status new six days running, the answers were not on record)")
+    ans = on_disk.get("answer") or {}
+    ok("precook keeps the POST's http code, method and body", ans.get("http_status") == 200 and ans.get("method") == "POST"
+       and '"status": "new"' in ans.get("body", "") and len(ans.get("body_sha256", "")) == 64, ans)
+    g = FakeSWH({OLD: "new", NEW: "new"})
+    try:
+        S.copy_from_swh(os.path.join(tmp, ".a5"), wait_s=0, ahead=ahead_file(OLD), get=g); raised = None
+    except S.VaultNotReady as ex:
+        raised = ex
+    ok("a cook that does not finish raises with the trail", raised is not None and raised.trail.get("post", {}).get("status") == "new"
+       and raised.trail.get("directory") == NEW and [x.get("status") for x in raised.trail.get("ahead_get", [])] == ["new"]
+       and raised.trail.get("cooked_ahead", {}).get("used") is False, getattr(raised, "trail", None))
+    orig = S.copy_from_swh
+    S.copy_from_swh = lambda work, wait_s=1800, ahead=None, get=None: orig(work, wait_s=0, ahead=ahead, get=g)
+    r = S.drill("swh", os.path.join(tmp, ".w5"), fenced=False, get=Explorer({}), ahead=ahead_file(OLD))
+    S.copy_from_swh = orig
+    ok("the custodian_unavailable report names the directory, the vault's answer and the unused ahead copy",
+       r["outcome"] == "custodian_unavailable" and r["why"].startswith("RuntimeError: Software Heritage vault did not finish: new")
+       and r["source"]["vault"]["directory"] == NEW and r["source"]["vault"]["post"]["http_status"] == 200
+       and r["source"]["cooked_ahead"]["directory"] == OLD and r["source"]["cooked_ahead"]["used"] is False, r)
+
+    print("13. the newest copy that is done, named by its day (2026-11-04: the vault finished each request a day or more late)")
+    MID = "swh:1:dir:" + "c" * 40
+    def rec_file(name, items):
+        pth = os.path.join(tmp, name)
+        top = dict(items[0], schema="nenrin-survive-precook-v0", recent=items)
+        with open(pth, "w") as f:
+            json.dump(top, f)
+        return pth
+    def item(swhid, age_h, rdate):
+        return {"directory": swhid, "requested_at": _t.strftime("%Y-%m-%dT%H:%M:%SZ", _t.gmtime(_t.time() - age_h * 3600)),
+                "visit_date": rdate, "snapshot": "o" * 40, "revision": "q" * 40, "revision_date": rdate, "status_at_request": "new"}
+    two = rec_file("two.json", [item(MID, 23, "2026-11-02T11:10:00+00:00"), item(OLD, 47, "2026-11-01T10:30:00+00:00")])
+    ok("the record of two requests is read newest first", [x["directory"] for x in S._ahead_list(two)] == [MID, OLD], S._ahead_list(two))
+    g = FakeSWH({NEW: "new", MID: "done", OLD: "done"})
+    d, prov = S.copy_from_swh(os.path.join(tmp, ".b1"), ahead=two, get=g)
+    ok("today's new, yesterday's done: yesterday's copy is used", prov["directory"] == MID and prov["copy"]["kind"] == "cooked_ahead"
+       and prov["copy"]["revision_date"] == "2026-11-02T11:10:00+00:00" and prov["copy"]["is_todays_visit"] is False, prov)
+    g = FakeSWH({NEW: "new", MID: "new", OLD: "done"})
+    d, prov = S.copy_from_swh(os.path.join(tmp, ".b2"), ahead=two, get=g)
+    ok("yesterday's new too: the day before's copy is used, and named", prov["directory"] == OLD and prov["copy"]["precooked_at"] == S._ahead_list(two)[1]["requested_at"], prov)
+    g = FakeSWH({NEW: "new", MID: "done"})
+    REF = build_ledger(os.path.join(tmp, "swhref"))[1]
+    orig = S.copy_from_swh
+    S.copy_from_swh = lambda work, wait_s=1800, ahead=None, get=None: orig(work, wait_s=0, ahead=ahead, get=g)
+    r = S.drill("swh", os.path.join(tmp, ".w6"), fenced=False, get=Explorer(REF), ahead=two)
+    S.copy_from_swh = orig
+    ok("the drill rebuilds from yesterday's copy and the report gives its day", r["outcome"] == "rebuilt" and r["copy"]["kind"] == "cooked_ahead"
+       and r["copy"]["directory"] == MID and r["copy"]["revision_date"] == "2026-11-02T11:10:00+00:00"
+       and any("that the copy is today's" in x for x in r["does_not_establish"]), {k: r.get(k) for k in ("outcome", "copy", "does_not_establish")})
+    g = FakeSWH({NEW: "new", MID: "new", OLD: "new"})
+    S.copy_from_swh = lambda work, wait_s=1800, ahead=None, get=None: orig(work, wait_s=0, ahead=ahead, get=g)
+    r = S.drill("swh", os.path.join(tmp, ".w7"), fenced=False, get=Explorer(REF), ahead=two)
+    S.copy_from_swh = orig
+    ok("all new: custodian_unavailable, the why reads as before, every request's answer is on record",
+       r["outcome"] == "custodian_unavailable" and r["why"] == "RuntimeError: Software Heritage vault did not finish: new"
+       and [x.get("status") for x in r["source"]["vault"]["ahead_get"]] == ["new", "new"] and r["source"]["cooked_ahead"]["candidates"] == 2, r)
+    g = FakeSWH({NEW: "done", MID: "done"})
+    d, prov = S.copy_from_swh(os.path.join(tmp, ".b3"), ahead=two, get=g)
+    ok("today's done at once: today's is used and called today's", prov["directory"] == NEW and prov["copy"]["kind"] == "latest_visit"
+       and prov["copy"]["is_todays_visit"] is True and prov["copy"]["revision_date"] == "2026-11-03T10:50:00+00:00", prov)
+    stale = rec_file("stale.json", [item(MID, 49, "2026-11-01T11:10:00+00:00")])
+    ok("a request older than two days is left out of the list", S._ahead_list(stale) == [], S._ahead_list(stale))
+    pre = os.path.join(tmp, "pre_list.json")
+    with open(pre, "w") as f:
+        json.dump(dict(item(MID, 23, "x"), schema="nenrin-survive-precook-v0"), f)
+    rec = S.precook(pre, get=FakeSWH({NEW: "new"}))
+    ok("precook on a 2026-10-30 record keeps it under the new request", [x["directory"] for x in rec["recent"]] == [NEW, MID] and rec["directory"] == NEW, rec.get("recent"))
+    with open(pre, "w") as f:
+        json.dump(dict(item(OLD, 1, "x"), schema="nenrin-survive-precook-v0",
+                       recent=[item(OLD, 1, "x"), item(MID, 20, "x"), item("swh:1:dir:" + "e" * 40, 30, "x"), item("swh:1:dir:" + "f" * 40, 40, "x")]), f)
+    rec = S.precook(pre, get=FakeSWH({NEW: "new"}))
+    ok("precook keeps at most three, newest first", [x["directory"][-1] for x in rec["recent"]] == ["b", "a", "c"], rec.get("recent"))
+
+    # a fake Software Heritage behind urllib itself (an https handler, no socket), so http_get, the allowlist guard and
+    # urllib's own HTTPError for 429 and 500 are the real ones
+    import email.message, urllib.request, urllib.response, urllib.parse as _up
+    class FakeVaultHTTPS(urllib.request.HTTPSHandler):
+        # a subclass of HTTPSHandler, so build_opener leaves the real one out; ordered first besides
+        handler_order = 100
+        plan = {}; seen = []
+        def https_open(self, req):
+            u = _up.urlsplit(req.full_url); path = u.path + (("?" + u.query) if u.query else "")
+            FakeVaultHTTPS.seen.append((req.get_method(), path))
+            code, body = FakeVaultHTTPS.plan.get(path, (404, b'{"exception":"NotFoundExc"}'))
+            h = email.message.Message(); h["Content-Type"] = "application/json"; h["Content-Length"] = str(len(body))
+            r = urllib.response.addinfourl(io.BytesIO(body), h, req.full_url, code); r.msg = "fake"
+            return r
+    op = urllib.request.build_opener(FakeVaultHTTPS())
+    if any(type(h) is urllib.request.HTTPSHandler for h in op.handlers):
+        raise SystemExit("the fake vault would not be the only https handler; stopping before any call")
+    urllib.request.install_opener(op)
+    try:
+        FakeVaultHTTPS.plan = {"/__probe__": (200, b"fake")}
+        if urllib.request.urlopen("https://archive.softwareheritage.org/__probe__", timeout=1).read() != b"fake":
+            raise SystemExit("the fake vault did not answer the probe; stopping before any call")
+        V = "/api/1/vault/flat/%s/" % NEW
+        FakeVaultHTTPS.plan = {
+            "/api/1/origin/%s/visit/latest/?require_snapshot=true" % _up.quote(S.REPO_ORIGIN, safe=""):
+                (200, json.dumps({"snapshot": "s" * 40, "date": "2026-11-03T10:57:30+00:00"}).encode()),
+            "/api/1/snapshot/%s/" % ("s" * 40): (200, json.dumps({"branches": {"HEAD": {"target_type": "revision", "target": "r" * 40}}}).encode()),
+            "/api/1/revision/%s/" % ("r" * 40): (200, json.dumps({"directory": "d" * 40}).encode()),
+            "/api/1/directory/%s/%s/" % ("d" * 40, S.KEPT_PATH): (200, json.dumps({"type": "dir", "target": "b" * 40}).encode()),
+            V: (429, b'{"exception":"Throttled","reason":"Request was throttled. Expected available in 60 seconds."}')}
+        out2 = os.path.join(tmp, "pre429.json")
+        rec = S.precook(out2)
+        ok("over urllib, a 429 is kept as code and body, not a crash", rec["answer"]["http_status"] == 429
+           and "Throttled" in rec["answer"]["body"] and rec["status_at_request"] is None and json.load(open(out2))["answer"]["http_status"] == 429, rec)
+        ok("over urllib, the precook really is a POST to the vault", ("POST", V) in FakeVaultHTTPS.seen, FakeVaultHTTPS.seen)
+        FakeVaultHTTPS.plan[V] = (200, json.dumps({"id": 422372118, "status": "new", "swhid": NEW}).encode())
+        rec = S.precook(out2)
+        ok("over urllib, a 200 keeps the vault id", rec["answer"]["vault_id"] == 422372118 and rec["status_at_request"] == "new", rec)
+        FakeVaultHTTPS.plan[V] = (500, b"<html>Internal Server Error</html>")
+        try:
+            S.copy_from_swh(os.path.join(tmp, ".a6"), wait_s=0); raised = None
+        except S.VaultNotReady as ex:
+            raised = ex
+        ok("over urllib, a 500 on the cook ends the wait with the code in the trail",
+           raised is not None and raised.trail["post"]["http_status"] == 500 and "http 500" in str(raised), getattr(raised, "trail", None))
+    finally:
+        urllib.request.install_opener(None)
 finally:
     shutil.rmtree(tmp, ignore_errors=True)
 
