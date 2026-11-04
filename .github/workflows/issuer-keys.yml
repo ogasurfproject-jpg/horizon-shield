@@ -6,11 +6,20 @@ name: issuer keys
 # instead of trusting the bundle's own copy (trusted_identity.mjs calls that self-pinned). Each day's file is stamped
 # with OpenTimestamps; earlier pending stamps are upgraded when Bitcoin has confirmed them.
 # Code and tests: workers/hs-ledger/nenrin/issuer-keys-v0/. Run by hand: Actions -> issuer keys -> Run workflow.
+# 2026-11-04: GitHub's schedule comes hours late, so workers/hs-cron-dispatch (a Cloudflare cron) dispatches this at
+# 03:23 UTC with slot=cron. A scheduled run and a slot=cron run do nothing when main already has today's observation
+# and its stamp (a second run would replace both, and the later stamp bounds the day less tightly). A run by hand
+# (slot empty) always runs, as before. The cron below stays as a late fallback.
 
 on:
   schedule:
     - cron: "23 3 * * *"   # daily 03:23 UTC
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: "empty: a run by hand (always runs). cron: the 03:23 UTC dispatch of workers/hs-cron-dispatch (nothing when today is observed and stamped)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -25,20 +34,41 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+      - name: has today an observation and its stamp on main (asked only by a scheduled run and the slot=cron dispatch)
+        id: decide
+        env:
+          EVENT: ${{ github.event_name }}
+          SLOT: ${{ github.event.inputs.slot }}
+        run: |
+          F="workers/hs-ledger/nenrin/issuer-keys-v0/log/observations/$(date -u +%Y-%m-%d).json"
+          if [ "$EVENT" = "workflow_dispatch" ] && [ -z "${SLOT:-}" ]; then
+            echo "a run by hand always runs" | tee -a "$GITHUB_STEP_SUMMARY"; echo "ran=true" >> "$GITHUB_OUTPUT"
+          elif [ -f "$F" ] && [ -f "$F.ots" ]; then
+            echo "$F and its stamp are on main already; this $EVENT ${SLOT:-} run does nothing" | tee -a "$GITHUB_STEP_SUMMARY"; echo "ran=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ran=true" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: steps.decide.outputs.ran == 'true'
         with:
           package-manager-cache: false
           node-version: "22"
       - name: test (fake issuer, no network)
+        if: steps.decide.outputs.ran == 'true'
         run: node workers/hs-ledger/nenrin/issuer-keys-v0/issuer_keys.test.mjs
       - name: observe the issuers
+        if: steps.decide.outputs.ran == 'true'
         run: |
           set -o pipefail
           node workers/hs-ledger/nenrin/issuer-keys-v0/observe.mjs --out workers/hs-ledger/nenrin/issuer-keys-v0/log | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        if: steps.decide.outputs.ran == 'true'
         with:
           python-version: "3.11"
       - name: stamp today's file, upgrade earlier stamps (a calendar outage does not fail the job)
+        if: steps.decide.outputs.ran == 'true'
         run: |
           set +e
           pip install -q opentimestamps-client
@@ -50,6 +80,7 @@ jobs:
           rm -f "$D"/*.json.ots.bak
           exit 0
       - name: record
+        if: steps.decide.outputs.ran == 'true'
         run: |
           git config user.name "nenrin-issuer-keys"
           git config user.email "contact@the-horizons-innovation.com"
@@ -59,6 +90,7 @@ jobs:
           ok=0
           for i in 1 2 3; do
             if git pull --rebase origin main && git push; then ok=1; break; fi
+            git rebase --abort 2>/dev/null || true
             sleep 5
           done
           [ "$ok" = 1 ] || { echo "::error::push failed 3 times"; exit 1; }

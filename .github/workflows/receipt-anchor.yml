@@ -5,6 +5,10 @@ name: receipt anchor
 # A copy of the day's receipts is kept in ops/receipts/<date>.json and the entry number in ops/receipts/index.json.
 # Red when the day's list cannot be read, when a listed receipt does not recompute, or when the append fails.
 # Secret: LEDGER_ADMIN_TOKEN (the same one jidec-stamp.yml uses; never printed).
+# 2026-11-04: GitHub's schedule comes 5 to 8 hours late and sometimes not at all, so workers/hs-cron-dispatch (a
+# Cloudflare cron) dispatches this at 01:37 UTC with date = the day before. A second run of a day is harmless: the
+# ledger answers the same claim with the same entry (dedup) and the copy and index do not change. The cron below stays
+# as a late fallback. The checkout takes main as it is when the job starts (ref: main).
 
 on:
   schedule:
@@ -28,6 +32,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           package-manager-cache: false
@@ -45,16 +51,19 @@ jobs:
           else node tools/receipts/anchor_day.mjs --append | tee -a "$GITHUB_STEP_SUMMARY"; fi
       - name: keep the copy and the entry number
         if: always()
+        env:
+          DAY: ${{ github.event.inputs.date }}
         run: |
           git config user.name "hs-receipt-anchor"
           git config user.email "contact@the-horizons-innovation.com"
           [ -d ops/receipts ] || exit 0
           git add ops/receipts
           git diff --cached --quiet && exit 0
-          git commit -m "receipts: anchor $(date -u -d yesterday +%Y-%m-%d)"
+          git commit -m "receipts: anchor ${DAY:-$(date -u -d yesterday +%Y-%m-%d)}"
           ok=0
           for i in 1 2 3; do
             if git pull --rebase origin main && git push; then ok=1; break; fi
+            git rebase --abort 2>/dev/null || true
             sleep 5
           done
           [ "$ok" = 1 ] || { echo "::error::push failed 3 times"; exit 1; }

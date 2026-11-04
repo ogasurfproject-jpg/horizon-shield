@@ -1,0 +1,34 @@
+{
+  // hs-cron-dispatch: starts time-bound GitHub workflows of horizon-shield on time, with workflow_dispatch, because
+  // GitHub runs scheduled workflows hours late. See README.md. The GitHub schedules stay as a late fallback.
+  //
+  // Secret (owner only, never in this file or in GitHub): GH_DISPATCH_TOKEN, a fine-grained personal access token for
+  // ogasurfproject-jpg/horizon-shield only, repository permission Actions: read and write, nothing else.
+  //   cd workers/hs-cron-dispatch && npx --yes wrangler@4.152.0 secret put GH_DISPATCH_TOKEN
+  // Without it the Worker still fires and writes token_not_configured in its log, and calls nothing.
+  "$schema": "https://unpkg.com/wrangler@4.149.0/config-schema.json",
+  "name": "hs-cron-dispatch",
+  "main": "src/worker.js",
+  "account_id": "c15ff64aba400e541853dec1fbe5e76a",
+  "compatibility_date": "2026-09-01",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true, "logs": { "enabled": true } },
+
+  // UTC (JST = UTC + 9). Must equal CRONS in src/core.mjs (the test checks it).
+  //   17 * * * *    jidec-stamp every hour; survive-drill at 03:17; seki-heartbeat at 21:17
+  //   37 1 * * *    receipt-anchor (the day before)
+  //   23 3 * * *    issuer-keys
+  //   5,35 4 * * *  tooshi-daily (04:05 as schedule, 04:35 as second)
+  "triggers": {
+    "crons": ["17 * * * *", "37 1 * * *", "23 3 * * *", "5,35 4 * * *"]
+  },
+
+  // The log: one SQLite backed Durable Object (one instance). One record per UTC day, 400 days. No token, no headers.
+  "durable_objects": {
+    "bindings": [{ "name": "LOG", "class_name": "DispatchLog" }]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["DispatchLog"] }
+  ]
+}

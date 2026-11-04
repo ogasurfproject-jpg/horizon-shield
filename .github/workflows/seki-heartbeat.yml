@@ -14,6 +14,11 @@ name: seki heartbeat
 # is filed under the check contract at the MUSUBI intake and each earlier day is settled with settle v1.19 once Bitcoin
 # has confirmed it (check-runs/). The check contract's contractor key is made from a public label, so this needs no secret.
 # Pushes made with GITHUB_TOKEN do not start other workflows.
+# 2026-11-04: GitHub started the 21:17 run at 00:10 to 02:56 UTC the next day (10-27 to 11-04), close to the six hour
+# edge of responsible_day and inside the 00:20 to 00:55 cuts. workers/hs-cron-dispatch (a Cloudflare cron) dispatches
+# this at 21:17 UTC; the cron below stays as a late fallback, which ends "already ran" because heartbeat.py and
+# check_loop.py write a day once. The checkout takes main as it is when the job starts (ref: main), so a run that waited
+# in the concurrency queue behind the dispatched one sees that run's RUN.json instead of making the calls again.
 # 2026-10-24. A run is for the UTC day six hours before it starts (heartbeat.py responsible_day), so a run GitHub starts
 # after midnight is still for the day it was scheduled on. Before this, the late run took the next day's name and the
 # next evening's run ended "already ran" and green with nothing done (2026-10-20 and 2026-10-23; runs/2026-10-21 does not
@@ -41,6 +46,8 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
@@ -87,6 +94,7 @@ jobs:
             ok=0
             for i in 1 2 3; do
               if git pull --rebase origin main && git push; then ok=1; break; fi
+              git rebase --abort 2>/dev/null || true
               sleep 5
             done
             [ "$ok" = 1 ] || { echo "::error::push failed 3 times"; exit 1; }

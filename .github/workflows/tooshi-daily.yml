@@ -11,12 +11,21 @@ name: tooshi-daily
 # verdict, the counts, result_sha256 and day_sha256 in the run summary, and the keep job commits tooshi/days/<day>.json,
 # tooshi/latest.json and tooshi/index.json (tools/tooshi/tooshi_publish.py) and starts the Pages deploy, because a push
 # made with the GITHUB_TOKEN does not start static.yml. A check that cannot be made yet is counted as not_yet, never as ok.
+# 2026-11-04: GitHub's schedule comes hours late, so workers/hs-cron-dispatch (a Cloudflare cron) dispatches this
+# workflow at 04:05 and 04:35 UTC with the input slot=schedule or slot=second. Such a dispatch is decided like that cron
+# (nothing when the day has a result, nothing before 03:47 UTC) and names that trigger; a dispatch by hand (slot empty)
+# always runs, as before. The two crons below stay as a late fallback.
 
 on:
   schedule:
     - cron: "5 4 * * *"
     - cron: "35 4 * * *"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: "empty: a run by hand (always runs). schedule or second: the 04:05 or 04:35 UTC dispatch of workers/hs-cron-dispatch, decided like that cron"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -52,11 +61,17 @@ jobs:
         env:
           EVENT: ${{ github.event_name }}
           CRON: ${{ github.event.schedule }}
+          SLOT: ${{ github.event.inputs.slot }}
         run: |
           case "$EVENT:$CRON" in
             "schedule:5 4 * * *") T=schedule ;;
             "schedule:35 4 * * *") T=second ;;
-            workflow_dispatch:*) T=dispatch ;;
+            workflow_dispatch:*)
+              case "${SLOT:-}" in
+                "") T=dispatch ;;
+                schedule|second) T=$SLOT; echo "dispatched by workers/hs-cron-dispatch as the $SLOT cron" ;;
+                *) echo "unknown slot $SLOT"; exit 1 ;;
+              esac ;;
             *) echo "unknown trigger $EVENT $CRON"; exit 1 ;;
           esac
           NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)

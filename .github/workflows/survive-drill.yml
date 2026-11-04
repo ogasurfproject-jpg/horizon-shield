@@ -5,11 +5,20 @@ name: survive drill
 # drill: 運営者の名前を /etc/hosts で潰した上で、Software Heritage と GitHub の写しから組み立て直し、
 #        digest・鎖・Bitcoin の錨を検算して、結果を良し悪しに関わらず commit する。
 # 手で回す: Actions -> survive drill -> Run workflow。
+# 2026-11-04: GitHub の schedule は何時間も遅れるので、workers/hs-cron-dispatch(Cloudflare の cron)が 03:17 UTC に
+# slot=cron でこの workflow を dispatch する。schedule の run と slot=cron の run は、今日の drill が main に記録済み
+# (drills/latest-github.json の drill_at が今日)なら何もしない。手で回す run(slot が空)は今までどおり必ず回る。
+# 下の cron は遅れて来る控えとして残す。
 
 on:
   schedule:
     - cron: "17 3 * * *"   # daily 03:17 UTC, after the 00:30 UTC batch has been stamped
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: "empty: a run by hand (always runs). cron: the 03:17 UTC dispatch of workers/hs-cron-dispatch (nothing when today's drill is recorded)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -23,13 +32,47 @@ env:
   MV: workers/hs-ledger/nenrin/mirror-v0
 
 jobs:
+  decide:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      ran: ${{ steps.d.outputs.ran }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+          sparse-checkout: workers/hs-ledger/nenrin/survive-v0/drills
+      - name: has today's drill been recorded on main (asked only by a scheduled run and the slot=cron dispatch)
+        id: d
+        env:
+          EVENT: ${{ github.event_name }}
+          SLOT: ${{ github.event.inputs.slot }}
+        run: |
+          D=$(date -u +%Y-%m-%d)
+          if [ "$EVENT" = "workflow_dispatch" ] && [ -z "${SLOT:-}" ]; then
+            echo "a run by hand always runs" | tee -a "$GITHUB_STEP_SUMMARY"; echo "ran=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          A=$(python3 -I -c 'import json,sys; print((json.load(open(sys.argv[1])).get("drill_at") or "")[:10])' "$SV/drills/latest-github.json" 2>/dev/null || true)
+          if [ "$A" = "$D" ]; then
+            echo "today's drill ($D) is already recorded on main; this $EVENT ${SLOT:-} run does nothing" | tee -a "$GITHUB_STEP_SUMMARY"; echo "ran=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "the last recorded drill is from ${A:-an unreadable file}; today's ($D) runs now" | tee -a "$GITHUB_STEP_SUMMARY"; echo "ran=true" >> "$GITHUB_OUTPUT"
+          fi
+
   keep:
+    needs: decide
+    if: needs.decide.outputs.ran == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     outputs:
       chain_rc: ${{ steps.chain.outputs.rc }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
@@ -79,7 +122,12 @@ jobs:
             exit 0
           fi
           git commit -m "survive-v0: keep $(date -u +%Y-%m-%d) ($(echo "$NEW" | wc -l | tr -d ' ') files)"
-          ok=0; for i in 1 2 3; do if git pull --rebase origin main && git push; then ok=1; break; fi; sleep 5; done
+          ok=0
+          for i in 1 2 3; do
+            if git pull --rebase origin main && git push; then ok=1; break; fi
+            git rebase --abort 2>/dev/null || true
+            sleep 5
+          done
           [ "$ok" = 1 ] || { echo "::error::push failed 3 times"; exit 1; }
           echo "COMMITTED=1" >> "$GITHUB_ENV"
       - name: ask Software Heritage to archive the repository (does not fail the job)
@@ -107,10 +155,11 @@ jobs:
           echo "chain checked end to end, no findings"
 
   drill:
-    needs: keep
+    needs: [decide, keep]
     # 2026-10-19: the drill reads only Software Heritage and GitHub, never the operator, so it runs when keep fails too
     # (keep fails exactly on the day the operator is down, which is the day the drill is for).
-    if: ${{ !cancelled() }}
+    # 2026-11-04: not when decide found today's drill already recorded.
+    if: ${{ !cancelled() && needs.decide.outputs.ran == 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
@@ -177,7 +226,12 @@ jobs:
           git add "$SV/drills"
           git diff --cached --quiet && exit 0
           git commit -m "survive-v0: drill $(date -u +%Y-%m-%d)"
-          ok=0; for i in 1 2 3; do if git pull --rebase origin main && git push; then ok=1; break; fi; sleep 5; done
+          ok=0
+          for i in 1 2 3; do
+            if git pull --rebase origin main && git push; then ok=1; break; fi
+            git rebase --abort 2>/dev/null || true
+            sleep 5
+          done
           [ "$ok" = 1 ] || { echo "::error::push failed 3 times"; exit 1; }
       - name: red when the copy disagrees with itself or with Bitcoin, or cannot be rebuilt at all
         # 2026-10-09 (red team R3-3): a copy that is gone used to leave this step green. Now red when any copy has
