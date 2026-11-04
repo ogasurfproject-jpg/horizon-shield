@@ -6,6 +6,8 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -14,19 +16,20 @@ import java.util.regex.Pattern;
  * nenrin-verify (Java): the same commands, checks and verdicts as npm, PyPI and Go nenrin-verify.
  *
  * <pre>
- *   java -jar nenrin-verify.jar furui-day &lt;YYYY-MM-DD&gt; --leaf &lt;i&gt;
- *   java -jar nenrin-verify.jar resume-admission &lt;https endpoint&gt; &lt;record_sha256&gt;
- *   java -jar nenrin-verify.jar furui-vectors &lt;verify_vectors.json&gt;
+ *   java -jar nenrin-verify.jar furui-day &lt;YYYY-MM-DD&gt; --leaf &lt;i&gt; [--bitcoin-header]
+ *   java -jar nenrin-verify.jar resume-admission &lt;https endpoint&gt; &lt;record_sha256&gt; [--bitcoin-header]
+ *   java -jar nenrin-verify.jar furui-vectors &lt;verify_vectors.json | bitcoin_header_vectors.json&gt;
  * </pre>
  *
  * Exit 0 ok, 1 fail, 3 not_yet, 2 usage or network error. The network is GET only, only https://ledger.horizonshield.dev
- * and https://furui.horizonshield.dev, with no redirects.
+ * and https://furui.horizonshield.dev, with no redirects; with --bitcoin-header also https://mempool.space and
+ * https://blockstream.info (four GETs, sending only the block height and the block hash).
  */
 public final class Main {
     private Main() {}
 
-    public static final String VERSION = "0.1.0";
-    static final String USAGE = "usage: nenrin-verify furui-day <YYYY-MM-DD> --leaf <i>\n       nenrin-verify resume-admission <https endpoint> <record_sha256>\n       nenrin-verify furui-vectors <vectors.json>";
+    public static final String VERSION = "0.2.0";
+    static final String USAGE = "usage: nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--bitcoin-header]\n       nenrin-verify resume-admission <https endpoint> <record_sha256> [--bitcoin-header]\n       nenrin-verify furui-vectors <vectors.json>";
     static final Pattern LEAF = Pattern.compile("^(0|[1-9][0-9]{0,8})$");
     static final Pattern HTTPS = Pattern.compile("^https://\\S+$");
 
@@ -37,14 +40,25 @@ public final class Main {
 
     public static int run(String[] a) {
         Map<String, Object> res;
+        boolean bh = false;
+        if (a.length > 0 && (a[0].equals("furui-day") || a[0].equals("resume-admission"))) {
+            int n = 0, at = 0;
+            for (int i = 1; i < a.length; i++) if (a[i].equals("--bitcoin-header")) { n++; at = i; }
+            if (n == 1) {
+                List<String> l = new ArrayList<>(Arrays.asList(a));
+                l.remove(at);
+                a = l.toArray(new String[0]);
+                bh = true;
+            }
+        }
         try {
             if (a.length == 1 && (a[0].equals("--version") || a[0].equals("-V"))) {
                 System.out.println("nenrin-verify (java) " + VERSION);
                 return 0;
             } else if (a.length == 4 && a[0].equals("furui-day") && a[2].equals("--leaf") && Furui.realDay(a[1]) && LEAF.matcher(a[3]).matches()) {
-                res = Furui.furuiDay(a[1], Long.parseLong(a[3]), Furui.HTTP);
+                res = Furui.furuiDay(a[1], Long.parseLong(a[3]), Furui.HTTP, bh, Furui.HTTP_EXPLORER);
             } else if (a.length == 3 && a[0].equals("resume-admission") && HTTPS.matcher(a[1]).matches() && Furui.H64.matcher(a[2]).matches() && Furui.host(a[1]) != null) {
-                res = Furui.resumeAdmission(a[1], a[2], Furui.HTTP);
+                res = Furui.resumeAdmission(a[1], a[2], Furui.HTTP, bh, Furui.HTTP_EXPLORER);
             } else if (a.length == 2 && a[0].equals("furui-vectors")) {
                 return vectors(a[1]);
             } else {

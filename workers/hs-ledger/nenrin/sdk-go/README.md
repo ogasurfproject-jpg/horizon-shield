@@ -66,6 +66,22 @@ interoperability vectors and reference verifiers. Zenodo. https://doi.org/10.528
 `VerifyTraceBind`, `SpanAttributes`, `CheckSpanAttributes`. `nenrin-verify-go --trace-batch intake|bind|span in out`
 is the TSUNAGI batch form. `go test ./...` runs the three corpora (28, 28, 16); the board referees them nightly.
 
+## nenrin-verify --bitcoin-header (0.5.0)
+
+```sh
+nenrin-verify furui-day 2026-11-03 --leaf 0 --bitcoin-header
+nenrin-verify resume-admission https://shield.the-horizons-innovation.com/ <record_sha256> --bitcoin-header
+nenrin-verify furui-vectors ../furui-check-day-v0/bitcoin_header_vectors.json
+```
+
+`furui-day` and `resume-admission` take `--bitcoin-header`, as npm 0.9.0 and PyPI `nenrin-verify` do: after the
+anchor, the block header at the proof's height from mempool.space and blockstream.info (the same block hash and the
+same 80 byte header from both, sha256d to that hash, the hash under the target of the header's own bits, the merkle
+root the proof commits to). Without the flag nothing changes and no explorer is asked. `FuruiDayWith` and
+`ResumeAdmissionWith` take the flag as `FuruiOpts`; `FuruiBitcoinHeader` is the step alone. The same answers as the
+Python and JavaScript ports on `bitcoin_header_vectors.json` (`go test ./...` runs them, CI compares the four ports
+line by line). `PortVersion` is 0.5.0; the provenance verifier is unchanged. Details: `../furui-check-day-v0/VERIFY.md`.
+
 ## nenrin-verify furui-day and resume-admission (0.4.0)
 
 ```sh

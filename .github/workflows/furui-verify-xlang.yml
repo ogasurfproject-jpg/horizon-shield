@@ -4,7 +4,9 @@ name: nenrin-verify furui-day, four languages, one verdict
 # when their files are in the tree, Go (sdk-go/cmd/nenrin-verify) and Java (sdk-java, a jar built with javac alone).
 # This workflow runs every port present on the shared vectors
 # (workers/hs-ledger/nenrin/furui-check-day-v0/verify_vectors.json) and on seeded mutations of them, and fails unless
-# every port prints the same answer, line by line, and every vector gives its expected answer.
+# every port prints the same answer, line by line, and every vector gives its expected answer. The same is done for
+# --bitcoin-header on furui-check-day-v0/bitcoin_header_vectors.json (the step alone, furui-day step 7 and
+# resume-admission step 6), where each world also answers the two block explorers.
 # No network: every case reads its own small world. No secret is used.
 
 on:
@@ -41,6 +43,7 @@ jobs:
     env:
       GOTOOLCHAIN: local
       V: furui-check-day-v0/verify_vectors.json
+      BH: furui-check-day-v0/bitcoin_header_vectors.json
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -75,8 +78,10 @@ jobs:
           fi
           echo "PORTS=$P" >> "$GITHUB_ENV"
           echo "ports: $P"
-      - name: The vectors file is what its generator writes
-        run: python -I furui-check-day-v0/make_verify_vectors.py --check
+      - name: The vectors files are what their generators write
+        run: |
+          python -I furui-check-day-v0/make_verify_vectors.py --check
+          python -I furui-check-day-v0/make_bitcoin_header_vectors.py --check
       - name: Each port gives every vector its expected answer, and the answers are the same line by line
         run: |
           set -o pipefail
@@ -96,6 +101,29 @@ jobs:
             [ "$n" -gt 1000 ] || { echo "only $n mutated answers from python"; exit 1; }
             for l in $PORTS; do cmp "$RUNNER_TEMP/m.py" "$RUNNER_TEMP/m.$l" || { echo "seed $seed: python and $l differ"; diff "$RUNNER_TEMP/m.py" "$RUNNER_TEMP/m.$l" | head -10; exit 1; }; done
             echo "seed $seed: $n mutated cases, $PORTS give the same answer"
+          done
+      - name: --bitcoin-header, every port gives every vector its expected answer, the same line by line, also on seeded mutations
+        run: |
+          set -o pipefail
+          run(){ case "$1" in py) nenrin-verify furui-vectors "$2" ;; js) node sdk/nenrin_verify.mjs furui-vectors "$2" ;; go) "$RUNNER_TEMP/nv-go" furui-vectors "$2" ;; java) "$JAVA_HOME/bin/java" -jar "$RUNNER_TEMP/nenrin-verify.jar" furui-vectors "$2" ;; esac; }
+          want=$(python -I -c 'import json,sys; print(len(json.load(open(sys.argv[1]))["cases"]))' "$BH")
+          [ "$want" -ge 24 ] || { echo "only $want cases in $BH"; exit 1; }
+          for l in $PORTS; do
+            run "$l" "$BH" > "$RUNNER_TEMP/bh.$l.txt"
+            tail -1 "$RUNNER_TEMP/bh.$l.txt"
+            tail -1 "$RUNNER_TEMP/bh.$l.txt" | grep -q "^$want/$want furui vectors give the expected verdict" || { echo "$l: not $want/$want"; exit 1; }
+            sed '$d' "$RUNNER_TEMP/bh.$l.txt" > "$RUNNER_TEMP/bh.$l.cmp"
+          done
+          for l in $PORTS; do cmp "$RUNNER_TEMP/bh.py.cmp" "$RUNNER_TEMP/bh.$l.cmp" || { echo "python and $l differ"; diff "$RUNNER_TEMP/bh.py.cmp" "$RUNNER_TEMP/bh.$l.cmp" | head -20; exit 1; }; done
+          echo "$PORTS: $want bitcoin-header vectors, identical"
+          for seed in 1 2 3; do
+            M="$RUNNER_TEMP/bhmut$seed.json"
+            python -I sdk-python/tests/parity/mutate_furui.py "$BH" "$M" --per-body 20 --seed "$seed"
+            for l in $PORTS; do (run "$l" "$M" || true) | sed '$d' > "$RUNNER_TEMP/bm.$l"; done
+            n=$(wc -l < "$RUNNER_TEMP/bm.py")
+            [ "$n" -gt 1000 ] || { echo "only $n mutated answers from python"; exit 1; }
+            for l in $PORTS; do cmp "$RUNNER_TEMP/bm.py" "$RUNNER_TEMP/bm.$l" || { echo "seed $seed: python and $l differ"; diff "$RUNNER_TEMP/bm.py" "$RUNNER_TEMP/bm.$l" | head -10; exit 1; }; done
+            echo "seed $seed: $n mutated bitcoin-header cases, $PORTS give the same answer"
           done
       - name: Each port's own tests
         run: |

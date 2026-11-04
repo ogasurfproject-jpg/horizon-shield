@@ -15,6 +15,13 @@ package nenrinverify
 //                      sha256 to a Bitcoin block header (not_yet before the batch or before the anchor)
 // resume-admission <endpoint> <record_sha256>: 1 resume, 2 admission_line, 3 admission_record, 4 ledger_batch,
 // 5 bitcoin_anchor.
+//
+// --bitcoin-header (either command, optional): one more step after bitcoin_anchor (7 for furui-day, 6 for
+// resume-admission), bitcoin_header: two block explorers (mempool.space and blockstream.info) name the same block hash
+// at the proof's height and serve the same 80 byte header; the header hashes (sha256d) to that block hash and meets the
+// target its own bits encode; its merkle root is the one the OpenTimestamps proof commits to. Without the flag nothing
+// changes: no explorer is asked. All four ports run ../furui-check-day-v0/bitcoin_header_vectors.json and give the
+// same answers.
 
 import (
 	"bytes"
@@ -26,6 +33,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"math/big"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -38,6 +46,7 @@ import (
 
 // FuruiLedger and FuruiRunner are the only hosts the furui commands read.
 const (
+	furuiHeaderStep  = "bitcoin_header"
 	FuruiLedger      = "https://ledger.horizonshield.dev"
 	FuruiRunner      = "https://furui.horizonshield.dev"
 	FuruiKeysURL     = FuruiLedger + "/.well-known/furui-check-keys.json"
@@ -63,6 +72,14 @@ var (
 	fResSteps   = []string{"resume", "admission_line", "admission_record", "ledger_batch", "bitcoin_anchor"}
 	fAllowHosts = map[string]bool{"ledger.horizonshield.dev": true, "furui.horizonshield.dev": true}
 	otsMagic, _ = hex.DecodeString("004f70656e54696d657374616d7073000050726f6f6600bf89e2e884e89294")
+)
+
+// --bitcoin-header: two Esplora APIs, asked in this order; GET /block-height/<h> and GET /block/<hash>/header
+var (
+	FuruiExplorers = [][2]string{{"mempool", "https://mempool.space/api"}, {"blockstream", "https://blockstream.info/api"}}
+	fExplorerHosts = []string{"mempool.space", "blockstream.info"}
+	fExplorerAllow = map[string]bool{"mempool.space": true, "blockstream.info": true}
+	fHex160        = regexp.MustCompile(`^[0-9a-f]{160}$`)
 )
 
 // ErrNet is a network failure or a URL outside the two hosts (exit 2).
@@ -537,20 +554,29 @@ func FuruiEncComponent(s string) string {
 
 // FuruiHTTPGet is the network: GET only, only the two hosts, no redirects, 30 s.
 func FuruiHTTPGet(raw string) (int, []byte, error) {
+	return fHTTPGet(raw, fAllowHosts, "application/json", 4*1024*1024)
+}
+
+// FuruiHTTPGetExplorer reads one of the two block explorers (--bitcoin-header only): GET only, no redirects, 30 s.
+func FuruiHTTPGetExplorer(raw string) (int, []byte, error) {
+	return fHTTPGet(raw, fExplorerAllow, "text/plain", 4096)
+}
+
+func fHTTPGet(raw string, hosts map[string]bool, accept string, limit int64) (int, []byte, error) {
 	u, err := url.Parse(raw)
-	if err != nil || u.Scheme != "https" || !fAllowHosts[u.Hostname()] || (u.Port() != "" && u.Port() != "443") {
+	if err != nil || u.Scheme != "https" || !hosts[u.Hostname()] || (u.Port() != "" && u.Port() != "443") {
 		return 0, nil, fmt.Errorf("%w: not an allowed URL: %s", ErrNet, raw)
 	}
 	cl := &http.Client{Timeout: 30 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 	req, _ := http.NewRequest("GET", raw, nil)
 	req.Header.Set("user-agent", "nenrin-verify-furui/1")
-	req.Header.Set("accept", "application/json")
+	req.Header.Set("accept", accept)
 	r, err := cl.Do(req)
 	if err != nil {
 		return 0, nil, fmt.Errorf("%w: %s: %v", ErrNet, raw, err)
 	}
 	defer r.Body.Close()
-	body, err := io.ReadAll(io.LimitReader(r.Body, 4*1024*1024))
+	body, err := io.ReadAll(io.LimitReader(r.Body, limit))
 	if err != nil {
 		return 0, nil, fmt.Errorf("%w: %s: %v", ErrNet, raw, err)
 	}
@@ -706,11 +732,146 @@ func fAnchor(r *fRun, n int64, recordSha, recordSchema string, needBlockTime boo
 	return "anchor", "fail", "ots_height_is_not_the_entry_block", nil
 }
 
+// ---- --bitcoin-header: the block header at the proof's height, from two explorers ----
+
+func fSha256d(b []byte) []byte {
+	h := sha256.Sum256(b)
+	h = sha256.Sum256(h[:])
+	return h[:]
+}
+
+func fReversedHex(b []byte) string {
+	r := make([]byte, len(b))
+	for i := range b {
+		r[i] = b[len(b)-1-i]
+	}
+	return hex.EncodeToString(r)
+}
+
+// FuruiBitsTarget is the target a header's compact bits encode, or nil when the bits are negative, zero or wider than
+// 256 bits.
+func FuruiBitsTarget(bits uint32) *big.Int {
+	exp, mant := bits>>24, int64(bits&0x007fffff)
+	if bits&0x00800000 != 0 || mant == 0 || exp > 32 {
+		return nil
+	}
+	if exp >= 3 {
+		return new(big.Int).Lsh(big.NewInt(mant), uint(8*(exp-3)))
+	}
+	return new(big.Int).Rsh(big.NewInt(mant), uint(8*(3-exp)))
+}
+
+// FuruiBitcoinHeader asks the explorers in FuruiExplorers order for the block at height and checks its header against
+// merkleRoot (block explorer order). It returns the state, the code (string or nil) and the facts (nil unless ok); the
+// first difference is the code.
+func FuruiBitcoinHeader(height int64, merkleRoot string, get FuruiGet) (string, Value, Value, error) {
+	var hashes, headers []string
+	for _, ex := range FuruiExplorers {
+		name, base := ex[0], ex[1]
+		s, b, err := get(fmt.Sprintf("%s/block-height/%d", base, height))
+		if err != nil {
+			return "", nil, nil, err
+		}
+		if s != 200 {
+			return "fail", fmt.Sprintf("%s_height_http_%d", name, s), nil, nil
+		}
+		if !fH64.Match(b) {
+			return "fail", name + "_hash_shape", nil, nil
+		}
+		t := string(b)
+		s, b, err = get(base + "/block/" + t + "/header")
+		if err != nil {
+			return "", nil, nil, err
+		}
+		if s != 200 {
+			return "fail", fmt.Sprintf("%s_header_http_%d", name, s), nil, nil
+		}
+		if !fHex160.Match(b) {
+			return "fail", name + "_header_shape", nil, nil
+		}
+		hashes = append(hashes, t)
+		headers = append(headers, string(b))
+	}
+	if hashes[0] != hashes[1] {
+		return "fail", "explorers_name_different_blocks", nil, nil
+	}
+	if headers[0] != headers[1] {
+		return "fail", "explorers_serve_different_headers", nil, nil
+	}
+	hb, _ := hex.DecodeString(headers[0])
+	bh := fReversedHex(fSha256d(hb))
+	if bh != hashes[0] {
+		return "fail", "header_hash_is_not_the_named_block", nil, nil
+	}
+	target := FuruiBitsTarget(uint32(hb[72]) | uint32(hb[73])<<8 | uint32(hb[74])<<16 | uint32(hb[75])<<24)
+	if target == nil {
+		return "fail", "header_bits_shape", nil, nil
+	}
+	if hv, _ := new(big.Int).SetString(bh, 16); hv.Cmp(target) > 0 {
+		return "fail", "header_hash_above_its_target", nil, nil
+	}
+	if fReversedHex(hb[36:68]) != merkleRoot {
+		return "fail", "header_merkle_root_is_not_the_proof", nil, nil
+	}
+	ex := &Array{}
+	for _, h := range fExplorerHosts {
+		ex.Items = append(ex.Items, h)
+	}
+	return "ok", nil, fFacts("block_hash", bh, "header", headers[0], "explorers", ex), nil
+}
+
+// fHeaderStep is the step after bitcoin_anchor, when the flag is given: skipped unless the anchor step is ok.
+func fHeaderStep(r *fRun, headerGet FuruiGet) error {
+	if len(r.steps) == 0 || r.steps[len(r.steps)-1].Name != "bitcoin_anchor" || r.steps[len(r.steps)-1].State != "ok" {
+		return nil
+	}
+	h, _ := fInt(fGet(r.facts, "bitcoin_block"), 1)
+	m, _ := fStr(fGet(r.facts, "merkle_root"))
+	state, code, facts, err := FuruiBitcoinHeader(h, m, headerGet)
+	if err != nil {
+		return err
+	}
+	r.facts.set("bitcoin_header", facts)
+	r.put(state, code)
+	return nil
+}
+
+// FuruiOpts are the options of FuruiDayWith and ResumeAdmissionWith. BitcoinHeader adds the step bitcoin_header;
+// HeaderGet reads the explorers (FuruiHTTPGetExplorer when nil).
+type FuruiOpts struct {
+	BitcoinHeader bool
+	HeaderGet     FuruiGet
+}
+
+func (o FuruiOpts) steps(base []string) []string {
+	s := append([]string{}, base...)
+	if o.BitcoinHeader {
+		s = append(s, furuiHeaderStep)
+	}
+	return s
+}
+
+func (o FuruiOpts) headerGet() FuruiGet {
+	if o.HeaderGet != nil {
+		return o.HeaderGet
+	}
+	return FuruiHTTPGetExplorer
+}
+
 // FuruiDay runs the six checks on leaf i of day.
 func FuruiDay(day string, leaf int64, get FuruiGet) (*FuruiResult, error) {
-	r := &fRun{get: get, names: fDaySteps}
+	return FuruiDayWith(day, leaf, get, FuruiOpts{})
+}
+
+// FuruiDayWith is FuruiDay with the options (--bitcoin-header adds step 7).
+func FuruiDayWith(day string, leaf int64, get FuruiGet, o FuruiOpts) (*FuruiResult, error) {
+	r := &fRun{get: get, names: o.steps(fDaySteps)}
 	r.facts = fFacts("day", day, "leaf", float64(leaf), "record_sha256", nil, "n", nil, "root", nil, "ledger_entry", nil, "bitcoin_block", nil, "merkle_root", nil)
 	args := fFacts("day", day, "leaf", float64(leaf))
+	if o.BitcoinHeader {
+		r.facts.set("bitcoin_header", nil)
+		args.set("bitcoin_header", true)
+	}
 	done := func() (*FuruiResult, error) { return r.result("furui-day", args), nil }
 	// 1 envelope_shape
 	s, a, err := r.getj(fmt.Sprintf("%s/furui/day/%s/leaf/%d", FuruiRunner, day, leaf))
@@ -946,6 +1107,11 @@ func FuruiDay(day string, leaf int64, get FuruiGet) (*FuruiResult, error) {
 		return nil, err
 	}
 	r.put(st, code)
+	if o.BitcoinHeader {
+		if err := fHeaderStep(r, o.headerGet()); err != nil {
+			return nil, err
+		}
+	}
 	return done()
 }
 
@@ -976,9 +1142,18 @@ func fLineClosed(ln Value) bool {
 
 // ResumeAdmission checks one admissions[] line of the Resume of endpoint against the ledger.
 func ResumeAdmission(endpoint, recordSha string, get FuruiGet) (*FuruiResult, error) {
-	r := &fRun{get: get, names: fResSteps}
+	return ResumeAdmissionWith(endpoint, recordSha, get, FuruiOpts{})
+}
+
+// ResumeAdmissionWith is ResumeAdmission with the options (--bitcoin-header adds step 6).
+func ResumeAdmissionWith(endpoint, recordSha string, get FuruiGet, o FuruiOpts) (*FuruiResult, error) {
+	r := &fRun{get: get, names: o.steps(fResSteps)}
 	r.facts = fFacts("endpoint", endpoint, "record_sha256", recordSha, "resume_sha256", nil, "ledger_entry", nil, "bitcoin_block", nil, "merkle_root", nil)
 	args := fFacts("endpoint", endpoint, "record_sha256", recordSha)
+	if o.BitcoinHeader {
+		r.facts.set("bitcoin_header", nil)
+		args.set("bitcoin_header", true)
+	}
 	done := func() (*FuruiResult, error) { return r.result("resume-admission", args), nil }
 	// 1 resume
 	s, rv, err := r.getj(FuruiLedger + "/resume?endpoint=" + FuruiEncComponent(endpoint))
@@ -1131,6 +1306,11 @@ func ResumeAdmission(endpoint, recordSha string, get FuruiGet) (*FuruiResult, er
 		state, code = "fail", "entry_listed_by_the_resume_is_not_anchored"
 	}
 	r.put(state, code)
+	if o.BitcoinHeader {
+		if err := fHeaderStep(r, o.headerGet()); err != nil {
+			return nil, err
+		}
+	}
 	return done()
 }
 
@@ -1209,16 +1389,27 @@ func FuruiRunCase(c Value) (Value, error) {
 	}
 	w, _ := fObj(fGet(c, "world"))
 	g := FuruiWorldGet(w)
+	if cmd == "bitcoin-header" {
+		h, _ := fInt(fGet(a, "height"), 0)
+		m, _ := fStr(fGet(a, "merkle_root"))
+		state, code, facts, err := FuruiBitcoinHeader(h, m, g)
+		if err != nil {
+			return nil, err
+		}
+		return fFacts("state", state, "code", code, "facts", facts), nil
+	}
+	bh, _ := fGet(a, "bitcoin_header").(bool)
+	o := FuruiOpts{BitcoinHeader: bh, HeaderGet: g}
 	var res *FuruiResult
 	var err error
 	if cmd == "furui-day" {
 		d, _ := fStr(fGet(a, "day"))
 		l, _ := fInt(fGet(a, "leaf"), 0)
-		res, err = FuruiDay(d, l, g)
+		res, err = FuruiDayWith(d, l, g, o)
 	} else {
 		e, _ := fStr(fGet(a, "endpoint"))
 		s, _ := fStr(fGet(a, "record_sha256"))
-		res, err = ResumeAdmission(e, s, g)
+		res, err = ResumeAdmissionWith(e, s, g, o)
 	}
 	if err != nil {
 		return nil, err

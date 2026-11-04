@@ -1,5 +1,7 @@
 package dev.horizonshield.nenrin;
 
+import java.io.InputStream;
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -35,6 +37,13 @@ import java.util.regex.Pattern;
  * in the ledger's /.well-known/furui-check-keys.json, inside from_height), 6 bitcoin_anchor (the record is in a ledger
  * batch entry whose OpenTimestamps proof reaches a Bitcoin block header; not_yet before). resume-admission: 1 resume,
  * 2 admission_line, 3 admission_record, 4 ledger_batch, 5 bitcoin_anchor.
+ *
+ * <p>--bitcoin-header (either command, optional) adds one step after bitcoin_anchor (7 for furui-day, 6 for
+ * resume-admission), bitcoin_header: two block explorers (mempool.space and blockstream.info) name the same block hash
+ * at the proof's height and serve the same 80 byte header; the header hashes (sha256d) to that block hash and meets the
+ * target its own bits encode; its merkle root is the one the OpenTimestamps proof commits to. Without the flag nothing
+ * changes: no explorer is asked. All four ports run furui-check-day-v0/bitcoin_header_vectors.json and give the same
+ * answers.
  */
 public final class Furui {
     private Furui() {}
@@ -57,6 +66,11 @@ public final class Furui {
     static final List<String> DAY_STEPS = Arrays.asList("envelope_shape", "leaf_sha256", "audit_path", "signature", "runner_key", "bitcoin_anchor");
     static final List<String> RES_STEPS = Arrays.asList("resume", "admission_line", "admission_record", "ledger_batch", "bitcoin_anchor");
     static final Set<String> HOSTS = new HashSet<>(Arrays.asList("ledger.horizonshield.dev", "furui.horizonshield.dev"));
+    static final String HEADER_STEP = "bitcoin_header";
+    /** --bitcoin-header: two Esplora APIs, asked in this order; GET /block-height/&lt;h&gt; and GET /block/&lt;hash&gt;/header */
+    static final List<String[]> EXPLORERS = Arrays.asList(new String[] {"mempool", "https://mempool.space/api"}, new String[] {"blockstream", "https://blockstream.info/api"});
+    static final List<String> EXPLORER_HOSTS = Arrays.asList("mempool.space", "blockstream.info");
+    static final Pattern HEX160 = Pattern.compile("^[0-9a-f]{160}$");
 
     /** A network failure, or a URL outside the two hosts (exit 2). */
     public static final class NetError extends Exception {
@@ -331,6 +345,27 @@ public final class Furui {
         }
     };
 
+    /** One of the two block explorers (--bitcoin-header only): GET only, no redirects, at most 4096 bytes read. */
+    public static final Getter HTTP_EXPLORER = url -> {
+        URI u;
+        try {
+            u = new URI(url);
+        } catch (Exception e) {
+            throw new NetError("not an allowed URL: " + url);
+        }
+        if (!"https".equals(u.getScheme()) || u.getHost() == null || !EXPLORER_HOSTS.contains(u.getHost()) || (u.getPort() != -1 && u.getPort() != 443)) throw new NetError("not an allowed URL: " + url);
+        try {
+            HttpClient c = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).connectTimeout(Duration.ofSeconds(30)).build();
+            HttpRequest r = HttpRequest.newBuilder(u).GET().timeout(Duration.ofSeconds(30)).header("user-agent", "nenrin-verify-furui/1").header("accept", "text/plain").build();
+            HttpResponse<InputStream> res = c.send(r, HttpResponse.BodyHandlers.ofInputStream());
+            try (InputStream in = res.body()) {
+                return new Object[] {res.statusCode(), in.readNBytes(4096)};
+            }
+        } catch (Exception e) {
+            throw new NetError(url + ": " + e);
+        }
+    };
+
     // ---- the run ----
 
     static final Object NOT_JSON = new Object();
@@ -416,10 +451,80 @@ public final class Furui {
         return new String[] {"anchor", "fail", "ots_height_is_not_the_entry_block"};
     }
 
-    public static Map<String, Object> furuiDay(String day, long leaf, Getter g) throws NetError {
-        Run run = new Run(g, DAY_STEPS);
+    // ---- --bitcoin-header: the block header at the proof's height, from two explorers ----
+
+    static byte[] sha256d(byte[] b) { return sha256(sha256(b)); }
+
+    static String reversedHex(byte[] b, int from, int to) {
+        byte[] r = new byte[to - from];
+        for (int i = 0; i < r.length; i++) r[i] = b[to - 1 - i];
+        return hex(r);
+    }
+
+    /** The target a header's compact bits encode, or null when the bits are negative, zero or wider than 256 bits. */
+    public static BigInteger bitsTarget(long bits) {
+        long exp = bits >>> 24, mant = bits & 0x007fffffL;
+        if ((bits & 0x00800000L) != 0 || mant == 0 || exp > 32) return null;
+        return exp >= 3 ? BigInteger.valueOf(mant).shiftLeft((int) (8 * (exp - 3))) : BigInteger.valueOf(mant).shiftRight((int) (8 * (3 - exp)));
+    }
+
+    /** [state, code or null, facts or null]. The explorers are asked in EXPLORERS order; the first difference is the code. */
+    public static Object[] bitcoinHeader(long height, String merkleRoot, Getter g) throws NetError {
+        List<String> hashes = new ArrayList<>(), headers = new ArrayList<>();
+        for (String[] ex : EXPLORERS) {
+            String name = ex[0], base = ex[1];
+            Object[] r = g.get(base + "/block-height/" + height);
+            if (status(r) != 200) return new Object[] {"fail", name + "_height_http_" + status(r), null};
+            String t = new String((byte[]) r[1], StandardCharsets.ISO_8859_1);
+            if (!H64.matcher(t).matches()) return new Object[] {"fail", name + "_hash_shape", null};
+            r = g.get(base + "/block/" + t + "/header");
+            if (status(r) != 200) return new Object[] {"fail", name + "_header_http_" + status(r), null};
+            String x = new String((byte[]) r[1], StandardCharsets.ISO_8859_1);
+            if (!HEX160.matcher(x).matches()) return new Object[] {"fail", name + "_header_shape", null};
+            hashes.add(t);
+            headers.add(x);
+        }
+        if (!hashes.get(0).equals(hashes.get(1))) return new Object[] {"fail", "explorers_name_different_blocks", null};
+        if (!headers.get(0).equals(headers.get(1))) return new Object[] {"fail", "explorers_serve_different_headers", null};
+        byte[] hb = unhex(headers.get(0));
+        byte[] d = sha256d(hb);
+        String bh = reversedHex(d, 0, d.length);
+        if (!bh.equals(hashes.get(0))) return new Object[] {"fail", "header_hash_is_not_the_named_block", null};
+        long bits = (hb[72] & 0xffL) | (hb[73] & 0xffL) << 8 | (hb[74] & 0xffL) << 16 | (hb[75] & 0xffL) << 24;
+        BigInteger target = bitsTarget(bits);
+        if (target == null) return new Object[] {"fail", "header_bits_shape", null};
+        if (new BigInteger(bh, 16).compareTo(target) > 0) return new Object[] {"fail", "header_hash_above_its_target", null};
+        if (!reversedHex(hb, 36, 68).equals(merkleRoot)) return new Object[] {"fail", "header_merkle_root_is_not_the_proof", null};
+        return new Object[] {"ok", null, obj("block_hash", bh, "header", headers.get(0), "explorers", new ArrayList<Object>(EXPLORER_HOSTS))};
+    }
+
+    /** the step after bitcoin_anchor, when the flag is given: skipped unless the anchor step is ok */
+    static void headerStep(Run run, Getter hg) throws NetError {
+        if (run.steps.isEmpty()) return;
+        Object[] last = run.steps.get(run.steps.size() - 1);
+        if (!"bitcoin_anchor".equals(last[1]) || !"ok".equals(last[2])) return;
+        Object[] h = bitcoinHeader(Json.asInt(run.facts.get("bitcoin_block")), (String) run.facts.get("merkle_root"), hg);
+        run.facts.put("bitcoin_header", nz(h[2]));
+        run.put((String) h[0], (String) h[1]);
+    }
+
+    static List<String> steps(List<String> base, boolean bitcoinHeader) {
+        List<String> s = new ArrayList<>(base);
+        if (bitcoinHeader) s.add(HEADER_STEP);
+        return s;
+    }
+
+    public static Map<String, Object> furuiDay(String day, long leaf, Getter g) throws NetError { return furuiDay(day, leaf, g, false, HTTP_EXPLORER); }
+
+    /** furuiDay with --bitcoin-header (step 7) when bitcoinHeader; headerGet reads the explorers. */
+    public static Map<String, Object> furuiDay(String day, long leaf, Getter g, boolean bitcoinHeader, Getter headerGet) throws NetError {
+        Run run = new Run(g, steps(DAY_STEPS, bitcoinHeader));
         run.facts = obj("day", day, "leaf", (double) leaf, "record_sha256", Json.NULL, "n", Json.NULL, "root", Json.NULL, "ledger_entry", Json.NULL, "bitcoin_block", Json.NULL, "merkle_root", Json.NULL);
         Map<String, Object> args = obj("day", day, "leaf", (double) leaf);
+        if (bitcoinHeader) {
+            run.facts.put("bitcoin_header", Json.NULL);
+            args.put("bitcoin_header", true);
+        }
         String cmd = "furui-day";
         // 1 envelope_shape
         Object[] r = run.getj(RUNNER + "/furui/day/" + day + "/leaf/" + leaf);
@@ -534,6 +639,7 @@ public final class Furui {
         if (!strEq(get(lr, "status"), "anchored") || le == null) { run.put("not_yet", "not_in_an_anchored_batch_yet"); return run.result(cmd, args); }
         String[] an6 = anchor(run, le, rs, "furui-check-day-v0", false);
         run.put(an6[1], an6[2]);
+        if (bitcoinHeader) headerStep(run, headerGet);
         return run.result(cmd, args);
     }
 
@@ -563,11 +669,18 @@ public final class Furui {
         return false;
     }
 
+    public static Map<String, Object> resumeAdmission(String endpoint, String recordSha, Getter g) throws NetError { return resumeAdmission(endpoint, recordSha, g, false, HTTP_EXPLORER); }
+
+    /** resumeAdmission with --bitcoin-header (step 6) when bitcoinHeader; headerGet reads the explorers. */
     @SuppressWarnings("unchecked")
-    public static Map<String, Object> resumeAdmission(String endpoint, String recordSha, Getter g) throws NetError {
-        Run run = new Run(g, RES_STEPS);
+    public static Map<String, Object> resumeAdmission(String endpoint, String recordSha, Getter g, boolean bitcoinHeader, Getter headerGet) throws NetError {
+        Run run = new Run(g, steps(RES_STEPS, bitcoinHeader));
         run.facts = obj("endpoint", endpoint, "record_sha256", recordSha, "resume_sha256", Json.NULL, "ledger_entry", Json.NULL, "bitcoin_block", Json.NULL, "merkle_root", Json.NULL);
         Map<String, Object> args = obj("endpoint", endpoint, "record_sha256", recordSha);
+        if (bitcoinHeader) {
+            run.facts.put("bitcoin_header", Json.NULL);
+            args.put("bitcoin_header", true);
+        }
         String cmd = "resume-admission";
         // 1 resume
         Object[] r = run.getj(LEDGER + "/resume?endpoint=" + encComponent(endpoint));
@@ -641,6 +754,7 @@ public final class Furui {
         run.put("ok", null);
         if (an[1].equals("not_yet")) run.put("fail", "entry_listed_by_the_resume_is_not_anchored");
         else run.put(an[1], an[2]);
+        if (bitcoinHeader) headerStep(run, headerGet);
         return run.result(cmd, args);
     }
 
@@ -679,7 +793,12 @@ public final class Furui {
             }
         }
         Getter g = worldGetter(get(c, "world"));
-        if (cmd.equals("furui-day")) return summary(furuiDay((String) get(a, "day"), integer(get(a, "leaf"), 0), g));
-        return summary(resumeAdmission((String) get(a, "endpoint"), (String) get(a, "record_sha256"), g));
+        if (cmd.equals("bitcoin-header")) {
+            Object[] h = bitcoinHeader(integer(get(a, "height"), 0), (String) get(a, "merkle_root"), g);
+            return obj("state", h[0], "code", nz(h[1]), "facts", nz(h[2]));
+        }
+        boolean bh = Boolean.TRUE.equals(get(a, "bitcoin_header"));
+        if (cmd.equals("furui-day")) return summary(furuiDay((String) get(a, "day"), integer(get(a, "leaf"), 0), g, bh, g));
+        return summary(resumeAdmission((String) get(a, "endpoint"), (String) get(a, "record_sha256"), g, bh, g));
     }
 }

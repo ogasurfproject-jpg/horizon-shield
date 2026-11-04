@@ -3,12 +3,13 @@
 //
 //	go install github.com/ogasurfproject-jpg/horizon-shield/workers/hs-ledger/nenrin/sdk-go/cmd/nenrin-verify@latest
 //
-//	nenrin-verify furui-day <YYYY-MM-DD> --leaf <i>
-//	nenrin-verify resume-admission <https endpoint> <record_sha256>
-//	nenrin-verify furui-vectors <verify_vectors.json>
+//	nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--bitcoin-header]
+//	nenrin-verify resume-admission <https endpoint> <record_sha256> [--bitcoin-header]
+//	nenrin-verify furui-vectors <verify_vectors.json | bitcoin_header_vectors.json>
 //
 // Exit 0 ok, 1 fail, 3 not_yet, 2 usage or network error. The network is GET only, only https://ledger.horizonshield.dev
-// and https://furui.horizonshield.dev, with no redirects.
+// and https://furui.horizonshield.dev, with no redirects; with --bitcoin-header also https://mempool.space and
+// https://blockstream.info (four GETs, sending only the block height and the block hash).
 package main
 
 import (
@@ -21,7 +22,7 @@ import (
 	nv "github.com/ogasurfproject-jpg/horizon-shield/workers/hs-ledger/nenrin/sdk-go/nenrinverify"
 )
 
-const usage = "usage: nenrin-verify furui-day <YYYY-MM-DD> --leaf <i>\n       nenrin-verify resume-admission <https endpoint> <record_sha256>\n       nenrin-verify furui-vectors <vectors.json>"
+const usage = "usage: nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--bitcoin-header]\n       nenrin-verify resume-admission <https endpoint> <record_sha256> [--bitcoin-header]\n       nenrin-verify furui-vectors <vectors.json>"
 
 var (
 	leafRe = regexp.MustCompile(`^(0|[1-9][0-9]{0,8})$`)
@@ -33,15 +34,28 @@ func main() { os.Exit(run(os.Args[1:])) }
 func run(a []string) int {
 	var res *nv.FuruiResult
 	var err error
+	var o nv.FuruiOpts
+	if len(a) > 0 && (a[0] == "furui-day" || a[0] == "resume-admission") {
+		n, at := 0, 0
+		for i, x := range a[1:] {
+			if x == "--bitcoin-header" {
+				n, at = n+1, i+1
+			}
+		}
+		if n == 1 {
+			a = append(append([]string{}, a[:at]...), a[at+1:]...)
+			o.BitcoinHeader = true
+		}
+	}
 	switch {
 	case len(a) == 1 && (a[0] == "--version" || a[0] == "-V"):
 		fmt.Printf("nenrin-verify (go) %s\n", nv.PortVersion)
 		return 0
 	case len(a) == 4 && a[0] == "furui-day" && a[2] == "--leaf" && nv.FuruiRealDay(a[1]) && leafRe.MatchString(a[3]):
 		leaf, _ := strconv.ParseInt(a[3], 10, 64)
-		res, err = nv.FuruiDay(a[1], leaf, nv.FuruiHTTPGet)
+		res, err = nv.FuruiDayWith(a[1], leaf, nv.FuruiHTTPGet, o)
 	case len(a) == 3 && a[0] == "resume-admission" && httpRe.MatchString(a[1]) && nv.FuruiHex64(a[2]) && nv.FuruiHost(a[1]) != "":
-		res, err = nv.ResumeAdmission(a[1], a[2], nv.FuruiHTTPGet)
+		res, err = nv.ResumeAdmissionWith(a[1], a[2], nv.FuruiHTTPGet, o)
 	case len(a) == 2 && a[0] == "furui-vectors":
 		return vectors(a[1])
 	default:

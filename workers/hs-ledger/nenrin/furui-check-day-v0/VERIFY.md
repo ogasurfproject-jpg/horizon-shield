@@ -49,7 +49,7 @@ check is a fail with `day_closed_empty`: there is no leaf to check.
 | 4 | ledger_batch | the entry ledger_n hashes to its claim and lists the record as `a2a-admission-v0` |
 | 5 | bitcoin_anchor | the entry is anchored, and its OpenTimestamps proof reaches a Bitcoin attestation at the entry's block height |
 
-## --bitcoin-header: the block header from two explorers (0.9.0, Python and JavaScript)
+## --bitcoin-header: the block header from two explorers (npm 0.9.0 and PyPI; Go 0.5.0, Java 0.2.0)
 
 Without the flag nothing changes: no other host is asked, and the steps and facts are the ones above. With it, one
 more step follows bitcoin_anchor (step 7 of furui-day, step 6 of resume-admission), and the network is two more hosts,
@@ -67,8 +67,8 @@ mempool.space first: `mempool_height_http_<status>`, `mempool_hash_shape`, `memp
 `header_hash_above_its_target`, `header_merkle_root_is_not_the_proof`. On ok the facts carry `bitcoin_header`:
 the block hash, the header and the two explorers. An explorer that cannot be reached exits 2, as the ledger does.
 
-Python and JavaScript give the same answers on `bitcoin_header_vectors.json` and on mutations of it; the Go and Java
-ports take the flag in their next version and do not run that file yet. `make_bitcoin_header_vectors.py` writes it
+The four ports give the same answers on `bitcoin_header_vectors.json`, and Python and JavaScript also on mutations of
+it; CI runs the file in every port and compares the answers line by line. `make_bitcoin_header_vectors.py` writes it
 (`--check` says whether the file is what it writes); it holds the real header of block 970879, the block the real
 proof of ledger entry 80 reaches, as both explorers served it on 2026-11-03.
 
