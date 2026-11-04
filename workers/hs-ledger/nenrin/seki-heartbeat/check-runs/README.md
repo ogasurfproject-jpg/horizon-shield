@@ -1,0 +1,7 @@
+# The SEKI door's check call through MUSUBI
+
+Once a day at 03:47 UTC the door sends its fixed check request: the content check runner (FURUI) checks it, the door (SEKI) admits it, the public ledger (NENRIN) holds the admission. check_loop.py files the execution record under the check contract (../check-contract.json) at the MUSUBI intake, and once Bitcoin has confirmed both records the day is settled with MUSUBI settle v1.19. TOOSHI reads index.json every day. Principal, contractor and relying party are all The HORIZONs Co., Ltd., and the contractor's key is made from a public label.
+
+| day (UTC) | admission record | execution | settlement |
+|---|---|---|---|
+| 2026-11-03 | 413fcf06 | 56a2f439 | waiting for Bitcoin |
