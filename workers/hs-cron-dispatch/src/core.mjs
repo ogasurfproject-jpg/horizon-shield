@@ -6,6 +6,8 @@
 // seki-heartbeat 21:17 at 00:10 to 02:56 the next day, jidec-stamp hourly came 1 to 6 times a day instead of 24).
 // Cloudflare cron triggers fire on time, so this Worker calls GitHub's workflow_dispatch at the times the workflows
 // name. The GitHub schedules stay as a late fallback; every workflow here does nothing when its day is already done.
+// 0.2.0 (2026-11-04): ots-nightly.yml at 19:10 UTC with mode=nightly (nenrin-verify 0.9.0, v090). Until that workflow is
+// on main, GitHub answers its dispatch 404; like any 4xx that is written down as failed and not retried.
 //
 // Rules this file keeps:
 //   - One POST /repos/{repo}/actions/workflows/{file}/dispatches per job and cron slot. A slot is claimed in the log
@@ -18,7 +20,7 @@
 //   - Every decision is written to the log, one record per UTC day, served at GET /log?day=YYYY-MM-DD; GET /status
 //     says, per job, the last result and whether the last ok dispatch is older than its period plus a grace.
 
-export const VERSION = "0.1.0";
+export const VERSION = "0.2.0";
 export const REPO = "ogasurfproject-jpg/horizon-shield";
 export const REF = "main";
 export const USER_AGENT = "hs-cron-dispatch/" + VERSION + " (+https://github.com/" + REPO + "/tree/main/workers/hs-cron-dispatch)";
@@ -30,7 +32,7 @@ export const LOG_KEEP_DAYS = 400;
 export const SELFCHECK_EVERY_MS = 10 * 60 * 1000;
 
 // The cron lines of wrangler.jsonc, UTC. The test checks that wrangler.jsonc says exactly these.
-export const CRONS = ["17 * * * *", "37 1 * * *", "23 3 * * *", "5,35 4 * * *"];
+export const CRONS = ["17 * * * *", "37 1 * * *", "23 3 * * *", "5,35 4 * * *", "10 19 * * *"];
 
 // hour null: every hour at that minute. inputs(ms): the workflow_dispatch inputs; each workflow declares them.
 export const JOBS = [
@@ -40,6 +42,7 @@ export const JOBS = [
   { id: "issuer-keys", file: "issuer-keys.yml", hour: 3, minute: 23, period_h: 24, inputs: () => ({ slot: "cron" }) },
   { id: "tooshi-daily", file: "tooshi-daily.yml", hour: 4, minute: 5, period_h: 24, inputs: () => ({ slot: "schedule" }) },
   { id: "tooshi-daily-second", file: "tooshi-daily.yml", hour: 4, minute: 35, period_h: 24, inputs: () => ({ slot: "second" }) },
+  { id: "ots-nightly", file: "ots-nightly.yml", hour: 19, minute: 10, period_h: 24, inputs: () => ({ mode: "nightly" }) },
   { id: "seki-heartbeat", file: "seki-heartbeat.yml", hour: 21, minute: 17, period_h: 24, inputs: () => ({}) }
 ];
 // /status calls a job late when its last ok dispatch is older than period_h plus this.

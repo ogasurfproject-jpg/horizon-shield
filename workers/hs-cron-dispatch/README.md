@@ -16,6 +16,7 @@ day; jidec-stamp, hourly, came 1 to 6 times a day). The GitHub schedules stay in
 | 03:23 | 12:23 | `issuer-keys.yml` | `slot=cron` | step `decide`: nothing when today's observation and its `.ots` are on main |
 | 04:05 | 13:05 | `tooshi-daily.yml` | `slot=schedule` | decided like the 04:05 cron: nothing when `tooshi/days/<day>.json` is on main, nothing before 03:47 |
 | 04:35 | 13:35 | `tooshi-daily.yml` | `slot=second` | decided like the 04:35 cron |
+| 19:10 | 04:10 | `ots-nightly.yml` | `mode=nightly` | decide: nothing when `ots-nightly/nights/<night>.json` is on main (0.2.0; until the workflow is on main GitHub answers 404, written down as failed, not retried) |
 | 21:17 | 06:17 | `seki-heartbeat.yml` | none | `heartbeat.py run` and `check_loop.py file` write a day once ("already ran") |
 
 A run by hand (`workflow_dispatch` with `slot` empty) runs as before.

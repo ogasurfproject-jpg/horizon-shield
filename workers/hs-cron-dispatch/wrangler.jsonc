@@ -20,8 +20,10 @@
   //   37 1 * * *    receipt-anchor (the day before)
   //   23 3 * * *    issuer-keys
   //   5,35 4 * * *  tooshi-daily (04:05 as schedule, 04:35 as second)
+  //   10 19 * * *   ots-nightly (mode nightly; once a night, the workflow does nothing when the night is on main)
+  // Cloudflare limits Cron Triggers per account (Workers Paid 250, Free 5); no limit per Worker is documented.
   "triggers": {
-    "crons": ["17 * * * *", "37 1 * * *", "23 3 * * *", "5,35 4 * * *"]
+    "crons": ["17 * * * *", "37 1 * * *", "23 3 * * *", "5,35 4 * * *", "10 19 * * *"]
   },
 
   // The log: one SQLite backed Durable Object (one instance). One record per UTC day, 400 days. No token, no headers.
