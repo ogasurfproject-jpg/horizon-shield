@@ -26,13 +26,25 @@ A run by hand (`workflow_dispatch` with `slot` empty) runs as before.
 - One call per job and cron minute. The slot is claimed in the log (a SQLite backed Durable Object) before the call,
   so a second invocation of the same minute calls nothing and is written down as `duplicate_slot`.
 - `204` (or `200`) is ok. A `4xx` is written down and not retried. A network error or `5xx` is retried once after 3 s.
+- 0.3.0: if the 3 s retry also gets no answer or a `5xx`, the slot is called again at +5 min and, if needed, at +15 min
+  from the slot time (not from the failure), one call each, by the Durable Object alarm. No cron line is added (the
+  account's 5 Free Cron Triggers are all used). A `4xx` on a retry ends it. The retry claims nothing: it belongs to the
+  slot's first claim, so the same cron minute arriving again during the wait is still `duplicate_slot`, and a queued
+  retry is taken off the queue before its call, so an alarm that runs twice calls once. Why: on 2026-11-04 the
+  jidec-stamp slot 11:17 UTC met GitHub answering `500` from 11:16 to 11:18 and was failed after both calls.
+- The log keeps every record: the first `failed` stays, and each retry writes its own record with `via: "alarm"`,
+  `retry: 1` or `2`, `after_failed_slot: true`, and `retry_next` while another call is still due.
 - The token is never written to the log, never served, and is replaced by `[token]` in any error text.
 - Nothing can be started from outside: the Worker answers `GET` only.
 
 ## Reading it
 
-- `GET /status`: per job the last result, the last ok slot, failures in the last 3 days, and `late` (no ok dispatch
-  within its period plus 1 h). `late_jobs` and `failed_in_view` at the top.
+- `GET /status`: per job the last result, the last ok slot and the time that dispatch was made, failures in the last
+  3 days, and `late` (no ok dispatch made within its period plus 1 h, counted from the time of the dispatch, so a slot
+  ok on its +15 min retry is late 15 min later). `late_jobs`, `failed_in_view` and `retrying_in_view` at the top.
+  `failed_in_view` counts slots that got no ok dispatch at the slot nor on a retry; a slot ok on a retry is not a
+  failure, although its first `failed` record stays in `/log`. A slot whose retry is still due is in
+  `retrying_in_view`, and moves to `failed_in_view` if its retry record has not come 30 min after the due time.
 - `GET /log?day=YYYY-MM-DD`: every decision of that UTC day.
 - `GET /selfcheck`: one read only GitHub call with the token (the metadata of `jidec-stamp.yml`), at most once per 10
   minutes; `github_http: 200` means the token reaches the repository's Actions.

@@ -8,6 +8,9 @@
 // name. The GitHub schedules stay as a late fallback; every workflow here does nothing when its day is already done.
 // 0.2.0 (2026-11-04): ots-nightly.yml at 19:10 UTC with mode=nightly (nenrin-verify 0.9.0, v090). Until that workflow is
 // on main, GitHub answers its dispatch 404; like any 4xx that is written down as failed and not retried.
+// 0.3.0 (2026-11-04): a slot that still has no answer or a 5xx after the 3 s retry is tried again at +5 and +15 minutes
+// from the slot time, by the Durable Object alarm (no new cron line; the account's 5 Free Cron Triggers are all used).
+// Why: jidec-stamp 11:17 UTC on 11-04 met GitHub answering 500 from 11:16 to 11:18 and was failed after two calls.
 //
 // Rules this file keeps:
 //   - One POST /repos/{repo}/actions/workflows/{file}/dispatches per job and cron slot. A slot is claimed in the log
@@ -16,11 +19,19 @@
 //   - 204 (or 200) is ok. 4xx is written down and not retried (a wrong token or a missing input does not heal by
 //     itself). A network error or 5xx is retried once after RETRY_WAIT_MS; the workflows are idempotent per day, so a
 //     dispatch that GitHub took although the answer was lost costs one extra run that does nothing.
+//   - If that retry also gets no answer or a 5xx, the slot is queued in the Durable Object and called once more at
+//     RETRY_AFTER_MIN[0] and, if still no answer or a 5xx, at RETRY_AFTER_MIN[1] minutes after the slot time (not after
+//     the failure). A retry is part of the slot's first claim: it claims nothing, so a cron invocation of the same
+//     minute during the wait is still duplicate_slot, and the queued item is taken off the queue before its call, so
+//     an alarm that runs twice calls once. The first failed record stays in the log; the retry writes its own record
+//     with retry: 1 or 2 and after_failed_slot: true.
 //   - The token is never written to the log, never served, and never put in an error text.
 //   - Every decision is written to the log, one record per UTC day, served at GET /log?day=YYYY-MM-DD; GET /status
 //     says, per job, the last result and whether the last ok dispatch is older than its period plus a grace.
+//     failed_in_view counts slots that never got an ok dispatch (a slot ok on a retry is not a failure), and a slot
+//     whose retry is still waiting is counted in retrying_in_view instead, until RETRY_STALE_MS after its due time.
 
-export const VERSION = "0.2.0";
+export const VERSION = "0.3.0";
 export const REPO = "ogasurfproject-jpg/horizon-shield";
 export const REF = "main";
 export const USER_AGENT = "hs-cron-dispatch/" + VERSION + " (+https://github.com/" + REPO + "/tree/main/workers/hs-cron-dispatch)";
@@ -30,6 +41,10 @@ export const RETRY_WAIT_MS = 3000;
 export const FETCH_TIMEOUT_MS = 20000;
 export const LOG_KEEP_DAYS = 400;
 export const SELFCHECK_EVERY_MS = 10 * 60 * 1000;
+// Delayed retries, in minutes after the slot time. One call each, no 3 s retry inside.
+export const RETRY_AFTER_MIN = [5, 15];
+// A queued retry whose record has not come RETRY_STALE_MS after its due time is taken as lost (failed) by /status.
+export const RETRY_STALE_MS = 30 * 60 * 1000;
 
 // The cron lines of wrangler.jsonc, UTC. The test checks that wrangler.jsonc says exactly these.
 export const CRONS = ["17 * * * *", "37 1 * * *", "23 3 * * *", "5,35 4 * * *", "10 19 * * *"];
@@ -70,20 +85,35 @@ export function cronMinutes(expr) {
 
 // ---- the log -------------------------------------------------------------------------------------------------------
 // store: { getDay(day) -> {day, slots:[...], entries:[...]} | null, claim(day, slot, entry) -> bool, append(day, entry),
-//          getMeta(key) -> any, putMeta(key, value) }. Production: the Durable Object in worker.js. Tests: memoryStore().
+//          getMeta(key) -> any, putMeta(key, value),
+//          queueRetry(item) (one item per job@slot; the alarm is set to the earliest due),
+//          takeDueRetries(now) -> [item] (removed from the queue before they are returned; the alarm moves on) }.
+// A retry item: { key: job@slot, job, slot, day, ms (the slot's scheduledTime), step (1 or 2), due (ms) }. No token.
+// Production: the Durable Object in worker.js. Tests: memoryStore().
 
 export function memoryStore() {
-  const days = new Map(), meta = new Map();
+  const days = new Map(), meta = new Map(), retries = new Map();
   const day0 = (d) => { if (!days.has(d)) days.set(d, { day: d, slots: [], entries: [] }); return days.get(d); };
-  return {
-    _days: days, _meta: meta,
-    async getDay(d) { return days.has(d) ? JSON.parse(JSON.stringify(days.get(d))) : null; },
+  const cp = (v) => JSON.parse(JSON.stringify(v));
+  const s = {
+    _days: days, _meta: meta, _retries: retries, _alarm: null,
+    async getDay(d) { return days.has(d) ? cp(days.get(d)) : null; },
     async claim(d, slot, entry) { const x = day0(d); if (x.slots.includes(slot)) return false; x.slots.push(slot); x.entries.push(entry); return true; },
     async append(d, entry) { day0(d).entries.push(entry); },
-    async getMeta(k) { return meta.has(k) ? JSON.parse(JSON.stringify(meta.get(k))) : null; },
-    async putMeta(k, v) { meta.set(k, JSON.parse(JSON.stringify(v))); }
+    async getMeta(k) { return meta.has(k) ? cp(meta.get(k)) : null; },
+    async putMeta(k, v) { meta.set(k, cp(v)); },
+    async queueRetry(item) { retries.set(item.key, cp(item)); s._alarm = earliestDue([...retries.values()]); },
+    async takeDueRetries(now) {
+      const due = [...retries.values()].filter((x) => x.due <= now).sort((a, b) => a.due - b.due);
+      for (const x of due) retries.delete(x.key);
+      s._alarm = earliestDue([...retries.values()]);
+      return cp(due);
+    }
   };
+  return s;
 }
+
+export function earliestDue(items) { return items.length ? Math.min(...items.map((x) => x.due)) : null; }
 
 function clip(s, n) { return String(s == null ? "" : s).replace(/[\r\n\t]+/g, " ").slice(0, n); }
 function scrub(s, token) { let t = String(s == null ? "" : s); if (token) t = t.split(token).join("[token]"); return t; }
@@ -114,12 +144,15 @@ async function callOnce(doFetch, req, token) {
   }
 }
 
-export async function dispatchJob({ job, ms, token, doFetch, sleep }) {
+export function retryable(http) { return http === 0 || http >= 500; }
+
+// once: a delayed retry calls one time only (no 3 s retry inside).
+export async function dispatchJob({ job, ms, token, doFetch, sleep, once = false }) {
   const req = dispatchRequest(job, ms, token);
   const tries = [];
   let r = await callOnce(doFetch, req, token);
   tries.push(r);
-  if (r.http === 0 || r.http >= 500) {
+  if (!once && retryable(r.http)) {
     await (sleep || sleepReal)(RETRY_WAIT_MS);
     r = await callOnce(doFetch, req, token);
     tries.push(r);
@@ -159,10 +192,54 @@ export async function runCron({ store, token, cron, scheduledTime, now, doFetch,
     }
     const d = await dispatchJob({ job, ms, token, doFetch, sleep });
     const e = { ...base, result: d.ok ? "dispatched" : "failed", http: d.http, tries: d.tries, inputs: d.inputs };
-    if (!d.ok) e.why = d.http >= 400 && d.http < 500 ? "GitHub refused the dispatch (not retried)" : "no answer or a server error twice";
+    if (!d.ok && !retryable(d.http)) e.why = "GitHub refused the dispatch (not retried)";
+    if (!d.ok && retryable(d.http)) {
+      const due = retryDue(ms, 1);
+      e.why = "no answer or a server error twice; called again at +" + RETRY_AFTER_MIN[0] + " min from the slot";
+      e.retry_next = new Date(due).toISOString();
+      await store.queueRetry({ key, job: job.id, slot, day, ms, step: 1, due });
+    }
     await store.append(day, e);
     if (!d.ok) console.error("hs-cron-dispatch: " + job.id + " " + slot + " failed http " + d.http + " " + (d.tries[d.tries.length - 1] || {}).body);
-    out.push({ job: job.id, result: e.result, http: d.http });
+    out.push({ job: job.id, result: e.result, http: d.http, ...(e.retry_next ? { retry_next: e.retry_next } : {}) });
+  }
+  return out;
+}
+
+// ---- the delayed retries (the Durable Object alarm) ----------------------------------------------------------------
+
+// The due time of retry step 1 or 2: the slot's scheduled time plus RETRY_AFTER_MIN, never the time of the failure.
+export function retryDue(slotMs, step) { return slotMs + RETRY_AFTER_MIN[step - 1] * 60000; }
+
+export async function runRetries({ store, token, now, doFetch }) {
+  const items = await store.takeDueRetries(now);
+  const out = [];
+  const at = new Date(now).toISOString();
+  for (const it of items) {
+    const job = JOBS.find((j) => j.id === it.job);
+    const base = { at, slot: it.slot, cron: null, via: "alarm", job: it.job, file: job ? job.file : null, retry: it.step, after_failed_slot: true };
+    if (!job) {
+      await store.append(it.day, { ...base, result: "failed", http: null, why: "this job is no longer in JOBS; retry dropped" });
+      out.push({ job: it.job, slot: it.slot, retry: it.step, result: "failed" });
+      continue;
+    }
+    if (!token) {
+      await store.append(it.day, { ...base, result: "failed", http: null, why: "GH_DISPATCH_TOKEN is not set on this Worker any more; retry dropped" });
+      out.push({ job: it.job, slot: it.slot, retry: it.step, result: "failed" });
+      continue;
+    }
+    const d = await dispatchJob({ job, ms: it.ms, token, doFetch, once: true });
+    const e = { ...base, result: d.ok ? "dispatched" : "failed", http: d.http, tries: d.tries, inputs: d.inputs };
+    if (!d.ok && !retryable(d.http)) e.why = "GitHub refused the dispatch on retry " + it.step + " (not retried)";
+    else if (!d.ok && it.step < RETRY_AFTER_MIN.length) {
+      const due = retryDue(it.ms, it.step + 1);
+      e.why = "no answer or a server error on retry " + it.step + "; called again at +" + RETRY_AFTER_MIN[it.step] + " min from the slot";
+      e.retry_next = new Date(due).toISOString();
+      await store.queueRetry({ ...it, step: it.step + 1, due });
+    } else if (!d.ok) e.why = "no answer or a server error at the slot and at +" + RETRY_AFTER_MIN.join(" and +") + " min; final";
+    await store.append(it.day, e);
+    if (!d.ok) console.error("hs-cron-dispatch: " + it.job + " " + it.slot + " retry " + it.step + " failed http " + d.http + " " + (d.tries[d.tries.length - 1] || {}).body);
+    out.push({ job: it.job, slot: it.slot, retry: it.step, result: e.result, http: d.http, ...(e.retry_next ? { retry_next: e.retry_next } : {}) });
   }
   return out;
 }
@@ -177,17 +254,29 @@ export async function statusView({ store, now, tokenConfigured, lookbackDays = 3
   const jobs = JOBS.map((j) => {
     const mine = entries.filter((e) => e.job === j.id && e.result !== "claimed");
     const last = mine[mine.length - 1] || null;
-    const lastOk = [...mine].reverse().find((e) => e.result === "dispatched") || null;
-    const failures = mine.filter((e) => e.result === "failed").length;
-    const late = !lastOk || now - Date.parse(lastOk.slot) > (j.period_h + GRACE_H) * 3600000;
+    // The last ok dispatch by the time it was made (a retry is made minutes after its slot).
+    const oks = mine.filter((e) => e.result === "dispatched");
+    const lastOk = oks.reduce((a, e) => (!a || Date.parse(e.at) >= Date.parse(a.at) ? e : a), null);
+    // Per slot: ok if any dispatch of it was ok; else the last failed record decides between waiting and failed.
+    const bySlot = new Map();
+    for (const e of mine) if (e.result === "dispatched" || e.result === "failed") { const x = bySlot.get(e.slot) || { ok: false, lastFail: null }; if (e.result === "dispatched") x.ok = true; else x.lastFail = e; bySlot.set(e.slot, x); }
+    let failures = 0, retrying = 0;
+    for (const x of bySlot.values()) {
+      if (x.ok || !x.lastFail) continue;
+      const waiting = x.lastFail.retry_next && now <= Date.parse(x.lastFail.retry_next) + RETRY_STALE_MS;
+      if (waiting) retrying++; else failures++;
+    }
+    const late = !lastOk || now - Date.parse(lastOk.at) > (j.period_h + GRACE_H) * 3600000;
     return { job: j.id, workflow: j.file, at_utc: (j.hour === null ? "every hour" : String(j.hour).padStart(2, "0")) + ":" + String(j.minute).padStart(2, "0"),
-      last: last ? { slot: last.slot, result: last.result, http: last.http ?? null } : null, last_ok_slot: lastOk ? lastOk.slot : null,
-      failures_in_view: failures, late };
+      last: last ? { slot: last.slot, result: last.result, http: last.http ?? null, ...(last.retry ? { retry: last.retry } : {}) } : null,
+      last_ok_slot: lastOk ? lastOk.slot : null, last_ok_at: lastOk ? lastOk.at : null,
+      failures_in_view: failures, retrying_in_view: retrying, late };
   });
   return { worker: "hs-cron-dispatch", version: VERSION, repo: REPO, now: new Date(now).toISOString(), crons_utc: CRONS,
     token_configured: !!tokenConfigured, days_in_view: days, late_jobs: jobs.filter((j) => j.late).map((j) => j.job),
-    failed_in_view: jobs.reduce((a, j) => a + j.failures_in_view, 0), jobs,
-    note: "late: no ok dispatch within the job's period plus " + GRACE_H + " h (in the days in view). The GitHub schedules stay as a late fallback; a job here that is late or failed still runs from GitHub's own cron, hours late." };
+    failed_in_view: jobs.reduce((a, j) => a + j.failures_in_view, 0), retrying_in_view: jobs.reduce((a, j) => a + j.retrying_in_view, 0),
+    retry_after_min: RETRY_AFTER_MIN, jobs,
+    note: "late: no ok dispatch made within the job's period plus " + GRACE_H + " h (in the days in view). failed_in_view: slots with no ok dispatch at the slot or on a retry (+" + RETRY_AFTER_MIN.join(" and +") + " min); the failed record of a slot ok on a retry stays in the log and is not counted. retrying_in_view: slots whose retry is still due. The GitHub schedules stay as a late fallback; a job here that is late or failed still runs from GitHub's own cron, hours late." };
 }
 
 export function validDay(s) { return typeof s === "string" && DAY_RE.test(s) && !Number.isNaN(Date.parse(s + "T00:00:00Z")); }

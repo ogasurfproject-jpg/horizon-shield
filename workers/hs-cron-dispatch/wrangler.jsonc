@@ -22,6 +22,7 @@
   //   5,35 4 * * *  tooshi-daily (04:05 as schedule, 04:35 as second)
   //   10 19 * * *   ots-nightly (mode nightly; once a night, the workflow does nothing when the night is on main)
   // Cloudflare limits Cron Triggers per account (Workers Paid 250, Free 5); no limit per Worker is documented.
+  // The retries at +5 and +15 min (0.3.0) use the Durable Object alarm below, not a cron line.
   "triggers": {
     "crons": ["17 * * * *", "37 1 * * *", "23 3 * * *", "5,35 4 * * *", "10 19 * * *"]
   },

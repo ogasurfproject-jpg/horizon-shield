@@ -1,10 +1,11 @@
 // hs-cron-dispatch: Cloudflare cron triggers that start time-bound GitHub workflows with workflow_dispatch (2026-11-04).
 // The rules are in core.mjs (tested by node without the network). This file only wires them to Cloudflare:
 // the scheduled handler, the public GET handler, and the log as one SQLite backed Durable Object (one instance, "log").
+// 0.3.0: the same Durable Object keeps the queue of delayed retries ("retry:" keys) and its alarm calls them.
 // Secret (owner only, never in this file or in GitHub): GH_DISPATCH_TOKEN, a fine-grained token for
 // ogasurfproject-jpg/horizon-shield only, with the repository permission Actions: read and write and nothing else.
 import { DurableObject } from "cloudflare:workers";
-import { runCron, handleFetch, utcDay, LOG_KEEP_DAYS } from "./core.mjs";
+import { runCron, runRetries, handleFetch, utcDay, earliestDue, LOG_KEEP_DAYS } from "./core.mjs";
 
 export class DispatchLog extends DurableObject {
   async getDay(day) { return (await this.ctx.storage.get("day:" + day)) || null; }
@@ -32,13 +33,42 @@ export class DispatchLog extends DurableObject {
     const old = await this.ctx.storage.list({ prefix: "day:", end: "day:" + cut, limit: 50 });
     if (old.size) await this.ctx.storage.delete([...old.keys()]);
   }
+  // The retry queue: one key per job@slot. One alarm per object, so it is always set to the earliest due item.
+  async queueRetry(item) {
+    await this.ctx.storage.put("retry:" + item.key, item);
+    await this.armAlarm();
+  }
+  // Due items are deleted before they are returned (and so before their call): an alarm that runs again calls nothing.
+  async takeDueRetries(now) {
+    const all = await this.ctx.storage.list({ prefix: "retry:" });
+    const due = [...all.values()].filter((x) => x.due <= now).sort((a, b) => a.due - b.due);
+    if (due.length) await this.ctx.storage.delete(due.map((x) => "retry:" + x.key));
+    await this.armAlarm();
+    return due;
+  }
+  async armAlarm() {
+    const next = earliestDue([...(await this.ctx.storage.list({ prefix: "retry:" })).values()]);
+    if (next === null) await this.ctx.storage.deleteAlarm();
+    else await this.ctx.storage.setAlarm(next);
+  }
+  async alarm() {
+    try {
+      const r = await runRetries({ store: this, token: (this.env.GH_DISPATCH_TOKEN || "").trim(), now: Date.now(), doFetch: fetch });
+      console.log("hs-cron-dispatch: alarm " + JSON.stringify(r));
+    } catch (e) {
+      // Thrown again so Cloudflare runs the alarm again; items already taken are not in the queue and are not called twice.
+      console.error("hs-cron-dispatch: alarm failed: " + String((e && e.message) || e));
+      throw e;
+    }
+  }
 }
 
 function store(env) {
   const s = env.LOG.get(env.LOG.idFromName("log"));
   return {
     getDay: (d) => s.getDay(d), claim: (d, k, e) => s.claim(d, k, e), append: (d, e) => s.append(d, e),
-    getMeta: (k) => s.getMeta(k), putMeta: (k, v) => s.putMeta(k, v)
+    getMeta: (k) => s.getMeta(k), putMeta: (k, v) => s.putMeta(k, v),
+    queueRetry: (it) => s.queueRetry(it), takeDueRetries: (now) => s.takeDueRetries(now)
   };
 }
 
