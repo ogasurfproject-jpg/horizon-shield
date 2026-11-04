@@ -76,6 +76,7 @@ jobs:
           git commit -m "chore: note 連載の公開記録"
           for i in 1 2 3; do
             if git pull --rebase origin main && git push; then exit 0; fi
+            git rebase --abort 2>/dev/null || true
             sleep 5
           done
           echo "::warning::公開の記録を push できなかった。明日同じ回がもう一度出るおそれがある"

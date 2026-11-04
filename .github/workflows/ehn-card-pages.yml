@@ -46,6 +46,7 @@ jobs:
           ok=0
           for i in 1 2 3; do
             if git pull --rebase origin main && git push; then ok=1; break; fi
+            git rebase --abort 2>/dev/null || true
             sleep 5
           done
           [ "$ok" = 1 ] || exit 1

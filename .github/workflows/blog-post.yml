@@ -37,7 +37,9 @@ jobs:
             if git pull --rebase origin main && git push origin HEAD:main; then
               echo "pushed on attempt $attempt"; exit 0
             fi
-            echo "push attempt $attempt failed; retrying in 3s..."; sleep 3
+            echo "push attempt $attempt failed; retrying in 3s..."
+            git rebase --abort 2>/dev/null || true
+            sleep 3
           done
           echo "ERROR: push failed after 5 attempts"; exit 1
 

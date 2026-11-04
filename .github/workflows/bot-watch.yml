@@ -54,6 +54,7 @@ jobs:
           git commit -m "status: bot watch $(date -u +%Y-%m-%d)"
           for i in 1 2 3; do
             if git pull --rebase origin main && git push; then exit 0; fi
+            git rebase --abort 2>/dev/null || true
             sleep 5
           done
           echo "push failed 3 times"

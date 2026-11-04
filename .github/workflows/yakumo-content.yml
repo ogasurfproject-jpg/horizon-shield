@@ -165,9 +165,14 @@ jobs:
           echo "変わった頁: $CHANGED_PAGES / $COUNT 枚"
           git commit -m "$INDUSTRY: auto-publish, ${CHANGED_PAGES} of ${COUNT} pages changed (門を通過)"
           ok=0
+          # 2026-11-04. 前は git push だけを 4 回打ち直していた。main に別の commit が先に入ると
+          # rejected (fetch first) は何回打っても同じで、記録が残らない(2026-11-01 の survey-observatory と同じ穴)。
+          # だから毎回 pull --rebase をしてから push し、rebase が途中で止まったら戻してから待つ。
           for i in 1 2 3 4; do
-            if git push origin main; then ok=1; break; fi
-            echo "push retry $i"; sleep $((2**i))
+            if git pull --rebase origin main && git push origin main; then ok=1; break; fi
+            echo "push retry $i"
+            git rebase --abort 2>/dev/null || true
+            sleep $((2**i))
           done
           [ "$ok" = 1 ] || { echo "::error::push failed 4 times"; exit 1; }
           echo "published=true" >> "$GITHUB_OUTPUT"
