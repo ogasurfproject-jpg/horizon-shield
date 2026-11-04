@@ -15,8 +15,8 @@ admission as the Résumé lists it, back to the ledger.
 pip install nenrin-verify            # Python, then: nenrin-verify furui-day 2026-11-03 --leaf 0
 npx nenrin-verify furui-day 2026-11-03 --leaf 0
 
-nenrin-verify furui-day <YYYY-MM-DD> --leaf <i>
-nenrin-verify resume-admission <https endpoint> <record_sha256>
+nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--bitcoin-header]
+nenrin-verify resume-admission <https endpoint> <record_sha256> [--bitcoin-header]
 nenrin-verify furui-vectors verify_vectors.json
 ```
 
@@ -49,10 +49,39 @@ check is a fail with `day_closed_empty`: there is no leaf to check.
 | 4 | ledger_batch | the entry ledger_n hashes to its claim and lists the record as `a2a-admission-v0` |
 | 5 | bitcoin_anchor | the entry is anchored, and its OpenTimestamps proof reaches a Bitcoin attestation at the entry's block height |
 
+## --bitcoin-header: the block header from two explorers (0.9.0, Python and JavaScript)
+
+Without the flag nothing changes: no other host is asked, and the steps and facts are the ones above. With it, one
+more step follows bitcoin_anchor (step 7 of furui-day, step 6 of resume-admission), and the network is two more hosts,
+mempool.space and blockstream.info (four GETs: `/api/block-height/<height>` and `/api/block/<hash>/header` on each,
+sending only the block height and the block hash).
+
+| step | name | what is checked |
+|---|---|---|
+| 7 (6) | bitcoin_header | (a) both explorers name the same block hash at the height the proof reaches and serve the same 80 byte header (160 lowercase hex characters, nothing else); (b) the header's merkle root is the one the OpenTimestamps proof commits to; (c) sha256d of the header is that block hash, and the hash meets the target the header's own bits encode |
+
+The step runs only when bitcoin_anchor is ok (otherwise it is `skipped`). Its codes name the first difference, asking
+mempool.space first: `mempool_height_http_<status>`, `mempool_hash_shape`, `mempool_header_http_<status>`,
+`mempool_header_shape` (the same four for blockstream), `explorers_name_different_blocks`,
+`explorers_serve_different_headers`, `header_hash_is_not_the_named_block`, `header_bits_shape`,
+`header_hash_above_its_target`, `header_merkle_root_is_not_the_proof`. On ok the facts carry `bitcoin_header`:
+the block hash, the header and the two explorers. An explorer that cannot be reached exits 2, as the ledger does.
+
+Python and JavaScript give the same answers on `bitcoin_header_vectors.json` and on mutations of it; the Go and Java
+ports take the flag in their next version and do not run that file yet. `make_bitcoin_header_vectors.py` writes it
+(`--check` says whether the file is what it writes); it holds the real header of block 970879, the block the real
+proof of ledger entry 80 reaches, as both explorers served it on 2026-11-03.
+
 ## What these commands do not establish
 
-- The Bitcoin block header is not fetched (the network is only the two hosts above). The facts name the block height
-  and the merkle root the proof commits to; compare them with any copy of the Bitcoin chain, or run `ots verify`.
+- Without `--bitcoin-header`, the Bitcoin block header is not fetched (the network is only the two hosts above). The
+  facts name the block height and the merkle root the proof commits to; compare them with any copy of the Bitcoin
+  chain, or run `ots verify`.
+- With `--bitcoin-header`, that the header is in the chain with the most work. The step believes two explorers that
+  agree: it does not follow the chain from a checkpoint, does not compare the bits with the difficulty of that height,
+  and cannot see the height inside a header (the height is what the explorers say). Two explorers that serve the same
+  made up header, with bits easy enough, pass it. A Bitcoin node of your own, or `ots verify` against one, does not
+  have this limit.
 - Whether a check was right. A signature says the runner signed it, not that the answer is true.
 - `revoked` in a Resume line is copied, not recomputed.
 - Only sha256, append and prepend are followed in a proof; any other operation is a fail (`ots_parse`), not a guess.

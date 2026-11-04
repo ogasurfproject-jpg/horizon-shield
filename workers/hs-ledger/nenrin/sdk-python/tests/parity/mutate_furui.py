@@ -1,7 +1,8 @@
 """Mutations of the shared furui vectors: every JSON body of every world, one value at a time replaced by a value of
 another type (or removed), a string value given a character before or after it or put in uppercase (a 64 hex value
-with a trailing "\n" passed Python's re.match and "$" before 0.8.1, and nowhere else), and the OpenTimestamps proofs
-cut or flipped at one byte. Seeded, so every port reads the
+with a trailing "\n" passed Python's re.match and "$" before 0.8.1, and nowhere else), the OpenTimestamps proofs
+cut or flipped at one byte, and a body that is not JSON (a block explorer's hash or header, in
+bitcoin_header_vectors.json) cut, extended or changed at one character. Seeded, so every port reads the
 same mutated cases. Written as a vectors file without expect: the ports are compared with each other, not with a
 frozen answer.
 
@@ -74,7 +75,23 @@ def main(a):
                     nw = dict(c["world"], **{url: {"status": 200, "body_b64": base64.b64encode(bytes(m)).decode()}})
                     cases.append({"name": "%s | %s | ots %d" % (c["name"], url, j), "command": c["command"], "args": c["args"], "world": nw})
                 continue
-            body = json.loads(w["body"])
+            try:
+                body = json.loads(w["body"])
+            except ValueError:
+                t = w["body"]
+                for j in range(per):
+                    i = rnd.randrange(len(t) + 1)
+                    k = j % 4
+                    if k == 0:
+                        m = t[:i]
+                    elif k == 1:
+                        m = t + rnd.choice(["\n", " ", "0", "\r\n"])
+                    else:
+                        m = t[:i] + rnd.choice(["0", "f", "F", "g", "\n", " ", "\u00e9", ""]) + t[i + 1:]
+                    st = w["status"] if rnd.random() < 0.9 else rnd.choice([404, 429, 500])
+                    nw = dict(c["world"], **{url: {"status": st, "body": m}})
+                    cases.append({"name": "%s | %s | text %d" % (c["name"], url, j), "command": c["command"], "args": c["args"], "world": nw})
+                continue
             ps = list(paths(body))
             for j in range(per):
                 p = ps[rnd.randrange(len(ps))]

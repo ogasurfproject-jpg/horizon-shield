@@ -169,6 +169,14 @@ Bitcoin) → Résumé. TOOSHI checks the whole chain every day, and TSUGI (継) 
 `furui-day` checks one FURUI leaf up to the NENRIN ledger and its Bitcoin anchor; `resume-admission` checks one SEKI
 admission as the Résumé lists it, back to the ledger.
 
+## 0.9.0
+
+- `furui-day` and `resume-admission` take `--bitcoin-header`: after the anchor, the block header at the proof's height from
+  mempool.space and blockstream.info; both must serve the same header, its merkle root must be the proof's and its
+  sha256d the block hash, at or under the target its own bits name. Without the flag no other host is asked. Python and
+  JavaScript give the same answers on `../furui-check-day-v0/bitcoin_header_vectors.json`; Go and Java take the flag in
+  their next version.
+
 ## 0.8.1
 
 - `furui-day` and `resume-admission` read every 64 hex value (each sha256, the audit path, the day record's root, a

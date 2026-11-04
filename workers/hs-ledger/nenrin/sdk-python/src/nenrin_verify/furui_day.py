@@ -22,9 +22,21 @@
   nenrin-verify furui-vectors <vectors.json>
       Run the shared vectors (the same file the JavaScript, Go and Java ports run) and print one line per case.
 
+  --bitcoin-header (either command, optional)
+      One more step after bitcoin_anchor (7 for furui-day, 6 for resume-admission):
+        bitcoin_header     two block explorers (mempool.space and blockstream.info) name the same block hash at the
+                           proof's height and serve the same 80 byte header; the header hashes (sha256d) to that
+                           block hash and meets the target its own bits encode; its merkle root is the one the
+                           OpenTimestamps proof commits to
+      Without the flag nothing changes: no explorer is asked, the steps and facts are those above.
+      Python and JavaScript give the same answers on furui-check-day-v0/bitcoin_header_vectors.json; the Go and Java
+      ports take the flag in their next version.
+
 Exit: 0 ok, 1 fail, 3 not_yet, 2 usage or network error. Network: GET only, only https://ledger.horizonshield.dev and
-https://furui.horizonshield.dev, no redirects. The Bitcoin block header itself is not fetched: the output names the
-block height and the merkle root the proof commits to, to be compared with any copy of the Bitcoin chain.
+https://furui.horizonshield.dev, no redirects; with --bitcoin-header also https://mempool.space and
+https://blockstream.info (four GETs, sending only the block height and the block hash). Without the flag the Bitcoin
+block header is not fetched: the output names the block height and the merkle root the proof commits to, to be
+compared with any copy of the Bitcoin chain.
 """
 import base64
 import datetime
@@ -57,6 +69,10 @@ UNANCHORED = ("not_yet_anchored", "confirmed_without_block_time")
 CHECK_SCHEMA = "nenrin-furui-check-v1"
 DAY_STEPS = ["envelope_shape", "leaf_sha256", "audit_path", "signature", "runner_key", "bitcoin_anchor"]
 RESUME_STEPS = ["resume", "admission_line", "admission_record", "ledger_batch", "bitcoin_anchor"]
+HEADER_STEP = "bitcoin_header"
+# --bitcoin-header: two Esplora APIs, asked in this order; GET /block-height/<h> and GET /block/<hash>/header
+EXPLORERS = (("mempool", "https://mempool.space/api"), ("blockstream", "https://blockstream.info/api"))
+EXPLORER_HOSTS = ("mempool.space", "blockstream.info")
 
 
 class NetError(Exception):
@@ -367,21 +383,34 @@ def _enc_component(s):
 
 def http_get(url, timeout=30):
     """(status, body bytes). GET only, only the two hosts, no redirects."""
+    return _http_get(url, ALLOWED_HOSTS, "application/json", 4 * 1024 * 1024, timeout)
+
+
+def http_get_explorer(url, timeout=30):
+    """(status, body bytes) from one of the two block explorers (--bitcoin-header only). GET only, no redirects."""
+    return _http_get(url, EXPLORER_HOSTS, "text/plain", 4096, timeout)
+
+
+def _http_get(url, hosts, accept, limit, timeout):
     import urllib.error
     import urllib.parse
     import urllib.request
-    u = urllib.parse.urlsplit(url)
-    if u.scheme != "https" or u.hostname not in ALLOWED_HOSTS or u.port not in (None, 443):
+    try:
+        u = urllib.parse.urlsplit(url)
+        port = u.port
+    except ValueError:
+        raise NetError("not an allowed URL: " + url)
+    if u.scheme != "https" or u.hostname not in hosts or port not in (None, 443):
         raise NetError("not an allowed URL: " + url)
 
     class NoRedirect(urllib.request.HTTPRedirectHandler):
         def redirect_request(self, *a, **k):
             return None
     op = urllib.request.build_opener(NoRedirect)
-    req = urllib.request.Request(url, headers={"user-agent": "nenrin-verify-furui/1", "accept": "application/json"})
+    req = urllib.request.Request(url, headers={"user-agent": "nenrin-verify-furui/1", "accept": accept})
     try:
         with op.open(req, timeout=timeout) as r:
-            return r.status, r.read(4 * 1024 * 1024)
+            return r.status, r.read(limit)
     except urllib.error.HTTPError as e:
         return e.code, e.read(1024 * 1024)
     except (urllib.error.URLError, OSError, ValueError) as e:
@@ -454,10 +483,75 @@ def _anchor(run, n, record_sha, record_schema, need_block_time):
     return ("anchor", "ok", None)
 
 
-def furui_day(day, leaf, get=http_get):
-    run = _Run(get, DAY_STEPS)
+# ---- --bitcoin-header: the block header at the proof's height, from two explorers ----
+HEX64 = re.compile(r"[0-9a-f]{64}")
+HEX160 = re.compile(r"[0-9a-f]{160}")
+
+
+def sha256d(b):
+    return hashlib.sha256(hashlib.sha256(b).digest()).digest()
+
+
+def bits_target(bits):
+    """the target a header's compact bits encode, or None when the bits are negative, zero or wider than 256 bits"""
+    exp, mant = bits >> 24, bits & 0x007FFFFF
+    if bits & 0x00800000 or mant == 0 or exp > 32:
+        return None
+    return mant << (8 * (exp - 3)) if exp >= 3 else mant >> (8 * (3 - exp))
+
+
+def bitcoin_header(height, merkle_root, get=http_get_explorer):
+    """-> (state, code, facts or None). The explorers are asked in EXPLORERS order; the first difference is the code."""
+    hashes, headers = [], []
+    for name, base in EXPLORERS:
+        s, b = get(base + "/block-height/%d" % height)
+        if s != 200:
+            return "fail", "%s_height_http_%d" % (name, s), None
+        t = bytes(b).decode("latin-1")
+        if not HEX64.fullmatch(t):
+            return "fail", name + "_hash_shape", None
+        s, b = get(base + "/block/" + t + "/header")
+        if s != 200:
+            return "fail", "%s_header_http_%d" % (name, s), None
+        x = bytes(b).decode("latin-1")
+        if not HEX160.fullmatch(x):
+            return "fail", name + "_header_shape", None
+        hashes.append(t)
+        headers.append(x)
+    if hashes[0] != hashes[1]:
+        return "fail", "explorers_name_different_blocks", None
+    if headers[0] != headers[1]:
+        return "fail", "explorers_serve_different_headers", None
+    hb = bytes.fromhex(headers[0])
+    bh = sha256d(hb)[::-1].hex()
+    if bh != hashes[0]:
+        return "fail", "header_hash_is_not_the_named_block", None
+    target = bits_target(int.from_bytes(hb[72:76], "little"))
+    if target is None:
+        return "fail", "header_bits_shape", None
+    if int(bh, 16) > target:
+        return "fail", "header_hash_above_its_target", None
+    if hb[36:68][::-1].hex() != merkle_root:
+        return "fail", "header_merkle_root_is_not_the_proof", None
+    return "ok", None, {"block_hash": bh, "header": headers[0], "explorers": list(EXPLORER_HOSTS)}
+
+
+def _header_step(run, header_get):
+    """the step after bitcoin_anchor, when the flag is given: skipped unless the anchor step is ok"""
+    if not run.steps or run.steps[-1]["name"] != "bitcoin_anchor" or run.steps[-1]["state"] != "ok":
+        return
+    state, code, facts = bitcoin_header(run.facts["bitcoin_block"], run.facts["merkle_root"], header_get)
+    run.facts["bitcoin_header"] = facts
+    run.put(state, code)
+
+
+def furui_day(day, leaf, get=http_get, bitcoin_header=False, header_get=http_get_explorer):
+    run = _Run(get, DAY_STEPS + ([HEADER_STEP] if bitcoin_header else []))
     run.facts = {"day": day, "leaf": leaf, "record_sha256": None, "n": None, "root": None, "ledger_entry": None, "bitcoin_block": None, "merkle_root": None}
     args = {"day": day, "leaf": leaf}
+    if bitcoin_header:
+        run.facts["bitcoin_header"] = None
+        args["bitcoin_header"] = True
     # 1 envelope_shape
     s, a = run.getj(FURUI + "/furui/day/%s/leaf/%d" % (day, leaf))
     if s == 404 and isinstance(a, dict) and a.get("error") == "day_open":
@@ -598,6 +692,8 @@ def furui_day(day, leaf, get=http_get):
         return run.result("furui-day", args)
     part, state, code = _anchor(run, lr["ledger_entry"], rs, "furui-check-day-v0", False)
     run.put(state, code)
+    if bitcoin_header:
+        _header_step(run, header_get)
     return run.result("furui-day", args)
 
 
@@ -610,10 +706,13 @@ def _host(endpoint):
     return h.lower() if h else None
 
 
-def resume_admission(endpoint, record_sha, get=http_get):
-    run = _Run(get, RESUME_STEPS)
+def resume_admission(endpoint, record_sha, get=http_get, bitcoin_header=False, header_get=http_get_explorer):
+    run = _Run(get, RESUME_STEPS + ([HEADER_STEP] if bitcoin_header else []))
     run.facts = {"endpoint": endpoint, "record_sha256": record_sha, "resume_sha256": None, "ledger_entry": None, "bitcoin_block": None, "merkle_root": None}
     args = {"endpoint": endpoint, "record_sha256": record_sha}
+    if bitcoin_header:
+        run.facts["bitcoin_header"] = None
+        args["bitcoin_header"] = True
     # 1 resume
     s, r = run.getj(LEDGER + "/resume?endpoint=" + _enc_component(endpoint))
     if s != 200 or not isinstance(r, dict):
@@ -708,6 +807,8 @@ def resume_admission(endpoint, record_sha, get=http_get):
     if state == "not_yet":
         state, code = "fail", "entry_listed_by_the_resume_is_not_anchored"
     run.put(state, code)
+    if bitcoin_header:
+        _header_step(run, header_get)
     return run.result("resume-admission", args)
 
 
@@ -730,9 +831,24 @@ def summary(res):
 def run_case(c):
     get = world_get(c["world"])
     a = c["args"]
+    bh = a.get("bitcoin_header") is True
     if c["command"] == "furui-day":
-        return furui_day(a["day"], a["leaf"], get)
-    return resume_admission(a["endpoint"], a["record_sha256"], get)
+        return furui_day(a["day"], a["leaf"], get, bitcoin_header=bh, header_get=get)
+    return resume_admission(a["endpoint"], a["record_sha256"], get, bitcoin_header=bh, header_get=get)
+
+
+def case_answer(c):
+    """what a port prints for one case of a vectors file (ots-parse, bitcoin-header, furui-day, resume-admission)"""
+    if c["command"] == "ots-parse":
+        try:
+            d, btc, pend = ots_parse(base64.b64decode(c["args"]["body_b64"]))
+            return {"digest": d.hex(), "bitcoin": [[x, m] for (x, m) in btc], "pending": pend}
+        except _Bad as e:
+            return {"error": str(e)}
+    if c["command"] == "bitcoin-header":
+        state, code, facts = bitcoin_header(c["args"]["height"], c["args"]["merkle_root"], world_get(c["world"]))
+        return {"state": state, "code": code, "facts": facts}
+    return summary(run_case(c))
 
 
 class _Utf8Out:
@@ -752,14 +868,7 @@ def run_vectors(path, out=None):
         doc = parse_json(f.read())
     ok = 0
     for c in doc["cases"]:
-        if c["command"] == "ots-parse":
-            try:
-                d, btc, pend = ots_parse(base64.b64decode(c["args"]["body_b64"]))
-                got = {"digest": d.hex(), "bitcoin": [[x, m] for (x, m) in btc], "pending": pend}
-            except _Bad as e:
-                got = {"error": str(e)}
-        else:
-            got = summary(run_case(c))
+        got = case_answer(c)
         same = "expect" in c and canonical(got) == canonical(c["expect"])
         ok += same
         out.write(canonical({"name": c["name"], "same": same, "got": got}) + "\n")
@@ -767,22 +876,27 @@ def run_vectors(path, out=None):
     return 0 if ok == len(doc["cases"]) else 1
 
 
-USAGE = ("usage: nenrin-verify furui-day <YYYY-MM-DD> --leaf <i>\n"
-         "       nenrin-verify resume-admission <https endpoint> <record_sha256>\n"
+USAGE = ("usage: nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--bitcoin-header]\n"
+         "       nenrin-verify resume-admission <https endpoint> <record_sha256> [--bitcoin-header]\n"
          "       nenrin-verify furui-vectors <vectors.json>")
 EXIT = {"ok": 0, "fail": 1, "not_yet": 3}
 
 
 def main(argv):
+    argv = list(argv)
+    bh = False
+    if argv and argv[0] in ("furui-day", "resume-admission") and argv[1:].count("--bitcoin-header") == 1:
+        argv.remove("--bitcoin-header")
+        bh = True
     try:
         if len(argv) == 4 and argv[0] == "furui-day" and argv[2] == "--leaf":
             if not _real_day(argv[1]) or not re.fullmatch(r"0|[1-9][0-9]{0,8}", argv[3]):
                 raise ValueError
-            res = furui_day(argv[1], int(argv[3]))
+            res = furui_day(argv[1], int(argv[3]), bitcoin_header=bh)
         elif len(argv) == 3 and argv[0] == "resume-admission":
             if not re.fullmatch(r"https://[^\s]+", argv[1]) or not H64.fullmatch(argv[2]) or not _host(argv[1]):
                 raise ValueError
-            res = resume_admission(argv[1], argv[2])
+            res = resume_admission(argv[1], argv[2], bitcoin_header=bh)
         elif len(argv) == 2 and argv[0] == "furui-vectors":
             return run_vectors(argv[1])
         else:

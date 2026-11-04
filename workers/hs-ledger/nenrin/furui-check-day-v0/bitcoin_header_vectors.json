@@ -1,0 +1,1528 @@
+{
+ "about": "Vectors of nenrin-verify --bitcoin-header (furui-day step 7, resume-admission step 6, and the step alone as command bitcoin-header). Python and JavaScript run this file and must give the same expect; the Go and Java ports take the flag in their next version. The explorers are answered by each world. The real header of block 970879 is as mempool.space and blockstream.info served it on 2026-11-03; the other headers are made up, with the easiest bits.",
+ "cases": [
+  {
+   "args": {
+    "height": 970879,
+    "merkle_root": "b321a85fbd104dfbfb3a96e9cbbbd96ca1039afc95e2ec7079b21a5f170822c9"
+   },
+   "command": "bitcoin-header",
+   "expect": {
+    "code": null,
+    "facts": {
+     "block_hash": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "explorers": [
+      "mempool.space",
+      "blockstream.info"
+     ],
+     "header": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8"
+    },
+    "state": "ok"
+   },
+   "name": "header ok: block 970879, the block the real proof of ledger entry 80 reaches",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://mempool.space/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "height": 970879,
+    "merkle_root": "47240e1016c810dcf48166891a385f464ad02af3f99cb3405fa00827c6715359"
+   },
+   "command": "bitcoin-header",
+   "expect": {
+    "code": "header_merkle_root_is_not_the_proof",
+    "facts": null,
+    "state": "fail"
+   },
+   "name": "header fail: the proof's merkle root is not the header's",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://mempool.space/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "height": 970879,
+    "merkle_root": "b321a85fbd104dfbfb3a96e9cbbbd96ca1039afc95e2ec7079b21a5f170822c9"
+   },
+   "command": "bitcoin-header",
+   "expect": {
+    "code": "explorers_serve_different_headers",
+    "facts": null,
+    "state": "fail"
+   },
+   "name": "header fail: blockstream serves another header under the same hash",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e021704030201",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://mempool.space/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "height": 970879,
+    "merkle_root": "b321a85fbd104dfbfb3a96e9cbbbd96ca1039afc95e2ec7079b21a5f170822c9"
+   },
+   "command": "bitcoin-header",
+   "expect": {
+    "code": "explorers_name_different_blocks",
+    "facts": null,
+    "state": "fail"
+   },
+   "name": "header fail: blockstream names another block at the height",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/970879": {
+     "body": "41ebb425967ea04bf964c12c9dcc430215d7d372973a6707699ab6864d82d47b",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/41ebb425967ea04bf964c12c9dcc430215d7d372973a6707699ab6864d82d47b/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c75010000000000000000003a3b0febac2c5ed72b04be8a78d2da59123566f1602a2bd316c08854bfc8fda58827cb6af01e0217eed722b8",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://mempool.space/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "height": 970879,
+    "merkle_root": "b321a85fbd104dfbfb3a96e9cbbbd96ca1039afc95e2ec7079b21a5f170822c9"
+   },
+   "command": "bitcoin-header",
+   "expect": {
+    "code": "mempool_height_http_404",
+    "facts": null,
+    "state": "fail"
+   },
+   "name": "header fail: mempool does not know the height (404)",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8",
+     "status": 200
+    },
+    "https://mempool.space/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "height": 970879,
+    "merkle_root": "b321a85fbd104dfbfb3a96e9cbbbd96ca1039afc95e2ec7079b21a5f170822c9"
+   },
+   "command": "bitcoin-header",
+   "expect": {
+    "code": "blockstream_header_http_503",
+    "facts": null,
+    "state": "fail"
+   },
+   "name": "header fail: blockstream answers 503 for the header",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "",
+     "status": 503
+    },
+    "https://mempool.space/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://mempool.space/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "height": 970879,
+    "merkle_root": "b321a85fbd104dfbfb3a96e9cbbbd96ca1039afc95e2ec7079b21a5f170822c9"
+   },
+   "command": "bitcoin-header",
+   "expect": {
+    "code": "mempool_hash_shape",
+    "facts": null,
+    "state": "fail"
+   },
+   "name": "header fail: mempool's hash ends with a newline",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba\n",
+     "status": 200
+    },
+    "https://mempool.space/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "height": 970879,
+    "merkle_root": "b321a85fbd104dfbfb3a96e9cbbbd96ca1039afc95e2ec7079b21a5f170822c9"
+   },
+   "command": "bitcoin-header",
+   "expect": {
+    "code": "blockstream_header_shape",
+    "facts": null,
+    "state": "fail"
+   },
+   "name": "header fail: blockstream's header in upper case",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002E1E8349F30619E0943CE4F2799EECDB7E25827C7501000000000000000000C92208175F1AB27970ECE295FC9A03A16CD9BBCBE9963AFBFB4D10BD5FA821B38827CB6AF01E0217EED722B8",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://mempool.space/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "height": 970879,
+    "merkle_root": "b321a85fbd104dfbfb3a96e9cbbbd96ca1039afc95e2ec7079b21a5f170822c9"
+   },
+   "command": "bitcoin-header",
+   "expect": {
+    "code": "mempool_header_shape",
+    "facts": null,
+    "state": "fail"
+   },
+   "name": "header fail: mempool's header is one byte short",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://mempool.space/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "height": 970879,
+    "merkle_root": "b321a85fbd104dfbfb3a96e9cbbbd96ca1039afc95e2ec7079b21a5f170822c9"
+   },
+   "command": "bitcoin-header",
+   "expect": {
+    "code": "mempool_hash_shape",
+    "facts": null,
+    "state": "fail"
+   },
+   "name": "header fail: mempool's hash is not ASCII",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/970879": {
+     "body_b64": "/////////////////////////////////////////////////////////////////////////////////////w==",
+     "status": 200
+    },
+    "https://mempool.space/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e0217eed722b8",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "height": 970879,
+    "merkle_root": "b321a85fbd104dfbfb3a96e9cbbbd96ca1039afc95e2ec7079b21a5f170822c9"
+   },
+   "command": "bitcoin-header",
+   "expect": {
+    "code": "header_hash_is_not_the_named_block",
+    "facts": null,
+    "state": "fail"
+   },
+   "name": "header fail: both serve a changed header under the real hash",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c750100000000000000000030867f65121a3520ccc68361114bdd56b5733472cef0832161b97f961f9852928827cb6af01e0217eed722b8",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/970879": {
+     "body": "000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba",
+     "status": 200
+    },
+    "https://mempool.space/api/block/000000000000000000005f12b1e66ebb0dea2224e0b567ab6a099aeae3fd93ba/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c750100000000000000000030867f65121a3520ccc68361114bdd56b5733472cef0832161b97f961f9852928827cb6af01e0217eed722b8",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "height": 970879,
+    "merkle_root": "b321a85fbd104dfbfb3a96e9cbbbd96ca1039afc95e2ec7079b21a5f170822c9"
+   },
+   "command": "bitcoin-header",
+   "expect": {
+    "code": "header_hash_above_its_target",
+    "facts": null,
+    "state": "fail"
+   },
+   "name": "header fail: both agree on a header with the proof's root and the block's bits, but without the work",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/970879": {
+     "body": "676421fbad602176833565cec85ef2812e5e180129dbb7550f69f0d434b0ac80",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/676421fbad602176833565cec85ef2812e5e180129dbb7550f69f0d434b0ac80/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e021707000000",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/970879": {
+     "body": "676421fbad602176833565cec85ef2812e5e180129dbb7550f69f0d434b0ac80",
+     "status": 200
+    },
+    "https://mempool.space/api/block/676421fbad602176833565cec85ef2812e5e180129dbb7550f69f0d434b0ac80/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6af01e021707000000",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "height": 970879,
+    "merkle_root": "b321a85fbd104dfbfb3a96e9cbbbd96ca1039afc95e2ec7079b21a5f170822c9"
+   },
+   "command": "bitcoin-header",
+   "expect": {
+    "code": "header_bits_shape",
+    "facts": null,
+    "state": "fail"
+   },
+   "name": "header fail: both agree on a header whose bits are negative",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/970879": {
+     "body": "ff20cd278a515581bf138e15c622e76701e5d8fa202c3b3965dc0f70682aa30e",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/ff20cd278a515581bf138e15c622e76701e5d8fa202c3b3965dc0f70682aa30e/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6affff801deed722b8",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/970879": {
+     "body": "ff20cd278a515581bf138e15c622e76701e5d8fa202c3b3965dc0f70682aa30e",
+     "status": 200
+    },
+    "https://mempool.space/api/block/ff20cd278a515581bf138e15c622e76701e5d8fa202c3b3965dc0f70682aa30e/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6affff801deed722b8",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "height": 970879,
+    "merkle_root": "b321a85fbd104dfbfb3a96e9cbbbd96ca1039afc95e2ec7079b21a5f170822c9"
+   },
+   "command": "bitcoin-header",
+   "expect": {
+    "code": "header_bits_shape",
+    "facts": null,
+    "state": "fail"
+   },
+   "name": "header fail: both agree on a header whose bits are wider than 256 bits",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/970879": {
+     "body": "dab9cdce1fddf9048fc4a0467290b4a89f6729cc258e381628377a6be96ee96d",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/dab9cdce1fddf9048fc4a0467290b4a89f6729cc258e381628377a6be96ee96d/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6a01000021eed722b8",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/970879": {
+     "body": "dab9cdce1fddf9048fc4a0467290b4a89f6729cc258e381628377a6be96ee96d",
+     "status": 200
+    },
+    "https://mempool.space/api/block/dab9cdce1fddf9048fc4a0467290b4a89f6729cc258e381628377a6be96ee96d/header": {
+     "body": "00800720002e1e8349f30619e0943ce4f2799eecdb7e25827c7501000000000000000000c92208175f1ab27970ece295fc9a03a16cd9bbcbe9963afbfb4d10bd5fa821b38827cb6a01000021eed722b8",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "bitcoin_header": true,
+    "day": "2026-11-03",
+    "leaf": 1
+   },
+   "command": "furui-day",
+   "expect": {
+    "facts": {
+     "bitcoin_block": 971234,
+     "bitcoin_header": {
+      "block_hash": "1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135",
+      "explorers": [
+       "mempool.space",
+       "blockstream.info"
+      ],
+      "header": "00000020807a2634ba0031e0d7e0e2a1d5162e1f35fbce0e62ab5eeda45b115d547b81b4f855e422fc8d770d3d1fbbddcaefb746ddc34a83a686863eb96ea675950abdcf4002df6affff7f2000000000"
+     },
+     "day": "2026-11-03",
+     "leaf": 1,
+     "ledger_entry": 330,
+     "merkle_root": "cfbd0a9575a66eb93e8686a6834ac3dd46b7efcaddbb1f3d0d778dfc22e455f8",
+     "n": 5,
+     "record_sha256": "f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698",
+     "root": "852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974"
+    },
+    "steps": [
+     [
+      1,
+      "ok",
+      null
+     ],
+     [
+      2,
+      "ok",
+      null
+     ],
+     [
+      3,
+      "ok",
+      null
+     ],
+     [
+      4,
+      "ok",
+      null
+     ],
+     [
+      5,
+      "ok",
+      null
+     ],
+     [
+      6,
+      "ok",
+      null
+     ],
+     [
+      7,
+      "ok",
+      null
+     ]
+    ],
+    "verdict": "ok"
+   },
+   "name": "day ok with --bitcoin-header: seven steps, the header holds the proof's merkle root",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/971234": {
+     "body": "1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135/header": {
+     "body": "00000020807a2634ba0031e0d7e0e2a1d5162e1f35fbce0e62ab5eeda45b115d547b81b4f855e422fc8d770d3d1fbbddcaefb746ddc34a83a686863eb96ea675950abdcf4002df6affff7f2000000000",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/0": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 0,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"fce8c4f947b336e3bcdc04b4165915abb909ec8235af0116325d25dcda9960d1\",\n \"envelope_sha256\": \"39e3d39a6452ac873c1b52b5b3d9ad193f9334a6fb327bbdf3f637f5411770ea\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"512ee13b82c511563083d0026868b2b67750c8b13415127663baf8da86fd972d\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"9bf3afd72b63481beac0b54d0375a1cb740d95eae1b0fa35f373d8fbcb17334f\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"2ff8bc76b859dc6292f9a30ff9b9a0ee21eaab354c706f17385d7f6286ff954b\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 100,\n   \"nonce\": \"heartbeat-2026-11-03\",\n   \"signed_at\": \"2026-11-03T03:17:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"K5a97jtOtX3wolkeKfgh/1ZSxSJijto6rvv2z4fGQ/LFd0jVrbIBX3w18dmlpRiMY0soJn2BTkD/HtocdGPVAg==\"\n   }\n  ]\n },\n \"proof\": [\n  \"d1587e4a6aa16f761f55a6a5df6bdb4fb88e7a660f04518f0bc11d0c496d20c6\",\n  \"a3dd718c1d5c2c532c83084786081dfc8f2b08ab8f38b514f41df4acc5c99660\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/1": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 1,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"d1587e4a6aa16f761f55a6a5df6bdb4fb88e7a660f04518f0bc11d0c496d20c6\",\n \"envelope_sha256\": \"577805cd7f5940e2e186ea994c1c8f4ceabb6b63903dfa7c4c846ff3754ff302\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"640d5daca027fd3a4db96f2be80eeb8efe1629b840bb9935a90f40b6c706a533\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"9b23b301b3c65bec2d27ba4e2de66d9bffea4d19bc5b057004c287b36ff5f2a2\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"625abea708c33c370e717ee744eb0ad660e7d8200869df323c22c035d4b41f9e\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 101,\n   \"nonce\": \"0a78009591722cc84825ca95ee7ffa52\",\n   \"signed_at\": \"2026-11-03T03:18:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"tsPZcH8oKQc0x9OT1AafpRtZG/qQK/YnTwjweFqNiP7EjrDZRMKbOX16PDfZ1fFA3VxD14Oidx8BHtvuApDBAQ==\"\n   }\n  ]\n },\n \"proof\": [\n  \"fce8c4f947b336e3bcdc04b4165915abb909ec8235af0116325d25dcda9960d1\",\n  \"a3dd718c1d5c2c532c83084786081dfc8f2b08ab8f38b514f41df4acc5c99660\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/2": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 2,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"6612ebed64fc0b3b5d2dc6823f46a238169172daeaff0a97c93c5f53c3e055c1\",\n \"envelope_sha256\": \"9ae391a64f57813d5c6b107ef5c948205b19eb8d1dbdd7e28179559aa440cdfb\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"7d6a6ef59162c436f2aa51cab3894fcb4a32138a244cfc438619c7671e1a667f\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"a346c665c511a80707c994213c22818fd8df1b2cf4656017ed0e7aee33212089\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"f5ab978ada653d895ed68ebc75aa34bc1f07aeb131f715cddad9163203849962\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 102,\n   \"nonce\": \"626e1e3b6935c66a2c8ab9c84fc3dd55\",\n   \"signed_at\": \"2026-11-03T03:19:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"6Plkgeso8Mtl5mRPKde6GDqPwPiECDzBIv3dwgHXQunirbMNOBSX+QwnopVVy+cAyxOQkmnrFwBjQmGK1dyEAw==\"\n   }\n  ]\n },\n \"proof\": [\n  \"b1dd7e22eb4cc73c1d8db8254859280c24cf24a1e6a5bc945daa65f9dde5fd19\",\n  \"63773eac78ad7aafe4610cec6627df9905edfd2e6dc0fc772165176848f11c2c\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/3": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 3,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"b1dd7e22eb4cc73c1d8db8254859280c24cf24a1e6a5bc945daa65f9dde5fd19\",\n \"envelope_sha256\": \"57b4e75b20dd9b44fe3aba609aa8ae755593d579f4ca95d4fb014591b08682b4\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"ea88d563a9b16842d62d2cf21d2c19bb838abf64764cbf1f791d76ba3cb27458\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"c1b603492b9d79a349df23599318415da76771e51a8604641f27ea33fe8ec2c1\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"f02da165aab5a8cdec9adc017ed099734fd0ccc0864afe9c1a203e9ca737b416\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 103,\n   \"nonce\": \"0f5f924500a4d703b9a480306e2faa6c\",\n   \"signed_at\": \"2026-11-03T03:20:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"Ojg51oPaA3UrdNCF+xO7GD+oqctuBa0HhvPQQQDclGlhNXaDy5fL+/H2REJPuekpTBDkaJpJxZvatNu40vjGBA==\"\n   }\n  ]\n },\n \"proof\": [\n  \"6612ebed64fc0b3b5d2dc6823f46a238169172daeaff0a97c93c5f53c3e055c1\",\n  \"63773eac78ad7aafe4610cec6627df9905edfd2e6dc0fc772165176848f11c2c\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/4": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 4,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\",\n \"envelope_sha256\": \"f1a53d8fe8dbd92655ee139cc269ca4287b830d531c9850c8acfb322693c6fdc\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"9eb118dc3d70a2abd48215c8a1083aa292cf935cd7fe500f170f1a965a32b493\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"7977a443d43995ecd0727c3f5bfd7230f6f7bfab0d1ddd5e5d74ae02aee8cbb5\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"52c09c97f8c07b3c1c67c7ccbe342d3d3d5076d1f9069690d701835bd6063c52\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 104,\n   \"nonce\": \"6970041381069bfeb059842158d5b779\",\n   \"signed_at\": \"2026-11-03T03:21:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"zNYzVniMHLnhrq43Bn2w94aJIZwf97nV/oweOm/cmQtf8KrL1WHqufj9Sgxe8HWMH5CdR2cyvDTkUcK5KW29BQ==\"\n   }\n  ]\n },\n \"proof\": [\n  \"e9007d799fc93f8733094db589b281133ea6589b61ad938843e9b4f31e0f077d\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/.well-known/furui-check-keys.json": {
+     "body": "{\n \"schema\": \"furui-check-keys-v0\",\n \"use\": \"furui-check\",\n \"keys\": [\n  {\n   \"key_id\": \"runner-1\",\n   \"public_key_ed25519_b64\": \"4lzxaC65+grLRNMxSVW8Es6X25tc9keIfHuDH1CPapY=\",\n   \"from_height\": 0,\n   \"revoked_height\": null\n  }\n ]\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/furui-check-day/f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698": {
+     "body": "{\n \"canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\",\n \"record_canonical\": \"{\\\"clock_skew\\\":0,\\\"day\\\":\\\"2026-11-03\\\",\\\"first_height\\\":100,\\\"last_height\\\":104,\\\"late\\\":0,\\\"leaf\\\":\\\"sha256(0x00 || musubi-canonical-v0(envelope))\\\",\\\"n\\\":5,\\\"publication\\\":\\\"public\\\",\\\"root\\\":\\\"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\\\",\\\"schema\\\":\\\"furui-check-day-v0\\\",\\\"signatures\\\":[{\\\"alg\\\":\\\"ed25519\\\",\\\"domain\\\":\\\"horizonshield.dev\\\",\\\"key_id\\\":\\\"runner-1\\\",\\\"sig\\\":\\\"bqZaUFteZVJNDd1bBzS4FC9/W6QL9gDKp8ieYKHOZ20TJ9GeNdR3d6+Vs2HhaIZs2rscPy7h3IiLIkYNLozcCA==\\\"}],\\\"signer\\\":{\\\"domain\\\":\\\"horizonshield.dev\\\",\\\"key_url\\\":\\\"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\\\"},\\\"tree\\\":\\\"rfc6962-sha256\\\"}\",\n \"report\": {\n  \"record_schema\": \"furui-check-day-v0\",\n  \"verdict\": \"accepted\"\n },\n \"status\": \"anchored\",\n \"ledger_entry\": 330,\n \"ledger_url\": \"https://ledger.horizonshield.dev/ledger/330\",\n \"submitted_at\": \"2026-11-04T00:47:03.000Z\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/330/ots": {
+     "body_b64": "AE9wZW5UaW1lc3RhbXBzAABQcm9vZgC/ieLohOiSlAEIo5iGgQhye7UHGq2bWAmoA5j6AOBJ+sVeAwgJ7SzU0SbwEFXZSPhAb0qElafwHES5MqgI/wCD3+MNLvkMjiwraHR0cHM6Ly9ib2IuYnRjLmNhbGVuZGFyLm9wZW50aW1lc3RhbXBzLm9yZ/Eg/yaW7H0lf5tylRoAzYaAMPibYOSczFXoKsZXc7I/iIQIAAWIlg1z1xkBA+KjOw==",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/330?format=json": {
+     "body": "{\n \"n\": 330,\n \"work\": \"NENRIN agreement batch (2 records)\",\n \"claim_sha256\": \"a398868108727bb5071aad9b5809a80398fa00e049fac55e030809ed2cd4d126\",\n \"record_canonical\": \"{\\\"schema\\\":\\\"nenrin-agreement-batch-v1\\\",\\\"anchored_at\\\":\\\"2026-11-05T00:30:01.000Z\\\",\\\"count\\\":2,\\\"records\\\":[{\\\"canonical_sha256\\\":\\\"21e87e0528885ce46680879c25a4882dec40e8bd77ae64728be267ae8a7978d2\\\",\\\"record_schema\\\":\\\"a2a-admission-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"admission-intake 0.4.0\\\"},{\\\"canonical_sha256\\\":\\\"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\\\",\\\"record_schema\\\":\\\"furui-check-day-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"furui-check-day-intake 0.2.0\\\"}]}\",\n \"schema\": \"v0-plain\",\n \"created_at\": \"2026-11-05T00:30:02.000Z\",\n \"ots_status\": \"confirmed\",\n \"bitcoin_block\": 971234,\n \"block_time\": \"2026-11-05 01:12 UTC\",\n \"stamped_at\": null,\n \"anchored_by\": \"schedule\"\n}",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/971234": {
+     "body": "1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135",
+     "status": 200
+    },
+    "https://mempool.space/api/block/1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135/header": {
+     "body": "00000020807a2634ba0031e0d7e0e2a1d5162e1f35fbce0e62ab5eeda45b115d547b81b4f855e422fc8d770d3d1fbbddcaefb746ddc34a83a686863eb96ea675950abdcf4002df6affff7f2000000000",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "bitcoin_header": true,
+    "day": "2026-11-03",
+    "leaf": 0
+   },
+   "command": "furui-day",
+   "expect": {
+    "facts": {
+     "bitcoin_block": 971234,
+     "bitcoin_header": {
+      "block_hash": "1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135",
+      "explorers": [
+       "mempool.space",
+       "blockstream.info"
+      ],
+      "header": "00000020807a2634ba0031e0d7e0e2a1d5162e1f35fbce0e62ab5eeda45b115d547b81b4f855e422fc8d770d3d1fbbddcaefb746ddc34a83a686863eb96ea675950abdcf4002df6affff7f2000000000"
+     },
+     "day": "2026-11-03",
+     "leaf": 0,
+     "ledger_entry": 330,
+     "merkle_root": "cfbd0a9575a66eb93e8686a6834ac3dd46b7efcaddbb1f3d0d778dfc22e455f8",
+     "n": 5,
+     "record_sha256": "f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698",
+     "root": "852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974"
+    },
+    "steps": [
+     [
+      1,
+      "ok",
+      null
+     ],
+     [
+      2,
+      "ok",
+      null
+     ],
+     [
+      3,
+      "ok",
+      null
+     ],
+     [
+      4,
+      "ok",
+      null
+     ],
+     [
+      5,
+      "ok",
+      null
+     ],
+     [
+      6,
+      "ok",
+      null
+     ],
+     [
+      7,
+      "ok",
+      null
+     ]
+    ],
+    "verdict": "ok"
+   },
+   "name": "day ok with --bitcoin-header: leaf 0 of the same day",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/971234": {
+     "body": "1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135/header": {
+     "body": "00000020807a2634ba0031e0d7e0e2a1d5162e1f35fbce0e62ab5eeda45b115d547b81b4f855e422fc8d770d3d1fbbddcaefb746ddc34a83a686863eb96ea675950abdcf4002df6affff7f2000000000",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/0": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 0,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"fce8c4f947b336e3bcdc04b4165915abb909ec8235af0116325d25dcda9960d1\",\n \"envelope_sha256\": \"39e3d39a6452ac873c1b52b5b3d9ad193f9334a6fb327bbdf3f637f5411770ea\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"512ee13b82c511563083d0026868b2b67750c8b13415127663baf8da86fd972d\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"9bf3afd72b63481beac0b54d0375a1cb740d95eae1b0fa35f373d8fbcb17334f\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"2ff8bc76b859dc6292f9a30ff9b9a0ee21eaab354c706f17385d7f6286ff954b\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 100,\n   \"nonce\": \"heartbeat-2026-11-03\",\n   \"signed_at\": \"2026-11-03T03:17:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"K5a97jtOtX3wolkeKfgh/1ZSxSJijto6rvv2z4fGQ/LFd0jVrbIBX3w18dmlpRiMY0soJn2BTkD/HtocdGPVAg==\"\n   }\n  ]\n },\n \"proof\": [\n  \"d1587e4a6aa16f761f55a6a5df6bdb4fb88e7a660f04518f0bc11d0c496d20c6\",\n  \"a3dd718c1d5c2c532c83084786081dfc8f2b08ab8f38b514f41df4acc5c99660\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/1": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 1,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"d1587e4a6aa16f761f55a6a5df6bdb4fb88e7a660f04518f0bc11d0c496d20c6\",\n \"envelope_sha256\": \"577805cd7f5940e2e186ea994c1c8f4ceabb6b63903dfa7c4c846ff3754ff302\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"640d5daca027fd3a4db96f2be80eeb8efe1629b840bb9935a90f40b6c706a533\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"9b23b301b3c65bec2d27ba4e2de66d9bffea4d19bc5b057004c287b36ff5f2a2\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"625abea708c33c370e717ee744eb0ad660e7d8200869df323c22c035d4b41f9e\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 101,\n   \"nonce\": \"0a78009591722cc84825ca95ee7ffa52\",\n   \"signed_at\": \"2026-11-03T03:18:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"tsPZcH8oKQc0x9OT1AafpRtZG/qQK/YnTwjweFqNiP7EjrDZRMKbOX16PDfZ1fFA3VxD14Oidx8BHtvuApDBAQ==\"\n   }\n  ]\n },\n \"proof\": [\n  \"fce8c4f947b336e3bcdc04b4165915abb909ec8235af0116325d25dcda9960d1\",\n  \"a3dd718c1d5c2c532c83084786081dfc8f2b08ab8f38b514f41df4acc5c99660\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/2": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 2,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"6612ebed64fc0b3b5d2dc6823f46a238169172daeaff0a97c93c5f53c3e055c1\",\n \"envelope_sha256\": \"9ae391a64f57813d5c6b107ef5c948205b19eb8d1dbdd7e28179559aa440cdfb\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"7d6a6ef59162c436f2aa51cab3894fcb4a32138a244cfc438619c7671e1a667f\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"a346c665c511a80707c994213c22818fd8df1b2cf4656017ed0e7aee33212089\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"f5ab978ada653d895ed68ebc75aa34bc1f07aeb131f715cddad9163203849962\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 102,\n   \"nonce\": \"626e1e3b6935c66a2c8ab9c84fc3dd55\",\n   \"signed_at\": \"2026-11-03T03:19:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"6Plkgeso8Mtl5mRPKde6GDqPwPiECDzBIv3dwgHXQunirbMNOBSX+QwnopVVy+cAyxOQkmnrFwBjQmGK1dyEAw==\"\n   }\n  ]\n },\n \"proof\": [\n  \"b1dd7e22eb4cc73c1d8db8254859280c24cf24a1e6a5bc945daa65f9dde5fd19\",\n  \"63773eac78ad7aafe4610cec6627df9905edfd2e6dc0fc772165176848f11c2c\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/3": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 3,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"b1dd7e22eb4cc73c1d8db8254859280c24cf24a1e6a5bc945daa65f9dde5fd19\",\n \"envelope_sha256\": \"57b4e75b20dd9b44fe3aba609aa8ae755593d579f4ca95d4fb014591b08682b4\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"ea88d563a9b16842d62d2cf21d2c19bb838abf64764cbf1f791d76ba3cb27458\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"c1b603492b9d79a349df23599318415da76771e51a8604641f27ea33fe8ec2c1\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"f02da165aab5a8cdec9adc017ed099734fd0ccc0864afe9c1a203e9ca737b416\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 103,\n   \"nonce\": \"0f5f924500a4d703b9a480306e2faa6c\",\n   \"signed_at\": \"2026-11-03T03:20:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"Ojg51oPaA3UrdNCF+xO7GD+oqctuBa0HhvPQQQDclGlhNXaDy5fL+/H2REJPuekpTBDkaJpJxZvatNu40vjGBA==\"\n   }\n  ]\n },\n \"proof\": [\n  \"6612ebed64fc0b3b5d2dc6823f46a238169172daeaff0a97c93c5f53c3e055c1\",\n  \"63773eac78ad7aafe4610cec6627df9905edfd2e6dc0fc772165176848f11c2c\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/4": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 4,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\",\n \"envelope_sha256\": \"f1a53d8fe8dbd92655ee139cc269ca4287b830d531c9850c8acfb322693c6fdc\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"9eb118dc3d70a2abd48215c8a1083aa292cf935cd7fe500f170f1a965a32b493\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"7977a443d43995ecd0727c3f5bfd7230f6f7bfab0d1ddd5e5d74ae02aee8cbb5\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"52c09c97f8c07b3c1c67c7ccbe342d3d3d5076d1f9069690d701835bd6063c52\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 104,\n   \"nonce\": \"6970041381069bfeb059842158d5b779\",\n   \"signed_at\": \"2026-11-03T03:21:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"zNYzVniMHLnhrq43Bn2w94aJIZwf97nV/oweOm/cmQtf8KrL1WHqufj9Sgxe8HWMH5CdR2cyvDTkUcK5KW29BQ==\"\n   }\n  ]\n },\n \"proof\": [\n  \"e9007d799fc93f8733094db589b281133ea6589b61ad938843e9b4f31e0f077d\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/.well-known/furui-check-keys.json": {
+     "body": "{\n \"schema\": \"furui-check-keys-v0\",\n \"use\": \"furui-check\",\n \"keys\": [\n  {\n   \"key_id\": \"runner-1\",\n   \"public_key_ed25519_b64\": \"4lzxaC65+grLRNMxSVW8Es6X25tc9keIfHuDH1CPapY=\",\n   \"from_height\": 0,\n   \"revoked_height\": null\n  }\n ]\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/furui-check-day/f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698": {
+     "body": "{\n \"canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\",\n \"record_canonical\": \"{\\\"clock_skew\\\":0,\\\"day\\\":\\\"2026-11-03\\\",\\\"first_height\\\":100,\\\"last_height\\\":104,\\\"late\\\":0,\\\"leaf\\\":\\\"sha256(0x00 || musubi-canonical-v0(envelope))\\\",\\\"n\\\":5,\\\"publication\\\":\\\"public\\\",\\\"root\\\":\\\"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\\\",\\\"schema\\\":\\\"furui-check-day-v0\\\",\\\"signatures\\\":[{\\\"alg\\\":\\\"ed25519\\\",\\\"domain\\\":\\\"horizonshield.dev\\\",\\\"key_id\\\":\\\"runner-1\\\",\\\"sig\\\":\\\"bqZaUFteZVJNDd1bBzS4FC9/W6QL9gDKp8ieYKHOZ20TJ9GeNdR3d6+Vs2HhaIZs2rscPy7h3IiLIkYNLozcCA==\\\"}],\\\"signer\\\":{\\\"domain\\\":\\\"horizonshield.dev\\\",\\\"key_url\\\":\\\"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\\\"},\\\"tree\\\":\\\"rfc6962-sha256\\\"}\",\n \"report\": {\n  \"record_schema\": \"furui-check-day-v0\",\n  \"verdict\": \"accepted\"\n },\n \"status\": \"anchored\",\n \"ledger_entry\": 330,\n \"ledger_url\": \"https://ledger.horizonshield.dev/ledger/330\",\n \"submitted_at\": \"2026-11-04T00:47:03.000Z\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/330/ots": {
+     "body_b64": "AE9wZW5UaW1lc3RhbXBzAABQcm9vZgC/ieLohOiSlAEIo5iGgQhye7UHGq2bWAmoA5j6AOBJ+sVeAwgJ7SzU0SbwEFXZSPhAb0qElafwHES5MqgI/wCD3+MNLvkMjiwraHR0cHM6Ly9ib2IuYnRjLmNhbGVuZGFyLm9wZW50aW1lc3RhbXBzLm9yZ/Eg/yaW7H0lf5tylRoAzYaAMPibYOSczFXoKsZXc7I/iIQIAAWIlg1z1xkBA+KjOw==",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/330?format=json": {
+     "body": "{\n \"n\": 330,\n \"work\": \"NENRIN agreement batch (2 records)\",\n \"claim_sha256\": \"a398868108727bb5071aad9b5809a80398fa00e049fac55e030809ed2cd4d126\",\n \"record_canonical\": \"{\\\"schema\\\":\\\"nenrin-agreement-batch-v1\\\",\\\"anchored_at\\\":\\\"2026-11-05T00:30:01.000Z\\\",\\\"count\\\":2,\\\"records\\\":[{\\\"canonical_sha256\\\":\\\"21e87e0528885ce46680879c25a4882dec40e8bd77ae64728be267ae8a7978d2\\\",\\\"record_schema\\\":\\\"a2a-admission-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"admission-intake 0.4.0\\\"},{\\\"canonical_sha256\\\":\\\"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\\\",\\\"record_schema\\\":\\\"furui-check-day-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"furui-check-day-intake 0.2.0\\\"}]}\",\n \"schema\": \"v0-plain\",\n \"created_at\": \"2026-11-05T00:30:02.000Z\",\n \"ots_status\": \"confirmed\",\n \"bitcoin_block\": 971234,\n \"block_time\": \"2026-11-05 01:12 UTC\",\n \"stamped_at\": null,\n \"anchored_by\": \"schedule\"\n}",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/971234": {
+     "body": "1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135",
+     "status": 200
+    },
+    "https://mempool.space/api/block/1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135/header": {
+     "body": "00000020807a2634ba0031e0d7e0e2a1d5162e1f35fbce0e62ab5eeda45b115d547b81b4f855e422fc8d770d3d1fbbddcaefb746ddc34a83a686863eb96ea675950abdcf4002df6affff7f2000000000",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "bitcoin_header": true,
+    "day": "2026-11-03",
+    "leaf": 1
+   },
+   "command": "furui-day",
+   "expect": {
+    "facts": {
+     "bitcoin_block": 971234,
+     "bitcoin_header": null,
+     "day": "2026-11-03",
+     "leaf": 1,
+     "ledger_entry": 330,
+     "merkle_root": "cfbd0a9575a66eb93e8686a6834ac3dd46b7efcaddbb1f3d0d778dfc22e455f8",
+     "n": 5,
+     "record_sha256": "f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698",
+     "root": "852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974"
+    },
+    "steps": [
+     [
+      1,
+      "ok",
+      null
+     ],
+     [
+      2,
+      "ok",
+      null
+     ],
+     [
+      3,
+      "ok",
+      null
+     ],
+     [
+      4,
+      "ok",
+      null
+     ],
+     [
+      5,
+      "ok",
+      null
+     ],
+     [
+      6,
+      "ok",
+      null
+     ],
+     [
+      7,
+      "fail",
+      "header_merkle_root_is_not_the_proof"
+     ]
+    ],
+    "verdict": "fail"
+   },
+   "name": "day fail 7: both explorers serve a header with another merkle root",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/971234": {
+     "body": "50c4d3ffd8a744feca3d103945692ceac7d435a05d600a0df35d74bbaa14be0c",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/50c4d3ffd8a744feca3d103945692ceac7d435a05d600a0df35d74bbaa14be0c/header": {
+     "body": "000000207df42eeb0d9c9c47a8862d45e38f2f2caa9da5002a31d5b86b581eadd96adf7b1cc78ec3e154c70964e7f31ba29e32185d7431098c2b53e8b76535bfcb1afd754002df6affff7f2001000000",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/0": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 0,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"fce8c4f947b336e3bcdc04b4165915abb909ec8235af0116325d25dcda9960d1\",\n \"envelope_sha256\": \"39e3d39a6452ac873c1b52b5b3d9ad193f9334a6fb327bbdf3f637f5411770ea\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"512ee13b82c511563083d0026868b2b67750c8b13415127663baf8da86fd972d\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"9bf3afd72b63481beac0b54d0375a1cb740d95eae1b0fa35f373d8fbcb17334f\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"2ff8bc76b859dc6292f9a30ff9b9a0ee21eaab354c706f17385d7f6286ff954b\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 100,\n   \"nonce\": \"heartbeat-2026-11-03\",\n   \"signed_at\": \"2026-11-03T03:17:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"K5a97jtOtX3wolkeKfgh/1ZSxSJijto6rvv2z4fGQ/LFd0jVrbIBX3w18dmlpRiMY0soJn2BTkD/HtocdGPVAg==\"\n   }\n  ]\n },\n \"proof\": [\n  \"d1587e4a6aa16f761f55a6a5df6bdb4fb88e7a660f04518f0bc11d0c496d20c6\",\n  \"a3dd718c1d5c2c532c83084786081dfc8f2b08ab8f38b514f41df4acc5c99660\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/1": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 1,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"d1587e4a6aa16f761f55a6a5df6bdb4fb88e7a660f04518f0bc11d0c496d20c6\",\n \"envelope_sha256\": \"577805cd7f5940e2e186ea994c1c8f4ceabb6b63903dfa7c4c846ff3754ff302\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"640d5daca027fd3a4db96f2be80eeb8efe1629b840bb9935a90f40b6c706a533\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"9b23b301b3c65bec2d27ba4e2de66d9bffea4d19bc5b057004c287b36ff5f2a2\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"625abea708c33c370e717ee744eb0ad660e7d8200869df323c22c035d4b41f9e\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 101,\n   \"nonce\": \"0a78009591722cc84825ca95ee7ffa52\",\n   \"signed_at\": \"2026-11-03T03:18:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"tsPZcH8oKQc0x9OT1AafpRtZG/qQK/YnTwjweFqNiP7EjrDZRMKbOX16PDfZ1fFA3VxD14Oidx8BHtvuApDBAQ==\"\n   }\n  ]\n },\n \"proof\": [\n  \"fce8c4f947b336e3bcdc04b4165915abb909ec8235af0116325d25dcda9960d1\",\n  \"a3dd718c1d5c2c532c83084786081dfc8f2b08ab8f38b514f41df4acc5c99660\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/2": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 2,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"6612ebed64fc0b3b5d2dc6823f46a238169172daeaff0a97c93c5f53c3e055c1\",\n \"envelope_sha256\": \"9ae391a64f57813d5c6b107ef5c948205b19eb8d1dbdd7e28179559aa440cdfb\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"7d6a6ef59162c436f2aa51cab3894fcb4a32138a244cfc438619c7671e1a667f\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"a346c665c511a80707c994213c22818fd8df1b2cf4656017ed0e7aee33212089\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"f5ab978ada653d895ed68ebc75aa34bc1f07aeb131f715cddad9163203849962\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 102,\n   \"nonce\": \"626e1e3b6935c66a2c8ab9c84fc3dd55\",\n   \"signed_at\": \"2026-11-03T03:19:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"6Plkgeso8Mtl5mRPKde6GDqPwPiECDzBIv3dwgHXQunirbMNOBSX+QwnopVVy+cAyxOQkmnrFwBjQmGK1dyEAw==\"\n   }\n  ]\n },\n \"proof\": [\n  \"b1dd7e22eb4cc73c1d8db8254859280c24cf24a1e6a5bc945daa65f9dde5fd19\",\n  \"63773eac78ad7aafe4610cec6627df9905edfd2e6dc0fc772165176848f11c2c\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/3": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 3,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"b1dd7e22eb4cc73c1d8db8254859280c24cf24a1e6a5bc945daa65f9dde5fd19\",\n \"envelope_sha256\": \"57b4e75b20dd9b44fe3aba609aa8ae755593d579f4ca95d4fb014591b08682b4\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"ea88d563a9b16842d62d2cf21d2c19bb838abf64764cbf1f791d76ba3cb27458\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"c1b603492b9d79a349df23599318415da76771e51a8604641f27ea33fe8ec2c1\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"f02da165aab5a8cdec9adc017ed099734fd0ccc0864afe9c1a203e9ca737b416\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 103,\n   \"nonce\": \"0f5f924500a4d703b9a480306e2faa6c\",\n   \"signed_at\": \"2026-11-03T03:20:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"Ojg51oPaA3UrdNCF+xO7GD+oqctuBa0HhvPQQQDclGlhNXaDy5fL+/H2REJPuekpTBDkaJpJxZvatNu40vjGBA==\"\n   }\n  ]\n },\n \"proof\": [\n  \"6612ebed64fc0b3b5d2dc6823f46a238169172daeaff0a97c93c5f53c3e055c1\",\n  \"63773eac78ad7aafe4610cec6627df9905edfd2e6dc0fc772165176848f11c2c\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/4": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 4,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\",\n \"envelope_sha256\": \"f1a53d8fe8dbd92655ee139cc269ca4287b830d531c9850c8acfb322693c6fdc\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"9eb118dc3d70a2abd48215c8a1083aa292cf935cd7fe500f170f1a965a32b493\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"7977a443d43995ecd0727c3f5bfd7230f6f7bfab0d1ddd5e5d74ae02aee8cbb5\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"52c09c97f8c07b3c1c67c7ccbe342d3d3d5076d1f9069690d701835bd6063c52\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 104,\n   \"nonce\": \"6970041381069bfeb059842158d5b779\",\n   \"signed_at\": \"2026-11-03T03:21:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"zNYzVniMHLnhrq43Bn2w94aJIZwf97nV/oweOm/cmQtf8KrL1WHqufj9Sgxe8HWMH5CdR2cyvDTkUcK5KW29BQ==\"\n   }\n  ]\n },\n \"proof\": [\n  \"e9007d799fc93f8733094db589b281133ea6589b61ad938843e9b4f31e0f077d\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/.well-known/furui-check-keys.json": {
+     "body": "{\n \"schema\": \"furui-check-keys-v0\",\n \"use\": \"furui-check\",\n \"keys\": [\n  {\n   \"key_id\": \"runner-1\",\n   \"public_key_ed25519_b64\": \"4lzxaC65+grLRNMxSVW8Es6X25tc9keIfHuDH1CPapY=\",\n   \"from_height\": 0,\n   \"revoked_height\": null\n  }\n ]\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/furui-check-day/f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698": {
+     "body": "{\n \"canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\",\n \"record_canonical\": \"{\\\"clock_skew\\\":0,\\\"day\\\":\\\"2026-11-03\\\",\\\"first_height\\\":100,\\\"last_height\\\":104,\\\"late\\\":0,\\\"leaf\\\":\\\"sha256(0x00 || musubi-canonical-v0(envelope))\\\",\\\"n\\\":5,\\\"publication\\\":\\\"public\\\",\\\"root\\\":\\\"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\\\",\\\"schema\\\":\\\"furui-check-day-v0\\\",\\\"signatures\\\":[{\\\"alg\\\":\\\"ed25519\\\",\\\"domain\\\":\\\"horizonshield.dev\\\",\\\"key_id\\\":\\\"runner-1\\\",\\\"sig\\\":\\\"bqZaUFteZVJNDd1bBzS4FC9/W6QL9gDKp8ieYKHOZ20TJ9GeNdR3d6+Vs2HhaIZs2rscPy7h3IiLIkYNLozcCA==\\\"}],\\\"signer\\\":{\\\"domain\\\":\\\"horizonshield.dev\\\",\\\"key_url\\\":\\\"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\\\"},\\\"tree\\\":\\\"rfc6962-sha256\\\"}\",\n \"report\": {\n  \"record_schema\": \"furui-check-day-v0\",\n  \"verdict\": \"accepted\"\n },\n \"status\": \"anchored\",\n \"ledger_entry\": 330,\n \"ledger_url\": \"https://ledger.horizonshield.dev/ledger/330\",\n \"submitted_at\": \"2026-11-04T00:47:03.000Z\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/330/ots": {
+     "body_b64": "AE9wZW5UaW1lc3RhbXBzAABQcm9vZgC/ieLohOiSlAEIo5iGgQhye7UHGq2bWAmoA5j6AOBJ+sVeAwgJ7SzU0SbwEFXZSPhAb0qElafwHES5MqgI/wCD3+MNLvkMjiwraHR0cHM6Ly9ib2IuYnRjLmNhbGVuZGFyLm9wZW50aW1lc3RhbXBzLm9yZ/Eg/yaW7H0lf5tylRoAzYaAMPibYOSczFXoKsZXc7I/iIQIAAWIlg1z1xkBA+KjOw==",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/330?format=json": {
+     "body": "{\n \"n\": 330,\n \"work\": \"NENRIN agreement batch (2 records)\",\n \"claim_sha256\": \"a398868108727bb5071aad9b5809a80398fa00e049fac55e030809ed2cd4d126\",\n \"record_canonical\": \"{\\\"schema\\\":\\\"nenrin-agreement-batch-v1\\\",\\\"anchored_at\\\":\\\"2026-11-05T00:30:01.000Z\\\",\\\"count\\\":2,\\\"records\\\":[{\\\"canonical_sha256\\\":\\\"21e87e0528885ce46680879c25a4882dec40e8bd77ae64728be267ae8a7978d2\\\",\\\"record_schema\\\":\\\"a2a-admission-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"admission-intake 0.4.0\\\"},{\\\"canonical_sha256\\\":\\\"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\\\",\\\"record_schema\\\":\\\"furui-check-day-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"furui-check-day-intake 0.2.0\\\"}]}\",\n \"schema\": \"v0-plain\",\n \"created_at\": \"2026-11-05T00:30:02.000Z\",\n \"ots_status\": \"confirmed\",\n \"bitcoin_block\": 971234,\n \"block_time\": \"2026-11-05 01:12 UTC\",\n \"stamped_at\": null,\n \"anchored_by\": \"schedule\"\n}",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/971234": {
+     "body": "50c4d3ffd8a744feca3d103945692ceac7d435a05d600a0df35d74bbaa14be0c",
+     "status": 200
+    },
+    "https://mempool.space/api/block/50c4d3ffd8a744feca3d103945692ceac7d435a05d600a0df35d74bbaa14be0c/header": {
+     "body": "000000207df42eeb0d9c9c47a8862d45e38f2f2caa9da5002a31d5b86b581eadd96adf7b1cc78ec3e154c70964e7f31ba29e32185d7431098c2b53e8b76535bfcb1afd754002df6affff7f2001000000",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "bitcoin_header": true,
+    "day": "2026-11-03",
+    "leaf": 1
+   },
+   "command": "furui-day",
+   "expect": {
+    "facts": {
+     "bitcoin_block": 971234,
+     "bitcoin_header": null,
+     "day": "2026-11-03",
+     "leaf": 1,
+     "ledger_entry": 330,
+     "merkle_root": "cfbd0a9575a66eb93e8686a6834ac3dd46b7efcaddbb1f3d0d778dfc22e455f8",
+     "n": 5,
+     "record_sha256": "f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698",
+     "root": "852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974"
+    },
+    "steps": [
+     [
+      1,
+      "ok",
+      null
+     ],
+     [
+      2,
+      "ok",
+      null
+     ],
+     [
+      3,
+      "ok",
+      null
+     ],
+     [
+      4,
+      "ok",
+      null
+     ],
+     [
+      5,
+      "ok",
+      null
+     ],
+     [
+      6,
+      "ok",
+      null
+     ],
+     [
+      7,
+      "fail",
+      "mempool_height_http_404"
+     ]
+    ],
+    "verdict": "fail"
+   },
+   "name": "day fail 7: the explorers are not in the world (mempool 404)",
+   "note": "",
+   "world": {
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/0": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 0,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"fce8c4f947b336e3bcdc04b4165915abb909ec8235af0116325d25dcda9960d1\",\n \"envelope_sha256\": \"39e3d39a6452ac873c1b52b5b3d9ad193f9334a6fb327bbdf3f637f5411770ea\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"512ee13b82c511563083d0026868b2b67750c8b13415127663baf8da86fd972d\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"9bf3afd72b63481beac0b54d0375a1cb740d95eae1b0fa35f373d8fbcb17334f\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"2ff8bc76b859dc6292f9a30ff9b9a0ee21eaab354c706f17385d7f6286ff954b\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 100,\n   \"nonce\": \"heartbeat-2026-11-03\",\n   \"signed_at\": \"2026-11-03T03:17:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"K5a97jtOtX3wolkeKfgh/1ZSxSJijto6rvv2z4fGQ/LFd0jVrbIBX3w18dmlpRiMY0soJn2BTkD/HtocdGPVAg==\"\n   }\n  ]\n },\n \"proof\": [\n  \"d1587e4a6aa16f761f55a6a5df6bdb4fb88e7a660f04518f0bc11d0c496d20c6\",\n  \"a3dd718c1d5c2c532c83084786081dfc8f2b08ab8f38b514f41df4acc5c99660\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/1": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 1,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"d1587e4a6aa16f761f55a6a5df6bdb4fb88e7a660f04518f0bc11d0c496d20c6\",\n \"envelope_sha256\": \"577805cd7f5940e2e186ea994c1c8f4ceabb6b63903dfa7c4c846ff3754ff302\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"640d5daca027fd3a4db96f2be80eeb8efe1629b840bb9935a90f40b6c706a533\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"9b23b301b3c65bec2d27ba4e2de66d9bffea4d19bc5b057004c287b36ff5f2a2\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"625abea708c33c370e717ee744eb0ad660e7d8200869df323c22c035d4b41f9e\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 101,\n   \"nonce\": \"0a78009591722cc84825ca95ee7ffa52\",\n   \"signed_at\": \"2026-11-03T03:18:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"tsPZcH8oKQc0x9OT1AafpRtZG/qQK/YnTwjweFqNiP7EjrDZRMKbOX16PDfZ1fFA3VxD14Oidx8BHtvuApDBAQ==\"\n   }\n  ]\n },\n \"proof\": [\n  \"fce8c4f947b336e3bcdc04b4165915abb909ec8235af0116325d25dcda9960d1\",\n  \"a3dd718c1d5c2c532c83084786081dfc8f2b08ab8f38b514f41df4acc5c99660\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/2": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 2,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"6612ebed64fc0b3b5d2dc6823f46a238169172daeaff0a97c93c5f53c3e055c1\",\n \"envelope_sha256\": \"9ae391a64f57813d5c6b107ef5c948205b19eb8d1dbdd7e28179559aa440cdfb\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"7d6a6ef59162c436f2aa51cab3894fcb4a32138a244cfc438619c7671e1a667f\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"a346c665c511a80707c994213c22818fd8df1b2cf4656017ed0e7aee33212089\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"f5ab978ada653d895ed68ebc75aa34bc1f07aeb131f715cddad9163203849962\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 102,\n   \"nonce\": \"626e1e3b6935c66a2c8ab9c84fc3dd55\",\n   \"signed_at\": \"2026-11-03T03:19:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"6Plkgeso8Mtl5mRPKde6GDqPwPiECDzBIv3dwgHXQunirbMNOBSX+QwnopVVy+cAyxOQkmnrFwBjQmGK1dyEAw==\"\n   }\n  ]\n },\n \"proof\": [\n  \"b1dd7e22eb4cc73c1d8db8254859280c24cf24a1e6a5bc945daa65f9dde5fd19\",\n  \"63773eac78ad7aafe4610cec6627df9905edfd2e6dc0fc772165176848f11c2c\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/3": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 3,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"b1dd7e22eb4cc73c1d8db8254859280c24cf24a1e6a5bc945daa65f9dde5fd19\",\n \"envelope_sha256\": \"57b4e75b20dd9b44fe3aba609aa8ae755593d579f4ca95d4fb014591b08682b4\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"ea88d563a9b16842d62d2cf21d2c19bb838abf64764cbf1f791d76ba3cb27458\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"c1b603492b9d79a349df23599318415da76771e51a8604641f27ea33fe8ec2c1\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"f02da165aab5a8cdec9adc017ed099734fd0ccc0864afe9c1a203e9ca737b416\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 103,\n   \"nonce\": \"0f5f924500a4d703b9a480306e2faa6c\",\n   \"signed_at\": \"2026-11-03T03:20:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"Ojg51oPaA3UrdNCF+xO7GD+oqctuBa0HhvPQQQDclGlhNXaDy5fL+/H2REJPuekpTBDkaJpJxZvatNu40vjGBA==\"\n   }\n  ]\n },\n \"proof\": [\n  \"6612ebed64fc0b3b5d2dc6823f46a238169172daeaff0a97c93c5f53c3e055c1\",\n  \"63773eac78ad7aafe4610cec6627df9905edfd2e6dc0fc772165176848f11c2c\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/4": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 4,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\",\n \"envelope_sha256\": \"f1a53d8fe8dbd92655ee139cc269ca4287b830d531c9850c8acfb322693c6fdc\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"9eb118dc3d70a2abd48215c8a1083aa292cf935cd7fe500f170f1a965a32b493\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"7977a443d43995ecd0727c3f5bfd7230f6f7bfab0d1ddd5e5d74ae02aee8cbb5\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"52c09c97f8c07b3c1c67c7ccbe342d3d3d5076d1f9069690d701835bd6063c52\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 104,\n   \"nonce\": \"6970041381069bfeb059842158d5b779\",\n   \"signed_at\": \"2026-11-03T03:21:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"zNYzVniMHLnhrq43Bn2w94aJIZwf97nV/oweOm/cmQtf8KrL1WHqufj9Sgxe8HWMH5CdR2cyvDTkUcK5KW29BQ==\"\n   }\n  ]\n },\n \"proof\": [\n  \"e9007d799fc93f8733094db589b281133ea6589b61ad938843e9b4f31e0f077d\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/.well-known/furui-check-keys.json": {
+     "body": "{\n \"schema\": \"furui-check-keys-v0\",\n \"use\": \"furui-check\",\n \"keys\": [\n  {\n   \"key_id\": \"runner-1\",\n   \"public_key_ed25519_b64\": \"4lzxaC65+grLRNMxSVW8Es6X25tc9keIfHuDH1CPapY=\",\n   \"from_height\": 0,\n   \"revoked_height\": null\n  }\n ]\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/furui-check-day/f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698": {
+     "body": "{\n \"canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\",\n \"record_canonical\": \"{\\\"clock_skew\\\":0,\\\"day\\\":\\\"2026-11-03\\\",\\\"first_height\\\":100,\\\"last_height\\\":104,\\\"late\\\":0,\\\"leaf\\\":\\\"sha256(0x00 || musubi-canonical-v0(envelope))\\\",\\\"n\\\":5,\\\"publication\\\":\\\"public\\\",\\\"root\\\":\\\"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\\\",\\\"schema\\\":\\\"furui-check-day-v0\\\",\\\"signatures\\\":[{\\\"alg\\\":\\\"ed25519\\\",\\\"domain\\\":\\\"horizonshield.dev\\\",\\\"key_id\\\":\\\"runner-1\\\",\\\"sig\\\":\\\"bqZaUFteZVJNDd1bBzS4FC9/W6QL9gDKp8ieYKHOZ20TJ9GeNdR3d6+Vs2HhaIZs2rscPy7h3IiLIkYNLozcCA==\\\"}],\\\"signer\\\":{\\\"domain\\\":\\\"horizonshield.dev\\\",\\\"key_url\\\":\\\"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\\\"},\\\"tree\\\":\\\"rfc6962-sha256\\\"}\",\n \"report\": {\n  \"record_schema\": \"furui-check-day-v0\",\n  \"verdict\": \"accepted\"\n },\n \"status\": \"anchored\",\n \"ledger_entry\": 330,\n \"ledger_url\": \"https://ledger.horizonshield.dev/ledger/330\",\n \"submitted_at\": \"2026-11-04T00:47:03.000Z\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/330/ots": {
+     "body_b64": "AE9wZW5UaW1lc3RhbXBzAABQcm9vZgC/ieLohOiSlAEIo5iGgQhye7UHGq2bWAmoA5j6AOBJ+sVeAwgJ7SzU0SbwEFXZSPhAb0qElafwHES5MqgI/wCD3+MNLvkMjiwraHR0cHM6Ly9ib2IuYnRjLmNhbGVuZGFyLm9wZW50aW1lc3RhbXBzLm9yZ/Eg/yaW7H0lf5tylRoAzYaAMPibYOSczFXoKsZXc7I/iIQIAAWIlg1z1xkBA+KjOw==",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/330?format=json": {
+     "body": "{\n \"n\": 330,\n \"work\": \"NENRIN agreement batch (2 records)\",\n \"claim_sha256\": \"a398868108727bb5071aad9b5809a80398fa00e049fac55e030809ed2cd4d126\",\n \"record_canonical\": \"{\\\"schema\\\":\\\"nenrin-agreement-batch-v1\\\",\\\"anchored_at\\\":\\\"2026-11-05T00:30:01.000Z\\\",\\\"count\\\":2,\\\"records\\\":[{\\\"canonical_sha256\\\":\\\"21e87e0528885ce46680879c25a4882dec40e8bd77ae64728be267ae8a7978d2\\\",\\\"record_schema\\\":\\\"a2a-admission-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"admission-intake 0.4.0\\\"},{\\\"canonical_sha256\\\":\\\"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\\\",\\\"record_schema\\\":\\\"furui-check-day-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"furui-check-day-intake 0.2.0\\\"}]}\",\n \"schema\": \"v0-plain\",\n \"created_at\": \"2026-11-05T00:30:02.000Z\",\n \"ots_status\": \"confirmed\",\n \"bitcoin_block\": 971234,\n \"block_time\": \"2026-11-05 01:12 UTC\",\n \"stamped_at\": null,\n \"anchored_by\": \"schedule\"\n}",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "bitcoin_header": true,
+    "day": "2026-11-03",
+    "leaf": 1
+   },
+   "command": "furui-day",
+   "expect": {
+    "facts": {
+     "bitcoin_block": 971234,
+     "bitcoin_header": null,
+     "day": "2026-11-03",
+     "leaf": 1,
+     "ledger_entry": 330,
+     "merkle_root": "cfbd0a9575a66eb93e8686a6834ac3dd46b7efcaddbb1f3d0d778dfc22e455f8",
+     "n": 5,
+     "record_sha256": "f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698",
+     "root": "852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974"
+    },
+    "steps": [
+     [
+      1,
+      "ok",
+      null
+     ],
+     [
+      2,
+      "ok",
+      null
+     ],
+     [
+      3,
+      "ok",
+      null
+     ],
+     [
+      4,
+      "ok",
+      null
+     ],
+     [
+      5,
+      "ok",
+      null
+     ],
+     [
+      6,
+      "ok",
+      null
+     ],
+     [
+      7,
+      "fail",
+      "explorers_name_different_blocks"
+     ]
+    ],
+    "verdict": "fail"
+   },
+   "name": "day fail 7: blockstream names another block",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/971234": {
+     "body": "50c4d3ffd8a744feca3d103945692ceac7d435a05d600a0df35d74bbaa14be0c",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/50c4d3ffd8a744feca3d103945692ceac7d435a05d600a0df35d74bbaa14be0c/header": {
+     "body": "000000207df42eeb0d9c9c47a8862d45e38f2f2caa9da5002a31d5b86b581eadd96adf7b1cc78ec3e154c70964e7f31ba29e32185d7431098c2b53e8b76535bfcb1afd754002df6affff7f2001000000",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/0": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 0,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"fce8c4f947b336e3bcdc04b4165915abb909ec8235af0116325d25dcda9960d1\",\n \"envelope_sha256\": \"39e3d39a6452ac873c1b52b5b3d9ad193f9334a6fb327bbdf3f637f5411770ea\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"512ee13b82c511563083d0026868b2b67750c8b13415127663baf8da86fd972d\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"9bf3afd72b63481beac0b54d0375a1cb740d95eae1b0fa35f373d8fbcb17334f\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"2ff8bc76b859dc6292f9a30ff9b9a0ee21eaab354c706f17385d7f6286ff954b\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 100,\n   \"nonce\": \"heartbeat-2026-11-03\",\n   \"signed_at\": \"2026-11-03T03:17:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"K5a97jtOtX3wolkeKfgh/1ZSxSJijto6rvv2z4fGQ/LFd0jVrbIBX3w18dmlpRiMY0soJn2BTkD/HtocdGPVAg==\"\n   }\n  ]\n },\n \"proof\": [\n  \"d1587e4a6aa16f761f55a6a5df6bdb4fb88e7a660f04518f0bc11d0c496d20c6\",\n  \"a3dd718c1d5c2c532c83084786081dfc8f2b08ab8f38b514f41df4acc5c99660\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/1": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 1,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"d1587e4a6aa16f761f55a6a5df6bdb4fb88e7a660f04518f0bc11d0c496d20c6\",\n \"envelope_sha256\": \"577805cd7f5940e2e186ea994c1c8f4ceabb6b63903dfa7c4c846ff3754ff302\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"640d5daca027fd3a4db96f2be80eeb8efe1629b840bb9935a90f40b6c706a533\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"9b23b301b3c65bec2d27ba4e2de66d9bffea4d19bc5b057004c287b36ff5f2a2\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"625abea708c33c370e717ee744eb0ad660e7d8200869df323c22c035d4b41f9e\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 101,\n   \"nonce\": \"0a78009591722cc84825ca95ee7ffa52\",\n   \"signed_at\": \"2026-11-03T03:18:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"tsPZcH8oKQc0x9OT1AafpRtZG/qQK/YnTwjweFqNiP7EjrDZRMKbOX16PDfZ1fFA3VxD14Oidx8BHtvuApDBAQ==\"\n   }\n  ]\n },\n \"proof\": [\n  \"fce8c4f947b336e3bcdc04b4165915abb909ec8235af0116325d25dcda9960d1\",\n  \"a3dd718c1d5c2c532c83084786081dfc8f2b08ab8f38b514f41df4acc5c99660\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/2": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 2,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"6612ebed64fc0b3b5d2dc6823f46a238169172daeaff0a97c93c5f53c3e055c1\",\n \"envelope_sha256\": \"9ae391a64f57813d5c6b107ef5c948205b19eb8d1dbdd7e28179559aa440cdfb\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"7d6a6ef59162c436f2aa51cab3894fcb4a32138a244cfc438619c7671e1a667f\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"a346c665c511a80707c994213c22818fd8df1b2cf4656017ed0e7aee33212089\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"f5ab978ada653d895ed68ebc75aa34bc1f07aeb131f715cddad9163203849962\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 102,\n   \"nonce\": \"626e1e3b6935c66a2c8ab9c84fc3dd55\",\n   \"signed_at\": \"2026-11-03T03:19:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"6Plkgeso8Mtl5mRPKde6GDqPwPiECDzBIv3dwgHXQunirbMNOBSX+QwnopVVy+cAyxOQkmnrFwBjQmGK1dyEAw==\"\n   }\n  ]\n },\n \"proof\": [\n  \"b1dd7e22eb4cc73c1d8db8254859280c24cf24a1e6a5bc945daa65f9dde5fd19\",\n  \"63773eac78ad7aafe4610cec6627df9905edfd2e6dc0fc772165176848f11c2c\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/3": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 3,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"b1dd7e22eb4cc73c1d8db8254859280c24cf24a1e6a5bc945daa65f9dde5fd19\",\n \"envelope_sha256\": \"57b4e75b20dd9b44fe3aba609aa8ae755593d579f4ca95d4fb014591b08682b4\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"ea88d563a9b16842d62d2cf21d2c19bb838abf64764cbf1f791d76ba3cb27458\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"c1b603492b9d79a349df23599318415da76771e51a8604641f27ea33fe8ec2c1\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"f02da165aab5a8cdec9adc017ed099734fd0ccc0864afe9c1a203e9ca737b416\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 103,\n   \"nonce\": \"0f5f924500a4d703b9a480306e2faa6c\",\n   \"signed_at\": \"2026-11-03T03:20:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"Ojg51oPaA3UrdNCF+xO7GD+oqctuBa0HhvPQQQDclGlhNXaDy5fL+/H2REJPuekpTBDkaJpJxZvatNu40vjGBA==\"\n   }\n  ]\n },\n \"proof\": [\n  \"6612ebed64fc0b3b5d2dc6823f46a238169172daeaff0a97c93c5f53c3e055c1\",\n  \"63773eac78ad7aafe4610cec6627df9905edfd2e6dc0fc772165176848f11c2c\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/4": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 4,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\",\n \"envelope_sha256\": \"f1a53d8fe8dbd92655ee139cc269ca4287b830d531c9850c8acfb322693c6fdc\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"9eb118dc3d70a2abd48215c8a1083aa292cf935cd7fe500f170f1a965a32b493\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"7977a443d43995ecd0727c3f5bfd7230f6f7bfab0d1ddd5e5d74ae02aee8cbb5\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"52c09c97f8c07b3c1c67c7ccbe342d3d3d5076d1f9069690d701835bd6063c52\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 104,\n   \"nonce\": \"6970041381069bfeb059842158d5b779\",\n   \"signed_at\": \"2026-11-03T03:21:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"zNYzVniMHLnhrq43Bn2w94aJIZwf97nV/oweOm/cmQtf8KrL1WHqufj9Sgxe8HWMH5CdR2cyvDTkUcK5KW29BQ==\"\n   }\n  ]\n },\n \"proof\": [\n  \"e9007d799fc93f8733094db589b281133ea6589b61ad938843e9b4f31e0f077d\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/.well-known/furui-check-keys.json": {
+     "body": "{\n \"schema\": \"furui-check-keys-v0\",\n \"use\": \"furui-check\",\n \"keys\": [\n  {\n   \"key_id\": \"runner-1\",\n   \"public_key_ed25519_b64\": \"4lzxaC65+grLRNMxSVW8Es6X25tc9keIfHuDH1CPapY=\",\n   \"from_height\": 0,\n   \"revoked_height\": null\n  }\n ]\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/furui-check-day/f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698": {
+     "body": "{\n \"canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\",\n \"record_canonical\": \"{\\\"clock_skew\\\":0,\\\"day\\\":\\\"2026-11-03\\\",\\\"first_height\\\":100,\\\"last_height\\\":104,\\\"late\\\":0,\\\"leaf\\\":\\\"sha256(0x00 || musubi-canonical-v0(envelope))\\\",\\\"n\\\":5,\\\"publication\\\":\\\"public\\\",\\\"root\\\":\\\"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\\\",\\\"schema\\\":\\\"furui-check-day-v0\\\",\\\"signatures\\\":[{\\\"alg\\\":\\\"ed25519\\\",\\\"domain\\\":\\\"horizonshield.dev\\\",\\\"key_id\\\":\\\"runner-1\\\",\\\"sig\\\":\\\"bqZaUFteZVJNDd1bBzS4FC9/W6QL9gDKp8ieYKHOZ20TJ9GeNdR3d6+Vs2HhaIZs2rscPy7h3IiLIkYNLozcCA==\\\"}],\\\"signer\\\":{\\\"domain\\\":\\\"horizonshield.dev\\\",\\\"key_url\\\":\\\"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\\\"},\\\"tree\\\":\\\"rfc6962-sha256\\\"}\",\n \"report\": {\n  \"record_schema\": \"furui-check-day-v0\",\n  \"verdict\": \"accepted\"\n },\n \"status\": \"anchored\",\n \"ledger_entry\": 330,\n \"ledger_url\": \"https://ledger.horizonshield.dev/ledger/330\",\n \"submitted_at\": \"2026-11-04T00:47:03.000Z\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/330/ots": {
+     "body_b64": "AE9wZW5UaW1lc3RhbXBzAABQcm9vZgC/ieLohOiSlAEIo5iGgQhye7UHGq2bWAmoA5j6AOBJ+sVeAwgJ7SzU0SbwEFXZSPhAb0qElafwHES5MqgI/wCD3+MNLvkMjiwraHR0cHM6Ly9ib2IuYnRjLmNhbGVuZGFyLm9wZW50aW1lc3RhbXBzLm9yZ/Eg/yaW7H0lf5tylRoAzYaAMPibYOSczFXoKsZXc7I/iIQIAAWIlg1z1xkBA+KjOw==",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/330?format=json": {
+     "body": "{\n \"n\": 330,\n \"work\": \"NENRIN agreement batch (2 records)\",\n \"claim_sha256\": \"a398868108727bb5071aad9b5809a80398fa00e049fac55e030809ed2cd4d126\",\n \"record_canonical\": \"{\\\"schema\\\":\\\"nenrin-agreement-batch-v1\\\",\\\"anchored_at\\\":\\\"2026-11-05T00:30:01.000Z\\\",\\\"count\\\":2,\\\"records\\\":[{\\\"canonical_sha256\\\":\\\"21e87e0528885ce46680879c25a4882dec40e8bd77ae64728be267ae8a7978d2\\\",\\\"record_schema\\\":\\\"a2a-admission-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"admission-intake 0.4.0\\\"},{\\\"canonical_sha256\\\":\\\"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\\\",\\\"record_schema\\\":\\\"furui-check-day-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"furui-check-day-intake 0.2.0\\\"}]}\",\n \"schema\": \"v0-plain\",\n \"created_at\": \"2026-11-05T00:30:02.000Z\",\n \"ots_status\": \"confirmed\",\n \"bitcoin_block\": 971234,\n \"block_time\": \"2026-11-05 01:12 UTC\",\n \"stamped_at\": null,\n \"anchored_by\": \"schedule\"\n}",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/971234": {
+     "body": "1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135",
+     "status": 200
+    },
+    "https://mempool.space/api/block/1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135/header": {
+     "body": "00000020807a2634ba0031e0d7e0e2a1d5162e1f35fbce0e62ab5eeda45b115d547b81b4f855e422fc8d770d3d1fbbddcaefb746ddc34a83a686863eb96ea675950abdcf4002df6affff7f2000000000",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "bitcoin_header": true,
+    "day": "2026-11-03",
+    "leaf": 1
+   },
+   "command": "furui-day",
+   "expect": {
+    "facts": {
+     "bitcoin_block": null,
+     "bitcoin_header": null,
+     "day": "2026-11-03",
+     "leaf": 1,
+     "ledger_entry": 331,
+     "merkle_root": null,
+     "n": 5,
+     "record_sha256": "f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698",
+     "root": "852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974"
+    },
+    "steps": [
+     [
+      1,
+      "ok",
+      null
+     ],
+     [
+      2,
+      "ok",
+      null
+     ],
+     [
+      3,
+      "ok",
+      null
+     ],
+     [
+      4,
+      "ok",
+      null
+     ],
+     [
+      5,
+      "ok",
+      null
+     ],
+     [
+      6,
+      "not_yet",
+      "ots_not_confirmed"
+     ],
+     [
+      7,
+      "skipped",
+      null
+     ]
+    ],
+    "verdict": "not_yet"
+   },
+   "name": "day not_yet 6 with --bitcoin-header: the proof is not in Bitcoin yet, step 7 skipped",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/971234": {
+     "body": "1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135/header": {
+     "body": "00000020807a2634ba0031e0d7e0e2a1d5162e1f35fbce0e62ab5eeda45b115d547b81b4f855e422fc8d770d3d1fbbddcaefb746ddc34a83a686863eb96ea675950abdcf4002df6affff7f2000000000",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/0": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 0,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"fce8c4f947b336e3bcdc04b4165915abb909ec8235af0116325d25dcda9960d1\",\n \"envelope_sha256\": \"39e3d39a6452ac873c1b52b5b3d9ad193f9334a6fb327bbdf3f637f5411770ea\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"512ee13b82c511563083d0026868b2b67750c8b13415127663baf8da86fd972d\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"9bf3afd72b63481beac0b54d0375a1cb740d95eae1b0fa35f373d8fbcb17334f\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"2ff8bc76b859dc6292f9a30ff9b9a0ee21eaab354c706f17385d7f6286ff954b\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 100,\n   \"nonce\": \"heartbeat-2026-11-03\",\n   \"signed_at\": \"2026-11-03T03:17:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"K5a97jtOtX3wolkeKfgh/1ZSxSJijto6rvv2z4fGQ/LFd0jVrbIBX3w18dmlpRiMY0soJn2BTkD/HtocdGPVAg==\"\n   }\n  ]\n },\n \"proof\": [\n  \"d1587e4a6aa16f761f55a6a5df6bdb4fb88e7a660f04518f0bc11d0c496d20c6\",\n  \"a3dd718c1d5c2c532c83084786081dfc8f2b08ab8f38b514f41df4acc5c99660\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/1": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 1,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"d1587e4a6aa16f761f55a6a5df6bdb4fb88e7a660f04518f0bc11d0c496d20c6\",\n \"envelope_sha256\": \"577805cd7f5940e2e186ea994c1c8f4ceabb6b63903dfa7c4c846ff3754ff302\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"640d5daca027fd3a4db96f2be80eeb8efe1629b840bb9935a90f40b6c706a533\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"9b23b301b3c65bec2d27ba4e2de66d9bffea4d19bc5b057004c287b36ff5f2a2\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"625abea708c33c370e717ee744eb0ad660e7d8200869df323c22c035d4b41f9e\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 101,\n   \"nonce\": \"0a78009591722cc84825ca95ee7ffa52\",\n   \"signed_at\": \"2026-11-03T03:18:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"tsPZcH8oKQc0x9OT1AafpRtZG/qQK/YnTwjweFqNiP7EjrDZRMKbOX16PDfZ1fFA3VxD14Oidx8BHtvuApDBAQ==\"\n   }\n  ]\n },\n \"proof\": [\n  \"fce8c4f947b336e3bcdc04b4165915abb909ec8235af0116325d25dcda9960d1\",\n  \"a3dd718c1d5c2c532c83084786081dfc8f2b08ab8f38b514f41df4acc5c99660\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/2": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 2,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"6612ebed64fc0b3b5d2dc6823f46a238169172daeaff0a97c93c5f53c3e055c1\",\n \"envelope_sha256\": \"9ae391a64f57813d5c6b107ef5c948205b19eb8d1dbdd7e28179559aa440cdfb\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"7d6a6ef59162c436f2aa51cab3894fcb4a32138a244cfc438619c7671e1a667f\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"a346c665c511a80707c994213c22818fd8df1b2cf4656017ed0e7aee33212089\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"f5ab978ada653d895ed68ebc75aa34bc1f07aeb131f715cddad9163203849962\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 102,\n   \"nonce\": \"626e1e3b6935c66a2c8ab9c84fc3dd55\",\n   \"signed_at\": \"2026-11-03T03:19:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"6Plkgeso8Mtl5mRPKde6GDqPwPiECDzBIv3dwgHXQunirbMNOBSX+QwnopVVy+cAyxOQkmnrFwBjQmGK1dyEAw==\"\n   }\n  ]\n },\n \"proof\": [\n  \"b1dd7e22eb4cc73c1d8db8254859280c24cf24a1e6a5bc945daa65f9dde5fd19\",\n  \"63773eac78ad7aafe4610cec6627df9905edfd2e6dc0fc772165176848f11c2c\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/3": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 3,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"b1dd7e22eb4cc73c1d8db8254859280c24cf24a1e6a5bc945daa65f9dde5fd19\",\n \"envelope_sha256\": \"57b4e75b20dd9b44fe3aba609aa8ae755593d579f4ca95d4fb014591b08682b4\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"ea88d563a9b16842d62d2cf21d2c19bb838abf64764cbf1f791d76ba3cb27458\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"c1b603492b9d79a349df23599318415da76771e51a8604641f27ea33fe8ec2c1\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"f02da165aab5a8cdec9adc017ed099734fd0ccc0864afe9c1a203e9ca737b416\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 103,\n   \"nonce\": \"0f5f924500a4d703b9a480306e2faa6c\",\n   \"signed_at\": \"2026-11-03T03:20:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"Ojg51oPaA3UrdNCF+xO7GD+oqctuBa0HhvPQQQDclGlhNXaDy5fL+/H2REJPuekpTBDkaJpJxZvatNu40vjGBA==\"\n   }\n  ]\n },\n \"proof\": [\n  \"6612ebed64fc0b3b5d2dc6823f46a238169172daeaff0a97c93c5f53c3e055c1\",\n  \"63773eac78ad7aafe4610cec6627df9905edfd2e6dc0fc772165176848f11c2c\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/4": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 4,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\",\n \"envelope_sha256\": \"f1a53d8fe8dbd92655ee139cc269ca4287b830d531c9850c8acfb322693c6fdc\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"9eb118dc3d70a2abd48215c8a1083aa292cf935cd7fe500f170f1a965a32b493\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"7977a443d43995ecd0727c3f5bfd7230f6f7bfab0d1ddd5e5d74ae02aee8cbb5\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"52c09c97f8c07b3c1c67c7ccbe342d3d3d5076d1f9069690d701835bd6063c52\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 104,\n   \"nonce\": \"6970041381069bfeb059842158d5b779\",\n   \"signed_at\": \"2026-11-03T03:21:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"zNYzVniMHLnhrq43Bn2w94aJIZwf97nV/oweOm/cmQtf8KrL1WHqufj9Sgxe8HWMH5CdR2cyvDTkUcK5KW29BQ==\"\n   }\n  ]\n },\n \"proof\": [\n  \"e9007d799fc93f8733094db589b281133ea6589b61ad938843e9b4f31e0f077d\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/.well-known/furui-check-keys.json": {
+     "body": "{\n \"schema\": \"furui-check-keys-v0\",\n \"use\": \"furui-check\",\n \"keys\": [\n  {\n   \"key_id\": \"runner-1\",\n   \"public_key_ed25519_b64\": \"4lzxaC65+grLRNMxSVW8Es6X25tc9keIfHuDH1CPapY=\",\n   \"from_height\": 0,\n   \"revoked_height\": null\n  }\n ]\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/furui-check-day/f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698": {
+     "body": "{\n \"canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\",\n \"record_canonical\": \"{\\\"clock_skew\\\":0,\\\"day\\\":\\\"2026-11-03\\\",\\\"first_height\\\":100,\\\"last_height\\\":104,\\\"late\\\":0,\\\"leaf\\\":\\\"sha256(0x00 || musubi-canonical-v0(envelope))\\\",\\\"n\\\":5,\\\"publication\\\":\\\"public\\\",\\\"root\\\":\\\"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\\\",\\\"schema\\\":\\\"furui-check-day-v0\\\",\\\"signatures\\\":[{\\\"alg\\\":\\\"ed25519\\\",\\\"domain\\\":\\\"horizonshield.dev\\\",\\\"key_id\\\":\\\"runner-1\\\",\\\"sig\\\":\\\"bqZaUFteZVJNDd1bBzS4FC9/W6QL9gDKp8ieYKHOZ20TJ9GeNdR3d6+Vs2HhaIZs2rscPy7h3IiLIkYNLozcCA==\\\"}],\\\"signer\\\":{\\\"domain\\\":\\\"horizonshield.dev\\\",\\\"key_url\\\":\\\"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\\\"},\\\"tree\\\":\\\"rfc6962-sha256\\\"}\",\n \"report\": {\n  \"record_schema\": \"furui-check-day-v0\",\n  \"verdict\": \"accepted\"\n },\n \"status\": \"anchored\",\n \"ledger_entry\": 331,\n \"ledger_url\": \"https://ledger.horizonshield.dev/ledger/331\",\n \"submitted_at\": \"2026-11-04T00:47:03.000Z\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/331?format=json": {
+     "body": "{\n \"n\": 331,\n \"work\": \"NENRIN agreement batch (2 records)\",\n \"claim_sha256\": \"a398868108727bb5071aad9b5809a80398fa00e049fac55e030809ed2cd4d126\",\n \"record_canonical\": \"{\\\"schema\\\":\\\"nenrin-agreement-batch-v1\\\",\\\"anchored_at\\\":\\\"2026-11-05T00:30:01.000Z\\\",\\\"count\\\":2,\\\"records\\\":[{\\\"canonical_sha256\\\":\\\"21e87e0528885ce46680879c25a4882dec40e8bd77ae64728be267ae8a7978d2\\\",\\\"record_schema\\\":\\\"a2a-admission-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"admission-intake 0.4.0\\\"},{\\\"canonical_sha256\\\":\\\"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\\\",\\\"record_schema\\\":\\\"furui-check-day-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"furui-check-day-intake 0.2.0\\\"}]}\",\n \"schema\": \"v0-plain\",\n \"created_at\": \"2026-11-05T00:30:02.000Z\",\n \"ots_status\": \"pending\",\n \"bitcoin_block\": null,\n \"block_time\": null,\n \"stamped_at\": null,\n \"anchored_by\": \"schedule\"\n}",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/971234": {
+     "body": "1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135",
+     "status": 200
+    },
+    "https://mempool.space/api/block/1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135/header": {
+     "body": "00000020807a2634ba0031e0d7e0e2a1d5162e1f35fbce0e62ab5eeda45b115d547b81b4f855e422fc8d770d3d1fbbddcaefb746ddc34a83a686863eb96ea675950abdcf4002df6affff7f2000000000",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "bitcoin_header": true,
+    "day": "2026-11-03",
+    "leaf": 1
+   },
+   "command": "furui-day",
+   "expect": {
+    "facts": {
+     "bitcoin_block": null,
+     "bitcoin_header": null,
+     "day": "2026-11-03",
+     "leaf": 1,
+     "ledger_entry": null,
+     "merkle_root": null,
+     "n": 5,
+     "record_sha256": "f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698",
+     "root": "852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974"
+    },
+    "steps": [
+     [
+      1,
+      "ok",
+      null
+     ],
+     [
+      2,
+      "ok",
+      null
+     ],
+     [
+      3,
+      "fail",
+      "proof_does_not_rebuild_the_root"
+     ],
+     [
+      4,
+      "skipped",
+      null
+     ],
+     [
+      5,
+      "skipped",
+      null
+     ],
+     [
+      6,
+      "skipped",
+      null
+     ],
+     [
+      7,
+      "skipped",
+      null
+     ]
+    ],
+    "verdict": "fail"
+   },
+   "name": "day fail 3 with --bitcoin-header: steps 4 to 7 skipped",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/971234": {
+     "body": "1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135/header": {
+     "body": "00000020807a2634ba0031e0d7e0e2a1d5162e1f35fbce0e62ab5eeda45b115d547b81b4f855e422fc8d770d3d1fbbddcaefb746ddc34a83a686863eb96ea675950abdcf4002df6affff7f2000000000",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/0": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 0,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"fce8c4f947b336e3bcdc04b4165915abb909ec8235af0116325d25dcda9960d1\",\n \"envelope_sha256\": \"39e3d39a6452ac873c1b52b5b3d9ad193f9334a6fb327bbdf3f637f5411770ea\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"512ee13b82c511563083d0026868b2b67750c8b13415127663baf8da86fd972d\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"9bf3afd72b63481beac0b54d0375a1cb740d95eae1b0fa35f373d8fbcb17334f\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"2ff8bc76b859dc6292f9a30ff9b9a0ee21eaab354c706f17385d7f6286ff954b\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 100,\n   \"nonce\": \"heartbeat-2026-11-03\",\n   \"signed_at\": \"2026-11-03T03:17:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"K5a97jtOtX3wolkeKfgh/1ZSxSJijto6rvv2z4fGQ/LFd0jVrbIBX3w18dmlpRiMY0soJn2BTkD/HtocdGPVAg==\"\n   }\n  ]\n },\n \"proof\": [\n  \"d1587e4a6aa16f761f55a6a5df6bdb4fb88e7a660f04518f0bc11d0c496d20c6\",\n  \"a3dd718c1d5c2c532c83084786081dfc8f2b08ab8f38b514f41df4acc5c99660\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/1": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 1,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"d1587e4a6aa16f761f55a6a5df6bdb4fb88e7a660f04518f0bc11d0c496d20c6\",\n \"envelope_sha256\": \"577805cd7f5940e2e186ea994c1c8f4ceabb6b63903dfa7c4c846ff3754ff302\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"640d5daca027fd3a4db96f2be80eeb8efe1629b840bb9935a90f40b6c706a533\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"9b23b301b3c65bec2d27ba4e2de66d9bffea4d19bc5b057004c287b36ff5f2a2\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"625abea708c33c370e717ee744eb0ad660e7d8200869df323c22c035d4b41f9e\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 101,\n   \"nonce\": \"0a78009591722cc84825ca95ee7ffa52\",\n   \"signed_at\": \"2026-11-03T03:18:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"tsPZcH8oKQc0x9OT1AafpRtZG/qQK/YnTwjweFqNiP7EjrDZRMKbOX16PDfZ1fFA3VxD14Oidx8BHtvuApDBAQ==\"\n   }\n  ]\n },\n \"proof\": [\n  \"fce8c4f947b336e3bcdc04b4165915abb909ec8235af0116325d25dcda9960d1\",\n  \"a3dd718c1d5c2c532c83084786081dfc8f2b08ab8f38b514f41df4acc5c99660\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/2": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 2,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"6612ebed64fc0b3b5d2dc6823f46a238169172daeaff0a97c93c5f53c3e055c1\",\n \"envelope_sha256\": \"9ae391a64f57813d5c6b107ef5c948205b19eb8d1dbdd7e28179559aa440cdfb\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"7d6a6ef59162c436f2aa51cab3894fcb4a32138a244cfc438619c7671e1a667f\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"a346c665c511a80707c994213c22818fd8df1b2cf4656017ed0e7aee33212089\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"f5ab978ada653d895ed68ebc75aa34bc1f07aeb131f715cddad9163203849962\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 102,\n   \"nonce\": \"626e1e3b6935c66a2c8ab9c84fc3dd55\",\n   \"signed_at\": \"2026-11-03T03:19:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"6Plkgeso8Mtl5mRPKde6GDqPwPiECDzBIv3dwgHXQunirbMNOBSX+QwnopVVy+cAyxOQkmnrFwBjQmGK1dyEAw==\"\n   }\n  ]\n },\n \"proof\": [\n  \"b1dd7e22eb4cc73c1d8db8254859280c24cf24a1e6a5bc945daa65f9dde5fd19\",\n  \"63773eac78ad7aafe4610cec6627df9905edfd2e6dc0fc772165176848f11c2c\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/3": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 3,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"b1dd7e22eb4cc73c1d8db8254859280c24cf24a1e6a5bc945daa65f9dde5fd19\",\n \"envelope_sha256\": \"57b4e75b20dd9b44fe3aba609aa8ae755593d579f4ca95d4fb014591b08682b4\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"ea88d563a9b16842d62d2cf21d2c19bb838abf64764cbf1f791d76ba3cb27458\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"c1b603492b9d79a349df23599318415da76771e51a8604641f27ea33fe8ec2c1\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"f02da165aab5a8cdec9adc017ed099734fd0ccc0864afe9c1a203e9ca737b416\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 103,\n   \"nonce\": \"0f5f924500a4d703b9a480306e2faa6c\",\n   \"signed_at\": \"2026-11-03T03:20:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"Ojg51oPaA3UrdNCF+xO7GD+oqctuBa0HhvPQQQDclGlhNXaDy5fL+/H2REJPuekpTBDkaJpJxZvatNu40vjGBA==\"\n   }\n  ]\n },\n \"proof\": [\n  \"6612ebed64fc0b3b5d2dc6823f46a238169172daeaff0a97c93c5f53c3e055c1\",\n  \"63773eac78ad7aafe4610cec6627df9905edfd2e6dc0fc772165176848f11c2c\",\n  \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://furui.horizonshield.dev/furui/day/2026-11-03/leaf/4": {
+     "body": "{\n \"day\": \"2026-11-03\",\n \"index\": 4,\n \"n\": 5,\n \"root\": \"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\",\n \"leaf_sha256\": \"7b79f54bf382b614a2f9cc9b7d166e6c7a8d9e56af9c1406fd8b0e0cd9d09cc9\",\n \"envelope_sha256\": \"f1a53d8fe8dbd92655ee139cc269ca4287b830d531c9850c8acfb322693c6fdc\",\n \"envelope\": {\n  \"schema\": \"furui-check-signed-v1\",\n  \"check\": {\n   \"schema\": \"furui-check-v1\",\n   \"input_commit\": \"9eb118dc3d70a2abd48215c8a1083aa292cf935cd7fe500f170f1a965a32b493\",\n   \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\",\n   \"scope_sha256\": \"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\",\n   \"action_binding_digest\": \"7977a443d43995ecd0727c3f5bfd7230f6f7bfab0d1ddd5e5d74ae02aee8cbb5\",\n   \"contract_sha256\": \"cc8321d6375c494d043fdd0260f21bc0ec51dacc9f6abb7f909cdcd3041b78bf\",\n   \"trace_sha256\": \"52c09c97f8c07b3c1c67c7ccbe342d3d3d5076d1f9069690d701835bd6063c52\",\n   \"decision\": \"pass\",\n   \"marks\": [],\n   \"unread\": false,\n   \"answered\": true,\n   \"stage_reached\": 4,\n   \"checked_at_height\": 104,\n   \"nonce\": \"6970041381069bfeb059842158d5b779\",\n   \"signed_at\": \"2026-11-03T03:21:09.123Z\"\n  },\n  \"signer\": {\n   \"domain\": \"horizonshield.dev\",\n   \"key_url\": \"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"\n  },\n  \"signatures\": [\n   {\n    \"alg\": \"ed25519\",\n    \"domain\": \"horizonshield.dev\",\n    \"key_id\": \"runner-1\",\n    \"sig\": \"zNYzVniMHLnhrq43Bn2w94aJIZwf97nV/oweOm/cmQtf8KrL1WHqufj9Sgxe8HWMH5CdR2cyvDTkUcK5KW29BQ==\"\n   }\n  ]\n },\n \"proof\": [\n  \"e9007d799fc93f8733094db589b281133ea6589b61ad938843e9b4f31e0f077d\"\n ],\n \"proof_kind\": \"rfc6962-audit-path\",\n \"day_record\": {\n  \"state\": \"accepted\",\n  \"ledger_canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\"\n },\n \"kept_until\": \"2026-11-10\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/.well-known/furui-check-keys.json": {
+     "body": "{\n \"schema\": \"furui-check-keys-v0\",\n \"use\": \"furui-check\",\n \"keys\": [\n  {\n   \"key_id\": \"runner-1\",\n   \"public_key_ed25519_b64\": \"4lzxaC65+grLRNMxSVW8Es6X25tc9keIfHuDH1CPapY=\",\n   \"from_height\": 0,\n   \"revoked_height\": null\n  }\n ]\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/furui-check-day/f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698": {
+     "body": "{\n \"canonical_sha256\": \"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\",\n \"record_canonical\": \"{\\\"clock_skew\\\":0,\\\"day\\\":\\\"2026-11-03\\\",\\\"first_height\\\":100,\\\"last_height\\\":104,\\\"late\\\":0,\\\"leaf\\\":\\\"sha256(0x00 || musubi-canonical-v0(envelope))\\\",\\\"n\\\":5,\\\"publication\\\":\\\"public\\\",\\\"root\\\":\\\"852a12a1a97cb2543ea2e1e33fb16ed8899c73877778675fa00ed3d481e57974\\\",\\\"schema\\\":\\\"furui-check-day-v0\\\",\\\"signatures\\\":[{\\\"alg\\\":\\\"ed25519\\\",\\\"domain\\\":\\\"horizonshield.dev\\\",\\\"key_id\\\":\\\"runner-1\\\",\\\"sig\\\":\\\"bqZaUFteZVJNDd1bBzS4FC9/W6QL9gDKp8ieYKHOZ20TJ9GeNdR3d6+Vs2HhaIZs2rscPy7h3IiLIkYNLozcCA==\\\"}],\\\"signer\\\":{\\\"domain\\\":\\\"horizonshield.dev\\\",\\\"key_url\\\":\\\"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\\\"},\\\"tree\\\":\\\"rfc6962-sha256\\\"}\",\n \"report\": {\n  \"record_schema\": \"furui-check-day-v0\",\n  \"verdict\": \"accepted\"\n },\n \"status\": \"anchored\",\n \"ledger_entry\": 330,\n \"ledger_url\": \"https://ledger.horizonshield.dev/ledger/330\",\n \"submitted_at\": \"2026-11-04T00:47:03.000Z\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/330/ots": {
+     "body_b64": "AE9wZW5UaW1lc3RhbXBzAABQcm9vZgC/ieLohOiSlAEIo5iGgQhye7UHGq2bWAmoA5j6AOBJ+sVeAwgJ7SzU0SbwEFXZSPhAb0qElafwHES5MqgI/wCD3+MNLvkMjiwraHR0cHM6Ly9ib2IuYnRjLmNhbGVuZGFyLm9wZW50aW1lc3RhbXBzLm9yZ/Eg/yaW7H0lf5tylRoAzYaAMPibYOSczFXoKsZXc7I/iIQIAAWIlg1z1xkBA+KjOw==",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/330?format=json": {
+     "body": "{\n \"n\": 330,\n \"work\": \"NENRIN agreement batch (2 records)\",\n \"claim_sha256\": \"a398868108727bb5071aad9b5809a80398fa00e049fac55e030809ed2cd4d126\",\n \"record_canonical\": \"{\\\"schema\\\":\\\"nenrin-agreement-batch-v1\\\",\\\"anchored_at\\\":\\\"2026-11-05T00:30:01.000Z\\\",\\\"count\\\":2,\\\"records\\\":[{\\\"canonical_sha256\\\":\\\"21e87e0528885ce46680879c25a4882dec40e8bd77ae64728be267ae8a7978d2\\\",\\\"record_schema\\\":\\\"a2a-admission-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"admission-intake 0.4.0\\\"},{\\\"canonical_sha256\\\":\\\"f9b08c920b0b5d1937fdb1538fdc457b2f323542504971992c9e4adb9ecef698\\\",\\\"record_schema\\\":\\\"furui-check-day-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"furui-check-day-intake 0.2.0\\\"}]}\",\n \"schema\": \"v0-plain\",\n \"created_at\": \"2026-11-05T00:30:02.000Z\",\n \"ots_status\": \"confirmed\",\n \"bitcoin_block\": 971234,\n \"block_time\": \"2026-11-05 01:12 UTC\",\n \"stamped_at\": null,\n \"anchored_by\": \"schedule\"\n}",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/971234": {
+     "body": "1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135",
+     "status": 200
+    },
+    "https://mempool.space/api/block/1fe78cbd4e01a1d04d177dc108086b392ce62c58109261059fce3e064b8b7135/header": {
+     "body": "00000020807a2634ba0031e0d7e0e2a1d5162e1f35fbce0e62ab5eeda45b115d547b81b4f855e422fc8d770d3d1fbbddcaefb746ddc34a83a686863eb96ea675950abdcf4002df6affff7f2000000000",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "bitcoin_header": true,
+    "endpoint": "https://agent.shield.example/a2a",
+    "record_sha256": "6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da"
+   },
+   "command": "resume-admission",
+   "expect": {
+    "facts": {
+     "bitcoin_block": 971111,
+     "bitcoin_header": {
+      "block_hash": "2749745191f04d592f3249f92f75d8ae30c68d2110aaddd4135f8b1991e037dd",
+      "explorers": [
+       "mempool.space",
+       "blockstream.info"
+      ],
+      "header": "00000020b4ab16500a46ee44b65d96eb9e63ba3f1ef42f5d66e3918ad6b4a19ba3972e5eab71f4cde7c1118c3cc3d6f38ff154c9afa178bfa70f7e4124be1804fd27aa4b4002df6affff7f2001000000"
+     },
+     "endpoint": "https://agent.shield.example/a2a",
+     "ledger_entry": 290,
+     "merkle_root": "4baa27fd0418be24417e0fa7bf78a1afc954f18ff3d6c33c8c11c1e7cdf471ab",
+     "record_sha256": "6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da",
+     "resume_sha256": "d0da394363ee811012d047cadc05938a4ed49496dd4f37efc378e9b987c3fba6"
+    },
+    "steps": [
+     [
+      1,
+      "ok",
+      null
+     ],
+     [
+      2,
+      "ok",
+      null
+     ],
+     [
+      3,
+      "ok",
+      null
+     ],
+     [
+      4,
+      "ok",
+      null
+     ],
+     [
+      5,
+      "ok",
+      null
+     ],
+     [
+      6,
+      "ok",
+      null
+     ]
+    ],
+    "verdict": "ok"
+   },
+   "name": "resume ok with --bitcoin-header: six steps",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/971111": {
+     "body": "2749745191f04d592f3249f92f75d8ae30c68d2110aaddd4135f8b1991e037dd",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/2749745191f04d592f3249f92f75d8ae30c68d2110aaddd4135f8b1991e037dd/header": {
+     "body": "00000020b4ab16500a46ee44b65d96eb9e63ba3f1ef42f5d66e3918ad6b4a19ba3972e5eab71f4cde7c1118c3cc3d6f38ff154c9afa178bfa70f7e4124be1804fd27aa4b4002df6affff7f2001000000",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/admission/6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da": {
+     "body": "{\n \"canonical_sha256\": \"6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da\",\n \"record_canonical\": \"{\\\"schema\\\":\\\"a2a-admission-v0\\\",\\\"admission_id\\\":\\\"109d79437bb9079b50bca1cf364a334ff8edbd7bab38997d73e8450e7122a9e5\\\",\\\"relying_party\\\":{\\\"domain\\\":\\\"shield.example\\\",\\\"key_url\\\":\\\"https://shield.example/.well-known/keys.json\\\"},\\\"decision\\\":\\\"admit\\\",\\\"rules\\\":{\\\"version\\\":\\\"0.4\\\"},\\\"publication\\\":\\\"public\\\",\\\"content\\\":{\\\"rules\\\":\\\"a2a-content-check-v1\\\",\\\"input_commit\\\":\\\"165f3551b7fd0c057765e292c11111d655a29c5bdcfe007da4cc301cd652cf02\\\",\\\"check_sha256\\\":\\\"b55ca6a5ccca462991fe2b09e668cfe30065d6bc12b13e6312090577f483e5a1\\\",\\\"rules_sha256\\\":\\\"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\\\",\\\"scope_sha256\\\":\\\"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\\\",\\\"decision\\\":\\\"pass\\\",\\\"marks\\\":[],\\\"unread\\\":false,\\\"answered\\\":true,\\\"checked\\\":true}}\",\n \"report\": {\n  \"record_schema\": \"a2a-admission-v0\"\n },\n \"status\": \"anchored\",\n \"ledger_entry\": 290,\n \"ledger_url\": \"https://ledger.horizonshield.dev/ledger/290\",\n \"submitted_at\": \"2026-11-04T03:47:10.000Z\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/290/ots": {
+     "body_b64": "AE9wZW5UaW1lc3RhbXBzAABQcm9vZgC/ieLohOiSlAEI/RO35RFyjT3ssTAL5lTLPwpXhSwQO45hQjQazRTpPYDwEOoYZZEnwPSvF9osoL6fQeII/wCD3+MNLvkMjiwraHR0cHM6Ly9ib2IuYnRjLmNhbGVuZGFyLm9wZW50aW1lc3RhbXBzLm9yZ/Egzp7WTDIfiWYHsjwmzPp7m8NqI4rlB2josds75nIh1T0IAAWIlg1z1xkBA+eiOw==",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/290?format=json": {
+     "body": "{\n \"n\": 290,\n \"work\": \"NENRIN agreement batch (2 records)\",\n \"claim_sha256\": \"fd13b7e511728d3decb1300be654cb3f0a57852c103b8e6142341acd14e93d80\",\n \"record_canonical\": \"{\\\"schema\\\":\\\"nenrin-agreement-batch-v1\\\",\\\"anchored_at\\\":\\\"2026-11-05T00:30:01.000Z\\\",\\\"count\\\":2,\\\"records\\\":[{\\\"canonical_sha256\\\":\\\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\\\",\\\"record_schema\\\":\\\"a2a-agreement-v1\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"agreement-intake 0.3.0\\\"},{\\\"canonical_sha256\\\":\\\"6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da\\\",\\\"record_schema\\\":\\\"a2a-admission-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"admission-intake 0.4.0\\\"}]}\",\n \"schema\": \"v0-plain\",\n \"created_at\": \"2026-11-05T00:30:02.000Z\",\n \"ots_status\": \"confirmed\",\n \"bitcoin_block\": 971111,\n \"block_time\": \"2026-11-05 01:12 UTC\",\n \"stamped_at\": null,\n \"anchored_by\": \"schedule\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/resume?endpoint=https%3A%2F%2Fagent.shield.example%2Fa2a": {
+     "body": "{\n \"schema\": \"nenrin-resume-v1\",\n \"perma_id\": \"https://agent.shield.example\",\n \"measured_endpoint\": \"https://agent.shield.example/a2a\",\n \"agent_card_url\": \"https://agent.shield.example/.well-known/agent-card.json\",\n \"counts\": {\n  \"PASS\": 0,\n  \"FAIL\": 0\n },\n \"witness_diversity\": {\n  \"distinct_names\": 0,\n  \"distinct_vantages\": 0\n },\n \"measurements\": [],\n \"discrepancies\": [],\n \"rings\": [],\n \"agreements\": [],\n \"admissions\": [\n  {\n   \"record_sha256\": \"f5f03f0e1a1f35fd731faf79daa3a06bc81241d0aa2cceb2664898590bac07ba\",\n   \"ledger_n\": 200,\n   \"decision\": \"refuse\",\n   \"content\": null,\n   \"revoked\": false\n  },\n  {\n   \"record_sha256\": \"6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da\",\n   \"ledger_n\": 290,\n   \"decision\": \"admit\",\n   \"content\": {\n    \"checked\": true,\n    \"decision\": \"pass\",\n    \"marks\": [],\n    \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\"\n   },\n   \"revoked\": false\n  }\n ],\n \"freshness\": {\n  \"last_measured\": null,\n  \"oldest_measurement\": null,\n  \"current_now\": \"2026-11-06T04:05:00Z\",\n  \"period_days\": 30\n },\n \"resume_sha256\": \"d0da394363ee811012d047cadc05938a4ed49496dd4f37efc378e9b987c3fba6\",\n \"evaluated_at\": \"2026-11-06T04:05:00Z\",\n \"subject_responses\": [],\n \"not_counted\": [],\n \"scan\": {\n  \"seq\": 300,\n  \"entries_read\": 300,\n  \"ceiling\": 400,\n  \"out_of_scope\": 0\n },\n \"recompute\": {\n  \"how\": \"see the ledger\"\n }\n}",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/971111": {
+     "body": "2749745191f04d592f3249f92f75d8ae30c68d2110aaddd4135f8b1991e037dd",
+     "status": 200
+    },
+    "https://mempool.space/api/block/2749745191f04d592f3249f92f75d8ae30c68d2110aaddd4135f8b1991e037dd/header": {
+     "body": "00000020b4ab16500a46ee44b65d96eb9e63ba3f1ef42f5d66e3918ad6b4a19ba3972e5eab71f4cde7c1118c3cc3d6f38ff154c9afa178bfa70f7e4124be1804fd27aa4b4002df6affff7f2001000000",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "bitcoin_header": true,
+    "endpoint": "https://agent.shield.example/a2a",
+    "record_sha256": "6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da"
+   },
+   "command": "resume-admission",
+   "expect": {
+    "facts": {
+     "bitcoin_block": 971111,
+     "bitcoin_header": null,
+     "endpoint": "https://agent.shield.example/a2a",
+     "ledger_entry": 290,
+     "merkle_root": "4baa27fd0418be24417e0fa7bf78a1afc954f18ff3d6c33c8c11c1e7cdf471ab",
+     "record_sha256": "6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da",
+     "resume_sha256": "d0da394363ee811012d047cadc05938a4ed49496dd4f37efc378e9b987c3fba6"
+    },
+    "steps": [
+     [
+      1,
+      "ok",
+      null
+     ],
+     [
+      2,
+      "ok",
+      null
+     ],
+     [
+      3,
+      "ok",
+      null
+     ],
+     [
+      4,
+      "ok",
+      null
+     ],
+     [
+      5,
+      "ok",
+      null
+     ],
+     [
+      6,
+      "fail",
+      "explorers_serve_different_headers"
+     ]
+    ],
+    "verdict": "fail"
+   },
+   "name": "resume fail 6: the explorers serve different headers",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/971111": {
+     "body": "2749745191f04d592f3249f92f75d8ae30c68d2110aaddd4135f8b1991e037dd",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/2749745191f04d592f3249f92f75d8ae30c68d2110aaddd4135f8b1991e037dd/header": {
+     "body": "00000020b4ab16500a46ee44b65d96eb9e63ba3f1ef42f5d66e3918ad6b4a19ba3972e5eab71f4cde7c1118c3cc3d6f38ff154c9afa178bfa70f7e4124be1804fd27aa4b4002df6affff7f20efbeadde",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/admission/6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da": {
+     "body": "{\n \"canonical_sha256\": \"6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da\",\n \"record_canonical\": \"{\\\"schema\\\":\\\"a2a-admission-v0\\\",\\\"admission_id\\\":\\\"109d79437bb9079b50bca1cf364a334ff8edbd7bab38997d73e8450e7122a9e5\\\",\\\"relying_party\\\":{\\\"domain\\\":\\\"shield.example\\\",\\\"key_url\\\":\\\"https://shield.example/.well-known/keys.json\\\"},\\\"decision\\\":\\\"admit\\\",\\\"rules\\\":{\\\"version\\\":\\\"0.4\\\"},\\\"publication\\\":\\\"public\\\",\\\"content\\\":{\\\"rules\\\":\\\"a2a-content-check-v1\\\",\\\"input_commit\\\":\\\"165f3551b7fd0c057765e292c11111d655a29c5bdcfe007da4cc301cd652cf02\\\",\\\"check_sha256\\\":\\\"b55ca6a5ccca462991fe2b09e668cfe30065d6bc12b13e6312090577f483e5a1\\\",\\\"rules_sha256\\\":\\\"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\\\",\\\"scope_sha256\\\":\\\"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\\\",\\\"decision\\\":\\\"pass\\\",\\\"marks\\\":[],\\\"unread\\\":false,\\\"answered\\\":true,\\\"checked\\\":true}}\",\n \"report\": {\n  \"record_schema\": \"a2a-admission-v0\"\n },\n \"status\": \"anchored\",\n \"ledger_entry\": 290,\n \"ledger_url\": \"https://ledger.horizonshield.dev/ledger/290\",\n \"submitted_at\": \"2026-11-04T03:47:10.000Z\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/290/ots": {
+     "body_b64": "AE9wZW5UaW1lc3RhbXBzAABQcm9vZgC/ieLohOiSlAEI/RO35RFyjT3ssTAL5lTLPwpXhSwQO45hQjQazRTpPYDwEOoYZZEnwPSvF9osoL6fQeII/wCD3+MNLvkMjiwraHR0cHM6Ly9ib2IuYnRjLmNhbGVuZGFyLm9wZW50aW1lc3RhbXBzLm9yZ/Egzp7WTDIfiWYHsjwmzPp7m8NqI4rlB2josds75nIh1T0IAAWIlg1z1xkBA+eiOw==",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/290?format=json": {
+     "body": "{\n \"n\": 290,\n \"work\": \"NENRIN agreement batch (2 records)\",\n \"claim_sha256\": \"fd13b7e511728d3decb1300be654cb3f0a57852c103b8e6142341acd14e93d80\",\n \"record_canonical\": \"{\\\"schema\\\":\\\"nenrin-agreement-batch-v1\\\",\\\"anchored_at\\\":\\\"2026-11-05T00:30:01.000Z\\\",\\\"count\\\":2,\\\"records\\\":[{\\\"canonical_sha256\\\":\\\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\\\",\\\"record_schema\\\":\\\"a2a-agreement-v1\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"agreement-intake 0.3.0\\\"},{\\\"canonical_sha256\\\":\\\"6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da\\\",\\\"record_schema\\\":\\\"a2a-admission-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"admission-intake 0.4.0\\\"}]}\",\n \"schema\": \"v0-plain\",\n \"created_at\": \"2026-11-05T00:30:02.000Z\",\n \"ots_status\": \"confirmed\",\n \"bitcoin_block\": 971111,\n \"block_time\": \"2026-11-05 01:12 UTC\",\n \"stamped_at\": null,\n \"anchored_by\": \"schedule\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/resume?endpoint=https%3A%2F%2Fagent.shield.example%2Fa2a": {
+     "body": "{\n \"schema\": \"nenrin-resume-v1\",\n \"perma_id\": \"https://agent.shield.example\",\n \"measured_endpoint\": \"https://agent.shield.example/a2a\",\n \"agent_card_url\": \"https://agent.shield.example/.well-known/agent-card.json\",\n \"counts\": {\n  \"PASS\": 0,\n  \"FAIL\": 0\n },\n \"witness_diversity\": {\n  \"distinct_names\": 0,\n  \"distinct_vantages\": 0\n },\n \"measurements\": [],\n \"discrepancies\": [],\n \"rings\": [],\n \"agreements\": [],\n \"admissions\": [\n  {\n   \"record_sha256\": \"f5f03f0e1a1f35fd731faf79daa3a06bc81241d0aa2cceb2664898590bac07ba\",\n   \"ledger_n\": 200,\n   \"decision\": \"refuse\",\n   \"content\": null,\n   \"revoked\": false\n  },\n  {\n   \"record_sha256\": \"6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da\",\n   \"ledger_n\": 290,\n   \"decision\": \"admit\",\n   \"content\": {\n    \"checked\": true,\n    \"decision\": \"pass\",\n    \"marks\": [],\n    \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\"\n   },\n   \"revoked\": false\n  }\n ],\n \"freshness\": {\n  \"last_measured\": null,\n  \"oldest_measurement\": null,\n  \"current_now\": \"2026-11-06T04:05:00Z\",\n  \"period_days\": 30\n },\n \"resume_sha256\": \"d0da394363ee811012d047cadc05938a4ed49496dd4f37efc378e9b987c3fba6\",\n \"evaluated_at\": \"2026-11-06T04:05:00Z\",\n \"subject_responses\": [],\n \"not_counted\": [],\n \"scan\": {\n  \"seq\": 300,\n  \"entries_read\": 300,\n  \"ceiling\": 400,\n  \"out_of_scope\": 0\n },\n \"recompute\": {\n  \"how\": \"see the ledger\"\n }\n}",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/971111": {
+     "body": "2749745191f04d592f3249f92f75d8ae30c68d2110aaddd4135f8b1991e037dd",
+     "status": 200
+    },
+    "https://mempool.space/api/block/2749745191f04d592f3249f92f75d8ae30c68d2110aaddd4135f8b1991e037dd/header": {
+     "body": "00000020b4ab16500a46ee44b65d96eb9e63ba3f1ef42f5d66e3918ad6b4a19ba3972e5eab71f4cde7c1118c3cc3d6f38ff154c9afa178bfa70f7e4124be1804fd27aa4b4002df6affff7f2001000000",
+     "status": 200
+    }
+   }
+  },
+  {
+   "args": {
+    "bitcoin_header": true,
+    "endpoint": "https://agent.shield.example/a2a",
+    "record_sha256": "6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da"
+   },
+   "command": "resume-admission",
+   "expect": {
+    "facts": {
+     "bitcoin_block": null,
+     "bitcoin_header": null,
+     "endpoint": "https://agent.shield.example/a2a",
+     "ledger_entry": 291,
+     "merkle_root": null,
+     "record_sha256": "6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da",
+     "resume_sha256": "6111ed37369a1baf7e70d49b89d2b8858233bd51f22d88a0a4836b9ccb0fe469"
+    },
+    "steps": [
+     [
+      1,
+      "ok",
+      null
+     ],
+     [
+      2,
+      "ok",
+      null
+     ],
+     [
+      3,
+      "ok",
+      null
+     ],
+     [
+      4,
+      "ok",
+      null
+     ],
+     [
+      5,
+      "fail",
+      "ots_height_is_not_the_entry_block"
+     ],
+     [
+      6,
+      "skipped",
+      null
+     ]
+    ],
+    "verdict": "fail"
+   },
+   "name": "resume fail 5 with --bitcoin-header: the proof reaches another height, step 6 skipped",
+   "note": "",
+   "world": {
+    "https://blockstream.info/api/block-height/971111": {
+     "body": "2749745191f04d592f3249f92f75d8ae30c68d2110aaddd4135f8b1991e037dd",
+     "status": 200
+    },
+    "https://blockstream.info/api/block/2749745191f04d592f3249f92f75d8ae30c68d2110aaddd4135f8b1991e037dd/header": {
+     "body": "00000020b4ab16500a46ee44b65d96eb9e63ba3f1ef42f5d66e3918ad6b4a19ba3972e5eab71f4cde7c1118c3cc3d6f38ff154c9afa178bfa70f7e4124be1804fd27aa4b4002df6affff7f2001000000",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/admission/6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da": {
+     "body": "{\n \"canonical_sha256\": \"6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da\",\n \"record_canonical\": \"{\\\"schema\\\":\\\"a2a-admission-v0\\\",\\\"admission_id\\\":\\\"109d79437bb9079b50bca1cf364a334ff8edbd7bab38997d73e8450e7122a9e5\\\",\\\"relying_party\\\":{\\\"domain\\\":\\\"shield.example\\\",\\\"key_url\\\":\\\"https://shield.example/.well-known/keys.json\\\"},\\\"decision\\\":\\\"admit\\\",\\\"rules\\\":{\\\"version\\\":\\\"0.4\\\"},\\\"publication\\\":\\\"public\\\",\\\"content\\\":{\\\"rules\\\":\\\"a2a-content-check-v1\\\",\\\"input_commit\\\":\\\"165f3551b7fd0c057765e292c11111d655a29c5bdcfe007da4cc301cd652cf02\\\",\\\"check_sha256\\\":\\\"b55ca6a5ccca462991fe2b09e668cfe30065d6bc12b13e6312090577f483e5a1\\\",\\\"rules_sha256\\\":\\\"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\\\",\\\"scope_sha256\\\":\\\"5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33\\\",\\\"decision\\\":\\\"pass\\\",\\\"marks\\\":[],\\\"unread\\\":false,\\\"answered\\\":true,\\\"checked\\\":true}}\",\n \"report\": {\n  \"record_schema\": \"a2a-admission-v0\"\n },\n \"status\": \"anchored\",\n \"ledger_entry\": 291,\n \"ledger_url\": \"https://ledger.horizonshield.dev/ledger/291\",\n \"submitted_at\": \"2026-11-04T03:47:10.000Z\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/291/ots": {
+     "body_b64": "AE9wZW5UaW1lc3RhbXBzAABQcm9vZgC/ieLohOiSlAEI/RO35RFyjT3ssTAL5lTLPwpXhSwQO45hQjQazRTpPYDwEOoYZZEnwPSvF9osoL6fQeII/wCD3+MNLvkMjiwraHR0cHM6Ly9ib2IuYnRjLmNhbGVuZGFyLm9wZW50aW1lc3RhbXBzLm9yZ/Egzp7WTDIfiWYHsjwmzPp7m8NqI4rlB2josds75nIh1T0IAAWIlg1z1xkBA+iiOw==",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/ledger/291?format=json": {
+     "body": "{\n \"n\": 291,\n \"work\": \"NENRIN agreement batch (2 records)\",\n \"claim_sha256\": \"fd13b7e511728d3decb1300be654cb3f0a57852c103b8e6142341acd14e93d80\",\n \"record_canonical\": \"{\\\"schema\\\":\\\"nenrin-agreement-batch-v1\\\",\\\"anchored_at\\\":\\\"2026-11-05T00:30:01.000Z\\\",\\\"count\\\":2,\\\"records\\\":[{\\\"canonical_sha256\\\":\\\"2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\\\",\\\"record_schema\\\":\\\"a2a-agreement-v1\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"agreement-intake 0.3.0\\\"},{\\\"canonical_sha256\\\":\\\"6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da\\\",\\\"record_schema\\\":\\\"a2a-admission-v0\\\",\\\"verdict\\\":\\\"accepted\\\",\\\"verifier_version\\\":\\\"admission-intake 0.4.0\\\"}]}\",\n \"schema\": \"v0-plain\",\n \"created_at\": \"2026-11-05T00:30:02.000Z\",\n \"ots_status\": \"confirmed\",\n \"bitcoin_block\": 971111,\n \"block_time\": \"2026-11-05 01:12 UTC\",\n \"stamped_at\": null,\n \"anchored_by\": \"schedule\"\n}",
+     "status": 200
+    },
+    "https://ledger.horizonshield.dev/resume?endpoint=https%3A%2F%2Fagent.shield.example%2Fa2a": {
+     "body": "{\n \"schema\": \"nenrin-resume-v1\",\n \"perma_id\": \"https://agent.shield.example\",\n \"measured_endpoint\": \"https://agent.shield.example/a2a\",\n \"agent_card_url\": \"https://agent.shield.example/.well-known/agent-card.json\",\n \"counts\": {\n  \"PASS\": 0,\n  \"FAIL\": 0\n },\n \"witness_diversity\": {\n  \"distinct_names\": 0,\n  \"distinct_vantages\": 0\n },\n \"measurements\": [],\n \"discrepancies\": [],\n \"rings\": [],\n \"agreements\": [],\n \"admissions\": [\n  {\n   \"record_sha256\": \"f5f03f0e1a1f35fd731faf79daa3a06bc81241d0aa2cceb2664898590bac07ba\",\n   \"ledger_n\": 200,\n   \"decision\": \"refuse\",\n   \"content\": null,\n   \"revoked\": false\n  },\n  {\n   \"record_sha256\": \"6bab8ed8b3071cb683d1084b61666440d3ba4a92fb9202bf8382437c57b979da\",\n   \"ledger_n\": 291,\n   \"decision\": \"admit\",\n   \"content\": {\n    \"checked\": true,\n    \"decision\": \"pass\",\n    \"marks\": [],\n    \"rules_sha256\": \"6c621d1a05138a7888d37d9269a9da8e2e11e4aced2f6cfd24b05ab1b9e61bb0\"\n   },\n   \"revoked\": false\n  }\n ],\n \"freshness\": {\n  \"last_measured\": null,\n  \"oldest_measurement\": null,\n  \"current_now\": \"2026-11-06T04:05:00Z\",\n  \"period_days\": 30\n },\n \"resume_sha256\": \"6111ed37369a1baf7e70d49b89d2b8858233bd51f22d88a0a4836b9ccb0fe469\",\n \"evaluated_at\": \"2026-11-06T04:05:00Z\",\n \"subject_responses\": [],\n \"not_counted\": [],\n \"scan\": {\n  \"seq\": 300,\n  \"entries_read\": 300,\n  \"ceiling\": 400,\n  \"out_of_scope\": 0\n },\n \"recompute\": {\n  \"how\": \"see the ledger\"\n }\n}",
+     "status": 200
+    },
+    "https://mempool.space/api/block-height/971111": {
+     "body": "2749745191f04d592f3249f92f75d8ae30c68d2110aaddd4135f8b1991e037dd",
+     "status": 200
+    },
+    "https://mempool.space/api/block/2749745191f04d592f3249f92f75d8ae30c68d2110aaddd4135f8b1991e037dd/header": {
+     "body": "00000020b4ab16500a46ee44b65d96eb9e63ba3f1ef42f5d66e3918ad6b4a19ba3972e5eab71f4cde7c1118c3cc3d6f38ff154c9afa178bfa70f7e4124be1804fd27aa4b4002df6affff7f2001000000",
+     "status": 200
+    }
+   }
+  }
+ ],
+ "schema": "nenrin-furui-verify-vectors-v1",
+ "summary_form": "bitcoin-header: expect = {state, code, facts}; furui-day and resume-admission: as in verify_vectors.json, with one more step"
+}

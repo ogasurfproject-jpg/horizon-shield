@@ -13,10 +13,18 @@
 //   nenrin-verify resume-admission <endpoint> <record_sha256>
 //     1 resume, 2 admission_line, 3 admission_record, 4 ledger_batch, 5 bitcoin_anchor
 //   nenrin-verify furui-vectors <vectors.json>
+//   --bitcoin-header (either command, optional): one more step after bitcoin_anchor (7 for furui-day, 6 for
+//     resume-admission), bitcoin_header: two block explorers (mempool.space and blockstream.info) name the same block
+//     hash at the proof's height and serve the same 80 byte header; the header hashes (sha256d) to that block hash and
+//     meets the target its own bits encode; its merkle root is the one the OpenTimestamps proof commits to. Without the
+//     flag nothing changes. Python and JavaScript give the same answers on ../furui-check-day-v0/bitcoin_header_vectors.json;
+//     the Go and Java ports take the flag in their next version.
 //
 // Exit: 0 ok, 1 fail, 3 not_yet, 2 usage or network error. Network: GET only, only https://ledger.horizonshield.dev and
-// https://furui.horizonshield.dev, no redirects. The Bitcoin block header is not fetched: the output names the height and
-// the merkle root the proof commits to, to be compared with any copy of the Bitcoin chain.
+// https://furui.horizonshield.dev, no redirects; with --bitcoin-header also https://mempool.space and
+// https://blockstream.info (four GETs, sending only the block height and the block hash). Without the flag the Bitcoin
+// block header is not fetched: the output names the height and the merkle root the proof commits to, to be compared
+// with any copy of the Bitcoin chain.
 import { createHash, createPublicKey, verify as edVerify } from "node:crypto";
 import { readFileSync } from "node:fs";
 
@@ -41,6 +49,10 @@ const MARKS_OK = ['[]', '["off_topic"]', '["rule_conflict"]', '["off_topic","rul
 export const CHECK_SCHEMA = "nenrin-furui-check-v1";
 const DAY_STEPS = ["envelope_shape", "leaf_sha256", "audit_path", "signature", "runner_key", "bitcoin_anchor"];
 const RESUME_STEPS = ["resume", "admission_line", "admission_record", "ledger_batch", "bitcoin_anchor"];
+const HEADER_STEP = "bitcoin_header";
+// --bitcoin-header: two Esplora APIs, asked in this order; GET /block-height/<h> and GET /block/<hash>/header
+export const EXPLORERS = [["mempool", "https://mempool.space/api"], ["blockstream", "https://blockstream.info/api"]];
+const EXPLORER_HOSTS = ["mempool.space", "blockstream.info"];
 
 export class NetError extends Error {}
 class Bad extends Error {}
@@ -219,13 +231,16 @@ export function otsParse(buf) {
 // ---- fetching ----
 export const encComponent = (s) => encodeURIComponent(s).replace(/[!'()*]/g, (c) => "%" + c.charCodeAt(0).toString(16).toUpperCase());
 
-export async function httpGet(url) {
+export const httpGet = (url) => fetchFrom(url, ALLOWED_HOSTS, "application/json", 4 * 1024 * 1024);
+// the two block explorers (--bitcoin-header only)
+export const httpGetExplorer = (url) => fetchFrom(url, EXPLORER_HOSTS, "text/plain", 4096);
+async function fetchFrom(url, hosts, accept, limit) {
   let u;
   try { u = new URL(url); } catch (e) { throw new NetError("not a URL: " + url); }
-  if (u.protocol !== "https:" || !ALLOWED_HOSTS.includes(u.hostname) || (u.port !== "" && u.port !== "443")) throw new NetError("not an allowed URL: " + url);
+  if (u.protocol !== "https:" || !hosts.includes(u.hostname) || (u.port !== "" && u.port !== "443")) throw new NetError("not an allowed URL: " + url);
   try {
-    const r = await fetch(url, { method: "GET", redirect: "manual", headers: { "user-agent": "nenrin-verify-furui/1", accept: "application/json" }, signal: AbortSignal.timeout(30000) });
-    return [r.status, new Uint8Array(await r.arrayBuffer())];
+    const r = await fetch(url, { method: "GET", redirect: "manual", headers: { "user-agent": "nenrin-verify-furui/1", accept }, signal: AbortSignal.timeout(30000) });
+    return [r.status, new Uint8Array(await r.arrayBuffer()).subarray(0, limit)];
   } catch (e) { throw new NetError(url + ": " + (e && e.message)); }
 }
 
@@ -274,10 +289,56 @@ async function anchor(run, n, recordSha, recordSchema, needBlockTime) {
 // Python truthiness of a JSON value, so that both ports read block_time the same way
 const truthy = (v) => !(v === undefined || v === null || v === false || v === 0 || v === "" || (Array.isArray(v) && v.length === 0) || (isObj(v) && Object.keys(v).length === 0));
 
-export async function furuiDay(day, leaf, getf = httpGet) {
-  const run = new Run(getf, DAY_STEPS);
+// ---- --bitcoin-header: the block header at the proof's height, from two explorers ----
+const HEX64 = /^[0-9a-f]{64}$/;
+const HEX160 = /^[0-9a-f]{160}$/;
+const sha256d = (b) => createHash("sha256").update(createHash("sha256").update(b).digest()).digest();
+// the target a header's compact bits encode, or null when the bits are negative, zero or wider than 256 bits
+export function bitsTarget(bits) {
+  const exp = bits >>> 24, mant = bits & 0x007fffff;
+  if (bits & 0x00800000 || mant === 0 || exp > 32) return null;
+  return exp >= 3 ? BigInt(mant) << BigInt(8 * (exp - 3)) : BigInt(mant) >> BigInt(8 * (3 - exp));
+}
+// -> [state, code, facts or null]. The explorers are asked in EXPLORERS order; the first difference is the code.
+export async function bitcoinHeader(height, merkleRoot, getf = httpGetExplorer) {
+  const hashes = [], headers = [];
+  for (const [name, base] of EXPLORERS) {
+    let [s, b] = await getf(base + "/block-height/" + height);
+    if (s !== 200) return ["fail", name + "_height_http_" + s, null];
+    const t = Buffer.from(b).toString("latin1");
+    if (!HEX64.test(t)) return ["fail", name + "_hash_shape", null];
+    [s, b] = await getf(base + "/block/" + t + "/header");
+    if (s !== 200) return ["fail", name + "_header_http_" + s, null];
+    const x = Buffer.from(b).toString("latin1");
+    if (!HEX160.test(x)) return ["fail", name + "_header_shape", null];
+    hashes.push(t); headers.push(x);
+  }
+  if (hashes[0] !== hashes[1]) return ["fail", "explorers_name_different_blocks", null];
+  if (headers[0] !== headers[1]) return ["fail", "explorers_serve_different_headers", null];
+  const hb = Buffer.from(headers[0], "hex");
+  const bh = Buffer.from(sha256d(hb)).reverse().toString("hex");
+  if (bh !== hashes[0]) return ["fail", "header_hash_is_not_the_named_block", null];
+  const target = bitsTarget(hb.readUInt32LE(72));
+  if (target === null) return ["fail", "header_bits_shape", null];
+  if (BigInt("0x" + bh) > target) return ["fail", "header_hash_above_its_target", null];
+  if (Buffer.from(hb.subarray(36, 68)).reverse().toString("hex") !== merkleRoot) return ["fail", "header_merkle_root_is_not_the_proof", null];
+  return ["ok", null, { block_hash: bh, header: headers[0], explorers: EXPLORER_HOSTS.slice() }];
+}
+// the step after bitcoin_anchor, when the flag is given: skipped unless the anchor step is ok
+async function headerStep(run, headerGet) {
+  const last = run.steps[run.steps.length - 1];
+  if (!last || last.name !== "bitcoin_anchor" || last.state !== "ok") return;
+  const [state, code, facts] = await bitcoinHeader(run.facts.bitcoin_block, run.facts.merkle_root, headerGet);
+  run.facts.bitcoin_header = facts;
+  run.put(state, code);
+}
+
+export async function furuiDay(day, leaf, getf = httpGet, opts = {}) {
+  const withHeader = opts.bitcoinHeader === true, headerGet = opts.headerGet || httpGetExplorer;
+  const run = new Run(getf, withHeader ? DAY_STEPS.concat([HEADER_STEP]) : DAY_STEPS);
   run.facts = { day, leaf, record_sha256: null, n: null, root: null, ledger_entry: null, bitcoin_block: null, merkle_root: null };
   const args = { day, leaf };
+  if (withHeader) { run.facts.bitcoin_header = null; args.bitcoin_header = true; }
   const done = () => run.result("furui-day", args);
   // 1 envelope_shape
   const [s, a] = await run.getj(FURUI + "/furui/day/" + day + "/leaf/" + leaf);
@@ -352,6 +413,7 @@ export async function furuiDay(day, leaf, getf = httpGet) {
   if (get(lr, "status") !== "anchored" || !isInt(get(lr, "ledger_entry"), 1)) { run.put("not_yet", "not_in_an_anchored_batch_yet"); return done(); }
   const [, state, code] = await anchor(run, lr.ledger_entry, rs, "furui-check-day-v0", false);
   run.put(state, code);
+  if (withHeader) await headerStep(run, headerGet);
   return done();
 }
 
@@ -369,10 +431,12 @@ function lineClosed(ln) {
       && (c.rules_sha256 === null || (isStr(c.rules_sha256) && H64.test(c.rules_sha256)))));
 }
 
-export async function resumeAdmission(endpoint, recordSha, getf = httpGet) {
-  const run = new Run(getf, RESUME_STEPS);
+export async function resumeAdmission(endpoint, recordSha, getf = httpGet, opts = {}) {
+  const withHeader = opts.bitcoinHeader === true, headerGet = opts.headerGet || httpGetExplorer;
+  const run = new Run(getf, withHeader ? RESUME_STEPS.concat([HEADER_STEP]) : RESUME_STEPS);
   run.facts = { endpoint, record_sha256: recordSha, resume_sha256: null, ledger_entry: null, bitcoin_block: null, merkle_root: null };
   const args = { endpoint, record_sha256: recordSha };
+  if (withHeader) { run.facts.bitcoin_header = null; args.bitcoin_header = true; }
   const done = () => run.result("resume-admission", args);
   // 1 resume
   const [s, r] = await run.getj(LEDGER + "/resume?endpoint=" + encComponent(endpoint));
@@ -424,6 +488,7 @@ export async function resumeAdmission(endpoint, recordSha, getf = httpGet) {
   run.put("ok");
   if (state === "not_yet") { state = "fail"; code = "entry_listed_by_the_resume_is_not_anchored"; }
   run.put(state, code);
+  if (withHeader) await headerStep(run, headerGet);
   return done();
 }
 
@@ -442,8 +507,10 @@ export async function runCase(c) {
     try { const p = otsParse(Buffer.from(c.args.body_b64, "base64")); return { digest: p.digest, bitcoin: p.bitcoin, pending: p.pending }; } catch (e) { if (e instanceof Bad) return { error: e.message }; throw e; }
   }
   const g = worldGet(c.world);
-  if (c.command === "furui-day") return summary(await furuiDay(c.args.day, c.args.leaf, g));
-  return summary(await resumeAdmission(c.args.endpoint, c.args.record_sha256, g));
+  if (c.command === "bitcoin-header") { const [state, code, facts] = await bitcoinHeader(c.args.height, c.args.merkle_root, g); return { state, code, facts }; }
+  const o = { bitcoinHeader: c.args.bitcoin_header === true, headerGet: g };
+  if (c.command === "furui-day") return summary(await furuiDay(c.args.day, c.args.leaf, g, o));
+  return summary(await resumeAdmission(c.args.endpoint, c.args.record_sha256, g, o));
 }
 export async function runVectors(path, out = (l) => process.stdout.write(l + "\n")) {
   const doc = parseJson(readFileSync(path));
@@ -458,7 +525,7 @@ export async function runVectors(path, out = (l) => process.stdout.write(l + "\n
   return ok === doc.cases.length ? 0 : 1;
 }
 
-const USAGE = "usage: nenrin-verify furui-day <YYYY-MM-DD> --leaf <i>\n       nenrin-verify resume-admission <https endpoint> <record_sha256>\n       nenrin-verify furui-vectors <vectors.json>";
+const USAGE = "usage: nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--bitcoin-header]\n       nenrin-verify resume-admission <https endpoint> <record_sha256> [--bitcoin-header]\n       nenrin-verify furui-vectors <vectors.json>";
 const EXIT = { ok: 0, fail: 1, not_yet: 3 };
 export const FURUI_COMMANDS = ["furui-day", "resume-admission", "furui-vectors"];
 
@@ -469,9 +536,15 @@ const drained = () => new Promise((resolve) => process.stdout.write("", resolve)
 // argv without node and the script: returns the exit code
 export async function furuiMain(argv) {
   let res;
+  argv = argv.slice();
+  const o = { bitcoinHeader: false };
+  if (["furui-day", "resume-admission"].includes(argv[0]) && argv.slice(1).filter((x) => x === "--bitcoin-header").length === 1) {
+    argv.splice(argv.indexOf("--bitcoin-header", 1), 1);
+    o.bitcoinHeader = true;
+  }
   try {
-    if (argv.length === 4 && argv[0] === "furui-day" && argv[2] === "--leaf" && realDay(argv[1]) && /^(0|[1-9]\d{0,8})$/.test(argv[3])) res = await furuiDay(argv[1], Number(argv[3]));
-    else if (argv.length === 3 && argv[0] === "resume-admission" && /^https:\/\/\S+$/.test(argv[1]) && H64.test(argv[2]) && hostOf(argv[1])) res = await resumeAdmission(argv[1], argv[2]);
+    if (argv.length === 4 && argv[0] === "furui-day" && argv[2] === "--leaf" && realDay(argv[1]) && /^(0|[1-9]\d{0,8})$/.test(argv[3])) res = await furuiDay(argv[1], Number(argv[3]), httpGet, o);
+    else if (argv.length === 3 && argv[0] === "resume-admission" && /^https:\/\/\S+$/.test(argv[1]) && H64.test(argv[2]) && hostOf(argv[1])) res = await resumeAdmission(argv[1], argv[2], httpGet, o);
     else if (argv.length === 2 && argv[0] === "furui-vectors") { const rc = await runVectors(argv[1]); await drained(); return rc; }
     else { process.stderr.write(USAGE + "\n"); return 2; }
   } catch (e) {

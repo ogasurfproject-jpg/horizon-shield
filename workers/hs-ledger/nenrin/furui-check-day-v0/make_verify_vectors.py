@@ -360,10 +360,12 @@ doc = {"schema": "nenrin-furui-verify-vectors-v1",
        "cases": cases + ([REAL] if REAL else [])}
 text = json.dumps(doc, ensure_ascii=False, indent=1, sort_keys=True) + "\n"
 out = os.path.join(HERE, "verify_vectors.json")
-if sys.argv[1:] == ["--check"]:
-    same = os.path.exists(out) and open(out, encoding="utf-8").read() == text
-    print("verify_vectors.json %s (%d cases)" % ("is what this writes" if same else "DIFFERS from what this writes", len(doc["cases"])))
-    sys.exit(0 if same else 1)
-with open(out, "w", encoding="utf-8") as f:
-    f.write(text)
-print("wrote verify_vectors.json, %d cases, sha256 %s" % (len(doc["cases"]), hashlib.sha256(text.encode()).hexdigest()))
+# imported (make_bitcoin_header_vectors.py uses the worlds above): nothing is written
+if __name__ == "__main__":
+    if sys.argv[1:] == ["--check"]:
+        same = os.path.exists(out) and open(out, encoding="utf-8").read() == text
+        print("verify_vectors.json %s (%d cases)" % ("is what this writes" if same else "DIFFERS from what this writes", len(doc["cases"])))
+        sys.exit(0 if same else 1)
+    with open(out, "w", encoding="utf-8") as f:
+        f.write(text)
+    print("wrote verify_vectors.json, %d cases, sha256 %s" % (len(doc["cases"]), hashlib.sha256(text.encode()).hexdigest()))

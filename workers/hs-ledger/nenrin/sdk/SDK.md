@@ -72,6 +72,15 @@ account, no token, no trust in HS. A mismatch exits 2 and prints the two trees t
 attestation (who built it, from which commit) and this script (what that commit builds, on your
 machine), the chain source to package is closed at both ends by the reader, not by the operator.
 
+## 0.9.0: `--bitcoin-header` checks the block header from two explorers
+
+`furui-day` and `resume-admission` take `--bitcoin-header`: after the anchor, the block header at the proof's height
+from mempool.space and blockstream.info; both must serve the same header, its merkle root must be the proof's, its
+sha256d the block hash, at or under the target its own bits name. Without the flag no other host is asked and the
+output is the same as 0.8.1. Python and JavaScript give the same answers on
+`../furui-check-day-v0/bitcoin_header_vectors.json` (`node furui_day.test.mjs`); Go and Java take the flag in their
+next version.
+
 ## 0.8.1: the furui commands wait for stdout before they exit
 
 `furui-vectors`, `furui-day` and `resume-admission` now wait until stdout has taken every line before the process
