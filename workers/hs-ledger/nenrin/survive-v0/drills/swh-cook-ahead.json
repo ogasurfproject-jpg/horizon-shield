@@ -39,6 +39,16 @@
       "snapshot": "692035059c737b4eb6551a14f4f8e38b285ab00c",
       "status_at_request": "new",
       "visit_date": "2026-11-03T10:57:30.183000+00:00"
+    },
+    {
+      "answer": null,
+      "directory": "swh:1:dir:a8e7ca035ebb93e9c99fb097b0f9949f2403b78a",
+      "requested_at": "2026-11-02T11:49:04Z",
+      "revision": "6f8f7754f559d2ceb0129f3c9eaf65e4db7c0caf",
+      "revision_date": null,
+      "snapshot": "5f9a27644e6995edf10d61013852c6e9c4f1048f",
+      "status_at_request": "new",
+      "visit_date": "2026-11-02T11:16:05.479000+00:00"
     }
   ],
   "requested_at": "2026-11-04T11:35:28Z",

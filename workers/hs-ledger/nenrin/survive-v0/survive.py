@@ -132,8 +132,11 @@ def copy_from_github(work):
 
 
 SWH_API = "https://archive.softwareheritage.org/api/1"
-AHEAD_MAX_AGE_S = 48 * 3600
-AHEAD_KEEP = 3  # precook requests kept in the record (newest first), so a copy that finishes a day late is still found
+# 2026-11-04: 48 h and three were too few. The drill of 11/04 saw only the request of 11/03 (still "new"); the
+# request of 11/02 was found done at 12:46 UTC that day, at most 49 h after it was asked for, past the 48 h. Four
+# days and five requests keep such a copy in reach; the report names its day either way.
+AHEAD_MAX_AGE_S = 96 * 3600
+AHEAD_KEEP = 5  # precook requests kept in the record (newest first), so a copy that finishes days late is still found
 
 
 def swh_latest_kept(get=http_get):
@@ -222,7 +225,7 @@ def _utc(ts):
 
 
 def _ahead_list(path):
-    """The precook requests in a record that are under two days old, newest first, one per directory. A record of
+    """The precook requests in a record that are under four days old, newest first, one per directory. A record of
     the 2026-10-30 form (one request, no "recent") is read as a list of one."""
     try:
         with open(path, "rb") as f:
@@ -237,7 +240,7 @@ def _ahead_list(path):
         if not isinstance(it, dict) or not str(it.get("directory", "")).startswith("swh:1:dir:"):
             continue
         t = _utc(it.get("requested_at"))
-        # a request older than two days is not used: a precook that kept failing must not pin the drill to an old copy
+        # a request older than four days is not used: a precook that kept failing must not pin the drill to an old copy
         if t is None or time.time() - t > AHEAD_MAX_AGE_S:
             continue
         out.append((t, it))
@@ -284,7 +287,7 @@ def copy_from_swh(work, wait_s=1800, ahead=None, get=http_get):  # 2026-10-02: 9
     # 2026-11-03. Every vault call's code, id, status and the head of its body are kept (trail), on success in the
     # provenance and on failure in the report, so a day the vault does not move can be shown from the record alone.
     # 2026-11-04. From 10/29 to 11/03 the vault took more than a day to cook each request, and finished them later
-    # (10/29 to 11/01 were done by 11/03). The record now keeps the precook requests of the last two days. Today's
+    # (10/29 to 11/01 were done by 11/03). The record now keeps the precook requests of the last two days (four since 11/04). Today's
     # latest visit is asked for first; when it is not done at once, the newest earlier request that is done is used,
     # and the report names the day of that copy (copy.kind "cooked_ahead", precooked_at, revision_date). Only when
     # none is done does the drill wait for today's, as before.
@@ -339,7 +342,7 @@ def copy_from_swh(work, wait_s=1800, ahead=None, get=http_get):  # 2026-10-02: 9
 def precook(out, get=http_get):
     """Ask the vault to cook the latest visit's kept/ now, for the next drill. Does not wait. The record keeps this
     request on top (the 2026-10-30 fields, for readers of that form) and, in "recent", up to AHEAD_KEEP requests
-    of the last two days, newest first."""
+    of the last four days, newest first."""
     prev = _ahead_list(out)
     lk = swh_latest_kept(get)
     cook = "%s/vault/flat/%s/" % (SWH_API, lk["directory"])

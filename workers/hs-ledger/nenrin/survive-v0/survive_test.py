@@ -228,8 +228,8 @@ try:
     d, prov = S.copy_from_swh(os.path.join(tmp, ".a2"), ahead=ahead_file(OLD), get=g)
     ok("a copy not ready yet falls back to the latest visit", prov["directory"] == NEW and g.posts == [NEW] and prov["cooked_ahead"]["used"] is False, prov)
     g = FakeSWH({OLD: "done"})
-    d, prov = S.copy_from_swh(os.path.join(tmp, ".a3"), ahead=ahead_file(OLD, age_s=3 * 86400), get=g)
-    ok("a record older than two days is not used", prov["directory"] == NEW and "cooked_ahead" not in prov, prov)
+    d, prov = S.copy_from_swh(os.path.join(tmp, ".a3"), ahead=ahead_file(OLD, age_s=5 * 86400), get=g)
+    ok("a record older than four days is not used", prov["directory"] == NEW and "cooked_ahead" not in prov, prov)
     g = FakeSWH()
     d, prov = S.copy_from_swh(os.path.join(tmp, ".a4"), ahead=os.path.join(tmp, "no-such.json"), get=g)
     ok("no record: the old path, unchanged", prov["directory"] == NEW and g.posts == [NEW] and "cooked_ahead" not in prov, prov)
@@ -299,8 +299,13 @@ try:
     d, prov = S.copy_from_swh(os.path.join(tmp, ".b3"), ahead=two, get=g)
     ok("today's done at once: today's is used and called today's", prov["directory"] == NEW and prov["copy"]["kind"] == "latest_visit"
        and prov["copy"]["is_todays_visit"] is True and prov["copy"]["revision_date"] == "2026-11-03T10:50:00+00:00", prov)
-    stale = rec_file("stale.json", [item(MID, 49, "2026-11-01T11:10:00+00:00")])
-    ok("a request older than two days is left out of the list", S._ahead_list(stale) == [], S._ahead_list(stale))
+    stale = rec_file("stale.json", [item(MID, 97, "2026-11-01T11:10:00+00:00")])
+    ok("a request older than four days is left out of the list", S._ahead_list(stale) == [], S._ahead_list(stale))
+    late = rec_file("late.json", [item(MID, 16, "2026-11-04T11:00:00+00:00"), item(OLD, 64, "2026-11-02T11:40:00+00:00")])
+    g = FakeSWH({NEW: "new", MID: "new", OLD: "done"})
+    d, prov = S.copy_from_swh(os.path.join(tmp, ".b4"), ahead=late, get=g)
+    ok("a request done about two days after it was asked for (11/02) is still in reach at the next morning's drill", prov["directory"] == OLD
+       and prov["copy"]["kind"] == "cooked_ahead", prov)
     pre = os.path.join(tmp, "pre_list.json")
     with open(pre, "w") as f:
         json.dump(dict(item(MID, 23, "x"), schema="nenrin-survive-precook-v0"), f)
@@ -310,7 +315,12 @@ try:
         json.dump(dict(item(OLD, 1, "x"), schema="nenrin-survive-precook-v0",
                        recent=[item(OLD, 1, "x"), item(MID, 20, "x"), item("swh:1:dir:" + "e" * 40, 30, "x"), item("swh:1:dir:" + "f" * 40, 40, "x")]), f)
     rec = S.precook(pre, get=FakeSWH({NEW: "new"}))
-    ok("precook keeps at most three, newest first", [x["directory"][-1] for x in rec["recent"]] == ["b", "a", "c"], rec.get("recent"))
+    ok("precook keeps at most five, newest first", [x["directory"][-1] for x in rec["recent"]] == ["b", "a", "c", "e", "f"], rec.get("recent"))
+    with open(pre, "w") as f:
+        json.dump(dict(item(OLD, 1, "x"), schema="nenrin-survive-precook-v0",
+                       recent=[item(OLD, 1, "x"), item(MID, 20, "x")] + [item("swh:1:dir:" + ch * 40, h, "x") for ch, h in (("e", 30), ("f", 40), ("9", 50))]), f)
+    rec = S.precook(pre, get=FakeSWH({NEW: "new"}))
+    ok("a sixth request falls out", [x["directory"][-1] for x in rec["recent"]] == ["b", "a", "c", "e", "f"], rec.get("recent"))
 
     # a fake Software Heritage behind urllib itself (an https handler, no socket), so http_get, the allowlist guard and
     # urllib's own HTTPError for 429 and 500 are the real ones
