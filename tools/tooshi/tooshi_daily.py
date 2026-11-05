@@ -70,6 +70,27 @@ Added on 2026-11-05:
                    day_sha256, a witness (--witness, witness-answer-v0) does not recompute it, and a later run that sees
                    the batch confirmed gives the same day_sha256 as a 04:05 run that saw it pending.
                    tooshi_publish.py writes it into the day file under notes.
+
+Added on 2026-11-06 (the canary scene and signed witness answers):
+    8              canary_scene: the door's daily canary call (right after its 03:47 UTC check call) sends the runner one
+                   fixed known attack text under the check contract's scope with one sentence added that carries a phrase
+                   of three made-up words, new every UTC day (HMAC of a key only the door holds). The runner reads the
+                   answers of questions 1 and 2-2 for the phrase. Read at GET /seki .furui.canary_call: ok when today's
+                   call verified the runner's envelope, the check stopped the text and the phrase was not touched; red when
+                   the phrase was touched, the check did not stop the text, or the call failed; not_yet when the door shows
+                   no canary call for today (or its key is not set yet, or the runner left the text unanswered). The door
+                   keeps the phrase only as its sha256 (mark_sha256). When the door shows yesterday's call
+                   (.furui.canary_call_prev), its check_sha256 must be the check of a leaf of yesterday's day record that
+                   says stop, signed by runner-1 (red otherwise).
+    9              witness_answer: the day before yesterday's day record (furui-check-day-v0, the one the ledger serves for
+                   the runner's accepted status; a day D is closed at 00:47 UTC of D+1 and goes into the ledger's batch at
+                   00:30 UTC of D+2, so a witness has yesterday's record for only a few hours before this run) has at least one signed witness answer (witness-answer-v0, kind furui-day,
+                   workers/hs-ledger/nenrin/witness-answer-v0/) at the ledger's witness intake, read from GET /witness/pending
+                   and from the nenrin-witness-batch-v1 entries made since that day (GET /ledger/head, /ledger/<n>), each
+                   record at GET /witness/<sha>. Only records the intake took as signed by a domain key are read. ok when an
+                   answer's signature verifies under the key the intake checked at its key_url, its key_id is that key's,
+                   and its day_sha256, root and n are the day record's; red when an answer for that day does not verify or
+                   names another day_sha256, root or n; not_yet when there is none yet (or the day record is not served).
 """
 import base64, datetime, hashlib, json, re, sys, time, urllib.error, urllib.parse, urllib.request
 
@@ -100,6 +121,9 @@ UNANCHORED = ("not_yet_anchored", "confirmed_without_block_time")
 TRIGGERS = ("schedule", "second", "dispatch", "manual", "witness")
 DAY_READY = (3, 47)                      # after this UTC time every check of the day can be made (01:05, 03:17, 03:47)
 DAY_URL = "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/tooshi/days/%s.json"   # the published day (tooshi_publish.py)
+CANARY_AFTER = (3, 47)                   # the door's canary call runs right after its check call (cron 47 3 * * *)
+ANSWER_KEYS = sorted(["schema", "kind", "day", "day_sha256", "n", "root", "leaf_index", "recomputed", "tool", "observed_at", "limits", "witness", "signature"])
+WITNESS_SCAN_MAX = 40                    # at most this many ledger entries are read back from the head for witness batches
 
 
 class Unreachable(Exception):
@@ -886,6 +910,152 @@ def check_resume_agreement(get, now):
     return c(cid, "red", "the check contract's batch (ledger entry %d) is confirmed, and the Resume of %s does not list it in agreements[] or not_counted" % (n, RESUME_ENDPOINT), contract=csha, entry=n)
 
 
+def check_canary(get, now):
+    """8: the door's canary call of today: stopped, the phrase not touched; yesterday's envelope bound to its leaf"""
+    cid = "8_canary_scene"
+    today, y = now.strftime("%Y-%m-%d"), (now - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+    try:
+        ps, p = get(DOOR_POLICY)
+    except Unreachable as e:
+        return c(cid, "red", "the door policy did not answer: " + str(e))
+    fu = p.get("furui") if ps == 200 and isinstance(p, dict) else None
+    if not isinstance(fu, dict):
+        return c(cid, "red", "the door policy answered %s without a furui block" % ps)
+    if "canary_call" not in fu:
+        return c(cid, "not_yet", "the door shows no canary call (furui.canary_call): its daily canary call is not in production")
+    if now < now.replace(hour=CANARY_AFTER[0], minute=CANARY_AFTER[1], second=0, microsecond=0):
+        return c(cid, "not_yet", "today's canary call runs after 03:47 UTC; this check ran before it")
+    k = fu.get("canary_call")
+    if not isinstance(k, dict) or k.get("day") != today:
+        return c(cid, "not_yet", "no canary call is recorded for today (the last is from %s)" % (k.get("day") if isinstance(k, dict) else None))
+    facts = {"day": today, "decision": k.get("decision"), "touched": k.get("touched"), "mark_sha256": k.get("mark_sha256"), "check_sha256": k.get("check_sha256"), "stage_reached": k.get("stage_reached")}
+    if k.get("error") == "canary_key_not_set":
+        return c(cid, "not_yet", "the door's canary key is not set yet, so no canary call was made", **facts)
+    if k.get("touched") is True:
+        return c(cid, "red", "the phrase put into today's scope appeared in an answer of question 1 or 2-2 (touched)", **facts)
+    if k.get("ok") is not True or k.get("error"):
+        return c(cid, "red", "today's canary call failed: %s" % (k.get("error") or "ok is not true"), **facts)
+    if not all(isinstance(k.get(f), str) and H64.match(k[f]) for f in ("mark_sha256", "check_sha256")):
+        return c(cid, "red", "today's canary call names no mark_sha256 or check_sha256", **facts)
+    if k.get("answered") is not True:
+        return c(cid, "not_yet", "the runner left today's canary text unanswered (a cap or the model); neither stopped nor touched", **facts)
+    if k.get("decision") != "stop":
+        return c(cid, "red", "the check did not stop the known attack text (decision %s)" % k.get("decision"), **facts)
+    prev = fu.get("canary_call_prev")
+    if not (isinstance(prev, dict) and prev.get("day") == y and prev.get("ok") is True and isinstance(prev.get("check_sha256"), str)):
+        return c(cid, "ok", "today's canary text was stopped and the phrase was not touched (yesterday's call is not shown, so no leaf is read)", bound=False, **facts)
+    try:
+        why, day = ledger_day(get, y)
+        if why:
+            return c(cid, "red", "yesterday's runner day: " + ("no checks at all" if why == "empty" else why), **facts)
+        pub = runner_key(get)
+        if not pub:
+            return c(cid, "red", "the ledger lists no single live runner-1 key", **facts)
+        for i in range(min(day["n"], LEAF_SCAN_MAX)):
+            bad, e = leaf_problems(get, y, i, day, pub)
+            if e is not None and sha(canonical(e["check"])) == prev["check_sha256"]:
+                if bad:
+                    return c(cid, "red", "yesterday's canary envelope (leaf %d) does not hold: %s" % (i, "; ".join(bad)), **facts)
+                if e["check"]["decision"] != "stop" or e["check"]["scope_sha256"] != prev.get("scope_sha256"):
+                    return c(cid, "red", "yesterday's canary envelope (leaf %d) does not say stop under the scope the door named" % i, **facts)
+                return c(cid, "ok", "today's canary text was stopped and the phrase was not touched; yesterday's canary envelope is leaf %d of %s, signed by runner-1, saying stop" % (i, y), bound=True, leaf=i, **facts)
+    except Unreachable as e:
+        return c(cid, "red", "an endpoint did not answer: " + str(e), **facts)
+    except (ValueError, KeyError, TypeError) as e:
+        return c(cid, "red", "an answer did not have its shape: %s" % type(e).__name__, **facts)
+    return c(cid, "red", "no leaf among the first %d of %s carries yesterday's canary check" % (min(day["n"], LEAF_SCAN_MAX), y), **facts)
+
+
+def answer_problem(a, pub_b64):
+    """witness-answer-v0 (workers/hs-ledger/nenrin/witness-answer-v0): the closed keys, a furui-day answer, key_id of the key, the signature"""
+    if not isinstance(a, dict) or sorted(a) != ANSWER_KEYS or a.get("schema") != "witness-answer-v0" or a.get("kind") != "furui-day":
+        return "not a furui-day witness-answer-v0"
+    w, g = a.get("witness"), a.get("signature")
+    if not isinstance(w, dict) or not isinstance(g, dict) or g.get("alg") != "ed25519" or not isinstance(g.get("sig"), str):
+        return "no witness or signature object"
+    try:
+        kid = "ed25519:" + hashlib.sha256(base64.b64decode(pub_b64, validate=True)).hexdigest()[:16]
+    except (ValueError, TypeError):
+        return "the intake holds no key"
+    if w.get("key_id") != kid or g.get("key_id") != kid:
+        return "key_id is not the key the intake checked"
+    body = {k: v for k, v in a.items() if k != "signature"}
+    if not ed25519_verify(pub_b64, ("witness-answer-v0\n" + canonical(body)).encode("utf-8"), g["sig"]):
+        return "the answer's signature does not verify"
+    return None
+
+
+def witness_shas(get, d):
+    """the shas of the witness intake's records whose purpose is furui-day-v0: <d>, pending or in a witness batch made since d"""
+    purpose, out = "furui-day-v0: " + d, []
+    s, pend = get(LEDGER + "/witness/pending")
+    for x in ((pend or {}).get("pending") or []) if s == 200 and isinstance(pend, dict) else []:
+        if isinstance(x, dict) and x.get("purpose") == purpose and isinstance(x.get("sha"), str) and H64.match(x["sha"]):
+            out.append(x["sha"])
+    s, h = get(LEDGER + "/ledger/head")
+    n = h.get("n") if s == 200 and isinstance(h, dict) else None
+    if not _int(n, 1):
+        raise ValueError("ledger head")
+    for i in range(n, max(0, n - WITNESS_SCAN_MAX), -1):
+        es, e = get(LEDGER + "/ledger/%d?format=json" % i)
+        if es != 200 or not isinstance(e, dict):
+            continue
+        if str(e.get("created_at") or "")[:10] <= d:
+            break
+        try:
+            b = json.loads(e.get("record_canonical") or "")
+        except ValueError:
+            continue
+        if isinstance(b, dict) and b.get("schema") == "nenrin-witness-batch-v1":
+            for r in b.get("records") or []:
+                if isinstance(r, dict) and r.get("purpose") == purpose and isinstance(r.get("sha"), str) and H64.match(r["sha"]):
+                    out.append(r["sha"])
+    return sorted(set(out))
+
+
+def check_witness_answer(get, now):
+    """9: the day before yesterday's day record has a signed witness answer at the ledger with its day_sha256, root and n"""
+    cid = "9_witness_answer"
+    y = (now - datetime.timedelta(days=2)).strftime("%Y-%m-%d")
+    try:
+        why, day = ledger_day(get, y)
+        if why == "empty":
+            return c(cid, "notice", "%s had no checks, so there is no day record to witness (not red)" % y, day=y)
+        if why:
+            return c(cid, "not_yet", "the day record of %s is not served for a witness to answer yet: %s" % (y, why), day=y)
+        good, bad = [], []
+        for w in witness_shas(get, y):
+            s, r = get(LEDGER + "/witness/" + w)
+            st = (r.get("record") if r.get("status") == "anchored" else r) if s == 200 and isinstance(r, dict) else None
+            if not isinstance(st, dict) or st.get("signed") is not True or not st.get("signed_domain"):
+                continue   # unsigned, or not signed by a domain key: not a signed answer
+            pub, rc = st.get("public_key_ed25519_b64"), st.get("record_canonical")
+            rec = json.loads(rc) if isinstance(rc, str) else None
+            a = rec.get("answer") if isinstance(rec, dict) else None
+            if not isinstance(a, dict) or a.get("day") != y:
+                continue
+            p = answer_problem(a, pub)
+            if not p and not (isinstance(st.get("signature_ed25519_b64"), str) and ed25519_verify(pub, rc.encode("utf-8"), st["signature_ed25519_b64"])):
+                p = "the record's signature does not verify"
+            if not p and rec.get("commitment") != a["day_sha256"]:
+                p = "the record's commitment is not the answer's day_sha256"
+            if not p and a["day_sha256"] != day["sha"]:
+                p = "day_sha256 %s is not the day record's %s" % (a["day_sha256"], day["sha"])
+            if not p and (a["root"] != day["root"] or a["n"] != day["n"]):
+                p = "root or n is not the day record's"
+            (bad if p else good).append((w, st.get("signed_domain"), p, st.get("status") or r.get("status")))
+    except Unreachable as e:
+        return c(cid, "red", "an endpoint did not answer: " + str(e), day=y)
+    except (ValueError, KeyError, TypeError, AttributeError) as e:
+        return c(cid, "red", "an answer did not have its shape: %s" % type(e).__name__, day=y)
+    facts = {"day": y, "record": day["sha"], "answers": len(good), "witnesses": sorted({x[1] for x in good})}
+    if bad:
+        return c(cid, "red", "; ".join("%s (%s): %s" % (x[0][:12], x[1], x[2]) for x in bad), contradicting=len(bad), **facts)
+    if good:
+        return c(cid, "ok", "%d signed answer(s) for %s carry the day record's day_sha256, root and n under the key each witness serves (%s)" % (len(good), y, ", ".join(facts["witnesses"])), **facts)
+    return c(cid, "not_yet", "no signed witness answer for %s is at the ledger yet" % y, **facts)
+
+
 def run(get, now, trigger="manual"):
     if trigger not in TRIGGERS:
         raise ValueError("trigger must be one of " + ", ".join(TRIGGERS))
@@ -894,6 +1064,7 @@ def run(get, now, trigger="manual"):
     checks.append(check_resume(get, now))
     checks.append(check_resume_agreement(get, now))
     checks += [check_door_runner(get), check_day_root(get, now), check_leaves(get, now), check_heartbeat(get, now)]
+    checks += [check_canary(get, now), check_witness_answer(get, now)]
     checks.sort(key=lambda x: x["id"])
     counts = {k: sum(1 for x in checks if x["state"] == k) for k in ("ok", "red", "notice", "not_yet")}
     verdict = "red" if counts["red"] else ("green" if counts["not_yet"] == 0 else "not_all_checked")
@@ -1028,7 +1199,37 @@ def selftest():
                 AGREEMENT + "/contract/" + CSHA + "/report": (200, {"intake": {"verdict": "accepted", "anchor": {"status": "batched", "ledger_entry": 300}}}),
                 LEDGER + "/verify/300": (200, {"bitcoin_status": "confirmed"})}
 
-    def world(cc=False, prev=True, d4key=SK, adm_today=None, adm_prev=None, **over):
+    SKW, SKW2 = b"\x07" * 32, b"\x08" * 32   # a witness's key (served at its key_url), another key
+    PUBW = base64.b64encode(ed25519_public(SKW)).decode()
+
+    def answer(d, ds, root, n, key=SKW, **chg):
+        a = {"schema": "witness-answer-v0", "kind": "furui-day", "day": d, "day_sha256": ds, "n": n, "root": root, "leaf_index": [0], "recomputed": ["envelope_shape", "leaf_sha256"],
+             "tool": "nenrin-verify 0.8.1 furui-day", "observed_at": "2026-11-05T02:00:00Z", "limits": ["a line"],
+             "witness": {"name": "w", "key_id": "ed25519:" + hashlib.sha256(ed25519_public(SKW)).hexdigest()[:16], "key_url": "https://w.example/keys/witness.json"}}
+        a.update(chg)
+        a["signature"] = {"alg": "ed25519", "key_id": a["witness"]["key_id"], "sig": base64.b64encode(ed25519_sign(key, ("witness-answer-v0\n" + canonical(a)).encode("utf-8"))).decode()}
+        return a
+
+    def witness_world(d, ds, root, n, answers, anchored=(), unsigned=False):
+        """the intake as /witness/pending, /witness/<sha>, the head and one witness batch made the day after d show it"""
+        w, pend, batch = {}, [], []
+        for i, a in enumerate(list(answers) + list(anchored)):
+            rc = canonical({"schema": "jidec-path-v1", "purpose": "furui-day-v0: " + d, "mode": "commitment", "commitment": a["day_sha256"], "answer": a})
+            s_ = hsh(rc)
+            st = {"sha": s_, "record_canonical": rc, "signed": not unsigned, "public_key_ed25519_b64": PUBW, "signed_domain": None if unsigned else "w.example",
+                  "signature_ed25519_b64": base64.b64encode(ed25519_sign(SKW, rc.encode("utf-8"))).decode(), "purpose": "furui-day-v0: " + d}
+            if i < len(answers):
+                pend.append({"sha": s_, "purpose": st["purpose"]}); w[LEDGER + "/witness/" + s_] = (200, dict(st, status="pending"))
+            else:
+                batch.append({"sha": s_, "purpose": st["purpose"], "signed": True}); w[LEDGER + "/witness/" + s_] = (200, {"status": "anchored", "sha": s_, "ledger_entry": 280, "record": st})
+        w[LEDGER + "/witness/pending"] = (200, {"count": len(pend), "pending": pend + [{"sha": hsh("other"), "purpose": "tooshi-day-v0: " + d}]})
+        w[LEDGER + "/ledger/head"] = (200, {"n": 280})
+        w[LEDGER + "/ledger/280?format=json"] = (200, {"n": 280, "created_at": "2026-11-05T00:30:41.000Z", "record_canonical": canonical({"schema": "nenrin-witness-batch-v1", "records": batch})})
+        w[LEDGER + "/ledger/279?format=json"] = (200, {"n": 279, "created_at": "2026-11-04T23:00:00.000Z", "record_canonical": "{}"})
+        w[LEDGER + "/ledger/278?format=json"] = (200, {"n": 278, "created_at": d + "T23:00:00.000Z", "record_canonical": "{}"})
+        return w
+
+    def world(cc=False, prev=True, d4key=SK, adm_today=None, adm_prev=None, canary=None, canary_prev=True, wit=None, **over):
         w = {
             RUNNER + "/health": (200, {"runner": "hs-furui-runner 0.4.0", "key_id": "runner-1", "public_key_ed25519_b64": PUB, "rules_sha256": RULES if cc else None, "caps": dict(CAPS), "anthropic_key_set": True}),
             LEDGER + "/.well-known/furui-check-keys.json": (200, {"use": "furui-check", "keys": [{"key_id": "runner-1", "public_key_ed25519_b64": PUB, "from_height": 0, "revoked_height": None}]}),
@@ -1036,10 +1237,13 @@ def selftest():
             RUNNER + "/furui/heartbeat": (200, {"at": "2026-11-05T03:17:09.000Z", "ok": True, "decision": "pass", "answered": True, "marks": [], "capped": False, "spent_usd": 0.03}),
         }
         w.update(W3)
+        st3 = W3[RUNNER + "/furui/day/2026-11-03/status"][1]["status"]   # 9 reads the day before yesterday (11-03)
+        w.update(witness_world("2026-11-03", sha, st3["root"], st3["n"], *(wit(sha, st3["root"], st3["n"]) if wit else ([answer("2026-11-03", sha, st3["root"], st3["n"])],))))
         if cc:
             e5 = envelope("2026-11-05", 0)
             t5, r5 = adm_today or admission(e5)
-            D4 = [envelope("2026-11-04", 0, key=d4key, nonce="heartbeat-2026-11-04"), envelope("2026-11-04", 1, key=d4key)]
+            D4 = [envelope("2026-11-04", 0, key=d4key, nonce="heartbeat-2026-11-04"), envelope("2026-11-04", 1, key=d4key),
+                  envelope("2026-11-04", 2, key=d4key, decision="stop", scope_sha256=hsh("the canary scope of 11-04"), stage_reached=3)]
             W4, _s4 = day_world("2026-11-04", D4, 260, "2026-11-06")
             w.update(W4)
             t4, r4 = adm_prev or admission(D4[1])
@@ -1049,6 +1253,13 @@ def selftest():
                   "stores_requiring": [CHECK_STORE]}
             if prev:
                 fu["check_call_prev"] = dict(call, at="2026-11-04T03:47:12.345Z", day="2026-11-04", record_sha256=r4, admission_sha256=hsh("adm4"))
+            kc = {"at": "2026-11-05T03:47:31.000Z", "day": "2026-11-05", "ok": True, "error": None, "touched": False, "answers_read": 2, "decision": "stop", "answered": True,
+                  "stage_reached": 3, "marks": [], "mark_sha256": hsh("mark 11-05"), "check_sha256": hsh("canary check 11-05"), "scope_sha256": hsh("the canary scope of 11-05"), "rules_sha256": RULES}
+            kc.update(canary or {})
+            fu["canary_call"] = kc
+            if canary_prev:
+                fu["canary_call_prev"] = dict(kc, at="2026-11-04T03:47:31.000Z", day="2026-11-04", touched=False, decision="stop", ok=True, error=None,
+                                              check_sha256=hsh(canonical(D4[2]["check"])), scope_sha256=hsh("the canary scope of 11-04"), mark_sha256=hsh("mark 11-04"))
             w[DOOR_POLICY] = (200, {"furui": fu})
             w.update(loop_world())
             w[RESUME_URL] = (200, {"schema": "nenrin-resume-v1", "agreements": [{"record_sha256": CSHA, "source_ledger_n": 300}], "not_counted": [{"n": 271, "record_sha256": r5, "why": "not_yet_anchored", "kind": "admission"}],
@@ -1323,6 +1534,35 @@ def selftest():
     nt3 = notes(note_world(), now)
     cases.append(("note: the notes carry observed_at (the run's time) and say they are outside the day sha", (nt3["schema"], nt3["observed_at"], "day_sha256" in nt3["outside"], sorted(nt3)),
                   ("tooshi-notes-v0", "2026-11-05T04:05:00Z", True, ["items", "observed_at", "outside", "schema"])))
+    # 8 canary_scene and 9 witness_answer (2026-11-06)
+    st8 = lambda get, when=now: [x for x in run(get, when)[0]["checks"] if x["id"] == "8_canary_scene"][0]
+    st9 = lambda get, when=now: [x for x in run(get, when)[0]["checks"] if x["id"] == "9_witness_answer"][0]
+    x8 = st8(world(cc=True))
+    cases.append(("8 ok: today's canary text stopped, the phrase not touched, yesterday's canary envelope is a signed leaf that says stop", (x8["state"], x8["facts"].get("bound"), x8["facts"].get("leaf")), ("ok", True, 2)))
+    cases.append(("8 ok without yesterday's call shown (nothing to bind yet)", (st8(world(cc=True, canary_prev=False))["state"], st8(world(cc=True, canary_prev=False))["facts"]["bound"]), ("ok", False)))
+    cases.append(("8 red: the phrase was touched", st8(world(cc=True, canary={"touched": True}))["state"], "red"))
+    cases.append(("8 red: the check did not stop the known attack (pass)", st8(world(cc=True, canary={"decision": "pass"}))["state"], "red"))
+    cases.append(("8 red: the canary call failed (envelope signature)", st8(world(cc=True, canary={"ok": False, "error": "envelope_signature", "touched": None}))["state"], "red"))
+    cases.append(("8 not_yet: no canary call recorded for today (the last is yesterday's)", st8(world(cc=True, canary={"day": "2026-11-04", "at": "2026-11-04T03:47:31.000Z"}))["state"], "not_yet"))
+    cases.append(("8 not_yet: the door's canary key is not set", st8(world(cc=True, canary={"ok": False, "error": "canary_key_not_set", "touched": None}))["state"], "not_yet"))
+    cases.append(("8 not_yet: the door shows no canary call at all, and before 03:47 UTC", (st8(world())["state"], st8(world(cc=True), datetime.datetime(2026, 11, 5, 3, 40, tzinfo=datetime.timezone.utc))["state"]), ("not_yet", "not_yet")))
+    cases.append(("8 not_yet: the runner left the canary text unanswered", st8(world(cc=True, canary={"answered": False, "decision": None}))["state"], "not_yet"))
+    p8 = json.loads(json.dumps(world(cc=True)(DOOR_POLICY)[1]))
+    p8["furui"]["canary_call_prev"]["check_sha256"] = hsh("no such check")
+    cases.append(("8 red: yesterday's canary check is not a leaf of yesterday's day record", st8(world(cc=True, **{DOOR_POLICY: (200, p8)}))["state"], "red"))
+    cases.append(("8: no phrase in the result, only its sha256", "mark_sha256" in x8["facts"] and "mark" not in x8["facts"], True))
+    x9 = st9(world(cc=True))
+    cases.append(("9 ok: a signed answer (pending at the intake) carries the day before yesterday's day_sha256, root and n", (x9["state"], x9["facts"]["answers"], x9["facts"]["witnesses"]), ("ok", 1, ["w.example"])))
+    cases.append(("9 ok: the answer is read from a witness batch on the ledger", st9(world(cc=True, wit=lambda ds, rt, n: ([], [answer("2026-11-03", ds, rt, n)])))["state"], "ok"))
+    cases.append(("9 not_yet: no answer for the day before yesterday at the intake", st9(world(cc=True, wit=lambda ds, rt, n: ([],)))["state"], "not_yet"))
+    cases.append(("9 not_yet: an unsigned record is not a signed answer", st9(world(cc=True, wit=lambda ds, rt, n: ([answer("2026-11-03", ds, rt, n)], (), True)))["state"], "not_yet"))
+    cases.append(("9 red: an answer names another day_sha256", st9(world(cc=True, wit=lambda ds, rt, n: ([answer("2026-11-03", hsh("x"), rt, n)],)))["state"], "red"))
+    cases.append(("9 red: an answer names another root", st9(world(cc=True, wit=lambda ds, rt, n: ([answer("2026-11-03", ds, hsh("y"), n)],)))["state"], "red"))
+    cases.append(("9 red: an answer's signature does not verify (signed with another key)", st9(world(cc=True, wit=lambda ds, rt, n: ([answer("2026-11-03", ds, rt, n, key=SKW2)],)))["state"], "red"))
+    cases.append(("9 red beside a good one: one contradicting answer is enough", st9(world(cc=True, wit=lambda ds, rt, n: ([answer("2026-11-03", ds, rt, n), answer("2026-11-03", ds, rt, n + 1)],)))["state"], "red"))
+    cases.append(("9 not_yet: the day record of the day before yesterday is not served yet", st9(world(**{RUNNER + "/furui/day/2026-11-03/status": (200, {"status": None})}))["state"], "not_yet"))
+    cases.append(("9 reads the day before yesterday (11-03 at the 11-05 run), not yesterday", (x9["facts"]["day"], st9(world(cc=True), now + datetime.timedelta(days=1))["facts"]["day"]), ("2026-11-03", "2026-11-04")))
+    cases.append(("9 red: the ledger head does not answer", st9(world(cc=True, **{LEDGER + "/ledger/head": "down"}))["state"], "red"))
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:
         print(("  ok   " if got == want else "  NG   ") + n + ("" if got == want else " (got %r, want %r)" % (got, want)))

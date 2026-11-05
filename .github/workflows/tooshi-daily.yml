@@ -24,6 +24,11 @@ name: tooshi-daily
 # stamp, after the 04:05 run read 3 and 4b as not_yet). Its result replaces the day, the 04:05 result stays under
 # earlier, latest.json follows; a check still not ready stays not_yet. Once a day: a day written by the second run or by
 # hand is not read again by a scheduled run (tools/tooshi/tooshi_publish.py decide --day-file).
+# 2026-11-06: two more checks, read from public endpoints like the others (tools/tooshi/tooshi_daily.py): 8 canary_scene (the
+# door's canary call after 03:47 UTC: the known attack text stopped, the day's phrase not touched; GET /seki
+# .furui.canary_call) and 9 witness_answer (a signed witness-answer-v0 for the day before yesterday's day record at the
+# ledger's witness intake, with that record's day_sha256, root and n; yesterday's record is batched only at 00:30 UTC of the
+# next day). No secret and no new permission; a not_yet in 8 or 9 at 04:05 is read again by the second run like any other.
 
 on:
   schedule:

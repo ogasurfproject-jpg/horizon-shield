@@ -11,6 +11,8 @@
         04:17 stamp), so 3 and 4b read not_yet at 04:05. The second run's result replaces the day like a dispatch does
         and the 04:05 result stays under earlier; a check still not ready stays not_yet. The day is read again once:
         a day written by the second run or by hand is not read again by a scheduled run.
+        The checks 8 canary_scene and 9 witness_answer (2026-11-06) are counted like the others: a not_yet in either at
+        04:05 (no canary call recorded yet, no signed witness answer for the day before yesterday yet) is read again by the second run.
     python3 -I -B tools/tooshi/tooshi_publish.py write --result tooshi_result.json [--notes tooshi_notes.json] --run-url URL --dir tooshi
         checks that the file is the canonical result tooshi_daily.py wrote, then writes
           tooshi/days/<day>.json   the day: verdict, counts, each check's state and why, the exact result bytes
@@ -183,6 +185,8 @@ def selftest():
     T35 = T("2026-11-05T04:35:00Z")
     r = decide("second", T35, True, pub("2026-11-05", "schedule", 2))
     cases.append(("second, the schedule run left 2 not_yet: run, naming them", (r[0], "2 not_yet (3_ledger_settle, 4b_resume_agreement)" in r[1]), ("run", True)))
+    r89 = decide("second", T35, True, pub("2026-11-05", "schedule", 2, ids=("8_canary_scene", "9_witness_answer")))
+    cases.append(("second, the schedule run left 8 and 9 not_yet (no canary record, no witness answer yet): run, naming them", (r89[0], "2 not_yet (8_canary_scene, 9_witness_answer)" in r89[1]), ("run", True)))
     cases.append(("second, the schedule run left no not_yet: skip", decide("second", T35, True, pub("2026-11-05", "schedule", 0))[0], "skip"))
     cases.append(("second, the day was already read again by a second run: skip (once a day)", decide("second", T("2026-11-05T11:40:00Z"), True, pub("2026-11-05", "second", 2))[0], "skip"))
     cases.append(("second, the day was run by hand: skip", decide("second", T35, True, pub("2026-11-05", "dispatch", 2))[0], "skip"))
