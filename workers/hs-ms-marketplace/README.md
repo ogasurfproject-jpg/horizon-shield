@@ -13,7 +13,7 @@ the connection webhook Microsoft calls for subscription events. Deployed at `htt
 | `POST` / `DELETE /admin/subscriptions/<id>/endpoints` | Adds or removes one endpoint (`{"endpoint":"https://..."}`) on a subscription. A new endpoint is refused (409) when the plan's limit is reached, the plan is unknown, or the subscription is not Subscribed. Bearer `ADMIN_TOKEN`. |
 | `POST /admin/subscriptions/<id>/refresh` | Reads the subscription from Microsoft (Get subscription) and marks an `ActivationRequested` record `Subscribed` when `saasSubscriptionStatus` is `Subscribed`. Bearer `ADMIN_TOKEN`. |
 | `POST /admin/subscriptions/<id>/keep` | The customer's choice of which endpoints stay on daily measurement when there are more than the plan allows (`{"endpoints":[...]}`, at most the limit). Bearer `ADMIN_TOKEN`. |
-| `GET /admin/daily` | The endpoints owed daily measurement across all subscriptions, the ones over a limit, and subscriptions on an unknown plan. This is the list the operator hands to the measuring side. Bearer `ADMIN_TOKEN`. |
+| `GET /admin/daily` | The endpoints owed daily measurement across all subscriptions, the ones over a limit, and subscriptions on an unknown plan. This is the list the operator hands to the measuring side. Bearer `ADMIN_TOKEN`, or `DAILY_READ_TOKEN` (0.2.1), a key that opens this route only, so the measuring side that reads the list every day does not hold `ADMIN_TOKEN`. |
 | `GET /health` | Version, the plan table, and whether the worker is configured (never the values). |
 
 Partner Center, offer technical configuration:

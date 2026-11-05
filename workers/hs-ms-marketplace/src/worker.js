@@ -17,6 +17,8 @@
 //           MS_LOGIN_APP_ID   the multi-tenant + personal-account app used only to sign the buyer in
 //   secrets MS_API_CLIENT_SECRET   client secret of MS_API_APP_ID
 //           ADMIN_TOKEN            bearer for GET /admin/subscriptions
+//           DAILY_READ_TOKEN       optional bearer for GET /admin/daily only (0.2.1). The measuring side reads the daily
+//                                  list with it every day, so it does not need ADMIN_TOKEN, which can also change records.
 //   kv      MS_SUBS           states, sessions, subscriptions, operation log
 // What this worker does not do: deliver the service. An activated subscription is recorded and the operator is
 // expected to start the engagement; the page says so to the buyer.
@@ -40,7 +42,7 @@
 // ActivationRequested already counts toward the plan's endpoints (flagged activation_requested), so the engagement
 // can start at once; an Unsubscribe webhook takes it back to 0.
 
-const VERSION = "0.2.0";
+const VERSION = "0.2.1";
 const MARKETPLACE_RESOURCE = "20e940b3-4c77-4b0b-9a53-9e16a1b010a7";
 const FULFILLMENT = "https://marketplaceapi.microsoft.com/api/saas/subscriptions";
 const API_VERSION = "2018-08-31";
@@ -391,6 +393,11 @@ function adminOk(request, env) {
   const auth = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
   return !!env.ADMIN_TOKEN && timingSafeEqual(auth, env.ADMIN_TOKEN);
 }
+// 0.2.1. The read-only key for the daily list. It opens GET /admin/daily and nothing else.
+function dailyReaderOk(request, env) {
+  const auth = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+  return !!env.DAILY_READ_TOKEN && timingSafeEqual(auth, env.DAILY_READ_TOKEN);
+}
 async function allSubs(env) {
   const out = [];
   let cursor;
@@ -409,7 +416,7 @@ async function adminList(request, env) {
 
 // The endpoints owed daily measurement, across subscriptions; the operator hands this list to the measuring side.
 async function adminDaily(request, env) {
-  if (!adminOk(request, env)) return json({ error: "unauthorized" }, 401);
+  if (!adminOk(request, env) && !dailyReaderOk(request, env)) return json({ error: "unauthorized" }, 401);
   const daily = [], over = [], unknown = [];
   for (const s of await allSubs(env)) {
     const e = entitlement(s);

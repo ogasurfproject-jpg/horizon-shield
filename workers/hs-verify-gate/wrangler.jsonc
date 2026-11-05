@@ -58,7 +58,11 @@
   //   旧 hs-verify-relay.oga-surf-project.workers.dev は同一アカウント workers.dev 間
   //   subrequest を Cloudflare に塞がれ、cron の自己測定が http 404 で pending になっていた。
   //   relay を the-horizons-innovation.com(別ゾーン)に置き、ここをそのまま指す。
+  // 0.4.23: Microsoft Marketplace の毎日の一覧。扉が cron の掃引で読むのは、secret の MARKETPLACE_DAILY_TOKEN もある時だけ
+  //   (hs-ms-marketplace の DAILY_READ_TOKEN と同じ値。GET /admin/daily だけを開ける鍵): npx wrangler secret put MARKETPLACE_DAILY_TOKEN
+  // REPLICA_ORIGIN は、写しが自分の origin で答えるようになるまでここに置かない。
   "vars": {
-    "RELAY_URL": "https://horizon-shield.ogasurfproject-jpg.deno.net"
+    "RELAY_URL": "https://horizon-shield.ogasurfproject-jpg.deno.net",
+    "MARKETPLACE_DAILY_URL": "https://marketplace.horizonshield.dev/admin/daily"
   }
 }

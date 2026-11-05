@@ -1,7 +1,8 @@
 {
   // hs-ms-marketplace: landing page and connection webhook for HORIZON SHIELD's SaaS offer in Microsoft Marketplace (2026-10-16).
   // Identifiers and the client secret are set with `wrangler secret put` (MS_TENANT_ID, MS_API_APP_ID, MS_LOGIN_APP_ID,
-  // MS_API_CLIENT_SECRET, ADMIN_TOKEN), so nothing tenant-specific is in this file. Until they are set, every route but
+  // MS_API_CLIENT_SECRET, ADMIN_TOKEN, and from 0.2.1 the optional DAILY_READ_TOKEN that opens GET /admin/daily only),
+  // so nothing tenant-specific is in this file. Until they are set, every route but
   // /health answers 503 "not configured".
   // The KV id below is written by ops-private/msmkt_20261016/toshi_msmkt_1016.sh when it creates the namespace.
   "$schema": "https://unpkg.com/wrangler@4.149.0/config-schema.json",

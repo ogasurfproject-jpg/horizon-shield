@@ -1,0 +1,22 @@
+{
+  "name": "hs-verify-gate-azure",
+  "private": true,
+  "type": "module",
+  "description": "Azure Functions entry for hs-verify-gate. Runs ../hs-verify-gate/src/worker.js unmodified on Table Storage and Blob Storage.",
+  "main": "dist/main.cjs",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node test/run_tests.mjs"
+  },
+  "dependencies": {
+    "@azure/data-tables": "13.3.2",
+    "@azure/functions": "4.17.0",
+    "@azure/identity": "4.14.0",
+    "@azure/storage-blob": "12.34.0"
+  },
+  "devDependencies": {
+    "azurite": "3.37.0",
+    "esbuild": "0.28.2"
+  }
+}

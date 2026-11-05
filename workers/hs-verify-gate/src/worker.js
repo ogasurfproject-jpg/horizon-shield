@@ -44,7 +44,7 @@ export { SweepLeaseDO };
 
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
-  version: "0.4.22",  // 2026-11-05. 0.4.22: probed_via の文脈 (http か cron) と掃引の fetch の数を、module の変わる値 (GATE_CONTEXT と sweepBudget) ではなく呼びごとに渡す (pc)。0.4.21 までは、cron の掃引の途中に HTTP の入口が走ると GATE_CONTEXT が "http" に書き換わり、その後に測った行の記録の probed_via が "(http context)" (自ゾーンの行は中継の文) になり得た。同じ間に HTTP の /check が使った fetch は掃引の予算に数えられ、扉自身を測る呼びには掃引の印 x-hs-own-sweep が付き得た。直した事: 掃引は自分の pc ({ via, budget }) を持ち、cron の入口なら cron、POST /sweep なら http (0.4.21 までと同じ文)。HTTP の入口は既定の HTTP_PROBE (http、数えない)。判定の規則、status、条件、記録の形は動かさない (既定の var で、記録のバイトは版の文字のほかは 0.4.21 と同じ)。card の version 行が変わるので card は署名し直す (再署名が要る)。2026-10-23. 0.4.21: 掃引がその日の due を全部測り切る形にする。0.4.20 までは 18:00Z の 1 回だけで、MAX_PER_SWEEP 8 と予算 50 (Workers Free の上限の写し) に当たり、2026-10-22 は due 18 行のうち 7 行しか測れず、自前 9 行は全部 over MAX_PER_SWEEP やった。変えた事: その UTC 日に既に測った行は due から外す (force を除く)。並べ方は 有料 → 自前 → 無料、層の中は一番長く測っていない物から。cron は 18:00, 19:00, 20:00, 21:00 UTC の 4 回で、後の回は前の回の続きを測る。席と予算は Workers Paid の上限から決め直し、一か所 (掃引の席と予算) に置く: MAX_PER_SWEEP 40、fetch の予算 1000、1 回の wall は 10 分まで。日ごとの記録 sweep:day:<日> に全部の回を積み、GET /sweep/day が complete と missing を返す (読めなければ 503、空とは言わない)。有料の行が毎日測れる数を超える登録は 409。掃引だけを頼める鍵 SWEEP_ONLY_TOKEN を足す (POST /sweep だけ、force は不可、記録には鍵の種類だけを書く)。自分の掃引が扉自身の /mcp を測った呼び出しは、鍵で作る短命の印 x-hs-own-sweep で見分けて /usage に数えない。判定規則・status・条件は動かさん。card の version 行が変わるので card は署名し直す。2026-09-29. 0.4.20: /usage に requesters を足す(頼んだ側の軸)。external_checks は測る相手が自ゾーンの外かで数えとって、うちが外のサーバーを測った回も「外の誰かが使った」に入っとった。MCP の tools/call は網の数しか無く、道具ごとの回数が無かった。新しい計数 usage:req:<日> は face|道具|頼んだ側の種類|相手の種類 の回数だけ(種類は閉じた一覧、IP も UA の文字列も書かん)。x-hs-requester: operator の名乗りは認証せん(偽っても外の数が減る向きにしか動かん)。見出しは outside_measurements_of_external_endpoints。うちの定期の呼び出しは known_own_schedules に書く。既存の欄は 1 つも変えん。判定規則も status も条件も動かさん。card の version 行が変わるので再署名要。2026-09-29. 0.4.19: 表面の指紋に extras を足す (extras_covers = annotations, _meta, outputSchema, title の閉じた一覧、extras_manifest_hash、道具ごとの extras_hashes)。0.4.18 までの tool_hashes と manifest_hash は name / description / inputSchema しか覆わんので、destructiveHint を黙って外した版も outputSchema の差し替えも見えんかった (Arthur Teboul, DokuTrak, 2026-09-28)。既存の欄は 1 バイトも変えん (過去の記録の指紋と今の指紋を比べられるまま)。差分は surface_change.extras_changed に書く。extras を持たん前回との比較では extras を比べん (配った直後に全道具が変わったと誤報せん)。判定規則も status も条件も動かさん。card の version 行が変わるので再署名要。2026-09-28. 0.4.18: 鍵の履歴 key-history-v1 を /.well-known/key-history.json で配る(4 本の公開鍵: card hs-2026-09、agreement、witness、operator。いつからか、今の状態、盗まれた疑いの時刻)。失効した鍵の署名は、盗まれ得た時刻より前にそのバイトが在ったと運営者の外の時計(Bitcoin 錨など)で示せる時だけ運営者に帰属する。JWKS は履歴の active と retired の card 鍵から作る(revoked は配らん)、今は 1 本なので配信バイトは不変。判定規則も status も条件も動かさん。card の version 行が変わるので再署名要。仕様 ext/KEY_HISTORY_v1.md。0.4.17: MCP tool preflight_agent (相手の A2A agent を任せる前に 1 回で確かめる: card、誰が払うか、登録簿の読み、証人の出し先)。0.4.16: /a2a の応答が「/mcp が応えた」と書いとった(仕様 3 節の /endpoint を定数で埋めとった)。外からの歩き 1 本で発覚。conduct-v1.4 (仕様 14 節) で /served_by を足し、/endpoint は「記録が当たる測定対象」に意味を絞る。下の 0.4.16 の段を見よ。 2026-09-20. 0.4.14: 扉を TSUGI v2 籤の被証人側にする。/a2a が witness_request (nenrin-witness-request-v1) を受けたら、相手の公開 9 表面を自分の vantage で測り、Ed25519 で署名した nenrin-witness-observation-v1 を返す (src/witness.js、Node 参照 recovery-v0/witness_reply.mjs と byte 一致を test/witness_parity.test.mjs が守る)。署名鍵は運営者鍵とも card 鍵とも別の証人鍵 (env.WITNESS_PRIVKEY_B64、公開鍵は /keys/witness.json と env.WITNESS_PUBKEY_B64)。self_witness と非公開 target は断る、鍵未設定は witness_not_configured で正直に断る。card の conduct params に witness_policy.reciprocal と witness_reply の宣言を足す (池入りの条件、宣言と実装の差は残さん)。判定規則も status も条件も動かさん。card 本体が変わるので再署名要。0.4.13: card に Security declaration を足す(securitySchemes.operator = x-sweep-token の apiKeySecurityScheme、securityRequirements [{}] = 匿名で呼べる)。/a2a も /mcp も無認証のまま、動きは 1 バイトも変わらん。同時に、相手の card を読む写し(cardProject)が securitySchemes / securityRequirements を公式 SDK と同じ bytes に写すようになった(map、oneof、StringList、scopes)。0.4.12 までは持っとるだけで「検証できん」と言うとった。今「検証できん」と言うのは公式 SDK 自身が投げる形(null の要素)だけ。写しの粗も揃えた(String()/Boolean() の型変換、camel と snake の両置きは camel が勝つ)。canon_equiv.test.mjs に全部固定。判定規則も status も条件も動かさん。card の本体が変わるので再署名要。0.4.12: card に did:web:gate.horizonshield.dev の identity を足す。/.well-known/did.json で DID document を配り(card 署名鍵 kid hs-2026-09 と、在れば運営者鍵を registry 非依存でドメインに縛る。両方この扉が既に配る公開鍵、秘密鍵は Worker に無い)、card の conduct params に identity {kind:did, ref} で参照を足す(仕様 11.5 が params の identity を許す)。Agenstry の identity 3/10「no registry identifier」への手当。判定規則も status も条件も動かさん。card の本体が変わるので再署名要。0.4.11: card を 1.0 主体に。root protocolVersion を 0.3.0 から 1.0 に上げ(0.3 は supportedInterfaces に残す)、provider に url(shield.the-horizons-innovation.com)を足す。判定規則も status も条件も 1 つも動かさん。A2A を喋る動きも 1 バイト変わらん。外部 discovery が root の 0.3.0 を pre-1.0 と読んで減点し、provider が名前だけで url 無しやったのへの手当。card の本体が変わるので再署名要(incident 2 と同じ規律)。0.4.10: TSUGI の隔離の口 POST /register/quarantine (運営のみ、提案 hash 必須、解除も記録)。隔離中の行は掃引で測らん、lookup と /register は quarantined と言う。判定規則も status の意味も条件も動かさん: 隔離は停止であって所見やない。0.4.9: /keys/operator.json の説明文を柱の新名 TSUGI に (旧称 Proof-of-Recovery)。判定規則も status も条件も 1 つも動かさん。0.4.8: 運営者の許可鍵を配る口 /keys/operator.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。Proof-of-Recovery の Policy Gate (nenrin-authorization-v1) は運営者の Ed25519 鍵で署名される。読む側は recovery_verify の strict モードにこの公開鍵を渡し、署名の無い / 信用してない鍵 / 期限切れの許可の後に実行された修復を弾く。agreement.json / witness.json と同じ規律: 未設定なら 404 で「無い」と言う、空を 200 で返さん。秘密鍵はこの Worker に無い、署名は手元 (recovery-v0/authorize.mjs)。発端は 2026-09-19 の Agenstry の指摘から回った最初の回復一周 (recovery_fixture_20260920.json)。あの許可はチャットの「approved」で鍵で署名しとらんかった。v1 の検証器はそれを authorization_unsigned と言う。以後は鍵で閉じ、その鍵をここで配る。 2026-09-11. 0.4.7: conduct-v1.3 を配る。判定規則も status も条件も 1 つも動かさん。この扉は歩く側やないから、動きは 1 バイトも変わっとらん。変わるんは「配っとる仕様の本文」と「公開しとる assertion の一覧」の 2 つだけや。中身は 2 点。(1) 402 Payment Required は答えであって沈黙やない。v1 の 4 節は measured_endpoint_answered を「status 200」だけで定義しとったから、自分の card の宣言どおりに金を要求した endpoint が、壊れた endpoint と同じ 1 つの結果に落ちとった。設計上の判断と故障が、記録の上で区別が付かん。歩きは絶対に払たらあかん(払た witness は歩いた相手と金銭関係を持つ = この層が開示させる当のもの)ので、402 は n/a にして、新しい主張 payment_required_as_declared が起きた事を書く。宣言せずに課金しとったら FAIL や。この行が無かったら「全部 402 で返せば二度と測られん」が成立する。(2) compensation_well_formed が拡張の話をやめる。今までは拡張が無いだけで「宣言が壊れとる」と書き、証拠として capabilities.extensions の文を貼っとった。違う 2 つの問いに 1 つの答えを出しとった。どっちの穴も fixture では永遠に出ん。手元の偽 agent が全部 無料で全部 宣言済みやったからで、実在の agent(api.babyblueviper.com)を 1 枚歩いて初めて出た。新 spec sha 25f3e3efaf2e3cf208537d1d1fb4dd4559c90b8c379e679b4fd1eec9faa086a1。仕様・扉の一覧・歩きの実装の 3 箇所がこの一覧を持っとるのに、一致を見張る物が 1 つも無かった。walk_selftest の d01/d02/d03 がそれや。d03 は名前やのうて定義を突き合わせる。今回の本体は定義のズレやったから、名前だけ見る見張りは緑のまま通り抜けとった。 0.4.6: 合意記録の署名鍵を配る口 /keys/agreement.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。a2a-agreement-v1.1 の記録は鍵を署名バイトの中に持つから、検証にこの URL は要らん。効くのは「その鍵はその当事者が自分のドメインで配っとる鍵か」という帰属の主張だけや。鍵が未設定なら 404 で「無い」と言う。空の値を 200 で返したら、読む側は「鍵が違う」と判断してまう。「無い」と「空」は違う。秘密鍵はこの Worker に無い。署名は手元でやる。 2026-09-10. 0.4.5: 帰属の行に「鍵が相手のドメインの下にあること」を要求する。0.4.4 は署名が verify しさえすれば「運営者に帰属する」と書いとった。jku が他所のホストでも書いとった。それは嘘や。この行の存在理由は「TLS は取った瞬間しか押さえん、署名が効くのは持ち出した時と時間が経った時」やのに、鍵が第三者のサーバにあったら、その第三者が鍵を消せば帰属は消えるし、運営者はいつでも否認できる。転送に耐える著者性という肝心の性質が立っとらん。さらに悪いのは、自ドメインの署名が verify せんかった card でも、他所の署名が 1 本 verify すれば帰属しとった(実測で確認)。同じ日に合意記録層では key_url が自分のドメインの下に無ければ拒否しとる。片方で拒否して片方で帰属させとった。直しは 3 状態: 自ドメインの鍵で verify = 帰属、自ドメインの署名が false = 帰属せん(理由を書く)、他所の鍵でだけ verify = 帰属せん(鍵の場所を名指しして書く)。判定も status も条件も 1 つも動かさん。動くのは「この記録が何を証明するか」だけ。この穴は test/attributability.test.mjs の 1 本を control(正しい振る舞い)として固定してしもとった。attack に直した。0.4.4: 署名の有無を establishes / does_not_establish に効かせる。合否は動かさん(条件も赤も増えん)。動かすのは「この記録が何を証明するか」。無署名の card = その宣言は持ち出せん = 登録簿の行は相手の言葉やなく この扉の観測に帰属するだけで、相手はいつでも否認できる。うちの看板は「信用が要らん」やのに、無署名の相手の行は読む側が うちを信用するしかない状態やった。その差を記録に書いてなかったのは相手の穴やなく うちの穴。署名が verify したら宣言は運営者に帰属する = この扉が消えても意味が残る。0.4.3: 拡張の永続識別子(w3id.org)を読む側で認める。perma-id/w3id.org#6653 が merge され https://w3id.org/horizonshield/conduct/v1 が 302 で扉の URI に解決するようになった。A2A 本家の拡張ガイダンスが perma-id を推しとるので、それに従って書かれた card を黙って「宣言無し」に落とすわけにいかん。識別子は 1 本のまま(v1 は今までの文字列)、綴りは閉じた 2 本の一覧で完全一致、どっちで宣言されたかは判定のバイトに必ず書く。check の最中に redirect は叩かん。判定規則の変更はこれ 1 点(読む場所が 1 つ増える。求める形は 5 鍵のまま)。0.4.2: 判定に number_safety を入れる(判定自身のバイトの中の数値が全部 RFC 7493 の安全域の整数か。条件07 が測る相手の表面に課しとる規則を、扉自身の出力に課す。Federico Blanco Sanchez-Llanos が 2026-09-09 に payments 側から公開した同じ型: 精度はパースの時点で失われるので散文では間に合わん)。欄は数値を 1 つも持たんので、足しても答えは変わらん。hash の手順は不変。0.4.1: 掃引の判定は hash 対象のバイトそのものを KV に保存し、GET /record/<record_sha256> でそのまま配る(SEP-1913 で vaaraio が /is-verified の投影を 1024 通り直列化しても再現できんかった件。公開しとった sha のバイトは掃引では保存しとらんかった。recompute_url は /history を指しとった)。判定規則と hash の手順は不変。0.4.0 (conduct-v1.1): 判定と /self に establishes / does_not_establish を入れて hash に含める(Federico の 2026-09-07 の指摘: 「正しさは判定しとらん」の断りが落とせて conformance は通っとった)。塩の commitment を掃引ごとに台帳の witness intake へ commitment 型記録で錨打ち(窓ごとに 1 回、/nenrin/window に commitment_filed)。GET /register/lookup(verified/pending/declined/unknown + 先月の輪の数 + 証明せん物、24h cache)。well-known の notify / identity / witness_policy を読む(掃引後に notify へ POST、1 時間 1 回、/check からは飛ばさん)。判定規則は 0.3.0 のまま。0.3.5 (2026-09-06): 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
+  version: "0.4.23",  // 2026-11-05. 0.4.23: 同じコードを別の置き場 (Azure Functions の写し) でも動かせるようにし、Marketplace の客の行は写しが毎日測り、扉はその結果を確かめてから公開の登録簿に載せる。(1) 記録 (record_sha256 の対象のバイト) に measured_from {platform, origin} を足す。どこで測ったかを記録自身が持つ。値は env の GATE_PLATFORM と GATE_PUBLIC_ORIGIN で、既定は cloudflare と https://gate.horizonshield.dev。(2) GATE_PUBLIC_ORIGIN で、履歴・記録・lookup・知らせの URL と、窓の塩の commitment の base と witness を上書きできる。/check、/watch の案内、/register、/e/、拡張の識別子は上書きしない (写しは出さない口)。(3) OWN_ROWS=off で自前の行 (DEFAULT_WATCHLIST と watch:endpoints) を測らない。(4) GATE_PATHS=replica で出す path を絞る (一覧は REPLICA_ROUTES、他は 404)。POST /watch は運営の鍵が要る。(5) 写し (GATE_PATHS=replica) は掃引の初めに MARKETPLACE_DAILY_URL (hs-ms-marketplace の GET /admin/daily) を MARKETPLACE_DAILY_TOKEN で読み、載っている endpoint を source marketplace の有料の行として足す。一覧から外れた行は消さずに marketplace_unlisted の印を付け、写しはその行を測らない (戻れば印を外す)。一覧が読めない回は何も変えない。(6) 写しも GET /register を出す。返すのは source marketplace の行だけで、形は扉の /register と同じ。(7) 扉は REPLICA_ORIGIN がある時だけ、掃引の初めに写しの /register を読み、行ごとに写しの /record/<sha> を取り、そのバイトの SHA-256 が path と一致し、measured_from が REPLICA_PLATFORM (既定 azure) と REPLICA_ORIGIN で、記録の endpoint・status・checked_at が写しの一覧と同じ物だけを、その行の replica.record_url として付ける。合わない行も隠さず replica.note「replica record does not recompute」と理由を付けて出す。読んだ結果は replica:import の 1 鍵に置き、扉の登録簿の行は書き換えない。(8) 写しが 48 時間以内に測り、扉が確かめられた endpoint は、扉の掃引では測らない (excused measured_by_replica)。確かめられない時や写しが答えない時は扉が今までどおり測る。(9) /health に measured_from を足す。(10) 扉も MARKETPLACE_DAILY_URL と MARKETPLACE_DAILY_TOKEN がある時は、cron の掃引の初めに同じ一覧を読み、まだ扉に無い endpoint を source marketplace の有料の行として足す。有料の席 (paidCapacity、自前の行も数える) に数え、席が無ければ足さずに refused に書く。source の無い既存の行は書き換えない。HTTP から始めた掃引 (POST /sweep) では読まない。普段は (8) のとおり写しに任せ、写しの記録が 48 時間を超えて無い、合わない、古い時に扉が測る。一覧から外れた行は写しと同じく印を付けて測らない。/register の行に source と marketplace_unlisted を出す。既定の var では、記録のバイトは measured_from の 1 欄が増えるだけで、ほかは 0.4.22 と同じ。記録の形が変わるので、同じ測定でも record_sha256 は 0.4.22 と違う値になる。古い記録 (measured_from が無い物) はそのまま読める。判定規則も status も条件も動かさない。check の outputSchema に measured_from を足す。card の version 行が変わるので card は署名し直す。2026-11-05. 0.4.22: probed_via の文脈 (http か cron) と掃引の fetch の数を、module の変わる値 (GATE_CONTEXT と sweepBudget) ではなく呼びごとに渡す (pc)。0.4.21 までは、cron の掃引の途中に HTTP の入口が走ると GATE_CONTEXT が "http" に書き換わり、その後に測った行の記録の probed_via が "(http context)" (自ゾーンの行は中継の文) になり得た。同じ間に HTTP の /check が使った fetch は掃引の予算に数えられ、扉自身を測る呼びには掃引の印 x-hs-own-sweep が付き得た。直した事: 掃引は自分の pc ({ via, budget }) を持ち、cron の入口なら cron、POST /sweep なら http (0.4.21 までと同じ文)。HTTP の入口は既定の HTTP_PROBE (http、数えない)。判定の規則、status、条件、記録の形は動かさない (既定の var で、記録のバイトは版の文字のほかは 0.4.21 と同じ)。card の version 行が変わるので card は署名し直す (再署名が要る)。2026-10-23. 0.4.21: 掃引がその日の due を全部測り切る形にする。0.4.20 までは 18:00Z の 1 回だけで、MAX_PER_SWEEP 8 と予算 50 (Workers Free の上限の写し) に当たり、2026-10-22 は due 18 行のうち 7 行しか測れず、自前 9 行は全部 over MAX_PER_SWEEP やった。変えた事: その UTC 日に既に測った行は due から外す (force を除く)。並べ方は 有料 → 自前 → 無料、層の中は一番長く測っていない物から。cron は 18:00, 19:00, 20:00, 21:00 UTC の 4 回で、後の回は前の回の続きを測る。席と予算は Workers Paid の上限から決め直し、一か所 (掃引の席と予算) に置く: MAX_PER_SWEEP 40、fetch の予算 1000、1 回の wall は 10 分まで。日ごとの記録 sweep:day:<日> に全部の回を積み、GET /sweep/day が complete と missing を返す (読めなければ 503、空とは言わない)。有料の行が毎日測れる数を超える登録は 409。掃引だけを頼める鍵 SWEEP_ONLY_TOKEN を足す (POST /sweep だけ、force は不可、記録には鍵の種類だけを書く)。自分の掃引が扉自身の /mcp を測った呼び出しは、鍵で作る短命の印 x-hs-own-sweep で見分けて /usage に数えない。判定規則・status・条件は動かさん。card の version 行が変わるので card は署名し直す。2026-09-29. 0.4.20: /usage に requesters を足す(頼んだ側の軸)。external_checks は測る相手が自ゾーンの外かで数えとって、うちが外のサーバーを測った回も「外の誰かが使った」に入っとった。MCP の tools/call は網の数しか無く、道具ごとの回数が無かった。新しい計数 usage:req:<日> は face|道具|頼んだ側の種類|相手の種類 の回数だけ(種類は閉じた一覧、IP も UA の文字列も書かん)。x-hs-requester: operator の名乗りは認証せん(偽っても外の数が減る向きにしか動かん)。見出しは outside_measurements_of_external_endpoints。うちの定期の呼び出しは known_own_schedules に書く。既存の欄は 1 つも変えん。判定規則も status も条件も動かさん。card の version 行が変わるので再署名要。2026-09-29. 0.4.19: 表面の指紋に extras を足す (extras_covers = annotations, _meta, outputSchema, title の閉じた一覧、extras_manifest_hash、道具ごとの extras_hashes)。0.4.18 までの tool_hashes と manifest_hash は name / description / inputSchema しか覆わんので、destructiveHint を黙って外した版も outputSchema の差し替えも見えんかった (Arthur Teboul, DokuTrak, 2026-09-28)。既存の欄は 1 バイトも変えん (過去の記録の指紋と今の指紋を比べられるまま)。差分は surface_change.extras_changed に書く。extras を持たん前回との比較では extras を比べん (配った直後に全道具が変わったと誤報せん)。判定規則も status も条件も動かさん。card の version 行が変わるので再署名要。2026-09-28. 0.4.18: 鍵の履歴 key-history-v1 を /.well-known/key-history.json で配る(4 本の公開鍵: card hs-2026-09、agreement、witness、operator。いつからか、今の状態、盗まれた疑いの時刻)。失効した鍵の署名は、盗まれ得た時刻より前にそのバイトが在ったと運営者の外の時計(Bitcoin 錨など)で示せる時だけ運営者に帰属する。JWKS は履歴の active と retired の card 鍵から作る(revoked は配らん)、今は 1 本なので配信バイトは不変。判定規則も status も条件も動かさん。card の version 行が変わるので再署名要。仕様 ext/KEY_HISTORY_v1.md。0.4.17: MCP tool preflight_agent (相手の A2A agent を任せる前に 1 回で確かめる: card、誰が払うか、登録簿の読み、証人の出し先)。0.4.16: /a2a の応答が「/mcp が応えた」と書いとった(仕様 3 節の /endpoint を定数で埋めとった)。外からの歩き 1 本で発覚。conduct-v1.4 (仕様 14 節) で /served_by を足し、/endpoint は「記録が当たる測定対象」に意味を絞る。下の 0.4.16 の段を見よ。 2026-09-20. 0.4.14: 扉を TSUGI v2 籤の被証人側にする。/a2a が witness_request (nenrin-witness-request-v1) を受けたら、相手の公開 9 表面を自分の vantage で測り、Ed25519 で署名した nenrin-witness-observation-v1 を返す (src/witness.js、Node 参照 recovery-v0/witness_reply.mjs と byte 一致を test/witness_parity.test.mjs が守る)。署名鍵は運営者鍵とも card 鍵とも別の証人鍵 (env.WITNESS_PRIVKEY_B64、公開鍵は /keys/witness.json と env.WITNESS_PUBKEY_B64)。self_witness と非公開 target は断る、鍵未設定は witness_not_configured で正直に断る。card の conduct params に witness_policy.reciprocal と witness_reply の宣言を足す (池入りの条件、宣言と実装の差は残さん)。判定規則も status も条件も動かさん。card 本体が変わるので再署名要。0.4.13: card に Security declaration を足す(securitySchemes.operator = x-sweep-token の apiKeySecurityScheme、securityRequirements [{}] = 匿名で呼べる)。/a2a も /mcp も無認証のまま、動きは 1 バイトも変わらん。同時に、相手の card を読む写し(cardProject)が securitySchemes / securityRequirements を公式 SDK と同じ bytes に写すようになった(map、oneof、StringList、scopes)。0.4.12 までは持っとるだけで「検証できん」と言うとった。今「検証できん」と言うのは公式 SDK 自身が投げる形(null の要素)だけ。写しの粗も揃えた(String()/Boolean() の型変換、camel と snake の両置きは camel が勝つ)。canon_equiv.test.mjs に全部固定。判定規則も status も条件も動かさん。card の本体が変わるので再署名要。0.4.12: card に did:web:gate.horizonshield.dev の identity を足す。/.well-known/did.json で DID document を配り(card 署名鍵 kid hs-2026-09 と、在れば運営者鍵を registry 非依存でドメインに縛る。両方この扉が既に配る公開鍵、秘密鍵は Worker に無い)、card の conduct params に identity {kind:did, ref} で参照を足す(仕様 11.5 が params の identity を許す)。Agenstry の identity 3/10「no registry identifier」への手当。判定規則も status も条件も動かさん。card の本体が変わるので再署名要。0.4.11: card を 1.0 主体に。root protocolVersion を 0.3.0 から 1.0 に上げ(0.3 は supportedInterfaces に残す)、provider に url(shield.the-horizons-innovation.com)を足す。判定規則も status も条件も 1 つも動かさん。A2A を喋る動きも 1 バイト変わらん。外部 discovery が root の 0.3.0 を pre-1.0 と読んで減点し、provider が名前だけで url 無しやったのへの手当。card の本体が変わるので再署名要(incident 2 と同じ規律)。0.4.10: TSUGI の隔離の口 POST /register/quarantine (運営のみ、提案 hash 必須、解除も記録)。隔離中の行は掃引で測らん、lookup と /register は quarantined と言う。判定規則も status の意味も条件も動かさん: 隔離は停止であって所見やない。0.4.9: /keys/operator.json の説明文を柱の新名 TSUGI に (旧称 Proof-of-Recovery)。判定規則も status も条件も 1 つも動かさん。0.4.8: 運営者の許可鍵を配る口 /keys/operator.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。Proof-of-Recovery の Policy Gate (nenrin-authorization-v1) は運営者の Ed25519 鍵で署名される。読む側は recovery_verify の strict モードにこの公開鍵を渡し、署名の無い / 信用してない鍵 / 期限切れの許可の後に実行された修復を弾く。agreement.json / witness.json と同じ規律: 未設定なら 404 で「無い」と言う、空を 200 で返さん。秘密鍵はこの Worker に無い、署名は手元 (recovery-v0/authorize.mjs)。発端は 2026-09-19 の Agenstry の指摘から回った最初の回復一周 (recovery_fixture_20260920.json)。あの許可はチャットの「approved」で鍵で署名しとらんかった。v1 の検証器はそれを authorization_unsigned と言う。以後は鍵で閉じ、その鍵をここで配る。 2026-09-11. 0.4.7: conduct-v1.3 を配る。判定規則も status も条件も 1 つも動かさん。この扉は歩く側やないから、動きは 1 バイトも変わっとらん。変わるんは「配っとる仕様の本文」と「公開しとる assertion の一覧」の 2 つだけや。中身は 2 点。(1) 402 Payment Required は答えであって沈黙やない。v1 の 4 節は measured_endpoint_answered を「status 200」だけで定義しとったから、自分の card の宣言どおりに金を要求した endpoint が、壊れた endpoint と同じ 1 つの結果に落ちとった。設計上の判断と故障が、記録の上で区別が付かん。歩きは絶対に払たらあかん(払た witness は歩いた相手と金銭関係を持つ = この層が開示させる当のもの)ので、402 は n/a にして、新しい主張 payment_required_as_declared が起きた事を書く。宣言せずに課金しとったら FAIL や。この行が無かったら「全部 402 で返せば二度と測られん」が成立する。(2) compensation_well_formed が拡張の話をやめる。今までは拡張が無いだけで「宣言が壊れとる」と書き、証拠として capabilities.extensions の文を貼っとった。違う 2 つの問いに 1 つの答えを出しとった。どっちの穴も fixture では永遠に出ん。手元の偽 agent が全部 無料で全部 宣言済みやったからで、実在の agent(api.babyblueviper.com)を 1 枚歩いて初めて出た。新 spec sha 25f3e3efaf2e3cf208537d1d1fb4dd4559c90b8c379e679b4fd1eec9faa086a1。仕様・扉の一覧・歩きの実装の 3 箇所がこの一覧を持っとるのに、一致を見張る物が 1 つも無かった。walk_selftest の d01/d02/d03 がそれや。d03 は名前やのうて定義を突き合わせる。今回の本体は定義のズレやったから、名前だけ見る見張りは緑のまま通り抜けとった。 0.4.6: 合意記録の署名鍵を配る口 /keys/agreement.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。a2a-agreement-v1.1 の記録は鍵を署名バイトの中に持つから、検証にこの URL は要らん。効くのは「その鍵はその当事者が自分のドメインで配っとる鍵か」という帰属の主張だけや。鍵が未設定なら 404 で「無い」と言う。空の値を 200 で返したら、読む側は「鍵が違う」と判断してまう。「無い」と「空」は違う。秘密鍵はこの Worker に無い。署名は手元でやる。 2026-09-10. 0.4.5: 帰属の行に「鍵が相手のドメインの下にあること」を要求する。0.4.4 は署名が verify しさえすれば「運営者に帰属する」と書いとった。jku が他所のホストでも書いとった。それは嘘や。この行の存在理由は「TLS は取った瞬間しか押さえん、署名が効くのは持ち出した時と時間が経った時」やのに、鍵が第三者のサーバにあったら、その第三者が鍵を消せば帰属は消えるし、運営者はいつでも否認できる。転送に耐える著者性という肝心の性質が立っとらん。さらに悪いのは、自ドメインの署名が verify せんかった card でも、他所の署名が 1 本 verify すれば帰属しとった(実測で確認)。同じ日に合意記録層では key_url が自分のドメインの下に無ければ拒否しとる。片方で拒否して片方で帰属させとった。直しは 3 状態: 自ドメインの鍵で verify = 帰属、自ドメインの署名が false = 帰属せん(理由を書く)、他所の鍵でだけ verify = 帰属せん(鍵の場所を名指しして書く)。判定も status も条件も 1 つも動かさん。動くのは「この記録が何を証明するか」だけ。この穴は test/attributability.test.mjs の 1 本を control(正しい振る舞い)として固定してしもとった。attack に直した。0.4.4: 署名の有無を establishes / does_not_establish に効かせる。合否は動かさん(条件も赤も増えん)。動かすのは「この記録が何を証明するか」。無署名の card = その宣言は持ち出せん = 登録簿の行は相手の言葉やなく この扉の観測に帰属するだけで、相手はいつでも否認できる。うちの看板は「信用が要らん」やのに、無署名の相手の行は読む側が うちを信用するしかない状態やった。その差を記録に書いてなかったのは相手の穴やなく うちの穴。署名が verify したら宣言は運営者に帰属する = この扉が消えても意味が残る。0.4.3: 拡張の永続識別子(w3id.org)を読む側で認める。perma-id/w3id.org#6653 が merge され https://w3id.org/horizonshield/conduct/v1 が 302 で扉の URI に解決するようになった。A2A 本家の拡張ガイダンスが perma-id を推しとるので、それに従って書かれた card を黙って「宣言無し」に落とすわけにいかん。識別子は 1 本のまま(v1 は今までの文字列)、綴りは閉じた 2 本の一覧で完全一致、どっちで宣言されたかは判定のバイトに必ず書く。check の最中に redirect は叩かん。判定規則の変更はこれ 1 点(読む場所が 1 つ増える。求める形は 5 鍵のまま)。0.4.2: 判定に number_safety を入れる(判定自身のバイトの中の数値が全部 RFC 7493 の安全域の整数か。条件07 が測る相手の表面に課しとる規則を、扉自身の出力に課す。Federico Blanco Sanchez-Llanos が 2026-09-09 に payments 側から公開した同じ型: 精度はパースの時点で失われるので散文では間に合わん)。欄は数値を 1 つも持たんので、足しても答えは変わらん。hash の手順は不変。0.4.1: 掃引の判定は hash 対象のバイトそのものを KV に保存し、GET /record/<record_sha256> でそのまま配る(SEP-1913 で vaaraio が /is-verified の投影を 1024 通り直列化しても再現できんかった件。公開しとった sha のバイトは掃引では保存しとらんかった。recompute_url は /history を指しとった)。判定規則と hash の手順は不変。0.4.0 (conduct-v1.1): 判定と /self に establishes / does_not_establish を入れて hash に含める(Federico の 2026-09-07 の指摘: 「正しさは判定しとらん」の断りが落とせて conformance は通っとった)。塩の commitment を掃引ごとに台帳の witness intake へ commitment 型記録で錨打ち(窓ごとに 1 回、/nenrin/window に commitment_filed)。GET /register/lookup(verified/pending/declined/unknown + 先月の輪の数 + 証明せん物、24h cache)。well-known の notify / identity / witness_policy を読む(掃引後に notify へ POST、1 時間 1 回、/check からは飛ばさん)。判定規則は 0.3.0 のまま。0.3.5 (2026-09-06): 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
@@ -217,10 +217,10 @@ const CARD_SIGNATURE = {
   "jku": "https://gate.horizonshield.dev/.well-known/jwks.json",
   "alg": "ES256",
   "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9nYXRlLmhvcml6b25zaGllbGQuZGV2Ly53ZWxsLWtub3duL2p3a3MuanNvbiJ9",
-  "signature": "xaiV9ZcqYgBKZ5FAK6IR-SCeY2yvYOhSco7wzQumI3NaBpWaTYsm77t7DvZPx_6UnrDSb4-6kl-TAjMglk81mg",
+  "signature": "95NM7nhvDQ_HwXcVhd2VWKIX7dNFfxBJjh7cESkq9EKs-hIWOIunYRklpu3YbzNHkMmSrNCpZ73u-zpV8luFpw",
   "plain": {
     "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9nYXRlLmhvcml6b25zaGllbGQuZGV2Ly53ZWxsLWtub3duL2p3a3MuanNvbiJ9",
-    "signature": "xaEkHfkpPvg1x75bSVzsgGDQbMIB0cJ-HtfaGewnP-CaN4a8wGxJk6NOuu7H_YE5PmxPPmBuPdbaAjt_o3ERMA"
+    "signature": "kE_rb-LScdVtUoy7k1_bLif5zQAp1xsRwltmBbgBl99nLPVfcdUZ2uUUr12U83AbmtKlukWIz6hUMO_dMBc7LA"
   },
   "jwk": {
     "kty": "EC",
@@ -231,8 +231,8 @@ const CARD_SIGNATURE = {
     "alg": "ES256",
     "use": "sig"
   },
-  "canonical_sha256": "a79716ebd13e3348e7b5049e6e232a70d8b6ce6a2b52112a4d2b297451897dc7",
-  "jcs_sha256": "03e2f845cf0ceec5e68710c132b076f877b266751313686b9f065f22ce6a1942"
+  "canonical_sha256": "04015725704f3017eb8d009ec761cb93082ca0589b0ac38f5905c171ac1444e5",
+  "jcs_sha256": "b4d20034b2204b911bb17fe9fb3167dc4e0d49477ca37f59b16930276d9da520"
 };
 /* @@CARD_SIGNATURE_END */
 // GCP twin は別ドメインで動くので、entrypoint が globalThis.CARD_ORIGIN_OVERRIDE を先に立てて上書きできる。
@@ -1370,6 +1370,360 @@ let GATE_ENV = null;       // 入口で env を差す。値は毎回同一なの
 // pc = { via: "http" | "cron", budget: null | { used } }。budget は掃引の間だけ持つ (旧 sweepBudget)。
 const HTTP_PROBE = Object.freeze({ via: "http", budget: null });
 
+// 0.4.23. 公開の origin とどこで測ったか。既定は Cloudflare の扉そのもの。
+// 写し (Azure Functions など) は env の GATE_PUBLIC_ORIGIN と GATE_PLATFORM で自分の値を名乗る。
+// 値は判定のバイト (measured_from) に入るので、形の合わない値は黙って使わず既定に落とす (既定に落ちた事は試験で縛る)。
+const DEFAULT_PUBLIC_ORIGIN = "https://" + GATE_HOST;
+const DEFAULT_PLATFORM = "cloudflare";
+function gateOrigin() {
+  const v = GATE_ENV && GATE_ENV.GATE_PUBLIC_ORIGIN;
+  if (typeof v !== "string" || !v) return DEFAULT_PUBLIC_ORIGIN;
+  try {
+    const u = new URL(v);
+    if (u.protocol !== "https:" || u.username || u.password || (u.pathname !== "/" && u.pathname !== "") || u.search || u.hash) return DEFAULT_PUBLIC_ORIGIN;
+    return u.origin;
+  } catch (_e) { return DEFAULT_PUBLIC_ORIGIN; }
+}
+function gatePlatform() {
+  const v = GATE_ENV && GATE_ENV.GATE_PLATFORM;
+  return (typeof v === "string" && /^[a-z][a-z0-9-]{0,31}$/.test(v)) ? v : DEFAULT_PLATFORM;
+}
+// 窓の塩の commitment の witness.vantage。0.4.0 からの "cloudflare-worker" は既定のまま変えない。
+function gateVantageLabel() {
+  const p = gatePlatform();
+  return p === "cloudflare" ? "cloudflare-worker" : (p === "azure" ? "azure-functions" : p);
+}
+function measuredFrom() {
+  return { platform: gatePlatform(), origin: gateOrigin() };
+}
+// 0.4.23. 自前の行 (DEFAULT_WATCHLIST と watch:endpoints) を測るか。写しは OWN_ROWS=off で外す。
+// 無いか "on" の時だけ測る。打ち間違いを含め、それ以外の値は外す側に倒す (写しが自前の行を測るより安全)。
+function ownRowsOn(env) {
+  const v = env && env.OWN_ROWS;
+  return v === undefined || v === null || v === "" || String(v).toLowerCase() === "on";
+}
+
+// 0.4.23. 出す path を絞る。写し (GATE_PATHS=replica) は、行ごとの記録と履歴、運営の掃引と登録、行を 1 本読む口だけを出す。
+// 無いか "all" の時だけ全部を出す (Cloudflare の扉の既定)。打ち間違いを含め、それ以外の値は絞る側に倒す。
+// /nenrin/window は、写しが台帳に出す塩の commitment の base がここを指し、窓が閉じた後の塩もここで配るので出す。
+// POST /watch は、扉では誰でも無料の行を足せる口だが、写しでは運営の鍵 (x-sweep-token が SWEEP_TOKEN) が要る。
+const REPLICA_ROUTES = [
+  { method: "GET", path: "/health" },
+  { method: "GET", prefix: "/record/" },
+  { method: "GET", path: "/history" },
+  { method: "GET", path: "/nenrin/window" },
+  { method: "GET", re: /^\/nenrin\/window\/w\d+$/ },
+  { method: "GET", path: "/register/lookup" },
+  // 0.4.23. 写しの /register は Marketplace の客の行 (source marketplace) だけを返す。扉はこれを読み、記録を確かめてから載せる。
+  { method: "GET", path: "/register" },
+  { method: "GET", path: "/is-verified" },
+  { method: "GET", path: "/watch" },
+  { method: "POST", path: "/watch", operator: true },
+  { method: "DELETE", path: "/watch" },
+  { method: "POST", path: "/register/quarantine" },
+  { method: "POST", path: "/sweep" },
+  { method: "GET", path: "/sweep/last" },
+  { method: "GET", path: "/sweep/day" }
+];
+function pathsLimited(env) {
+  const v = env && env.GATE_PATHS;
+  return !(v === undefined || v === null || v === "" || String(v).toLowerCase() === "all");
+}
+function replicaRouteLabel(r) {
+  return r.method + " " + (r.path || (r.prefix ? r.prefix + "<record_sha256>" : "/nenrin/window/w<n>"));
+}
+function replicaRoute(method, path) {
+  return REPLICA_ROUTES.find((r) => r.method === method &&
+    (r.path ? r.path === path : (r.prefix ? path.startsWith(r.prefix) : r.re.test(path)))) || null;
+}
+
+// ---- 0.4.23 (2026-11-05): Marketplace の客の行を写しが測り、扉が確かめて載せる ----
+// 振り分けの正本は hs-ms-marketplace の GET /admin/daily (毎日測ると約束した endpoint の一覧)。写しは掃引の初めにそれを読み、
+// 自分の登録簿の行 (source marketplace、有料) に写す。一覧から外れた行は消さずに印 (marketplace_unlisted) を付け、測らない。
+// 扉は写しの /register を一覧として信じない。行ごとに写しの /record/<sha> を取って SHA-256 を計算し直し、合った物だけを載せる。
+const MARKETPLACE_SOURCE = "marketplace";
+const ROUTE_FETCH_TIMEOUT_MS = 10000;
+const ROUTE_SYNC_MAX = 500;                 // 一覧の行の上限 (REGISTRY_MAX と同じ)。超えたら何も変えない
+const REPLICA_IMPORT_KEY = "replica:import";
+const REPLICA_IMPORT_SCHEMA = "hs-replica-import-v1";
+const REPLICA_IMPORT_MAX_ROWS = 500;
+const REPLICA_RECORD_FETCH_MAX = 60;        // 1 回の掃引で取る記録の数。同じ sha を同じ UTC 日に確かめた行は取り直さない
+const REPLICA_RECORD_MAX_BYTES = 1024 * 1024;
+const REPLICA_FRESH_MS = 48 * 3600 * 1000;  // 写しが測ってからこの時間の内なら、扉は同じ endpoint を測らない
+const HEX64_RE = /^[0-9a-f]{64}$/;
+const REPLICA_CHECKS = [
+  "SHA-256 of the bytes served at record_url equals the sha in the path",
+  "measured_from in those bytes names the replica's platform and origin",
+  "endpoint, status and checked_at in those bytes are the ones the replica's register lists"
+];
+
+function httpsUrlOrNull(v, originOnly) {
+  if (typeof v !== "string" || !v) return null;
+  try {
+    const u = new URL(v);
+    if (u.protocol !== "https:" || u.username || u.password || u.hash) return null;
+    if (originOnly) return (u.pathname === "/" || u.pathname === "") && !u.search ? u.origin : null;
+    return u.href;
+  } catch (_e) { return null; }
+}
+function endpointShapeOk(ep) {
+  return typeof ep === "string" && ep.length <= 2048 && /^https:\/\/[^\s]+$/.test(ep) && !!httpsUrlOrNull(ep, false);
+}
+// 一覧を読むのは URL と鍵の両方がある時だけ。写し (GATE_PATHS=replica) も扉も同じ一覧を読む。
+// 扉が読むのは、写しが長く止まった時に客の endpoint を扉が測れるようにするため。扉の行は普段は写しに任せ (excused measured_by_replica)、
+// 写しの記録が 48 時間を超えて無い、合わない、古い時に扉が測る。扉の行は有料の席 (paidCapacity) を食う。席の無い行は足さない (refused)。
+function routeSyncOn(env) {
+  return !!httpsUrlOrNull(env && env.MARKETPLACE_DAILY_URL, false) && !!(env && env.MARKETPLACE_DAILY_TOKEN);
+}
+// 扉の側: 写しを読むのは GATE_PATHS が絞られていない (扉の役) 時で、REPLICA_ORIGIN がある時だけ。
+function replicaOrigin(env) { return pathsLimited(env) ? null : httpsUrlOrNull(env && env.REPLICA_ORIGIN, true); }
+function replicaPlatform(env) {
+  const v = env && env.REPLICA_PLATFORM;
+  return (typeof v === "string" && /^[a-z][a-z0-9-]{0,31}$/.test(v)) ? v : "azure";
+}
+async function sha256hexBytes(u8) {
+  const buf = await crypto.subtle.digest("SHA-256", u8);
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+async function readBodyCapped(res, max) {
+  const buf = new Uint8Array(await res.arrayBuffer());
+  if (buf.length > max) throw new Error("body over " + max + " bytes");
+  return buf;
+}
+
+// 写しと扉の両方。一覧を読み、行を足し、外れた行に印を付ける。一覧が読めない、形が違う、登録簿が読めない時は 1 行も変えない
+// (読めなかった一覧を空の一覧として扱うと、全部の客の行に印が付く)。鍵の値は記録にも答えにも書かない。
+// 扉の役の違い: (1) source の無い行 (運営か誰かが POST /watch で足した行) は書き換えない (kept_rows)。扉の行の層と履歴は扉の物のまま。
+// (2) 席は自前の行 (self) も数えて決める (POST /watch の 409 と同じ式)。
+async function syncMarketplaceRows(env, pc, nowIso) {
+  const gateRole = !pathsLimited(env);
+  const src = httpsUrlOrNull(env.MARKETPLACE_DAILY_URL, false);
+  const shown = (() => { try { const u = new URL(src); return u.origin + u.pathname; } catch (_e) { return null; } })();
+  const out = { source: shown, at: nowIso, role: gateRole ? "gate" : "replica", ok: false, listed: 0, added: [], relisted: [], unlisted: [], unchanged: 0, refused: [], write_failed: [], ...(gateRole ? { kept_rows: [] } : {}) };
+  const stop = (reason) => { out.reason = reason; out.note = "Nothing on the register was changed in this run; rows keep what the last readable list said."; return out; };
+  let body;
+  try {
+    const res = await withTimeout(countingFetch(src, { method: "GET", headers: { authorization: "Bearer " + env.MARKETPLACE_DAILY_TOKEN, accept: "application/json" }, redirect: "manual" }, pc), ROUTE_FETCH_TIMEOUT_MS);
+    if (res.status !== 200) return stop("the daily list answered HTTP " + res.status);
+    body = JSON.parse(new TextDecoder().decode(await readBodyCapped(res, REPLICA_RECORD_MAX_BYTES)));
+  } catch (e) { return stop("the daily list could not be read: " + String((e && e.message) || e).slice(0, 160)); }
+  if (!body || !Array.isArray(body.daily)) return stop("the daily list has no daily array");
+  if (body.daily.length > ROUTE_SYNC_MAX) return stop("the daily list has " + body.daily.length + " entries, over " + ROUTE_SYNC_MAX);
+  const want = new Set();
+  for (const d of body.daily) {
+    const ep = d && d.endpoint;
+    if (endpointShapeOk(ep)) want.add(ep);
+    else out.refused.push({ endpoint: typeof ep === "string" ? ep.slice(0, 200) : null, reason: "not an https endpoint" });
+  }
+  out.listed = want.size;
+  const reg = await readRegistryForWrite(env);
+  if (!reg) return stop("the register could not be read (storage error)");
+  const live = (r) => r && r.tier === "paid" && !r.marketplace_unlisted;
+  let paidRows = Object.keys(reg).filter((ep) => live(reg[ep])).length;
+  const freeRows = Object.keys(reg).filter((ep) => reg[ep] && reg[ep].tier !== "paid").length;
+  let selfRows = 0;
+  if (gateRole) {
+    const wl = await watchlist(env, reg, true);
+    if (!wl) return stop("the gate's own rows could not be read (storage error)");
+    selfRows = wl.filter((w) => w.tier === "self").length;
+  }
+  const cap = paidCapacity(env, selfRows, freeRows);
+  const write = async (ep, row, bucket) => {
+    if (await writeRegistryRow(env, ep, row)) { if (bucket) bucket.push(ep); } else out.write_failed.push(ep);
+  };
+  for (const ep of want) {
+    const prev = reg[ep] || null;
+    if (prev && prev.source === MARKETPLACE_SOURCE && prev.tier === "paid" && !prev.marketplace_unlisted) { out.unchanged++; continue; }
+    if (gateRole && prev && prev.source !== MARKETPLACE_SOURCE) { out.kept_rows.push(ep); continue; }
+    if (!live(prev) && paidRows + 1 > cap.capacity) { out.refused.push({ endpoint: ep, reason: "paid_capacity_full (" + cap.capacity + " paid rows a day)" }); continue; }
+    if (!prev) {
+      await write(ep, { tier: "paid", webhook: null, added_at: nowIso, requested_by: "operator", owner_file_at_request: "unread", source: MARKETPLACE_SOURCE, marketplace_listed_at: nowIso }, out.added);
+    } else {
+      const row = { ...prev, tier: "paid", source: MARKETPLACE_SOURCE };
+      const was = row.marketplace_unlisted;
+      delete row.marketplace_unlisted;
+      if (was) row.marketplace_relisted_at = nowIso; else row.marketplace_listed_at = row.marketplace_listed_at || nowIso;
+      await write(ep, row, was ? out.relisted : out.added);
+    }
+    if (!live(prev)) paidRows++;
+  }
+  for (const ep of Object.keys(reg)) {
+    const row = reg[ep];
+    if (!row || row.source !== MARKETPLACE_SOURCE || row.marketplace_unlisted || want.has(ep)) continue;
+    await write(ep, { ...row, marketplace_unlisted: { at: nowIso, note: "no longer on the Microsoft Marketplace daily list; not measured on this origin while off it. The row and its history are kept." } }, out.unlisted);
+  }
+  out.ok = true;
+  return out;
+}
+
+// 扉の側。写しの記録 1 本を確かめる。recomputes: true (合った) / false (合わない、または写しが一覧に載せた記録を配らない) /
+// null (網や写しの故障で確かめられなかった。次の回にもう一度)。
+async function checkReplicaRecord(origin, platform, endpoint, claimed, pc, nowIso) {
+  const url = origin + "/record/" + claimed.record_sha256;
+  const no = (reason) => ({ recomputes: false, reason, checked_at: nowIso });
+  const unknown = (reason) => ({ recomputes: null, reason, checked_at: nowIso });
+  let res, bytes;
+  try { res = await withTimeout(countingFetch(url, { method: "GET", redirect: "manual" }, pc), ROUTE_FETCH_TIMEOUT_MS); }
+  catch (e) { return unknown("the replica did not answer for the record: " + String((e && e.message) || e).slice(0, 120)); }
+  if (res.status === 404) return no("the replica lists this record on its register but does not serve its bytes (404)");
+  if (res.status !== 200) return unknown("the replica answered HTTP " + res.status + " for the record");
+  try { bytes = await readBodyCapped(res, REPLICA_RECORD_MAX_BYTES); } catch (e) { return no("the record body could not be read whole: " + String((e && e.message) || e).slice(0, 120)); }
+  const got = await sha256hexBytes(bytes);
+  if (got !== claimed.record_sha256) return no("SHA-256 of the served bytes is " + got + ", not the sha in the path");
+  let rec;
+  try { rec = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)); } catch (_e) { return no("the bytes hash to the sha but are not a JSON record"); }
+  if (!rec || typeof rec !== "object") return no("the bytes hash to the sha but are not a JSON record");
+  const mf = rec.measured_from;
+  if (!mf || mf.platform !== platform || mf.origin !== origin) return no("measured_from in the record is " + JSON.stringify(mf || null).slice(0, 160) + ", not {platform: " + platform + ", origin: " + origin + "}");
+  if (rec.endpoint !== endpoint) return no("the record is about " + String(rec.endpoint).slice(0, 200) + ", not this endpoint");
+  if (rec.status !== claimed.status || rec.checked_at !== claimed.at) return no("the replica's register says " + claimed.status + " at " + claimed.at + ", the record says " + rec.status + " at " + rec.checked_at);
+  return {
+    recomputes: true, reason: null, checked_at: nowIso,
+    latest: {
+      at: rec.checked_at, status: rec.status, record_sha256: claimed.record_sha256, record_url: url,
+      consent_source: rec.consent_source || null,
+      establishes: Array.isArray(rec.establishes) ? rec.establishes : null,
+      does_not_establish: Array.isArray(rec.does_not_establish) ? rec.does_not_establish : null
+    }
+  };
+}
+
+// 扉の側。写しの /register を読み、行ごとに記録を確かめ、replica:import の 1 鍵に置く (書くのは掃引の lease の内側だけ)。
+// 写しが答えない回は、前の回の行をそのまま残し、last_attempt にそう書く。前の回が読めない時は何も書かない。
+// 返すのは { summary (掃引の記録に載せる), state (この回に置いた中身。読めなかった時は null) }。
+async function importReplicaRows(env, pc, nowMs) {
+  const origin = replicaOrigin(env), platform = replicaPlatform(env);
+  const nowIso = new Date(nowMs).toISOString();
+  let prev = null;
+  try { prev = await env.HS_VERIFY_KV.get(REPLICA_IMPORT_KEY, "json"); }
+  catch (_e) { return { summary: { ok: false, origin, at: nowIso, reason: "the previous import could not be read (storage error); nothing was written" }, state: null }; }
+  if (prev && prev.origin !== origin) prev = null;   // REPLICA_ORIGIN を替えた時は前の行を持ち越さない
+  const save = async (state) => { try { await env.HS_VERIFY_KV.put(REPLICA_IMPORT_KEY, JSON.stringify(state)); return true; } catch (_e) { return false; } };
+  let body;
+  try {
+    const res = await withTimeout(countingFetch(origin + "/register", { method: "GET", headers: { accept: "application/json" }, redirect: "manual" }, pc), ROUTE_FETCH_TIMEOUT_MS);
+    if (res.status !== 200) throw new Error("HTTP " + res.status);
+    body = JSON.parse(new TextDecoder().decode(await readBodyCapped(res, 8 * REPLICA_RECORD_MAX_BYTES)));
+    if (!body || !Array.isArray(body.rows)) throw new Error("no rows array");
+  } catch (e) {
+    const reason = "the replica's register did not answer: " + String((e && e.message) || e).slice(0, 160);
+    const state = prev ? { ...prev, last_attempt: { at: nowIso, ok: false, reason } }
+      : { schema: REPLICA_IMPORT_SCHEMA, origin, platform, imported_at: null, last_ok_at: null, rows: [], unlisted: [], last_attempt: { at: nowIso, ok: false, reason } };
+    const written = await save(state);
+    return { summary: { ok: false, origin, at: nowIso, reason, kept_rows_from: prev ? prev.last_ok_at : null, written }, state };
+  }
+  const prevBy = new Map(((prev && prev.rows) || []).map((r) => [r.endpoint, r]));
+  const rows = [];
+  let fetched = 0, skippedShape = 0;
+  const seen = new Set();
+  for (const r of body.rows.slice(0, REPLICA_IMPORT_MAX_ROWS)) {
+    const ep = r && r.endpoint;
+    if (!endpointShapeOk(ep) || seen.has(ep)) { skippedShape++; continue; }
+    seen.add(ep);
+    const lt = r.latest && typeof r.latest === "object" ? r.latest : null;
+    const sha = lt && typeof lt.record_sha256 === "string" && HEX64_RE.test(lt.record_sha256) ? lt.record_sha256 : null;
+    const claimed = { record_sha256: sha, status: lt ? (lt.status || null) : null, at: lt ? (lt.at || null) : null };
+    const p = prevBy.get(ep);
+    let check, latest = null;
+    if (!sha) check = { recomputes: null, reason: lt ? "the replica's register gives no usable record sha for this row" : "the replica has not measured this endpoint yet", checked_at: nowIso };
+    // 同じ sha を同じ UTC 日に確かめた物は取り直さない (4 回の掃引で 4 回取らない)。日が替われば取り直し、写しが同じバイトを配り続けているかを見る。
+    else if (p && p.check && p.check.recomputes === true && p.latest && p.latest.record_sha256 === sha && String(p.check.checked_at || "").slice(0, 10) === nowIso.slice(0, 10)) { check = p.check; latest = p.latest; }
+    else if (fetched >= REPLICA_RECORD_FETCH_MAX) {
+      check = p && p.check ? { ...p.check, pending: "a newer record " + sha + " is listed and is checked on the next run" } : { recomputes: null, reason: "not checked in this run (over " + REPLICA_RECORD_FETCH_MAX + " records per run); checked on the next run", checked_at: nowIso };
+      latest = p && p.check && p.check.recomputes === true ? p.latest : null;
+    } else {
+      fetched++;
+      const c = await checkReplicaRecord(origin, platform, ep, claimed, pc, nowIso);
+      latest = c.latest || null;
+      check = { recomputes: c.recomputes, reason: c.reason, checked_at: c.checked_at };
+    }
+    rows.push({ endpoint: ep, claimed, check, latest, measurements_claimed: Number.isInteger(r.measurements) ? r.measurements : null, history_url: origin + "/history?endpoint=" + encodeURIComponent(ep) });
+  }
+  const unlisted = (Array.isArray(body.unlisted) ? body.unlisted : []).filter((u) => u && endpointShapeOk(u.endpoint)).slice(0, REPLICA_IMPORT_MAX_ROWS)
+    .map((u) => ({ endpoint: u.endpoint, since: typeof u.since === "string" ? u.since.slice(0, 40) : null }));
+  const state = { schema: REPLICA_IMPORT_SCHEMA, origin, platform, imported_at: nowIso, last_ok_at: nowIso, rows, unlisted, last_attempt: { at: nowIso, ok: true } };
+  const written = await save(state);
+  return { state, summary: {
+    ok: true, origin, at: nowIso, rows: rows.length, records_fetched: fetched, rows_with_bad_shape: skippedShape, written,
+    recomputes: rows.filter((x) => x.check.recomputes === true).length,
+    does_not_recompute: rows.filter((x) => x.check.recomputes === false).map((x) => ({ endpoint: x.endpoint, reason: x.check.reason })),
+    not_checked: rows.filter((x) => x.check.recomputes === null).length,
+    unlisted: unlisted.length
+  } };
+}
+
+// 扉の掃引が測らない endpoint: 写しの一覧が 48 時間以内に読めて、その行の記録を扉が確かめられ、記録が 48 時間以内の物。
+// それ以外 (写しが答えない、記録が合わない、古い) は扉が自分の行として今までどおり測る。
+function replicaCoverage(state, nowMs) {
+  const out = new Map();
+  if (!state || !state.last_ok_at || !(nowMs - Date.parse(state.last_ok_at) <= REPLICA_FRESH_MS)) return out;
+  for (const r of state.rows || []) {
+    if (!r || !r.check || r.check.recomputes !== true || !r.latest) continue;
+    if (!(nowMs - Date.parse(r.latest.at) <= REPLICA_FRESH_MS)) continue;
+    out.set(r.endpoint, r.latest);
+  }
+  return out;
+}
+
+// 扉の公開の登録簿の行に付ける欄。
+function replicaBlock(r, state, nowMs) {
+  const stale = !state.last_ok_at || !(nowMs - Date.parse(state.last_ok_at) <= REPLICA_FRESH_MS);
+  const base = {
+    measured_by: "replica", origin: state.origin, platform: state.platform,
+    checked_by_this_gate_at: (r.check && r.check.checked_at) || null,
+    ...(stale ? { stale: true, stale_note: "The replica's register has not been read since " + (state.last_ok_at || "never") + "; this is the last check that could be made." } : {})
+  };
+  const c = r.check || {};
+  if (c.recomputes === true && r.latest) {
+    return { ...base, recomputes: true, record_url: r.latest.record_url, note: "measured by the replica, record: " + r.latest.record_url, checks: REPLICA_CHECKS,
+      ...(c.pending ? { pending: c.pending } : {}) };
+  }
+  if (c.recomputes === false) {
+    return { ...base, recomputes: false, note: "replica record does not recompute", reason: c.reason || null, claimed_record_sha256: (r.claimed && r.claimed.record_sha256) || null,
+      effect: "No link to the replica's record is given for this row, and the gate measures the endpoint itself if it has its own row for it." };
+  }
+  return { ...base, recomputes: null, note: c.reason || "not checked yet" };
+}
+
+// 扉の /register に写しの行を足す。読めない時は 503 にせず、そう書いて扉の行だけを返す (扉の行は読めているので)。
+async function mergeReplicaRows(env, rows, nowMs) {
+  let state = null;
+  try { state = await env.HS_VERIFY_KV.get(REPLICA_IMPORT_KEY, "json"); }
+  catch (_e) { return { origin: replicaOrigin(env), read_failed: true, note: "The gate's copy of the replica's rows could not be read (storage error). This is a read failure, NOT a statement that the replica has no rows. Try again." }; }
+  if (!state || state.origin !== replicaOrigin(env)) {
+    return { origin: replicaOrigin(env), imported_at: null, rows: 0, note: "The replica's register has not been read yet. Its rows appear here after the next sweep." };
+  }
+  const byEp = new Map(rows.map((r) => [r.endpoint, r]));
+  for (const r of state.rows || []) {
+    const block = replicaBlock(r, state, nowMs);
+    const own = byEp.get(r.endpoint);
+    if (own) { own.replica = block; continue; }
+    const latest = block.recomputes === true ? r.latest : null;
+    const row = {
+      endpoint: r.endpoint, tier: "paid", cadence: "daily", measured_by: "replica",
+      measurements: null, measurements_on_replica: r.measurements_claimed, first_at: null, latest,
+      history_url: r.history_url, requested_by: "operator",
+      tool_call_consent: !!(latest && latest.consent_source === "well_known"),
+      replica: block
+    };
+    if (!row.tool_call_consent) {
+      row.why_not_verified = "No owner consent for tool calls is on record, so determinism is not measured and this row cannot reach verified. That is not a failure, it is an unmeasured condition. " +
+        "To consent, publish " + CONSENT_WELL_KNOWN_PATH + " on the origin with {\"allow_tool_call\": true}; the next scheduled measurement reads it and records where it read it (0.2.4).";
+    }
+    rows.push(row);
+    byEp.set(r.endpoint, row);
+  }
+  const la = state.last_attempt || null;
+  return {
+    origin: state.origin, platform: state.platform, imported_at: state.imported_at, last_ok_at: state.last_ok_at,
+    last_attempt: la, rows: (state.rows || []).length,
+    recomputes: (state.rows || []).filter((r) => r.check && r.check.recomputes === true).length,
+    does_not_recompute: (state.rows || []).filter((r) => r.check && r.check.recomputes === false).length,
+    unlisted: state.unlisted || [],
+    note: "Rows measured by the replica are listed with replica.record_url only when this gate fetched the record from the replica and its SHA-256, measured_from, endpoint, status and time matched. A row that did not is listed with replica.note \"replica record does not recompute\" and the reason." +
+      (la && la.ok === false ? " The last read of the replica's register failed (" + la.reason + "); the rows are from the read at " + (state.last_ok_at || "never") + "." : "")
+  };
+}
 // 2026-08-19 patch53. patch52 がこの行から消してしまった実測を書き戻す。
 //   旧: 「★中継は http 文脈のみ。cron→workers.dev は塞がっている(実測)」
 // 消したのは誤りだった。79行目の古い記述は残して訂正を積んだのに、ここだけ消していた。
@@ -2453,6 +2807,8 @@ async function runCheck(endpoint, allowToolCall, consentBasis, consentSource, co
       }
     } : {}),
     probed_via: probeVia(endpoint, pc),
+    // 0.4.23. どこで測ったか。hash を取るバイトの中に置く (後から付け替えられない)。platform と origin は env から、既定は cloudflare と扉の origin。
+    measured_from: measuredFrom(),
     ...(gateSide ? {
       measurement_note:
         "This measurement did not happen. The gate's own relay path was unavailable, so nothing in " +
@@ -3115,7 +3471,7 @@ function summarizeSweepDay(day, doc) {
     excused: [...excusedMap].map(([endpoint, reason_code]) => ({ endpoint, reason_code })),
     missing,
     ...(registryFailed ? { registry_read_failed_in_a_run: true } : {}),
-    complete_means: "every row that was due on this UTC day was measured (by a run of the day, or found already measured in its history) or excused (owner declined, quarantined), and every run of the day could read the register. A run whose own record could not be written is not listed here; see that run's day_record in /sweep/last.",
+    complete_means: "every row that was due on this UTC day was measured (by a run of the day, or found already measured in its history) or excused (owner declined, quarantined, off the Marketplace list on the replica, measured by the replica), and every run of the day could read the register. A run whose own record could not be written is not listed here; see that run's day_record in /sweep/last.",
     runs
   };
 }
@@ -3203,7 +3559,7 @@ function notifyTargetProblem(u) {
   const h = p.hostname.toLowerCase();
   if (h === "localhost" || h.endsWith(".localhost") || h.endsWith(".local") || h.endsWith(".internal")) return "notify must not point at a local name";
   if (/^\d+\.\d+\.\d+\.\d+$/.test(h) || h.startsWith("[")) return "notify must be a hostname, not an IP literal";
-  if (h === "gate.horizonshield.dev" || h === "ledger.horizonshield.dev") return "notify must not point at the gate or the ledger";
+  if (h === "gate.horizonshield.dev" || h === "ledger.horizonshield.dev" || h === new URL(gateOrigin()).hostname) return "notify must not point at the gate or the ledger";
   if (p.username || p.password) return "notify must not carry credentials";
   return null;
 }
@@ -3513,7 +3869,8 @@ const OA_READ = {
 const OA_REC_SHA = "8c78153b24677fe667158322f1703b2d93c36a353e1d31da619f92585d1ca244";
 const OA_EXAMPLES = {
   // 2026-10-13: the three fix markers (concurrency audit G2 to G5) added to the captured shape; the test demands key parity with the live route.
-  "/health": { ok: true, gate_version: "0.4.15", gate_commit: "9475e33415c3", mould_index: "per-key-20261013", removed_stones: "per-key-20261013", sweep: "single-flight-20261013" },
+  // 2026-11-05 (0.4.23): measured_from added the same way, with the gate's default value.
+  "/health": { ok: true, gate_version: "0.4.15", gate_commit: "9475e33415c3", measured_from: { platform: "cloudflare", origin: "https://gate.horizonshield.dev" }, mould_index: "per-key-20261013", removed_stones: "per-key-20261013", sweep: "single-flight-20261013" },
   "/register/lookup": {
     endpoint: "https://mcp.horizonshield.dev/mcp",
     status: "pending",
@@ -3977,7 +4334,10 @@ function endpointPage(origin, row) {
 
 async function publicRegister(env) {
   // 2026-10-13 (#13). Throws ReadFailure when the register cannot be read; callers answer 503, never a shorter list.
-  const list = await watchlistChecked(env);
+  const all = await watchlistChecked(env);
+  // 0.4.23. 写し (GATE_PATHS=replica) の /register は Marketplace の客の行だけ。一覧から外れた行は unlisted に分けて出す。
+  const replicaScope = pathsLimited(env);
+  const list = replicaScope ? all.filter((w) => w.source === MARKETPLACE_SOURCE && !w.marketplace_unlisted) : all;
   const rows = [];
   let joined = 0;
   for (const w of list) {
@@ -3988,13 +4348,16 @@ async function publicRegister(env) {
       measurements: null,
       first_at: null,
       latest: null,
-      history_url: "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(w.endpoint)
+      history_url: gateOrigin() + "/history?endpoint=" + encodeURIComponent(w.endpoint)
     };
     const lbl = OPERATOR_LABELS[w.endpoint];
     if (lbl) row.operator_label = lbl;
     row.requested_by = w.requested_by || "unrecorded (row added before 0.3.1)";
     if (w.quarantined) row.quarantined = { since: w.quarantined.since, proposal_sha256: w.quarantined.proposal_sha256, ...(w.quarantined.until ? { until: w.quarantined.until } : {}), active: isQuarantined(w), effect: "not measured and no verdict served while active; a stop, not a finding (TSUGI, gate 0.4.10)" };
     if (w.quarantine_lifted) row.quarantine_lifted = { at: w.quarantine_lifted.at, proposal_sha256: w.quarantine_lifted.proposal_sha256 };
+    // 0.4.23. Marketplace の一覧から写した行。扉の役では、一覧から外れた行も消さずに出し、測らない事を書く。
+    if (w.source === MARKETPLACE_SOURCE) row.source = MARKETPLACE_SOURCE;
+    if (w.marketplace_unlisted && !replicaScope) row.marketplace_unlisted = { since: w.marketplace_unlisted.at || null, effect: "off the Microsoft Marketplace daily list: not measured while it is off the list. The row and its history are kept." };
     if (w.owner_declined_at) row.owner_declined = { since: w.owner_declined_at, how: CONSENT_WELL_KNOWN_PATH + " on the origin sets listing to decline", effect: "not measured while the file says so; no verdict exists for this row" };
     row.tool_call_consent = TOOL_CALL_CONSENT.has(w.endpoint);
     if (joined < REGISTER_JOIN_MAX) {
@@ -4038,8 +4401,25 @@ async function publicRegister(env) {
     }
     rows.push(row);
   }
+  // 0.4.23. 扉の側: 写しが測った Marketplace の客の行を、扉が確かめた結果と一緒に載せる。扉の行は書き換えない。
+  let replicaImport = null;
+  if (replicaOrigin(env)) replicaImport = await mergeReplicaRows(env, rows, Date.now());
   const removed = await readRemoved(env);
+  if (replicaScope) {
+    return {
+      rows_scope: "Only the endpoints of Microsoft Marketplace customers measured on this origin. The full public register, which lists these rows too, is at " + DEFAULT_PUBLIC_ORIGIN + "/register.",
+      measured_from: measuredFrom(),
+      unlisted: all.filter((w) => w.source === MARKETPLACE_SOURCE && w.marketplace_unlisted).map((w) => ({ endpoint: w.endpoint, since: w.marketplace_unlisted.at || null })),
+      removed_rows: removed,
+      ...(removed === null ? { removed_read_failed: true, removed_note: REMOVED_READ_FAILED_NOTE } : {}),
+      count: rows.length,
+      gate_commit: gateCommit(),
+      note: "Rows are scheduled measurements, not endorsements. Every stored verdict carries a record_sha256; the bytes are at /record/<sha> on this origin and hash to it.",
+      rows: rows
+    };
+  }
   return {
+    ...(replicaImport ? { replica_import: replicaImport } : {}),
     removed_rows: removed,
     ...(removed === null ? { removed_read_failed: true, removed_note: REMOVED_READ_FAILED_NOTE } : {}),
     count: rows.length,
@@ -4109,8 +4489,11 @@ async function watchlist(env, regIn, strict) {
     seen.add(ep);
     out.push({ endpoint: ep, tier: tier, webhook: webhook || null, ...(extra || {}) });
   };
-  for (const ep of DEFAULT_WATCHLIST) push(ep, "self", null, { requested_by: "operator" });
-  if (env && env.HS_VERIFY_KV) {
+  // 0.4.23. 写し (OWN_ROWS=off) は自前の行を測らない。自前の行は Cloudflare の扉が測る。写しが測ると同じ行を 2 か所で測り、
+  // 扉自身 (gate.horizonshield.dev) の行は中継の無い写しでは gate-side の例外になる。既定 (var 無し) は今までどおり載せる。
+  const ownRows = ownRowsOn(env);
+  if (ownRows) for (const ep of DEFAULT_WATCHLIST) push(ep, "self", null, { requested_by: "operator" });
+  if (ownRows && env && env.HS_VERIFY_KV) {
     try {
       const legacy = await env.HS_VERIFY_KV.get("watch:endpoints", "json");
       if (Array.isArray(legacy)) for (const ep of legacy) push(ep, "self", null, { requested_by: "operator" });
@@ -4123,7 +4506,10 @@ async function watchlist(env, regIn, strict) {
       requested_by: r.requested_by || "unrecorded (row added before 0.3.1)",
       owner_declined_at: r.owner_declined_at || null,
       quarantined: r.quarantined || null,
-      quarantine_lifted: r.quarantine_lifted || null
+      quarantine_lifted: r.quarantine_lifted || null,
+      // 0.4.23. 写しの振り分け。source marketplace の行と、一覧から外れた印。
+      ...(r.source ? { source: r.source } : {}),
+      ...(r.marketplace_unlisted ? { marketplace_unlisted: r.marketplace_unlisted } : {})
     });
   }
   return out;
@@ -4265,7 +4651,9 @@ function summariseCoordinate(cd) {
 // SHA-256 するだけで path と一致する。散文の解釈が 1 文字も要らん。保存前に sha を再計算して一致を確かめる。
 const RECORD_KEY_PREFIX = "rec:";
 const RECORD_BYTES_SINCE = "2026-09-09";
-function recordBytesUrl(sha) { return "https://gate.horizonshield.dev/record/" + sha; }
+// 0.4.23. 行ごとの記録と履歴の URL は、測った所の origin (gateOrigin、既定は扉) を指す。写しの記録は写しが配る。
+// 公開の登録簿と誰でも使える口 (/register、/check、匿名の /watch、/e/、/embed) は扉 (DEFAULT_PUBLIC_ORIGIN) のまま。
+function recordBytesUrl(sha) { return gateOrigin() + "/record/" + sha; }
 function canonicalOf(record) {
   if (record && typeof record.__canonical === "string") return record.__canonical;
   if (!record || typeof record !== "object") return null;
@@ -4462,8 +4850,9 @@ async function fileInstantCommitment(env, wid, st, nowMs, fetchImpl) {
     purpose: "nenrin-instant-commitment-v1: " + wid,
     walked_at: st.salt_created_at,
     walker: { tool: "hs-verify-gate", version: CONFIG.version },
-    base: "https://gate.horizonshield.dev/nenrin/window/" + wid,
-    witness: { name: "gate.horizonshield.dev", vantage: "cloudflare-worker" },
+    // 0.4.23. 写しは自分の窓の塩を作り、自分の origin の窓のページを base にして出す。既定は扉のまま (1 バイトも変わらない)。
+    base: gateOrigin() + "/nenrin/window/" + wid,
+    witness: { name: new URL(gateOrigin()).hostname, vantage: gateVantageLabel() },
     mode: "commitment",
     commitment: st.commitment,
     commitment_recipe: "sha256('nenrin-instant-salt-v1:' + salt); the salt is served at base once the window has closed",
@@ -4538,17 +4927,37 @@ async function runDailySweepUnleased(env, opts) {
   const trigger = (opts && opts.trigger) || "unknown";
   const keyClass = (opts && opts.key_class) || "unknown";
   const excused = [];
-  // 2026-10-13 (#13). One register read for the whole sweep, null when it threw. It used to read as {}: outside rows
-  // dropped out silently and quarantined rows could be measured. On null nothing is measured and the record says why.
-  const sreg = await readRegistryChecked(env);
-  const registryReadFailed = sreg === null;
-  const list = await watchlist(env, sreg || {});
   // 0.4.0. subrequest の予算。掃引の間だけ数える。0.4.21 から既定の数は sweepBudgetLimit の一か所。
   const budget = sweepBudgetLimit(env);
   // 0.4.22. 数と文脈はこの掃引の pc に持つ (module の値にしない)。cron の入口なら cron、POST /sweep なら http (0.4.21 までと同じ文)。
   const pc = { via: trigger === "cron" ? "cron" : "http", budget: { used: 0 } };
   const sweepFetch = (u, init) => countingFetch(u, init, pc);
 
+  // 0.4.23. 写しは Marketplace の一覧を登録簿に写してから (routeSync)、扉は写しの行を確かめてから (replicaImport)、登録簿を読む。
+  // どちらも lease の内側で、この掃引の fetch の数に入る。失敗しても掃引は止めず、結果を記録に残す。
+  let routeSync = null, replicaImport = null, replicaCovered = new Map();
+  if (routeSyncOn(env)) {
+    // 扉の役で HTTP から呼ばれた掃引 (POST /sweep) は一覧を読まない。HTTP で呼ばれたこの Worker から自ゾーン (marketplace.horizonshield.dev) へは
+    // 522 になる (上の測定経路の実測)。鍵を中継に渡さないため、中継も使わない。cron の 4 回が読む。
+    if (!pathsLimited(env) && pc.via === "http") routeSync = { ok: false, skipped: true, at: new Date(now).toISOString(), reason: "not read in a sweep started over HTTP (this worker cannot reach its own zone over HTTP); the cron runs read the list", note: "Nothing on the register was changed in this run." };
+    else {
+      try { routeSync = await syncMarketplaceRows(env, pc, new Date(now).toISOString()); }
+      catch (e) { routeSync = { ok: false, reason: "sync threw: " + String((e && e.message) || e).slice(0, 160) }; }
+    }
+  }
+  if (replicaOrigin(env) && env.HS_VERIFY_KV) {
+    // state が null (前の回が読めない、または例外) なら、扉は写しに任せる行を持たず、自分の行を今までどおり測る (二重に測る側に倒す)。
+    let imp = null;
+    try { imp = await importReplicaRows(env, pc, now); }
+    catch (e) { imp = { summary: { ok: false, reason: "import threw: " + String((e && e.message) || e).slice(0, 160) }, state: null }; }
+    replicaImport = imp.summary;
+    replicaCovered = replicaCoverage(imp.state, now);
+  }
+  // 2026-10-13 (#13). One register read for the whole sweep, null when it threw. It used to read as {}: outside rows
+  // dropped out silently and quarantined rows could be measured. On null nothing is measured and the record says why.
+  const sreg = await readRegistryChecked(env);
+  const registryReadFailed = sreg === null;
+  const list = await watchlist(env, sreg || {});
   // 0.3.0. 窓の座標をここで 1 回だけ組む。以後これを下へ通す。
   // 取れんかったら旧規則に落ちるが、落ちたことは掃引の記録に残す。
   let coord = null;
@@ -4574,6 +4983,18 @@ async function runDailySweepUnleased(env, opts) {
     // Which rows are quarantined lives in the register, so without it no row can be measured safely.
     if (registryReadFailed) { skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "the register could not be read (storage error), so whether this row is quarantined is unknown and nothing was measured in this run. Not a finding about the endpoint." }); continue; }
     const qrow = qreg[w.endpoint];
+    // 0.4.23. 写しの側: Marketplace の一覧から外れた行は測らない (行は残る)。扉の側: 写しが測り、扉が記録を確かめた行は測らない。
+    if (qrow && qrow.marketplace_unlisted) {
+      skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "off the Microsoft Marketplace daily list since " + (qrow.marketplace_unlisted.at || "unknown") + ": not measured on this origin while it is off the list. The row and its history are kept; it is measured again if it returns to the list." });
+      if (force || (await isDueToday(w.endpoint, w.tier, now, coord))) excused.push({ endpoint: w.endpoint, tier: w.tier, reason_code: "marketplace_unlisted" });
+      continue;
+    }
+    if (replicaCovered.has(w.endpoint)) {
+      const rl = replicaCovered.get(w.endpoint);
+      skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "measured by the replica (" + rl.record_url + ", " + rl.at + "), whose record this gate fetched and recomputed; the gate does not measure the same endpoint a second time. If the replica stops answering or its record stops recomputing for " + (REPLICA_FRESH_MS / 3600000) + " hours, the gate measures this row again." });
+      if (force || (await isDueToday(w.endpoint, w.tier, now, coord))) excused.push({ endpoint: w.endpoint, tier: w.tier, reason_code: "measured_by_replica" });
+      continue;
+    }
     if (isQuarantined(qrow)) {
       skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "quarantined by the operator under TSUGI since " + qrow.quarantined.since + " citing proposal " + String(qrow.quarantined.proposal_sha256).slice(0, 16) + ": not measured and no verdict served while quarantined. A quarantine is a stop, not a finding." });
       if (force || (await isDueToday(w.endpoint, w.tier, now, coord))) excused.push({ endpoint: w.endpoint, tier: w.tier, reason_code: "quarantined" });
@@ -4692,8 +5113,8 @@ async function runDailySweepUnleased(env, opts) {
             surface_changed: (r && r.entry && r.entry.surface_change) || null,
             establishes: record.establishes || null,
             does_not_establish: record.does_not_establish || null,
-            history: "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(w.endpoint),
-            lookup: "https://gate.horizonshield.dev/register/lookup?endpoint=" + encodeURIComponent(w.endpoint),
+            history: gateOrigin() + "/history?endpoint=" + encodeURIComponent(w.endpoint),
+            lookup: gateOrigin() + "/register/lookup?endpoint=" + encodeURIComponent(w.endpoint),
             note: "Sent because " + CONSENT_WELL_KNOWN_PATH + " on your origin names this URL as notify (conduct-v1.1). Sent after every scheduled measurement, at most once per hour per endpoint, never from an on-demand /check. Remove the field to stop. The verdict is public either way."
           }, now, sweepFetch);
         }
@@ -4735,6 +5156,8 @@ async function runDailySweepUnleased(env, opts) {
     order: "paid, then self, then free; least recently measured first within a tier; rows already measured this UTC day are left alone unless forced",
     limits: { max_per_sweep: MAX_PER_SWEEP, wall_budget_ms: SWEEP_WALL_BUDGET_MS, runs_per_day: SWEEP_RUNS_PER_DAY, crons: SWEEP_CRONS },
     already_measured_today: alreadyToday.length,
+    ...(routeSync ? { route_sync: routeSync } : {}),
+    ...(replicaImport ? { replica_import: replicaImport } : {}),
     wall_ms: Date.now() - now,
     ...(wallStopped ? { stopped_by: "wall_time" } : {}),
     ...(historyUnreadable.length ? { history_unreadable: historyUnreadable } : {}),
@@ -4837,6 +5260,7 @@ const GATE_CHECK_SCHEMA = {
     consent_lookup: outProp("object", "Present when no proven consent was found: the consent file that was read, the result, and how to consent."),
     consent_assertion_ignored: outProp("object", "Present when the request set allow_tool_call true without proven consent: the assertion was recorded and no tool was called."),
     probed_via: outProp("string", "The network path the probe took (relay or direct)."),
+    measured_from: outProp("object", "Where this measurement was taken, inside the hashed bytes: platform (cloudflare, azure, ...) and origin, the public origin that serves this record and its history. Absent on records before 0.4.23."),
     measurement_note: outProp("string", "Present only when the gate's own relay failed, so that nothing here is read as a statement about the target."),
     checks: outProp("object", "One entry per condition, each with whether it was measured, whether it passed, and the detail."),
     absence_vs_failure: outProp("object", "Condition 06, disclosed and never a verdict: whether the server's tools can tell a failed lookup from an empty one."),
@@ -5225,7 +5649,7 @@ async function lookupServer(env, endpoint) {
   const entries = (hist && Array.isArray(hist.entries)) ? hist.entries : [];
   const latest = entries.length ? entries[entries.length - 1] : null;
 
-  const historyUrl = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(endpoint);
+  const historyUrl = gateOrigin() + "/history?endpoint=" + encodeURIComponent(endpoint);
 
   if (!watched && !regEntry && !entries.length) {
     return {
@@ -5284,7 +5708,7 @@ async function lookupServer(env, endpoint) {
 // これを false にすると「載っている大半が失敗」に見えてしまい中立が死ぬので、null にする。
 async function isVerified(env, endpoint) {
   const lu = await lookupServer(env, endpoint);
-  const history_url = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(endpoint);
+  const history_url = gateOrigin() + "/history?endpoint=" + encodeURIComponent(endpoint);
   // 0.4.1. 再計算の先は hash 対象のバイトそのもの(record_url)。無い entry(0.4.1 より前)は履歴を指すが、
   // 履歴の entry は要約であって hash 対象やない。そのことを recompute_note に書く。
   const record_url = (lu.latest && typeof lu.latest.record_url === "string") ? lu.latest.record_url : null;
@@ -5450,7 +5874,7 @@ async function registerLookup(env, endpoint, nowMs, fetchImpl) {
   const ring = lu.on_register
     ? await fetchLastRing(env, endpoint, now, fetchImpl)
     : { present: false, slug: ringSlug(endpoint), tried: [], why: "no row on this register, so no ring can exist for it: rings are built from this register's archived /history. Nothing was fetched." };
-  const historyUrl = "https://gate.horizonshield.dev/history?endpoint=" + encodeURIComponent(endpoint);
+  const historyUrl = gateOrigin() + "/history?endpoint=" + encodeURIComponent(endpoint);
   return {
     endpoint,
     status,
@@ -5829,6 +6253,20 @@ export default {
     // CORS プリフライト。ブラウザからの POST /check は content-type で preflight が飛ぶ。
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
+    }
+
+    // 0.4.23. 写しは REPLICA_ROUTES の口だけを出す。他は 404 で、使用の数も数えない (何も読まず、何も書かない)。
+    if (pathsLimited(env)) {
+      const rt = replicaRoute(request.method, path);
+      if (!rt) {
+        return json({ error: "not_served_here", path: path, method: request.method,
+          note: "This origin runs the measuring part of the HORIZON SHIELD verification gate for a limited set of rows and serves only the routes listed in served. Every other route, including the full public register and on-demand checks, is at " + DEFAULT_PUBLIC_ORIGIN + ".",
+          served: REPLICA_ROUTES.map(replicaRouteLabel),
+          gate: DEFAULT_PUBLIC_ORIGIN }, 404);
+      }
+      if (rt.operator && !(env.SWEEP_TOKEN && await ctEqual(request.headers.get("x-sweep-token") || "", env.SWEEP_TOKEN))) {
+        return json({ error: "forbidden", note: "On this origin, adding or changing a row needs the operator key." }, 403);
+      }
     }
 
     // 2026-10-03. draft-schrock-ae-challenge-08 (Authorization Evidence Challenge) の口。/ae の下だけ。
@@ -6437,7 +6875,9 @@ export default {
         return json({
           endpoint: ep, registered: true, tier: r.tier,
           cadence: r.tier === "paid" ? "daily" : "weekly",
-          notified: !!r.webhook, added_at: r.added_at || null
+          notified: !!r.webhook, added_at: r.added_at || null,
+          ...(r.source ? { source: r.source } : {}),
+          ...(r.marketplace_unlisted ? { marketplace_unlisted: r.marketplace_unlisted } : {})
         });
       }
       return json({
@@ -6816,7 +7256,7 @@ export default {
     }
 
     // 2026-10-13 (concurrency audit G2, G3, G4, G5). The three markers let ops/prod_fix_check.sh see which fixes are live.
-    if (path === "/health") return json({ ok: true, gate_version: CONFIG.version, gate_commit: gateCommit(), mould_index: "per-key-20261013", removed_stones: "per-key-20261013", sweep: "single-flight-20261013" });
+    if (path === "/health") return json({ ok: true, gate_version: CONFIG.version, gate_commit: gateCommit(), measured_from: measuredFrom(), mould_index: "per-key-20261013", removed_stones: "per-key-20261013", sweep: "single-flight-20261013" });
     if (path === "/usage") return json(await usageReport(env, url.searchParams.get("days")));
     if (path === "/spec") { bumpUsage(env, ctx, "spec_hits", null); return json(spec()); }
     if (path === "/ext/conduct/v1" || path === "/ext/conduct/v1/") return await conductExtResponse(request, url.origin);

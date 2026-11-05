@@ -51,6 +51,8 @@
 # 2026-11-01: FURUI blind-06 の証人の道具の公開(data/furui-blind-06/witness)。key の欄と hash の行は、公開のデータセットの行の key と範囲の文の sha256、
 # 引用の照らしの旗だけで、鍵でも秘密でもない。generic-api-key が名前の key に反応するので、その file だけ許す。
 # a7_count.py は計画が名指す sha のままのバイトで替えられず、自己試験の作り話の行の password の語に反応する。欄の名と長さは公開の道具が照らす。
+# 2026-11-05: Azure の入口の試験(workers/hs-verify-gate-azure/test の azurite.mjs と run_tests.mjs)は、手元の Azurite に繋ぐ接続文字列に、
+# Azurite の README に載っている開発用の既定の account(devstoreaccount1)の鍵を持つ。どの Azure の account の鍵でもなく、秘密ではない。その 1 つの値だけを許す。
 title = "horizon-shield gitleaks config"
 
 [extend]
@@ -68,6 +70,7 @@ regexes = [
   '''key_thumbprint"?\s*:\s*"[A-Za-z0-9_-]{43}"''',
   '''"witness_key":"[0-9a-f]{64}"''',
   '''"relying_keys\.json":\s*"[0-9a-f]{64}"''',
+  '''AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==''',
 ]
 paths = [
   '''workers/hs-ledger/nenrin/task-delegation-bind-v0/t4_fixture\.json''',

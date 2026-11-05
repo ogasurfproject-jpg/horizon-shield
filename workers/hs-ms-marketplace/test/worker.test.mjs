@@ -305,6 +305,25 @@ r = await call("/admin/subscriptions", { headers: { authorization: "Bearer adm1n
 const al = await r.json();
 chk("admin list with token: the subscription and its events", r.status === 200 && al.count === 1 && al.subscriptions[0].events.length >= 3);
 
+// 6b. 0.2.1: the read-only key for the daily list opens GET /admin/daily and nothing else
+{
+  const env2 = { ...env, DAILY_READ_TOKEN: "daily-read-only-value" };
+  const RD = { authorization: "Bearer daily-read-only-value" };
+  r = await call("/admin/daily", { headers: RD }, env2);
+  chk("DAILY_READ_TOKEN reads /admin/daily", r.status === 200 && Array.isArray((await r.json()).daily));
+  r = await call("/admin/subscriptions", { headers: RD }, env2);
+  chk("DAILY_READ_TOKEN does not open /admin/subscriptions", r.status === 401);
+  const before = store.m.get("sub:" + SUB);
+  r = await call("/admin/subscriptions/" + SUB + "/endpoints", { method: "POST", headers: { ...RD, "content-type": "application/json" }, body: JSON.stringify({ endpoint: "https://x.example/mcp" }) }, env2);
+  chk("DAILY_READ_TOKEN cannot add an endpoint (401, record unchanged)", r.status === 401 && store.m.get("sub:" + SUB) === before);
+  r = await call("/admin/subscriptions/" + SUB + "/refresh", { method: "POST", headers: RD }, env2);
+  chk("DAILY_READ_TOKEN cannot refresh a subscription", r.status === 401);
+  r = await call("/admin/daily", { headers: RD });
+  chk("without DAILY_READ_TOKEN set, that value opens nothing", r.status === 401);
+  r = await call("/admin/daily", { headers: { authorization: "Bearer " } }, { ...env, DAILY_READ_TOKEN: "" });
+  chk("an empty DAILY_READ_TOKEN never matches an empty bearer", r.status === 401);
+}
+
 // 7. the client secret never reaches any URL or page
 chk("client secret only ever sent to the token endpoint body", calls.every((x) => !x.u.includes("s3cret") && (x.u.endsWith("/oauth2/v2.0/token") || !String(x.init.body || "").includes("s3cret"))));
 
