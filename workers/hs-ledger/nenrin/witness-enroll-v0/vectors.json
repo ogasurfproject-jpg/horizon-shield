@@ -1,0 +1,481 @@
+{
+ "cases": [
+  {
+   "expect": {
+    "draw": {
+     "anchor_block": 974750,
+     "beacon_block": 974751,
+     "beacon_hash": "e5c6d2392129d7af8f5cd65f1a60852ba62232c6f59af9ac84e1d2a2f328e9c3",
+     "day": "2026-11-05",
+     "day_batch_entry": 260,
+     "day_sha256": "882a99c76f316241d2ce79f3d0571ab1f740699f645336d489764448e65d2c4d",
+     "eligible": 1,
+     "kind": "furui-day",
+     "leaf_index": [
+      0,
+      1
+     ],
+     "n": 2,
+     "pool_entry": 255,
+     "pool_sha256": "96f8be7b1e3de7cb6a87a881281bb84cb408176bb050a7db45b7cdf90ec7d969",
+     "root": "7dacfdd37de3057b652b9973daaf625795a98626d5e212748198662282b033f3",
+     "seed_sha256": "3bca4ba5ce5571b47f994fef3987d05504eaca588de2303e59f38b8b1961388a",
+     "witness_key_id": "ed25519:375909759fe5e437",
+     "witness_key_url": "https://pipavlo82.github.io/keys/witness.json",
+     "witness_name": "pipavlo82",
+     "witness_signed_domain": "pipavlo82.github.io"
+    },
+    "record_sha256": "95bb56d6ba33b97e3ecb9aa6639e7636d969050fcb6f35181726086a738d76c3"
+   },
+   "input": {
+    "anchor_block": 974750,
+    "batch_entry": 260,
+    "beacon_hash": "e5c6d2392129d7af8f5cd65f1a60852ba62232c6f59af9ac84e1d2a2f328e9c3",
+    "day": "2026-11-05",
+    "day_sha256": "882a99c76f316241d2ce79f3d0571ab1f740699f645336d489764448e65d2c4d",
+    "n": 2,
+    "pool": {
+     "entries": [
+      {
+       "consent": {
+        "enrollment_sha256": null,
+        "form": "email",
+        "on": "2026-11-04"
+       },
+       "joined_on": "2026-11-04",
+       "key_id": "ed25519:375909759fe5e437",
+       "key_url": "https://pipavlo82.github.io/keys/witness.json",
+       "kinds": [
+        "furui-day"
+       ],
+       "left_on": null,
+       "left_reason": null,
+       "name": "pipavlo82",
+       "public_key_ed25519_b64": "A9cRj87tZ6Ob5FbRU12LazXRD7fNUJcSNK80Rp1U3zM=",
+       "signed_domain": "pipavlo82.github.io"
+      }
+     ],
+     "previous_pool_sha256": null,
+     "schema": "witness-enroll-pool-v0",
+     "version": 1
+    },
+    "pool_entry": 255,
+    "root": "7dacfdd37de3057b652b9973daaf625795a98626d5e212748198662282b033f3"
+   },
+   "name": "pool_json_two_leaves",
+   "pool_sha256": "96f8be7b1e3de7cb6a87a881281bb84cb408176bb050a7db45b7cdf90ec7d969"
+  },
+  {
+   "expect": {
+    "draw": {
+     "anchor_block": 974750,
+     "beacon_block": 974751,
+     "beacon_hash": "f1c3b99d9351bc3ff65d39f13a84da47dd4fb3d00974664bd01acbe4eb55742c",
+     "day": "2026-11-05",
+     "day_batch_entry": 260,
+     "day_sha256": "3339806936d32c8744eec91ec9b02f4fee67503658b5c56e6ace871ff78e3f5e",
+     "eligible": 1,
+     "kind": "furui-day",
+     "leaf_index": [
+      0
+     ],
+     "n": 1,
+     "pool_entry": 255,
+     "pool_sha256": "96f8be7b1e3de7cb6a87a881281bb84cb408176bb050a7db45b7cdf90ec7d969",
+     "root": "db5df6ff29f382190e3870358812f4014f31b3c62682d0969037eee90ea609cb",
+     "seed_sha256": "803c807236a296c6e87ad34813dcf16c2e5ac7c71c738a85a4f5176cb6645edd",
+     "witness_key_id": "ed25519:375909759fe5e437",
+     "witness_key_url": "https://pipavlo82.github.io/keys/witness.json",
+     "witness_name": "pipavlo82",
+     "witness_signed_domain": "pipavlo82.github.io"
+    },
+    "record_sha256": "9458a4a273b958178d9941b7630ac7ff448c501ac2a4dbbe7498223c146af54a"
+   },
+   "input": {
+    "anchor_block": 974750,
+    "batch_entry": 260,
+    "beacon_hash": "f1c3b99d9351bc3ff65d39f13a84da47dd4fb3d00974664bd01acbe4eb55742c",
+    "day": "2026-11-05",
+    "day_sha256": "3339806936d32c8744eec91ec9b02f4fee67503658b5c56e6ace871ff78e3f5e",
+    "n": 1,
+    "pool": {
+     "entries": [
+      {
+       "consent": {
+        "enrollment_sha256": null,
+        "form": "email",
+        "on": "2026-11-04"
+       },
+       "joined_on": "2026-11-04",
+       "key_id": "ed25519:375909759fe5e437",
+       "key_url": "https://pipavlo82.github.io/keys/witness.json",
+       "kinds": [
+        "furui-day"
+       ],
+       "left_on": null,
+       "left_reason": null,
+       "name": "pipavlo82",
+       "public_key_ed25519_b64": "A9cRj87tZ6Ob5FbRU12LazXRD7fNUJcSNK80Rp1U3zM=",
+       "signed_domain": "pipavlo82.github.io"
+      }
+     ],
+     "previous_pool_sha256": null,
+     "schema": "witness-enroll-pool-v0",
+     "version": 1
+    },
+    "pool_entry": 255,
+    "root": "db5df6ff29f382190e3870358812f4014f31b3c62682d0969037eee90ea609cb"
+   },
+   "name": "pool_json_one_leaf",
+   "pool_sha256": "96f8be7b1e3de7cb6a87a881281bb84cb408176bb050a7db45b7cdf90ec7d969"
+  },
+  {
+   "expect": {
+    "draw": {
+     "anchor_block": 974750,
+     "beacon_block": 974751,
+     "beacon_hash": "3af7d1a264d5217d2cb60c05646d074eca924865d6da1121757a8ad2de922572",
+     "day": "2026-11-05",
+     "day_batch_entry": 260,
+     "day_sha256": "ad68588612e646b4ecce79a17720821bb0f0dacbf039e49f1fa6deff81f848c7",
+     "eligible": 1,
+     "kind": "furui-day",
+     "leaf_index": [
+      804,
+      887
+     ],
+     "n": 1000,
+     "pool_entry": 255,
+     "pool_sha256": "96f8be7b1e3de7cb6a87a881281bb84cb408176bb050a7db45b7cdf90ec7d969",
+     "root": "ebb9ab32b107925a1b422234df48120cac19661c66836b284cc9975b30f5bd96",
+     "seed_sha256": "31dd3b4f6b2dceb05c912d0c31004588996f67d2dc3c62b290dd6ca61ad0af01",
+     "witness_key_id": "ed25519:375909759fe5e437",
+     "witness_key_url": "https://pipavlo82.github.io/keys/witness.json",
+     "witness_name": "pipavlo82",
+     "witness_signed_domain": "pipavlo82.github.io"
+    },
+    "record_sha256": "6eb98a15a9a15535ad86ec1d97ba461dbcf514f4ce718aa8561bef4f88763f48"
+   },
+   "input": {
+    "anchor_block": 974750,
+    "batch_entry": 260,
+    "beacon_hash": "3af7d1a264d5217d2cb60c05646d074eca924865d6da1121757a8ad2de922572",
+    "day": "2026-11-05",
+    "day_sha256": "ad68588612e646b4ecce79a17720821bb0f0dacbf039e49f1fa6deff81f848c7",
+    "n": 1000,
+    "pool": {
+     "entries": [
+      {
+       "consent": {
+        "enrollment_sha256": null,
+        "form": "email",
+        "on": "2026-11-04"
+       },
+       "joined_on": "2026-11-04",
+       "key_id": "ed25519:375909759fe5e437",
+       "key_url": "https://pipavlo82.github.io/keys/witness.json",
+       "kinds": [
+        "furui-day"
+       ],
+       "left_on": null,
+       "left_reason": null,
+       "name": "pipavlo82",
+       "public_key_ed25519_b64": "A9cRj87tZ6Ob5FbRU12LazXRD7fNUJcSNK80Rp1U3zM=",
+       "signed_domain": "pipavlo82.github.io"
+      }
+     ],
+     "previous_pool_sha256": null,
+     "schema": "witness-enroll-pool-v0",
+     "version": 1
+    },
+    "pool_entry": 255,
+    "root": "ebb9ab32b107925a1b422234df48120cac19661c66836b284cc9975b30f5bd96"
+   },
+   "name": "pool_json_many_leaves",
+   "pool_sha256": "96f8be7b1e3de7cb6a87a881281bb84cb408176bb050a7db45b7cdf90ec7d969"
+  },
+  {
+   "expect": {
+    "draw": {
+     "anchor_block": 974750,
+     "beacon_block": 974751,
+     "beacon_hash": "51b4956add34636e55822f58fd4a02bae2b0871657adcd17b6a97522b431b0cd",
+     "day": "2026-11-05",
+     "day_batch_entry": 260,
+     "day_sha256": "b3eab6a8a4a9316a165ff2af2895219cd2239408b854e624cbb73bffa5b4a330",
+     "eligible": 3,
+     "kind": "furui-day",
+     "leaf_index": [
+      0,
+      29
+     ],
+     "n": 37,
+     "pool_entry": 255,
+     "pool_sha256": "758b93b47dcc49280d4d72c4a23626ba8491dd1c9925923f4f14b8541deb6eec",
+     "root": "404ff3406e5b8f29095107d7865eaa603eb5f0caaddf94b048bd47308ec4b760",
+     "seed_sha256": "2cef62220bb9391877a93c9607517b2fe0c6733493d04becaf49d41b07bb8011",
+     "witness_key_id": "ed25519:39f713d0a644253f",
+     "witness_key_url": "https://b.example/keys/witness.json",
+     "witness_name": "b",
+     "witness_signed_domain": "b.example"
+    },
+    "record_sha256": "97c19e2ab84652f4c574ad187d58c846dac486e2623569e27baf935e9c82dede"
+   },
+   "input": {
+    "anchor_block": 974750,
+    "batch_entry": 260,
+    "beacon_hash": "51b4956add34636e55822f58fd4a02bae2b0871657adcd17b6a97522b431b0cd",
+    "day": "2026-11-05",
+    "day_sha256": "b3eab6a8a4a9316a165ff2af2895219cd2239408b854e624cbb73bffa5b4a330",
+    "n": 37,
+    "pool": {
+     "entries": [
+      {
+       "consent": {
+        "enrollment_sha256": null,
+        "form": "email",
+        "on": "2026-11-04"
+       },
+       "joined_on": "2026-11-04",
+       "key_id": "ed25519:21fe31dfa154a261",
+       "key_url": "https://a.example/keys/witness.json",
+       "kinds": [
+        "furui-day"
+       ],
+       "left_on": null,
+       "left_reason": null,
+       "name": "a",
+       "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=",
+       "signed_domain": "a.example"
+      },
+      {
+       "consent": {
+        "enrollment_sha256": null,
+        "form": "email",
+        "on": "2026-11-04"
+       },
+       "joined_on": "2026-11-04",
+       "key_id": "ed25519:39f713d0a644253f",
+       "key_url": "https://b.example/keys/witness.json",
+       "kinds": [
+        "furui-day"
+       ],
+       "left_on": null,
+       "left_reason": null,
+       "name": "b",
+       "public_key_ed25519_b64": "PUAXw+hDiVqStwqnTRt+vJyYLM8uxJaMwM1V8Sr0Zgw=",
+       "signed_domain": "b.example"
+      },
+      {
+       "consent": {
+        "enrollment_sha256": null,
+        "form": "email",
+        "on": "2026-11-04"
+       },
+       "joined_on": "2026-11-04",
+       "key_id": "ed25519:d82330c4ed96d56e",
+       "key_url": "https://c.example/keys/witness.json",
+       "kinds": [
+        "furui-day"
+       ],
+       "left_on": null,
+       "left_reason": null,
+       "name": "c",
+       "public_key_ed25519_b64": "oQOKh2StmtMoxJfSDYePQIzdv5veylqpYIF99eo9UVo=",
+       "signed_domain": "c.example"
+      }
+     ],
+     "previous_pool_sha256": null,
+     "schema": "witness-enroll-pool-v0",
+     "version": 1
+    },
+    "pool_entry": 255,
+    "root": "404ff3406e5b8f29095107d7865eaa603eb5f0caaddf94b048bd47308ec4b760"
+   },
+   "name": "three_witnesses",
+   "pool_sha256": "758b93b47dcc49280d4d72c4a23626ba8491dd1c9925923f4f14b8541deb6eec"
+  },
+  {
+   "expect": {
+    "draw": {
+     "anchor_block": 974750,
+     "beacon_block": 974751,
+     "beacon_hash": "1f57c014b8cf73cc30d4669fab546eb4d3c8525a3bda42999120c4b36244c1a5",
+     "day": "2026-11-05",
+     "day_batch_entry": 260,
+     "day_sha256": "bf0f84a6b711b37915540ec67a4897acd6dc94e1c204a0f5155048c52f636f94",
+     "eligible": 2,
+     "kind": "furui-day",
+     "leaf_index": [
+      7,
+      8
+     ],
+     "n": 37,
+     "pool_entry": 255,
+     "pool_sha256": "31c737ae42afb1b98c3cd949e14ef12995daa1a7c8de41bc6cfdc5bf1b3d15e4",
+     "root": "f4ed7b3d9a38d30f3a37bb8349422d95fd4caa2d02a20df528baa7efb03c1e40",
+     "seed_sha256": "95674131915b43bc13bf55a3d419ed497c7f1ea678608f7fe9a88c0c871b8e70",
+     "witness_key_id": "ed25519:d82330c4ed96d56e",
+     "witness_key_url": "https://c.example/keys/witness.json",
+     "witness_name": "c",
+     "witness_signed_domain": "c.example"
+    },
+    "record_sha256": "b011c02d24102d459706e58e8357ba57a541a82ea4b9b9eabf58c4e499b8c93e"
+   },
+   "input": {
+    "anchor_block": 974750,
+    "batch_entry": 260,
+    "beacon_hash": "1f57c014b8cf73cc30d4669fab546eb4d3c8525a3bda42999120c4b36244c1a5",
+    "day": "2026-11-05",
+    "day_sha256": "bf0f84a6b711b37915540ec67a4897acd6dc94e1c204a0f5155048c52f636f94",
+    "n": 37,
+    "pool": {
+     "entries": [
+      {
+       "consent": {
+        "enrollment_sha256": null,
+        "form": "email",
+        "on": "2026-11-04"
+       },
+       "joined_on": "2026-11-04",
+       "key_id": "ed25519:21fe31dfa154a261",
+       "key_url": "https://a.example/keys/witness.json",
+       "kinds": [
+        "furui-day"
+       ],
+       "left_on": null,
+       "left_reason": null,
+       "name": "a",
+       "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=",
+       "signed_domain": "a.example"
+      },
+      {
+       "consent": {
+        "enrollment_sha256": null,
+        "form": "email",
+        "on": "2026-11-04"
+       },
+       "joined_on": "2026-11-04",
+       "key_id": "ed25519:39f713d0a644253f",
+       "key_url": "https://b.example/keys/witness.json",
+       "kinds": [
+        "furui-day"
+       ],
+       "left_on": "2026-11-05",
+       "left_reason": "asked to leave",
+       "name": "b",
+       "public_key_ed25519_b64": "PUAXw+hDiVqStwqnTRt+vJyYLM8uxJaMwM1V8Sr0Zgw=",
+       "signed_domain": "b.example"
+      },
+      {
+       "consent": {
+        "enrollment_sha256": null,
+        "form": "email",
+        "on": "2026-11-04"
+       },
+       "joined_on": "2026-11-04",
+       "key_id": "ed25519:d82330c4ed96d56e",
+       "key_url": "https://c.example/keys/witness.json",
+       "kinds": [
+        "furui-day"
+       ],
+       "left_on": null,
+       "left_reason": null,
+       "name": "c",
+       "public_key_ed25519_b64": "oQOKh2StmtMoxJfSDYePQIzdv5veylqpYIF99eo9UVo=",
+       "signed_domain": "c.example"
+      }
+     ],
+     "previous_pool_sha256": null,
+     "schema": "witness-enroll-pool-v0",
+     "version": 1
+    },
+    "pool_entry": 255,
+    "root": "f4ed7b3d9a38d30f3a37bb8349422d95fd4caa2d02a20df528baa7efb03c1e40"
+   },
+   "name": "three_witnesses_one_left",
+   "pool_sha256": "31c737ae42afb1b98c3cd949e14ef12995daa1a7c8de41bc6cfdc5bf1b3d15e4"
+  },
+  {
+   "expect": "no_witness",
+   "input": {
+    "anchor_block": 974750,
+    "batch_entry": 260,
+    "beacon_hash": "cc58b7af62a800710d090b5d7bc13ea90ff300bfb6e061f00e03e810e33d9280",
+    "day": "2026-11-03",
+    "day_sha256": "a8eb61ea5be1538d5a7a2e6fa67e06476522e7b239b40a21021dda2a5a569bbf",
+    "n": 2,
+    "pool": {
+     "entries": [
+      {
+       "consent": {
+        "enrollment_sha256": null,
+        "form": "email",
+        "on": "2026-11-04"
+       },
+       "joined_on": "2026-11-04",
+       "key_id": "ed25519:21fe31dfa154a261",
+       "key_url": "https://a.example/keys/witness.json",
+       "kinds": [
+        "furui-day"
+       ],
+       "left_on": null,
+       "left_reason": null,
+       "name": "a",
+       "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=",
+       "signed_domain": "a.example"
+      },
+      {
+       "consent": {
+        "enrollment_sha256": null,
+        "form": "email",
+        "on": "2026-11-04"
+       },
+       "joined_on": "2026-11-04",
+       "key_id": "ed25519:39f713d0a644253f",
+       "key_url": "https://b.example/keys/witness.json",
+       "kinds": [
+        "furui-day"
+       ],
+       "left_on": null,
+       "left_reason": null,
+       "name": "b",
+       "public_key_ed25519_b64": "PUAXw+hDiVqStwqnTRt+vJyYLM8uxJaMwM1V8Sr0Zgw=",
+       "signed_domain": "b.example"
+      },
+      {
+       "consent": {
+        "enrollment_sha256": null,
+        "form": "email",
+        "on": "2026-11-04"
+       },
+       "joined_on": "2026-11-04",
+       "key_id": "ed25519:d82330c4ed96d56e",
+       "key_url": "https://c.example/keys/witness.json",
+       "kinds": [
+        "furui-day"
+       ],
+       "left_on": null,
+       "left_reason": null,
+       "name": "c",
+       "public_key_ed25519_b64": "oQOKh2StmtMoxJfSDYePQIzdv5veylqpYIF99eo9UVo=",
+       "signed_domain": "c.example"
+      }
+     ],
+     "previous_pool_sha256": null,
+     "schema": "witness-enroll-pool-v0",
+     "version": 1
+    },
+    "pool_entry": 255,
+    "root": "6453c48fd6ac7144eb35022868f336d9f3ea0d69c2d3c3cda9e26a2f5d813b80"
+   },
+   "name": "no_witness_active_yet",
+   "pool_sha256": "758b93b47dcc49280d4d72c4a23626ba8491dd1c9925923f4f14b8541deb6eec"
+  }
+ ],
+ "keys": "pool.json (a published public key), RFC 8032 section 7.1 TEST 1 and TEST 2, and one key from the public seed sha256(\"witness-enroll-v0 test key 3\")",
+ "pool_json_record_sha256": "3f380f821ea324f0164dedc283feb7dac8734fb3bc79b319b6110181c4a6c0ad",
+ "pool_json_sha256": "96f8be7b1e3de7cb6a87a881281bb84cb408176bb050a7db45b7cdf90ec7d969",
+ "schema": "witness-enroll-v0-vectors",
+ "tool_sha256_in_records": "0000000000000000000000000000000000000000000000000000000000000000"
+}
