@@ -4,7 +4,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import worker, { decide, summarizeSweep, lastMeasuredFromReason, runOnce, needsHistory, CRONS, MAX_KICKS_PER_DAY, MAX_HISTORY_READS, USER_AGENT } from "../src/worker.js";
+import worker, { decide, summarizeSweep, lastMeasuredFromReason, runOnce, needsHistory, CRONS, STAGE1_CRONS, sweepToken, VERSION, MAX_KICKS_PER_DAY, MAX_HISTORY_READS, USER_AGENT } from "../src/worker.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 let bad = 0, n = 0;
@@ -69,7 +69,7 @@ function gate({ sweepLast, post = { status: 200, body: sweep({ at: "2026-10-23T1
 const histGets = (g) => g.calls.filter((c) => c.method === "GET" && c.path === "/history");
 
 function env(g, store, extra = {}) {
-  return Object.assign({ KICK_LOG: store, SWEEP_TOKEN: TOKEN, __fetch: g.f }, extra);
+  return Object.assign({ KICK_LOG: store, SWEEP_ONLY_TOKEN: TOKEN, __fetch: g.f }, extra);
 }
 const posts = (g) => g.calls.filter((c) => c.method === "POST");
 const stored = (store, day = TODAY) => JSON.parse(store.m.get("log:" + day));
@@ -93,12 +93,13 @@ chk("parse: last measured from the gate's sentence", lastMeasuredFromReason(rOve
   const s = summarizeSweep(sweep({ skipped: [R_NOT_DUE, rOver("2026-10-20T18:01:02.522Z"), rOver("2026-10-23T18:00:01.000Z"), R_BUDGET] }), TODAY);
   chk("summary: counts", s.skipped_total === 4 && s.skipped_over_max === 2 && s.skipped_over_max_measured_today === 1 && s.skipped_budget === 1 && s.pending_not_measured_today === 2, JSON.stringify(s));
 }
-chk("constants: three crons, cap 3", CRONS.length === 3 && MAX_KICKS_PER_DAY === 3);
+chk("constants: 0.2.0, no cron, the stage 1 schedule kept by name, cap 3", VERSION === "0.2.0" && CRONS.length === 0 && STAGE1_CRONS.length === 3 && MAX_KICKS_PER_DAY === 3);
+chk("token: only SWEEP_ONLY_TOKEN is used; SWEEP_TOKEN alone is no token (no fallback)", sweepToken({ SWEEP_ONLY_TOKEN: "a" }) === "a" && sweepToken({ SWEEP_TOKEN: "op" }) === "" && sweepToken({ SWEEP_TOKEN: "op", SWEEP_ONLY_TOKEN: "a" }) === "a" && sweepToken({}) === "");
 {
   const w = readFileSync(path.join(HERE, "..", "wrangler.jsonc"), "utf8").split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n");
   const cfg = JSON.parse(w);
-  chk("wrangler.jsonc: crons match the code", JSON.stringify(cfg.triggers.crons) === JSON.stringify(CRONS), JSON.stringify(cfg.triggers.crons));
-  chk("wrangler.jsonc: KV binding KICK_LOG, no secret in vars", cfg.kv_namespaces[0].binding === "KICK_LOG" && !("SWEEP_TOKEN" in (cfg.vars || {})));
+  chk("wrangler.jsonc: crons match the code (an empty list)", Array.isArray(cfg.triggers.crons) && cfg.triggers.crons.length === 0 && JSON.stringify(cfg.triggers.crons) === JSON.stringify(CRONS), JSON.stringify(cfg.triggers.crons));
+  chk("wrangler.jsonc: KV binding KICK_LOG, no secret in vars", cfg.kv_namespaces[0].binding === "KICK_LOG" && !("SWEEP_TOKEN" in (cfg.vars || {})) && !("SWEEP_ONLY_TOKEN" in (cfg.vars || {})));
 }
 
 // ---------------------------------------------------------------- runOnce against the fake gate
@@ -144,19 +145,23 @@ for (const st of [403, 409, 503]) {
 {
   const g = gate({ sweepLast: sweep({ skipped: [rOver("never")] }) });
   const s = kv();
-  const e = env(g, s); delete e.SWEEP_TOKEN;
+  const e = env(g, s); delete e.SWEEP_ONLY_TOKEN;
   const r = await runOnce(e, T, "17 19 * * *");
   chk("run: no token -> record only, no POST", r.reason === "token_not_configured" && posts(g).length === 0 && stored(s).entries.length === 1);
+  const g2 = gate({ sweepLast: sweep({ skipped: [rOver("never")] }) });
+  const e2 = env(g2, kv()); delete e2.SWEEP_ONLY_TOKEN; e2.SWEEP_TOKEN = "operator-key-must-not-be-used";
+  const r2 = await runOnce(e2, T, "17 19 * * *");
+  chk("run: only the operator key SWEEP_TOKEN set -> still no token, no POST (0.2.0 has no fallback)", r2.reason === "token_not_configured" && posts(g2).length === 0);
 }
 {
   // Three crons and a stray fourth run on one day, the gate leaving rows over MAX every time: 3 calls, then no more.
   const g = gate({ sweepLast: sweep({ skipped: [rOver("2026-10-20T18:01:02.522Z")] }) });
   const s = kv();
-  for (const c of [...CRONS, "manual"]) await runOnce(env(g, s), T, c);
+  for (const c of [...STAGE1_CRONS, "manual"]) await runOnce(env(g, s), T, c);
   const L = stored(s);
   chk("run: cap of 3 POSTs a UTC day", posts(g).length === 3 && L.entries.length === 4 && L.entries[3].reason === "daily_cap_reached", posts(g).length + " posts");
   // The next UTC day starts again from 0.
-  await runOnce(env(gate({ sweepLast: sweep({ at: "2026-10-24T18:00:10.000Z", skipped: [rOver("never")] }) }), s), Date.parse("2026-10-24T19:17:00Z"), CRONS[0]);
+  await runOnce(env(gate({ sweepLast: sweep({ at: "2026-10-24T18:00:10.000Z", skipped: [rOver("never")] }) }), s), Date.parse("2026-10-24T19:17:00Z"), STAGE1_CRONS[0]);
   chk("run: a new UTC day has its own key and count", stored(s, "2026-10-24").entries[0].decision === "kick");
 }
 {
@@ -266,10 +271,10 @@ for (const [label, h] of [["503", { status: 503 }], ["no answer", "throw"]]) {
     return new Response("{}", { status: 404 });
   };
   const s = kv();
-  for (const c of CRONS) {
+  for (const c of STAGE1_CRONS) {
     const [mi, hr] = c.split(" ").map(Number);
     f.now = Date.parse(TODAY + "T" + String(hr).padStart(2, "0") + ":" + String(mi).padStart(2, "0") + ":00Z");
-    await runOnce({ KICK_LOG: s, SWEEP_TOKEN: TOKEN, __fetch: f }, f.now, c);
+    await runOnce({ KICK_LOG: s, SWEEP_ONLY_TOKEN: TOKEN, __fetch: f }, f.now, c);
   }
   const L = stored(s).entries;
   chk("10/22 shape: 19:17 and 19:41 call, 20:13 does not", L.map((e) => e.decision).join(",") === "kick,kick,skip", L.map((e) => e.decision + ":" + e.reason).join(","));
@@ -303,7 +308,8 @@ for (const [label, h] of [["503", { status: 503 }], ["no answer", "throw"]]) {
   const h = await (await worker.fetch(new Request("https://k.example/health"), e)).text();
   chk("health: describes, no token", JSON.parse(h).name === "hs-sweep-kicker" && JSON.parse(h).token_configured === true && !h.includes(TOKEN));
   const root = await worker.fetch(new Request("https://k.example/"), e);
-  chk("root: same description", root.status === 200 && JSON.parse(await root.text()).crons_utc.length === 3);
+  const rootJ = JSON.parse(await root.text());
+  chk("root: same description, no cron, names the token it uses", root.status === 200 && rootJ.crons_utc.length === 0 && rootJ.token_name === "SWEEP_ONLY_TOKEN");
   chk("log: bad day -> 400", (await worker.fetch(new Request("https://k.example/log?day=2026-1-1"), e)).status === 400);
   const empty = await worker.fetch(new Request("https://k.example/log?day=2026-01-01"), e);
   chk("log: day without entries -> 200, empty", empty.status === 200 && JSON.parse(await empty.text()).entries.length === 0);

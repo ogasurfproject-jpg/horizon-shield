@@ -2,8 +2,9 @@
   // hs-sweep-kicker: asks the verify gate (hs-verify-gate) for one more sweep on a day when its 18:00 UTC sweep left
   // rows skipped for capacity. A stopgap until gate 0.4.21 covers its whole due list itself. See README.md.
   //
-  // Secret (owner only, never in this file or in GitHub): SWEEP_TOKEN, the same value as the gate's SWEEP_TOKEN.
-  //   cd workers/hs-sweep-kicker && npx wrangler secret put SWEEP_TOKEN
+  // Secret (owner only, never in this file or in GitHub): SWEEP_ONLY_TOKEN (0.2.0), the same value as the gate's
+  // SWEEP_ONLY_TOKEN, a key the gate accepts for POST /sweep and nothing else. The operator key SWEEP_TOKEN is not used.
+  //   cd workers/hs-sweep-kicker && npx wrangler secret put SWEEP_ONLY_TOKEN
   // Without it the Worker still reads /sweep/last and writes its log, and records token_not_configured instead of calling.
   //
   // The KV id below is written by the owner's script (ops-private sweep_daily_20261023/toshi_stage1.sh) when it
@@ -17,10 +18,11 @@
   "preview_urls": false,
   "observability": { "enabled": true, "logs": { "enabled": true } },
 
-  // UTC. The gate's own sweep runs at 18:00 UTC and finishes within a minute or two. Three chances, at most one call
-  // each, and the Worker also stops at 3 calls a UTC day. JST: 04:17, 04:41, 05:13.
+  // 0.2.0: no cron. Gate 0.4.21 sweeps four times a day itself (18:00, 19:00, 20:00, 21:00 UTC), each run continuing
+  // where the last left off. Stage 1 ran at 19:17, 19:41 and 20:13 UTC (src/worker.js STAGE1_CRONS). An empty list removes
+  // the schedules from Cloudflare on deploy.
   "triggers": {
-    "crons": ["17 19 * * *", "41 19 * * *", "13 20 * * *"]
+    "crons": []
   },
 
   // One key per UTC day (log:YYYY-MM-DD), 400 days. Only decisions and counts; no token, no headers.

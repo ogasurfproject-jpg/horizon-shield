@@ -1,12 +1,19 @@
 // hs-sweep-kicker: a stopgap that asks the verify gate for one more sweep on a day when its 18:00 UTC sweep
 // could not measure every row that was due (2026-10-23, stage 1).
 //
-// Why: the gate (workers/hs-verify-gate) re-measures its watched endpoints once a day from one cron. One run
-// measures at most MAX_PER_SWEEP = 8 rows and stops earlier when the 50 subrequest budget of Workers Free runs
-// out. Rows left over are written to /sweep/last as skipped with "over MAX_PER_SWEEP" or "subrequest budget".
+// Why: the gate (workers/hs-verify-gate) re-measured its watched endpoints once a day from one cron. One run
+// measured at most MAX_PER_SWEEP = 8 rows and stopped earlier when its own fetch budget of 50 ran out (a copy of the
+// Workers Free limit; the account is on Workers Paid, whose limit is 10,000 subrequests per invocation).
+// Rows left over are written to /sweep/last as skipped with "over MAX_PER_SWEEP" or "subrequest budget".
 // On 2026-10-22 18 rows were due and 7 were measured. This Worker reads /sweep/last a little after the gate's
 // cron and, only when the gate itself says rows were left over today, calls the gate's own POST /sweep once.
 // It never changes the gate. It is meant to go away when the gate does this itself (gate 0.4.21, stage 2).
+//
+// 0.2.0 (2026-10-23, after gate 0.4.21): the gate now sweeps four times a day (18:00, 19:00, 20:00, 21:00 UTC), each
+// run continuing where the last left off, so this Worker has no cron any more (triggers.crons is []). It stays deployed
+// for /health, /log and /probe, and for a run started by hand. It calls POST /sweep with SWEEP_ONLY_TOKEN, a key the
+// gate accepts for POST /sweep and nothing else (no force, no register change). It no longer reads SWEEP_TOKEN, the
+// operator key, and falls back to nothing: without SWEEP_ONLY_TOKEN it records token_not_configured and does not call.
 //
 // Rules this file keeps:
 //   - POST /sweep only when all hold: the last sweep is from today (UTC) and ran: true; skipped has a row whose
@@ -21,17 +28,21 @@
 //   - When this Worker's own log cannot be read, it does not know how many times it has called today, so it does
 //     not call and does not write (a failed read is not an empty day; issue #13 of this repository).
 
-export const VERSION = "0.1.1";
+export const VERSION = "0.2.0";
 export const GATE_ORIGIN = "https://gate.horizonshield.dev";
 export const USER_AGENT = "hs-sweep-kicker/" + VERSION + " (+https://github.com/ogasurfproject-jpg/horizon-shield/tree/main/workers/hs-sweep-kicker)";
-export const CRONS = ["17 19 * * *", "41 19 * * *", "13 20 * * *"];
+// 0.2.0: no cron (wrangler.jsonc triggers.crons is []). The stage 1 schedule is kept as a name, for a run by hand and the tests.
+export const CRONS = [];
+export const STAGE1_CRONS = ["17 19 * * *", "41 19 * * *", "13 20 * * *"];
+// The only key this Worker sends. Never SWEEP_TOKEN (the gate's operator key).
+export function sweepToken(env) { return env && typeof env.SWEEP_ONLY_TOKEN === "string" && env.SWEEP_ONLY_TOKEN ? env.SWEEP_ONLY_TOKEN : ""; }
 export const MAX_KICKS_PER_DAY = 3;
 // The gate writes these at the start of a skipped row's reason (hs-verify-gate src/worker.js, runDailySweepUnleased).
 export const REASON_OVER_MAX = "over MAX_PER_SWEEP";
 export const REASON_BUDGET = "subrequest budget";
 // /history reads per run, for subrequest budget rows only. The gate puts at most MAX_PER_SWEEP = 8 rows in a run, and only
 // rows of the run can be skipped for budget, so 8 covers them all. With /sweep/last and POST /sweep a run makes at most
-// 10 outbound requests, well inside the 50 a Workers Free invocation allows.
+// 10 outbound requests, far inside the 10,000 subrequests a Workers Paid invocation allows (and inside Free's 50 too).
 export const MAX_HISTORY_READS = 8;
 export const LOG_TTL_SECONDS = 60 * 60 * 24 * 400;   // the gate keeps its usage counters 400 days; the same here
 const GET_TIMEOUT_MS = 20000;
@@ -121,7 +132,7 @@ export function decide({ readable, http, summary, kicksToday, tokenConfigured })
   if (summary.skipped_over_max + summary.skipped_budget === 0) return { decision: "skip", reason: "no_capacity_skips", why: "no skipped row says over MAX_PER_SWEEP or subrequest budget" };
   if (summary.pending_not_measured_today === 0) return { decision: "skip", reason: "all_capacity_skips_measured_today", why: "every row skipped for capacity was already measured today, so another sweep would only re-measure" };
   if (kicksToday >= MAX_KICKS_PER_DAY) return { decision: "skip", reason: "daily_cap_reached", why: "this Worker has already called POST /sweep " + kicksToday + " times today (cap " + MAX_KICKS_PER_DAY + ")" };
-  if (!tokenConfigured) return { decision: "record_only", reason: "token_not_configured", why: "SWEEP_TOKEN is not set on this Worker, so it cannot call POST /sweep" };
+  if (!tokenConfigured) return { decision: "record_only", reason: "token_not_configured", why: "SWEEP_ONLY_TOKEN is not set on this Worker, so it cannot call POST /sweep" };
   return { decision: "kick", reason: "capacity_skips_today", why: summary.pending_not_measured_today + " row(s) skipped for capacity today and not yet measured today" };
 }
 
@@ -201,7 +212,7 @@ export function summarizePost(status, body, today) {
       out.pending_not_measured_today = s.pending_not_measured_today;
     }
   }
-  const meaning = { 200: "the gate ran the sweep", 403: "forbidden: the token on this Worker does not match the gate's SWEEP_TOKEN", 409: "another sweep held the gate's lease", 503: "the gate has no SWEEP_TOKEN or its sweep lease was unavailable" };
+  const meaning = { 200: "the gate ran the sweep", 403: "forbidden: the gate did not accept this Worker's SWEEP_ONLY_TOKEN", 409: "another sweep held the gate's lease", 503: "the gate has no SWEEP_TOKEN or its sweep lease was unavailable" };
   out.meaning = meaning[status] || (status === 0 ? "no answer (network error or timeout)" : "unexpected status");
   out.retried = false;
   return out;
@@ -212,7 +223,7 @@ export async function postSweep(env, today) {
   try {
     res = await gateFetch(env, "/sweep", {
       method: "POST",
-      headers: Object.assign(baseHeaders(), { "content-type": "application/json", "x-sweep-token": String(env.SWEEP_TOKEN) }),
+      headers: Object.assign(baseHeaders(), { "content-type": "application/json", "x-sweep-token": sweepToken(env) }),
       body: "{}",
       signal: AbortSignal.timeout(POST_TIMEOUT_MS)
     });
@@ -228,9 +239,9 @@ export async function postSweep(env, today) {
 
 // Belt and braces: nothing above copies the token, but if a summary ever did, it is cut out before it is stored or served.
 export function redact(text, env) {
-  const t = env && typeof env.SWEEP_TOKEN === "string" ? env.SWEEP_TOKEN : "";
-  if (t.length >= 4) return String(text).split(t).join("[redacted]");
-  return String(text);
+  let out = String(text);
+  for (const t of [sweepToken(env), env && typeof env.SWEEP_TOKEN === "string" ? env.SWEEP_TOKEN : ""]) if (t.length >= 4) out = out.split(t).join("[redacted]");
+  return out;
 }
 
 export async function runOnce(env, scheduledTime, cron) {
@@ -251,7 +262,7 @@ export async function runOnce(env, scheduledTime, cron) {
     budgetHistory = h.stats;
     summary = summarizeSweep(sl.body, today, h.seen);
   }
-  const d = decide({ readable: sl.readable, http: sl.http, summary: summary || {}, kicksToday, tokenConfigured: !!(env && env.SWEEP_TOKEN) });
+  const d = decide({ readable: sl.readable, http: sl.http, summary: summary || {}, kicksToday, tokenConfigured: !!sweepToken(env) });
   const entry = {
     at: new Date().toISOString(),
     scheduled_at: new Date(now).toISOString(),
@@ -291,12 +302,13 @@ export function describe(env) {
   return {
     name: "hs-sweep-kicker",
     version: VERSION,
-    what: "Reads the verify gate's /sweep/last after its daily 18:00 UTC sweep and, only when that sweep is from today and left rows skipped for capacity (over MAX_PER_SWEEP or subrequest budget) that were not measured today, calls the gate's POST /sweep, at most " + MAX_KICKS_PER_DAY + " times a UTC day. Never retries. A stopgap until the gate covers its whole due list itself (gate 0.4.21).",
+    what: "Reads the verify gate's /sweep/last after its daily 18:00 UTC sweep and, only when that sweep is from today and left rows skipped for capacity (over MAX_PER_SWEEP or subrequest budget) that were not measured today, calls the gate's POST /sweep, at most " + MAX_KICKS_PER_DAY + " times a UTC day. Never retries. Since 0.2.0 it has no cron: gate 0.4.21 sweeps four times a day itself. It calls only with SWEEP_ONLY_TOKEN.",
     gate: GATE_ORIGIN,
     crons_utc: CRONS,
     log: "/log?day=YYYY-MM-DD (UTC day; every decision and result of that day, without the token or any header)",
     user_agent: USER_AGENT,
-    token_configured: !!(env && env.SWEEP_TOKEN),
+    token_configured: !!sweepToken(env),
+    token_name: "SWEEP_ONLY_TOKEN",
     log_bound: !!(env && env.KICK_LOG),
     gate_via: env && env.GATE_VIA === "binding" ? "service binding GATE" : "public URL",
     source: "https://github.com/ogasurfproject-jpg/horizon-shield/tree/main/workers/hs-sweep-kicker"
