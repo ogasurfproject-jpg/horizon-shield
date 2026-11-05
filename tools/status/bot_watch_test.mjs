@@ -5,8 +5,13 @@ import { mkdtempSync, writeFileSync, readdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
-  parseField, parseCron, fireTimes, expectedIntervalMs, scheduledCrons, writerOf, judge, watch, renderBots, problems, span
+  parseField, parseCron, fireTimes, expectedIntervalMs, scheduledCrons, writerOf, judge, watch, renderBots, problems, span,
+  WORKER_JOBS, DISPATCHED_FILES, dayAlerts, readWorkerLogs, fileIssues, issueTitle, issueText
 } from "./bot_watch.mjs";
+import { JOBS as WORKER_CORE_JOBS } from "../../workers/hs-cron-dispatch/src/core.mjs";
+
+// no network in this test
+globalThis.fetch = () => { throw new Error("the network is not used in this test"); };
 
 let failed = 0, passed = 0;
 function chk(name, cond, detail) {
@@ -172,6 +177,118 @@ const active = { state: "active", created_at: "2026-01-01T00:00:00Z" };
   const okRows = [{ file: "a.yml", crons: ["0 0 * * *"], interval_ms: D, flags: [], last_run: null, consecutive_failures: 0 }];
   chk("render: all good says so", renderBots(okRows, NOW).includes("none needs attention"));
 }
+// ---- the workflows workers/hs-cron-dispatch starts (2026-11-05) -----------------------------------------------
+chk("WORKER_JOBS equals JOBS of workers/hs-cron-dispatch/src/core.mjs (id and workflow)",
+  JSON.stringify(Object.entries(WORKER_JOBS).sort()) === JSON.stringify(WORKER_CORE_JOBS.map((j) => [j.id, j.file]).sort()), WORKER_JOBS);
+chk("bot-watch.yml is one of them (06:17 UTC)", DISPATCHED_FILES.has("bot-watch.yml") && WORKER_CORE_JOBS.find((j) => j.id === "bot-watch").hour === 6);
+const runI = (id, at, conclusion, event, status = "completed") => ({ id, created_at: at, run_started_at: at, status, conclusion: status === "completed" ? conclusion : null, event, html_url: "u" + id });
+{
+  const dir = mkdtempSync(join(tmpdir(), "bot-watch-d-"));
+  writeFileSync(join(dir, "tooshi-daily.yml"), "on:\n  schedule:\n    - cron: \"5 4 * * *\"\n  workflow_dispatch: {}\n");
+  writeFileSync(join(dir, "law.yml"), "on:\n  schedule:\n    - cron: \"0 0 * * 0\"\n  workflow_dispatch: {}\n");
+  const canned = {
+    "/repos/o/r/actions/workflows/tooshi-daily.yml": active,
+    "/repos/o/r/actions/workflows/tooshi-daily.yml/runs?per_page=20": { workflow_runs: [] },
+    "/repos/o/r/actions/workflows/tooshi-daily.yml/runs?per_page=20&event=schedule": { workflow_runs: [run(3 * D, "success")] },
+    "/repos/o/r/actions/workflows/tooshi-daily.yml/runs?per_page=100&event=workflow_dispatch": { workflow_runs: [run(2 * H, "failure", "workflow_dispatch"), run(26 * H, "failure", "workflow_dispatch"), run(2 * D, "success", "workflow_dispatch")] },
+    "/repos/o/r/actions/workflows/law.yml": active,
+    "/repos/o/r/actions/workflows/law.yml/runs?per_page=20": { workflow_runs: [run(H, "success", "workflow_dispatch")] },
+    "/repos/o/r/actions/workflows/law.yml/runs?per_page=20&event=schedule": { workflow_runs: [run(17 * D, "success")] }
+  };
+  const calls = [];
+  const api = async (p) => { calls.push(p); if (!(p in canned)) throw new Error("GitHub API 404 for " + p); return canned[p]; };
+  const rows = await watch({ dir, repo: "o/r", api, nowMs: NOW });
+  const by = Object.fromEntries(rows.map((r) => [r.file, r]));
+  chk("watch: a Worker workflow counts its dispatch runs: 2 dispatch failures in a row is FAILING, the dispatch success 2 d ago keeps it from OVERDUE",
+    by["tooshi-daily.yml"].flags.join() === "FAILING" && by["tooshi-daily.yml"].consecutive_failures === 2 && by["tooshi-daily.yml"].last_scheduled_success === iso(2 * D), by["tooshi-daily.yml"]);
+  chk("watch: a workflow the Worker does not start reads no dispatch runs, and a run by hand still does not hide OVERDUE",
+    by["law.yml"].flags.join() === "OVERDUE" && !calls.some((c) => c.startsWith("/repos/o/r/actions/workflows/law.yml/runs?per_page=100")), by["law.yml"]);
+  chk("watch: the Worker workflow keeps its runs for the day alerts", by["tooshi-daily.yml"].runs.workflow_dispatch.length === 3 && !by["law.yml"].runs);
+  const md = renderBots(rows, NOW, undefined, { days: ["2026-10-08", "2026-10-09"], errors: [], alerts: [] });
+  chk("render: counted success says schedule or Worker dispatch, and the day section is there", md.includes("(schedule or Worker dispatch)") && md.includes("## Days with no successful run") && md.includes("None."));
+}
+{
+  // day alerts. NOW is 2026-10-09T12:00Z; days judged 10-08 and 10-09
+  const days = ["2026-10-08", "2026-10-09"];
+  const row = (file, sched, disp) => ({ file, runs: { schedule: sched, workflow_dispatch: disp } });
+  const A = (rows, logs) => dayAlerts({ rows, logs, days, nowMs: NOW });
+  const both = A([row("survive-drill.yml", [runI(2, "2026-10-08T09:10:00Z", "failure", "schedule")], [runI(1, "2026-10-08T03:17:05Z", "failure", "workflow_dispatch")])], {});
+  chk("both: the dispatch run and the late scheduled run of 10-08 failed: one alert, reason both, both runs named",
+    both.length === 1 && both[0].day === "2026-10-08" && both[0].reasons.join() === "both" && both[0].evidence.join() === "run:1,run:2", both);
+  const rescued = A([row("survive-drill.yml", [runI(2, "2026-10-08T09:10:00Z", "success", "schedule")], [runI(1, "2026-10-08T03:17:05Z", "failure", "workflow_dispatch")])], {});
+  chk("the dispatch run failed but the scheduled run succeeded: no alert", rescued.length === 0, rescued);
+  const handOk = A([row("survive-drill.yml", [runI(2, "2026-10-08T09:10:00Z", "failure", "schedule")], [runI(3, "2026-10-08T10:00:00Z", "success", "workflow_dispatch"), runI(1, "2026-10-08T03:17:05Z", "failure", "workflow_dispatch")])], {});
+  chk("a later run by hand succeeded: no alert", handOk.length === 0, handOk);
+  const onlyDisp = A([row("survive-drill.yml", [], [runI(1, "2026-10-09T03:17:05Z", "failure", "workflow_dispatch")])], {});
+  chk("today the dispatch run failed and the schedule has not come: no alert yet", onlyDisp.length === 0, onlyDisp);
+  const wlog = (entries) => ({ "2026-10-09": { day: "2026-10-09", entries } });
+  const wf = (job, slot, extra = {}) => ({ at: slot, slot, job, result: "failed", http: 500, why: "no answer", ...extra });
+  const w1 = A([row("issuer-keys.yml", [], [])], wlog([{ job: "issuer-keys", slot: "2026-10-09T03:23Z", result: "claimed" }, wf("issuer-keys", "2026-10-09T03:23Z"), wf("issuer-keys", "2026-10-09T03:23Z", { retry: 2, why: "final" })]));
+  chk("worker: the last dispatch of issuer-keys failed (final) and no run that day: one alert, reason worker",
+    w1.length === 1 && w1[0].day === "2026-10-09" && w1[0].reasons.join() === "worker" && w1[0].evidence.join() === "worker:issuer-keys@2026-10-09T03:23Z#2", w1);
+  const w2 = A([row("issuer-keys.yml", [runI(5, "2026-10-09T10:00:00Z", "success", "schedule")], [])], wlog([wf("issuer-keys", "2026-10-09T03:23Z", { retry: 2 })]));
+  chk("worker failed but the late scheduled run succeeded that day: no alert", w2.length === 0, w2);
+  const w3 = A([row("jidec-stamp.yml", [], [])], wlog([wf("jidec-stamp", "2026-10-09T11:17Z", { retry_next: "2026-10-09T11:32:00.000Z" })]));
+  chk("worker: a failed slot whose retry is still waiting (due 11:32, now 12:00, within 30 min): no alert", w3.length === 0, w3);
+  const w4 = A([row("jidec-stamp.yml", [], [])], wlog([wf("jidec-stamp", "2026-10-09T10:17Z", { retry_next: "2026-10-09T10:22:00.000Z" })]));
+  chk("worker: a retry that never came (due 10:22, more than 30 min ago): alert", w4.length === 1 && w4[0].reasons.join() === "worker", w4);
+  const w5 = A([row("jidec-stamp.yml", [], [])], wlog([wf("jidec-stamp", "2026-10-09T10:17Z"), { job: "jidec-stamp", slot: "2026-10-09T11:17Z", result: "dispatched", http: 204 }]));
+  chk("worker: a later slot of the job was dispatched: no alert", w5.length === 0, w5);
+  const w6 = A([row("tooshi-daily.yml", [], [])], wlog([{ job: "tooshi-daily", slot: "2026-10-09T04:05Z", result: "dispatched" }, wf("tooshi-daily-second", "2026-10-09T04:35Z", { http: 422, why: "GitHub refused the dispatch (not retried)" })]));
+  chk("worker: tooshi-daily-second failed with 422, no run that day: alert for tooshi-daily.yml naming the second job", w6.length === 1 && w6[0].file === "tooshi-daily.yml" && w6[0].evidence.join() === "worker:tooshi-daily-second@2026-10-09T04:35Z#0", w6);
+  const w7 = A([row("issuer-keys.yml", [], [])], { "2026-10-09": null });
+  chk("the Worker log not read: only the runs are judged (no alert from the log)", w7.length === 0);
+  const w8 = A([row("issuer-keys.yml", [runI(2, "2026-10-09T09:10:00Z", "failure", "schedule")], [runI(1, "2026-10-09T03:23:05Z", "failure", "workflow_dispatch")])], wlog([wf("issuer-keys", "2026-10-09T03:23Z", { retry: 2 })]));
+  chk("both and worker on the same day: one alert with both reasons", w8.length === 1 && w8[0].reasons.join() === "both,worker" && w8[0].evidence.length === 3, w8);
+  const w9 = A([row("law.yml", [runI(2, "2026-10-09T09:10:00Z", "failure", "schedule")], [runI(1, "2026-10-09T03:23:05Z", "failure", "workflow_dispatch")])], {});
+  chk("a workflow the Worker does not start is not judged by day", w9.length === 0);
+  const got = [];
+  const rl = await readWorkerLogs({ days, get: async (p) => { got.push(p); if (p.endsWith("10-08")) throw new Error("Worker 503 for /log"); return { day: "2026-10-09", entries: [] }; } });
+  chk("readWorkerLogs: GET /log?day= per day, a failed read is null and named", JSON.stringify(got) === '["/log?day=2026-10-08","/log?day=2026-10-09"]' && rl.logs["2026-10-08"] === null && rl.errors.length === 1 && rl.logs["2026-10-09"].entries.length === 0, rl);
+
+  // the issues
+  const a1 = w8[0];
+  const fake = (issues, comments = {}, labelErr = null) => {
+    const sent = [];
+    const api = async (p) => { if (p.startsWith("/repos/o/r/issues?labels=bot-watch&state=all")) return issues; const m = p.match(/^\/repos\/o\/r\/issues\/(\d+)\/comments/); if (m) return comments[m[1]] || []; throw new Error("unexpected " + p); };
+    const send = async (method, p, body) => { sent.push({ method, p, body }); if (p.endsWith("/labels") && labelErr) throw new Error(labelErr); if (p === "/repos/o/r/issues") return { number: 77 }; return {}; };
+    return { api, send, sent };
+  };
+  {
+    const f = fake([]);
+    const d = await fileIssues({ alerts: [a1], repo: "o/r", api: f.api, send: f.send });
+    const post = f.sent.find((x) => x.p === "/repos/o/r/issues");
+    chk("issues: none for the day: one issue opened, labelled bot-watch, title names workflow and day, evidence marked",
+      d[0].action === "opened" && d[0].number === 77 && post.body.title === "bot-watch: issuer-keys.yml 2026-10-09 has no successful run" && post.body.labels.join() === "bot-watch" && post.body.body.includes("<!-- bot-watch-evidence: run:1 run:2 worker:issuer-keys@2026-10-09T03:23Z#2 -->"), f.sent);
+  }
+  {
+    const f = fake([{ number: 9, title: issueTitle(a1), body: issueText(a1) }]);
+    const d = await fileIssues({ alerts: [a1], repo: "o/r", api: f.api, send: f.send });
+    chk("issues: the same facts judged again (05:47 and 06:17): nothing written", d[0].action === "already_told" && f.sent.filter((x) => x.p !== "/repos/o/r/labels").length === 0, f.sent);
+  }
+  {
+    const old = { ...a1, evidence: ["run:1"] };
+    const f = fake([{ number: 9, title: issueTitle(a1), body: issueText(old) }], { 9: [{ body: "unrelated" }] });
+    const d = await fileIssues({ alerts: [a1], repo: "o/r", api: f.api, send: f.send });
+    const c = f.sent.find((x) => x.p === "/repos/o/r/issues/9/comments");
+    chk("issues: a second failure the same day: a comment on the day's issue, no second issue", d[0].action === "commented" && c && !f.sent.some((x) => x.p === "/repos/o/r/issues"), f.sent);
+    const f2 = fake([{ number: 9, title: issueTitle(a1), body: issueText(old) }], { 9: [{ body: c.body.body }] });
+    const d2 = await fileIssues({ alerts: [a1], repo: "o/r", api: f2.api, send: f2.send });
+    chk("issues: after that comment, the same facts again: nothing written", d2[0].action === "already_told");
+  }
+  {
+    const f = fake([{ number: 3, title: issueTitle(a1), body: "x", pull_request: {} }], {}, "GitHub API POST 422 for /repos/o/r/labels");
+    const d = await fileIssues({ alerts: [a1], repo: "o/r", api: f.api, send: f.send });
+    chk("issues: the label exists already (422) is fine; a pull request with the same title is not the issue", d[0].action === "opened");
+    const g = fake([], {}, "GitHub API POST 403 for /repos/o/r/labels");
+    let thrown = false; try { await fileIssues({ alerts: [a1], repo: "o/r", api: g.api, send: g.send }); } catch { thrown = true; }
+    chk("issues: a refused label write (403) fails the step", thrown);
+    const h = fake([]);
+    chk("issues: no alert, no call", (await fileIssues({ alerts: [], repo: "o/r", api: h.api, send: h.send })).length === 0 && h.sent.length === 0);
+  }
+  chk("issue text: no dash characters", !/[\u2012-\u2015\u2212\uFF0D]/.test(issueText(a1)));
+}
+
 chk("span: hours and days", span(H) === "1 h" && span(6 * H) === "6 h" && span(D) === "1 d" && span(92 * D) === "92 d" && span(null) === "n/a");
 
 // ---- every scheduled workflow in this repository parses ------------------------------------------------------

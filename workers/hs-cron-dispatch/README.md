@@ -17,6 +17,7 @@ day; jidec-stamp, hourly, came 1 to 6 times a day). The GitHub schedules stay in
 | 04:05 | 13:05 | `tooshi-daily.yml` | `slot=schedule` | decided like the 04:05 cron: nothing when `tooshi/days/<day>.json` is on main, nothing before 03:47 |
 | 04:35 | 13:35 | `tooshi-daily.yml` | `slot=second` | decided like the 04:35 cron |
 | 19:10 | 04:10 | `ots-nightly.yml` | `mode=nightly` | decide: nothing when `ots-nightly/nights/<night>.json` is on main (0.2.0; until the workflow is on main GitHub answers 404, written down as failed, not retried) |
+| 06:17 | 15:17 | `bot-watch.yml` | none | nothing to guard: it reads, rewrites `ops/status/BOTS.md`, and opens at most one issue per workflow and day (0.3.1) |
 | 21:17 | 06:17 | `seki-heartbeat.yml` | none | `heartbeat.py run` and `check_loop.py file` write a day once ("already ran") |
 
 A run by hand (`workflow_dispatch` with `slot` empty) runs as before.
@@ -32,6 +33,10 @@ A run by hand (`workflow_dispatch` with `slot` empty) runs as before.
   slot's first claim, so the same cron minute arriving again during the wait is still `duplicate_slot`, and a queued
   retry is taken off the queue before its call, so an alarm that runs twice calls once. Why: on 2026-11-04 the
   jidec-stamp slot 11:17 UTC met GitHub answering `500` from 11:16 to 11:18 and was failed after both calls.
+- 0.3.1: `bot-watch.yml` at 06:17 UTC on the hourly line (no new cron line). A failed dispatch makes no run, so
+  GitHub sends no mail for it; bot-watch reads `GET /log` of this Worker (public, no token) and opens one issue per
+  workflow and day when the Worker's last dispatch of a job that day failed and the workflow has no successful run
+  that day (`tools/status/bot_watch.mjs`).
 - The log keeps every record: the first `failed` stays, and each retry writes its own record with `via: "alarm"`,
   `retry: 1` or `2`, `after_failed_slot: true`, and `retry_next` while another call is still due.
 - The token is never written to the log, never served, and is replaced by `[token]` in any error text.

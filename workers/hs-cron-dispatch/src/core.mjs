@@ -11,6 +11,9 @@
 // 0.3.0 (2026-11-04): a slot that still has no answer or a 5xx after the 3 s retry is tried again at +5 and +15 minutes
 // from the slot time, by the Durable Object alarm (no new cron line; the account's 5 Free Cron Triggers are all used).
 // Why: jidec-stamp 11:17 UTC on 11-04 met GitHub answering 500 from 11:16 to 11:18 and was failed after two calls.
+// 0.3.1 (2026-11-05): bot-watch.yml at 06:17 UTC on the hourly cron line (no new cron line). bot-watch reads this
+// Worker's GET /log and opens an issue for a job whose day has no successful run; a failed dispatch makes no run, so
+// GitHub sends no mail for it, and this is how such a day is told.
 //
 // Rules this file keeps:
 //   - One POST /repos/{repo}/actions/workflows/{file}/dispatches per job and cron slot. A slot is claimed in the log
@@ -31,7 +34,7 @@
 //     failed_in_view counts slots that never got an ok dispatch (a slot ok on a retry is not a failure), and a slot
 //     whose retry is still waiting is counted in retrying_in_view instead, until RETRY_STALE_MS after its due time.
 
-export const VERSION = "0.3.0";
+export const VERSION = "0.3.1";
 export const REPO = "ogasurfproject-jpg/horizon-shield";
 export const REF = "main";
 export const USER_AGENT = "hs-cron-dispatch/" + VERSION + " (+https://github.com/" + REPO + "/tree/main/workers/hs-cron-dispatch)";
@@ -58,7 +61,8 @@ export const JOBS = [
   { id: "tooshi-daily", file: "tooshi-daily.yml", hour: 4, minute: 5, period_h: 24, inputs: () => ({ slot: "schedule" }) },
   { id: "tooshi-daily-second", file: "tooshi-daily.yml", hour: 4, minute: 35, period_h: 24, inputs: () => ({ slot: "second" }) },
   { id: "ots-nightly", file: "ots-nightly.yml", hour: 19, minute: 10, period_h: 24, inputs: () => ({ mode: "nightly" }) },
-  { id: "seki-heartbeat", file: "seki-heartbeat.yml", hour: 21, minute: 17, period_h: 24, inputs: () => ({}) }
+  { id: "seki-heartbeat", file: "seki-heartbeat.yml", hour: 21, minute: 17, period_h: 24, inputs: () => ({}) },
+  { id: "bot-watch", file: "bot-watch.yml", hour: 6, minute: 17, period_h: 24, inputs: () => ({}) }
 ];
 // /status calls a job late when its last ok dispatch is older than period_h plus this.
 export const GRACE_H = 1;

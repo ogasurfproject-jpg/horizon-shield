@@ -1,10 +1,16 @@
 """tooshi_publish.py: keep TOOSHI's daily result where anyone can read it (tooshi/ in the repository, served by Pages at
 /tooshi/ and at once by raw.githubusercontent.com), and decide whether a scheduled run has anything to do.
 
-    python3 -I -B tools/tooshi/tooshi_publish.py decide --trigger schedule|second|dispatch --now 2026-11-03T04:35:00Z --have-day 0|1
+    python3 -I -B tools/tooshi/tooshi_publish.py decide --trigger schedule|second|dispatch --now 2026-11-03T04:35:00Z --have-day 0|1 [--day-file F]
         prints "run <why>" or "skip <why>" and exits 0. A scheduled run (schedule, second) skips when the day already has a
         published result, or when it starts before 03:47 UTC (a schedule so late that it ran on the next day would read the
         next day before its checks are in, and would then stop that day's own run). A dispatch always runs.
+        One exception (2026-11-05): the second run reads the day again when the published day (--day-file, the
+        tooshi/days/<day>.json on main) was written by the schedule run and still counts a not_yet. The day's
+        Bitcoin confirmation is often written down a few minutes after 04:05 (11-05: confirmed at 03:31, recorded by the
+        04:17 stamp), so 3 and 4b read not_yet at 04:05. The second run's result replaces the day like a dispatch does
+        and the 04:05 result stays under earlier; a check still not ready stays not_yet. The day is read again once:
+        a day written by the second run or by hand is not read again by a scheduled run.
     python3 -I -B tools/tooshi/tooshi_publish.py write --result tooshi_result.json [--notes tooshi_notes.json] --run-url URL --dir tooshi
         checks that the file is the canonical result tooshi_daily.py wrote, then writes
           tooshi/days/<day>.json   the day: verdict, counts, each check's state and why, the exact result bytes
@@ -48,7 +54,16 @@ def day_sha256(res):
     return sha(canon(v))
 
 
-def decide(trigger, now, have_day):
+def not_yet_of(day):
+    """the not_yet count and ids of a published day file (tooshi-day-v0), or (0, []) when it cannot be read"""
+    if not isinstance(day, dict):
+        return 0, []
+    n = (day.get("counts") or {}).get("not_yet")
+    ids = [c.get("id") for c in (day.get("checks") or []) if isinstance(c, dict) and c.get("state") == "not_yet"]
+    return (n if isinstance(n, int) and n > 0 else 0), ids
+
+
+def decide(trigger, now, have_day, day=None):
     if trigger not in TRIGGERS:
         return "skip", "unknown trigger %s" % trigger
     if trigger not in SCHEDULED:
@@ -56,7 +71,13 @@ def decide(trigger, now, have_day):
     if (now.hour, now.minute) < DAY_READY:
         return "skip", "a %s run that starts at %s, before 03:47 UTC, is a late run of the day before; it is not recorded" % (trigger, now.strftime("%H:%M"))
     if have_day:
-        return "skip", "%s already has a published result; the %s run does nothing" % (now.strftime("%Y-%m-%d"), trigger)
+        d = now.strftime("%Y-%m-%d")
+        n, ids = not_yet_of(day)
+        if trigger == "second" and isinstance(day, dict) and day.get("day") == d and day.get("trigger") == "schedule" and n:
+            return "run", "%s was published by the schedule run with %d not_yet (%s); the second run reads the day again (what is still not ready stays not_yet, the first result is kept under earlier)" % (d, n, ", ".join(str(x) for x in ids))
+        if trigger == "second" and isinstance(day, dict) and day.get("day") == d and n:
+            return "skip", "%s already has a published result by the %s run (%d not_yet); the day is read again once, by the second run after the schedule run" % (d, day.get("trigger"), n)
+        return "skip", "%s already has a published result; the %s run does nothing" % (d, trigger)
     return "run", "%s has no published result yet" % now.strftime("%Y-%m-%d")
 
 
@@ -155,6 +176,20 @@ def selftest():
     cases.append(("dispatch with the day published: run (the earlier one is kept)", decide("dispatch", T("2026-11-04T09:00:00Z"), True)[0], "run"))
     cases.append(("dispatch before 03:47: run (by hand, the person sees not_yet)", decide("dispatch", T("2026-11-04T02:00:00Z"), False)[0], "run"))
     cases.append(("an unknown trigger: skip", decide("nightly", T("2026-11-04T04:05:00Z"), False)[0], "skip"))
+    # the second run reads the day again when the schedule run left a not_yet (2026-11-05: 3 and 4b at 04:05)
+    def pub(d, trigger, not_yet, ids=("3_ledger_settle", "4b_resume_agreement")):
+        return {"schema": "tooshi-day-v0", "day": d, "trigger": trigger, "counts": {"ok": 8 - not_yet, "red": 0, "notice": 0, "not_yet": not_yet},
+                "checks": [{"id": x, "state": "not_yet" if i < not_yet else "ok", "why": ""} for i, x in enumerate(list(ids) + ["5_x"] * 8)][:8]}
+    T35 = T("2026-11-05T04:35:00Z")
+    r = decide("second", T35, True, pub("2026-11-05", "schedule", 2))
+    cases.append(("second, the schedule run left 2 not_yet: run, naming them", (r[0], "2 not_yet (3_ledger_settle, 4b_resume_agreement)" in r[1]), ("run", True)))
+    cases.append(("second, the schedule run left no not_yet: skip", decide("second", T35, True, pub("2026-11-05", "schedule", 0))[0], "skip"))
+    cases.append(("second, the day was already read again by a second run: skip (once a day)", decide("second", T("2026-11-05T11:40:00Z"), True, pub("2026-11-05", "second", 2))[0], "skip"))
+    cases.append(("second, the day was run by hand: skip", decide("second", T35, True, pub("2026-11-05", "dispatch", 2))[0], "skip"))
+    cases.append(("schedule (late) with a not_yet day: skip (only the second run reads again)", decide("schedule", T("2026-11-05T11:50:00Z"), True, pub("2026-11-05", "schedule", 2))[0], "skip"))
+    cases.append(("second with a not_yet day file of another day: skip", decide("second", T35, True, pub("2026-11-04", "schedule", 2))[0], "skip"))
+    cases.append(("second, the day file could not be read (none given): skip as before", decide("second", T35, True, None)[0], "skip"))
+    cases.append(("second before 03:47 with a not_yet day: skip", decide("second", T("2026-11-06T01:00:00Z"), True, pub("2026-11-06", "schedule", 2))[0], "skip"))
     tmp = tempfile.mkdtemp(prefix="tooshi_publish_")
     def result(at, trigger, ok=4, verdict="not_all_checked"):
         r = {"schema": "tooshi-daily-v0", "checked_at": at, "trigger": trigger, "verdict": verdict, "counts": {"ok": ok, "red": 0, "notice": 0, "not_yet": 8 - ok},
@@ -174,6 +209,13 @@ def selftest():
     write(p2, "https://example.invalid/run/2", out)
     day = _load(os.path.join(out, "days", "2026-11-04.json"))
     cases.append(("a dispatch later the same day replaces the day and keeps the earlier run, with the same day sha", (day["trigger"], [e["trigger"] for e in day["earlier"]], day["day_sha256"] == day["earlier"][0]["day_sha256"]), ("dispatch", ["schedule"], True)))
+    p2b, r2b = result("2026-11-04T04:36:02Z", "second", ok=4)
+    da2 = os.path.join(tmp, "second")
+    write(p1, "https://example.invalid/run/1", da2)
+    write(p2b, "https://example.invalid/run/2b", da2)
+    dy, lt = _load(os.path.join(da2, "days", "2026-11-04.json")), _load(os.path.join(da2, "latest.json"))
+    cases.append(("the second run's result replaces the day, keeps the schedule run under earlier, latest is the same bytes, runs 2",
+                  (dy["trigger"], [e["trigger"] for e in dy["earlier"]], dy["counts"]["not_yet"], lt == dy, _load(os.path.join(da2, "index.json"))["days"][0]["runs"]), ("second", ["schedule"], 4, True, 2)))
     p3, r3 = result("2026-11-05T04:05:10Z", "second", ok=8, verdict="green")
     write(p3, "https://example.invalid/run/3", out)
     idx = _load(os.path.join(out, "index.json"))
@@ -241,7 +283,7 @@ def main(argv):
     it = iter(rest)
     try:
         for a in it:
-            if a not in ("--trigger", "--now", "--have-day", "--result", "--notes", "--run-url", "--dir"):
+            if a not in ("--trigger", "--now", "--have-day", "--day-file", "--result", "--notes", "--run-url", "--dir"):
                 raise StopIteration
             opts[a] = next(it)
     except StopIteration:
@@ -249,7 +291,13 @@ def main(argv):
         return 2
     if cmd == "decide":
         now = datetime.datetime.strptime(opts["--now"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)
-        what, why = decide(opts.get("--trigger", ""), now, opts.get("--have-day") == "1")
+        day = None
+        if opts.get("--day-file"):
+            try:
+                day = _load(opts["--day-file"])
+            except ValueError:
+                day = None   # not JSON: decided as before (a published day is not read again)
+        what, why = decide(opts.get("--trigger", ""), now, opts.get("--have-day") == "1", day)
         print(what + " " + why)
         return 0
     if cmd == "write":

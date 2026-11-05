@@ -19,6 +19,11 @@ name: tooshi-daily
 # yesterday's admission is confirmed in Bitcoin, with observed_at). The keep job puts them in the day file under notes;
 # they are outside result_canonical, so neither result_sha256 nor day_sha256 covers them, and a witness recomputes the
 # day without them.
+# 2026-11-05: the second run (04:35, slot=second or the 04:35 cron) reads the day again when the day on main was written by
+# the schedule run and still counts a not_yet (11-05: the Bitcoin confirmation of 03:31 was written down by the 04:17
+# stamp, after the 04:05 run read 3 and 4b as not_yet). Its result replaces the day, the 04:05 result stays under
+# earlier, latest.json follows; a check still not ready stays not_yet. Once a day: a day written by the second run or by
+# hand is not read again by a scheduled run (tools/tooshi/tooshi_publish.py decide --day-file).
 
 on:
   schedule:
@@ -82,7 +87,9 @@ jobs:
           D=${NOW:0:10}
           git fetch --no-tags --depth=1 origin main
           if git cat-file -e "FETCH_HEAD:tooshi/days/$D.json" 2>/dev/null; then HAVE=1; else HAVE=0; fi
-          OUT=$(python -I -B tools/tooshi/tooshi_publish.py decide --trigger "$T" --now "$NOW" --have-day "$HAVE")
+          DAYF=()
+          if [ "$HAVE" = 1 ] && git show "FETCH_HEAD:tooshi/days/$D.json" > tooshi_day_on_main.json 2>/dev/null; then DAYF=(--day-file tooshi_day_on_main.json); fi
+          OUT=$(python -I -B tools/tooshi/tooshi_publish.py decide --trigger "$T" --now "$NOW" --have-day "$HAVE" "${DAYF[@]}")
           echo "$OUT"
           { echo "### TOOSHI ($T)"; echo; echo "$OUT"; echo; } >> "$GITHUB_STEP_SUMMARY"
           echo "trigger=$T" >> "$GITHUB_OUTPUT"

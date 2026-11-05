@@ -2,7 +2,8 @@
 // Bot watch: which scheduled workflows of this repository stopped running or keep failing.
 //
 //   GITHUB_TOKEN=... GITHUB_REPOSITORY=owner/name node tools/status/bot_watch.mjs --out ops/status/BOTS.md
-//        [--workflows .github/workflows] [--grace-hours 3] [--now ISO]
+//        [--workflows .github/workflows] [--grace-hours 3] [--now ISO] [--alerts alerts.json] [--worker URL]
+//   GITHUB_TOKEN=... GITHUB_REPOSITORY=owner/name node tools/status/bot_watch.mjs --issues alerts.json
 //
 // Reads every workflow file with a schedule, works out from its cron lines how far apart its runs are meant to be
 // (the longest gap between two scheduled times), asks the GitHub REST API for its recent runs, and writes BOTS.md.
@@ -11,6 +12,18 @@
 //   UNKNOWN  the API could not be read for this workflow
 //   DISABLED the workflow is turned off in GitHub; listed, not counted as a problem
 // Exit code: 1 when any workflow is OVERDUE, FAILING or UNKNOWN (so GitHub tells the owner), 2 when this tool crashes.
+//
+// 2026-11-05: workers/hs-cron-dispatch starts some workflows with workflow_dispatch at the times their crons name, and
+// GitHub's own schedule comes hours later as a fallback. For those workflows (WORKER_JOBS) the dispatch runs count
+// with the scheduled runs for OVERDUE and FAILING. A dispatch the Worker could not make leaves no run, so GitHub sends
+// no mail; for that the Worker's public GET /log?day= (no token) is read for yesterday and today (UTC), and a day of
+// such a workflow is an alert when
+//   both    its last finished dispatch run and its last finished scheduled run of that day failed, and so did the
+//           day's last finished run of any event, or
+//   worker  the Worker's last dispatch of one of its jobs that day failed (a retry still waiting is not counted) and
+//           the workflow has no successful run that day.
+// --alerts writes them; --issues opens one issue per workflow and day (label bot-watch) and, when the same day fails
+// again with a run or a Worker record not named in the issue yet, adds a comment instead of a second issue.
 //
 // Zero dependencies. Node 22 or later.
 import { readFileSync, readdirSync, writeFileSync, mkdirSync, appendFileSync } from "node:fs";
@@ -24,6 +37,18 @@ export const GRACE_HOURS = 3;
 // on a healthy hourly job (bot-watch #4, 2026-10-11). No workflow is judged OVERDUE before this long without a success.
 export const MIN_OVERDUE_HOURS = 12;
 const FAILED = new Set(["failure", "timed_out", "startup_failure", "action_required"]);
+// workers/hs-cron-dispatch: its job ids and the workflow each dispatches (equal to JOBS in its src/core.mjs; the test
+// checks it). Its GET /log and /status are public and need no token.
+export const WORKER_URL = "https://hs-cron-dispatch.oga-surf-project.workers.dev";
+export const WORKER_JOBS = {
+  "jidec-stamp": "jidec-stamp.yml", "receipt-anchor": "receipt-anchor.yml", "survive-drill": "survive-drill.yml",
+  "issuer-keys": "issuer-keys.yml", "tooshi-daily": "tooshi-daily.yml", "tooshi-daily-second": "tooshi-daily.yml",
+  "ots-nightly": "ots-nightly.yml", "seki-heartbeat": "seki-heartbeat.yml", "bot-watch": "bot-watch.yml"
+};
+export const DISPATCHED_FILES = new Set(Object.values(WORKER_JOBS));
+// The Worker counts a failed slot whose retry is due as waiting until this long after the due time (RETRY_STALE_MS).
+const WORKER_RETRY_STALE_MS = 30 * MIN;
+export const ISSUE_LABEL = "bot-watch";
 const NOT_COUNTED = new Set(["cancelled", "skipped", "neutral", "stale"]);
 
 // ---- cron --------------------------------------------------------------------------------------------------------
@@ -141,7 +166,113 @@ export function judge({ workflow, allRuns, schedRuns, intervalMs, nowMs, graceMs
   };
 }
 
+const slim = (runs) => (runs || []).map((r) => ({ id: r.id, event: r.event, status: r.status, conclusion: r.conclusion, created_at: r.created_at, run_started_at: r.run_started_at, html_url: r.html_url }));
+
+// ---- days with no successful run (the Worker's dispatch and GitHub's schedule) ----------------------------------------
+export const utcDay = (ms) => new Date(ms).toISOString().slice(0, 10);
+const dayOf = (r) => String(r.created_at || r.run_started_at || "").slice(0, 10);
+const doneRuns = (runs) => (runs || []).filter((r) => r.status === "completed" && !NOT_COUNTED.has(r.conclusion)).sort((a, b) => when(b) - when(a));
+
+// logs: { day: {entries:[...]} | null } from the Worker's GET /log. Returns one alert per workflow and day.
+export function dayAlerts({ rows, logs, days, nowMs }) {
+  const out = [];
+  for (const row of rows) {
+    if (!row.runs || !DISPATCHED_FILES.has(row.file)) continue;
+    for (const day of days) {
+      const sch = doneRuns(row.runs.schedule).filter((r) => dayOf(r) === day);
+      const dsp = doneRuns(row.runs.workflow_dispatch).filter((r) => dayOf(r) === day);
+      const any = doneRuns([...row.runs.schedule, ...row.runs.workflow_dispatch]).filter((r) => dayOf(r) === day);
+      const okDay = any.some((r) => r.conclusion === "success");
+      const reasons = [], evidence = [], lines = [];
+      if (dsp.length && sch.length && FAILED.has(dsp[0].conclusion) && FAILED.has(sch[0].conclusion) && FAILED.has(any[0].conclusion)) {
+        reasons.push("both");
+        for (const r of [dsp[0], sch[0]]) { evidence.push("run:" + r.id); lines.push("- " + r.event + " run " + r.id + " " + r.conclusion + " (" + new Date(when(r)).toISOString() + ") " + (r.html_url || "")); }
+      }
+      const log = logs ? logs[day] : null;
+      if (log && Array.isArray(log.entries) && !okDay) {
+        for (const [id, file] of Object.entries(WORKER_JOBS)) {
+          if (file !== row.file) continue;
+          const mine = log.entries.filter((e) => e && e.job === id && (e.result === "dispatched" || e.result === "failed"));
+          const last = mine[mine.length - 1];
+          if (!last || last.result !== "failed") continue;
+          if (last.retry_next && nowMs <= Date.parse(last.retry_next) + WORKER_RETRY_STALE_MS) continue;
+          if (!reasons.includes("worker")) reasons.push("worker");
+          evidence.push("worker:" + id + "@" + last.slot + "#" + (last.retry || 0));
+          lines.push("- the Worker's dispatch of " + id + " for " + last.slot + " failed (http " + (last.http ?? "none") + (last.retry ? ", retry " + last.retry : "") + "): " + String(last.why || "").slice(0, 160));
+        }
+      }
+      if (reasons.length) out.push({ file: row.file, day, reasons, evidence, lines, judged_at: new Date(nowMs).toISOString(), success_that_day: okDay });
+    }
+  }
+  return out;
+}
+
+export async function readWorkerLogs({ days, get }) {
+  const logs = {}, errors = [];
+  for (const d of days) {
+    try { logs[d] = await get("/log?day=" + d); }
+    catch (e) { logs[d] = null; errors.push(d + ": " + String(e.message || e).slice(0, 160)); }
+  }
+  return { logs, errors };
+}
+
+export function workerGet(base) {
+  return async (path) => {
+    const res = await fetch(base + path, { headers: { accept: "application/json", "user-agent": "horizon-shield-bot-watch" }, signal: AbortSignal.timeout(20000) });
+    if (!res.ok) throw new Error("Worker " + res.status + " for " + path.split("?")[0]);
+    return res.json();
+  };
+}
+
+// ---- the issues (one per workflow and day) -----------------------------------------------------------------------
+export const issueTitle = (a) => "bot-watch: " + a.file + " " + a.day + " has no successful run";
+const MARK = /<!-- bot-watch-evidence: ([^>]*) -->/g;
+const marked = (texts) => { const s = new Set(); for (const t of texts) for (const m of String(t || "").matchAll(MARK)) for (const k of m[1].trim().split(/\s+/)) if (k) s.add(k); return s; };
+export function issueText(a) {
+  const why = { both: "the dispatch run and the scheduled run of the day both failed", worker: "the Worker's dispatch failed (no run was made) and no run of the workflow succeeded that day" };
+  return [a.file + ", " + a.day + " (UTC): " + a.reasons.map((r) => why[r] || r).join("; ") + ".", "", ...a.lines, "",
+    "Judged at " + a.judged_at + " by tools/status/bot_watch.mjs. Worker log: " + WORKER_URL + "/log?day=" + a.day,
+    "<!-- bot-watch-evidence: " + a.evidence.join(" ") + " -->"].join("\n");
+}
+
+// api(path) reads, send(method, path, body) writes (GitHub REST). Returns what was done per alert.
+export async function fileIssues({ alerts, repo, api, send, label = ISSUE_LABEL }) {
+  const done = [];
+  if (!alerts.length) return done;
+  try { await send("POST", "/repos/" + repo + "/labels", { name: label, color: "b60205", description: "bot-watch: a day of a dispatched workflow with no successful run" }); }
+  catch (e) { if (!/ 422 /.test(String(e.message || e))) throw e; }
+  const list = (await api("/repos/" + repo + "/issues?labels=" + encodeURIComponent(label) + "&state=all&per_page=100")) || [];
+  for (const a of alerts) {
+    const title = issueTitle(a);
+    const it = list.find((i) => i && !i.pull_request && i.title === title);
+    if (!it) {
+      const made = await send("POST", "/repos/" + repo + "/issues", { title, body: issueText(a), labels: [label] });
+      done.push({ title, action: "opened", number: made && made.number });
+      continue;
+    }
+    const comments = (await api("/repos/" + repo + "/issues/" + it.number + "/comments?per_page=100")) || [];
+    const seen = marked([it.body, ...comments.map((c) => c.body)]);
+    const fresh = a.evidence.filter((k) => !seen.has(k));
+    if (!fresh.length) { done.push({ title, action: "already_told", number: it.number }); continue; }
+    await send("POST", "/repos/" + repo + "/issues/" + it.number + "/comments", { body: "The same day failed again.\n\n" + issueText(a) });
+    done.push({ title, action: "commented", number: it.number });
+  }
+  return done;
+}
+
 // ---- the API ---------------------------------------------------------------------------------------------------------
+export function githubSend(token) {
+  return async (method, path, body) => {
+    const res = await fetch("https://api.github.com" + path, {
+      method, body: JSON.stringify(body),
+      headers: { authorization: "Bearer " + token, accept: "application/vnd.github+json", "x-github-api-version": "2022-11-28", "user-agent": "horizon-shield-bot-watch", "content-type": "application/json" },
+      signal: AbortSignal.timeout(20000)
+    });
+    if (!res.ok) throw new Error("GitHub API " + method + " " + res.status + " for " + path.split("?")[0]);
+    return res.json();
+  };
+}
+
 export function githubApi(token) {
   return async (path) => {
     const res = await fetch("https://api.github.com" + path, {
@@ -183,7 +314,11 @@ export async function watch({ dir, repo, api, nowMs, graceMs = GRACE_HOURS * HOU
       const workflow = await api(base);
       const allRuns = (await api(base + "/runs?per_page=20")).workflow_runs;
       const schedRuns = (await api(base + "/runs?per_page=20&event=schedule")).workflow_runs;
-      Object.assign(row, { name: workflow.name, state: workflow.state }, judge({ workflow, allRuns, schedRuns, intervalMs: row.interval_ms, nowMs, graceMs }));
+      // a workflow the Worker dispatches: its dispatch runs count too (100, so an hourly job keeps more than a day)
+      const dispRuns = DISPATCHED_FILES.has(f) ? (await api(base + "/runs?per_page=100&event=workflow_dispatch")).workflow_runs || [] : [];
+      row.counted_events = DISPATCHED_FILES.has(f) ? ["schedule", "workflow_dispatch"] : ["schedule"];
+      if (DISPATCHED_FILES.has(f)) row.runs = { schedule: slim(schedRuns), workflow_dispatch: slim(dispRuns) };
+      Object.assign(row, { name: workflow.name, state: workflow.state }, judge({ workflow, allRuns, schedRuns: [...(schedRuns || []), ...dispRuns], intervalMs: row.interval_ms, nowMs, graceMs }));
     } catch (e) {
       row.flags = ["UNKNOWN"]; row.error = String(e.message || e).slice(0, 200);
       rows.push(row); continue;
@@ -214,25 +349,35 @@ const cell = (v) => String(v ?? "n/a").replace(/\|/g, "/").replace(/\s+/g, " ").
 
 export function problems(rows) { return rows.filter((r) => r.flags.some((f) => f !== "DISABLED")); }
 
-export function renderBots(rows, nowMs, graceMs = GRACE_HOURS * HOUR) {
+export function renderBots(rows, nowMs, graceMs = GRACE_HOURS * HOUR, days = null) {
   const bad = problems(rows);
   const L = ["# Scheduled workflows", ""];
   L.push("Written by `tools/status/bot_watch.mjs` at " + new Date(nowMs).toISOString() + ". " + rows.length + " scheduled workflows, " +
     (bad.length ? bad.length + " need attention: " + bad.map((r) => r.file + " (" + r.flags.join(", ") + ")").join("; ") + "." : "none needs attention."), "");
-  L.push("| Workflow | Schedule (UTC) | Expected every | Last run | Last scheduled success | Failures in a row | Status | Last bot commit to its paths |");
+  L.push("| Workflow | Schedule (UTC) | Expected every | Last run | Last counted success | Failures in a row | Status | Last bot commit to its paths |");
   L.push("|---|---|---|---|---|---|---|---|");
   for (const r of rows) {
     const last = r.last_run ? r.last_run.at + " " + r.last_run.event + " " + (r.last_run.conclusion || r.last_run.status) : (r.error ? "API: " + r.error : "none");
     const status = r.flags.length ? r.flags.join(", ") : "ok";
     const bc = !r.bot_commit ? "n/a" : !r.bot_commit.inferred ? "not inferred" : r.bot_commit.error ? "API: " + r.bot_commit.error :
       (r.bot_commit.at || "none in the last 30 commits") + " by " + r.bot_commit.bot + (r.bot_commit.quiet ? " (quiet)" : "");
-    L.push("| " + ["`" + r.file + "`", r.crons.map((c) => "`" + c + "`").join(" "), span(r.interval_ms), last, r.last_scheduled_success || "none in the last 20",
+    const counted = r.counted_events && r.counted_events.length > 1 ? " (schedule or Worker dispatch)" : "";
+    L.push("| " + ["`" + r.file + "`", r.crons.map((c) => "`" + c + "`").join(" "), span(r.interval_ms), last, (r.last_scheduled_success || "none in the last 20") + counted,
       r.consecutive_failures ?? "n/a", status, bc].map((x, i) => (i <= 1 ? x : cell(x))).join(" | ") + " |");
+  }
+  if (days) {
+    L.push("", "## Days with no successful run (workflows the Worker dispatches)", "");
+    L.push("Days judged (UTC): " + days.days.join(", ") + ". Worker log: " + (days.errors.length ? "not read for " + days.errors.join("; ") : "read") + ".");
+    L.push("");
+    if (!days.alerts.length) L.push("None.");
+    for (const a of days.alerts) L.push("- `" + a.file + "` " + a.day + ": " + a.reasons.join(", ") + " (" + a.evidence.join(" ") + ")");
   }
   L.push("", "## Rules", "");
   L.push("- Expected every: the longest gap between two times the cron lines name, over the last 400 days.");
   L.push("- OVERDUE: the last successful scheduled run is older than 2 expected intervals plus " + span(graceMs) + ", and never less than " + MIN_OVERDUE_HOURS + " h, because GitHub runs hourly schedules hours late (for a workflow with no successful scheduled run in the last 20, counted from when GitHub first saw the file).");
   L.push("- FAILING: the last 2 scheduled runs that finished both failed (failure, timed out, startup failure or waiting for approval). Cancelled and skipped runs are not counted either way.");
+  L.push("- For a workflow that workers/hs-cron-dispatch starts (" + [...DISPATCHED_FILES].sort().join(", ") + "), its workflow_dispatch runs count with the scheduled runs for OVERDUE and FAILING; a run by hand is a workflow_dispatch run too.");
+  L.push("- A day (UTC, yesterday and today) of such a workflow opens one issue (label " + ISSUE_LABEL + ") when its last finished dispatch run and its last finished scheduled run both failed and so did its last run of the day, or when the Worker's last dispatch of its job that day failed (in the Worker's public /log) and no run of the workflow succeeded that day. A later failure of the same day not named in the issue adds a comment.");
   L.push("- UNKNOWN: the GitHub API could not be read for this workflow. DISABLED: the workflow is turned off in GitHub; listed here, not counted as a problem.");
   L.push("- The job that writes this page fails (and GitHub notifies the owner) when any workflow is OVERDUE, FAILING or UNKNOWN.");
   L.push("", "## What it does not establish", "");
@@ -245,20 +390,33 @@ export function renderBots(rows, nowMs, graceMs = GRACE_HOURS * HOUR) {
 
 // ---- CLI ---------------------------------------------------------------------------------------------------------
 async function main() {
-  const a = { dir: ".github/workflows", out: null, grace: GRACE_HOURS, now: null };
+  const a = { dir: ".github/workflows", out: null, grace: GRACE_HOURS, now: null, alerts: null, worker: WORKER_URL, issues: null };
   const argv = process.argv.slice(2);
   for (let i = 0; i < argv.length; i += 2) {
     const k = argv[i], v = argv[i + 1];
     if (k === "--workflows") a.dir = v; else if (k === "--out") a.out = v;
     else if (k === "--grace-hours") a.grace = Number(v); else if (k === "--now") a.now = v;
+    else if (k === "--alerts") a.alerts = v; else if (k === "--worker") a.worker = v; else if (k === "--issues") a.issues = v;
     else throw new Error("unknown argument " + k);
   }
   const repo = process.env.GITHUB_REPOSITORY, token = process.env.GITHUB_TOKEN;
+  if (a.issues) {
+    if (!repo || !token) throw new Error("GITHUB_REPOSITORY and GITHUB_TOKEN are required");
+    const alerts = JSON.parse(readFileSync(a.issues, "utf8")).alerts || [];
+    const done = await fileIssues({ alerts, repo, api: githubApi(token), send: githubSend(token) });
+    console.log(done.length ? done.map((d) => d.action + " #" + d.number + " " + d.title).join("\n") : "no day to tell");
+    process.exit(0);
+  }
   if (!a.out || !repo || !token) throw new Error("--out, GITHUB_REPOSITORY and GITHUB_TOKEN are required");
   const nowMs = a.now ? Date.parse(a.now) : Date.now();
   const graceMs = a.grace * HOUR;
   const rows = await watch({ dir: a.dir, repo, api: githubApi(token), nowMs, graceMs });
-  const md = renderBots(rows, nowMs, graceMs);
+  const days = [utcDay(nowMs - DAY), utcDay(nowMs)];
+  const { logs, errors } = await readWorkerLogs({ days, get: workerGet(a.worker) });
+  const alerts = dayAlerts({ rows, logs, days, nowMs });
+  if (a.alerts) writeFileSync(a.alerts, JSON.stringify({ judged_at: new Date(nowMs).toISOString(), days, worker_errors: errors, alerts }, null, 1) + "\n");
+  for (const e of errors) console.log("::warning::the Worker log could not be read for " + e);
+  const md = renderBots(rows, nowMs, graceMs, { days, errors, alerts });
   mkdirSync(dirname(a.out), { recursive: true });
   writeFileSync(a.out, md);
   console.log(md);

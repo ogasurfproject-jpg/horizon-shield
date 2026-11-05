@@ -210,6 +210,9 @@ jobs:
                            "pending": len(a.get("pending") or []), "chain_head": c.get("head"),
                            "stamped_heads_matched": c.get("stamped_heads_matched"), "report_sha256": r.get("report_sha256"),
                            "cooked_ahead": ((r.get("source") or {}).get("cooked_ahead") or {}).get("used"),
+                           "copy_kind": (r.get("copy") or {}).get("kind"),
+                           "copy_revision_date": (r.get("copy") or {}).get("revision_date"),
+                           "copy_visit_date": (r.get("copy") or {}).get("visit_date"),
                            "why": r.get("why")})
           with open(os.path.join(sv, "drills", "history.jsonl"), "a") as f:
               for row in rows:

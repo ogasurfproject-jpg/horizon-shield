@@ -16,7 +16,7 @@
   "observability": { "enabled": true, "logs": { "enabled": true } },
 
   // UTC (JST = UTC + 9). Must equal CRONS in src/core.mjs (the test checks it).
-  //   17 * * * *    jidec-stamp every hour; survive-drill at 03:17; seki-heartbeat at 21:17
+  //   17 * * * *    jidec-stamp every hour; survive-drill at 03:17; bot-watch at 06:17 (0.3.1); seki-heartbeat at 21:17
   //   37 1 * * *    receipt-anchor (the day before)
   //   23 3 * * *    issuer-keys
   //   5,35 4 * * *  tooshi-daily (04:05 as schedule, 04:35 as second)

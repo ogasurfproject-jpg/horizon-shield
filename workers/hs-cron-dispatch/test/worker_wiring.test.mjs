@@ -72,7 +72,7 @@ try {
     await Promise.all(waits);
     t("the same minute again during the wait: no call", calls.length === 2);
     const sw = await (await mod.default.fetch(new Request("https://hs-cron-dispatch.example/status"), env)).json();
-    t("GET /status during the wait: retrying_in_view 1, failed_in_view 0", sw.retrying_in_view === 1 && sw.failed_in_view === 0 && sw.version === "0.3.0", [sw.retrying_in_view, sw.failed_in_view]);
+    t("GET /status during the wait: retrying_in_view 1, failed_in_view 0", sw.retrying_in_view === 1 && sw.failed_in_view === 0 && sw.version === "0.3.1", [sw.retrying_in_view, sw.failed_in_view]);
     Date.now = () => Date.parse("2026-11-05T11:22:00Z");
     await obj.alarm();
     t("alarm at 11:22: one call with the trimmed token, the queue empty, the alarm deleted", calls.length === 3 && calls[2].init.headers.authorization === "Bearer tok-for-test" && !mem.has("retry:jidec-stamp@2026-11-05T11:17Z") && alarmAt === null);

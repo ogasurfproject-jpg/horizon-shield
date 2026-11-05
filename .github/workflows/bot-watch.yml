@@ -5,6 +5,11 @@
 # OVERDUE: no successful scheduled run within 2 expected intervals plus 3 hours. FAILING: the last 2 scheduled runs
 # failed. UNKNOWN: the API could not be read. Any of these turns this job red, so GitHub notifies the owner; the page
 # is committed first, so the red run and the committed BOTS.md say the same thing.
+# 2026-11-05: workers/hs-cron-dispatch dispatches this at 06:17 UTC (the schedule below stays as a late fallback). For
+# the workflows that Worker starts, dispatch runs count with scheduled runs, and the Worker's public GET /log (no
+# token) is read for yesterday and today: a day with no successful run (the dispatch and the scheduled run both
+# failed, or the Worker's dispatch failed and nothing succeeded) opens one issue per workflow and day (label
+# bot-watch); a later failure of the same day comments on it.
 # Run by hand: Actions -> bot-watch -> Run workflow.
 name: bot-watch
 
@@ -24,6 +29,7 @@ jobs:
     permissions:
       actions: read
       contents: write
+      issues: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -37,7 +43,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set +e
-          node tools/status/bot_watch.mjs --out ops/status/BOTS.md > watch.log 2>&1
+          node tools/status/bot_watch.mjs --out ops/status/BOTS.md --alerts bot_alerts.json > watch.log 2>&1
           code=$?
           cat watch.log
           cat watch.log >> "$GITHUB_STEP_SUMMARY"
@@ -59,6 +65,12 @@ jobs:
           done
           echo "push failed 3 times"
           exit 1
+      - name: One issue per workflow and day with no successful run (a second failure that day comments)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          if [ ! -f bot_alerts.json ]; then echo "no alerts file (the watch step crashed; the next step is red)"; exit 0; fi
+          node tools/status/bot_watch.mjs --issues bot_alerts.json | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Red when a bot stopped, keeps failing, or could not be read
         env:
           CODE: ${{ steps.watch.outputs.code }}

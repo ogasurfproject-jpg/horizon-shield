@@ -63,6 +63,11 @@ through the GitHub REST API (all events, and scheduled runs only).
 
 - OVERDUE: the last successful scheduled run is older than 2 expected intervals plus 3 hours.
 - FAILING: the last 2 finished scheduled runs both failed. Cancelled and skipped runs are not counted.
+- For the workflows `workers/hs-cron-dispatch` starts with `workflow_dispatch`, the dispatch runs count with the
+  scheduled runs in both rules (2026-11-05). For those, a day (UTC, yesterday and today) with no successful run opens
+  one issue (label `bot-watch`): when the day's last dispatch run and last scheduled run both failed, or when the
+  Worker's public `GET /log?day=` says its last dispatch of the job failed (a dispatch that fails makes no run, so
+  GitHub sends no mail). A later failure of the same day adds a comment. The Worker dispatches bot-watch at 06:17 UTC.
 - UNKNOWN: the API could not be read for that workflow, or its cron could not be parsed.
 - DISABLED: the workflow is turned off in GitHub. Listed, not counted as a problem.
 

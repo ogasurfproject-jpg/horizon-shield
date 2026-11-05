@@ -39,8 +39,8 @@ function fakeGitHub(answers) {
   for (const j of JOBS) for (let h = 0; h < 24; h++) if (j.hour === null || j.hour === h) due.add(h * 60 + j.minute);
   t("every job time is a minute some cron fires", [...due].every((m) => fired.has(m)), [...due].filter((m) => !fired.has(m)));
   t("every cron minute has a job (no empty invocations)", [...fired].every((m) => due.has(m)), [...fired].filter((m) => !due.has(m)));
-  t("31 dispatches a day (24 jidec-stamp, 7 daily)", JOBS.reduce((a, j) => a + (j.hour === null ? 24 : 1), 0) === 31);
-  const want = { "01:37": ["receipt-anchor"], "03:17": ["jidec-stamp", "survive-drill"], "03:23": ["issuer-keys"], "04:05": ["tooshi-daily"], "04:35": ["tooshi-daily-second"], "21:17": ["jidec-stamp", "seki-heartbeat"], "19:10": ["ots-nightly"], "19:17": ["jidec-stamp"], "12:17": ["jidec-stamp"], "04:36": [] };
+  t("32 dispatches a day (24 jidec-stamp, 8 daily)", JOBS.reduce((a, j) => a + (j.hour === null ? 24 : 1), 0) === 32);
+  const want = { "01:37": ["receipt-anchor"], "03:17": ["jidec-stamp", "survive-drill"], "03:23": ["issuer-keys"], "04:05": ["tooshi-daily"], "04:35": ["tooshi-daily-second"], "21:17": ["jidec-stamp", "seki-heartbeat"], "19:10": ["ots-nightly"], "19:17": ["jidec-stamp"], "12:17": ["jidec-stamp"], "06:17": ["jidec-stamp", "bot-watch"], "05:17": ["jidec-stamp"], "07:17": ["jidec-stamp"], "04:36": [] };
   for (const [hm, ids] of Object.entries(want)) t("jobs at " + hm + " UTC: " + (ids.join(", ") || "none"), JSON.stringify(jobsAt(T("2026-11-05T" + hm + ":00Z")).map((j) => j.id)) === JSON.stringify(ids));
   const wr = readFileSync(path.join(ROOT, "wrangler.jsonc"), "utf8").split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n");
   const cfg = JSON.parse(wr);
@@ -60,6 +60,7 @@ function fakeGitHub(answers) {
   t("POST, ref main, bearer token, API version", ra.init.method === "POST" && JSON.parse(ra.init.body).ref === "main" && ra.init.headers.authorization === "Bearer " + TOKEN && ra.init.headers["x-github-api-version"] === "2022-11-28");
   const ins = Object.fromEntries(JOBS.map((j) => [j.id, j.inputs(at)]));
   t("inputs: tooshi schedule and second, survive and issuer cron, jidec and seki none", ins["tooshi-daily"].slot === "schedule" && ins["tooshi-daily-second"].slot === "second" && ins["survive-drill"].slot === "cron" && ins["issuer-keys"].slot === "cron" && Object.keys(ins["jidec-stamp"]).length === 0 && Object.keys(ins["seki-heartbeat"]).length === 0);
+  t("bot-watch: 06:17 UTC on the hourly line, inputs {}, no new cron line (5)", JOBS.find((j) => j.id === "bot-watch").file === "bot-watch.yml" && JSON.stringify(ins["bot-watch"]) === "{}" && CRONS.length === 5);
   const on = dispatchRequest(JOBS.find((j) => j.id === "ots-nightly"), T("2026-11-05T19:10:00Z"), TOKEN);
   t("ots-nightly: 19:10, ref main, inputs exactly {mode: nightly}", on.url.endsWith("/actions/workflows/ots-nightly.yml/dispatches") && JSON.parse(on.init.body).ref === "main" && JSON.stringify(JSON.parse(on.init.body).inputs) === '{"mode":"nightly"}');
 }
@@ -131,6 +132,17 @@ for (const code of [401, 403, 404, 422]) {
   t("a cron line not in CRONS: written down, no call", u[0].result === "unknown_cron" && gh.calls.length === 0);
   const nj = await runCron({ store: s, token: TOKEN, cron: "17 * * * *", scheduledTime: T("2026-11-05T05:18:00Z"), now: T("2026-11-05T05:18:00Z"), doFetch: gh, sleep: noSleep });
   t("a known cron at a minute with no job: no_job, no call", nj[0].result === "no_job" && gh.calls.length === 0);
+}
+
+{
+  // 0.3.1: 06:17 dispatches jidec-stamp and bot-watch, one call each, on the hourly line
+  const s = memoryStore(), gh = fakeGitHub([204, 204]);
+  const r = await runCron({ store: s, token: TOKEN, cron: "17 * * * *", scheduledTime: T("2026-11-05T06:17:00Z"), now: T("2026-11-05T06:17:01Z"), doFetch: gh, sleep: noSleep });
+  t("06:17: jidec-stamp and bot-watch dispatched, 2 calls", JSON.stringify(r.map((x) => x.job + ":" + x.result)) === '["jidec-stamp:dispatched","bot-watch:dispatched"]' && gh.calls.length === 2, r);
+  t("06:17: bot-watch.yml dispatches, ref main, inputs {}", gh.calls[1].url.endsWith("/actions/workflows/bot-watch.yml/dispatches") && gh.calls[1].init.body === '{"ref":"main","inputs":{}}');
+  const st = await statusView({ store: s, now: T("2026-11-05T06:30:00Z"), tokenConfigured: true });
+  const bw = st.jobs.find((j) => j.job === "bot-watch");
+  t("status: bot-watch has its row, at 06:17, last ok slot 06:17, version 0.3.1", bw && bw.at_utc === "06:17" && bw.last_ok_slot === "2026-11-05T06:17Z" && st.version === "0.3.1", bw);
 }
 
 // ---- the delayed retries at +5 and +15 min from the slot (0.3.0)
@@ -247,7 +259,7 @@ for (const code of [404, 401]) {
     const cron = CRONS.find((c) => cronMinutes(c).includes(m));
     await runCron({ store: s, token: TOKEN, cron, scheduledTime: ms, now: ms, doFetch: gh, sleep: noSleep });
   }
-  t("a whole day: 31 calls", gh.calls.length === 31, gh.calls.length);
+  t("a whole day: 32 calls", gh.calls.length === 32, gh.calls.length);
   const st = await statusView({ store: s, now: T("2026-11-05T23:30:00Z"), tokenConfigured: true });
   t("status after a whole day: nothing late, nothing failed", st.late_jobs.length === 0 && st.failed_in_view === 0 && st.version === VERSION, st.late_jobs);
   const st2 = await statusView({ store: s, now: T("2026-11-06T02:40:00Z"), tokenConfigured: true });
@@ -257,7 +269,7 @@ for (const code of [404, 401]) {
   t("GET /status: 200 JSON, token_configured true, the token not in it", res.status === 200 && JSON.parse(body).token_configured === true && !body.includes(TOKEN));
   const lg = await handleFetch({ request: new Request("https://x/log?day=2026-11-05"), store: s, token: TOKEN, now: T("2026-11-05T23:30:00Z"), doFetch: gh });
   const lb = await lg.text();
-  t("GET /log?day: the day's entries, no token", lg.status === 200 && JSON.parse(lb).entries.length >= 31 && !lb.includes(TOKEN));
+  t("GET /log?day: the day's entries, no token", lg.status === 200 && JSON.parse(lb).entries.length >= 32 && !lb.includes(TOKEN));
   const b1 = await handleFetch({ request: new Request("https://x/log?day=2026-13-45"), store: s, token: TOKEN, now: 0, doFetch: gh });
   const b2 = await handleFetch({ request: new Request("https://x/log?day=../x"), store: s, token: TOKEN, now: 0, doFetch: gh });
   t("GET /log with a bad day: 400", b1.status === 400 && b2.status === 400 && !validDay("2026-02-30x"));
