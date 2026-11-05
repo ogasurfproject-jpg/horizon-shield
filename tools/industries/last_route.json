@@ -1,27 +1,39 @@
 {
   "status": "ok",
-  "industry": "nursing",
-  "company": "合同会社アップス",
-  "generator": "tools/care/generate_care.py",
-  "manifest": "tools/care/last_manifest.json",
-  "count": 5,
+  "industry": "construction",
+  "company": "ミネオトーヨー住器株式会社",
+  "generator": "tools/yakumo/generate.py",
+  "manifest": "tools/yakumo/last_manifest.json",
+  "count": 10,
   "pages": [
-    "care/member-8d18360c/about/choose/index.html",
-    "care/member-8d18360c/about/verify/index.html",
-    "care/member-8d18360c/faq/1/index.html",
-    "care/member-8d18360c/index.html",
-    "care/member-8d18360c/mcp/index.html"
+    "yakumo/faq/yakumo-hiratsuka-faq-1/index.html",
+    "yakumo/faq/yakumo-hiratsuka-faq-genkan-koukan/index.html",
+    "yakumo/faq/yakumo-hiratsuka-faq-mado-koukan/index.html",
+    "yakumo/jirei/no002/index.html",
+    "yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no002/index.html",
+    "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no002/index.html",
+    "yakumo/souba/amido-harikae-hiratsuka/index.html",
+    "yakumo/souba/genkan-koukan-hiratsuka/index.html",
+    "yakumo/souba/glass-shuri-hiratsuka/index.html",
+    "yakumo/souba/mado-koukan-hiratsuka/index.html"
   ],
   "urls": [
-    "https://shield.the-horizons-innovation.com/care/member-8d18360c/",
-    "https://shield.the-horizons-innovation.com/care/member-8d18360c/faq/1/",
-    "https://shield.the-horizons-innovation.com/care/member-8d18360c/about/choose/",
-    "https://shield.the-horizons-innovation.com/care/member-8d18360c/about/verify/",
-    "https://shield.the-horizons-innovation.com/care/member-8d18360c/mcp/"
+    "https://shield.the-horizons-innovation.com/yakumo/souba/mado-koukan-hiratsuka/",
+    "https://shield.the-horizons-innovation.com/yakumo/souba/genkan-koukan-hiratsuka/",
+    "https://shield.the-horizons-innovation.com/yakumo/souba/glass-shuri-hiratsuka/",
+    "https://shield.the-horizons-innovation.com/yakumo/souba/amido-harikae-hiratsuka/",
+    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-hiratsuka-faq-1/",
+    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-hiratsuka-faq-mado-koukan/",
+    "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-hiratsuka-faq-genkan-koukan/",
+    "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no002/",
+    "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no002/",
+    "https://shield.the-horizons-innovation.com/yakumo/jirei/no002/"
   ],
   "commit_paths": [
-    "care/",
-    "tools/care/last_manifest.json"
+    "yakumo/",
+    "tools/yakumo/last_manifest.json",
+    "sitemap-yakumo.xml",
+    "data/yakumo-content-manifest.json"
   ],
   "published": true
 }

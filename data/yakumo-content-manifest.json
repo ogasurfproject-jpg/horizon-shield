@@ -104,6 +104,12 @@
    "m": "no001"
   },
   {
+   "slug": "yakumo/webmcp/yakumo-verified-stores-mcp-no002",
+   "tsha": "32d9aa80",
+   "simhash": "8a39a499657da9eb",
+   "m": "no002"
+  },
+  {
    "slug": "yakumo/souba/mado-koukan-hiratsuka",
    "tsha": "fe8191c5",
    "simhash": "a86ba2c9fbe81bfc",
@@ -130,7 +136,7 @@
   {
    "slug": "yakumo/faq/yakumo-hiratsuka-faq-1",
    "tsha": "a9a15253",
-   "simhash": "3a6036c9321c1bec",
+   "simhash": "384036c930081ae8",
    "m": "no002"
   },
   {
@@ -158,23 +164,17 @@
    "m": "no002"
   },
   {
-   "slug": "yakumo/webmcp/yakumo-verified-stores-mcp-no002",
-   "tsha": "32d9aa80",
-   "simhash": "8a39a499657da9eb",
-   "m": "no002"
-  },
-  {
    "slug": "yakumo/jirei/no002",
    "tsha": "621dc3f7",
    "simhash": "a27e10897599d2eb",
    "m": "no002"
   }
  ],
- "updated_at": "2026-10-05T05:31:35Z",
+ "updated_at": "2026-11-05T13:36:28Z",
  "rebuilt_at": "2026-08-23",
  "rebuilt_why": "指紋から剥がす共通枠のパターンを直したため、計算結果が変わった。全エントリを一斉に入れ替えて整合を保った。古い台帳は yakumo-content-manifest.json.bak_prerebuild20260823 に残してある。",
  "stores": {
-  "no002": "8beaac207eaa",
+  "no002": "e667a3c152e7",
   "no001": "8ef0c467b411"
  },
  "pruned_at": "2026-09-07T14:58:32Z",

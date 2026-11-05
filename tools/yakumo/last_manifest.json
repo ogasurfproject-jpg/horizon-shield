@@ -1,14 +1,13 @@
 {
-  "generated_at": "2026-10-05T05:31:35Z",
+  "generated_at": "2026-11-05T13:36:28Z",
   "member_no": "No.002",
   "company": "ミネオトーヨー住器株式会社",
   "focus": "homeowners",
-  "count": 11,
+  "count": 10,
   "ratio": {
     "geo": 4,
     "aeo": 3,
     "llmo": 2,
-    "webmcp": 1,
     "focus": 1
   },
   "urls": [
@@ -21,7 +20,6 @@
     "https://shield.the-horizons-innovation.com/yakumo/faq/yakumo-hiratsuka-faq-genkan-koukan/",
     "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-kensho-zumi-kameiten-toha-no002/",
     "https://shield.the-horizons-innovation.com/yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no002/",
-    "https://shield.the-horizons-innovation.com/yakumo/webmcp/yakumo-verified-stores-mcp-no002/",
     "https://shield.the-horizons-innovation.com/yakumo/jirei/no002/"
   ],
   "pages": [
@@ -71,17 +69,17 @@
       "path": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no002/index.html"
     },
     {
-      "type": "webmcp",
-      "url": "https://shield.the-horizons-innovation.com/yakumo/webmcp/yakumo-verified-stores-mcp-no002/",
-      "path": "yakumo/webmcp/yakumo-verified-stores-mcp-no002/index.html"
-    },
-    {
       "type": "focus",
       "url": "https://shield.the-horizons-innovation.com/yakumo/jirei/no002/",
       "path": "yakumo/jirei/no002/index.html"
     }
   ],
-  "dup_skipped": [],
+  "dup_skipped": [
+    {
+      "url": "https://shield.the-horizons-innovation.com/yakumo/webmcp/yakumo-verified-stores-mcp-no002/",
+      "why": "near-dup:yakumo/webmcp/yakumo-verified-stores-mcp-no001"
+    }
+  ],
   "new_fingerprints": [
     {
       "slug": "yakumo/souba/mado-koukan-hiratsuka",
@@ -110,7 +108,7 @@
     {
       "slug": "yakumo/faq/yakumo-hiratsuka-faq-1",
       "tsha": "a9a15253",
-      "simhash": "3a6036c9321c1bec",
+      "simhash": "384036c930081ae8",
       "m": "no002"
     },
     {
@@ -135,12 +133,6 @@
       "slug": "yakumo/llmo/yakumo-tekiseika-kensho-no-shikumi-no002",
       "tsha": "aba31c76",
       "simhash": "a16092c973a88848",
-      "m": "no002"
-    },
-    {
-      "slug": "yakumo/webmcp/yakumo-verified-stores-mcp-no002",
-      "tsha": "32d9aa80",
-      "simhash": "8a39a499657da9eb",
       "m": "no002"
     },
     {
