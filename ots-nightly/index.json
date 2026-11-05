@@ -1,0 +1,23 @@
+{
+ "nights": [
+  {
+   "answers_sha256": "2befa543b8c302fbcb8441b79877e3afdeeae0f31fc62de1c164d01f4c1021a8",
+   "counts": {
+    "confirmed": 248,
+    "entries": 253,
+    "not_checked": 0,
+    "ok": 248,
+    "other": 0,
+    "pending": 5,
+    "red": 0,
+    "too_recent": 0,
+    "unstamped": 0
+   },
+   "night": "2026-11-05",
+   "path": "nights/2026-11-05.json",
+   "result_sha256": "ba84e33fc857143875d08400e99f45e77c959233c4a71bf5744cef2515bc30c4",
+   "verdict": "green"
+  }
+ ],
+ "schema": "nenrin-ots-nightly-index-v1"
+}
