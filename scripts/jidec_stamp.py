@@ -27,8 +27,14 @@ returned an .ots, or an entry that never reached a Bitcoin block, left every run
 while the entry stayed unstamped or pending for good. Now the run fails when an entry it
 could not move is unstamped for more than UNSTAMPED_HOURS after it was created, or
 pending for more than PENDING_HOURS after it was stamped (created, if no stamp time).
+
+2026-11-05: the pending fetch is tried up to three times, 10 and 30 seconds apart, but
+only when the ledger did not answer in time or answered 5xx. The 19:17 UTC run of
+2026-11-04 failed on one read timeout and the entries waited an hour for the next run.
+Any other failure (4xx, a refused connection, a name that does not resolve, a body that
+is not JSON) still stops the run at once, and three timeouts in a row are still red.
 """
-import os, re, sys, json, base64, subprocess, urllib.request, urllib.error, datetime
+import os, re, sys, json, time, socket, base64, subprocess, urllib.request, urllib.error, datetime
 
 _op = urllib.request.build_opener()
 _op.addheaders = [("User-Agent", "hs-ledger-stamper/1.0 (+github-actions)")]
@@ -47,6 +53,15 @@ LEDGER_URL = _need("LEDGER_URL").rstrip("/")
 TOKEN = _need("LEDGER_ADMIN_TOKEN")
 
 
+class ApiError(RuntimeError):
+    """A ledger call that failed. retryable is True only for a timeout or an HTTP 5xx."""
+
+    def __init__(self, msg, code=None, retryable=False):
+        super().__init__(msg)
+        self.code = code
+        self.retryable = retryable
+
+
 def api(path, method="GET", body=None):
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(LEDGER_URL + path, data=data, method=method)
@@ -62,9 +77,28 @@ def api(path, method="GET", body=None):
             detail = ex.read().decode("utf-8", "replace")[:300]
         except Exception:
             pass
-        raise RuntimeError("%s %s -> HTTP %s %s" % (method, path, ex.code, detail))
+        raise ApiError("%s %s -> HTTP %s %s" % (method, path, ex.code, detail), ex.code, 500 <= ex.code <= 599)
     except urllib.error.URLError as ex:
-        raise RuntimeError("%s %s -> network error: %s" % (method, path, ex.reason))
+        raise ApiError("%s %s -> network error: %s" % (method, path, ex.reason), None, isinstance(ex.reason, (TimeoutError, socket.timeout)))
+    except (TimeoutError, socket.timeout) as ex:
+        raise ApiError("%s %s -> %s" % (method, path, ex or "timed out"), None, True)
+
+
+PENDING_WAITS = (10, 30)
+
+
+def fetch_pending(get=None, sleep=time.sleep, waits=PENDING_WAITS):
+    """GET /ledger/pending; on a timeout or a 5xx, wait and try again (len(waits) + 1 tries in all)."""
+    get = get or api
+    tries = len(waits) + 1
+    for i in range(tries):
+        try:
+            return get("/ledger/pending").get("pending", [])
+        except ApiError as ex:
+            if not ex.retryable or i == tries - 1:
+                raise
+            print(f"pending fetch {i + 1}/{tries} failed ({ex}); trying again in {waits[i]} s")
+            sleep(waits[i])
 
 
 def earliest_bitcoin_height(info):
@@ -163,7 +197,7 @@ def stamp_one(e):
 
 def main():
     try:
-        pending = api("/ledger/pending").get("pending", [])
+        pending = fetch_pending()
     except Exception as ex:
         sys.stderr.write(f"cannot fetch pending entries: {ex}\n")
         sys.exit(1)
