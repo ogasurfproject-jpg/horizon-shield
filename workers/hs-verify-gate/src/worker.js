@@ -44,7 +44,7 @@ export { SweepLeaseDO };
 
 // 仕様確定までの暫定値。名称や閾値はここだけ直せば全体に効く。
 const CONFIG = {
-  version: "0.4.20",  // 2026-09-29. 0.4.20: /usage に requesters を足す(頼んだ側の軸)。external_checks は測る相手が自ゾーンの外かで数えとって、うちが外のサーバーを測った回も「外の誰かが使った」に入っとった。MCP の tools/call は網の数しか無く、道具ごとの回数が無かった。新しい計数 usage:req:<日> は face|道具|頼んだ側の種類|相手の種類 の回数だけ(種類は閉じた一覧、IP も UA の文字列も書かん)。x-hs-requester: operator の名乗りは認証せん(偽っても外の数が減る向きにしか動かん)。見出しは outside_measurements_of_external_endpoints。うちの定期の呼び出しは known_own_schedules に書く。既存の欄は 1 つも変えん。判定規則も status も条件も動かさん。card の version 行が変わるので再署名要。2026-09-29. 0.4.19: 表面の指紋に extras を足す (extras_covers = annotations, _meta, outputSchema, title の閉じた一覧、extras_manifest_hash、道具ごとの extras_hashes)。0.4.18 までの tool_hashes と manifest_hash は name / description / inputSchema しか覆わんので、destructiveHint を黙って外した版も outputSchema の差し替えも見えんかった (Arthur Teboul, DokuTrak, 2026-09-28)。既存の欄は 1 バイトも変えん (過去の記録の指紋と今の指紋を比べられるまま)。差分は surface_change.extras_changed に書く。extras を持たん前回との比較では extras を比べん (配った直後に全道具が変わったと誤報せん)。判定規則も status も条件も動かさん。card の version 行が変わるので再署名要。2026-09-28. 0.4.18: 鍵の履歴 key-history-v1 を /.well-known/key-history.json で配る(4 本の公開鍵: card hs-2026-09、agreement、witness、operator。いつからか、今の状態、盗まれた疑いの時刻)。失効した鍵の署名は、盗まれ得た時刻より前にそのバイトが在ったと運営者の外の時計(Bitcoin 錨など)で示せる時だけ運営者に帰属する。JWKS は履歴の active と retired の card 鍵から作る(revoked は配らん)、今は 1 本なので配信バイトは不変。判定規則も status も条件も動かさん。card の version 行が変わるので再署名要。仕様 ext/KEY_HISTORY_v1.md。0.4.17: MCP tool preflight_agent (相手の A2A agent を任せる前に 1 回で確かめる: card、誰が払うか、登録簿の読み、証人の出し先)。0.4.16: /a2a の応答が「/mcp が応えた」と書いとった(仕様 3 節の /endpoint を定数で埋めとった)。外からの歩き 1 本で発覚。conduct-v1.4 (仕様 14 節) で /served_by を足し、/endpoint は「記録が当たる測定対象」に意味を絞る。下の 0.4.16 の段を見よ。 2026-09-20. 0.4.14: 扉を TSUGI v2 籤の被証人側にする。/a2a が witness_request (nenrin-witness-request-v1) を受けたら、相手の公開 9 表面を自分の vantage で測り、Ed25519 で署名した nenrin-witness-observation-v1 を返す (src/witness.js、Node 参照 recovery-v0/witness_reply.mjs と byte 一致を test/witness_parity.test.mjs が守る)。署名鍵は運営者鍵とも card 鍵とも別の証人鍵 (env.WITNESS_PRIVKEY_B64、公開鍵は /keys/witness.json と env.WITNESS_PUBKEY_B64)。self_witness と非公開 target は断る、鍵未設定は witness_not_configured で正直に断る。card の conduct params に witness_policy.reciprocal と witness_reply の宣言を足す (池入りの条件、宣言と実装の差は残さん)。判定規則も status も条件も動かさん。card 本体が変わるので再署名要。0.4.13: card に Security declaration を足す(securitySchemes.operator = x-sweep-token の apiKeySecurityScheme、securityRequirements [{}] = 匿名で呼べる)。/a2a も /mcp も無認証のまま、動きは 1 バイトも変わらん。同時に、相手の card を読む写し(cardProject)が securitySchemes / securityRequirements を公式 SDK と同じ bytes に写すようになった(map、oneof、StringList、scopes)。0.4.12 までは持っとるだけで「検証できん」と言うとった。今「検証できん」と言うのは公式 SDK 自身が投げる形(null の要素)だけ。写しの粗も揃えた(String()/Boolean() の型変換、camel と snake の両置きは camel が勝つ)。canon_equiv.test.mjs に全部固定。判定規則も status も条件も動かさん。card の本体が変わるので再署名要。0.4.12: card に did:web:gate.horizonshield.dev の identity を足す。/.well-known/did.json で DID document を配り(card 署名鍵 kid hs-2026-09 と、在れば運営者鍵を registry 非依存でドメインに縛る。両方この扉が既に配る公開鍵、秘密鍵は Worker に無い)、card の conduct params に identity {kind:did, ref} で参照を足す(仕様 11.5 が params の identity を許す)。Agenstry の identity 3/10「no registry identifier」への手当。判定規則も status も条件も動かさん。card の本体が変わるので再署名要。0.4.11: card を 1.0 主体に。root protocolVersion を 0.3.0 から 1.0 に上げ(0.3 は supportedInterfaces に残す)、provider に url(shield.the-horizons-innovation.com)を足す。判定規則も status も条件も 1 つも動かさん。A2A を喋る動きも 1 バイト変わらん。外部 discovery が root の 0.3.0 を pre-1.0 と読んで減点し、provider が名前だけで url 無しやったのへの手当。card の本体が変わるので再署名要(incident 2 と同じ規律)。0.4.10: TSUGI の隔離の口 POST /register/quarantine (運営のみ、提案 hash 必須、解除も記録)。隔離中の行は掃引で測らん、lookup と /register は quarantined と言う。判定規則も status の意味も条件も動かさん: 隔離は停止であって所見やない。0.4.9: /keys/operator.json の説明文を柱の新名 TSUGI に (旧称 Proof-of-Recovery)。判定規則も status も条件も 1 つも動かさん。0.4.8: 運営者の許可鍵を配る口 /keys/operator.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。Proof-of-Recovery の Policy Gate (nenrin-authorization-v1) は運営者の Ed25519 鍵で署名される。読む側は recovery_verify の strict モードにこの公開鍵を渡し、署名の無い / 信用してない鍵 / 期限切れの許可の後に実行された修復を弾く。agreement.json / witness.json と同じ規律: 未設定なら 404 で「無い」と言う、空を 200 で返さん。秘密鍵はこの Worker に無い、署名は手元 (recovery-v0/authorize.mjs)。発端は 2026-09-19 の Agenstry の指摘から回った最初の回復一周 (recovery_fixture_20260920.json)。あの許可はチャットの「approved」で鍵で署名しとらんかった。v1 の検証器はそれを authorization_unsigned と言う。以後は鍵で閉じ、その鍵をここで配る。 2026-09-11. 0.4.7: conduct-v1.3 を配る。判定規則も status も条件も 1 つも動かさん。この扉は歩く側やないから、動きは 1 バイトも変わっとらん。変わるんは「配っとる仕様の本文」と「公開しとる assertion の一覧」の 2 つだけや。中身は 2 点。(1) 402 Payment Required は答えであって沈黙やない。v1 の 4 節は measured_endpoint_answered を「status 200」だけで定義しとったから、自分の card の宣言どおりに金を要求した endpoint が、壊れた endpoint と同じ 1 つの結果に落ちとった。設計上の判断と故障が、記録の上で区別が付かん。歩きは絶対に払たらあかん(払た witness は歩いた相手と金銭関係を持つ = この層が開示させる当のもの)ので、402 は n/a にして、新しい主張 payment_required_as_declared が起きた事を書く。宣言せずに課金しとったら FAIL や。この行が無かったら「全部 402 で返せば二度と測られん」が成立する。(2) compensation_well_formed が拡張の話をやめる。今までは拡張が無いだけで「宣言が壊れとる」と書き、証拠として capabilities.extensions の文を貼っとった。違う 2 つの問いに 1 つの答えを出しとった。どっちの穴も fixture では永遠に出ん。手元の偽 agent が全部 無料で全部 宣言済みやったからで、実在の agent(api.babyblueviper.com)を 1 枚歩いて初めて出た。新 spec sha 25f3e3efaf2e3cf208537d1d1fb4dd4559c90b8c379e679b4fd1eec9faa086a1。仕様・扉の一覧・歩きの実装の 3 箇所がこの一覧を持っとるのに、一致を見張る物が 1 つも無かった。walk_selftest の d01/d02/d03 がそれや。d03 は名前やのうて定義を突き合わせる。今回の本体は定義のズレやったから、名前だけ見る見張りは緑のまま通り抜けとった。 0.4.6: 合意記録の署名鍵を配る口 /keys/agreement.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。a2a-agreement-v1.1 の記録は鍵を署名バイトの中に持つから、検証にこの URL は要らん。効くのは「その鍵はその当事者が自分のドメインで配っとる鍵か」という帰属の主張だけや。鍵が未設定なら 404 で「無い」と言う。空の値を 200 で返したら、読む側は「鍵が違う」と判断してまう。「無い」と「空」は違う。秘密鍵はこの Worker に無い。署名は手元でやる。 2026-09-10. 0.4.5: 帰属の行に「鍵が相手のドメインの下にあること」を要求する。0.4.4 は署名が verify しさえすれば「運営者に帰属する」と書いとった。jku が他所のホストでも書いとった。それは嘘や。この行の存在理由は「TLS は取った瞬間しか押さえん、署名が効くのは持ち出した時と時間が経った時」やのに、鍵が第三者のサーバにあったら、その第三者が鍵を消せば帰属は消えるし、運営者はいつでも否認できる。転送に耐える著者性という肝心の性質が立っとらん。さらに悪いのは、自ドメインの署名が verify せんかった card でも、他所の署名が 1 本 verify すれば帰属しとった(実測で確認)。同じ日に合意記録層では key_url が自分のドメインの下に無ければ拒否しとる。片方で拒否して片方で帰属させとった。直しは 3 状態: 自ドメインの鍵で verify = 帰属、自ドメインの署名が false = 帰属せん(理由を書く)、他所の鍵でだけ verify = 帰属せん(鍵の場所を名指しして書く)。判定も status も条件も 1 つも動かさん。動くのは「この記録が何を証明するか」だけ。この穴は test/attributability.test.mjs の 1 本を control(正しい振る舞い)として固定してしもとった。attack に直した。0.4.4: 署名の有無を establishes / does_not_establish に効かせる。合否は動かさん(条件も赤も増えん)。動かすのは「この記録が何を証明するか」。無署名の card = その宣言は持ち出せん = 登録簿の行は相手の言葉やなく この扉の観測に帰属するだけで、相手はいつでも否認できる。うちの看板は「信用が要らん」やのに、無署名の相手の行は読む側が うちを信用するしかない状態やった。その差を記録に書いてなかったのは相手の穴やなく うちの穴。署名が verify したら宣言は運営者に帰属する = この扉が消えても意味が残る。0.4.3: 拡張の永続識別子(w3id.org)を読む側で認める。perma-id/w3id.org#6653 が merge され https://w3id.org/horizonshield/conduct/v1 が 302 で扉の URI に解決するようになった。A2A 本家の拡張ガイダンスが perma-id を推しとるので、それに従って書かれた card を黙って「宣言無し」に落とすわけにいかん。識別子は 1 本のまま(v1 は今までの文字列)、綴りは閉じた 2 本の一覧で完全一致、どっちで宣言されたかは判定のバイトに必ず書く。check の最中に redirect は叩かん。判定規則の変更はこれ 1 点(読む場所が 1 つ増える。求める形は 5 鍵のまま)。0.4.2: 判定に number_safety を入れる(判定自身のバイトの中の数値が全部 RFC 7493 の安全域の整数か。条件07 が測る相手の表面に課しとる規則を、扉自身の出力に課す。Federico Blanco Sanchez-Llanos が 2026-09-09 に payments 側から公開した同じ型: 精度はパースの時点で失われるので散文では間に合わん)。欄は数値を 1 つも持たんので、足しても答えは変わらん。hash の手順は不変。0.4.1: 掃引の判定は hash 対象のバイトそのものを KV に保存し、GET /record/<record_sha256> でそのまま配る(SEP-1913 で vaaraio が /is-verified の投影を 1024 通り直列化しても再現できんかった件。公開しとった sha のバイトは掃引では保存しとらんかった。recompute_url は /history を指しとった)。判定規則と hash の手順は不変。0.4.0 (conduct-v1.1): 判定と /self に establishes / does_not_establish を入れて hash に含める(Federico の 2026-09-07 の指摘: 「正しさは判定しとらん」の断りが落とせて conformance は通っとった)。塩の commitment を掃引ごとに台帳の witness intake へ commitment 型記録で錨打ち(窓ごとに 1 回、/nenrin/window に commitment_filed)。GET /register/lookup(verified/pending/declined/unknown + 先月の輪の数 + 証明せん物、24h cache)。well-known の notify / identity / witness_policy を読む(掃引後に notify へ POST、1 時間 1 回、/check からは飛ばさん)。判定規則は 0.3.0 のまま。0.3.5 (2026-09-06): 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
+  version: "0.4.21",  // 2026-10-23. 0.4.21: 掃引がその日の due を全部測り切る形にする。0.4.20 までは 18:00Z の 1 回だけで、MAX_PER_SWEEP 8 と予算 50 (Workers Free の上限の写し) に当たり、2026-10-22 は due 18 行のうち 7 行しか測れず、自前 9 行は全部 over MAX_PER_SWEEP やった。変えた事: その UTC 日に既に測った行は due から外す (force を除く)。並べ方は 有料 → 自前 → 無料、層の中は一番長く測っていない物から。cron は 18:00, 19:00, 20:00, 21:00 UTC の 4 回で、後の回は前の回の続きを測る。席と予算は Workers Paid の上限から決め直し、一か所 (掃引の席と予算) に置く: MAX_PER_SWEEP 40、fetch の予算 1000、1 回の wall は 10 分まで。日ごとの記録 sweep:day:<日> に全部の回を積み、GET /sweep/day が complete と missing を返す (読めなければ 503、空とは言わない)。有料の行が毎日測れる数を超える登録は 409。掃引だけを頼める鍵 SWEEP_ONLY_TOKEN を足す (POST /sweep だけ、force は不可、記録には鍵の種類だけを書く)。自分の掃引が扉自身の /mcp を測った呼び出しは、鍵で作る短命の印 x-hs-own-sweep で見分けて /usage に数えない。判定規則・status・条件は動かさん。card の version 行が変わるので card は署名し直す。2026-09-29. 0.4.20: /usage に requesters を足す(頼んだ側の軸)。external_checks は測る相手が自ゾーンの外かで数えとって、うちが外のサーバーを測った回も「外の誰かが使った」に入っとった。MCP の tools/call は網の数しか無く、道具ごとの回数が無かった。新しい計数 usage:req:<日> は face|道具|頼んだ側の種類|相手の種類 の回数だけ(種類は閉じた一覧、IP も UA の文字列も書かん)。x-hs-requester: operator の名乗りは認証せん(偽っても外の数が減る向きにしか動かん)。見出しは outside_measurements_of_external_endpoints。うちの定期の呼び出しは known_own_schedules に書く。既存の欄は 1 つも変えん。判定規則も status も条件も動かさん。card の version 行が変わるので再署名要。2026-09-29. 0.4.19: 表面の指紋に extras を足す (extras_covers = annotations, _meta, outputSchema, title の閉じた一覧、extras_manifest_hash、道具ごとの extras_hashes)。0.4.18 までの tool_hashes と manifest_hash は name / description / inputSchema しか覆わんので、destructiveHint を黙って外した版も outputSchema の差し替えも見えんかった (Arthur Teboul, DokuTrak, 2026-09-28)。既存の欄は 1 バイトも変えん (過去の記録の指紋と今の指紋を比べられるまま)。差分は surface_change.extras_changed に書く。extras を持たん前回との比較では extras を比べん (配った直後に全道具が変わったと誤報せん)。判定規則も status も条件も動かさん。card の version 行が変わるので再署名要。2026-09-28. 0.4.18: 鍵の履歴 key-history-v1 を /.well-known/key-history.json で配る(4 本の公開鍵: card hs-2026-09、agreement、witness、operator。いつからか、今の状態、盗まれた疑いの時刻)。失効した鍵の署名は、盗まれ得た時刻より前にそのバイトが在ったと運営者の外の時計(Bitcoin 錨など)で示せる時だけ運営者に帰属する。JWKS は履歴の active と retired の card 鍵から作る(revoked は配らん)、今は 1 本なので配信バイトは不変。判定規則も status も条件も動かさん。card の version 行が変わるので再署名要。仕様 ext/KEY_HISTORY_v1.md。0.4.17: MCP tool preflight_agent (相手の A2A agent を任せる前に 1 回で確かめる: card、誰が払うか、登録簿の読み、証人の出し先)。0.4.16: /a2a の応答が「/mcp が応えた」と書いとった(仕様 3 節の /endpoint を定数で埋めとった)。外からの歩き 1 本で発覚。conduct-v1.4 (仕様 14 節) で /served_by を足し、/endpoint は「記録が当たる測定対象」に意味を絞る。下の 0.4.16 の段を見よ。 2026-09-20. 0.4.14: 扉を TSUGI v2 籤の被証人側にする。/a2a が witness_request (nenrin-witness-request-v1) を受けたら、相手の公開 9 表面を自分の vantage で測り、Ed25519 で署名した nenrin-witness-observation-v1 を返す (src/witness.js、Node 参照 recovery-v0/witness_reply.mjs と byte 一致を test/witness_parity.test.mjs が守る)。署名鍵は運営者鍵とも card 鍵とも別の証人鍵 (env.WITNESS_PRIVKEY_B64、公開鍵は /keys/witness.json と env.WITNESS_PUBKEY_B64)。self_witness と非公開 target は断る、鍵未設定は witness_not_configured で正直に断る。card の conduct params に witness_policy.reciprocal と witness_reply の宣言を足す (池入りの条件、宣言と実装の差は残さん)。判定規則も status も条件も動かさん。card 本体が変わるので再署名要。0.4.13: card に Security declaration を足す(securitySchemes.operator = x-sweep-token の apiKeySecurityScheme、securityRequirements [{}] = 匿名で呼べる)。/a2a も /mcp も無認証のまま、動きは 1 バイトも変わらん。同時に、相手の card を読む写し(cardProject)が securitySchemes / securityRequirements を公式 SDK と同じ bytes に写すようになった(map、oneof、StringList、scopes)。0.4.12 までは持っとるだけで「検証できん」と言うとった。今「検証できん」と言うのは公式 SDK 自身が投げる形(null の要素)だけ。写しの粗も揃えた(String()/Boolean() の型変換、camel と snake の両置きは camel が勝つ)。canon_equiv.test.mjs に全部固定。判定規則も status も条件も動かさん。card の本体が変わるので再署名要。0.4.12: card に did:web:gate.horizonshield.dev の identity を足す。/.well-known/did.json で DID document を配り(card 署名鍵 kid hs-2026-09 と、在れば運営者鍵を registry 非依存でドメインに縛る。両方この扉が既に配る公開鍵、秘密鍵は Worker に無い)、card の conduct params に identity {kind:did, ref} で参照を足す(仕様 11.5 が params の identity を許す)。Agenstry の identity 3/10「no registry identifier」への手当。判定規則も status も条件も動かさん。card の本体が変わるので再署名要。0.4.11: card を 1.0 主体に。root protocolVersion を 0.3.0 から 1.0 に上げ(0.3 は supportedInterfaces に残す)、provider に url(shield.the-horizons-innovation.com)を足す。判定規則も status も条件も 1 つも動かさん。A2A を喋る動きも 1 バイト変わらん。外部 discovery が root の 0.3.0 を pre-1.0 と読んで減点し、provider が名前だけで url 無しやったのへの手当。card の本体が変わるので再署名要(incident 2 と同じ規律)。0.4.10: TSUGI の隔離の口 POST /register/quarantine (運営のみ、提案 hash 必須、解除も記録)。隔離中の行は掃引で測らん、lookup と /register は quarantined と言う。判定規則も status の意味も条件も動かさん: 隔離は停止であって所見やない。0.4.9: /keys/operator.json の説明文を柱の新名 TSUGI に (旧称 Proof-of-Recovery)。判定規則も status も条件も 1 つも動かさん。0.4.8: 運営者の許可鍵を配る口 /keys/operator.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。Proof-of-Recovery の Policy Gate (nenrin-authorization-v1) は運営者の Ed25519 鍵で署名される。読む側は recovery_verify の strict モードにこの公開鍵を渡し、署名の無い / 信用してない鍵 / 期限切れの許可の後に実行された修復を弾く。agreement.json / witness.json と同じ規律: 未設定なら 404 で「無い」と言う、空を 200 で返さん。秘密鍵はこの Worker に無い、署名は手元 (recovery-v0/authorize.mjs)。発端は 2026-09-19 の Agenstry の指摘から回った最初の回復一周 (recovery_fixture_20260920.json)。あの許可はチャットの「approved」で鍵で署名しとらんかった。v1 の検証器はそれを authorization_unsigned と言う。以後は鍵で閉じ、その鍵をここで配る。 2026-09-11. 0.4.7: conduct-v1.3 を配る。判定規則も status も条件も 1 つも動かさん。この扉は歩く側やないから、動きは 1 バイトも変わっとらん。変わるんは「配っとる仕様の本文」と「公開しとる assertion の一覧」の 2 つだけや。中身は 2 点。(1) 402 Payment Required は答えであって沈黙やない。v1 の 4 節は measured_endpoint_answered を「status 200」だけで定義しとったから、自分の card の宣言どおりに金を要求した endpoint が、壊れた endpoint と同じ 1 つの結果に落ちとった。設計上の判断と故障が、記録の上で区別が付かん。歩きは絶対に払たらあかん(払た witness は歩いた相手と金銭関係を持つ = この層が開示させる当のもの)ので、402 は n/a にして、新しい主張 payment_required_as_declared が起きた事を書く。宣言せずに課金しとったら FAIL や。この行が無かったら「全部 402 で返せば二度と測られん」が成立する。(2) compensation_well_formed が拡張の話をやめる。今までは拡張が無いだけで「宣言が壊れとる」と書き、証拠として capabilities.extensions の文を貼っとった。違う 2 つの問いに 1 つの答えを出しとった。どっちの穴も fixture では永遠に出ん。手元の偽 agent が全部 無料で全部 宣言済みやったからで、実在の agent(api.babyblueviper.com)を 1 枚歩いて初めて出た。新 spec sha 25f3e3efaf2e3cf208537d1d1fb4dd4559c90b8c379e679b4fd1eec9faa086a1。仕様・扉の一覧・歩きの実装の 3 箇所がこの一覧を持っとるのに、一致を見張る物が 1 つも無かった。walk_selftest の d01/d02/d03 がそれや。d03 は名前やのうて定義を突き合わせる。今回の本体は定義のズレやったから、名前だけ見る見張りは緑のまま通り抜けとった。 0.4.6: 合意記録の署名鍵を配る口 /keys/agreement.json を足す。判定規則も status も条件も 1 つも動かさん。この口は判定に一切関わらん。a2a-agreement-v1.1 の記録は鍵を署名バイトの中に持つから、検証にこの URL は要らん。効くのは「その鍵はその当事者が自分のドメインで配っとる鍵か」という帰属の主張だけや。鍵が未設定なら 404 で「無い」と言う。空の値を 200 で返したら、読む側は「鍵が違う」と判断してまう。「無い」と「空」は違う。秘密鍵はこの Worker に無い。署名は手元でやる。 2026-09-10. 0.4.5: 帰属の行に「鍵が相手のドメインの下にあること」を要求する。0.4.4 は署名が verify しさえすれば「運営者に帰属する」と書いとった。jku が他所のホストでも書いとった。それは嘘や。この行の存在理由は「TLS は取った瞬間しか押さえん、署名が効くのは持ち出した時と時間が経った時」やのに、鍵が第三者のサーバにあったら、その第三者が鍵を消せば帰属は消えるし、運営者はいつでも否認できる。転送に耐える著者性という肝心の性質が立っとらん。さらに悪いのは、自ドメインの署名が verify せんかった card でも、他所の署名が 1 本 verify すれば帰属しとった(実測で確認)。同じ日に合意記録層では key_url が自分のドメインの下に無ければ拒否しとる。片方で拒否して片方で帰属させとった。直しは 3 状態: 自ドメインの鍵で verify = 帰属、自ドメインの署名が false = 帰属せん(理由を書く)、他所の鍵でだけ verify = 帰属せん(鍵の場所を名指しして書く)。判定も status も条件も 1 つも動かさん。動くのは「この記録が何を証明するか」だけ。この穴は test/attributability.test.mjs の 1 本を control(正しい振る舞い)として固定してしもとった。attack に直した。0.4.4: 署名の有無を establishes / does_not_establish に効かせる。合否は動かさん(条件も赤も増えん)。動かすのは「この記録が何を証明するか」。無署名の card = その宣言は持ち出せん = 登録簿の行は相手の言葉やなく この扉の観測に帰属するだけで、相手はいつでも否認できる。うちの看板は「信用が要らん」やのに、無署名の相手の行は読む側が うちを信用するしかない状態やった。その差を記録に書いてなかったのは相手の穴やなく うちの穴。署名が verify したら宣言は運営者に帰属する = この扉が消えても意味が残る。0.4.3: 拡張の永続識別子(w3id.org)を読む側で認める。perma-id/w3id.org#6653 が merge され https://w3id.org/horizonshield/conduct/v1 が 302 で扉の URI に解決するようになった。A2A 本家の拡張ガイダンスが perma-id を推しとるので、それに従って書かれた card を黙って「宣言無し」に落とすわけにいかん。識別子は 1 本のまま(v1 は今までの文字列)、綴りは閉じた 2 本の一覧で完全一致、どっちで宣言されたかは判定のバイトに必ず書く。check の最中に redirect は叩かん。判定規則の変更はこれ 1 点(読む場所が 1 つ増える。求める形は 5 鍵のまま)。0.4.2: 判定に number_safety を入れる(判定自身のバイトの中の数値が全部 RFC 7493 の安全域の整数か。条件07 が測る相手の表面に課しとる規則を、扉自身の出力に課す。Federico Blanco Sanchez-Llanos が 2026-09-09 に payments 側から公開した同じ型: 精度はパースの時点で失われるので散文では間に合わん)。欄は数値を 1 つも持たんので、足しても答えは変わらん。hash の手順は不変。0.4.1: 掃引の判定は hash 対象のバイトそのものを KV に保存し、GET /record/<record_sha256> でそのまま配る(SEP-1913 で vaaraio が /is-verified の投影を 1024 通り直列化しても再現できんかった件。公開しとった sha のバイトは掃引では保存しとらんかった。recompute_url は /history を指しとった)。判定規則と hash の手順は不変。0.4.0 (conduct-v1.1): 判定と /self に establishes / does_not_establish を入れて hash に含める(Federico の 2026-09-07 の指摘: 「正しさは判定しとらん」の断りが落とせて conformance は通っとった)。塩の commitment を掃引ごとに台帳の witness intake へ commitment 型記録で錨打ち(窓ごとに 1 回、/nenrin/window に commitment_filed)。GET /register/lookup(verified/pending/declined/unknown + 先月の輪の数 + 証明せん物、24h cache)。well-known の notify / identity / witness_policy を読む(掃引後に notify へ POST、1 時間 1 回、/check からは飛ばさん)。判定規則は 0.3.0 のまま。0.3.5 (2026-09-06): 時刻座標の本番と設計のズレを直す(履歴に coordinate_derivation を残す、次の窓の salt を先に作り beacon は salt より後の block に限る、基準高さは quorum 番目の tip - 6 で hash の一致だけを要求、窓ごとに規則を固定、GET /nenrin/window で commitment を公開。判定規則は 0.3.0 のまま)。0.3.4: 相手の card の A2A 署名(§8.4)を読んで detail に書く(判定不変)。扉自身の card も署名可(署名は Mac で作る、鍵は Worker に無い)。0.3.2: A2A Conduct Extension v1(条件3 を capabilities.extensions[].params.compensation からも読む、両方あれば一致必須、/ext/conduct/v1 で仕様を配る)。0.3.3: 扉自身が A2A を喋る(/a2a に SendMessage と message/send、両綴りの拡張ヘッダ、1.0 と 0.3 の両線)。判定規則は 0.3.0 のまま。
   tier_pass: "verified",        // 通過時の称号(暫定)
   tier_fail: "pending",         // 未通過(不合格とは呼ばない)
   tier_held: "held",            // 到達できず測れなかった。不適合とは別の状態
@@ -217,10 +217,10 @@ const CARD_SIGNATURE = {
   "jku": "https://gate.horizonshield.dev/.well-known/jwks.json",
   "alg": "ES256",
   "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9nYXRlLmhvcml6b25zaGllbGQuZGV2Ly53ZWxsLWtub3duL2p3a3MuanNvbiJ9",
-  "signature": "6LOCDIywNHU_78XTZqlJZpKSCtp94_eK9-D9XCnGvxzLM6_uHNlmFbzHtUEr5Gk66ImxfadRwC5N5T22XErALA",
+  "signature": "23PkeVNtJAp_KqdkQ-S5DAkV-7MG2EDrqOQU_qnfdn6bYmq92jLVgzfokidOTJKIDj0B9uFWQXa_iLnwSK4KnA",
   "plain": {
     "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJocy0yMDI2LTA5Iiwiamt1IjoiaHR0cHM6Ly9nYXRlLmhvcml6b25zaGllbGQuZGV2Ly53ZWxsLWtub3duL2p3a3MuanNvbiJ9",
-    "signature": "K17JKVkjdsxKzp3aSI3fAHHZfJTp77bpOKhRXQW22KYpctMe_fqguSCPpfqwDiv11RAZBpVMZ-h1xbJ4HEJD5Q"
+    "signature": "y3Cj1mMt3i5nnibDSaf-CdnQb-3s7BiZjia4SUBvbJvj_3EyLDmorK8fy8gBT9d_bxB7cDAZFo3umgSStQZcVg"
   },
   "jwk": {
     "kty": "EC",
@@ -231,8 +231,8 @@ const CARD_SIGNATURE = {
     "alg": "ES256",
     "use": "sig"
   },
-  "canonical_sha256": "c2b88aa27c3adf2378ae1d94500e7158763799f05685cda758d0471cd6791e15",
-  "jcs_sha256": "6b1d4ea492475e2e3a414295dac67f6557d84ae5d46842fd029e6c80a2af1fa4"
+  "canonical_sha256": "b3babf4bcf3a12720b5a3939d7811e44df0ed4db2113e287ad6fa9148ee9828d",
+  "jcs_sha256": "ae25b17dda2580af7845f2d4c1676533c9a2f8145abff749d49b502a020948a1"
 };
 /* @@CARD_SIGNATURE_END */
 // GCP twin は別ドメインで動くので、entrypoint が globalThis.CARD_ORIGIN_OVERRIDE を先に立てて上書きできる。
@@ -774,6 +774,7 @@ async function requesterReport(env, n) {
       other: "anything else, including our own GitHub runner walks that cannot declare themselves",
     },
     key_format: "face|tool|class|target: face is check, a2a or mcp; tool is the MCP tool name (- for check and a2a); target is own, external or none",
+    own_sweeps_not_counted: "Since 0.4.21 (2026-10-23) the gate's own scheduled sweeps (the cron runs and POST /sweep) are not counted here. When a sweep measures this gate's own /mcp it goes out through the relay and comes back looking like an outside caller; those calls carry " + OWN_SWEEP_HEADER + ", a short-lived HMAC made with the gate's own key, and the gate leaves them out of every counter on this page. A forged or replayed mark can only lower the counts.",
     known_own_schedules: KNOWN_OWN_SCHEDULES,
     totals,
     by_day,
@@ -1436,8 +1437,7 @@ function gateCommit() {
 // 0.4.0 の commitment(+2)で、自前 8 行の日は 44 + 7 + 2 = 53 になっとった(MAX_PER_SWEEP の注記は init+list+card=5 で
 // 数えとって、tools/call ×2 と jwks を落としとった)。数えるのは掃引の間だけ、fetch を 1 回呼んだら 1。
 // 残りが 1 行分(SUBREQUEST_PER_ENDPOINT)を切ったら、その行は測らずに理由を書いて次回に回す(次回は least recently measured で先頭)。
-// 予算は env.SUBREQUEST_BUDGET で変えられる(Paid なら 1000)。既定は Free の 50。
-const SUBREQUEST_BUDGET_DEFAULT = 50;
+// 予算は env.SUBREQUEST_BUDGET で変えられる。既定の数 (SUBREQUEST_BUDGET_DEFAULT) は 0.4.21 から下の「掃引の席と予算」の一か所に置く。
 const SUBREQUEST_PER_ENDPOINT = 6;   // init + tools/list + card + jwks(署名付き card) + tools/call ×2。pagination や再試行で増える
 let sweepBudget = null;              // 掃引中だけ { used }。掃引外は null で何も数えん
 function countSubrequest() { if (sweepBudget) sweepBudget.used += 1; }
@@ -1470,6 +1470,11 @@ async function fetchSameOriginOnly(url, opts) {
 async function probeFetch(url, init) {
   const opts = init ? { ...init } : {};
   opts.headers = { ...(opts.headers || {}), "user-agent": PROBE_UA };
+  // 0.4.21. 掃引が扉自身 (gate.horizonshield.dev) を測る時だけ、自分の掃引である印を付ける。受け手の /mcp はこれを見て /usage に数えない。
+  if (sweepBudget && isSelf(url)) {
+    const mark = await ownSweepMark(GATE_ENV, Date.now());
+    if (mark) opts.headers[OWN_SWEEP_HEADER] = mark;
+  }
   if (!useRelay(url)) {
     // 2026-08-19 patch52. 中継が無い状態で自分自身を直接叩くと必ず http 522 になる。
     // 522 は gatewayish なので transport 扱いになり、公開の記録に reachable:false が載る。
@@ -2723,8 +2728,72 @@ const CHANGES_MAX = 50;   // 変化ログの保持件数
 const REGISTRY_KEY = "watch:registry";
 const REMOVED_KEY = "watch:removed";   // 0.3.1. 外した行の墓標。外した事実は公開する。
 const REGISTRY_MAX = 500;
-const MAX_PER_SWEEP = 8;         // 1本あたり 1(init)+1〜3(tools/list)+1(card)+1(jwks、署名付き card)+2(tools/call、同意あり)= 6 が普通。8×6=48。予算の実測は sweepBudget(下)
-// 0.3.0 で 9 から 8 に下げた。窓の初回だけ beacon の取得が +4 乗る(tip 2 源 + block 2 源)。
+// ---- 0.4.21 (2026-10-23). 掃引の席と予算 ----
+// 席・予算・時刻はこの一か所で決める。数を変える時はここだけ直す (試験 sweep_stage2 が wrangler.jsonc の crons との一致を縛る)。
+// 出典: Cloudflare Workers の Limits (https://developers.cloudflare.com/workers/platform/limits/、Last updated Oct 12, 2026)。
+// この account は Workers Paid (TOshi が確かめた)。Paid の 1 回の実行の subrequest は既定 10,000 で、KV の呼び出しも数える。
+// Cron の CPU は予定の間隔が 1 時間以上なら 15 分 (1 時間未満なら 30 秒)、Cron の wall time は 15 分。HTTP の CPU は既定 30 秒。
+// 0.4.20 までの MAX_PER_SWEEP 8 と予算 50 は Workers Free の上限の写しで、Cloudflare の数ではなかった。
+// 実測 (本番の /history と /sweep/last、2026-10-12〜22): 1 行の wall は 1〜11 秒 (多くは 2〜3 秒)、fetch は 1 行 6〜7 本。
+// 手元の計測 (test/sweep_stage2.test.mjs の 9 節、Node): 履歴 200 KB 台の行で 1 行の CPU は 6 ms 前後、KV の呼び出しは 1 行 8 本前後 (登録簿の読みを含む)。
+const SWEEP_CRONS = ["0 18 * * *", "0 19 * * *", "0 20 * * *", "0 21 * * *"];  // 1 時間おきの 4 回。間隔が 1 時間以上なので Cron の CPU 上限は 15 分
+const SWEEP_RUNS_PER_DAY = SWEEP_CRONS.length;
+const MAX_PER_SWEEP = 40;        // 1 回で測る行の上限。40 行 × 1 行 3 秒 = 2 分が普通、遅い相手ばかり (1 行 11 秒) でも 7〜8 分。下の wall の上限が先に効く
+const SUBREQUEST_BUDGET_DEFAULT = 1000;  // 掃引が数える fetch の上限。40 行 × 7 本 + 窓の初回 9 本 = 289 本の 3 倍強。KV を足しても Paid の 10,000 の 1 割台
+const SUBREQUEST_WINDOW_OVERHEAD = 9;     // 窓の初回の掃引だけ: beacon の 3 源 7 本 + commitment 2 本
+const SWEEP_WALL_BUDGET_MS = 10 * 60 * 1000;  // 掃引を始めて 10 分を過ぎたら新しい行を始めない。最後の 1 行 (fetch の timeout 10 秒 × 数本) と書き込みを入れても 15 分に届かない
+const PAID_SPARE_RUNS = 1;       // 有料の席を数える時、4 回のうち 1 回は予備として数えない (cron が 1 回落ちても有料の行は毎日測れる)
+const FREE_DAY_PEAK_FACTOR = 2;  // 無料の行の測る日は HMAC で決まり、日ごとに偏る (2026-10-22 は 33 行のうち 9 行、平均の約 2 倍)。席の見積もりは平均の 2 倍を取る
+function sweepBudgetLimit(env) { return Number(env && env.SUBREQUEST_BUDGET) || SUBREQUEST_BUDGET_DEFAULT; }
+function sweepSeatsPerRun(env) {
+  return Math.max(0, Math.min(MAX_PER_SWEEP, Math.floor((sweepBudgetLimit(env) - SUBREQUEST_WINDOW_OVERHEAD) / SUBREQUEST_PER_ENDPOINT)));
+}
+// 有料の行を何行まで受けられるか。有料の行は毎日測る約束なので、毎日測れる数を超える登録は 409 で断る (POST /watch)。
+function paidCapacity(env, selfRows, freeRows) {
+  const seatsPerRun = sweepSeatsPerRun(env);
+  const runsCounted = Math.max(0, SWEEP_RUNS_PER_DAY - PAID_SPARE_RUNS);
+  const seatsPerDay = runsCounted * seatsPerRun;
+  const freeReserve = Math.ceil((Number(freeRows) || 0) * FREE_DAY_PEAK_FACTOR / FREE_INTERVAL_DAYS);
+  const capacity = Math.max(0, seatsPerDay - (Number(selfRows) || 0) - freeReserve);
+  return {
+    capacity, seats_per_run: seatsPerRun, runs_counted: runsCounted, runs_per_day: SWEEP_RUNS_PER_DAY, seats_per_day: seatsPerDay,
+    self_rows: Number(selfRows) || 0, free_rows: Number(freeRows) || 0, free_reserve: freeReserve,
+    formula: "capacity = (runs_per_day - " + PAID_SPARE_RUNS + " spare) x seats_per_run - self_rows - ceil(free_rows x " + FREE_DAY_PEAK_FACTOR + " / " + FREE_INTERVAL_DAYS + "); seats_per_run = min(MAX_PER_SWEEP " + MAX_PER_SWEEP + ", floor((subrequest budget - " + SUBREQUEST_WINDOW_OVERHEAD + ") / " + SUBREQUEST_PER_ENDPOINT + "))"
+  };
+}
+// 0.4.21. 自分の掃引の印。掃引が扉自身の /mcp を中継越しに測ると、受け手からは外の誰か (class other) に見えて /usage に数えられていた。
+// 印は "v1.<秒>.<HMAC-SHA256(SWEEP_TOKEN, 'hs-own-sweep-v1|<秒>') の hex>"。鍵の値そのものは送らない。受け手は同じ鍵で計算し直し、
+// 時刻が前後 15 分の内で一致した時だけ数えない。印を盗んで使い回しても、できるのは 15 分の間 /usage の数を減らす事だけ (外の利用を盛る向きには動かない)。
+const OWN_SWEEP_HEADER = "x-hs-own-sweep";
+const OWN_SWEEP_MAX_SKEW_MS = 15 * 60 * 1000;
+async function hmacSha256Hex(key, msg) {
+  const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(String(key)), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(String(msg)));
+  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+async function ownSweepMark(env, nowMs) {
+  if (!env || !env.SWEEP_TOKEN) return null;
+  const t = String(Math.floor(nowMs / 1000));
+  return "v1." + t + "." + (await hmacSha256Hex(env.SWEEP_TOKEN, "hs-own-sweep-v1|" + t));
+}
+async function isOwnSweepRequest(request, env, nowMs) {
+  try {
+    const v = String((request && request.headers && request.headers.get(OWN_SWEEP_HEADER)) || "");
+    if (!v || !env || !env.SWEEP_TOKEN) return false;
+    const m = /^v1\.(\d{1,12})\.[0-9a-f]{64}$/.exec(v);
+    if (!m) return false;
+    if (Math.abs(nowMs - Number(m[1]) * 1000) > OWN_SWEEP_MAX_SKEW_MS) return false;
+    const expect = "v1." + m[1] + "." + (await hmacSha256Hex(env.SWEEP_TOKEN, "hs-own-sweep-v1|" + m[1]));
+    return await ctEqual(v, expect);
+  } catch (_e) { return false; }
+}
+// 0.4.21. 日ごとの掃引の記録 sweep:day:<YYYY-MM-DD>。その日の掃引 (cron 4 回と POST /sweep) を全部、走った順に積む。
+// 書くのは掃引の lease の内側だけなので、読んで足して書く形でも二人が同時に書く事はない。読めなかった日は書き戻さない (1 回分で上書きしない)。
+const SWEEP_DAY_PREFIX = "sweep:day:";
+const SWEEP_DAY_SCHEMA = "hs-sweep-day-v1";
+const SWEEP_DAY_TTL_DAYS = 400;  // /usage の計数と同じ。1 日の記録は数十 KB まで
+const SWEEP_DAY_MAX_RUNS = 64;   // 1 日の積む上限。cron 4 回と手の POST で届かない数。届いたら積まずに sweep:last にそう書く
+// 0.3.0 までの記録: MAX_PER_SWEEP は 9 から 8 に下げた (Free の 50 本の時代)。窓の初回だけ beacon の取得が +4 乗る(tip 2 源 + block 2 源)。
 // 9 のままやと 45+4=49 で余白 1 になり、endpoint が 1 つ余計に redirect しただけで掃引が死ぬ。
 // 溢れた分は skipped に "over MAX_PER_SWEEP" として必ず記録される。黙って切らん。
 // 0.4.0 の足し算: 窓の初回に commitment の filing +2(beacon と同じ日)。外部の行は well-known +1 で 6。
@@ -2984,6 +3053,71 @@ async function readSweepLast(env) {
     return { ran: null, error: "sweep_last_read_failed", read_failed: true, note: "The record of the last sweep could not be read (storage error). This is NOT a statement that no sweep has run. Try again." };
   }
   return { ran: false, note: "No sweep has completed yet. If the cron is registered, the first run happens at 18:00 UTC." };
+}
+
+// 0.4.21. 掃引の並べ方の層。小さい方が先。
+const SWEEP_TIER_RANK = { paid: 0, self: 1, free: 2 };
+
+// 0.4.21. sweep:day:<日> に 1 回分を足す。呼ぶのは掃引の lease の内側だけ。
+// 読めなかった時、形が壊れていた時は書き戻さない (その日の前の回を 1 回分で上書きしない)。何が起きたかを返し、sweep:last に載せる。
+async function appendSweepDay(env, day, run) {
+  if (!env || !env.HS_VERIFY_KV) return { written: false, reason: "storage_not_bound" };
+  const key = SWEEP_DAY_PREFIX + day;
+  let cur;
+  try { cur = await env.HS_VERIFY_KV.get(key, "json"); }
+  catch (_e) { return { written: false, reason: "read_failed", key, note: "The day's record could not be read (storage error), so this run was not added and the record was not rewritten. GET /sweep/day may then miss this run; it never shows it as measured by mistake." }; }
+  if (cur && !Array.isArray(cur.runs)) return { written: false, reason: "malformed", key, note: "The day's record is not in the expected shape, so it was left as it is." };
+  const doc = cur || { schema: SWEEP_DAY_SCHEMA, day, runs: [] };
+  if (doc.runs.length >= SWEEP_DAY_MAX_RUNS) return { written: false, reason: "run_cap", key, runs: doc.runs.length, note: "The day already holds " + SWEEP_DAY_MAX_RUNS + " runs; this one was not added." };
+  doc.runs.push(run);
+  try { await env.HS_VERIFY_KV.put(key, JSON.stringify(doc), { expirationTtl: 60 * 60 * 24 * SWEEP_DAY_TTL_DAYS }); }
+  catch (_e) { return { written: false, reason: "write_failed", key }; }
+  return { written: true, key, runs: doc.runs.length };
+}
+
+// 0.4.21. GET /sweep/day?day=YYYY-MM-DD。その日の回を全部と、due の行が全部測られたか (complete) と、測られていない行 (missing)。
+// complete は「その日の回の記録が 1 件以上あり、どの回も登録簿を読めていて、due の行が全部、測られたか、断られた (excused) か」。
+// 測られたの根拠は、どれかの回が測った事、または回が「今日もう測ってある」と履歴で確かめた事。
+// 読めなかった時は read_failed で 503。記録が無い日は recorded:false で、complete は false (測ったとは言わない)。
+function summarizeSweepDay(day, doc) {
+  const runs = Array.isArray(doc.runs) ? doc.runs : [];
+  const due = new Map(), measured = new Map(), excusedMap = new Map(), errors = new Map();
+  for (const r of runs) {
+    for (const d of (r.due || [])) if (d && d.endpoint && !due.has(d.endpoint)) due.set(d.endpoint, d.tier || null);
+    for (const m of (r.measured || [])) if (m && m.endpoint) measured.set(m.endpoint, { by: "run at " + r.at, status: m.status || null });
+    for (const a of (r.already_measured_today || [])) if (a && a.endpoint && !measured.has(a.endpoint)) measured.set(a.endpoint, { by: "history (" + (a.at || "today") + ")", status: null });
+    for (const e of (r.excused || [])) if (e && e.endpoint) excusedMap.set(e.endpoint, e.reason_code || "excused");
+    for (const e of (r.errors || [])) if (e && e.endpoint) errors.set(e.endpoint, e.error || "error");
+  }
+  for (const [ep] of excusedMap) if (!due.has(ep)) due.set(ep, null);
+  const missing = [];
+  for (const [ep, tier] of due) {
+    if (measured.has(ep) || excusedMap.has(ep)) continue;
+    missing.push({ endpoint: ep, tier, ...(errors.has(ep) ? { last_error: errors.get(ep) } : {}) });
+  }
+  const registryFailed = runs.some((r) => r && r.registry_read_failed);
+  const complete = runs.length > 0 && !registryFailed && missing.length === 0;
+  return {
+    day, schema: doc.schema || SWEEP_DAY_SCHEMA, recorded: true,
+    complete,
+    run_count: runs.length,
+    due_count: due.size,
+    measured_count: [...due.keys()].filter((ep) => measured.has(ep)).length,
+    excused: [...excusedMap].map(([endpoint, reason_code]) => ({ endpoint, reason_code })),
+    missing,
+    ...(registryFailed ? { registry_read_failed_in_a_run: true } : {}),
+    complete_means: "every row that was due on this UTC day was measured (by a run of the day, or found already measured in its history) or excused (owner declined, quarantined), and every run of the day could read the register. A run whose own record could not be written is not listed here; see that run's day_record in /sweep/last.",
+    runs
+  };
+}
+async function readSweepDay(env, day) {
+  if (!env || !env.HS_VERIFY_KV) return { status: 503, body: { day, error: "storage_unavailable", complete: null, runs: null, note: "Storage is not bound here, so the gate cannot say. This is NOT an empty day." } };
+  let doc;
+  try { doc = await env.HS_VERIFY_KV.get(SWEEP_DAY_PREFIX + day, "json"); }
+  catch (_e) { return { status: 503, body: { day, error: "sweep_day_read_failed", read_failed: true, complete: null, runs: null, note: "The record of this day's sweeps could not be read (storage error). This is a read failure, NOT a statement that no sweep ran. Try again." } }; }
+  if (!doc) return { status: 200, body: { day, recorded: false, complete: false, run_count: 0, runs: [], missing: null, note: "No sweep run is recorded for this UTC day (none ran yet, or the day is older than " + SWEEP_DAY_TTL_DAYS + " days, or before 0.4.21). complete is false because nothing says the day's rows were measured." } };
+  if (!Array.isArray(doc.runs)) return { status: 503, body: { day, error: "sweep_day_malformed", read_failed: true, complete: null, runs: null, note: "The record of this day is not in the expected shape. This is NOT an empty day." } };
+  return { status: 200, body: summarizeSweepDay(day, doc) };
 }
 
 // 公開の登録簿。watchlist と既存の hist:* を読むだけで、何も測らず、何も保存しない。
@@ -3323,6 +3457,7 @@ function openapiDocBase(origin) {
       },
       "/mould": g("Mould records. What class of assumption a fix came from, where the author searched for it, and what they found. A record with an empty search is published as such.", ""),
       "/sweep/last": g("When the last scheduled re-measurement ran, under which coordinate rule, and why", ""),
+      "/sweep/day": g("Every sweep run of one UTC day (query day=YYYY-MM-DD, default today), and whether every row due that day was measured or excused (complete, missing). A failed read is 503, never an empty day", ""),
       "/nenrin/window": g("The instant coordinate's public window: salt commitment at creation, pinned rule, beacon, salt revealed after the window closes (0.3.5), and since 0.4.0 whether the commitment was filed to the ledger witness intake before the window opened", ""),
       "/register/lookup": g("One read before connecting (conduct-v1.1 section 7): status verified / pending / declined / unknown, the last published ring's counts, where the record lives, and what the answer does not establish. Query endpoint=<https MCP endpoint>. Cached 24 hours. No score.", ""),
       "/watchlist": g("Endpoints scheduled for re-measurement", ""),
@@ -3412,6 +3547,7 @@ const OA_OPS = {
   "/health": ["get", "getHealth", "operations", "application/json"],
   "/mould": ["get", "listMouldRecords", "specification", "application/json"],
   "/sweep/last": ["get", "getLastSweep", "operations", "application/json"],
+  "/sweep/day": ["get", "getSweepDay", "operations", "application/json"],
   "/nenrin/window": ["get", "getCoordinateWindow", "operations", "application/json"],
   "/register/lookup": ["get", "lookupEndpoint", "register", "application/json", { parameters: [OA_EP_Q] }],
   "/watchlist": ["get", "listWatchlist", "register", "application/json"],
@@ -4388,13 +4524,18 @@ async function runDailySweep(env, opts) {
 async function runDailySweepUnleased(env, opts) {
   const now = Date.now();
   const force = !!(opts && opts.force);
+  // 0.4.21. その UTC 日。既に測った行を外す判定と、日ごとの記録 sweep:day:<日> の鍵に使う。
+  const today = new Date(now).toISOString().slice(0, 10);
+  const trigger = (opts && opts.trigger) || "unknown";
+  const keyClass = (opts && opts.key_class) || "unknown";
+  const excused = [];
   // 2026-10-13 (#13). One register read for the whole sweep, null when it threw. It used to read as {}: outside rows
   // dropped out silently and quarantined rows could be measured. On null nothing is measured and the record says why.
   const sreg = await readRegistryChecked(env);
   const registryReadFailed = sreg === null;
   const list = await watchlist(env, sreg || {});
-  // 0.4.0. subrequest の予算。掃引の間だけ数える。
-  const budget = Number(env && env.SUBREQUEST_BUDGET) || SUBREQUEST_BUDGET_DEFAULT;
+  // 0.4.0. subrequest の予算。掃引の間だけ数える。0.4.21 から既定の数は sweepBudgetLimit の一か所。
+  const budget = sweepBudgetLimit(env);
   sweepBudget = { used: 0 };
   try {
 
@@ -4423,7 +4564,11 @@ async function runDailySweepUnleased(env, opts) {
     // Which rows are quarantined lives in the register, so without it no row can be measured safely.
     if (registryReadFailed) { skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "the register could not be read (storage error), so whether this row is quarantined is unknown and nothing was measured in this run. Not a finding about the endpoint." }); continue; }
     const qrow = qreg[w.endpoint];
-    if (isQuarantined(qrow)) { skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "quarantined by the operator under TSUGI since " + qrow.quarantined.since + " citing proposal " + String(qrow.quarantined.proposal_sha256).slice(0, 16) + ": not measured and no verdict served while quarantined. A quarantine is a stop, not a finding." }); continue; }
+    if (isQuarantined(qrow)) {
+      skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "quarantined by the operator under TSUGI since " + qrow.quarantined.since + " citing proposal " + String(qrow.quarantined.proposal_sha256).slice(0, 16) + ": not measured and no verdict served while quarantined. A quarantine is a stop, not a finding." });
+      if (force || (await isDueToday(w.endpoint, w.tier, now, coord))) excused.push({ endpoint: w.endpoint, tier: w.tier, reason_code: "quarantined" });
+      continue;
+    }
     if (force || (await isDueToday(w.endpoint, w.tier, now, coord))) due.push(w);
     else skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: cadenceNote });
   }
@@ -4431,28 +4576,54 @@ async function runDailySweepUnleased(env, opts) {
   // MAX_PER_SWEEP=8 を毎日使い切り、外部の行は順番が来ても「over MAX_PER_SWEEP」で永久に落ちる形やった。
   // 0.3.0 で 9 → 8 に下げた日に、無料層の唯一の席が消えとった。測ったことが無い行が最初、次に古い順。
   // 同点は登録簿の並び順。溢れた分は必ず記録する。黙って切ると「全部測った」ように読める。
+  // 0.4.21. 層を先に見る: 有料 (毎日測る約束) → 自前 → 無料。層の中は一番長く測っていない物から。
+  // その UTC 日に既に測った行は外す (force を除く)。同じ相手を 1 日に 2 回叩かない。だから 4 回の cron は前の回の続きから測る。
+  // 履歴が読めなかった行は「いつ測ったか分からない」ので外さずに測る (測り損ねより 1 回多く測る方を選ぶ)。その事は記録に残す。
   const lastAt = new Map();
+  const historyUnreadable = [];
   for (const w of due) {
     let at = "";
     try {
       const h = await readHistory(env, w.endpoint);
+      if (h && h.read_failed) historyUnreadable.push(w.endpoint);
       const es = (h && Array.isArray(h.entries)) ? h.entries : [];
       at = es.length ? String(es[es.length - 1].at || "") : "";
-    } catch (_e) { at = ""; }
+    } catch (_e) { at = ""; historyUnreadable.push(w.endpoint); }
     lastAt.set(w.endpoint, at);
   }
-  due.sort((a, b) => {
+  const alreadyToday = [];
+  const todo = [];
+  for (const w of due) {
+    const at = lastAt.get(w.endpoint) || "";
+    if (!force && at.slice(0, 10) === today) {
+      alreadyToday.push({ endpoint: w.endpoint, tier: w.tier, at });
+      skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "already measured today (" + at + "): a row is measured at most once per UTC day, except by an operator's force sweep, so this run left it alone. Not a capacity skip." });
+      continue;
+    }
+    todo.push(w);
+  }
+  todo.sort((a, b) => {
+    const ra = SWEEP_TIER_RANK[a.tier] ?? 3, rb = SWEEP_TIER_RANK[b.tier] ?? 3;
+    if (ra !== rb) return ra - rb;
     const x = lastAt.get(a.endpoint) || "", y = lastAt.get(b.endpoint) || "";
     return x < y ? -1 : (x > y ? 1 : 0);
   });
-  for (const w of due.slice(MAX_PER_SWEEP)) {
-    skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "over MAX_PER_SWEEP for this run (order is least recently measured first; this endpoint was last measured " + (lastAt.get(w.endpoint) || "never") + ", so it goes first next time)" });
+  for (const w of todo.slice(MAX_PER_SWEEP)) {
+    skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "over MAX_PER_SWEEP (" + MAX_PER_SWEEP + ") for this run (order is paid, then self, then free, and least recently measured first within a tier; this endpoint was last measured " + (lastAt.get(w.endpoint) || "never") + ", so it goes first next time within its tier)" });
   }
-  const run = due.slice(0, MAX_PER_SWEEP);
+  const run = todo.slice(0, MAX_PER_SWEEP);
 
   const results = [];
   let notifiesSent = 0;
+  let wallStopped = false;
   for (const w of run) {
+    // 0.4.21. wall time の上限。Cron の wall time は 15 分。始めて SWEEP_WALL_BUDGET_MS を過ぎたら新しい行を始めず、次の回に回す。
+    const elapsed = Date.now() - now;
+    if (elapsed > SWEEP_WALL_BUDGET_MS) {
+      wallStopped = true;
+      skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "sweep wall time: " + Math.round(elapsed / 1000) + " s had passed before this row, over the " + Math.round(SWEEP_WALL_BUDGET_MS / 1000) + " s this gate allows one run (a Cron run may last 15 minutes). Not measured in this run; the next run of the day takes it" });
+      continue;
+    }
     // 0.4.0. 残りの予算が 1 行分を切ったら測らん。途中で切れた測定を履歴に載せるより、測らんかった事実を書く方が正しい。
     const remaining = budget - sweepBudget.used;
     if (remaining < SUBREQUEST_PER_ENDPOINT) {
@@ -4465,6 +4636,7 @@ async function runDailySweepUnleased(env, opts) {
       // 0.3.1. 所有者が origin の well-known で listing: decline を出しとる行は測らん。断った事実だけ残す。
       if (consent.declined_listing) {
         skipped.push({ endpoint: w.endpoint, tier: w.tier, reason: "owner declined measurement: " + CONSENT_WELL_KNOWN_PATH + " on the origin sets listing to decline. The row stays on the register and says so; nothing was measured and no verdict exists." });
+        excused.push({ endpoint: w.endpoint, tier: w.tier, reason_code: "owner_declined" });
         await markDeclined(env, w.endpoint, true);
         continue;
       }
@@ -4546,7 +4718,16 @@ async function runDailySweepUnleased(env, opts) {
       window: "/nenrin/window"
     } : { derived: false, why: "coordinate() failed before the sweep; legacy schedule; see /nenrin/window" },
     // 0.4.0. この掃引が使った subrequest の数と予算。溢れた行は skipped に "subrequest budget" で載る。
-    subrequests: { used: sweepBudget.used, budget, per_endpoint_reserve: SUBREQUEST_PER_ENDPOINT, note: "Workers Free allows 50 fetches per invocation; an overrun throws mid-measurement. Rows the budget could not cover are in skipped with the reason and go first next time." },
+    subrequests: { used: sweepBudget.used, budget, per_endpoint_reserve: SUBREQUEST_PER_ENDPOINT, note: "The budget is this gate's own cap on fetches in one run (the account is on Workers Paid, whose limit is 10,000 subrequests per invocation, KV calls included). An overrun would abort a measurement half way, so rows the budget could not cover are in skipped with the reason and go first next time." },
+    // 0.4.21. どの回の掃引か (cron か POST /sweep か、どの鍵か。鍵の値は書かない)、並べ方、1 回の上限。
+    trigger,
+    key_class: keyClass,
+    order: "paid, then self, then free; least recently measured first within a tier; rows already measured this UTC day are left alone unless forced",
+    limits: { max_per_sweep: MAX_PER_SWEEP, wall_budget_ms: SWEEP_WALL_BUDGET_MS, runs_per_day: SWEEP_RUNS_PER_DAY, crons: SWEEP_CRONS },
+    already_measured_today: alreadyToday.length,
+    wall_ms: Date.now() - now,
+    ...(wallStopped ? { stopped_by: "wall_time" } : {}),
+    ...(historyUnreadable.length ? { history_unreadable: historyUnreadable } : {}),
     results,
     skipped
   };
@@ -4555,6 +4736,23 @@ async function runDailySweepUnleased(env, opts) {
     out.registry_read_failed = true;
     out.registry_note = "The register could not be read (storage error). Nothing was measured in this run; skipped lists only the rows that do not come from the register (the gate's own list), because the register's rows could not be read. This is not an empty register.";
   }
+  // 0.4.21. 日ごとの記録に、この回を 1 件足す。
+  const capacityCode = (r) => /^over MAX_PER_SWEEP/.test(r) ? "over_max" : (/^subrequest budget/.test(r) ? "subrequest_budget" : (/^sweep wall time/.test(r) ? "wall_time" : null));
+  const dayRun = {
+    at: out.at, finished_at: new Date().toISOString(), trigger, key_class: keyClass, force, ran: true,
+    registry_read_failed: registryReadFailed,
+    coordinate_derived: !!(coord && coord.derived === true),
+    due: due.map((w) => ({ endpoint: w.endpoint, tier: w.tier })),
+    measured: results.filter((r) => !r.error).map((r) => ({ endpoint: r.endpoint, tier: r.tier, status: r.status })),
+    errors: results.filter((r) => r.error).map((r) => ({ endpoint: r.endpoint, tier: r.tier, error: String(r.error).slice(0, 200) })),
+    already_measured_today: alreadyToday,
+    excused,
+    capacity_skipped: skipped.map((s) => ({ endpoint: s.endpoint, tier: s.tier, reason_code: capacityCode(String(s.reason || "")) })).filter((s) => s.reason_code),
+    history_unreadable: historyUnreadable,
+    subrequests: { used: sweepBudget.used, budget },
+    wall_ms: out.wall_ms
+  };
+  out.day_record = await appendSweepDay(env, today, dayRun);
   if (env && env.HS_VERIFY_KV) {
     try { await env.HS_VERIFY_KV.put("sweep:last", JSON.stringify(out)); } catch (_e) {}
   }
@@ -5610,7 +5808,8 @@ export default {
     GATE_CONTEXT = "cron";
     // 2026-10-13 (G4, G5). The lease is taken inside runDailySweep; when the operator's sweep holds it the cron skips
     // (ran false, sweep_in_progress) and writes nothing. Logged so the skip is visible in the Worker logs.
-    ctx.waitUntil(runDailySweep(env, { holder: "cron" }).then((r) => { if (r && r.ran === false) console.log("sweep skipped: " + JSON.stringify(r).slice(0, 300)); }).catch(() => {}));
+    // 0.4.21. cron は 4 回 (SWEEP_CRONS)。どの回も同じ掃引で、その日に既に測った行は外すので、前の回の続きから測る。
+    ctx.waitUntil(runDailySweep(env, { holder: "cron", trigger: "cron", key_class: "cron" }).then((r) => { if (r && r.ran === false) console.log("sweep skipped: " + JSON.stringify(r).slice(0, 300)); }).catch(() => {}));
     ctx.waitUntil(netFreeze(env, netDay(Date.now() - 86400000)).catch(() => {}));
   },
 
@@ -5956,8 +6155,10 @@ export default {
       if (Array.isArray(body)) {
         return json({ jsonrpc: "2.0", id: null, error: { code: -32600, message: "batch not supported" } }, 400);
       }
-      if (body && body.method === "tools/call" && body.params && body.params.name === "check_conformance") noteRequesterNetwork(env, ctx, request, "mcp");
-      if (body && body.method === "tools/call" && body.params) {
+      // 0.4.21. 自分の掃引が扉自身を測った呼び出し (印 x-hs-own-sweep が鍵で確かめられた物) は /usage に数えない。
+      const ownSweepCall = !!(body && body.method === "tools/call" && request.headers.get(OWN_SWEEP_HEADER) && await isOwnSweepRequest(request, env, Date.now()));
+      if (!ownSweepCall && body && body.method === "tools/call" && body.params && body.params.name === "check_conformance") noteRequesterNetwork(env, ctx, request, "mcp");
+      if (!ownSweepCall && body && body.method === "tools/call" && body.params) {
         const _tn = typeof body.params.name === "string" && MCP_TOOLS.some((t) => t.name === body.params.name) ? body.params.name : "unknown_tool";
         const _a = (body.params.arguments && typeof body.params.arguments === "object") ? body.params.arguments : {};
         const _u = [_a.endpoint, _a.url, _a.server_url, _a.server, _a.endpoint_url, _a.agent].find((x) => typeof x === "string" && x);
@@ -6058,6 +6259,14 @@ export default {
     }
     if (path === "/changes") { const ch = await readChanges(env); return json(ch, ch && ch.read_failed ? 503 : undefined); }
     if (path === "/sweep/last") { const sl = await readSweepLast(env); return json(sl, sl && sl.read_failed ? 503 : undefined); }
+    if (path === "/sweep/day" && request.method === "GET") {
+      const dq = url.searchParams.get("day") || new Date().toISOString().slice(0, 10);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dq) || isNaN(Date.parse(dq + "T00:00:00Z")) || new Date(dq + "T00:00:00Z").toISOString().slice(0, 10) !== dq) {
+        return json({ error: "day_must_be_YYYY-MM-DD", usage: "/sweep/day?day=2026-10-28 (a UTC day; omitted, today)" }, 400);
+      }
+      const sd = await readSweepDay(env, dq);
+      return json(sd.body, sd.status);
+    }
 
     // 0.3.5. 窓の公開面。commitment は作った瞬間から、salt は窓が閉じてから、固定した規則と beacon はいつでも。
     if (path === "/nenrin/window" || /^\/nenrin\/window\/w\d+$/.test(path)) {
@@ -6271,6 +6480,20 @@ export default {
         }
       }
       const tier = admin && body.tier === "paid" ? "paid" : ((prev && prev.tier === "paid") ? "paid" : "free");
+      // 0.4.21. 有料の行は毎日測る約束。毎日測れる数 (paidCapacity) を超える有料の行は受けない (409)。既に有料の行の更新は通す。
+      if (tier === "paid" && !(prev && prev.tier === "paid")) {
+        const fullReg = await readRegistryForWrite(env);
+        if (!fullReg) return json(REGISTRY_READ_FAILED, 503);
+        const wl = await watchlist(env, fullReg, true);
+        if (!wl) return json(REGISTRY_READ_FAILED, 503);
+        const others = wl.filter((w) => w.endpoint !== ep);
+        const paidRows = others.filter((w) => w.tier === "paid").length;
+        const cap = paidCapacity(env, others.filter((w) => w.tier === "self").length, others.filter((w) => w.tier === "free").length);
+        if (paidRows + 1 > cap.capacity) {
+          return json({ error: "paid_capacity_full", endpoint: ep, paid_rows: paidRows, ...cap,
+            note: "A paid row is measured every day. This gate can measure " + cap.capacity + " paid rows a day next to its own and the free rows, and " + paidRows + " are registered, so another paid row would not be measured daily. Nothing was written." }, 409);
+        }
+      }
       // 0.3.1. 誰が乗せたかを刻む。依頼者の申告は所有の証明にならんので、operator か anonymous の二値。
       // 乗せた時点の origin の well-known の状態も刻む(consent / decline / present / absent)。
       // 2026-09-04 に同意を断った翌日、その扉が匿名の依頼で列に入った。設計の芯(誰でも乗せられる)は残し、
@@ -6390,16 +6613,27 @@ export default {
       });
     }
     if (path === "/sweep" && request.method === "POST") {
-      if (!env || !env.SWEEP_TOKEN) {
+      // 0.4.21. 鍵は 2 本。SWEEP_TOKEN (運営の鍵、何でもできる) と SWEEP_ONLY_TOKEN (掃引を頼むだけの鍵)。
+      // SWEEP_ONLY_TOKEN が通るのはこの口だけで、force も付けられない (全行を測り直すのは運営の判断)。どちらの鍵で来たかを記録に書く (値は書かない)。
+      // 両方を毎回同じ手順で比べる (どちらが合ったかで時間が変わらないように。無い鍵は毎回作る乱数と比べる)。
+      const hasOp = !!(env && env.SWEEP_TOKEN), hasSweepOnly = !!(env && env.SWEEP_ONLY_TOKEN);
+      if (!hasOp && !hasSweepOnly) {
         return json({ error: "sweep_token_not_configured" }, 503);
       }
-      if (!(await ctEqual(request.headers.get("x-sweep-token") || "", env.SWEEP_TOKEN))) {
+      const given = request.headers.get("x-sweep-token") || "";
+      const isOp = await ctEqual(given, hasOp ? env.SWEEP_TOKEN : crypto.randomUUID());
+      const isSweepOnly = await ctEqual(given, hasSweepOnly ? env.SWEEP_ONLY_TOKEN : crypto.randomUUID());
+      if (!(hasOp && isOp) && !(hasSweepOnly && isSweepOnly)) {
         return json({ error: "forbidden" }, 403);
       }
+      const keyClass = (hasOp && isOp) ? "operator" : "sweep_only";
       let force = false;
       try { const b = await request.json(); force = !!(b && b.force); } catch (_e) {}
+      if (force && keyClass !== "operator") {
+        return json({ error: "force_needs_operator_key", note: "The sweep-only key can ask for the normal sweep (rows due today and not yet measured today). force re-measures every row and needs the operator key." }, 403);
+      }
       // 2026-10-13 (G4, G5). busy is 409, a lease failure 503; both ran nothing and wrote nothing.
-      const sw = await runDailySweep(env, { force: force, holder: "operator POST /sweep" });
+      const sw = await runDailySweep(env, { force: force, holder: keyClass === "operator" ? "operator POST /sweep" : "sweep-only key POST /sweep", trigger: "post", key_class: keyClass });
       if (sw && sw.ran === false && sw.error === SWEEP_IN_PROGRESS) return json(sw, 409);
       if (sw && sw.ran === false && sw.error === SWEEP_LEASE_UNAVAILABLE) return json(sw, 503);
       return json(sw);
@@ -6666,7 +6900,7 @@ export default {
       });
     }
 
-    return json({ error: "not_found", path, endpoints: ["/mcp", "/a2a", "/.well-known/agent-card.json", "/.well-known/agent-card-signatures.json", "/.well-known/jwks.json", "/.well-known/key-history.json", "/check", "/is-verified", "/record/<record_sha256>", "/register/lookup", "/spec", "/ext/conduct/v1", "/ext/legal-entity/v1", "/self", "/history", "/changes", "/watchlist", "/watch", "/sweep", "/sweep/last", "/nenrin/window", "/health"] }, 404);
+    return json({ error: "not_found", path, endpoints: ["/mcp", "/a2a", "/.well-known/agent-card.json", "/.well-known/agent-card-signatures.json", "/.well-known/jwks.json", "/.well-known/key-history.json", "/check", "/is-verified", "/record/<record_sha256>", "/register/lookup", "/spec", "/ext/conduct/v1", "/ext/legal-entity/v1", "/self", "/history", "/changes", "/watchlist", "/watch", "/sweep", "/sweep/last", "/sweep/day", "/nenrin/window", "/health"] }, 404);
   }
 };
 
@@ -6674,4 +6908,5 @@ export default {
 // 0.4.1 test hooks (no behaviour). Tests recompute the served bytes and compare to the path.
 export const _numberSafety = { scanNumbers, numberSafety, IJSON_MAX_SAFE };
 export const _surface = { surfaceHashes, surfaceChange, SURFACE_EXTRAS_COVERS };
+export const _sweepStage2 = { SWEEP_CRONS, SWEEP_RUNS_PER_DAY, MAX_PER_SWEEP, SUBREQUEST_BUDGET_DEFAULT, SUBREQUEST_PER_ENDPOINT, SUBREQUEST_WINDOW_OVERHEAD, SWEEP_WALL_BUDGET_MS, PAID_SPARE_RUNS, FREE_DAY_PEAK_FACTOR, OWN_SWEEP_HEADER, paidCapacity, sweepSeatsPerRun, ownSweepMark, isOwnSweepRequest, summarizeSweepDay, SWEEP_DAY_PREFIX };
 export const _recordBytes = { canonicalOf, storeRecordBytes, readRecordBytes, recordBytesUrl, RECORD_KEY_PREFIX, RECORD_BYTES_SINCE };

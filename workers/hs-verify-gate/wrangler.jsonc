@@ -19,8 +19,12 @@
   "compatibility_date": "2024-01-01",
 
   // 毎日の再測定。UTC 18:00 = JST 翌03:00。負荷の薄い時間に置く。
+  // 0.4.21 (2026-10-23). 1 時間おきに 4 回 (18:00, 19:00, 20:00, 21:00 UTC = JST 03:00〜06:00)。どの回も同じ掃引で、
+  // その UTC 日に既に測った行は外すので、2 回目からは前の回の続きを測る。間隔を 1 時間以上にしたのは、Workers Paid の Cron の
+  // CPU 上限が、間隔 1 時間以上の予定で 15 分、1 時間未満で 30 秒だから (https://developers.cloudflare.com/workers/platform/limits/)。
+  // src/worker.js の SWEEP_CRONS と同じ並びでなければならない (test/sweep_stage2.test.mjs が縛る)。
   "triggers": {
-    "crons": ["0 18 * * *"]
+    "crons": ["0 18 * * *", "0 19 * * *", "0 20 * * *", "0 21 * * *"]
   },
 
   "kv_namespaces": [

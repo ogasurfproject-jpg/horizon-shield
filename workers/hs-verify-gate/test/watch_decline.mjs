@@ -67,12 +67,14 @@ t("attack", "re-watching by the operator does not rewrite who asked first", w1b.
 
 // --- starvation: eight daily self endpoints must not consume every slot forever ---
 const sw0 = await (await post("/sweep", { force: true }, { "x-sweep-token": "redteam-sweep-token" })).json();
+// 0.4.21: 席は 40 なので、この 13 行 (自前 9、登録 4) は溢れない。溢れた時の順番 (有料 → 自前 → 無料、層の中は古い順) と、溢れた無料の行が
+// 次の回で測られる事 (同じ日に測った行を外すので飢えない) は test/sweep_stage2.test.mjs が予算を絞って確かめる。ここでは並びだけを見る。
 const over0 = (sw0.skipped || []).filter((x) => /over MAX_PER_SWEEP/.test(x.reason));
-t("control", "first sweep on an empty history: ties keep register order, the overflow is recorded, never silent", over0.length >= 1 && /never/.test(over0[0].reason), JSON.stringify(over0.map((x) => x.endpoint)));
+t("control", "first sweep on an empty history: with 40 seats nothing overflows, and every row is measured or named in skipped, never silent", over0.length === 0 && (sw0.results || []).length + (sw0.skipped || []).length === sw0.watched_total, JSON.stringify([over0.length, (sw0.results || []).length, (sw0.skipped || []).length, sw0.watched_total]));
 const sw = await (await post("/sweep", { force: true }, { "x-sweep-token": "redteam-sweep-token" })).json();
 const measured = new Set((sw.results || []).map((r) => r.endpoint));
-const over1 = (sw.skipped || []).filter((x) => /over MAX_PER_SWEEP/.test(x.reason)).map((x) => x.endpoint);
-t("attack", "second sweep: never-measured rows go first; the rows that overflow are the ones measured most recently, not the newcomers", over1.length >= 1 && over1.every((e) => /horizonshield\.dev/.test(e)) && !over1.some((e) => /redteam\.invalid/.test(e)), JSON.stringify(over1));
+const order1 = (sw.results || []).map((r) => r.tier);
+t("attack", "second sweep: the order is self before free (0.4.21: paid, then self, then free); no free row is measured ahead of a self row", order1.length >= 2 && order1.lastIndexOf("self") < order1.indexOf("free"), JSON.stringify(order1));
 const skippedDeclined = (sw.skipped || []).filter((s) => /owner declined/.test(s.reason)).map((s) => s.endpoint);
 t("control", "the sweep does not measure the declined endpoint", !measured.has("https://declined.redteam.invalid/mcp"), [...measured].join(","));
 t("control", "the sweep names the declined endpoint in skipped with the reason", skippedDeclined.includes("https://declined.redteam.invalid/mcp"), JSON.stringify(skippedDeclined));

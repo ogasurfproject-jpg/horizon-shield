@@ -274,8 +274,8 @@ const strList = (x) => Array.isArray(x) && x.length > 0 && x.every((s) => typeof
   const { post: p3, sweep: sw3 } = freshEnv();
   await p3("/watch", { endpoint: EP });
   const s3 = await sw3();
-  t("control", "with the default budget (50) the sweep reports subrequests used and budget, and nothing is skipped for budget",
-    s3.subrequests && s3.subrequests.budget === 50 && s3.subrequests.used < 50 && !s3.skipped.some((x) => /subrequest budget/.test(x.reason)), JSON.stringify(s3.subrequests));
+  t("control", "with the default budget (0.4.21: 1000, Workers Paid) the sweep reports subrequests used and budget, and nothing is skipped for budget",
+    s3.subrequests && s3.subrequests.budget === 1000 && s3.subrequests.used < 1000 && !s3.skipped.some((x) => /subrequest budget/.test(x.reason)), JSON.stringify(s3.subrequests));
   const one = await (await p3("/check", { endpoint: EP })).json();
   t("control", "a /check outside a sweep counts nothing (the budget is sweep-scoped) and still measures", one.status && !("subrequests" in one), JSON.stringify(one.status));
 }
@@ -287,8 +287,7 @@ const strList = (x) => Array.isArray(x) && x.length > 0 && x.every((s) => typeof
   await post("/watch", { endpoint: EP_NOTIFY });
   await post("/watch", { endpoint: EP_BADNOTIFY });
   NOTIFY_LOG.length = 0;
-  await sweep();   // 自前 8 行で枠が埋まる。新入りは 2 回目。
-  const s = await sweep();
+  const s = await sweep();   // 0.4.21: 席は 40。自前 9 行と新入りが 1 回目で測られる (0.4.20 までは自前 8 行で枠が埋まり、新入りは 2 回目だった)。
   const rowN = s.results.find((r) => r.endpoint === EP_NOTIFY);
   const rowB = s.results.find((r) => r.endpoint === EP_BADNOTIFY);
   t("control", "after a scheduled measurement the gate POSTs once to the notify URL the owner placed in the consent file, and the sweep row records notify_status sent with the status code",
