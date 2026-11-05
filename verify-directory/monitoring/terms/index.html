@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitoring Terms of Service / HORIZON SHIELD Verification Directory</title>
+<meta name="description" content="Terms of Service for the paid HORIZON SHIELD monitoring plans for MCP and A2A endpoints: who may buy, what is measured, public records, billing in US dollars through PayPal, cancellation and refunds. Version 1.0, effective 2026-11-06.">
+<link rel="canonical" href="https://shield.the-horizons-innovation.com/verify-directory/monitoring/terms/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://shield.the-horizons-innovation.com/verify-directory/monitoring/terms/">
+<meta property="og:site_name" content="HORIZON SHIELD">
+<meta property="og:title" content="Monitoring Terms of Service / HORIZON SHIELD Verification Directory">
+<meta property="og:description" content="Terms of Service for the paid HORIZON SHIELD monitoring plans for MCP and A2A endpoints: who may buy, what is measured, public records, billing in US dollars through PayPal, cancellation and refunds. Version 1.0, effective 2026-11-06.">
+<style>
+  :root{
+    --bg:#ffffff;--ink:#111114;--ink-2:#3c3c44;--ink-3:#6b6b75;--line:#d8d8de;--accent:#047857;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:'Inter','Noto Sans JP',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65;letter-spacing:-.006em;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere}
+  .wrap{max-width:780px;margin:0 auto;padding:0 22px}
+  header{border-bottom:1px solid var(--line)}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 18px;min-height:56px;font-size:13px}
+  header .brand{font-weight:700;letter-spacing:-.02em}
+  header .brand span{color:var(--ink-3);font-family:var(--mono);font-weight:400}
+  header nav a{color:var(--ink-2);text-decoration:none;margin-left:18px}
+  header nav a:first-child{margin-left:0}
+  header nav a:hover{color:var(--ink)}
+  main{padding:52px 0 40px}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--accent);text-transform:uppercase}
+  h1{font-size:clamp(26px,4.4vw,38px);line-height:1.12;font-weight:800;letter-spacing:-.03em;margin:12px 0 14px}
+  h2{font-size:18px;font-weight:700;letter-spacing:-.015em;margin:34px 0 10px;padding-top:22px;border-top:1px solid var(--line)}
+  p,li{font-size:15px;color:var(--ink-2)}
+  p + p{margin-top:10px}
+  main > p:first-of-type{font-family:var(--mono);font-size:12.5px;color:var(--ink-3)}
+  ul{margin:8px 0 0 20px}
+  ul ul{margin-top:4px}
+  li{margin:4px 0}
+  footer{border-top:1px solid var(--line);padding:30px 0 70px;font-size:12.5px;color:var(--ink-3);line-height:1.9}
+  footer a{color:var(--ink-2)}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <div class="brand">HORIZON SHIELD <span>/ monitoring / terms</span></div>
+  <nav>
+    <a href="/verify-directory/">Directory</a>
+    <a href="/verify-directory/monitoring/">Monitoring</a>
+    <a href="/verify-directory/monitoring/terms/">Terms</a>
+    <a href="/verify-directory/monitoring/refunds/">Refunds</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+<main id="doc">
+<div class="kicker">HORIZON SHIELD / Monitoring</div>
+<h1>HORIZON SHIELD Monitoring: Terms of Service</h1>
+<p>Version 1.0. Effective 2026-11-06.</p>
+<p>Operator: The HORIZONs Co., Ltd., Win Aoyama 942, 2-2-15 Minami-Aoyama, Minato-ku, Tokyo 107-0062, Japan. Contact: <a href="mailto:contact@the-horizons-innovation.com">contact@the-horizons-innovation.com</a></p>
+<p>These terms apply to the paid monitoring plans for MCP and A2A endpoints offered through gate.horizonshield.dev ("Monitoring"). The free checks, the verdicts and the public records are not what you buy. They stay free and public for everyone.</p>
+<h2>1. Who may buy</h2>
+<p>Monitoring is offered to businesses and other organizations, for business use. It is not offered to consumers. By subscribing, you confirm that you act for a business and may accept these terms for it.</p>
+<h2>2. What Monitoring is</h2>
+<ul>
+  <li>Each endpoint you register is measured once a day against the published conditions of the verification gate, as listed on the monitoring page and returned by the gate's get_conditions tool.</li>
+  <li>When a condition changes state, we send an alert to the webhook URL or email address you gave us, stating which condition changed and why. We aim to send it within one hour of the measurement. An endpoint is reported as unreachable only after three consecutive failed measurements.</li>
+  <li>Each measurement produces a public record. Records are batched into the NENRIN ledger and timestamped in Bitcoin through OpenTimestamps.</li>
+  <li>Plans:
+    <ul>
+      <li>Standard: up to 3 endpoints, USD 149 per month or USD 1,490 per year.</li>
+      <li>Pro: up to 10 endpoints, USD 490 per month or USD 4,900 per year.</li>
+      <li>The price shown on <a href="/verify-directory/monitoring/">https://shield.the-horizons-innovation.com/verify-directory/monitoring/</a> when you subscribe applies.</li>
+    </ul>
+  </li>
+</ul>
+<h2>3. What Monitoring is not</h2>
+<p>A measurement records how an endpoint answered at a point in time against stated conditions. It is not a security audit, a penetration test, a certification, or a promise that an endpoint is safe, lawful or fit for any purpose. A signature shows who published a record, and a timestamp shows that it existed by a given time. Neither shows that the subject of the record can be trusted. You remain responsible for your own systems and for the decisions you make with the records.</p>
+<h2>4. Your endpoints</h2>
+<ul>
+  <li>Register only endpoints that you operate, or that you have permission to have measured. You confirm this for each endpoint you register.</li>
+  <li>Our measurements read only. We fetch public metadata and, only where you allow it, request the tool list. We use no credentials, and we send no more than a few requests per endpoint per day.</li>
+  <li>You may change your registered endpoints at any time by email, within the limit of your plan.</li>
+</ul>
+<h2>5. Public records</h2>
+<p>Records that anyone can recompute are the point of the service. By registering an endpoint, you agree that its measurement records are published and kept in the public ledger. A record holds the endpoint URL, the verdict, the conditions measured and the hash of the record.</p>
+<p>Once a record has been batched and timestamped, it cannot be changed or removed, because removing it would break the ledger for everyone who relies on it. When you cancel, we stop measuring. We do not delete past records. Do not register an endpoint whose URL must stay confidential.</p>
+<p>Your webhook URL, your contact details and your billing details are never published.</p>
+<h2>6. Billing and renewal</h2>
+<ul>
+  <li>Monthly and yearly plans are subscriptions, billed in advance through PayPal. They renew automatically at the end of each period, at the price then in force, until you cancel.</li>
+  <li>Prices are in US dollars.</li>
+  <li>If you are located outside Japan, Japanese consumption tax is not charged. You are responsible for any VAT, GST or similar tax in your country, including under a reverse charge. If you are located in Japan, Japanese consumption tax is added at the statutory rate.</li>
+  <li>If a law requires you to withhold tax from a payment, tell us before you pay, so that we can provide the documents your tax authority needs.</li>
+  <li>We give at least 30 days' notice by email before a price change. The new price applies from your first renewal after that notice.</li>
+  <li>PayPal processes payments under its own terms. We do not receive or store your card or bank account numbers.</li>
+</ul>
+<h2>7. Cancellation</h2>
+<p>You may cancel at any time, either in your PayPal account (Settings, Payments, Manage automatic payments) or by emailing us. Cancelling stops the next renewal. Monitoring continues until the end of the period you have paid for. Refunds are set out in the Refund Policy (<a href="/verify-directory/monitoring/refunds/">https://shield.the-horizons-innovation.com/verify-directory/monitoring/refunds/</a>), which is part of these terms.</p>
+<h2>8. Microsoft Marketplace</h2>
+<p>If you buy Monitoring through Microsoft Marketplace, billing, renewal, cancellation and refunds are handled by Microsoft under the Marketplace terms you accept there. These terms apply to the service itself, to the extent they do not conflict with that contract.</p>
+<h2>9. Availability and changes</h2>
+<p>We run Monitoring with reasonable care, but we do not promise uninterrupted service. If a day's measurement is missed, the public record shows it as missing, never as a pass. We may change the conditions or the service. If a change materially reduces what you bought, you may cancel and receive a pro rata refund for the unused part of the period.</p>
+<h2>10. Suspension and termination</h2>
+<p>We may suspend or end Monitoring for an account that registers endpoints without permission, uses the service to harm others, does not pay, or breaks the law. If we end a subscription for any other reason, we refund the unused part of the period pro rata.</p>
+<h2>11. Sanctions</h2>
+<p>You confirm that you are not located in, and do not act for a person located in, a country or region subject to comprehensive sanctions under the rules of Japan, the United States, the European Union or the United Nations, and that you are not named on a sanctions list.</p>
+<h2>12. Liability</h2>
+<p>To the extent the law allows:</p>
+<ul>
+  <li>we are not liable for indirect, incidental, special or consequential damages, or for lost profits, revenue or data;</li>
+  <li>our total liability for all claims relating to Monitoring is limited to the fees you paid for Monitoring in the 12 months before the claim.</li>
+</ul>
+<p>These limits do not apply to fraud, wilful misconduct or gross negligence, or where the law does not allow them.</p>
+<h2>13. Personal data</h2>
+<p>We use contact names, email addresses and webhook URLs only to run Monitoring, to send alerts and invoices, and to contact you about your subscription. We do not sell them. See the privacy policy: <a href="/verify-directory/privacy/">https://shield.the-horizons-innovation.com/verify-directory/privacy/</a></p>
+<h2>14. Governing law and disputes</h2>
+<p>These terms are governed by the laws of Japan. Before making a claim, please email us and allow 30 days for us to resolve it. The Tokyo District Court has exclusive jurisdiction in the first instance.</p>
+<h2>15. Changes to these terms</h2>
+<p>We may update these terms by publishing a new version with a new effective date. A new version applies from your next renewal. If you do not agree with it, you may cancel before that renewal.</p>
+<h2>16. Language</h2>
+<p>These terms are written in English. If a translation differs, the English text applies.</p>
+</main>
+
+<footer>
+  Operator: The HORIZONs Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>).<br>
+  <a href="/verify-directory/monitoring/">Monitoring</a> &middot; <a href="/verify-directory/monitoring/terms/">Monitoring Terms</a> &middot; <a href="/verify-directory/monitoring/refunds/">Refund Policy</a> &middot; <a href="/verify-directory/privacy/">Privacy</a> &middot; <a href="/tokusho/">Legal notice</a><br>
+  &copy; 2026 The HORIZONs Co., Ltd. &middot; HORIZON SHIELD
+</footer>
+</div>
+
+</body>
+</html>

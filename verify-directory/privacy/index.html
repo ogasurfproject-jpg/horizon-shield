@@ -35,7 +35,7 @@ a{color:var(--accent)}
   <div class="brand">HORIZON SHIELD</div>
   <h1>Privacy Policy</h1>
   <div class="sub">WEDJAT (also submitted as MCP Conduct Register) · a read only MCP and A2A conduct checker</div>
-  <div class="meta">Effective date: 2026-08-29 · Version 1.0 · Operator: The HORIZONs Co., Ltd. (The HORIZ音s株式会社), supervised by Toshikatsu Oga</div>
+  <div class="meta">Effective date: 2026-11-06 · Version 1.1 (version 1.0: 2026-08-29) · Operator: The HORIZONs Co., Ltd. (The HORIZ音s株式会社), supervised by Toshikatsu Oga</div>
 
   <div class="langbar">
     <button id="btn-en" class="on" onclick="setLang('en')">English</button>
@@ -45,7 +45,7 @@ a{color:var(--accent)}
   <!-- ================= ENGLISH ================= -->
   <section id="en" class="lang on">
     <div class="card">
-      <strong>In one line:</strong> WEDJAT is a free, read only checker for MCP and A2A servers. It holds no user accounts, requires no API keys, charges no fees, and stores no personal or health data about the people who use it. What it records is measurements of the public server endpoints it checks, published so that anyone can recompute them.
+      <strong>In one line:</strong> WEDJAT is a free, read only checker for MCP and A2A servers. It holds no user accounts, requires no API keys, charges no fees, and stores no personal or health data about the people who use it. What it records is measurements of the public server endpoints it checks, published so that anyone can recompute them. Customers of the paid monitoring plans: see section 8.
     </div>
 
     <h2>1. What data we collect</h2>
@@ -58,7 +58,7 @@ a{color:var(--accent)}
     <h3>b. What is generated automatically</h3>
     <ul>
       <li><strong>Standard request logs.</strong> Like any web service, our infrastructure (Cloudflare) processes the requesting IP address, timestamp, and user agent for the limited purposes of security, abuse prevention, and rate limiting.</li>
-      <li><strong>Measurement records.</strong> The result of a check (the verdict, the conditions measured, and a SHA-256 hash of the canonical record) is written to a public ledger so that the result can be independently recomputed. These records describe the checked server, not the person who requested the check.</li>
+      <li><strong>Measurement records.</strong> The result of a check (the verdict, the conditions measured, and a SHA-256 hash of the canonical record) is written to a public ledger so that anyone can recompute the result. These records describe the checked server, not the person who requested the check.</li>
     </ul>
     <p class="soft">We do not collect health data, we do not run diagnosis, we do not build profiles of users, and we do not accept any personal symptom or medical input.</p>
 
@@ -104,10 +104,29 @@ a{color:var(--accent)}
     <h2>7. Children</h2>
     <p>WEDJAT is a technical tool for verifying software servers and is not directed to children.</p>
 
-    <h2>8. Changes to this policy</h2>
+    <h2>8. Monitoring customers</h2>
+    <p>This section applies only to businesses that subscribe to a paid monitoring plan (<a href="/verify-directory/monitoring/">Monitoring</a>). Sections 1 to 7 describe the free checker, which is unchanged.</p>
+    <h3>a. What we collect</h3>
+    <ul>
+      <li><strong>The name of your contact person.</strong></li>
+      <li><strong>An email address</strong> for alerts, invoices and messages about your subscription.</li>
+      <li><strong>A webhook URL</strong>, if you give us one for alerts.</li>
+      <li><strong>The PayPal transaction ID</strong> of each payment.</li>
+    </ul>
+    <h3>b. How we use it</h3>
+    <p>Only to run the monitoring you subscribed to, to send alerts, to bill you, and to contact you about your subscription.</p>
+    <h3>c. What we do not do</h3>
+    <ul>
+      <li>We do not sell these details.</li>
+      <li>We do not publish them. They never appear in the public measurement records or in the ledger.</li>
+      <li>Payments are handled by PayPal under its own privacy policy. We do not receive your card or bank account numbers.</li>
+    </ul>
+    <p>The endpoints you register are measured, and their measurement records are public, as set out in the <a href="/verify-directory/monitoring/terms/">Monitoring Terms</a>. Questions about these details: <a href="mailto:contact@the-horizons-innovation.com">contact@the-horizons-innovation.com</a>.</p>
+
+    <h2>9. Changes to this policy</h2>
     <p>If this policy changes, we will update the version and effective date at the top of this page.</p>
 
-    <h2>9. Contact</h2>
+    <h2>10. Contact</h2>
     <div class="card">
       The HORIZONs Co., Ltd. (The HORIZ音s株式会社)<br>
       Supervisor: Toshikatsu Oga<br>
@@ -119,7 +138,7 @@ a{color:var(--accent)}
   <!-- ================= 日本語 ================= -->
   <section id="ja" class="lang">
     <div class="card">
-      <strong>一言で:</strong> WEDJAT は MCP／A2A サーバーを検証する、無料・読み取り専用のチェッカーです。利用者のアカウントを持たず、APIキーを要求せず、料金を取らず、利用する人の個人情報や健康情報を一切保存しません。記録するのは「検証した公開サーバーのエンドポイントの測定結果」だけで、誰でも再計算できる形で公開します。
+      <strong>一言で:</strong> WEDJAT は MCP／A2A サーバーを検証する、無料・読み取り専用のチェッカーです。利用者のアカウントを持たず、APIキーを要求せず、料金を取らず、利用する人の個人情報や健康情報を一切保存しません。記録するのは「検証した公開サーバーのエンドポイントの測定結果」だけで、誰でも再計算できる形で公開します。有料の監視プランの顧客については 8 節を見てください。
     </div>
 
     <h2>1. 収集するデータ</h2>
@@ -178,10 +197,29 @@ a{color:var(--accent)}
     <h2>7. 子どもについて</h2>
     <p>WEDJAT はソフトウェアのサーバーを検証する技術ツールであり、子どもを対象としていません。</p>
 
-    <h2>8. 本ポリシーの変更</h2>
+    <h2>8. 監視の有料プランの顧客</h2>
+    <p>この節は、有料の監視プラン(<a href="/verify-directory/monitoring/">Monitoring</a>)を契約する事業者だけに当てはまります。1〜7 節は無料のチェッカーについての記述で、変わりません。</p>
+    <h3>a. 集めるもの</h3>
+    <ul>
+      <li><strong>担当者の名前。</strong></li>
+      <li><strong>メールアドレス。</strong> 通知、請求書、契約についての連絡に使います。</li>
+      <li><strong>webhook の URL。</strong> 通知の送り先として渡された場合だけ。</li>
+      <li><strong>PayPal の取引 ID。</strong> 支払いごと。</li>
+    </ul>
+    <h3>b. 使い道</h3>
+    <p>契約した監視の実行、通知、請求、契約についての連絡だけに使います。</p>
+    <h3>c. しないこと</h3>
+    <ul>
+      <li>これらの情報を売りません。</li>
+      <li>公開しません。公開の測定記録にも台帳にも載りません。</li>
+      <li>支払いは PayPal が PayPal のプライバシー方針のもとで扱います。当社はカードや銀行口座の番号を受け取りません。</li>
+    </ul>
+    <p>登録したエンドポイントは測定され、その測定記録は <a href="/verify-directory/monitoring/terms/">Monitoring Terms</a>(英語)のとおり公開されます。これらの情報についての問い合わせ: <a href="mailto:contact@the-horizons-innovation.com">contact@the-horizons-innovation.com</a></p>
+
+    <h2>9. 本ポリシーの変更</h2>
     <p>本ポリシーを変更する場合、本ページ上部のバージョンと発効日を更新します。</p>
 
-    <h2>9. 連絡先</h2>
+    <h2>10. 連絡先</h2>
     <div class="card">
       The HORIZ音s株式会社（The HORIZONs Co., Ltd.）<br>
       監修: 大賀 俊勝<br>

@@ -65,9 +65,9 @@
   .card ul{list-style:none;font-size:13.5px;color:var(--ink-2)}
   .card li{padding:5px 0 5px 20px;position:relative}
   .card li::before{content:"+";position:absolute;left:0;color:var(--emerald);font-weight:800}
-  .buy{margin-top:18px;min-height:44px}
-  .pending{border:1px dashed var(--line-2);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--ink-2)}
-  .pending b{color:var(--amber)}
+  .buy{margin-top:10px;min-height:44px}
+  .agree{margin-top:16px;font-size:12.5px;color:var(--ink-2)}
+  .agree a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
   .panel{background:var(--surface);border:1px solid var(--line-2);border-radius:14px;padding:22px 24px;margin-top:18px}
   .panel .ph{font-weight:700;font-size:14.5px;margin-bottom:10px}
   .panel p{font-size:13.8px;color:var(--ink-2)}
@@ -133,6 +133,7 @@
         <li>Webhook when a condition flips</li>
         <li>Cancel any time</li>
       </ul>
+      <p class="agree">By subscribing you agree to the <a href="/verify-directory/monitoring/terms/">Monitoring Terms</a> and the <a href="/verify-directory/monitoring/refunds/">Refund Policy</a>.</p>
       <div class="buy" id="pp-monthly"></div>
     </div>
     <div class="card best">
@@ -144,6 +145,7 @@
         <li>One payment a year, not twelve</li>
         <li>The history is worth more the longer it runs</li>
       </ul>
+      <p class="agree">By subscribing you agree to the <a href="/verify-directory/monitoring/terms/">Monitoring Terms</a> and the <a href="/verify-directory/monitoring/refunds/">Refund Policy</a>.</p>
       <div class="buy" id="pp-yearly"></div>
     </div>
     <div class="card">
@@ -155,6 +157,7 @@
         <li>Webhook when a condition flips</li>
         <li>Cancel any time</li>
       </ul>
+      <p class="agree">By subscribing you agree to the <a href="/verify-directory/monitoring/terms/">Monitoring Terms</a> and the <a href="/verify-directory/monitoring/refunds/">Refund Policy</a>.</p>
       <div class="buy" id="pp-monthly10"></div>
     </div>
     <div class="card best">
@@ -166,12 +169,9 @@
         <li>One payment a year, not twelve</li>
         <li>The history is worth more the longer it runs</li>
       </ul>
+      <p class="agree">By subscribing you agree to the <a href="/verify-directory/monitoring/terms/">Monitoring Terms</a> and the <a href="/verify-directory/monitoring/refunds/">Refund Policy</a>.</p>
       <div class="buy" id="pp-yearly10"></div>
     </div>
-  </div>
-  <div class="pending" id="pp-pending" style="margin-top:18px">
-    <b>Card payment is being set up.</b> Until the buttons appear here, write to <span class="mono">contact@the-horizons-innovation.com</span> with the endpoints you want watched and we will start measuring them daily at no charge while payment is arranged.
-    <span class="jp">カード決済は準備中です。それまでの間も、エンドポイントを送ってもらえれば毎日の測定は無料で始めます。海外顧客向けの役務なので日本の消費税は不課税です。</span>
   </div>
 </section>
 
@@ -212,7 +212,7 @@
   <p class="slead"><b>A record with an empty search list is accepted and published as such.</b> An instance fixed with no class search is the exact thing this ledger exists to make visible. It is not rejected and it is not hidden. Those records are marked below.</p>
   <p class="slead">This ledger verifies nothing. Each record says so in its own body: it is the author's own account, this gate did not reproduce it, and what is frozen is the claim and its date, not its truth.</p>
   <div id="mould-list" class="mould-list">Reading the ledger.</div>
-  <p class="mnote"><a href="/verify-directory/mould/"><b>Record one yourself</b></a> &mdash; it is free, open to anyone, and it rates nobody. Read the ledger directly at <a href="https://gate.horizonshield.dev/mould"><code>GET /mould</code></a>. The category was named by babyblueviper1 in "The Mould, Not the Letter", 2026-08-20. The first entries here are our own, because we are not going to ask anyone else to go first.</p>
+  <p class="mnote"><a href="/verify-directory/mould/"><b>Record one yourself</b></a>. It is free, open to anyone, and it rates nobody. Read the ledger directly at <a href="https://gate.horizonshield.dev/mould"><code>GET /mould</code></a>. The category was named by babyblueviper1 in "The Mould, Not the Letter", 2026-08-20. The first entries here are our own, because we are not going to ask anyone else to go first.</p>
 </section>
 <script>
 (function(){
@@ -247,13 +247,14 @@
 
 <footer><div class="wrap">
   Operator: The HORIZONs Co., Ltd. (Corporate Number 7021001075279). Supervised by Toshikatsu Oga (<a href="https://orcid.org/0009-0000-9180-903X">ORCID 0009-0000-9180-903X</a>).<br>
-  Listing is free, the verdict is free, and neither is for sale. <a href="/verify-directory/">Verification Directory</a> &middot; <a href="/spec/">Verification spec</a> &middot; <a href="/tokusho/">Legal notice</a><br>
+  Listing is free, the verdict is free, and neither is for sale. <a href="/verify-directory/">Verification Directory</a> &middot; <a href="/spec/">Verification spec</a><br>
+  <a href="/verify-directory/monitoring/terms/">Monitoring Terms</a> &middot; <a href="/verify-directory/monitoring/refunds/">Refund Policy</a> &middot; <a href="/verify-directory/privacy/">Privacy</a> &middot; <a href="/tokusho/">Legal notice</a><br>
   &copy; 2026 The HORIZONs Co., Ltd. &middot; HORIZON SHIELD
 </div></footer>
 
 </div>
 
-<!-- PayPal subscription buttons. A button appears only when its plan id is set. While all four are empty, the notice above stays. -->
+<!-- PayPal subscription buttons. A button appears only when its plan id is set. -->
 <script>
   var PLAN_MONTHLY   = "P-3JV68135XM729621RNLWEG4Y";
   var PLAN_YEARLY    = "P-3EJ22025BW4985730NLWEHZQ";
@@ -271,11 +272,10 @@
     }).render(sel);
     return true;
   }
-  var a = ppButton('#pp-monthly',   PLAN_MONTHLY);
-  var b = ppButton('#pp-yearly',    PLAN_YEARLY);
-  var c = ppButton('#pp-monthly10', PLAN_MONTHLY10);
-  var d = ppButton('#pp-yearly10',  PLAN_YEARLY10);
-  if (a && b && c && d) { var n = document.getElementById('pp-pending'); if (n) n.style.display = 'none'; }
+  ppButton('#pp-monthly',   PLAN_MONTHLY);
+  ppButton('#pp-yearly',    PLAN_YEARLY);
+  ppButton('#pp-monthly10', PLAN_MONTHLY10);
+  ppButton('#pp-yearly10',  PLAN_YEARLY10);
 </script>
 
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script>
