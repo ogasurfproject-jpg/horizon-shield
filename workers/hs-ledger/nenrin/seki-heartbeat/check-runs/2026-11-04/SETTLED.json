@@ -1,0 +1,17 @@
+{
+  "schema": "seki-check-loop-settled-v0",
+  "settle": "v1.19",
+  "contract_sha256": "d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580",
+  "verdict": "within_grant",
+  "status": "final",
+  "view": {
+    "from": 974247,
+    "to": 974710
+  },
+  "ledger_entries": [
+    250,
+    253
+  ],
+  "settlement_sha256": "1d4ed1ef02b3b575f3400a93e2021bf420790077a3dd447ccda46beba3d022aa",
+  "recompute": "anchor_compose.py for each record against its ledger entry (?format=raw and /ots), header_view_fetch.py --contract ../../check-contract.json --to 974710, then settle_v1_19.py --settle ../../check-contract.json --event execution.anchored.json --admission admission.anchored.json --relying-key shield.the-horizons-innovation.com=<keys/seki-door.json> --view view.json (the tools are in ../../../musubi-v0)"
+}
