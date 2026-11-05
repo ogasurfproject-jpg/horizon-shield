@@ -273,7 +273,9 @@ var worker_default = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === "/health") {
-      return json({ status: "ok", version: "v25-lessons-20261013", service: "hs-kira-line", lessons: "per-key-20261013" });
+      let lineLastFail = null;
+      try { lineLastFail = JSON.parse((await env.SEEN_STORE.get("kira_line_last_fail")) || "null"); } catch (_e) { lineLastFail = "unreadable"; }
+      return json({ status: "ok", version: "v26-sendcheck-20261106", service: "hs-kira-line", lessons: "per-key-20261013", line_last_fail: lineLastFail });
     }
     if (url.pathname === "/diagnosis" && request.method === "POST") {
       return handleDiagnosis(request, env, ctx);
@@ -408,8 +410,9 @@ async function processEvents(events, env) {
               const r = await kiraPartnerDecide(env, gid, gt, null, { kind: _hr.kind, asked: _hr.asked, facts: _hr.facts });
               if (r && r.ok) {
                 if (r.action !== "silent" && r.reply && event.replyToken) {
-                  await replyToLine(event.replyToken, r.reply, env.LINE_CHANNEL_TOKEN);
-                  await kiraConvAppend(env, gid, "kira", r.reply);
+                  const _s = await replyToLine(event.replyToken, r.reply, env.LINE_CHANNEL_TOKEN);
+                  if (_s.ok) await kiraConvAppend(env, gid, "kira", r.reply);
+                  else await kiraSendFailed(env, _s, "加盟店グループ", gid, gt, r.reply);
                 } else if (r.action === "silent") {
                   // 黙ると決めた印を残す(返事漏れの拾い直しが、わざと黙った発言を拾い直さないように)。
                   await kiraConvAppend(env, gid, "silent", "(返さなかった)");
@@ -424,8 +427,9 @@ async function processEvents(events, env) {
               } else {
                 // KIRA が考えられなかった(鍵・通信・形式の失敗)。黙って止めない: 引用か @ なら受け取りの一言、本文は大賀へ。
                 if ((_quoted || _addressed) && event.replyToken) {
-                  await replyToLine(event.replyToken, QUOTE_ACK_TEXT, env.LINE_CHANNEL_TOKEN);
-                  console.log("[group] acked (kira failed) gid=" + gid);
+                  const _s0 = await replyToLine(event.replyToken, QUOTE_ACK_TEXT, env.LINE_CHANNEL_TOKEN);
+                  await kiraNoteSendFail(env, _s0, "加盟店グループ 受け取りの一言");
+                  console.log("[group] acked (kira failed) gid=" + gid + (_s0.ok ? "" : " SEND FAILED " + _s0.status));
                 }
                 try {
                   await pushToLine(env.LINE_USER_ID, "【加盟店グループ 要確認】" + (_quoted ? "(引用で返信)" : (_addressed ? "(@で呼びかけ)" : "(グループでの発言)")) + "(KIRA が返事を作れなかった: " + ((r && r.err) || "?") + ")\n" + gt.slice(0, 400) + (gt.length > 400 ? "…" : ""), env.LINE_CHANNEL_TOKEN);
@@ -823,8 +827,9 @@ async function partnerMediaFinish(event, userId, env, kind, gid, entry) {
     if (r && r.ok && r.action !== "silent" && r.reply) out = r.reply;
     if (!out) out = label + "を受け取りました。ありがとうございます。担当の大賀が確認します。";
   }
-  try { await replyToLine(event.replyToken, out, env.LINE_CHANNEL_TOKEN); } catch (_e) {}
-  await kiraConvAppend(env, convKey, "kira", out);
+  const _ms = await replyToLine(event.replyToken, out, env.LINE_CHANNEL_TOKEN);
+  if (_ms.ok) await kiraConvAppend(env, convKey, "kira", out);
+  else await kiraSendFailed(env, _ms, gid ? "加盟店グループ(写真)" : "加盟店 1対1(写真)", gid || userId, text, out);
   let added = [];
   if (r && r.ok) added = await kiraLessonsAdd(env, scope, r.lessons, text);
   try {
@@ -1517,20 +1522,36 @@ ${report}
   await replyToLine(replyToken, resultText, env.LINE_CHANNEL_TOKEN);
 }
 __name(handleGyoshaCheck, "handleGyoshaCheck");
+// 2026-11-06 v26 (峰尾さまの 11/5 の答えに返事が無かった件): 送信の結果を見ていなかった。
+//   LINE が断っても(返信の期限切れ・月の上限・宛先違い)呼んだ側は「送った」と記録し、毎時の拾い直しも
+//   「返事済み」と見て送り直さず、大賀さんへの知らせも出なかった。黙って止まる型である。
+//   これからは LINE の返事を確かめて { ok, status, msg, api } を返す。通信の失敗でも投げない。
+async function lineSend(api, payload, channelToken) {
+  let res;
+  try {
+    res = await fetch("https://api.line.me/v2/bot/message/" + api, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${channelToken}` },
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {
+    const m = String((e && e.message) || e).slice(0, 120);
+    console.error("[line] " + api + " network error " + m);
+    return { ok: false, status: 0, msg: m, api };
+  }
+  if (res.ok) return { ok: true, status: res.status, msg: "", api };
+  let msg = "";
+  try { const j = await res.json(); msg = String((j && j.message) || "").slice(0, 120); } catch (_e) {}
+  console.error("[line] " + api + " failed " + res.status + " " + msg);
+  return { ok: false, status: res.status, msg, api };
+}
+__name(lineSend, "lineSend");
 async function replyToLine(replyToken, text, channelToken) {
-  await fetch("https://api.line.me/v2/bot/message/reply", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${channelToken}` },
-    body: JSON.stringify({ replyToken, messages: [{ type: "text", text: text.slice(0, 5e3) }] })
-  });
+  return lineSend("reply", { replyToken, messages: [{ type: "text", text: String(text || "").slice(0, 5e3) }] }, channelToken);
 }
 __name(replyToLine, "replyToLine");
 async function pushToLine(userId, text, channelToken) {
-  await fetch("https://api.line.me/v2/bot/message/push", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${channelToken}` },
-    body: JSON.stringify({ to: userId, messages: [{ type: "text", text: text.slice(0, 5e3) }] })
-  });
+  return lineSend("push", { to: userId, messages: [{ type: "text", text: String(text || "").slice(0, 5e3) }] }, channelToken);
 }
 __name(pushToLine, "pushToLine");
 async function verifySignature(body, signature, channelSecret) {
@@ -1727,6 +1748,24 @@ function kiraBridgeOut(j) {
 //   誰の発言を引用したかは webhook では分からない(大賀が OA Manager から手で送った文の id は手元に無い)。
 //   加盟店グループでの引用返信は、こちらへの返事であることがほとんどなので、受け取りの一言と大賀への知らせに使う。
 const QUOTE_ACK_TEXT = "\u3054\u8fd4\u4fe1\u3042\u308a\u304c\u3068\u3046\u3054\u3056\u3044\u307e\u3059\u3002\u5185\u5bb9\u3092\u78ba\u8a8d\u3057\u3066\u3001\u62c5\u5f53\u306e\u5927\u8cc0\u304b\u3089\u3042\u3089\u305f\u3081\u3066\u304a\u8fd4\u4e8b\u3057\u307e\u3059\u3002";
+// 2026-11-06 v26: 1 対 1 で黙ってよいのは、お礼や了解だけで閉じる発言のときだけ。それ以外は必ず一言返す。
+const ANSWER_ACK_TEXT = "ご回答ありがとうございます。いただいた内容は記録しました。";
+const KIRA_PURE_THANKS_RE = /^(?:(?:ありがとう(?:ございます|ございました)?|了解(?:です|しました)?|承知(?:しました|いたしました)?|よろしく(?:お願いします|お願いいたします)?|わかりました|分かりました|はい|OK|ok|オッケー)[。、!！\s]*)+$/;
+// 送れなかった最後の 1 件を KV に残す(/health に出す。本文と相手の ID は残さない)。
+async function kiraNoteSendFail(env, s, where) {
+  if (!s || s.ok) return;
+  try {
+    await env.SEEN_STORE.put("kira_line_last_fail", JSON.stringify({ at: new Date().toISOString(), api: s.api || "", status: s.status, msg: s.msg || "", where: String(where || "").slice(0, 40) }), { expirationTtl: 60 * 60 * 24 * 30 });
+  } catch (_e) {}
+}
+// 返事が届かなかった: 会話には「送った」と書かない(毎時の拾い直しが送り直す)。大賀さんへ知らせる。
+async function kiraSendFailed(env, s, where, who, text, out) {
+  await kiraNoteSendFail(env, s, where);
+  const t = String(text || ""), o = String(out || "");
+  try {
+    await pushToLine(env.LINE_USER_ID, "【" + where + " 返事が届いていません】LINE が受け付けませんでした(" + (s.api || "") + " " + s.status + (s.msg ? " " + s.msg : "") + ")。毎時の拾い直しで、おわびを付けて送り直します。\n" + (String(who || "").startsWith("C") ? "グループ: " : "ユーザーID: ") + who + "\n\n届いた発言:\n" + t.slice(0, 400) + (t.length > 400 ? "…" : "") + "\n\nKIRA の文(届いていない):\n" + o.slice(0, 400), env.LINE_CHANNEL_TOKEN);
+  } catch (_e) {}
+}
 // 社内の人への一言か。先頭が公式アカウント以外への @(LINE の mention で isSelf でない人が先頭)なら、こちら宛てではない。
 function isAsideToOther(event) {
   const m = event && event.message;
@@ -1838,7 +1877,7 @@ async function kiraMemberGid(env, userId) {
 }
 // 2026-10-13 issue #13: when what KIRA needs could not be read, send only the neutral receipt and give the text to the owner.
 async function kiraReadFailAck(env, replyToken, ackText, why, userId, text) {
-  if (replyToken) { try { await replyToLine(replyToken, ackText, env.LINE_CHANNEL_TOKEN); } catch (_e) {} }
+  if (replyToken) { const s = await replyToLine(replyToken, ackText, env.LINE_CHANNEL_TOKEN); await kiraNoteSendFail(env, s, "読み込み失敗の受け取り"); }
   const t = String(text || "");
   try {
     await pushToLine(env.LINE_USER_ID, "【KIRA 要確認】(" + why + ")\nユーザーID: " + userId + (t ? "\n" + t.slice(0, 400) + (t.length > 400 ? "…" : "") : ""), env.LINE_CHANNEL_TOKEN);
@@ -2100,7 +2139,13 @@ async function kiraCatchUp(env, nowMs) {
     // 2026-10-13: if the sent mark cannot be read, skip (a duplicate late reply to a store is worse than one hour more).
     const done = await kvFlag(env, doneKey);
     if (done !== "no") continue;
-    try { await env.SEEN_STORE.put(doneKey, "1", { expirationTtl: 60 * 60 * 24 * 7 }); } catch (_e) {}
+    // 2026-11-06 v26: 済みの印は送れてから付ける(前は送る前に付けていたので、LINE が断ると二度と送り直さなかった)。
+    //   送れなければ回数を数え、3 回までは次の巡回で送り直す。
+    const tryKey = "kira_catchup_try:" + convKey + ":" + last.at;
+    let tries = 0;
+    try { tries = parseInt((await env.SEEN_STORE.get(tryKey)) || "0", 10) || 0; } catch (_e) {}
+    if (tries >= 3) continue;
+    const markDone = async () => { try { await env.SEEN_STORE.put(doneKey, "1", { expirationTtl: 60 * 60 * 24 * 7 }); } catch (_e) {} };
     let i = conv.length - 1;
     while (i > 0 && conv[i - 1].who === "member") i--;
     const pending = conv.slice(i).map((c) => c.text).join("\n").slice(0, 1500);
@@ -2113,10 +2158,22 @@ async function kiraCatchUp(env, nowMs) {
     }
     const r = mgFailed ? { ok: false, err: KIRA_CONTEXT_READ_FAIL } : await kiraPartnerDecide(env, scope, pending, null, { dm: isDm, convKey, kind: "late" });
     const where = isDm ? "1対1" : "グループ";
+    // v26: 1 対 1 は、お礼や了解だけで閉じる発言の他は黙らない。
+    if (r && r.ok && isDm && r.action === "silent" && !KIRA_PURE_THANKS_RE.test(String(last.text || "").trim())) {
+      r.action = "reply"; r.reply = QUOTE_ACK_TEXT;
+    }
     if (r && r.ok && r.action !== "silent" && r.reply) {
       // 予行で KIRA がおわびを落とした(「前後の写真をいただきました」だけ)。遅れて届く返事には、必ずおわびを頭に付ける。
       if (!/(遅く|遅れ|失礼|申し訳)/.test(r.reply)) r.reply = "お返事が遅くなり失礼しました。" + r.reply;
-      try { await pushToLine(to, r.reply, env.LINE_CHANNEL_TOKEN); } catch (_e) { continue; }
+      const s = await pushToLine(to, r.reply, env.LINE_CHANNEL_TOKEN);
+      if (!s.ok) {
+        try { await env.SEEN_STORE.put(tryKey, String(tries + 1), { expirationTtl: 60 * 60 * 24 * 7 }); } catch (_e) {}
+        await kiraNoteSendFail(env, s, "拾い直し " + where);
+        const lastTry = tries + 1 >= 3;
+        try { await pushToLine(env.LINE_USER_ID, "【KIRA 拾い直しも届いていません(" + where + ")】LINE が受け付けませんでした(push " + s.status + (s.msg ? " " + s.msg : "") + ")。" + (lastTry ? "3 回送れなかったので、自動ではもう送りません。手で返してください。" : "次の巡回でもう一度送ります(" + (tries + 1) + "/3)。") + "\n" + (isDm ? "ユーザーID: " : "グループ: ") + to + "\n\n届いていた発言:\n" + pending.slice(0, 600), env.LINE_CHANNEL_TOKEN); } catch (_e) {}
+        continue;
+      }
+      await markDone();
       await kiraConvAppend(env, convKey, "kira", r.reply);
       sent++;
       const added = await kiraLessonsAdd(env, scope, r.lessons, pending);
@@ -2124,7 +2181,10 @@ async function kiraCatchUp(env, nowMs) {
       try { await pushToLine(env.LINE_USER_ID, "【KIRA 返事漏れの拾い直し(" + where + ")】" + (r.action === "escalate" || force ? "大賀さんの判断が要る話です。" : "") + "\n" + (isDm ? "ユーザーID: " : "グループ: ") + to + "\n\n届いていた発言:\n" + pending.slice(0, 600) + "\n\nKIRA が送った文:\n" + r.reply, env.LINE_CHANNEL_TOKEN); } catch (_e) {}
       await kiraDigestAdd(env, { gid: scope, where, kind: "late-" + r.action, in: pending, out: r.reply, lessons: added });
     } else if (!(r && r.ok)) {
+      await markDone();
       try { await pushToLine(env.LINE_USER_ID, "【KIRA 返事漏れ 要確認(" + where + ")】KIRA が返事を作れなかった(" + ((r && r.err) || "?") + ")。\n" + (isDm ? "ユーザーID: " : "グループ: ") + to + "\n" + pending.slice(0, 600), env.LINE_CHANNEL_TOKEN); } catch (_e) {}
+    } else {
+      await markDone();
     }
   }
   return sent;
@@ -2381,8 +2441,9 @@ async function handlePartnerMessage(userMessage, replyToken, userId, justJoined,
   if (hr && !hr.kind && hr.reply) {
     await kiraConvAppend(env, convKey, "member", userMessage);
     if (hr.reply) {
-      await replyToLine(replyToken, hr.reply, env.LINE_CHANNEL_TOKEN);
-      await kiraConvAppend(env, convKey, "kira", hr.reply);
+      const s = await replyToLine(replyToken, hr.reply, env.LINE_CHANNEL_TOKEN);
+      if (s.ok) await kiraConvAppend(env, convKey, "kira", hr.reply);
+      else await kiraSendFailed(env, s, "加盟店 1対1", userId, userMessage, hr.reply);
     }
     if (justJoined) {
       await pushToLine(env.LINE_USER_ID, "\u{1F91D}【加盟店から連絡(1対1)】\nユーザーID: " + userId + "\n\n" + userMessage.slice(0, 600) + "\n\n※Yakumo自動ヒアリングが対応中です(対応不要)。", env.LINE_CHANNEL_TOKEN);
@@ -2410,9 +2471,16 @@ TEL\uFF1A0463-74-5917
   await kiraConvAppend(env, convKey, "member", userMessage);
   const r = await kiraPartnerDecide(env, scope, userMessage, null, { dm: true, convKey, kind: hr && hr.kind, asked: hr && hr.asked, facts: hr && hr.facts });
   if (r && r.ok) {
+    // 2026-11-06 v26: 1 対 1 では、お礼や了解だけで閉じる発言の他は黙らない(峰尾さまの 11/5 の答えに返事が無かった件)。
+    //   答えには「ご回答ありがとうございます」を、それ以外には受け取りの一言を返す。
+    if (r.action === "silent" && !KIRA_PURE_THANKS_RE.test(String(userMessage || "").trim())) {
+      r.action = "reply";
+      r.reply = (hr && /^answer/.test(String(hr.kind || ""))) ? ANSWER_ACK_TEXT : QUOTE_ACK_TEXT;
+    }
     if (r.action !== "silent" && r.reply) {
-      await replyToLine(replyToken, r.reply, env.LINE_CHANNEL_TOKEN);
-      await kiraConvAppend(env, convKey, "kira", r.reply);
+      const s = await replyToLine(replyToken, r.reply, env.LINE_CHANNEL_TOKEN);
+      if (s.ok) await kiraConvAppend(env, convKey, "kira", r.reply);
+      else await kiraSendFailed(env, s, "加盟店 1対1", userId, userMessage, r.reply);
     } else if (r.action === "silent") {
       await kiraConvAppend(env, convKey, "silent", "(返さなかった)");
     }
@@ -2425,8 +2493,9 @@ TEL\uFF1A0463-74-5917
     console.log("[dm] kira " + r.action + (force ? "+force" : "") + " uid=" + userId);
   } else {
     // KIRA が考えられなかった。黙って止めない: 受け取りの一言を返し、本文は大賀へ。
-    await replyToLine(replyToken, QUOTE_ACK_TEXT, env.LINE_CHANNEL_TOKEN);
-    try { await pushToLine(env.LINE_USER_ID, "【加盟店 1対1 要確認】(KIRA が返事を作れなかった: " + ((r && r.err) || "?") + ")\nユーザーID: " + userId + "\n" + userMessage.slice(0, 400) + (userMessage.length > 400 ? "…" : ""), env.LINE_CHANNEL_TOKEN); } catch (_e) {}
+    const s0 = await replyToLine(replyToken, QUOTE_ACK_TEXT, env.LINE_CHANNEL_TOKEN);
+    await kiraNoteSendFail(env, s0, "加盟店 1対1 受け取りの一言");
+    try { await pushToLine(env.LINE_USER_ID, "【加盟店 1対1 要確認】" + (s0.ok ? "" : "(受け取りの一言も届いていません: " + s0.status + (s0.msg ? " " + s0.msg : "") + ")") + "(KIRA が返事を作れなかった: " + ((r && r.err) || "?") + ")\nユーザーID: " + userId + "\n" + userMessage.slice(0, 400) + (userMessage.length > 400 ? "…" : ""), env.LINE_CHANNEL_TOKEN); } catch (_e) {}
   }
   if (!hr) {
     // 返事は KIRA が出したが、ヒアリングの記録には入っていない。大賀に知らせる。
