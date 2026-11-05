@@ -9,7 +9,10 @@ name: ots-nightly
 # a dispatch with mode nightly at 19:10 UTC from a Worker cron. The two schedules are the fallback for a night the
 # dispatch does not come: GitHub starts daily schedules 4 to 8 hours late (10-28 to 11-04), so 13:10 lands in the
 # same UTC day, and whichever run comes first that day keeps the night.
-# A red night opens one issue labelled ots-nightly-red (never a second one for the same night). The keep job commits
+# A night that does not end well opens one issue labelled ots-nightly (a red night, a check job that failed or could
+# not run, a night checked but not kept); a second failure in the same night adds a comment to that issue instead of a
+# second issue. The verdict job does this, so it also happens when the check job stops before the check (a missing
+# dependency on 2026-11-04 left both runs of the night without an issue). The keep job commits
 # ots-nightly/nights/<night>.json, ots-nightly/latest.json and ots-nightly/index.json.
 
 on:
@@ -38,10 +41,10 @@ jobs:
     timeout-minutes: 40
     permissions:
       contents: read
-      issues: write
     outputs:
       ran: ${{ steps.decide.outputs.ran }}
       rc: ${{ steps.run.outputs.rc }}
+      night: ${{ steps.decide.outputs.night }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -74,6 +77,7 @@ jobs:
           echo "$OUT"
           { echo "### OTS nightly ($T)"; echo; echo "$OUT"; echo; } >> "$GITHUB_STEP_SUMMARY"
           echo "trigger=$T" >> "$GITHUB_OUTPUT"
+          echo "night=$D" >> "$GITHUB_OUTPUT"
           if [ "${OUT%% *}" = "run" ]; then echo "ran=true" >> "$GITHUB_OUTPUT"; else echo "ran=false" >> "$GITHUB_OUTPUT"; fi
       - name: the nightly check
         id: run
@@ -94,17 +98,6 @@ jobs:
           name: ots-result
           path: ots_result.json
           retention-days: 7
-      - name: a red night opens one issue (once a night)
-        if: steps.run.outputs.rc == '1'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          T="OTS nightly red $(date -u +%Y-%m-%d)"
-          gh label create ots-nightly-red --color b60205 --description "the nightly OTS and Bitcoin header check found a red" --force >/dev/null
-          N=$(gh issue list --label ots-nightly-red --state all --limit 100 --json title --jq "[.[] | select(.title == \"$T\")] | length")
-          if [ "$N" -gt 0 ]; then echo "an issue for this night exists already; not writing a second one"; else { echo "$RUN_URL"; echo; echo '```'; cat ots_out.txt; echo '```'; } > body.md; gh issue create --title "$T" --label ots-nightly-red --body-file body.md; fi
 
   keep:
     needs: check
@@ -147,18 +140,56 @@ jobs:
     needs: [check, keep]
     if: always()
     runs-on: ubuntu-24.04
-    timeout-minutes: 2
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
     steps:
-      - name: the verdict
+      - name: what the night came to
+        id: why
         env:
           RAN: ${{ needs.check.outputs.ran }}
           RC: ${{ needs.check.outputs.rc }}
           CJOB: ${{ needs.check.result }}
           KJOB: ${{ needs.keep.result }}
         run: |
-          if [ "$CJOB" != "success" ]; then echo "the check job itself failed ($CJOB)"; exit 1; fi
-          if [ "$RAN" != "true" ]; then echo "nothing to do (see the summary of the check job)"; exit 0; fi
-          if [ "$KJOB" != "success" ]; then echo "the night was checked but not kept ($KJOB)"; exit 1; fi
-          if [ "$RC" = "0" ]; then echo "no red (green or notice; see the summary)"; exit 0; fi
-          if [ "$RC" = "1" ]; then echo "red"; exit 1; fi
-          echo "the check itself could not run (exit $RC)"; exit 1
+          W=""
+          if [ "$CJOB" != "success" ]; then W="check failed ($CJOB)"
+          elif [ "$RAN" != "true" ]; then W=""
+          elif [ "$KJOB" != "success" ]; then W="checked but not kept ($KJOB)"
+          elif [ "$RC" = "1" ]; then W="red"
+          elif [ "$RC" != "0" ]; then W="check could not run (exit $RC)"
+          fi
+          echo "why=$W" >> "$GITHUB_OUTPUT"
+          if [ -n "$W" ]; then echo "$W"; elif [ "$RAN" != "true" ]; then echo "nothing to do (see the summary of the check job)"; else echo "no red (green or notice; see the summary)"; fi
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: steps.why.outputs.why == 'red'
+        continue-on-error: true
+        with:
+          name: ots-result
+          path: ots-out
+      - name: a night that did not end well opens one issue (once a night)
+        if: steps.why.outputs.why != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          WHY: ${{ steps.why.outputs.why }}
+          NIGHT: ${{ needs.check.outputs.night }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          N="${NIGHT:-$(date -u +%Y-%m-%d)}"
+          P="OTS nightly $N:"
+          { echo "$WHY ($EVENT)"; echo; echo "$RUN_URL"; } > body.md
+          if [ "$WHY" = "red" ] && [ -f ots-out/ots_result.json ]; then
+            { echo; echo "red entries (n, code):"; echo '```'; jq -r '.entries[]? | select(.state == "red") | "\(.n) \(.code)"' ots-out/ots_result.json; echo '```'; echo; echo "counts: $(jq -c .counts ots-out/ots_result.json)"; } >> body.md
+          fi
+          gh label create ots-nightly --color b60205 --description "a night of the OTS and Bitcoin header check that did not end well" --force >/dev/null
+          I=$(gh issue list --label ots-nightly --state all --limit 100 --json number,title --jq "[.[] | select(.title | startswith(\"$P\"))] | .[0].number // empty")
+          if [ -n "$I" ]; then gh issue comment "$I" --body-file body.md; echo "issue #$I has this night already; added a comment"; else gh issue create --title "$P $WHY" --label ots-nightly --body-file body.md; fi
+      - name: the verdict
+        env:
+          WHY: ${{ steps.why.outputs.why }}
+        run: |
+          if [ -n "$WHY" ]; then echo "$WHY"; exit 1; fi
+          echo "ok"
