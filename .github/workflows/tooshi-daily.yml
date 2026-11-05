@@ -15,6 +15,10 @@ name: tooshi-daily
 # workflow at 04:05 and 04:35 UTC with the input slot=schedule or slot=second. Such a dispatch is decided like that cron
 # (nothing when the day has a result, nothing before 03:47 UTC) and names that trigger; a dispatch by hand (slot empty)
 # always runs, as before. The two crons below stay as a late fallback.
+# 2026-11-05: the run also writes its notes (tooshi_notes.json, tooshi_daily.py --notes: whether the ledger batch holding
+# yesterday's admission is confirmed in Bitcoin, with observed_at). The keep job puts them in the day file under notes;
+# they are outside result_canonical, so neither result_sha256 nor day_sha256 covers them, and a witness recomputes the
+# day without them.
 
 on:
   schedule:
@@ -90,7 +94,7 @@ jobs:
           T: ${{ steps.decide.outputs.trigger }}
         run: |
           set +e
-          python -I -B tools/tooshi/tooshi_daily.py --trigger "$T" --out tooshi_result.json --body tooshi_body.md > tooshi_out.txt 2>&1
+          python -I -B tools/tooshi/tooshi_daily.py --trigger "$T" --out tooshi_result.json --body tooshi_body.md --notes tooshi_notes.json > tooshi_out.txt 2>&1
           rc=$?
           cat tooshi_out.txt
           echo "rc=$rc" >> "$GITHUB_OUTPUT"
@@ -100,7 +104,9 @@ jobs:
         if: steps.decide.outputs.ran == 'true' && (steps.run.outputs.rc == '0' || steps.run.outputs.rc == '1')
         with:
           name: tooshi-result
-          path: tooshi_result.json
+          path: |
+            tooshi_result.json
+            tooshi_notes.json
           retention-days: 7
       - name: a red day opens one issue (once a day)
         if: steps.run.outputs.rc == '1'
@@ -137,10 +143,12 @@ jobs:
           git config user.name "horizon-shield-tooshi"
           git config user.email "contact@the-horizons-innovation.com"
           ok=0
+          NOTES=()
+          if [ -f tooshi-out/tooshi_notes.json ]; then NOTES=(--notes tooshi-out/tooshi_notes.json); else echo "no notes from the run (the day is kept without them)"; fi
           for i in 1 2 3; do
             git fetch --no-tags origin main
             git reset --hard origin/main
-            OUT=$(python3 -I -B tools/tooshi/tooshi_publish.py write --result tooshi-out/tooshi_result.json --run-url "$RUN_URL" --dir tooshi)
+            OUT=$(python3 -I -B tools/tooshi/tooshi_publish.py write --result tooshi-out/tooshi_result.json "${NOTES[@]}" --run-url "$RUN_URL" --dir tooshi)
             echo "$OUT" | tee -a "$GITHUB_STEP_SUMMARY"
             git add tooshi/days tooshi/latest.json tooshi/index.json
             if git diff --cached --quiet; then echo "nothing changed"; ok=1; break; fi

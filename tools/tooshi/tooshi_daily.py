@@ -1,7 +1,7 @@
 """tooshi_daily.py: TOOSHI, the daily end to end check of the content check chain (sieve, admission, ledger, door,
 Resume, runner, the daily root, the heartbeat). It reads public endpoints only, holds no secret and writes nothing.
 
-    python3 -I -B tools/tooshi/tooshi_daily.py [--now 2026-11-03T04:05:00Z] [--trigger schedule|second|dispatch|manual] [--out result.json] [--body body.md]
+    python3 -I -B tools/tooshi/tooshi_daily.py [--now 2026-11-03T04:05:00Z] [--trigger schedule|second|dispatch|manual] [--out result.json] [--body body.md] [--notes notes.json]
     python3 -I -B tools/tooshi/tooshi_daily.py --witness <your name> [--vantage <your network or tool>] [--dry-run] [--ledger URL]
     python3 -I -B tools/tooshi/tooshi_daily.py --selftest
 
@@ -57,6 +57,19 @@ Added with the published days and the witness (2026-11-03):
                    (jidec-path-v1, mode commitment) at the ledger's witness intake, POST /witness. No key, no account.
                    Refused before 03:47 UTC (the day's answers are not all in yet) and with --now (the answers are read now).
                    --dry-run prints the record and sends nothing.
+
+Added on 2026-11-05:
+    5              the door's public policy names the stores whose own policy requires the content check
+                   (.furui.stores_requiring). .furui.policy is the door's default (the demonstration store, required
+                   false); the check store tooshi-check carries its own. Once the door makes check calls, tooshi-check
+                   missing from that list is red. facts.check_store_required is that value (a setting, not a time).
+    --notes FILE   what this run saw beside the checks, written to FILE as canonical JSON (tooshi-notes-v0) with
+                   observed_at. Today one note: whether the ledger batch holding yesterday's admission is confirmed in
+                   Bitcoin. 3 still reads the day before yesterday, since yesterday is settled only by the 21:17 UTC run.
+                   A note is not a check and is kept outside the result: it is not in result_canonical, result_sha256 or
+                   day_sha256, a witness (--witness, witness-answer-v0) does not recompute it, and a later run that sees
+                   the batch confirmed gives the same day_sha256 as a 04:05 run that saw it pending.
+                   tooshi_publish.py writes it into the day file under notes.
 """
 import base64, datetime, hashlib, json, re, sys, time, urllib.error, urllib.parse, urllib.request
 
@@ -71,6 +84,7 @@ HEARTBEAT_EXPECT = {"decision": "pass", "answered": True, "marks": []}  # the fi
 UA = {"user-agent": "tooshi-daily/0.1", "accept": "application/json"}
 DOOR_RECORD = DOOR_POLICY + "/record/"   # hs-seki-door has no public route of its own; the gateway's /seki path
 CHECK_CALL_AFTER = (3, 47)               # the door's cron 47 3 * * *
+CHECK_STORE = "tooshi-check"             # the door's check store; its own policy requires the content check (GET /seki .furui.stores_requiring)
 FIRST_KEPT_DAY = "2026-11-03"            # the first day whose envelopes runner 0.3.0 keeps (its leaves answer from 11-04 00:47 UTC)
 LEAF_SCAN_MAX = 32                       # at most this many leaves of one day are read to find the check call's envelope
 SIGNER = {"domain": "horizonshield.dev", "key_url": LEDGER + "/.well-known/furui-check-keys.json"}
@@ -130,8 +144,12 @@ def check_door_runner(get):
     if hs != 200 or ks != 200 or ps != 200 or not all(isinstance(x, dict) for x in (h, k, p)):
         return c(cid, "red", "health %s, keys %s, door policy %s" % (hs, ks, ps))
     listed = [x.get("public_key_ed25519_b64") for x in k.get("keys", []) if isinstance(x, dict) and x.get("key_id") == "runner-1" and x.get("revoked_height") is None]
-    pol = ((p.get("furui") or {}).get("policy") or {})
+    fu = p.get("furui") or {}
+    pol = fu.get("policy") or {}
     door_rules = pol.get("rules_sha256")
+    # .furui.policy is the door's default (the demonstration store, required false); the check store carries its own policy,
+    # named only in .furui.stores_requiring. Once the door makes check calls, the check store must require the check.
+    requiring = fu.get("stores_requiring") if isinstance(fu.get("stores_requiring"), list) else []
     bad = []
     if h.get("key_id") != "runner-1" or listed != [h.get("public_key_ed25519_b64")] or not h.get("public_key_ed25519_b64"):
         bad.append("the runner's public half is not the one the ledger lists for runner-1")
@@ -145,7 +163,10 @@ def check_door_runner(get):
         bad.append("the door requires the check but names no rules id")
     if pol.get("runner_public_key_ed25519_b64") is not None and pol.get("runner_public_key_ed25519_b64") != h.get("public_key_ed25519_b64"):
         bad.append("the door checks envelopes with a public half other than the runner's")
-    facts = {"runner": h.get("runner"), "rules_sha256": h.get("rules_sha256"), "door_required": pol.get("required")}
+    if "check_call" in fu and CHECK_STORE not in requiring:
+        bad.append("the door makes check calls but its check store %s does not require the content check (stores_requiring %s)" % (CHECK_STORE, json.dumps(fu.get("stores_requiring"))))
+    facts = {"runner": h.get("runner"), "rules_sha256": h.get("rules_sha256"), "door_required": pol.get("required"),
+             "check_store_required": CHECK_STORE in requiring}
     return c(cid, "red" if bad else "ok", "; ".join(bad) or "the runner's key, caps, model key and rules id agree with the ledger and the door", **facts)
 
 
@@ -779,6 +800,57 @@ def check_settle(get, now):
     return c(cid, "ok", "the check call of %s is settled within_grant, final, under settle v1.19: the admission is anchored on the ledger and the execution naming it is at the MUSUBI intake" % d, **facts)
 
 
+NOTES_OUTSIDE = ("what this run saw at observed_at, beside the checks; not part of result_canonical, result_sha256 or day_sha256, "
+                 "and not recomputed by a witness")
+
+
+def note_yesterday_batch(get, now):
+    """a note beside 3, never a check: is the ledger batch holding yesterday's admission confirmed in Bitcoin at this run.
+    3 keeps reading the day before yesterday (yesterday is settled only by the 21:17 UTC run of today). The answer moves
+    with the time of the run (pending at 04:05, confirmed later), so it stays out of the result and out of day_sha256;
+    otherwise a witness who recomputes the day later would not get the published day_sha256. Reads only what 3 and 4b
+    read: the loop's index, /admission/<sha> and /verify/<n>."""
+    y = (now - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+    def n(state, why, **f):
+        return dict({"about": "3_ledger_settle", "what": "yesterday_batch_bitcoin", "day": y, "state": state, "why": why}, **f)
+    try:
+        st, why, ix = _index(get)
+        if st:
+            return n("unreadable", why)
+        first = ix.get("first_day")
+        if not isinstance(first, str) or y < first:
+            return n("before_first_day", "%s is before the first day the loop filed (%s)" % (y, first))
+        x = ix["days"].get(y)
+        rs = x.get("record_sha256") if isinstance(x, dict) else None
+        if not (isinstance(rs, str) and H64.match(rs)):
+            return n("not_filed", "%s is not filed in the loop's index yet (it is filed at 21:17 UTC of its day)" % y)
+        if x.get("settled") is True and x.get("status") == "final":
+            return n("settled", "%s is settled final already" % y, record=rs)
+        ls, la = get(LEDGER + "/admission/" + rs)
+        if ls != 200 or not isinstance(la, dict) or la.get("canonical_sha256") != rs:
+            return n("unreadable", "the ledger does not serve yesterday's admission (http %s)" % ls, record=rs)
+        en = la.get("ledger_entry")
+        if la.get("status") != "anchored" or not _int(en):
+            return n("not_in_batch", "yesterday's admission is not in a ledger batch yet (%s)" % la.get("status"), record=rs)
+        vs, v = get(LEDGER + "/verify/%d" % en)
+        bs = v.get("bitcoin_status") if vs == 200 and isinstance(v, dict) else None
+        if bs == "confirmed":
+            return n("confirmed", "the ledger batch holding yesterday's admission (entry %d) is confirmed in Bitcoin; %s is settled by the 21:17 UTC run" % (en, y), record=rs, entry=en, bitcoin_status=bs)
+        if bs is None:
+            return n("unreadable", "/verify/%d answered http %s without a bitcoin_status" % (en, vs), record=rs, entry=en)
+        return n("not_confirmed", "the ledger batch holding yesterday's admission (entry %d) is not confirmed in Bitcoin yet (%s)" % (en, bs), record=rs, entry=en, bitcoin_status=bs)
+    except Unreachable as e:
+        return n("unreadable", "an endpoint did not answer: " + str(e))
+    except Exception as e:   # a note never stops the run
+        return n("unreadable", "the note could not be made: %s" % type(e).__name__)
+
+
+def notes(get, now):
+    """the run's notes (tooshi-notes-v0): kept beside the result, never inside it"""
+    return {"schema": "tooshi-notes-v0", "observed_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "outside": NOTES_OUTSIDE,
+            "items": [note_yesterday_batch(get, now)]}
+
+
 def check_resume_agreement(get, now):
     """4b: the check contract, on file at the MUSUBI intake, is listed in the agreements[] of the relying party's Resume"""
     cid = "4b_resume_agreement"
@@ -831,7 +903,8 @@ def run(get, now, trigger="manual"):
 
 
 def day_view(res):
-    """the result without the run's own time and trigger: what every run of the same day after 03:47 UTC should agree on"""
+    """the result without the run's own time and trigger: what every run of the same day after 03:47 UTC should agree on.
+    The run's notes (notes(), --notes) are never in res, so they are not in the view either."""
     v = {k: x for k, x in res.items() if k not in ("checked_at", "trigger")}
     v["schema"] = "tooshi-day-view-v0"
     v["day"] = res["checked_at"][:10]
@@ -972,7 +1045,8 @@ def selftest():
             t4, r4 = adm_prev or admission(D4[1])
             call = {"at": "2026-11-05T03:47:12.345Z", "day": "2026-11-05", "ok": True, "decision": "admit", "reasons": ["within_grant"], "admission_sha256": hsh("adm5"),
                     "record_sha256": r5, "version": "0.4", "content": {"checked": True, "decision": "pass", "marks": [], "rules_sha256": RULES}, "published": {"status": 201, "accepted": True}}
-            fu = {"policy": {"required": False, "rules_sha256": RULES, "runner_wait_ms": 25000, "runner_public_key_ed25519_b64": PUB}, "check_call": call}
+            fu = {"policy": {"required": False, "rules_sha256": RULES, "runner_wait_ms": 25000, "runner_public_key_ed25519_b64": PUB}, "check_call": call,
+                  "stores_requiring": [CHECK_STORE]}
             if prev:
                 fu["check_call_prev"] = dict(call, at="2026-11-04T03:47:12.345Z", day="2026-11-04", record_sha256=r4, admission_sha256=hsh("adm4"))
             w[DOOR_POLICY] = (200, {"furui": fu})
@@ -1087,6 +1161,10 @@ def selftest():
     cases.append(("red: the door requires the check but names no rules id", s["5_door_runner"], "red"))
     v, s = states(world(cc=True, **{DOOR_POLICY: (200, dict(pol, furui=dict(pol["furui"], policy=dict(pol["furui"]["policy"], runner_public_key_ed25519_b64="B" * 43 + "="))))}))
     cases.append(("red: the door checks envelopes with another public half than the runner's", s["5_door_runner"], "red"))
+    v, s = states(world(cc=True, **{DOOR_POLICY: (200, dict(pol, furui=dict(pol["furui"], stores_requiring=[])))}))
+    cases.append(("red: the door makes check calls and its check store no longer requires the content check", (v, s["5_door_runner"]), ("red", "red")))
+    v, s = states(world(cc=True, **{DOOR_POLICY: (200, dict(pol, furui={k: x for k, x in pol["furui"].items() if k != "stores_requiring"}))}))
+    cases.append(("red: the door makes check calls and names no stores_requiring", s["5_door_runner"], "red"))
     # 4: yesterday's record in the relying party's Resume
     rj = json.loads(json.dumps(g(RESUME_URL)[1]))
     r4 = pol["furui"]["check_call_prev"]["record_sha256"]
@@ -1202,6 +1280,49 @@ def selftest():
                   ("jidec-path-v1", "commitment", day_sha256(ra), "tooshi-day-v0: 2026-11-05", DAY_URL % "2026-11-05", day_sha256(ra), ["name", "vantage"], True)))
     cases.append(("the witness record carries no key, no signature and no answer text beyond the counts", any(k in w for k in ("signature_ed25519_b64", "public_key_ed25519_b64", "checks", "nodes")) or "key_url" in w["witness"], False))
     cases.append(("witness: refused before 03:47 UTC, with --now, and without a name", (main(["--witness", "x", "--now", "2026-11-05T04:05:00Z"]), witness_refusal(datetime.datetime(2026, 11, 5, 3, 46, tzinfo=datetime.timezone.utc), "x"), witness_refusal(now, "")), (2, "too_early", "no_name")))
+    # 5: check_store_required is a setting; a witness who runs later reads the same value and gets the same day_sha256
+    rs_, _, _ = run(world(cc=True), now, "schedule")
+    rw_, _, _ = run(world(cc=True), now.replace(hour=11, minute=20), "witness")
+    f5 = lambda r: [x["facts"].get("check_store_required") for x in r["checks"] if x["id"] == "5_door_runner"][0]
+    ww = json.loads(witness_record(rw_, "anonymous", "test", now.replace(hour=11, minute=20), "ab" * 32))
+    cases.append(("5: the 04:05 run and a witness at 11:20 read check_store_required true and get the same day_sha256, which the witness record commits to",
+                  (f5(rs_), f5(rw_), day_sha256(rs_) == day_sha256(rw_), ww["commitment"] == day_sha256(rs_)), (True, True, True, True)))
+    rx_, _, _ = run(world(cc=True, **{DOOR_POLICY: (200, dict(pol, furui=dict(pol["furui"], stores_requiring=[])))}), now, "schedule")
+    cases.append(("5: a door whose check store no longer requires the check gives another day_sha256 (false is in the facts)", (f5(rx_), day_sha256(rx_) != day_sha256(rs_)), (False, True)))
+    # the note beside 3 (--notes): is yesterday's batch confirmed in Bitcoin; 3 still reads the day before yesterday
+    REC4 = hsh("the admission of 11-04")
+    A4 = (200, {"canonical_sha256": REC4, "status": "anchored", "ledger_entry": 310})
+
+    def note_world(bs="confirmed", adm=A4, ix4=None, first=None, **over):
+        ix = json.loads(json.dumps(INDEX))
+        ix["days"]["2026-11-04"] = dict({"record_sha256": REC4, "admission_sha256": hsh("adm4"), "execution_sha256": hsh("exe4"), "settled": False, "status": None, "verdict": None}, **(ix4 or {}))
+        if first:
+            ix["first_day"] = first
+        o = {CHECK_RUNS + "index.json": (200, ix), LEDGER + "/admission/" + REC4: adm, LEDGER + "/verify/310": (200, {"bitcoin_status": bs})}
+        o.update(over)
+        return world(cc=True, **o)
+    nst = lambda get, when=now: (lambda x: (x["state"], x["day"], x.get("entry")))(notes(get, when)["items"][0])
+    rc3, _, _ = run(note_world("confirmed"), now)
+    c3 = [x for x in rc3["checks"] if x["id"] == "3_ledger_settle"][0]
+    cases.append(("note: yesterday's batch is confirmed; the note says so, and 3 still reads the day before yesterday (11-03, ok), the verdict green",
+                  (nst(note_world("confirmed")), c3["state"], c3["facts"]["day"], rc3["verdict"]), (("confirmed", "2026-11-04", 310), "ok", "2026-11-03", "green")))
+    cases.append(("note: yesterday's batch is pending in Bitcoin: not_confirmed", nst(note_world("pending")), ("not_confirmed", "2026-11-04", 310)))
+    cases.append(("note: yesterday's admission is not in a ledger batch yet: not_in_batch",
+                  nst(note_world(adm=(200, {"canonical_sha256": REC4, "status": "pending_anchor", "ledger_entry": None}))), ("not_in_batch", "2026-11-04", None)))
+    cases.append(("note: yesterday is not filed in the loop's index yet: not_filed", nst(world(cc=True)), ("not_filed", "2026-11-04", None)))
+    cases.append(("note: yesterday is settled final already: settled", nst(note_world(ix4={"settled": True, "status": "final"})), ("settled", "2026-11-04", None)))
+    cases.append(("note: yesterday is before the loop's first day: before_first_day", nst(note_world(first="2026-11-05")), ("before_first_day", "2026-11-04", None)))
+    rd3, _, _ = run(note_world(**{LEDGER + "/verify/310": "down"}), now)
+    cases.append(("note: /verify answers 5xx three times: unreadable, and the run is not touched (green)", (nst(note_world(**{LEDGER + "/verify/310": "down"}))[0], rd3["verdict"]), ("unreadable", "green")))
+    cases.append(("note: an index without its shape gives unreadable, never an exception", nst(note_world(**{CHECK_RUNS + "index.json": (200, [1])}))[0], "unreadable"))
+    ra3, ta3, _ = run(note_world("pending"), now, "schedule")
+    rb3, tb3, _ = run(note_world("confirmed"), now.replace(hour=11, minute=20), "witness")
+    cases.append(("note: the 04:05 run that saw pending and a witness at 11:20 that saw confirmed have the same day_sha256; only the notes differ",
+                  (day_sha256(ra3) == day_sha256(rb3), nst(note_world("pending"))[0], nst(note_world("confirmed"))[0]), (True, "not_confirmed", "confirmed")))
+    cases.append(("note: the result text is the same whatever the note says (the note is not in the result)", ta3 == run(note_world("confirmed"), now, "schedule")[1] and "notes" not in ra3, True))
+    nt3 = notes(note_world(), now)
+    cases.append(("note: the notes carry observed_at (the run's time) and say they are outside the day sha", (nt3["schema"], nt3["observed_at"], "day_sha256" in nt3["outside"], sorted(nt3)),
+                  ("tooshi-notes-v0", "2026-11-05T04:05:00Z", True, ["items", "observed_at", "outside", "schema"])))
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:
         print(("  ok   " if got == want else "  NG   ") + n + ("" if got == want else " (got %r, want %r)" % (got, want)))
@@ -1254,9 +1375,9 @@ def witness_main(now, name, vantage, ledger, dry):
 def main(argv):
     if argv == ["--selftest"]:
         return selftest()
-    now, out, bodyf, trigger, fixed = datetime.datetime.now(datetime.timezone.utc), None, None, "manual", False
+    now, out, bodyf, notesf, trigger, fixed = datetime.datetime.now(datetime.timezone.utc), None, None, None, "manual", False
     wname, vantage, ledger, dry = None, "unspecified", LEDGER, False
-    usage = "usage: tooshi_daily.py [--now T] [--trigger %s] [--out file] [--body file] | --witness NAME [--vantage V] [--dry-run] [--ledger URL] | --selftest" % "|".join(TRIGGERS[:4])
+    usage = "usage: tooshi_daily.py [--now T] [--trigger %s] [--out file] [--body file] [--notes file] | --witness NAME [--vantage V] [--dry-run] [--ledger URL] | --selftest" % "|".join(TRIGGERS[:4])
     it = iter(argv)
     try:
         for a in it:
@@ -1266,6 +1387,8 @@ def main(argv):
                 out = next(it)
             elif a == "--body":
                 bodyf = next(it)
+            elif a == "--notes":
+                notesf = next(it)
             elif a == "--trigger":
                 trigger = next(it)
                 if trigger not in TRIGGERS[:4]:
@@ -1286,8 +1409,8 @@ def main(argv):
         print(usage)
         return 2
     if wname is not None:
-        if fixed or out or bodyf or trigger != "manual":
-            print("witness: --now, --out, --body and --trigger do not go with --witness (the answers are read now, by you)")
+        if fixed or out or bodyf or notesf or trigger != "manual":
+            print("witness: --now, --out, --body, --notes and --trigger do not go with --witness (the answers are read now, by you)")
             return 2
         return witness_main(now, wname, vantage, ledger, dry)
     res, text, sha = run(http_get, now, trigger)
@@ -1297,6 +1420,11 @@ def main(argv):
         open(bodyf, "w", encoding="utf-8").write(body(res, sha))
     for x in res["checks"]:
         print("%-8s %s: %s" % (x["state"], x["id"], x["why"]))
+    if notesf:
+        nt = notes(http_get, now)
+        open(notesf, "w", encoding="utf-8").write(json.dumps(nt, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n")
+        for x in nt["items"]:
+            print("note     %s %s %s: %s (outside day_sha256)" % (x["about"], x["day"], x["state"], x["why"]))
     print("TOOSHI %s %s ok %d red %d notice %d not_yet %d result_sha256 %s day_sha256 %s trigger %s" % (res["checked_at"], res["verdict"], res["counts"]["ok"], res["counts"]["red"], res["counts"]["notice"], res["counts"]["not_yet"], sha, day_sha256(res), trigger))
     return 1 if res["verdict"] == "red" else 0
 

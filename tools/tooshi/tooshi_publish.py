@@ -5,11 +5,14 @@
         prints "run <why>" or "skip <why>" and exits 0. A scheduled run (schedule, second) skips when the day already has a
         published result, or when it starts before 03:47 UTC (a schedule so late that it ran on the next day would read the
         next day before its checks are in, and would then stop that day's own run). A dispatch always runs.
-    python3 -I -B tools/tooshi/tooshi_publish.py write --result tooshi_result.json --run-url URL --dir tooshi
+    python3 -I -B tools/tooshi/tooshi_publish.py write --result tooshi_result.json [--notes tooshi_notes.json] --run-url URL --dir tooshi
         checks that the file is the canonical result tooshi_daily.py wrote, then writes
           tooshi/days/<day>.json   the day: verdict, counts, each check's state and why, the exact result bytes
                                    (result_canonical), result_sha256, day_sha256, trigger, checked_at, run_url, and the
-                                   earlier runs of the same day (a dispatch after the scheduled run keeps it here)
+                                   earlier runs of the same day (a dispatch after the scheduled run keeps it here);
+                                   with --notes, the run's notes (tooshi_daily.py --notes, tooshi-notes-v0, observed_at
+                                   equal to the result's checked_at) under notes. The notes are outside result_canonical,
+                                   so they change neither result_sha256 nor day_sha256 (added 2026-11-05).
           tooshi/latest.json       the newest day, the same bytes as its day file
           tooshi/index.json        one line per day, newest first
         and prints "TOOSHI_KEPT <day> <result_sha256> <day_sha256>".
@@ -24,7 +27,8 @@ TRIGGERS = ("schedule", "second", "dispatch", "manual")
 RECIPE = ("result_sha256 = sha256 of the UTF-8 bytes of result_canonical. day_sha256 = sha256 of the same JSON with checked_at "
           "and trigger removed, schema set to tooshi-day-view-v0 and day added, keys sorted, separators , and : without spaces, "
           "UTF-8 (tools/tooshi/tooshi_daily.py day_view). Any run of the same day after 03:47 UTC that reads the same answers "
-          "gets the same day_sha256.")
+          "gets the same day_sha256. notes, when present, are what that run saw at notes.observed_at; they are not in "
+          "result_canonical, so neither sha covers them.")
 WITNESS = "python3 -I -B tools/tooshi/tooshi_daily.py --witness <your name> [--vantage <your network>] [--dry-run]"
 DAY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
@@ -93,8 +97,20 @@ def _load(path):
         return None
 
 
-def write(result_path, run_url, out_dir):
+def read_notes(path, res):
+    """the run's notes (tooshi_daily.py --notes): a tooshi-notes-v0 object of the same run, kept beside the result"""
+    with open(path, encoding="utf-8") as f:
+        nt = json.load(f)
+    if not isinstance(nt, dict) or nt.get("schema") != "tooshi-notes-v0" or not isinstance(nt.get("items"), list):
+        raise ValueError("not tooshi-notes-v0 notes")
+    if nt.get("observed_at") != res["checked_at"]:
+        raise ValueError("the notes are not of this run (observed_at %s, checked_at %s)" % (nt.get("observed_at"), res["checked_at"]))
+    return nt
+
+
+def write(result_path, run_url, out_dir, notes_path=None):
     res, text = read_result(result_path)
+    nt = read_notes(notes_path, res) if notes_path else None
     d = res["checked_at"][:10]
     rs, ds = sha(text), day_sha256(res)
     dayf = os.path.join(out_dir, "days", d + ".json")
@@ -102,7 +118,10 @@ def write(result_path, run_url, out_dir):
     earlier = []
     if isinstance(old, dict):
         earlier = list(old.get("earlier") or [])
-        earlier.append({k: old.get(k) for k in ("checked_at", "trigger", "result_sha256", "day_sha256", "run_url", "verdict")})
+        e = {k: old.get(k) for k in ("checked_at", "trigger", "result_sha256", "day_sha256", "run_url", "verdict")}
+        if "notes" in old:
+            e["notes"] = old["notes"]
+        earlier.append(e)
     day = {
         "schema": "tooshi-day-v0", "day": d, "verdict": res["verdict"], "counts": res["counts"],
         "checks": [{"id": x.get("id"), "state": x.get("state"), "why": x.get("why")} for x in res["checks"]],
@@ -110,6 +129,8 @@ def write(result_path, run_url, out_dir):
         "trigger": res["trigger"], "checked_at": res["checked_at"], "run_url": run_url, "earlier": earlier,
         "recipe": RECIPE, "witness": WITNESS,
     }
+    if nt is not None:
+        day["notes"] = nt   # outside result_canonical: neither result_sha256 nor day_sha256 covers it
     _write(dayf, day)
     idxf = os.path.join(out_dir, "index.json")
     idx = _load(idxf) or {}
@@ -177,6 +198,30 @@ def selftest():
     cases.append(("a result without trigger (an older tooshi_daily.py) is refused", refused, True))
     names = sorted(os.path.relpath(os.path.join(a, f), out) for a, _, fs in os.walk(out) for f in fs)
     cases.append(("only the three kinds of file are written, no temporary file is left", names, ["days/2026-11-04.json", "days/2026-11-05.json", "index.json", "latest.json"]))
+    # the run's notes (tooshi_daily.py --notes): in the day file, outside result_canonical, result_sha256 and day_sha256
+    def notes_file(at, state, name):
+        p = os.path.join(tmp, name)
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(canon({"schema": "tooshi-notes-v0", "observed_at": at, "outside": "x", "items": [{"about": "3_ledger_settle", "day": "2026-11-05", "state": state}]}) + "\n")
+        return p
+    p6, r6 = result("2026-11-06T04:05:00Z", "schedule")
+    da, db = os.path.join(tmp, "na"), os.path.join(tmp, "nb")
+    write(p6, "u", da, notes_file("2026-11-06T04:05:00Z", "not_confirmed", "n_a.json"))
+    write(p6, "u", db, notes_file("2026-11-06T04:05:00Z", "confirmed", "n_b.json"))
+    ya, yb = _load(os.path.join(da, "days", "2026-11-06.json")), _load(os.path.join(db, "days", "2026-11-06.json"))
+    cases.append(("two day files of the same result whose notes differ: the same result_sha256 and day_sha256, the notes kept as given",
+                  (ya["result_sha256"] == yb["result_sha256"], ya["day_sha256"] == yb["day_sha256"], ya["notes"]["items"][0]["state"], yb["notes"]["items"][0]["state"]), (True, True, "not_confirmed", "confirmed")))
+    cases.append(("a witness's recipe on result_canonical alone gives the file's day_sha256 (the notes are not read)",
+                  (day_sha256(json.loads(ya["result_canonical"])) == ya["day_sha256"], "notes" in ya["result_canonical"]), (True, False)))
+    try:
+        write(p6, "u", da, notes_file("2026-11-06T04:35:00Z", "confirmed", "n_c.json")); refused = False
+    except ValueError:
+        refused = True
+    cases.append(("notes of another run (observed_at is not the result's checked_at) are refused", refused, True))
+    p7, r7 = result("2026-11-06T11:50:00Z", "dispatch")
+    write(p7, "u", da)
+    ya = _load(os.path.join(da, "days", "2026-11-06.json"))
+    cases.append(("a later run without notes: its day has no notes, the earlier run keeps its own", ("notes" in ya, ya["earlier"][0]["notes"]["items"][0]["state"]), (False, "not_confirmed")))
     shutil.rmtree(tmp, ignore_errors=True)
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:
@@ -196,7 +241,7 @@ def main(argv):
     it = iter(rest)
     try:
         for a in it:
-            if a not in ("--trigger", "--now", "--have-day", "--result", "--run-url", "--dir"):
+            if a not in ("--trigger", "--now", "--have-day", "--result", "--notes", "--run-url", "--dir"):
                 raise StopIteration
             opts[a] = next(it)
     except StopIteration:
@@ -208,7 +253,7 @@ def main(argv):
         print(what + " " + why)
         return 0
     if cmd == "write":
-        d, rs, ds = write(opts["--result"], opts.get("--run-url", ""), opts.get("--dir", "tooshi"))
+        d, rs, ds = write(opts["--result"], opts.get("--run-url", ""), opts.get("--dir", "tooshi"), opts.get("--notes"))
         print("TOOSHI_KEPT %s %s %s" % (d, rs, ds))
         return 0
     print("usage: see the docstring")
