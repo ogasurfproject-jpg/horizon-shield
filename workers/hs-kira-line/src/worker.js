@@ -273,9 +273,7 @@ var worker_default = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === "/health") {
-      let lineLastFail = null;
-      try { lineLastFail = JSON.parse((await env.SEEN_STORE.get("kira_line_last_fail")) || "null"); } catch (_e) { lineLastFail = "unreadable"; }
-      return json({ status: "ok", version: "v26-sendcheck-20261106", service: "hs-kira-line", lessons: "per-key-20261013", line_last_fail: lineLastFail });
+      return json({ status: "ok", version: "v26-sendcheck-20261106", service: "hs-kira-line", lessons: "per-key-20261013", line_last_fail: await kiraLineLastFail(env) });
     }
     if (url.pathname === "/diagnosis" && request.method === "POST") {
       return handleDiagnosis(request, env, ctx);
@@ -1751,6 +1749,10 @@ const QUOTE_ACK_TEXT = "\u3054\u8fd4\u4fe1\u3042\u308a\u304c\u3068\u3046\u3054\u
 // 2026-11-06 v26: 1 対 1 で黙ってよいのは、お礼や了解だけで閉じる発言のときだけ。それ以外は必ず一言返す。
 const ANSWER_ACK_TEXT = "ご回答ありがとうございます。いただいた内容は記録しました。";
 const KIRA_PURE_THANKS_RE = /^(?:(?:ありがとう(?:ございます|ございました)?|了解(?:です|しました)?|承知(?:しました|いたしました)?|よろしく(?:お願いします|お願いいたします)?|わかりました|分かりました|はい|OK|ok|オッケー)[。、!！\s]*)+$/;
+// /health 用。読めなかったときは null(無い)と言わず "unreadable" と返す(issue #13)。
+async function kiraLineLastFail(env) {
+  try { return JSON.parse((await env.SEEN_STORE.get("kira_line_last_fail")) || "null"); } catch (_e) { return "unreadable"; }
+}
 // 送れなかった最後の 1 件を KV に残す(/health に出す。本文と相手の ID は残さない)。
 async function kiraNoteSendFail(env, s, where) {
   if (!s || s.ok) return;
@@ -2142,9 +2144,10 @@ async function kiraCatchUp(env, nowMs) {
     // 2026-11-06 v26: 済みの印は送れてから付ける(前は送る前に付けていたので、LINE が断ると二度と送り直さなかった)。
     //   送れなければ回数を数え、3 回までは次の巡回で送り直す。
     const tryKey = "kira_catchup_try:" + convKey + ":" + last.at;
+    // 回数を読めなかったら 0 回とは扱わず、この巡回ではとばす(issue #13: 読めないことと無いことを分ける)。
     let tries = 0;
-    try { tries = parseInt((await env.SEEN_STORE.get(tryKey)) || "0", 10) || 0; } catch (_e) {}
-    if (tries >= 3) continue;
+    try { tries = parseInt((await env.SEEN_STORE.get(tryKey)) || "0", 10) || 0; } catch (_e) { tries = -1; }
+    if (tries < 0 || tries >= 3) continue;
     const markDone = async () => { try { await env.SEEN_STORE.put(doneKey, "1", { expirationTtl: 60 * 60 * 24 * 7 }); } catch (_e) {} };
     let i = conv.length - 1;
     while (i > 0 && conv[i - 1].who === "member") i--;
