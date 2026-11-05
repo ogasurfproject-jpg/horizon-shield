@@ -3,7 +3,7 @@
   "name": "io.github.ogasurfproject-jpg/hs-verify-gate",
   "title": "MCP Verification Gate: check an MCP server or an A2A agent before you connect or delegate",
   "description": "Check an A2A agent before you delegate, or an MCP server's measured conduct. Free, no key.",
-  "version": "0.4.21",
+  "version": "0.4.22",
   "websiteUrl": "https://shield.the-horizons-innovation.com/verify-directory/",
   "icons": [
     {
