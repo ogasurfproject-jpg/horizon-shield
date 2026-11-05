@@ -122,11 +122,11 @@
 
 <section>
   <h2>Price</h2>
-  <p class="slead">Up to three endpoints on one subscription, because most operators run one to three servers and paying three times for that is silly. No setup fee, no minimum term, cancel any time. Prices are in US dollars and carry no Japanese consumption tax, because a service supplied to a customer outside Japan is outside its scope.</p>
+  <p class="slead">Two sizes, each on one subscription: up to three endpoints, or up to ten. Most operators run one to three servers, and paying three times for that is silly. The ten endpoint plan is for operators who run more. Yearly is the monthly price times ten, so two months are free. No setup fee, no minimum term, cancel any time. Prices are in US dollars and carry no Japanese consumption tax, because a service supplied to a customer outside Japan is outside its scope.</p>
   <div class="cards">
     <div class="card">
-      <div class="nm">Monthly</div>
-      <div class="pr">$15<small> / month</small></div>
+      <div class="nm">Monthly, 3 endpoints</div>
+      <div class="pr">$149<small> / month</small></div>
       <div class="sub">up to 3 endpoints</div>
       <ul>
         <li>Measured every day</li>
@@ -136,15 +136,37 @@
       <div class="buy" id="pp-monthly"></div>
     </div>
     <div class="card best">
-      <div class="nm">Yearly</div>
-      <div class="pr">$150<small> / year</small></div>
-      <div class="sub">up to 3 endpoints. Two months free, $30 off.</div>
+      <div class="nm">Yearly, 3 endpoints</div>
+      <div class="pr">$1,490<small> / year</small></div>
+      <div class="sub">up to 3 endpoints. Two months free.</div>
       <ul>
         <li>Everything in monthly</li>
         <li>One payment a year, not twelve</li>
         <li>The history is worth more the longer it runs</li>
       </ul>
       <div class="buy" id="pp-yearly"></div>
+    </div>
+    <div class="card">
+      <div class="nm">Monthly, 10 endpoints</div>
+      <div class="pr">$490<small> / month</small></div>
+      <div class="sub">up to 10 endpoints</div>
+      <ul>
+        <li>Measured every day</li>
+        <li>Webhook when a condition flips</li>
+        <li>Cancel any time</li>
+      </ul>
+      <div class="buy" id="pp-monthly10"></div>
+    </div>
+    <div class="card best">
+      <div class="nm">Yearly, 10 endpoints</div>
+      <div class="pr">$4,900<small> / year</small></div>
+      <div class="sub">up to 10 endpoints. Two months free.</div>
+      <ul>
+        <li>Everything in monthly</li>
+        <li>One payment a year, not twelve</li>
+        <li>The history is worth more the longer it runs</li>
+      </ul>
+      <div class="buy" id="pp-yearly10"></div>
     </div>
   </div>
   <div class="pending" id="pp-pending" style="margin-top:18px">
@@ -231,10 +253,12 @@
 
 </div>
 
-<!-- PayPal subscription buttons. Paste the two plan ids below and the buttons appear. -->
+<!-- PayPal subscription buttons. A button appears only when its plan id is set. While all four are empty, the notice above stays. -->
 <script>
-  var PLAN_MONTHLY = "P-9WR34109U23711349NJ36UVQ";
-  var PLAN_YEARLY  = "P-7115881939415643JNJ36UZQ";
+  var PLAN_MONTHLY   = "";
+  var PLAN_YEARLY    = "";
+  var PLAN_MONTHLY10 = "";
+  var PLAN_YEARLY10  = "";
 </script>
 <script src="https://www.paypal.com/sdk/js?client-id=AVePXfDeP_YDUgmcFEJNjFHuYkbXZ-VQcLEecJs5Li2la9qDbtZJamy-iXzTxWlPdUODt6KNV3nqUKHP&vault=true&intent=subscription&currency=USD"></script>
 <script>
@@ -247,9 +271,11 @@
     }).render(sel);
     return true;
   }
-  var a = ppButton('#pp-monthly', PLAN_MONTHLY);
-  var b = ppButton('#pp-yearly',  PLAN_YEARLY);
-  if (a || b) { var n = document.getElementById('pp-pending'); if (n) n.style.display = 'none'; }
+  var a = ppButton('#pp-monthly',   PLAN_MONTHLY);
+  var b = ppButton('#pp-yearly',    PLAN_YEARLY);
+  var c = ppButton('#pp-monthly10', PLAN_MONTHLY10);
+  var d = ppButton('#pp-yearly10',  PLAN_YEARLY10);
+  if (a && b && c && d) { var n = document.getElementById('pp-pending'); if (n) n.style.display = 'none'; }
 </script>
 
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5a6009e4bfe34dc8ae92f6fc93506de4"}'></script>
