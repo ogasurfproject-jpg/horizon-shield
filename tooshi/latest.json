@@ -1,30 +1,30 @@
 {
- "checked_at": "2026-11-04T07:14:37Z",
+ "checked_at": "2026-11-05T04:05:46Z",
  "checks": [
   {
    "id": "1_sieve_admission",
    "state": "ok",
-   "why": "yesterday's call: its content block's check_sha256 is the check of leaf 1 of 2026-11-03, signed by runner-1, in the day root the ledger serves, with the same input_commit, rules, scope and answer"
+   "why": "yesterday's call: its content block's check_sha256 is the check of leaf 1 of 2026-11-04, signed by runner-1, in the day root the ledger serves, with the same input_commit, rules, scope and answer"
   },
   {
    "id": "2_admission_ledger",
    "state": "ok",
-   "why": "the ledger serves the call's record 15a956ecbf1ae4f6d2735c818e6d9c29a150ee3a67f1c7494fba4abc086176c9 under its sha, the door serves the same bytes, a v0.4 record with the fixed content answer under the door's rules id"
+   "why": "the ledger serves the call's record cd3810073384a249fa9ec2cdc7d0f47d269d36756addee4d3357c823e118ebc2 under its sha, the door serves the same bytes, a v0.4 record with the fixed content answer under the door's rules id"
   },
   {
    "id": "3_ledger_settle",
    "state": "not_yet",
-   "why": "2026-11-02 is before the first day the loop filed (2026-11-03)"
+   "why": "2026-11-03 is filed and waits for Bitcoin to confirm its admission and execution (not settled)"
   },
   {
    "id": "4_door_resume",
-   "state": "ok",
-   "why": "yesterday's check call record is in the Resume of https://shield.the-horizons-innovation.com/: admit, not revoked, the fixed content answer, ledger entry 245"
+   "state": "not_yet",
+   "why": "yesterday's record is batched but its batch is not anchored yet (not_yet_anchored), so the Resume does not list it yet"
   },
   {
    "id": "4b_resume_agreement",
    "state": "not_yet",
-   "why": "the check contract is on file but not in a ledger batch yet"
+   "why": "the check contract's batch (ledger entry 253) is not confirmed in Bitcoin yet"
   },
   {
    "id": "5_door_runner",
@@ -33,13 +33,13 @@
   },
   {
    "id": "6_daily_root",
-   "state": "notice",
-   "why": "2026-11-02 had no checks; nothing was sent (not red)"
+   "state": "ok",
+   "why": "2026-11-03 was accepted, is served by the ledger and is in batch entry 250 of 2026-11-05"
   },
   {
    "id": "6b_daily_leaf",
-   "state": "not_yet",
-   "why": "the day before yesterday (2026-11-02) is before the first day whose envelopes the runner keeps (2026-11-03)"
+   "state": "ok",
+   "why": "2026-11-03: leaves 0,1 match their envelopes, carry runner-1's signature, and their audit paths rebuild the root of the day record the ledger serves"
   },
   {
    "id": "7_heartbeat_scene",
@@ -49,19 +49,19 @@
  ],
  "counts": {
   "not_yet": 3,
-  "notice": 1,
-  "ok": 5,
+  "notice": 0,
+  "ok": 6,
   "red": 0
  },
- "day": "2026-11-04",
- "day_sha256": "ec23bc977fb82a3c1fcc750bc2bfec242552e45e68f345d0d0c438a7625bebf6",
+ "day": "2026-11-05",
+ "day_sha256": "5a543df94325181f14bae4e7eef9b9c7c88e1137160ec3877c09e4cce114b86a",
  "earlier": [],
  "recipe": "result_sha256 = sha256 of the UTF-8 bytes of result_canonical. day_sha256 = sha256 of the same JSON with checked_at and trigger removed, schema set to tooshi-day-view-v0 and day added, keys sorted, separators , and : without spaces, UTF-8 (tools/tooshi/tooshi_daily.py day_view). Any run of the same day after 03:47 UTC that reads the same answers gets the same day_sha256.",
- "result_canonical": "{\"checked_at\":\"2026-11-04T07:14:37Z\",\"checks\":[{\"facts\":{\"day\":\"2026-11-04\",\"decision\":\"admit\",\"leaf\":1,\"record\":\"15a956ecbf1ae4f6d2735c818e6d9c29a150ee3a67f1c7494fba4abc086176c9\"},\"id\":\"1_sieve_admission\",\"state\":\"ok\",\"why\":\"yesterday's call: its content block's check_sha256 is the check of leaf 1 of 2026-11-03, signed by runner-1, in the day root the ledger serves, with the same input_commit, rules, scope and answer\"},{\"facts\":{\"day\":\"2026-11-04\",\"decision\":\"admit\",\"record\":\"15a956ecbf1ae4f6d2735c818e6d9c29a150ee3a67f1c7494fba4abc086176c9\"},\"id\":\"2_admission_ledger\",\"state\":\"ok\",\"why\":\"the ledger serves the call's record 15a956ecbf1ae4f6d2735c818e6d9c29a150ee3a67f1c7494fba4abc086176c9 under its sha, the door serves the same bytes, a v0.4 record with the fixed content answer under the door's rules id\"},{\"facts\":{\"day\":\"2026-11-02\"},\"id\":\"3_ledger_settle\",\"state\":\"not_yet\",\"why\":\"2026-11-02 is before the first day the loop filed (2026-11-03)\"},{\"facts\":{\"day\":\"2026-11-03\",\"ledger_n\":245,\"record\":\"413fcf06b6d963cc760a35b053e426cea451b9b9e4433193aed0a9390b231c07\"},\"id\":\"4_door_resume\",\"state\":\"ok\",\"why\":\"yesterday's check call record is in the Resume of https://shield.the-horizons-innovation.com/: admit, not revoked, the fixed content answer, ledger entry 245\"},{\"facts\":{\"contract\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\"},\"id\":\"4b_resume_agreement\",\"state\":\"not_yet\",\"why\":\"the check contract is on file but not in a ledger batch yet\"},{\"facts\":{\"door_required\":false,\"rules_sha256\":\"2c5a1089a90265717175dd1056be7075472aed44fab5581e6be6e73b1746f195\",\"runner\":\"hs-furui-runner 0.4.0\"},\"id\":\"5_door_runner\",\"state\":\"ok\",\"why\":\"the runner's key, caps, model key and rules id agree with the ledger and the door\"},{\"facts\":{\"day\":\"2026-11-02\"},\"id\":\"6_daily_root\",\"state\":\"notice\",\"why\":\"2026-11-02 had no checks; nothing was sent (not red)\"},{\"facts\":{\"day\":\"2026-11-02\"},\"id\":\"6b_daily_leaf\",\"state\":\"not_yet\",\"why\":\"the day before yesterday (2026-11-02) is before the first day whose envelopes the runner keeps (2026-11-03)\"},{\"facts\":{\"at\":\"2026-11-04T03:17:53.842Z\",\"capped\":false,\"spent_usd\":0.00029430000000000005},\"id\":\"7_heartbeat_scene\",\"state\":\"ok\",\"why\":\"today's scene ran after 03:17 UTC and gave the expected answer\"}],\"counts\":{\"not_yet\":3,\"notice\":1,\"ok\":5,\"red\":0},\"schema\":\"tooshi-daily-v0\",\"trigger\":\"dispatch\",\"verdict\":\"not_all_checked\"}",
- "result_sha256": "b52083a2bfa5a75e82b7a19a7160dadf8529fde77c1eadd4330fc3b8d762fee2",
- "run_url": "https://github.com/ogasurfproject-jpg/horizon-shield/actions/runs/41790854823",
+ "result_canonical": "{\"checked_at\":\"2026-11-05T04:05:46Z\",\"checks\":[{\"facts\":{\"day\":\"2026-11-05\",\"decision\":\"admit\",\"leaf\":1,\"record\":\"cd3810073384a249fa9ec2cdc7d0f47d269d36756addee4d3357c823e118ebc2\"},\"id\":\"1_sieve_admission\",\"state\":\"ok\",\"why\":\"yesterday's call: its content block's check_sha256 is the check of leaf 1 of 2026-11-04, signed by runner-1, in the day root the ledger serves, with the same input_commit, rules, scope and answer\"},{\"facts\":{\"day\":\"2026-11-05\",\"decision\":\"admit\",\"record\":\"cd3810073384a249fa9ec2cdc7d0f47d269d36756addee4d3357c823e118ebc2\"},\"id\":\"2_admission_ledger\",\"state\":\"ok\",\"why\":\"the ledger serves the call's record cd3810073384a249fa9ec2cdc7d0f47d269d36756addee4d3357c823e118ebc2 under its sha, the door serves the same bytes, a v0.4 record with the fixed content answer under the door's rules id\"},{\"facts\":{\"contract\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\",\"day\":\"2026-11-03\",\"execution\":\"56a2f439acd548bc882fd8bca72dc6b5b1bb06643334ed81748d6de1974b1d44\",\"record\":\"413fcf06b6d963cc760a35b053e426cea451b9b9e4433193aed0a9390b231c07\"},\"id\":\"3_ledger_settle\",\"state\":\"not_yet\",\"why\":\"2026-11-03 is filed and waits for Bitcoin to confirm its admission and execution (not settled)\"},{\"facts\":{\"day\":\"2026-11-04\",\"record\":\"15a956ecbf1ae4f6d2735c818e6d9c29a150ee3a67f1c7494fba4abc086176c9\"},\"id\":\"4_door_resume\",\"state\":\"not_yet\",\"why\":\"yesterday's record is batched but its batch is not anchored yet (not_yet_anchored), so the Resume does not list it yet\"},{\"facts\":{\"contract\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\",\"entry\":253},\"id\":\"4b_resume_agreement\",\"state\":\"not_yet\",\"why\":\"the check contract's batch (ledger entry 253) is not confirmed in Bitcoin yet\"},{\"facts\":{\"door_required\":false,\"rules_sha256\":\"2c5a1089a90265717175dd1056be7075472aed44fab5581e6be6e73b1746f195\",\"runner\":\"hs-furui-runner 0.4.0\"},\"id\":\"5_door_runner\",\"state\":\"ok\",\"why\":\"the runner's key, caps, model key and rules id agree with the ledger and the door\"},{\"facts\":{\"day\":\"2026-11-03\",\"entry\":250,\"record\":\"280f70f3688bdc18f3a5f8f735889f30d4a52be8e394c98601a160fcaf229f3f\"},\"id\":\"6_daily_root\",\"state\":\"ok\",\"why\":\"2026-11-03 was accepted, is served by the ledger and is in batch entry 250 of 2026-11-05\"},{\"facts\":{\"day\":\"2026-11-03\",\"leaves\":[0,1],\"record\":\"280f70f3688bdc18f3a5f8f735889f30d4a52be8e394c98601a160fcaf229f3f\"},\"id\":\"6b_daily_leaf\",\"state\":\"ok\",\"why\":\"2026-11-03: leaves 0,1 match their envelopes, carry runner-1's signature, and their audit paths rebuild the root of the day record the ledger serves\"},{\"facts\":{\"at\":\"2026-11-05T03:17:52.719Z\",\"capped\":false,\"spent_usd\":0.0002949},\"id\":\"7_heartbeat_scene\",\"state\":\"ok\",\"why\":\"today's scene ran after 03:17 UTC and gave the expected answer\"}],\"counts\":{\"not_yet\":3,\"notice\":0,\"ok\":6,\"red\":0},\"schema\":\"tooshi-daily-v0\",\"trigger\":\"schedule\",\"verdict\":\"not_all_checked\"}",
+ "result_sha256": "4ec58989867eaea17b8bda836df9fdee26e7e115e30de0231b7062aadeaf7932",
+ "run_url": "https://github.com/ogasurfproject-jpg/horizon-shield/actions/runs/41965591615",
  "schema": "tooshi-day-v0",
- "trigger": "dispatch",
+ "trigger": "schedule",
  "verdict": "not_all_checked",
  "witness": "python3 -I -B tools/tooshi/tooshi_daily.py --witness <your name> [--vantage <your network>] [--dry-run]"
 }
