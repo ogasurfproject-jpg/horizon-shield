@@ -26,7 +26,7 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment_retry.outputs.page_url || steps.deployment.outputs.page_url }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -95,8 +95,18 @@ jobs:
           # 打ち直し(gh run rerun --failed)でも束の名が 1 つになるよう、試行の番号を名に入れる。
           # deploy-pages は同じ run の束を名で探し、同じ名が 2 つあると落ちる(2026-11-03 run 41640082685)。
           name: github-pages-${{ github.run_attempt }}
+      # deploy-pages は 10 分で打ち切る(timeout の入力は 600000 ms が上限で、それより大きい値は 600000 に戻される)。
+      # 約 1 万 2 千 file の同期が 10 分を超えて落ちる事がある(2026-11-06 run 42257475670、42262708719。どちらも打ち直しで通った)。
+      # 1 回目が落ちた時だけ、同じ束でもう一度 deploy する。2 回目も落ちたら run は赤になる。
       - name: Deploy to GitHub Pages
         id: deployment
+        continue-on-error: true
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
+      - name: Deploy to GitHub Pages (retry)
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
         with:
           artifact_name: github-pages-${{ github.run_attempt }}
