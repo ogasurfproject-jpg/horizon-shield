@@ -14,6 +14,11 @@ The verdict is red if any check is red; green only if every check is ok or notic
 Exit 0 for green or not_all_checked, 1 for red, 2 if this script itself failed.
 The result is canonical JSON (sorted keys, no spaces); its sha256 is printed on the last line.
 
+6 daily_root (2026-11-06): the day before yesterday's record is in the batch entry made the day after the close, or in
+                   an earlier one (an operator's anchoring run, anchored_by) that is confirmed on Bitcoin and is the only
+                   entry listing the record up to today's 03:47 UTC; facts carry early, the entry, anchored_by and the days
+                   early. A later batch, no batch, or a second entry listing the record is red.
+
 Added with the door's daily check call (2026-11-03):
     6b_daily_leaf  the day before yesterday's first and last leaf, read at GET /furui/day/<D>/leaf/<i>: the envelope has the
                    closed shape, hashes to the leaf, carries runner-1's signature, and its RFC 6962 audit path rebuilds the
@@ -108,7 +113,10 @@ later run of the same day reads the same window.
     11             main_ci: no push run on main of horizon-shield failed (failure, timed_out, startup_failure) among the
                    runs created in the 24 hours before 03:47 UTC (GitHub's REST API; the job's own read-only GITHUB_TOKEN,
                    when set, only lifts the rate limit). red names the workflow, the failed job and the commit; not_yet
-                   when the repository cannot be read. hs-seki-private and hs-furui-private are left out (CI_LEFT_OUT,
+                   when the repository cannot be read. A failed run is fixed, and ok, when the next push run on main of the
+                   same workflow inside the window completed with success and every job that failed succeeded in it
+                   (facts.fixed: failed at <commit>, fixed at <commit>); no later run, or a later run that is not green, is
+                   red as before. hs-seki-private and hs-furui-private are left out (CI_LEFT_OUT,
                    named in facts.left_out): this job's token cannot read them, and the owner's push scripts wait for
                    their CI themselves. They come back into CI_REPOS when a read token for them is set.
     12             paid_rows_daily: every paid row (tier paid) of the gate's GET /register was measured at or after 26 hours
@@ -308,8 +316,45 @@ def check_day_root(get, now):
         return c(cid, "red", "the batch entry did not answer: " + str(ex), day=d, record=sha, entry=n)
     if es != 200 or not isinstance(e, dict) or sha not in str(e.get("record_canonical") or ""):
         return c(cid, "red", "batch entry %s does not list the record" % n, day=d, record=sha, entry=n)
-    if str(e.get("created_at") or "")[:10] != d2:
-        return c(cid, "red", "batch entry %s is from %s, not %s (the day after the close)" % (n, str(e.get("created_at"))[:10], d2), day=d, record=sha, entry=n)
+    bd = str(e.get("created_at") or "")[:10]
+    if bd > d2 or not re.match(r"^\d{4}-\d{2}-\d{2}$", bd):
+        return c(cid, "red", "batch entry %s is from %s, not %s (the day after the close)" % (n, bd or None, d2), day=d, record=sha, entry=n)
+    if bd < d2:
+        # Batched before the day after the close (an operator's anchoring run, anchored_by). ok only when that batch is
+        # confirmed on Bitcoin and no other entry made since, up to today's 03:47 UTC, lists the record again.
+        facts = {"day": d, "record": sha, "entry": n, "early": True, "batch_day": bd, "expected_day": d2,
+                 "days_early": (datetime.date.fromisoformat(d2) - datetime.date.fromisoformat(bd)).days,
+                 "anchored_by": e.get("anchored_by"), "ots_status": e.get("ots_status")}
+        if e.get("ots_status") != "confirmed":
+            return c(cid, "red", "batch entry %s (%s, before %s) is %s on Bitcoin, not confirmed" % (n, bd, d2, e.get("ots_status")), **facts)
+        try:
+            hs, h = get(LEDGER + "/ledger/head")
+        except Unreachable as ex:
+            return c(cid, "red", "the ledger head did not answer, so a second batch of the record cannot be ruled out: " + str(ex), **facts)
+        hn = h.get("n") if hs == 200 and isinstance(h, dict) else None
+        if not isinstance(hn, int) or hn < n:
+            return c(cid, "red", "the ledger head answered %s, so a second batch of the record cannot be ruled out" % hs, **facts)
+        if hn - n > DAY_ROOT_SCAN:
+            return c(cid, "red", "%d entries after %d are more than this check reads (%d), so a second batch cannot be ruled out" % (hn - n, n, DAY_ROOT_SCAN), **facts)
+        hi, again, read_ = anchor(now), [], 0
+        for i in range(n + 1, hn + 1):
+            try:
+                xs, x = get(LEDGER + "/ledger/%d?format=json" % i)
+            except Unreachable as ex:
+                return c(cid, "red", "entry %d did not answer, so a second batch cannot be ruled out: %s" % (i, ex), **facts)
+            if xs != 200 or not isinstance(x, dict):
+                return c(cid, "red", "entry %d answered %s, so a second batch cannot be ruled out" % (i, xs), **facts)
+            t = when(x.get("created_at"))
+            if t is None or t >= hi:
+                break
+            read_ += 1
+            if sha in str(x.get("record_canonical") or ""):
+                again.append(i)
+        facts["entries_after_read"] = read_
+        if again:
+            return c(cid, "red", "the record of %s is in batch entry %d and again in %s" % (d, n, ", ".join(str(i) for i in again)), again=again, **facts)
+        return c(cid, "ok", "%s was accepted, is served by the ledger and is in batch entry %d of %s, %d day(s) before %s (anchored_by %s), confirmed, and in no other entry up to %s"
+                 % (d, n, bd, facts["days_early"], d2, e.get("anchored_by"), iso(hi)), **facts)
     return c(cid, "ok", "%s was accepted, is served by the ledger and is in batch entry %d of %s" % (d, n, d2), day=d, record=sha, entry=n)
 
 # ---- the closed envelope, its leaf and audit path (runner 0.3.0 keepProblems, leafHash, rootFromPath), Ed25519 (RFC 8032) ----
@@ -1138,7 +1183,8 @@ EXEMPT_WHY = {"12_paid_rows_daily": "no paid row yet: a time limit would turn th
                                      "nothing to measure; it ends when the register has a paid row"}
 BITCOIN_HOURS = 36
 GATE_WAIT_HOURS = 168                    # 10 while the gate is before 0.4.24
-DEADLINE_LOOKBACK = 8                    # days read back (the longest deadline is 7 days)
+DEADLINE_LOOKBACK = 8
+DAY_ROOT_SCAN = 60                       # 6: entries read after an early batch to rule out a second one                    # days read back (the longest deadline is 7 days)
 
 
 def anchor(now):
@@ -1240,7 +1286,7 @@ def check_main_ci(get, now):
     cid = "11_main_ci"
     hi = anchor(now)
     lo = hi - CI_WINDOW
-    red, unread, counted = [], [], {}
+    red, unread, counted, healed = [], [], {}, []
     for repo in CI_REPOS:
         runs, total = [], None
         try:
@@ -1268,15 +1314,52 @@ def check_main_ci(get, now):
                     jobs = [x.get("name") for x in (jj.get("jobs") or []) if isinstance(x, dict) and x.get("conclusion") in CI_BAD] if js == 200 and isinstance(jj, dict) else []
                 except Unreachable:
                     pass
+                fix = ci_fixed_by(get, repo, r, jobs, inside, hi)
+                if fix:
+                    healed.append(fix)
+                    continue
                 red.append("%s: %s, job %s, commit %s (%s)" % (repo.split("/")[1], r.get("name") or r.get("path"), ", ".join(str(x) for x in jobs) or "not read",
                                                               str(r.get("head_sha") or "")[:8], r.get("conclusion")))
     facts = {"window": [iso(lo), iso(hi)], "runs": counted, "left_out": {r.split("/")[1]: CI_LEFT_OUT_WHY for r in CI_LEFT_OUT}}
+    if healed:
+        facts["fixed"] = healed
     if red:
         return c(cid, "red", "a push run on main failed: " + "; ".join(red), failed=len(red), unreadable=[u.split(" ")[0] for u in unread], **facts)
     if unread:
         return c(cid, "not_yet", "GitHub could not be read for %s; no failure in the others" % ", ".join(unread),
                  unreadable=[u.split(" ")[0] for u in unread], **facts)
+    if healed:
+        return c(cid, "ok", "every push run on main of %s that failed between %s and %s was fixed by a later green run of the same workflow and job: %s"
+                 % (", ".join(r.split("/")[1] for r in CI_REPOS), iso(lo), iso(hi), "; ".join("%s, job %s: failed at %s, fixed at %s" % (h["workflow"], ", ".join(h["jobs"]), h["failed_at"], h["fixed_at"]) for h in healed)), **facts)
     return c(cid, "ok", "no push run on main of %s failed between %s and %s" % (", ".join(r.split("/")[1] for r in CI_REPOS), iso(lo), iso(hi)), **facts)
+
+
+def ci_fixed_by(get, repo, r, jobs, inside, hi):
+    """11: the first later push run on main of the same workflow (path), created after the failed one and before today's
+    03:47 UTC, that completed with success and whose jobs include every job that failed, each with success. None when
+    there is no such run, when the failed jobs are not known, or when the later run's jobs cannot be read."""
+    t0 = when(r.get("created_at"))
+    if t0 is None or not jobs:
+        return None
+    later = sorted((x for x in inside if x is not r and x.get("path") == r.get("path") and (lambda t: t is not None and t0 < t < hi)(when(x.get("created_at")))),
+                   key=lambda x: (x.get("created_at"), str(x.get("id"))))
+    if not later:
+        return None
+    nx = later[0]
+    if nx.get("status") != "completed" or nx.get("conclusion") != "success":
+        return None
+    try:
+        js, jj = get("%s/repos/%s/actions/runs/%s/jobs?per_page=100" % (GH_API, repo, nx.get("id")))
+    except Unreachable:
+        return None
+    if js != 200 or not isinstance(jj, dict):
+        return None
+    ok = {x.get("name") for x in (jj.get("jobs") or []) if isinstance(x, dict) and x.get("conclusion") == "success"}
+    if not all(j in ok for j in jobs):
+        return None
+    return {"repo": repo.split("/")[1], "workflow": r.get("name") or r.get("path"), "jobs": sorted(jobs),
+            "failed_at": str(r.get("head_sha") or "")[:8], "failed_run": r.get("id"),
+            "fixed_at": str(nx.get("head_sha") or "")[:8], "fixed_run": nx.get("id")}
 
 
 def check_paid_rows(get, now):
@@ -2097,6 +2180,60 @@ def selftest():
     rv1, _, _ = run(world(cc=True), now, "schedule")
     rv2, _, _ = run(world(cc=True), now.replace(hour=11, minute=50), "dispatch")
     cases.append(("v2: the 04:05 run and an 11:50 run of the same day read the same windows (from 03:47 UTC) and get the same day_sha256", day_sha256(rv1) == day_sha256(rv2), True))
+    # ---- 2026-11-06: the first v2 day's two reds, from today's public answers (tooshi_real_20261106.json) ----
+    REAL = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "tooshi_real_20261106.json"), encoding="utf-8"))
+    N6 = datetime.datetime(2026, 11, 6, 4, 5, tzinfo=datetime.timezone.utc)
+    LO6 = anchor(N6) - CI_WINDOW
+    JOBS = lambda i: "%s/repos/%s/actions/runs/%s/jobs?per_page=100" % (GH_API, CI_REPOS[0], i)
+
+    def w11(runs=None, jobs=None):
+        rr = REAL["runs"] if runs is None else runs
+        w = {ci_runs_url(CI_REPOS[0], LO6): (200, {"total_count": len(rr), "workflow_runs": rr})}
+        for k, v in (REAL["jobs"] if jobs is None else jobs).items():
+            w[JOBS(k)] = (200, {"jobs": v})
+        return lambda u, raw=False: w.get(u, (404, None))
+    r11 = check_main_ci(w11(), N6)
+    cases.append(("11 ok on 2026-11-06's real runs: public boundary failed at 6a65cef5 (job swallowed-read) and was fixed at b3a86ddb",
+                  (r11["state"], [(h["workflow"], h["jobs"], h["failed_at"], h["fixed_at"]) for h in r11["facts"].get("fixed", [])], r11["facts"]["runs"]),
+                  ("ok", [("public boundary", ["swallowed-read"], "6a65cef5", "b3a86ddb")], {"horizon-shield": 62})))
+    J2 = dict(REAL["jobs"]); J2["42118676487"] = [dict(x, conclusion="failure") if x["name"] == "swallowed-read" else x for x in J2["42118676487"]]
+    cases.append(("11 red on the real runs when the later run's swallowed-read job is not green", check_main_ci(w11(jobs=J2), N6)["state"], "red"))
+    R3 = [dict(x, conclusion="failure") if x["id"] == 42118676487 else x for x in REAL["runs"]]
+    cases.append(("11 red on the real runs when the next public boundary run after the failure is red too", check_main_ci(w11(runs=R3), N6)["state"], "red"))
+    J4 = {k: v for k, v in REAL["jobs"].items() if k != "42118676487"}
+    cases.append(("11 red on the real runs when the later run's jobs cannot be read (fixed is not assumed)", check_main_ci(w11(jobs=J4), N6)["state"], "red"))
+    R5 = [x for x in REAL["runs"] if x["created_at"] <= "2026-11-05T21:38:54Z"]
+    cases.append(("11 red on the real runs cut at the failure: no later run of the workflow yet", check_main_ci(w11(runs=R5), N6)["state"], "red"))
+    R6 = [x for x in REAL["runs"] if not (x["path"] == ".github/workflows/public-boundary.yml" and x["created_at"] > "2026-11-05T21:38:54Z")] + \
+         [dict(x, id=99, created_at="2026-11-06T03:47:00Z") for x in REAL["runs"] if x["id"] == 42118676487]
+    cases.append(("11 red when the only green run after the failure is created at 03:47 UTC, outside the window", check_main_ci(w11(runs=R6), N6)["state"], "red"))
+
+    SHA6 = REAL["status_1104"]["status"]["ledger_canonical_sha256"]
+
+    def w6(**over):
+        w = {RUNNER + "/furui/day/2026-11-04/status": (200, REAL["status_1104"]),
+             LEDGER + "/furui-check-day/" + SHA6: (200, REAL["rec_1104"]),
+             LEDGER + "/ledger/254?format=json": (200, REAL["entry_254"]),
+             LEDGER + "/ledger/head": (200, {"n": REAL["ledger_head_n"]})}
+        for k, v in REAL["entries_after"].items():
+            w[LEDGER + "/ledger/%s?format=json" % k] = (200, v)
+        w.update(over)
+        return lambda u, raw=False: w[u] if u in w else (404, None)
+    r6 = check_day_root(w6(), N6)
+    cases.append(("6 ok on 2026-11-06's real answers: 11-04 is in entry 254 of 11-05, one day early, anchored_by operator, confirmed, in no other entry",
+                  (r6["state"], r6["facts"].get("early"), r6["facts"].get("entry"), r6["facts"].get("anchored_by"), r6["facts"].get("days_early"), r6["facts"].get("entries_after_read")),
+                  ("ok", True, 254, "operator", 1, 6)))
+    E257 = dict(REAL["entries_after"]["257"]); E257["record_canonical"] = E257["record_canonical"][:-1] + ',"again":"%s"}' % SHA6
+    x6 = check_day_root(w6(**{LEDGER + "/ledger/257?format=json": (200, E257)}), N6)
+    cases.append(("6 red on the real answers when entry 257 lists the record again", (x6["state"], x6["facts"].get("again")), ("red", [257])))
+    cases.append(("6 red on the real answers when the early batch is not confirmed on Bitcoin",
+                  check_day_root(w6(**{LEDGER + "/ledger/254?format=json": (200, dict(REAL["entry_254"], ots_status="pending"))}), N6)["state"], "red"))
+    cases.append(("6 red on the real answers when the batch is later than the day after the close",
+                  check_day_root(w6(**{LEDGER + "/ledger/254?format=json": (200, dict(REAL["entry_254"], created_at="2026-11-07T00:30:00.000Z"))}), N6)["state"], "red"))
+    cases.append(("6 red on the real answers when the ledger head does not answer (a second batch cannot be ruled out)",
+                  check_day_root(w6(**{LEDGER + "/ledger/head": (503, None)}), N6)["state"], "red"))
+    cases.append(("6 red on the real answers when the record is in no batch", check_day_root(w6(**{LEDGER + "/furui-check-day/" + SHA6: (200, dict(REAL["rec_1104"], status="pending_anchor", ledger_entry=None))}), N6)["state"], "red"))
+
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:
         print(("  ok   " if got == want else "  NG   ") + n + ("" if got == want else " (got %r, want %r)" % (got, want)))

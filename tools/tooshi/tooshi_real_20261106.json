@@ -1,0 +1,856 @@
+{
+ "entries_after": {
+  "255": {
+   "bitcoin_block": 974727,
+   "block_time": "2026-11-05 23:25 UTC",
+   "claim_sha256": "3f380f821ea324f0164dedc283feb7dac8734fb3bc79b319b6110181c4a6c0ad",
+   "created_at": "2026-11-05T23:05:41.884Z",
+   "n": 255,
+   "ots_status": "confirmed",
+   "record_canonical": "# witness-enroll-pool-v0\n\npool_sha256: 96f8be7b1e3de7cb6a87a881281bb84cb408176bb050a7db45b7cdf90ec7d969\npool_version: 1\nprevious_pool_sha256: none\nentries: 1\n\nThis entry fixes one version of the pool of day witnesses for FURUI day records. The draw for a day uses the pool of the latest entry of this kind that was appended before the ledger entry listing that day's record and is anchored in a Bitcoin block at or below that entry's block. The pool is the JSON on the pool_canonical line; its sha256 is pool_sha256. Procedure: https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/witness-enroll-v0/PROCEDURE.md\nEstablishes: that this pool existed no later than the block this entry is anchored to.\nDoes not establish: that anyone in the pool will answer a draw, or anything about their answers.\n\npool_canonical: {\"entries\":[{\"consent\":{\"enrollment_sha256\":null,\"form\":\"email\",\"on\":\"2026-11-04\"},\"joined_on\":\"2026-11-04\",\"key_id\":\"ed25519:375909759fe5e437\",\"key_url\":\"https://pipavlo82.github.io/keys/witness.json\",\"kinds\":[\"furui-day\"],\"left_on\":null,\"left_reason\":null,\"name\":\"pipavlo82\",\"public_key_ed25519_b64\":\"A9cRj87tZ6Ob5FbRU12LazXRD7fNUJcSNK80Rp1U3zM=\",\"signed_domain\":\"pipavlo82.github.io\"}],\"previous_pool_sha256\":null,\"schema\":\"witness-enroll-pool-v0\",\"version\":1}\n",
+   "schema": "v0-plain",
+   "stamped_at": "2026-11-06T00:18:30.960Z",
+   "work": "witness-enroll-v0: pool version 1"
+  },
+  "256": {
+   "anchored_by": "schedule",
+   "bitcoin_block": 974743,
+   "block_time": "2026-11-06 01:15 UTC",
+   "claim_sha256": "bd5ae432e0e47614ca9e866aa22a2a77a412cb625fea13ed0826983f0da65ad4",
+   "created_at": "2026-11-06T00:30:34.535Z",
+   "n": 256,
+   "ots_status": "confirmed",
+   "record_canonical": "{\"schema\":\"nenrin-witness-batch-v1\",\"anchored_at\":\"2026-11-06T00:30:34.296Z\",\"count\":4,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"n\":255,\"entry_sha256\":\"d55ba61becace585c3fb52ab78d3782a2a3859f51dc43e4cfbc5c4efebfa5db5\"},\"records\":[{\"sha\":\"562807cc46a6644174f7314a6691d4a640d4048722f205a0abf2cea52e36b2fd\",\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"witness_name\":\"kuangmi-bit\",\"vantage\":\"github-actions hosted runner (Linux) for kuangmi-bit/conduct-witness\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"sha\":\"5ed3b10fc70a92e22c0e31c019aa484a8fc94d22517c0d12a66a22f4aaca9024\",\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"witness_name\":\"kuangmi-bit\",\"vantage\":\"github-actions hosted runner (Linux) for kuangmi-bit/conduct-witness\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"sha\":\"afe669a3aec8fb039304530ad320a77417735f749406ee2a31903ccfce49fdcc\",\"purpose\":\"furui-day-v0: 2026-11-03\",\"witness_name\":\"pipavlo82\",\"vantage\":\"Pavlo Windows machine; Codex assisted; prior collaboration disclosed\",\"signed\":true,\"signed_domain\":\"pipavlo82.github.io\",\"mode\":\"commitment\"},{\"sha\":\"de89817ce3f6f8001567dff8b6cd4578e524eb92d56f05d9e878647eabd1759e\",\"purpose\":\"nenrin-instant-commitment-v1: w2967\",\"witness_name\":\"gate.horizonshield.dev\",\"vantage\":\"cloudflare-worker\",\"signed\":false,\"mode\":\"commitment\"}]}",
+   "schema": "v0-plain",
+   "stamped_at": "2026-11-06T02:18:36.247Z",
+   "work": "NENRIN witness batch (4 records)"
+  },
+  "257": {
+   "anchored_by": "schedule",
+   "bitcoin_block": 974743,
+   "block_time": "2026-11-06 01:15 UTC",
+   "claim_sha256": "f42afedd0ce87ba6c8ddc89fa1f778e84f33d67e88d53b0461cc5926b085fd63",
+   "created_at": "2026-11-06T00:30:38.916Z",
+   "n": 257,
+   "ots_status": "confirmed",
+   "record_canonical": "{\"schema\":\"nenrin-agreement-batch-v1\",\"anchored_at\":\"2026-11-06T00:30:38.808Z\",\"count\":4,\"records\":[{\"canonical_sha256\":\"5a917a3fdc6edcf5d861b35eed37ad9e3b0090a92b1342f4447174c58494a277\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"6aa2b93a1bcccfa8ed7477acc3cbe1c891063525e938d19eff300d61ff33d6d7\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"9e7d9ccd2ef12cf53d1c6f07223f0afd0a93ba65f3fefa6c142e2cc6a0632614\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"e53883abb81e362346e4c4d50de58d132a1118fc857c90ae6fe71949dc56850b\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"}]}",
+   "schema": "v0-plain",
+   "stamped_at": "2026-11-06T02:18:39.159Z",
+   "work": "NENRIN agreement batch (4 records)"
+  },
+  "258": {
+   "anchored_by": "schedule",
+   "bitcoin_block": 974743,
+   "block_time": "2026-11-06 01:15 UTC",
+   "claim_sha256": "63c26a60681905befed9ea8f99dc84db117e6a1b039a29192a5a7610711fa57d",
+   "created_at": "2026-11-06T00:30:49.754Z",
+   "n": 258,
+   "ots_status": "confirmed",
+   "record_canonical": "{\"schema\":\"nenrin-slot-witness-batch-v0\",\"anchored_at\":\"2026-11-06T00:30:49.754Z\",\"count\":2,\"records\":[{\"sha\":\"aea701a8232ba436a52642343261d34660f15796bca2f77755c7bc4aa972fbb3\",\"request_slot\":\"1343edffe85ba9bd26e7bb3b5a58776625dd4b7cd12a758c1418bc69f030377b\",\"receipt_event_id\":\"8f3ca2eccf690d2221345f151196bff838f673ac02f6bbafcad12b8f30fd67fa\",\"verdict\":\"unique\",\"observed_at\":\"2026-11-06T00:30:41Z\",\"response_sha256\":\"97780a387f0aa0988c7f3850a411ca53522dd18de92b742a81386facf8f43b48\"},{\"sha\":\"fc1ea604b5f16189aa6ddf046b3f2e8428e46b45567b2a1b0e92961996869a16\",\"request_slot\":null,\"receipt_event_id\":null,\"verdict\":\"slot_log_copy\",\"observed_at\":\"2026-11-06T00:30:42Z\",\"response_sha256\":\"1de90cc6e374d77e08889b19a5829724beeac7da3a36569f2ff1ad0c52a8692d\"}]}",
+   "schema": "v0-plain",
+   "stamped_at": "2026-11-06T02:18:43.486Z",
+   "work": "NENRIN slot witness batch (2 observations)"
+  },
+  "259": {
+   "anchored_by": "schedule",
+   "bitcoin_block": 974743,
+   "block_time": "2026-11-06 01:15 UTC",
+   "claim_sha256": "9cf1607307263f72f37ddc693551d759dc9fe5ca48667158c4e596a528a5b4a5",
+   "created_at": "2026-11-06T00:30:51.942Z",
+   "n": 259,
+   "ots_status": "confirmed",
+   "record_canonical": "{\"schema\":\"nenrin-head-checkpoint-v1\",\"anchored_at\":\"2026-11-06T00:30:51.793Z\",\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"n\":255,\"entry_sha256\":\"d55ba61becace585c3fb52ab78d3782a2a3859f51dc43e4cfbc5c4efebfa5db5\",\"marker_sha256\":\"81709b0ef27f1a7d84b3d7137c81f78fe04f39d5927c8ed7bb3b88ad6cfb0416\"},\"note\":\"the jidec-chain-v1 head of entries 1..n and the hash of the bound jidec-head-v1 end marker at n; this entry's claim_sha256 is stamped to Bitcoin, which bounds both from above\"}",
+   "schema": "v0-plain",
+   "stamped_at": "2026-11-06T02:18:47.705Z",
+   "work": "NENRIN head checkpoint (entries 1..255)"
+  },
+  "260": {
+   "bitcoin_block": 974743,
+   "block_time": "2026-11-06 01:15 UTC",
+   "claim_sha256": "759e3c9d04ec780e425c4a304a524cc024bb30cfb4b6f72c9b2b05980dbea2db",
+   "created_at": "2026-11-06T00:45:45.965Z",
+   "n": 260,
+   "ots_status": "confirmed",
+   "record_canonical": "{\"schema\":\"nenrin-agreement-batch-v1\",\"anchored_at\":\"2026-11-06T00:45:45Z\",\"count\":4,\"kinds\":{\"execution\":4},\"records\":[{\"sha\":\"4e3e49f295f0738f92c71f7fd55711161082a9820ab793aee59d2af65c94e6d1\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/4e3e49f295f0738f92c71f7fd55711161082a9820ab793aee59d2af65c94e6d1\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"1de810fb546193dac26920dbf31381d04c2602a85411b568218c8e03c2cab830\"},{\"sha\":\"8464e674937ad63d7d58bfb0b4dca645317407054b385503bc862d90afbc73e8\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/8464e674937ad63d7d58bfb0b4dca645317407054b385503bc862d90afbc73e8\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\"},{\"sha\":\"8ba9b1217e64ebc58f7733f4c686d0095f703a55b50054585a917541774b04e1\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/8ba9b1217e64ebc58f7733f4c686d0095f703a55b50054585a917541774b04e1\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\"},{\"sha\":\"f73abbdaa204349027141d58d63bd32bd88c94be372ba08671806012f678ad5b\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/f73abbdaa204349027141d58d63bd32bd88c94be372ba08671806012f678ad5b\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"}],\"intake_version\":\"0.4.0\",\"musubi_version\":\"0.3.0\",\"verifier_sha256\":\"27b5492cbd3612be8db7f084a2b0f8384c3b912388496247e08016efa03aa61c\",\"note\":\"NENRIN batch: each sha names the exact bytes of a record this intake accepted, an a2a-agreement (two party agreement, public verifier), an a2a-contract-v0 (MUSUBI terms, both parties signed, keys served) or an a2a-execution-v0 (evidence under a filed contract, signed by the contractor). Bytes at each record's bytes_url. This entry's Bitcoin anchor bounds every record in it from above; it settles nothing.\"}",
+   "schema": "v0",
+   "stamped_at": "2026-11-06T02:18:52.025Z",
+   "work": "NENRIN agreement batch (4)"
+  }
+ },
+ "entry_254": {
+  "anchored_by": "operator",
+  "bitcoin_block": 974714,
+  "block_time": "2026-11-05 21:41 UTC",
+  "claim_sha256": "c0e5a93d23ba74cdcd0859a1d2044a3c83f113e0d9768d60f9423234133da903",
+  "created_at": "2026-11-05T21:10:01.478Z",
+  "n": 254,
+  "ots_status": "confirmed",
+  "record_canonical": "{\"schema\":\"nenrin-agreement-batch-v1\",\"anchored_at\":\"2026-11-05T21:10:01.227Z\",\"count\":3,\"records\":[{\"canonical_sha256\":\"6f5e159978013f77515097a0efc3cc138303392b15b91105ee0aaa7c3a346f47\",\"record_schema\":\"furui-check-day-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"furui-check-day-intake 0.2.0\"},{\"canonical_sha256\":\"7302cc8920b1aeb6c8f3f2405316886a0e5bfb4b90b1d048b6ec0e5ef4c694e7\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"cd3810073384a249fa9ec2cdc7d0f47d269d36756addee4d3357c823e118ebc2\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"}]}",
+  "schema": "v0-plain",
+  "stamped_at": "2026-11-05T22:18:23.634Z",
+  "work": "NENRIN agreement batch (3 records)"
+ },
+ "jobs": {
+  "42114534503": [
+   {
+    "conclusion": "success",
+    "name": "listing-sync"
+   },
+   {
+    "conclusion": "success",
+    "name": "boundary"
+   },
+   {
+    "conclusion": "failure",
+    "name": "swallowed-read"
+   }
+  ],
+  "42118676487": [
+   {
+    "conclusion": "success",
+    "name": "swallowed-read"
+   },
+   {
+    "conclusion": "success",
+    "name": "listing-sync"
+   },
+   {
+    "conclusion": "success",
+    "name": "boundary"
+   }
+  ]
+ },
+ "ledger_head_n": 260,
+ "rec_1104": {
+  "canonical_sha256": "6f5e159978013f77515097a0efc3cc138303392b15b91105ee0aaa7c3a346f47",
+  "ledger_entry": 254,
+  "ledger_url": "https://ledger.horizonshield.dev/ledger/254",
+  "record_canonical": "{\"clock_skew\":0,\"day\":\"2026-11-04\",\"first_height\":974337,\"last_height\":974471,\"late\":0,\"leaf\":\"sha256(0x00 || musubi-canonical-v0(envelope))\",\"n\":2,\"publication\":\"public\",\"root\":\"88e0315b092d0110147d222def0b28fba6fc1d5688ef37eaf76c1f13dd7ec4cc\",\"schema\":\"furui-check-day-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"horizonshield.dev\",\"key_id\":\"runner-1\",\"sig\":\"kOZXGutFOmYYlncx9UiE3iOUOZs+xbZBgPhhVAAvO7qvbzkP3jSl36stqR88S8p52jc5gwV3S1Tt8sly571AAQ==\"}],\"signer\":{\"domain\":\"horizonshield.dev\",\"key_url\":\"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"},\"tree\":\"rfc6962-sha256\"}",
+  "report": {
+   "canonical_sha256": "6f5e159978013f77515097a0efc3cc138303392b15b91105ee0aaa7c3a346f47",
+   "checked": [
+    "canonical bytes",
+    "the closed shape",
+    "the key the ledger serves for furui-check, inside its heights",
+    "Ed25519 signature",
+    "one record per runner per day"
+   ],
+   "day": "2026-11-04",
+   "n": 2,
+   "not_checked": [
+    "any envelope, content or check behind the root; only the runner holds the leaves"
+   ],
+   "record_schema": "furui-check-day-v0",
+   "signer": "horizonshield.dev",
+   "verdict": "accepted",
+   "verifier_version": "furui-check-day-intake 0.2.0"
+  },
+  "status": "anchored",
+  "submitted_at": "2026-11-05T00:47:45.410Z"
+ },
+ "runs": [
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-06T02:42:08Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "e614b2078e8ac57c0d7a7311e62b9f9694b79ffc",
+   "id": 42151988300,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-06T02:42:08Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "e614b2078e8ac57c0d7a7311e62b9f9694b79ffc",
+   "id": 42151988400,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-06T02:42:08Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "e614b2078e8ac57c0d7a7311e62b9f9694b79ffc",
+   "id": 42151988419,
+   "name": "nursing-questions",
+   "path": ".github/workflows/nursing-questions.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-06T02:42:08Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "e614b2078e8ac57c0d7a7311e62b9f9694b79ffc",
+   "id": 42151988313,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T22:51:41Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "8a2ab8de0a77ce72ac6dc8302b49eb67344b2fcb",
+   "id": 42125016327,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T22:51:41Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "8a2ab8de0a77ce72ac6dc8302b49eb67344b2fcb",
+   "id": 42125016337,
+   "name": "core tests",
+   "path": ".github/workflows/core-tests.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T22:51:41Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "8a2ab8de0a77ce72ac6dc8302b49eb67344b2fcb",
+   "id": 42125016358,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T22:51:41Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "8a2ab8de0a77ce72ac6dc8302b49eb67344b2fcb",
+   "id": 42125016242,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T22:23:39Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "c3f331eebc0afe273aa912d825514ffbd6bfe59e",
+   "id": 42121110028,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T22:23:39Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "c3f331eebc0afe273aa912d825514ffbd6bfe59e",
+   "id": 42121110127,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T22:23:39Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "c3f331eebc0afe273aa912d825514ffbd6bfe59e",
+   "id": 42121110413,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T22:23:39Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "c3f331eebc0afe273aa912d825514ffbd6bfe59e",
+   "id": 42121110359,
+   "name": "core tests",
+   "path": ".github/workflows/core-tests.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T22:06:58Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "b3a86ddb5227f1acb5d31dc4662b6c5019cee7f1",
+   "id": 42118676487,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T22:06:58Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "b3a86ddb5227f1acb5d31dc4662b6c5019cee7f1",
+   "id": 42118676165,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T22:06:58Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "b3a86ddb5227f1acb5d31dc4662b6c5019cee7f1",
+   "id": 42118676161,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T21:38:54Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "6a65cef5ea39c9efd5aac8502e9b9506d8525219",
+   "id": 42114534651,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "failure",
+   "created_at": "2026-11-05T21:38:54Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "6a65cef5ea39c9efd5aac8502e9b9506d8525219",
+   "id": 42114534503,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T21:38:54Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "6a65cef5ea39c9efd5aac8502e9b9506d8525219",
+   "id": 42114534603,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T21:26:27Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "606edca2ae35afbb8d958ef68095c4a6f49609e5",
+   "id": 42112658864,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T21:26:27Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "606edca2ae35afbb8d958ef68095c4a6f49609e5",
+   "id": 42112658839,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T21:26:27Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "606edca2ae35afbb8d958ef68095c4a6f49609e5",
+   "id": 42112658815,
+   "name": "nursing-questions",
+   "path": ".github/workflows/nursing-questions.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T21:26:27Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "606edca2ae35afbb8d958ef68095c4a6f49609e5",
+   "id": 42112658861,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T21:08:44Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "7d7f0d9449807df52d46dd47d6ce372eb67a3aab",
+   "id": 42109921054,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T21:08:44Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "7d7f0d9449807df52d46dd47d6ce372eb67a3aab",
+   "id": 42109921081,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T21:08:44Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "7d7f0d9449807df52d46dd47d6ce372eb67a3aab",
+   "id": 42109921218,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T13:36:34Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "5f09c4b0ca0f48d1fce1da214fe9e4738ad693b5",
+   "id": 42037275992,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T13:36:34Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "5f09c4b0ca0f48d1fce1da214fe9e4738ad693b5",
+   "id": 42037276112,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T13:36:34Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "5f09c4b0ca0f48d1fce1da214fe9e4738ad693b5",
+   "id": 42037276328,
+   "name": "pagecheck",
+   "path": ".github/workflows/pagecheck.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T13:36:34Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "5f09c4b0ca0f48d1fce1da214fe9e4738ad693b5",
+   "id": 42037275965,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T13:36:34Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "5f09c4b0ca0f48d1fce1da214fe9e4738ad693b5",
+   "id": 42037275983,
+   "name": "nursing-questions",
+   "path": ".github/workflows/nursing-questions.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T11:49:57Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "5386e7d34c6c55f983cb45f6e9349607cbd6a072",
+   "id": 42022131114,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T11:49:57Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "5386e7d34c6c55f983cb45f6e9349607cbd6a072",
+   "id": 42022131023,
+   "name": "nursing-questions",
+   "path": ".github/workflows/nursing-questions.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T11:49:57Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "5386e7d34c6c55f983cb45f6e9349607cbd6a072",
+   "id": 42022131084,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T11:49:57Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "5386e7d34c6c55f983cb45f6e9349607cbd6a072",
+   "id": 42022131024,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T11:38:22Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "dfdeacb70808bc87aef334dce856c35c13143a8a",
+   "id": 42020587928,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T11:38:22Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "dfdeacb70808bc87aef334dce856c35c13143a8a",
+   "id": 42020588084,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T11:38:22Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "dfdeacb70808bc87aef334dce856c35c13143a8a",
+   "id": 42020587883,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T11:38:22Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "dfdeacb70808bc87aef334dce856c35c13143a8a",
+   "id": 42020588168,
+   "name": "core tests",
+   "path": ".github/workflows/core-tests.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T09:26:11Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "2360dedb3ab65a12556d8a717ba4170054ffa7e2",
+   "id": 42002355947,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T09:26:11Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "2360dedb3ab65a12556d8a717ba4170054ffa7e2",
+   "id": 42002355928,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T09:26:11Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "2360dedb3ab65a12556d8a717ba4170054ffa7e2",
+   "id": 42002356083,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T09:26:11Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "2360dedb3ab65a12556d8a717ba4170054ffa7e2",
+   "id": 42002356058,
+   "name": "core tests",
+   "path": ".github/workflows/core-tests.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T09:05:30Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "cdaa256114250cb419f0531fcbbf70d7237bff80",
+   "id": 41999523917,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T09:05:30Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "cdaa256114250cb419f0531fcbbf70d7237bff80",
+   "id": 41999523875,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T09:05:30Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "cdaa256114250cb419f0531fcbbf70d7237bff80",
+   "id": 41999523601,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T08:17:02Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "4276e9941e10dbb1bac6c53b4f83b95ce9c0201b",
+   "id": 41993261827,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T08:17:02Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "4276e9941e10dbb1bac6c53b4f83b95ce9c0201b",
+   "id": 41993261709,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T08:17:02Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "4276e9941e10dbb1bac6c53b4f83b95ce9c0201b",
+   "id": 41993262091,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T08:14:49Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "9242c9de9010eed0267ccdc8323af1c2c4325175",
+   "id": 41992978073,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T08:14:49Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "9242c9de9010eed0267ccdc8323af1c2c4325175",
+   "id": 41992978047,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T08:14:49Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "9242c9de9010eed0267ccdc8323af1c2c4325175",
+   "id": 41992978061,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T08:12:38Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "88201643d5e0d67638dbe70f9fd5e3f5d18852af",
+   "id": 41992709972,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T08:12:38Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "88201643d5e0d67638dbe70f9fd5e3f5d18852af",
+   "id": 41992709614,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T08:12:38Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "88201643d5e0d67638dbe70f9fd5e3f5d18852af",
+   "id": 41992709631,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T08:06:57Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "519427dd5a31c4c5ba3ad0f8596b8751f731dc53",
+   "id": 41992016561,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T08:06:57Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "519427dd5a31c4c5ba3ad0f8596b8751f731dc53",
+   "id": 41992016312,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T08:06:57Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "519427dd5a31c4c5ba3ad0f8596b8751f731dc53",
+   "id": 41992016741,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T08:06:57Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "519427dd5a31c4c5ba3ad0f8596b8751f731dc53",
+   "id": 41992016863,
+   "name": "core tests",
+   "path": ".github/workflows/core-tests.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T07:55:53Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "bd3ec1092b3ab65e4c4df916b96a4a6cf7e4c962",
+   "id": 41990683190,
+   "name": "gitleaks",
+   "path": ".github/workflows/gitleaks.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T07:55:53Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "bd3ec1092b3ab65e4c4df916b96a4a6cf7e4c962",
+   "id": 41990683066,
+   "name": "nursing-questions",
+   "path": ".github/workflows/nursing-questions.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T07:55:53Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "bd3ec1092b3ab65e4c4df916b96a4a6cf7e4c962",
+   "id": 41990683085,
+   "name": "public boundary",
+   "path": ".github/workflows/public-boundary.yml",
+   "status": "completed"
+  },
+  {
+   "conclusion": "success",
+   "created_at": "2026-11-05T07:55:53Z",
+   "event": "push",
+   "head_branch": "main",
+   "head_sha": "bd3ec1092b3ab65e4c4df916b96a4a6cf7e4c962",
+   "id": 41990683033,
+   "name": "Deploy static content to Pages",
+   "path": ".github/workflows/static.yml",
+   "status": "completed"
+  }
+ ],
+ "source": "public answers read on 2026-11-06 (JST afternoon) for the TOOSHI run of 2026-11-06 04:05 UTC: GitHub REST actions/runs and jobs of ogasurfproject-jpg/horizon-shield (push, main, created in the 24 hours before 2026-11-06T03:47Z), the runner's GET /furui/day/2026-11-04/status, the ledger's /furui-check-day/<sha>, /ledger/254..260",
+ "status_1104": {
+  "capped": 0,
+  "checks": 2,
+  "day": "2026-11-04",
+  "spent_usd": 0.000601,
+  "status": {
+   "accepted": true,
+   "attempts": 1,
+   "first_at": "2026-11-05T00:47:46.341Z",
+   "http": 201,
+   "last_at": "2026-11-05T00:47:46.341Z",
+   "ledger_canonical_sha256": "6f5e159978013f77515097a0efc3cc138303392b15b91105ee0aaa7c3a346f47",
+   "n": 2,
+   "record_sha256": "6f5e159978013f77515097a0efc3cc138303392b15b91105ee0aaa7c3a346f47",
+   "refusals": null,
+   "refused": false,
+   "root": "88e0315b092d0110147d222def0b28fba6fc1d5688ef37eaf76c1f13dd7ec4cc",
+   "state": "accepted"
+  }
+ }
+}
