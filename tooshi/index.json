@@ -10,10 +10,10 @@
    "day": "2026-11-06",
    "day_sha256": "b977680ccc7f999c0e7c4834f9c18012583b1846908eb2930e7398402eafcb16",
    "path": "days/2026-11-06.json",
-   "result_sha256": "ed912fe3554cf02177ac2b9bbee0af269083e6b61cddb240eedeb362daa6f81b",
-   "run_url": "https://github.com/ogasurfproject-jpg/horizon-shield/actions/runs/42160384619",
-   "runs": 1,
-   "trigger": "schedule",
+   "result_sha256": "28722b32548150eba1034f21f7cfd5855230dadf24f38fab67ce7f5b7f14022b",
+   "run_url": "https://github.com/ogasurfproject-jpg/horizon-shield/actions/runs/42163400742",
+   "runs": 2,
+   "trigger": "second",
    "verdict": "red"
   },
   {
