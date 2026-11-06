@@ -60,9 +60,13 @@
   //   relay を the-horizons-innovation.com(別ゾーン)に置き、ここをそのまま指す。
   // 0.4.23: Microsoft Marketplace の毎日の一覧。扉が cron の掃引で読むのは、secret の MARKETPLACE_DAILY_TOKEN もある時だけ
   //   (hs-ms-marketplace の DAILY_READ_TOKEN と同じ値。GET /admin/daily だけを開ける鍵): npx wrangler secret put MARKETPLACE_DAILY_TOKEN
-  // REPLICA_ORIGIN は、写しが自分の origin で答えるようになるまでここに置かない。
+  // REPLICA_ORIGIN (2026-11-06): 写し (Azure Functions) の origin。扉は掃引の初めに写しの /register を読み、行ごとに /record/<sha> を取って
+  //   SHA-256、measured_from、endpoint、status、時刻を確かめ、合った行だけを replica.record_url 付きで公開の /register に載せる (0.4.23)。
+  //   写しが https://gate-az.horizonshield.dev で答え、/health の measured_from が {platform: azure, origin: 同じ} になったので置く。
+  //   秘密ではない (扉の /register の replica_import.origin にそのまま出る)。REPLICA_PLATFORM は置かない (既定の azure が写しの measured_from.platform と同じ)。
   "vars": {
     "RELAY_URL": "https://horizon-shield.ogasurfproject-jpg.deno.net",
-    "MARKETPLACE_DAILY_URL": "https://marketplace.horizonshield.dev/admin/daily"
+    "MARKETPLACE_DAILY_URL": "https://marketplace.horizonshield.dev/admin/daily",
+    "REPLICA_ORIGIN": "https://gate-az.horizonshield.dev"
   }
 }
