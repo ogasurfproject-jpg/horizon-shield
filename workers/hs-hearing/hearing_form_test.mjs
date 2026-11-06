@@ -31,7 +31,7 @@ for (const f of fs.readdirSync(SRCDIR)) {
   let body = fs.readFileSync(path.join(SRCDIR, f), "utf8");
   body = body.replace(/from "\.\/([a-z0-9_]+)\.js"/g, 'from "./$1.mjs"');
   if (f === "hearing.js") {
-    body += "\nexport { hearingForm, normalizeProfile, formPack, knownQids };\n";
+    body += "\nexport { hearingForm, normalizeProfile, formPack, knownQids, CITATION_BANK };\n";
   }
   fs.writeFileSync(path.join(TMP, f.replace(/\.js$/, ".mjs")), body);
 }
@@ -472,6 +472,31 @@ const doneMail = await sentVia(doneEnv(null, true), doneMailStore, minoQ);
 ok(doneMail.url.includes("resend"), "LINE の無い店にはメールで届く");
 ok(!doneMail.text.includes("/yakumo/register/"), "答え終えた店のメールにも、用紙の URL を載せない");
 ok(doneMail.text.includes("どうやって見つけていますか"), "メールにも問いそのものは載る");
+
+/* ------------------------------------------------------------------ */
+console.log("\n13) AI の答えに引かれるための3問(建設だけ、答えは書かれたまま、採点に入れない)");
+
+const ctIds = ["q_ct_customer_questions", "q_ct_strong_works", "q_ct_region"];
+ok(JSON.stringify(Object.keys(H.CITATION_BANK)) === JSON.stringify(ctIds), "設問は3つで、id が固定");
+const cForm = H.hearingForm("ht_ct", cStore);
+for (const q of ctIds) ok(cForm.includes('id="' + q + '" data-q'), "建設の紙に " + q + " の欄がある");
+ok(cForm.includes("お客様が打ち込む言葉 (3問)"), "建設の紙に見出しがある");
+const nForm = H.hearingForm("ht_ct2", nStore);
+for (const q of ctIds) ok(!nForm.includes(q), "訪問看護の紙に " + q + " が無い");
+for (const q of ctIds) ok(H.knownQids("construction").has(q), "建設は " + q + " を受け取る");
+for (const q of ctIds) ok(!H.knownQids("nursing").has(q), "訪問看護は " + q + " を捨てる");
+const ctRaw = "1. 平塚 内窓 費用\n網戸の張替えはいつ頼めばいい\n玄関ドア 1日で交換できる？\nガラス 割れた すぐ\n内窓 補助金 2026";
+const ctProf = H.normalizeProfile(cStore, { company: "x", area: "y", works: ["窓"], extra: { q_ct_customer_questions: ctRaw, q_ct_strong_works: "内窓\n玄関ドア", q_ct_region: "平塚市" } });
+ok(ctProf.extra.q_ct_customer_questions === ctRaw, "客の問いは書かれたまま(番号も改行もそのまま)入る");
+ok(ctProf.extra.q_ct_strong_works === "内窓\n玄関ドア" && ctProf.extra.q_ct_region === "平塚市", "強い工事と地域も書かれたまま入る");
+const nCt = H.normalizeProfile(nStore, { company: "x", area: "y", works: ["在宅酸素"], extra: { q_ct_region: "平塚市" } });
+ok(!nCt.extra || !("q_ct_region" in nCt.extra), "訪問看護の店には入らない");
+const baseP = { company: "x", industry: "construction", areas_served: ["a", "b", "c"], faqs: [], extra: {} };
+const s0 = AP.computeCompleteness(baseP, {}).score;
+const s1 = AP.computeCompleteness({ ...baseP, extra: { q_ct_customer_questions: ctRaw, q_ct_strong_works: "内窓", q_ct_region: "平塚市" } }, {}).score;
+ok(s0 === s1, "3問に答えても完成度は動かない (" + s0 + " / " + s1 + ")");
+const ctReplay = H.hearingForm("ht_ct3", cStore, { extra: { q_ct_region: "平塚市" } });
+ok(ctReplay.includes(">平塚市</textarea>"), "答えた地域は、開き直した紙に入っている");
 
 /* ------------------------------------------------------------------ */
 const EXPECT_MIN = 244;

@@ -206,6 +206,17 @@ function formPack(industryKey) {
   return FORM_PACK[industryKey] || FORM_PACK[IND.DEFAULT_INDUSTRY];
 }
 
+/* 2026-11-06 AI の答えに引かれるための設問(建設だけ)。答えは profile.extra[qid] に、書かれたまま入る。
+   この答えから、店ごとの計測の盤(yakumo-insight の clients/<店>/panel.json)を作る。客の問いは問いの文そのもの、
+   強い工事と地域は「地域 x 工事」の問いの材料になる。言い換えると、客が実際に打つ語から離れる。
+   完成度の採点には入れない。足すと既存の店の完成度が下がり、生成の門(60)の判定が動くため。 */
+const CITATION_BANK = {
+  q_ct_customer_questions: { w: 0, text: "お客様がスマホやAIに打ち込みそうな問いを、打ち込む言葉のまま5つ、1行に1つずつ書いてください(例: 平塚 内窓 費用 / 網戸の張替えはいつ頼めばいい)。きれいに言い換えないでください。" },
+  q_ct_strong_works:       { w: 0, text: "いちばん自信のある工事を3つまで、強い順に、1行に1つずつ書いてください。" },
+  q_ct_region:             { w: 0, text: "いちばん来てほしい地域を、市区まで書いてください(例: 平塚市、横浜市港北区)。複数あれば1行に1つずつ、来てほしい順に。" },
+};
+function citationQids(industryKey) { return (industryKey || IND.DEFAULT_INDUSTRY) === "construction" ? Object.keys(CITATION_BANK) : []; }
+
 /* 実在する設問の id を全部集める。フォームから返ってきた extra の受け入れ判定に使う。
    ここに無い id は捨てる。捨てないと、profile に任意のキーを書き込む口になる。 */
 function knownQids(industryKey) {
@@ -222,6 +233,7 @@ function knownQids(industryKey) {
   const ib = IND.industryBank(industryKey) || {};
   for (const q of Object.keys(ib)) out.add(q);
   for (const q of VIS.visibilityQids()) out.add(q);
+  for (const q of citationQids(industryKey)) out.add(q);
   return out;
 }
 
@@ -389,6 +401,11 @@ function hearingForm(token, store, profile, pendingQs) {
   const visHtml = VIS.visibilityQids().map((q) => qField(q, VIS.visibilityQuestion(q).text, ansText(q))).join("");
   const visHasAns = VIS.visibilityQids().some((q) => !!ansText(q).trim());
 
+  // AI の答えに引かれるための設問(建設だけ)。答えは書かれたまま extra に入る。
+  const ctIds = citationQids(industry);
+  const ctHtml = ctIds.map((q) => qField(q, CITATION_BANK[q].text, ansText(q))).join("");
+  const ctHasAns = ctIds.some((q) => !!ansText(q).trim());
+
   // 目的別の設問。選ばれた目的の組だけを表示する(切り替えは下の script)。
   const focusOpts = AP.FOCUS_KEYS
     .map((k) => '<option value="' + k + '">' +
@@ -533,6 +550,11 @@ W.works.map(function(w){return '<span class="chip'+(pfWorkSet.has(w)?' on':'')+'
 '<details' + (visHasAns ? ' open' : '') + '><summary>AIと検索から見つけてもらうために (' + VIS.visibilityQids().length + '問)</summary>' +
 '<p class="hint">所在をはっきりさせ、よく聞かれる問いに答えの形で答えておく。ここは業種を問わず同じだけ効きます。</p>' +
 visHtml + '</details>' +
+
+(ctIds.length ?
+'<details' + (ctHasAns ? ' open' : '') + '><summary>お客様が打ち込む言葉 (' + ctIds.length + '問)</summary>' +
+'<p class="hint">ここに書かれた言葉のまま、AIの答えに御社が出てくるかを定期的に測ります。</p>' +
+ctHtml + '</details>' : '') +
 
 (ibankIds.length ?
 '<details' + (ibankHasAns ? ' open' : '') + '><summary>' + escHtml(W.bankHeading) + ' (' + ibankIds.length + '問)</summary>' +
