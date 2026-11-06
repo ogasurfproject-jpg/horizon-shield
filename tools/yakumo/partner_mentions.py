@@ -15,7 +15,7 @@
   python3 tools/yakumo/partner_mentions.py           見るだけ(どのページに誰が入るか)
   python3 tools/yakumo/partner_mentions.py --apply   書き換える(その後 tools/pagecheck/validate.py --paths で確認)
 """
-import glob, hashlib, html, io, json, os, re, sys, urllib.request
+import glob, hashlib, html, io, json, os, re, sys, urllib.parse, urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 MCP = "https://hearing.horizonshield.dev/mcp"
@@ -39,6 +39,18 @@ HOLD = {("No.002", "外壁塗装"): "聞き取りにも公式サイトにも無�
 
 def held(store, terms):
     return any((store.get("member_no"), t) in HOLD for t in terms)
+
+# 2026-11-06 番人: aeo/ の工事別ページ。Bing の AI Performance(8/6〜11/3)で一番引かれているのは aeo/外壁塗装-適正価格.html(7.7K)で、
+#   フローリング(2.2K)、ガラス交換工事(1.4K)、キッチン(1.2K)が続く。souba/ だけに欄を置いていたので、一番読まれる面に加盟店の名前が無かった。
+#   ファイル名で決め打ちにする(語の部分一致で「浴室乾燥機」「断り方」の頁に入れないため)。
+AEO_PAGES = {
+    "外壁塗装-適正価格": ("外壁塗装", ["外壁塗装"]), "外壁塗装-時期-タイミング": ("外壁塗装", ["外壁塗装"]),
+    "屋根リフォーム-適正価格": ("屋根工事", ["屋根"]), "クロス張替え-適正価格": ("クロス張り替え", ["クロス"]),
+    "フローリング-適正価格": ("床・フローリング", ["床"]), "浴室リフォーム-適正価格": ("浴室リフォーム", ["浴室"]),
+    "キッチンリフォーム-適正価格": ("キッチンリフォーム", ["キッチン"]), "トイレリフォーム-適正価格": ("トイレリフォーム", ["トイレ"]),
+    "外構工事-適正価格": ("外構工事", ["外構"]), "窓リフォーム-適正価格": ("窓の工事", ["窓"]),
+    "玄関ドア交換-適正価格": ("玄関ドアの工事", ["玄関"]), "ガラス交換工事": ("ガラスの工事", ["ガラス"]),
+}
 
 def die(m): print("止めた: " + m, file=sys.stderr); sys.exit(1)
 
@@ -128,6 +140,24 @@ def main():
         if new is None or new == text: continue
         changed.append(path)
         print("%-40s %s" % (slug, "、".join(s["member_no"] for s in hit) if hit else "(外す)"))
+        if apply: io.open(path, "w", encoding="utf-8").write(new)
+    aeo_listed = set()
+    for mp in maps:
+        aeo_listed |= set(urllib.parse.unquote(x) for x in re.findall(r"<loc>%s/aeo/([^<]+)\.html</loc>" % re.escape(SITE), io.open(os.path.join(ROOT, mp), encoding="utf-8").read()))
+    for stem, (label, terms) in sorted(AEO_PAGES.items()):
+        path = os.path.join(ROOT, "aeo", stem + ".html")
+        if not os.path.exists(path): continue
+        text = io.open(path, encoding="utf-8").read()
+        m = re.search(r'name="robots"\s+content="([^"]*)"', text)
+        if not m or "noindex" in m.group(1) or not m.group(1).startswith("index"): continue
+        if stem not in aeo_listed and OPEN not in text: continue
+        hit = [s for s in stores if not held(s, terms) and any(t in w for t in terms for w in s.get("works", []))] if stem in aeo_listed else []
+        h1m = re.search(r"<h1[^>]*>(.*?)</h1>", text, flags=re.S)
+        h1 = re.sub(r"<[^>]+>", "", h1m.group(1)).strip() if h1m else ""
+        new = place(text, block(label, hit, stem, h1, terms)) if hit else strip(text)
+        if new is None or new == text: continue
+        changed.append(path)
+        print("%-40s %s" % ("aeo/" + stem, "、".join(s["member_no"] for s in hit) if hit else "(外す)"))
         if apply: io.open(path, "w", encoding="utf-8").write(new)
     print("変わるページ: %d 本%s" % (len(changed), "(書き換えた)" if apply else "(見るだけ。--apply で書き換える)"))
     if apply and changed:
