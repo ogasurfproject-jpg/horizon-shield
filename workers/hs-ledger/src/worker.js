@@ -2116,6 +2116,9 @@ async function handle(request, env) {
             "a markdown converter, a summarising fetch tool) re-indents or re-encodes the response before you " +
             "hash it, the digest will not match and the mismatch is the intermediary, not the ledger. " +
             "Pipe curl straight into your hash tool.",
+          // 2026-11-06. anchored_by ("schedule" or "operator") is written beside record_canonical, not inside it, so the
+          // claim hash and the Bitcoin proof say nothing about it. Said here because a reader asked which fields the anchor covers.
+          ...("anchored_by" in e ? { anchored_by: e.anchored_by, anchored_by_note: "anchored_by is entry metadata outside the batch bytes; the anchor does not cover it" } : {}),
           one_liner: `curl -s "${origin}/ledger/${n}?format=raw" | shasum -a 256   # must print ${e.claim_sha256}`,
           recipe: [
             { step: 1, action: "fetch the exact anchored bytes", url: `${origin}/ledger/${n}?format=raw`, verify: `shasum -a 256 => ${e.claim_sha256}` },

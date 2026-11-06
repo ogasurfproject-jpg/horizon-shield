@@ -45,4 +45,11 @@ chk("its card says the hash covers all its bytes", t.includes("SHA-256 of all th
 c = await getj("/cite/jidec:entry:5");
 chk("/cite names a plain-text record as v0-plain with its own note", c.record_kind === "v0-plain" && /plain-text record/.test(c.note || ""), c.note);
 chk("/cite limits do not mention an estimate for it", !/estimate/.test(c.limits), c.limits);
+// 2026-11-06: anchored_by sits beside the record bytes; /verify (jidec_how_to_verify) says the anchor does not cover it.
+const kv2 = mockKV([["seq", "2"], ["entry:1", JSON.stringify(Object.assign(JSON.parse((await ent(1, batch))[1]), { anchored_by: "operator" }))], await ent(2, v0)]);
+const getj2 = async (path) => JSON.parse(await (await worker.fetch(new Request("https://ledger.example.dev" + path), { LEDGER: kv2.binding })).text());
+v = await getj2("/verify/1");
+chk("/verify names anchored_by and says the anchor does not cover it", v.anchored_by === "operator" && v.anchored_by_note === "anchored_by is entry metadata outside the batch bytes; the anchor does not cover it", JSON.stringify(v));
+v = await getj2("/verify/2");
+chk("/verify says nothing of anchored_by on an entry without it", !("anchored_by" in v) && !("anchored_by_note" in v));
 process.exit(chk.done() ? 1 : 0);
