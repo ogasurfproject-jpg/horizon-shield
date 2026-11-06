@@ -1,0 +1,684 @@
+{
+ "about": "the public answers check 17 (paid_call_chain) read for the 04:05 UTC run of 2026-11-06, taken at 2026-11-06T15:07Z. GET /seki keeps only relying_party and stores; ledger entries keep n, created_at and, for agreement batches only, record_canonical (the others carry {}: 17 does not read them); admissions keep the fields 17 reads. Every record_canonical is the bytes the ledger served.",
+ "answers": {
+  "https://hs-gateway.oga-surf-project.workers.dev/seki": [
+   200,
+   {
+    "relying_party": {
+     "domain": "shield.the-horizons-innovation.com",
+     "key_url": "https://shield.the-horizons-innovation.com/keys/seki-door.json",
+     "public_key_ed25519_b64": "wbWKQTE9F1A2ixJzzhqfpITrU7GhDr9G2ri5YYGvCTE="
+    },
+    "stores": [
+     {
+      "contract_sha256": "e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8",
+      "services": {
+       "audit": 30,
+       "compare": 50,
+       "report": 20
+      },
+      "store": "hs-seki-demo"
+     },
+     {
+      "contract_sha256": "d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580",
+      "services": {
+       "check": 0
+      },
+      "store": "tooshi-check"
+     }
+    ]
+   }
+  ],
+  "https://hs-gateway.oga-surf-project.workers.dev/seki/record/0723f41140ba829b4577eff41a25776ede0d16156ae5a7445a0a307a8102e669": [
+   200,
+   "{\"action_ref\":{\"action_binding_digest\":\"d6982f0ceb1a35447d17b2060ad0e80069583a672b647f4de02683f78bdb51bc\",\"nonce\":\"b87894eeb857fc125557b6a83d99f7ee\"},\"admission_id\":\"ae10d59b-5b52-4105-8729-69bf192f7f8d\",\"chain_view\":{\"header_sha256\":\"2eb3bee509b33ad1392c5946f0bae31dca66668927ac2d9278c83d963c6b4f35\",\"height\":974585},\"clause\":\"grant.authorized_actions[0]\",\"contract_ref\":{\"contract_id\":\"ff78faf5c45d84d0fb3796ed780c0677\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) returns for those inputs; anyone holding them can recompute it\"],\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"29e3ff7ff0eb3b8bc06807771af885d4b8cbbfc477defa89afadbe5673d6f718\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/seki-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.1\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"wIag65D03LIdLqoHiQ9pa2kfTSkaZQT4L22h/1x0eS/TS1t4Gue0DJWNL7Ntghi1ZtpJFOlWv5P6avzjUfFYDA==\"}]}"
+  ],
+  "https://ledger.horizonshield.dev/admission/0463a81d3c82c87f5a62fe9623d68d9179365f82844381e60e4492edb778616b": [
+   200,
+   {
+    "canonical_sha256": "0463a81d3c82c87f5a62fe9623d68d9179365f82844381e60e4492edb778616b",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"17be48938c0c6605a9898bae2886fdb652bdabdfefcabb861a185e08330fc0b5\",\"nonce\":\"50b8abbfd93deb0fd1942d8614bf0665\"},\"admission_id\":\"shiken-door-v1:seq=35:prev=f99010faf6a7b78e5374f56309da7e3ef806d5969d4f27d3d0d5673f1670527e\",\"chain_view\":{\"header_sha256\":\"d6a51ec70d83389edfdd8498ce7ce0accba4575446811782e5417735b25b1823\",\"height\":974472},\"clause\":\"grant.authorized_actions[0]\",\"contract_ref\":{\"contract_id\":\"5f56dc9772e375186579f06e15597e1f\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) and the immune rules (immune.evaluator_sha256, over the contract's requirements.immune) return for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"11fb628d67684bf85b207e29804ade8bf70fa5e3431d55da96d70adaf7888f92\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":\"1cbbbbfea05d87aa7b4b982dfa84bd63fc732fc79891b1c18ee540dbe5a7fa87\",\"verdict\":\"clear\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"9dc6e223e676294da9116d2236298b5886af9e1482b71f7f8982c5754856a10c\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/shiken-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.2\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"NGvEkOJrsP6MZJuEw3l7hV3kwMzsCFkUNSsz2hJUUl9U3e6groZLXx3F4OfME9ELPnsPSWpnJfsUr9QG49j6Bg==\"}]}",
+    "report": {
+     "admission_sha256": "d17338f57a338ecbb1df5f376e00a5abf1ea10623399e8b9941c7bfdbca06e57"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T00:20:55.717Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/0723f41140ba829b4577eff41a25776ede0d16156ae5a7445a0a307a8102e669": [
+   200,
+   {
+    "canonical_sha256": "0723f41140ba829b4577eff41a25776ede0d16156ae5a7445a0a307a8102e669",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"d6982f0ceb1a35447d17b2060ad0e80069583a672b647f4de02683f78bdb51bc\",\"nonce\":\"b87894eeb857fc125557b6a83d99f7ee\"},\"admission_id\":\"ae10d59b-5b52-4105-8729-69bf192f7f8d\",\"chain_view\":{\"header_sha256\":\"2eb3bee509b33ad1392c5946f0bae31dca66668927ac2d9278c83d963c6b4f35\",\"height\":974585},\"clause\":\"grant.authorized_actions[0]\",\"contract_ref\":{\"contract_id\":\"ff78faf5c45d84d0fb3796ed780c0677\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) returns for those inputs; anyone holding them can recompute it\"],\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"29e3ff7ff0eb3b8bc06807771af885d4b8cbbfc477defa89afadbe5673d6f718\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/seki-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.1\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"wIag65D03LIdLqoHiQ9pa2kfTSkaZQT4L22h/1x0eS/TS1t4Gue0DJWNL7Ntghi1ZtpJFOlWv5P6avzjUfFYDA==\"}]}",
+    "report": {
+     "admission_sha256": "7cd2698d920ef145c6e187d8c1a755fe0c19a459e44f62d2e73dc2e465568553"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-04T21:18:51.019Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/09e7cdf348c8d5ba8d37310a25d84e5d7c3777a2b949be074381c15f7f43d28d": [
+   200,
+   {
+    "canonical_sha256": "09e7cdf348c8d5ba8d37310a25d84e5d7c3777a2b949be074381c15f7f43d28d",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"408d26edbedd4c4330bc88af20dc9e4bb4872db18d9dc3aaa8b31fb8c5c2adfd\",\"nonce\":\"c09bc0f698a1434eff956bf752db5322\"},\"admission_id\":\"shiken-door-v1:seq=36:prev=d17338f57a338ecbb1df5f376e00a5abf1ea10623399e8b9941c7bfdbca06e57\",\"chain_view\":{\"header_sha256\":\"38fe30afef027288c00c2fd30e954ebfb5ff6cd7cfa98aea1f2098921e248d2b\",\"height\":974602},\"clause\":\"grant.authorized_actions[5]\",\"contract_ref\":{\"contract_id\":\"5f56dc9772e375186579f06e15597e1f\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) and the immune rules (immune.evaluator_sha256, over the contract's requirements.immune) return for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"ce9dfe7878db58ed97c3b18086930eba8d277f549e4c0931af5446f41dbeee13\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":\"1cbbbbfea05d87aa7b4b982dfa84bd63fc732fc79891b1c18ee540dbe5a7fa87\",\"verdict\":\"clear\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"3edccfad6b1ac9a51558f1a66e5ef091959fe359ac2ee011bd902a4553864042\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/shiken-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.2\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"QPgamlRFymF/XrrB7p7Hic/zz/zkMyplxwMDnmw4Hq/L+OvFsz5QTco4ntXTuLQFgs4kLYx9POMufX6vl9sqCg==\"}]}",
+    "report": {
+     "admission_sha256": "8efaaa1c69b291f1e1d6a26482df55d392257570029851a9b91e6a79b049628f"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T00:21:01.019Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/0b2d171a53b4e315aaf3cfc0aad259a9f523de074d3abc16541bf09fec5a3f2d": [
+   200,
+   {
+    "canonical_sha256": "0b2d171a53b4e315aaf3cfc0aad259a9f523de074d3abc16541bf09fec5a3f2d",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"2727259731f33aca6d1e2532b1399833cbeae93154f02489c71f473af6225207\",\"nonce\":\"151a4f9251df5f09e0dd67792aa940ca\"},\"admission_id\":\"shiken-door-v1:seq=30:prev=408cf5090bee226e54b25c376f2b49c3970ef3ef0f1795434b9efaf4ca459c63\",\"chain_view\":{\"header_sha256\":\"d6a51ec70d83389edfdd8498ce7ce0accba4575446811782e5417735b25b1823\",\"height\":974472},\"clause\":\"grant.authorized_actions[0]\",\"contract_ref\":{\"contract_id\":\"5f56dc9772e375186579f06e15597e1f\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) and the immune rules (immune.evaluator_sha256, over the contract's requirements.immune) return for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"ede28174719bf3f6b4df44ad42fde5b7afdc7b165b4895ee1bf575467fa6ad00\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":\"1cbbbbfea05d87aa7b4b982dfa84bd63fc732fc79891b1c18ee540dbe5a7fa87\",\"verdict\":\"clear\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"25b4ec8434feb9297c68893174f1a5c114ad00fb5f2e93e1c0a447c11f57d23c\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/shiken-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.2\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"LZJQlKPQZJMgzRu6BBAJaWml8oa+VCZ60KcLsbiFi3IFDaRjCMSG73qQ/a9IRwKzcKa7SOnpmJ26c89SyD4qCQ==\"}]}",
+    "report": {
+     "admission_sha256": "8024ea5aeb5b30cb1594f4f894def9fe908c2c14ce448e235fc031917a7b1317"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T00:20:31.337Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/106c709214458e770fe30adb6ee4517c8213ade73639d81a182855c0d0b48ca1": [
+   200,
+   {
+    "canonical_sha256": "106c709214458e770fe30adb6ee4517c8213ade73639d81a182855c0d0b48ca1",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"7f80e3fbb9b8eccea9d5b80618b431cfae97f1bfc3a3d8667031a7f8d5f014da\",\"nonce\":\"27da36e60f6d738ddcd5be00dc09a9cf\"},\"admission_id\":\"f047c0cc-73b3-417d-aab5-cac9bdc3db84\",\"chain_view\":{\"header_sha256\":\"2eb3bee509b33ad1392c5946f0bae31dca66668927ac2d9278c83d963c6b4f35\",\"height\":974585},\"clause\":\"grant.prohibited_actions[0]\",\"contract_ref\":{\"contract_id\":\"ff78faf5c45d84d0fb3796ed780c0677\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\"},\"decision\":\"refuse\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) returns for those inputs; anyone holding them can recompute it\"],\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"29e3ff7ff0eb3b8bc06807771af885d4b8cbbfc477defa89afadbe5673d6f718\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"prohibited_action\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/seki-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.1\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"3O1nziWcaa28zNFyCcDAMgqnn3kg/mevx4qKml82kuAqXuR15B9JPTW8V+6G2if6b3iMIhK1PH15p/gVNlbkAA==\"}]}",
+    "report": {
+     "admission_sha256": "e41ca454f90cee1a816639eb048b402b087b22a318008766b6ebc53bb2f4d93d"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-04T21:19:07.649Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/15a956ecbf1ae4f6d2735c818e6d9c29a150ee3a67f1c7494fba4abc086176c9": [
+   200,
+   {
+    "canonical_sha256": "15a956ecbf1ae4f6d2735c818e6d9c29a150ee3a67f1c7494fba4abc086176c9",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"f5caca13b18f9d24f809d1089695daefc8c750f0cace24540ef00ab88e7016d5\",\"nonce\":\"c357775bd1559f39229d6646747ecaf6\"},\"admission_id\":\"5a0b3049-0729-462b-89a3-f91701bd5439\",\"chain_view\":{\"header_sha256\":\"f11a5e267a3ee49ca61eac430674f172e89de196696c7665137b5ebb23caaa34\",\"height\":974471},\"clause\":\"grant.authorized_actions[0]\",\"content\":{\"answered\":true,\"check_sha256\":\"37bb0c5195bfe00978ecf3d5771ecc4efebfd81576ef7900bc9c11b17fecc8b5\",\"checked\":true,\"decision\":\"pass\",\"input_commit\":\"a6d3eb7950a0a5e355eb999bf882a1ac561969b0b1b6bbfad9bc9c84485c2011\",\"marks\":[],\"rules\":\"a2a-content-check-v1\",\"rules_sha256\":\"2c5a1089a90265717175dd1056be7075472aed44fab5581e6be6e73b1746f195\",\"scope_sha256\":\"abf6c3e1eaa840880326ccdcfdd540d7999081c7dbf98cba7fc638d9a75402f4\",\"unread\":false},\"contract_ref\":{\"contract_id\":\"e491b4f54c7698bc19b930ec2d1c079e\",\"contract_sha256\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\",\"that any content check ran, or that the same check would answer the same way again; the record carries a salted commitment to the bytes the relying party says it checked (only a holder of the bytes and the salt can recompute it), the digest of the check it says it read, the identifier of the rule set, the decision and the marks, and nothing else about the content\",\"that the rates measured for the named rule set hold on this contract's scope; they were measured on the scopes of public datasets, not on a scope rendered from a contract\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) returns for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"4fe3828dad4a7b8af64309a5343ce813cc3a413067942aa62aa8ad4b38dcad77\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":null,\"verdict\":\"not_run\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"197b9332b9f198c3560854cb84a0760bd0eed88406fff59366a90bfb36d5017b\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/seki-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.4\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"eT30CKodr7jMlK9J+Ee53SUYvMhWtKrQxFIRFyDWGG07kk1ypXUyQm29id1CCFEwuEM5XxkDG8lw7+WOTdEGAQ==\"}]}",
+    "report": {
+     "admission_sha256": "4782f4310d93d853d331ecc7c1e07655145a504802cc53e5de6f1733fc68ded3"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-04T03:47:23.485Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/26e53961d61ee631c76c4cfd7789b8a1fb08171222cbffd0ea8f44a9423fc75d": [
+   200,
+   {
+    "canonical_sha256": "26e53961d61ee631c76c4cfd7789b8a1fb08171222cbffd0ea8f44a9423fc75d",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"f1cbe11548ab9059f9b123566eed3ff4fb443a639d11e53e782d4ce43104fb6f\",\"nonce\":\"6efc9a92ca8419e71d5c8d79dcc212ee\"},\"admission_id\":\"c0171e3c-d4cb-4b85-9692-8267a6e3979d\",\"chain_view\":{\"header_sha256\":\"2d9049b11d834a339c3a37b2a0a3ea667c0ec35c577dfd9d03befe63b3e26089\",\"height\":974466},\"clause\":\"grant.authorized_actions[0]\",\"contract_ref\":{\"contract_id\":\"ff78faf5c45d84d0fb3796ed780c0677\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) returns for those inputs; anyone holding them can recompute it\"],\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"29e3ff7ff0eb3b8bc06807771af885d4b8cbbfc477defa89afadbe5673d6f718\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/seki-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.1\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"RYXcxGWwPY/NV+Gi/oR3O3vEokXrHRj0DWPz1qMY8iZcOR5Kb7WxP5TNnxwO6YlgVgqbxn+yqjTkNK3sa69bBQ==\"}]}",
+    "report": {
+     "admission_sha256": "b815f8d43d0a0ad917e2729067b8e64ca62593f52d5c7c5168659e32e82007c0"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-04T01:26:53.125Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/2931b50a66c3a0ea696fa99b046911f0229384134afb2afedce68ecfcd9e94af": [
+   200,
+   {
+    "canonical_sha256": "2931b50a66c3a0ea696fa99b046911f0229384134afb2afedce68ecfcd9e94af",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"8f050de2fc11ae82cc429c24f4f4858da9dc7ad6c23b2e3bf12352438ea53ee2\",\"nonce\":\"2682bb48994403165673e21159459366\"},\"admission_id\":\"shiken-door-v1:seq=33:prev=7a8a95bc419e5e35dc1d5689fa8739233944103e6db70a5e5a420991d01e56ad\",\"chain_view\":{\"header_sha256\":\"d6a51ec70d83389edfdd8498ce7ce0accba4575446811782e5417735b25b1823\",\"height\":974472},\"clause\":\"grant.authorized_actions[0]\",\"contract_ref\":{\"contract_id\":\"5f56dc9772e375186579f06e15597e1f\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) and the immune rules (immune.evaluator_sha256, over the contract's requirements.immune) return for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"18830a219a8aaab2b00e733c4afa03c740f3ad5adfdf3a7811d6ed8579119b5c\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":\"1cbbbbfea05d87aa7b4b982dfa84bd63fc732fc79891b1c18ee540dbe5a7fa87\",\"verdict\":\"clear\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"ff6280139daa8e083a318b83ec9e8af359beb20a054f57f25276479e0d61de0b\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/shiken-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.2\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"/HRIRrs2p7IGfGlIIg8qW8IGrh5RbtPTmdy+IUP7qFGLapsaO0adll+xHRIDXaOW7LucBuMpG5ih8GenYBXiDw==\"}]}",
+    "report": {
+     "admission_sha256": "9e3392078506c49c1108dcf8dcd1160941f74ce7bfa36b032722f9a1ee46c642"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T00:20:45.309Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/4827588ee1a01e453596d65965f34cf371571546220ee0cb22e23546c228067d": [
+   200,
+   {
+    "canonical_sha256": "4827588ee1a01e453596d65965f34cf371571546220ee0cb22e23546c228067d",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"3835de076141c95b6316a9b1866941cf62447f35459d31d825fba37407254cbd\",\"nonce\":\"f28998e99ba5fc3ac9cb96dfa4d3bee1\"},\"admission_id\":\"shiken-door-v1:seq=27:prev=53304360149e8071b6293d118bb049a1cac11815509616f7a2be93b01f6b5938\",\"chain_view\":{\"header_sha256\":\"d6a51ec70d83389edfdd8498ce7ce0accba4575446811782e5417735b25b1823\",\"height\":974472},\"clause\":\"grant.authorized_actions[0]\",\"contract_ref\":{\"contract_id\":\"5f56dc9772e375186579f06e15597e1f\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) and the immune rules (immune.evaluator_sha256, over the contract's requirements.immune) return for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"21c55109a8f1bae45f3e5be145e4b8783b5bd28dd83b5a83378a0390d4b865ad\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":\"1cbbbbfea05d87aa7b4b982dfa84bd63fc732fc79891b1c18ee540dbe5a7fa87\",\"verdict\":\"clear\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"9acb2d0ca1b14da81f0a3f024887dac143e8d5dd4bb1d6f42d7176a5e5bf9c4a\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/shiken-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.2\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"Tr3mSAAXC3e009ps5uxxgfGURbVUnzF25DdOqZtgyYJDH9TfGIf/i7hoJm+K5MQWPEa7V/Y8FgCjjNuugZcrDQ==\"}]}",
+    "report": {
+     "admission_sha256": "d4895f921bafd0f10d70b5cf1551daaaa8b8caf26ea2380ad5372a449b80d601"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T00:20:16.277Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/57d14fbd36bd2c2102103f7f8ffcabd22d3eb86b19c3edb196112a1191f4f42a": [
+   200,
+   {
+    "canonical_sha256": "57d14fbd36bd2c2102103f7f8ffcabd22d3eb86b19c3edb196112a1191f4f42a",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"51552ca7a02b6dd2773c12fd4f0b4fb36577d3fd618395acaffe71a3aafed5e8\",\"nonce\":\"2f98f29551c2e5f6713bc0420307eace\"},\"admission_id\":\"2bc7c5fd-1a9b-4888-955b-06be34b5cceb\",\"chain_view\":{\"header_sha256\":\"2eb3bee509b33ad1392c5946f0bae31dca66668927ac2d9278c83d963c6b4f35\",\"height\":974585},\"clause\":\"grant.authorized_actions[1]\",\"contract_ref\":{\"contract_id\":\"ff78faf5c45d84d0fb3796ed780c0677\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\"},\"decision\":\"refuse\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) returns for those inputs; anyone holding them can recompute it\"],\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"29e3ff7ff0eb3b8bc06807771af885d4b8cbbfc477defa89afadbe5673d6f718\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"amount_over_limit\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/seki-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.1\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"gFt/aC4Rr77Ez3GTGJakLHtW76SFPoirOl4R0oVfJqu+AufHtoIYtSyhanvYIJVgzLhqLSYsqzCC3VV1N7UEAw==\"}]}",
+    "report": {
+     "admission_sha256": "b1f70d98302be2be33591d8c2985e4c04e583da72bfcbd17b78074b4c5dfb2a8"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-04T21:19:03.149Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/5960e0375208987d2d1eab176d534523196a40a0d49b90fdf6646850bd4bb0d8": [
+   200,
+   {
+    "canonical_sha256": "5960e0375208987d2d1eab176d534523196a40a0d49b90fdf6646850bd4bb0d8",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"1ebc40a0c51da9869d34c197bc8acdaac8ca3eee3170cf13249d631ef1923036\",\"nonce\":\"f190e5371f967da69234e069db2919a7\"},\"admission_id\":\"shiken-door-v1:seq=29:prev=e4a6430e6381f96db65ce3e4dabdc5be412ea37814b6195001ea5a4dac83dce6\",\"chain_view\":{\"header_sha256\":\"d6a51ec70d83389edfdd8498ce7ce0accba4575446811782e5417735b25b1823\",\"height\":974472},\"clause\":\"grant.authorized_actions[0]\",\"contract_ref\":{\"contract_id\":\"5f56dc9772e375186579f06e15597e1f\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) and the immune rules (immune.evaluator_sha256, over the contract's requirements.immune) return for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"c419f3652c8df6d239895c3990d2ffbb0bf6db42137d5821aa00d9ab44d42003\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":\"1cbbbbfea05d87aa7b4b982dfa84bd63fc732fc79891b1c18ee540dbe5a7fa87\",\"verdict\":\"clear\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"e0c209a0b650e499147ca15b65e4e5513bdbd0c71d3cf2da8b78d96e96878d5e\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/shiken-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.2\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"EgFGQfxAobRgof0rpzr6bd4LLK60AvcYE5yZJuYXzdhdiUfE+TKqJ0NPBZegv50dqEQkLFRNhFSGrYnaMV5qDw==\"}]}",
+    "report": {
+     "admission_sha256": "408cf5090bee226e54b25c376f2b49c3970ef3ef0f1795434b9efaf4ca459c63"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T00:20:26.859Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/5a917a3fdc6edcf5d861b35eed37ad9e3b0090a92b1342f4447174c58494a277": [
+   200,
+   {
+    "canonical_sha256": "5a917a3fdc6edcf5d861b35eed37ad9e3b0090a92b1342f4447174c58494a277",
+    "ledger_entry": 257,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"3c630001d2d04f1c607310981739a01fd487ada74718d2b1247f55411c530de6\",\"nonce\":\"348b23909a4a09bd67e7c2b791248fdd\"},\"admission_id\":\"ff457ea8-a0c6-4996-8e18-f6f553607b98\",\"chain_view\":{\"header_sha256\":\"eae5a3e190da14988ee318acd43dae63d9e2023d2d659c2ac18df6f507cc1dae\",\"height\":974710},\"clause\":\"grant.authorized_actions[0]\",\"contract_ref\":{\"contract_id\":\"ff78faf5c45d84d0fb3796ed780c0677\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) returns for those inputs; anyone holding them can recompute it\"],\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"29e3ff7ff0eb3b8bc06807771af885d4b8cbbfc477defa89afadbe5673d6f718\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/seki-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.1\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"Xdbkz08FPfP0bgAJbFwR/4AnB7SfYeTADlvVFxQ0fKy8fV9Xca3hxEwtXYKj3EmPaooUfSp04r3bRFR7i2kIBA==\"}]}",
+    "report": {
+     "admission_sha256": "ba4ab988650ef66edcde3114fca9ab4d88591d23867aca4bdeb3cbb3cff23050"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T21:19:43.670Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/5b68a8d6655061e656b8b2440f2701aa9b1ef3c641c11051cd9d82a88eca2224": [
+   200,
+   {
+    "canonical_sha256": "5b68a8d6655061e656b8b2440f2701aa9b1ef3c641c11051cd9d82a88eca2224",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"0e83149805759c512f8d0f95d86b681f16159fd5e8679bcdd69f4b3be6582c19\",\"nonce\":\"99bd5559b3c6795b7bb7303a48f9728c\"},\"admission_id\":\"shiken-madoka-door-v1:seq=17:prev=598434b6397c8e11b50a90a3a0b9964874abda412dfea669c922a4bb20c469b6\",\"chain_view\":{\"header_sha256\":\"b288ff1e2b58a652c7cd51e26d4fc6f2a42490bc99ae655f3cbebc43460d9f53\",\"height\":974460},\"clause\":\"grant.authorized_actions[5]\",\"contract_ref\":{\"contract_id\":\"45317948b682f311976f5e7cfff7dd27\",\"contract_sha256\":\"1de810fb546193dac26920dbf31381d04c2602a85411b568218c8e03c2cab830\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) and the immune rules (immune.evaluator_sha256, over the contract's requirements.immune) return for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"abf53798ddadbcfa6cbc988a43c7073478fbfae19aefb9ce828ef3009adb568d\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":\"ed35b66a4df503983884aaa90e48f17a644f44545e1c6ca4a0b7ae12c208b787\",\"verdict\":\"clear\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"d84ac01f57d7396425cfba0e465dbe7abbeeecbe81440190942b046d17f1a357\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/shiken-madoka-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.2\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"/ACf4esy/EoGga2rGsXqTrum+vSE0rNOT5f2usnXVVJpXMUAiHo98rafdg4G9j0gJOzZEvv7xYnOJtJXMGLRDA==\"}]}",
+    "report": {
+     "admission_sha256": "88d6f3dda1ef3001242a2d8cf146b959945a5b2965f6d18242c339f3ac73d20b"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-04T00:35:14.997Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/6aa2b93a1bcccfa8ed7477acc3cbe1c891063525e938d19eff300d61ff33d6d7": [
+   200,
+   {
+    "canonical_sha256": "6aa2b93a1bcccfa8ed7477acc3cbe1c891063525e938d19eff300d61ff33d6d7",
+    "ledger_entry": 257,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"4c6dfed4843a0d8ed91621fd796a10d5f03ae8d5f1df9204edfa6e626d8e1ca9\",\"nonce\":\"aaf2538f147010d95371e1c7376ff562\"},\"admission_id\":\"e80ca288-735d-4a7a-9614-b58188905338\",\"chain_view\":{\"header_sha256\":\"eae5a3e190da14988ee318acd43dae63d9e2023d2d659c2ac18df6f507cc1dae\",\"height\":974710},\"clause\":\"grant.authorized_actions[1]\",\"contract_ref\":{\"contract_id\":\"ff78faf5c45d84d0fb3796ed780c0677\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\"},\"decision\":\"refuse\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) returns for those inputs; anyone holding them can recompute it\"],\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"29e3ff7ff0eb3b8bc06807771af885d4b8cbbfc477defa89afadbe5673d6f718\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"amount_over_limit\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/seki-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.1\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"JEyKRL6hWLsROv7JLyxT9uErDzyTYIdjXM8+6fF6QQQQUahcmUAefAPhXKj4Kqk9Q4QpiHXZGaxwW8rDb9DmAQ==\"}]}",
+    "report": {
+     "admission_sha256": "a0e15ffae20c16549fc9065c3c96291936b87c0701c2b0183a8e4889e2b246e4"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T21:19:52.754Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/7302cc8920b1aeb6c8f3f2405316886a0e5bfb4b90b1d048b6ec0e5ef4c694e7": [
+   200,
+   {
+    "canonical_sha256": "7302cc8920b1aeb6c8f3f2405316886a0e5bfb4b90b1d048b6ec0e5ef4c694e7",
+    "ledger_entry": 254,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"5dedfbcc60e38227b848c2a529b73a3dac9b7fcff01426e1295f5848781d862e\",\"nonce\":\"33c28b21eb6a16705d47af8f073d90c1\"},\"admission_id\":\"shiken-madoka-door-v1:seq=18:prev=88d6f3dda1ef3001242a2d8cf146b959945a5b2965f6d18242c339f3ac73d20b\",\"chain_view\":{\"header_sha256\":\"0a77167533ff2c0882c93bf805289ceb712d68f7384eabcf83b8e140613c2636\",\"height\":974603},\"clause\":\"grant.authorized_actions[5]\",\"contract_ref\":{\"contract_id\":\"45317948b682f311976f5e7cfff7dd27\",\"contract_sha256\":\"1de810fb546193dac26920dbf31381d04c2602a85411b568218c8e03c2cab830\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) and the immune rules (immune.evaluator_sha256, over the contract's requirements.immune) return for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"e1f1b66d6bfbc62090472079b1305ec541fa4da6a565a088d85e916736282426\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":\"ed35b66a4df503983884aaa90e48f17a644f44545e1c6ca4a0b7ae12c208b787\",\"verdict\":\"clear\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"a92725aad5a734f41e9fc006020df5479bfad3259341aead961be3a7f52492c8\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/shiken-madoka-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.2\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"vf7uNn8fqWUTALy/OGbC+fWwFcCwUChH7pKiandLle/dB+H1fx7u0hiO6mkuEODoC6aA4klgEB/E9lCo76vUAA==\"}]}",
+    "report": {
+     "admission_sha256": "f3963568b2df56eb6d802630705de32f005209c855cac10a0547236a0a7a2f2d"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T00:35:05.772Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/79774d4627bf18af756938359b7fce13cc89e46c6389458481ea679ca6dadf54": [
+   200,
+   {
+    "canonical_sha256": "79774d4627bf18af756938359b7fce13cc89e46c6389458481ea679ca6dadf54",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"ff1a9bc0019841c886970adf89cdb3742b1c0f86948af02f960cb52b5eabc92d\",\"nonce\":\"3360561326a5f8e8f69852b8add80577\"},\"admission_id\":\"b8c259cb-f2af-4f6e-96ec-f7d59da946d4\",\"chain_view\":{\"header_sha256\":\"2d9049b11d834a339c3a37b2a0a3ea667c0ec35c577dfd9d03befe63b3e26089\",\"height\":974466},\"clause\":\"grant.prohibited_actions[0]\",\"contract_ref\":{\"contract_id\":\"ff78faf5c45d84d0fb3796ed780c0677\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\"},\"decision\":\"refuse\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) returns for those inputs; anyone holding them can recompute it\"],\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"29e3ff7ff0eb3b8bc06807771af885d4b8cbbfc477defa89afadbe5673d6f718\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"prohibited_action\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/seki-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.1\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"Tk9gA0QPW+mHgJGlrccfTl8NHY2LtaWGloJSJ2buwjQbSzp3nH7swt9+hZsoA3xmZeM42tShH5jslCz68BE6Bg==\"}]}",
+    "report": {
+     "admission_sha256": "d9c8b2c0ca1308d45bb4b2ad5a418e2fe88698fddc3b29f38a499b12ffd9fdee"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-04T01:27:06.242Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/80e049d750c650089fe02defa315b4fb1df8d175eadab701178b8de21a34303e": [
+   200,
+   {
+    "canonical_sha256": "80e049d750c650089fe02defa315b4fb1df8d175eadab701178b8de21a34303e",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"fc6115cde3adc8addd1f1d594dc4416bd1ccaf338e2723ad1c6c2efb973d88e9\",\"nonce\":\"231a3dd47709dd2b7b59872ac7081e42\"},\"admission_id\":\"shiken-door-v1:seq=26:prev=3e3330ce35e4aebac7562f31a8e4898fd62e1f60c7cc7ac86706cd2f2222c9dd\",\"chain_view\":{\"header_sha256\":\"57132bc363a94af6a00adcd01474180eb2802ba805556d844bde3c8d496ceb49\",\"height\":974467},\"clause\":\"grant.authorized_actions[1]\",\"contract_ref\":{\"contract_id\":\"5f56dc9772e375186579f06e15597e1f\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) and the immune rules (immune.evaluator_sha256, over the contract's requirements.immune) return for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"5d8f052f3d2d5c28e27a921e8bf313e3c38f01e1b634b08347b68ed0924014e2\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":\"1cbbbbfea05d87aa7b4b982dfa84bd63fc732fc79891b1c18ee540dbe5a7fa87\",\"verdict\":\"clear\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"1ace17802e76af746007efd1f6705d9abe87eb8dcee627094f4e0f2ecd975d24\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/shiken-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.2\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"oFAsi7HrVThGEVZB9tdPPk25koUZSKEWye16WNLR9ywrySlyHnG7Ph5ZC33XQwEM1l6pxWRmou0WKaHkVn2IAg==\"}]}",
+    "report": {
+     "admission_sha256": "53304360149e8071b6293d118bb049a1cac11815509616f7a2be93b01f6b5938"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T00:20:14.174Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/9e7d9ccd2ef12cf53d1c6f07223f0afd0a93ba65f3fefa6c142e2cc6a0632614": [
+   200,
+   {
+    "canonical_sha256": "9e7d9ccd2ef12cf53d1c6f07223f0afd0a93ba65f3fefa6c142e2cc6a0632614",
+    "ledger_entry": 257,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"2217277edceb40f3f7b3bb95e7a8407677ffc9d6ff84f57be1a2f8c03da8ee71\",\"nonce\":\"9cb038f1d6fe499e695f7d9e57723eda\"},\"admission_id\":\"33beb95f-4306-4f93-8faa-599316bf465c\",\"chain_view\":{\"header_sha256\":\"eae5a3e190da14988ee318acd43dae63d9e2023d2d659c2ac18df6f507cc1dae\",\"height\":974710},\"clause\":\"grant.prohibited_actions[0]\",\"contract_ref\":{\"contract_id\":\"ff78faf5c45d84d0fb3796ed780c0677\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\"},\"decision\":\"refuse\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) returns for those inputs; anyone holding them can recompute it\"],\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"29e3ff7ff0eb3b8bc06807771af885d4b8cbbfc477defa89afadbe5673d6f718\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"prohibited_action\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/seki-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.1\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"QjOtS1pDWDXr0mmnxfnkzs+D8gULHaayGNO3bKGy3BvJjo+BSFIwKFBc4mJ8hn1fZEmx6LNawCUsYgP+4HNmBQ==\"}]}",
+    "report": {
+     "admission_sha256": "174d295cad13a351c1b86671404cf612fe26cb23b82093532b4247e47a5a3099"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T21:19:54.774Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/a506e5f4f94561dc2ad3277a95219c5138930202a9207cc71889f190fd6e5470": [
+   200,
+   {
+    "canonical_sha256": "a506e5f4f94561dc2ad3277a95219c5138930202a9207cc71889f190fd6e5470",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"b97707805584f1bac8e81549536d6761fa9e579ae12be0f913dae2325cff8c84\",\"nonce\":\"0fb9d929ed2de05599c6207f2f0ef619\"},\"admission_id\":\"shiken-door-v1:seq=34:prev=9e3392078506c49c1108dcf8dcd1160941f74ce7bfa36b032722f9a1ee46c642\",\"chain_view\":{\"header_sha256\":\"d6a51ec70d83389edfdd8498ce7ce0accba4575446811782e5417735b25b1823\",\"height\":974472},\"clause\":\"grant.authorized_actions[0]\",\"contract_ref\":{\"contract_id\":\"5f56dc9772e375186579f06e15597e1f\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) and the immune rules (immune.evaluator_sha256, over the contract's requirements.immune) return for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"11f38dac61764e57159abaaf69f2bd17a6b4275fb55fe7e61db30f8a437a7bbc\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":\"1cbbbbfea05d87aa7b4b982dfa84bd63fc732fc79891b1c18ee540dbe5a7fa87\",\"verdict\":\"clear\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"25eb5acfe03c6dcf9e21dd8fd2d83e05f16b1ac00a5093b8fc2d8928e9b87cf2\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/shiken-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.2\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"q+QSJev2aHzZPk9gzCSnDRUasrnubDS26eypyJ4bmJNIyA9jqmfXI3hV3zXHvb3qzPqeZyxRhs1EgvOI+5OJBg==\"}]}",
+    "report": {
+     "admission_sha256": "f99010faf6a7b78e5374f56309da7e3ef806d5969d4f27d3d0d5673f1670527e"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T00:20:49.873Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/a52f0b3e590a1b747f6eb8368c32c1e3836e344f9ee575e449cf6e655b94c088": [
+   200,
+   {
+    "canonical_sha256": "a52f0b3e590a1b747f6eb8368c32c1e3836e344f9ee575e449cf6e655b94c088",
+    "ledger_entry": null,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"d0c42f4b427faca008fc17919e004fb03a78e70a11c482b95e414b2467452c1b\",\"nonce\":\"022299ec9a75f09d71379b250a08d58a\"},\"admission_id\":\"shiken-madoka-door-v1:seq=19:prev=f3963568b2df56eb6d802630705de32f005209c855cac10a0547236a0a7a2f2d\",\"chain_view\":{\"header_sha256\":\"c0ed3836dd0ea5e8f9a2684d36a41f273b602575ec69ec88c9833e26b9b8d309\",\"height\":974738},\"clause\":\"grant.authorized_actions[5]\",\"contract_ref\":{\"contract_id\":\"45317948b682f311976f5e7cfff7dd27\",\"contract_sha256\":\"1de810fb546193dac26920dbf31381d04c2602a85411b568218c8e03c2cab830\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) and the immune rules (immune.evaluator_sha256, over the contract's requirements.immune) return for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"84bed15f4a9bee70dd84821d6434e47b6a9d78ec770e5a06c1db5f37f4e097b4\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":\"ed35b66a4df503983884aaa90e48f17a644f44545e1c6ca4a0b7ae12c208b787\",\"verdict\":\"clear\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"0f7c2fc630ea32cd7e945c90849c9f056915a961a7bf64f2539d8faf23ab8fe0\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/shiken-madoka-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.2\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"PsXqoQvlDaNUQjoniDVgo386+KKxxmLC8iWOPP8DNXIsWh1kn3PkFY/4ulqIkaBwngo4TeVpYzxAsmNWk94OCw==\"}]}",
+    "report": {
+     "admission_sha256": "ca967e1d31bd4df894c03797d0ca42de5a7ebd1e6e31127d8e355178cd249bb1"
+    },
+    "status": "pending_anchor",
+    "submitted_at": "2026-11-06T00:35:07.109Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/b2e731c855d9da1228afe705e5852a77c5a5d323ec0b7b22fd1d245410616aaa": [
+   200,
+   {
+    "canonical_sha256": "b2e731c855d9da1228afe705e5852a77c5a5d323ec0b7b22fd1d245410616aaa",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"177a130351f2020a50e98af76044009d04485d2c67c9cec57030f7a4a5895c46\",\"nonce\":\"2adeb34b9bd6ec0580d96de8ded76284\"},\"admission_id\":\"shiken-door-v1:seq=32:prev=6d3e66f2e105763a5546317bb201bd898c2fb1994078231dc07203982a2c7714\",\"chain_view\":{\"header_sha256\":\"d6a51ec70d83389edfdd8498ce7ce0accba4575446811782e5417735b25b1823\",\"height\":974472},\"clause\":\"grant.authorized_actions[0]\",\"contract_ref\":{\"contract_id\":\"5f56dc9772e375186579f06e15597e1f\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) and the immune rules (immune.evaluator_sha256, over the contract's requirements.immune) return for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"ee0fac61205fc69f912318c6a9a80204b25a91adf61460c38b20dceb28564d9b\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":\"1cbbbbfea05d87aa7b4b982dfa84bd63fc732fc79891b1c18ee540dbe5a7fa87\",\"verdict\":\"clear\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"53ee2c68d08ca92d2f176ef13241a0e843d5b817015486e902159acb2a33f9d2\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/shiken-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.2\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"n1uKLUAlBWpmZscSm0l6eyX04wg7lxhpavAyF+IvDxQWFvrwk9C1eutItyd2cV2XGBpTGs5L/ACCUi8us6DJDg==\"}]}",
+    "report": {
+     "admission_sha256": "7a8a95bc419e5e35dc1d5689fa8739233944103e6db70a5e5a420991d01e56ad"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T00:20:40.687Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/cd3810073384a249fa9ec2cdc7d0f47d269d36756addee4d3357c823e118ebc2": [
+   200,
+   {
+    "canonical_sha256": "cd3810073384a249fa9ec2cdc7d0f47d269d36756addee4d3357c823e118ebc2",
+    "ledger_entry": 254,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"b2543834e857ab0438d5df73b81ab845767c0c7014ff0f55c9406697f95dacbf\",\"nonce\":\"68cb9b6b4e3863e669fbd504927985e5\"},\"admission_id\":\"f9a6f5e3-4da7-4140-82a7-9efa005a3ea1\",\"chain_view\":{\"header_sha256\":\"00482c95f3d411b623cfa5a8eee7a590b6fac72fbc729004370adac9a1353172\",\"height\":974618},\"clause\":\"grant.authorized_actions[0]\",\"content\":{\"answered\":true,\"check_sha256\":\"90f0d07c6d92ef40c29dc1f9c928614c53e7f24a0636e49b02834fd6475e2033\",\"checked\":true,\"decision\":\"pass\",\"input_commit\":\"bcc799aac3625ca1d74a1a86277dc72ed07211ed09d8a3ca8499dab05418c1dc\",\"marks\":[],\"rules\":\"a2a-content-check-v1\",\"rules_sha256\":\"2c5a1089a90265717175dd1056be7075472aed44fab5581e6be6e73b1746f195\",\"scope_sha256\":\"abf6c3e1eaa840880326ccdcfdd540d7999081c7dbf98cba7fc638d9a75402f4\",\"unread\":false},\"contract_ref\":{\"contract_id\":\"e491b4f54c7698bc19b930ec2d1c079e\",\"contract_sha256\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\",\"that any content check ran, or that the same check would answer the same way again; the record carries a salted commitment to the bytes the relying party says it checked (only a holder of the bytes and the salt can recompute it), the digest of the check it says it read, the identifier of the rule set, the decision and the marks, and nothing else about the content\",\"that the rates measured for the named rule set hold on this contract's scope; they were measured on the scopes of public datasets, not on a scope rendered from a contract\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) returns for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"4fe3828dad4a7b8af64309a5343ce813cc3a413067942aa62aa8ad4b38dcad77\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":null,\"verdict\":\"not_run\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"197b9332b9f198c3560854cb84a0760bd0eed88406fff59366a90bfb36d5017b\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/seki-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.4\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"3CUsmKnHPVZfLJZF5/kJpty8qAaANwHkmrkBgI2O+MXiLcplbNWPSvycCHm34OwI3mcX3ib1WaOlDaluopQiBQ==\"}]}",
+    "report": {
+     "admission_sha256": "b85a743631980cfe2a77beba49ee652fc7c68910ee18b530e45367489cb1960d"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T03:47:17.004Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/d0de3170dc04aad1fb5b61e99bd96e18963a4d58a8dd99d36b03e5c88d56d28a": [
+   200,
+   {
+    "canonical_sha256": "d0de3170dc04aad1fb5b61e99bd96e18963a4d58a8dd99d36b03e5c88d56d28a",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"6e8d2ea9f5d29413ca0f153ddbafb6699995a43cfddb92cc234fd758bb16eed5\",\"nonce\":\"8c8a16547e0f9494934493a1f189cbd6\"},\"admission_id\":\"shiken-door-v1:seq=31:prev=8024ea5aeb5b30cb1594f4f894def9fe908c2c14ce448e235fc031917a7b1317\",\"chain_view\":{\"header_sha256\":\"d6a51ec70d83389edfdd8498ce7ce0accba4575446811782e5417735b25b1823\",\"height\":974472},\"clause\":\"grant.authorized_actions[0]\",\"contract_ref\":{\"contract_id\":\"5f56dc9772e375186579f06e15597e1f\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) and the immune rules (immune.evaluator_sha256, over the contract's requirements.immune) return for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"e0eb5b095e54334beaf9db33aa4a7d724988cd381b0bba4158e323b7f33c985d\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":\"1cbbbbfea05d87aa7b4b982dfa84bd63fc732fc79891b1c18ee540dbe5a7fa87\",\"verdict\":\"clear\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"55a8c36cbde0d952407af4fbeb8c817eb0aad59a9b150f80bf47ccae93060046\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/shiken-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.2\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"iWlMUe/+nm2jX9OVD1BQ0WmGGf4UGANmxG7Kkr+JLqpc1Cgtqaj2DAzIkSYT9joNlAcEqh7XFnYiY5pGSR0lBw==\"}]}",
+    "report": {
+     "admission_sha256": "6d3e66f2e105763a5546317bb201bd898c2fb1994078231dc07203982a2c7714"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T00:20:36.381Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/df3cddd16b4f66f48d4d43297e438f9f27c08c1d27f80e04c5f0f341d131dec0": [
+   200,
+   {
+    "canonical_sha256": "df3cddd16b4f66f48d4d43297e438f9f27c08c1d27f80e04c5f0f341d131dec0",
+    "ledger_entry": null,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"728a0434f36edf92a248ebc86e2feae5e3dcba370c487c524131a43417879ead\",\"nonce\":\"4ad15e1d9c845670d6e95948726d6b36\"},\"admission_id\":\"05b6171c-b641-4e29-a568-159927bb36d5\",\"chain_view\":{\"header_sha256\":\"54f980d62e4934a8e9e7c1248a6b9ee0bc05f2120d1ee58a55c5df7b42a5b4f9\",\"height\":974755},\"clause\":\"grant.authorized_actions[0]\",\"content\":{\"answered\":true,\"check_sha256\":\"31227e843f47b883604a10332768284c765ae6dcc0cba384eaa86338ea8dfdac\",\"checked\":true,\"decision\":\"pass\",\"input_commit\":\"cf17a8170312004bf6e4b46754288fa9234499c2b84cfe65097de0cb238c08aa\",\"marks\":[],\"rules\":\"a2a-content-check-v1\",\"rules_sha256\":\"2c5a1089a90265717175dd1056be7075472aed44fab5581e6be6e73b1746f195\",\"scope_sha256\":\"abf6c3e1eaa840880326ccdcfdd540d7999081c7dbf98cba7fc638d9a75402f4\",\"unread\":false},\"contract_ref\":{\"contract_id\":\"e491b4f54c7698bc19b930ec2d1c079e\",\"contract_sha256\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\",\"that any content check ran, or that the same check would answer the same way again; the record carries a salted commitment to the bytes the relying party says it checked (only a holder of the bytes and the salt can recompute it), the digest of the check it says it read, the identifier of the rule set, the decision and the marks, and nothing else about the content\",\"that the rates measured for the named rule set hold on this contract's scope; they were measured on the scopes of public datasets, not on a scope rendered from a contract\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) returns for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"4fe3828dad4a7b8af64309a5343ce813cc3a413067942aa62aa8ad4b38dcad77\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":null,\"verdict\":\"not_run\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"197b9332b9f198c3560854cb84a0760bd0eed88406fff59366a90bfb36d5017b\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/seki-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.4\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"NA0JRvh9yn2kk4jYuOk8xkmJkvT8pbAzNvUsoebADNYJHIHgNlBtDL/kL5GJ964H1dXIzwvEfFYuED6J2TxgBQ==\"}]}",
+    "report": {
+     "admission_sha256": "eb7ce0dcaf442b0f10d2e4a9384f2022a5d011499f2d46c67095fb173f2a75fd"
+    },
+    "status": "pending_anchor",
+    "submitted_at": "2026-11-06T03:47:16.150Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/e0909735a96a1568fe0fd4cc535929c9e586c3daf707dbc93b5a0c6b38867aec": [
+   200,
+   {
+    "canonical_sha256": "e0909735a96a1568fe0fd4cc535929c9e586c3daf707dbc93b5a0c6b38867aec",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"be523ab996f76a7d7b6c63848e8e174506159d965a655ce81cf2533ddc1ac702\",\"nonce\":\"22cdb5f75c7c480fb22951e571eb5054\"},\"admission_id\":\"shiken-door-v1:seq=28:prev=d4895f921bafd0f10d70b5cf1551daaaa8b8caf26ea2380ad5372a449b80d601\",\"chain_view\":{\"header_sha256\":\"d6a51ec70d83389edfdd8498ce7ce0accba4575446811782e5417735b25b1823\",\"height\":974472},\"clause\":\"grant.authorized_actions[0]\",\"contract_ref\":{\"contract_id\":\"5f56dc9772e375186579f06e15597e1f\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) and the immune rules (immune.evaluator_sha256, over the contract's requirements.immune) return for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"604c50e35ec814f861313c51bae61decc867be2585fa6068d26847c70db54b26\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":\"1cbbbbfea05d87aa7b4b982dfa84bd63fc732fc79891b1c18ee540dbe5a7fa87\",\"verdict\":\"clear\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"62691aaece4aa2d09d6f359fb73df17ef564ba8230ebc2532e80e29c28bffe4f\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/shiken-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.2\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"8OvFctbDP8PH5QBPA0v2RCo3o12Hd2yGi28Y1Iq/6tifIkU6zn2xVDmEpHEgFZZ1aXKRm672zBPWfkXC0uk0Ag==\"}]}",
+    "report": {
+     "admission_sha256": "e4a6430e6381f96db65ce3e4dabdc5be412ea37814b6195001ea5a4dac83dce6"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-05T00:20:22.212Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/e53883abb81e362346e4c4d50de58d132a1118fc857c90ae6fe71949dc56850b": [
+   200,
+   {
+    "canonical_sha256": "e53883abb81e362346e4c4d50de58d132a1118fc857c90ae6fe71949dc56850b",
+    "ledger_entry": 257,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"de5b3970f29ffdd5ec11febc1c79b0efed85354540ad9acf67edc0d4317a4fa9\",\"nonce\":\"3f45bbc88cd4192084d66f6d658fba51\"},\"admission_id\":\"shiken-door-v1:seq=37:prev=8efaaa1c69b291f1e1d6a26482df55d392257570029851a9b91e6a79b049628f\",\"chain_view\":{\"header_sha256\":\"5eb71116fd13f22a6095b5a2674e1e8f24c8de56e9370d0e65215dac054bca32\",\"height\":974737},\"clause\":\"grant.authorized_actions[5]\",\"contract_ref\":{\"contract_id\":\"5f56dc9772e375186579f06e15597e1f\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) and the immune rules (immune.evaluator_sha256, over the contract's requirements.immune) return for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"31a80ef6bbe77077df83b7398b5c4d7ff8e2a249b281343477f943a875b9b652\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":\"1cbbbbfea05d87aa7b4b982dfa84bd63fc732fc79891b1c18ee540dbe5a7fa87\",\"verdict\":\"clear\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"7a807ea8d6057bee159498cc5b46bcd439339f46ca1e95435897b746de7da9d3\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/shiken-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.2\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"OGFof+BnAC8BKgg/ZhIy3IuRhUTiHZp1YQtFWAcedn2f0BgtazuIIe2MwlbKLMfH913V9CI2kwnVw1Sf9qJKDA==\"}]}",
+    "report": {
+     "admission_sha256": "b4667507fc4c17c2c1377cfbfdae42959c138fabfa3ba06e52480f11cd1309b5"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-06T00:20:09.911Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/admission/f7f82af805199421bd1600259feaa9f6c3475edb52e4ec07e17672231ab90fa5": [
+   200,
+   {
+    "canonical_sha256": "f7f82af805199421bd1600259feaa9f6c3475edb52e4ec07e17672231ab90fa5",
+    "ledger_entry": 250,
+    "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"09d10143260b9da16923fc95a58e876f35d62394e1d6dbb5ca329eb8e3adf1f6\",\"nonce\":\"cfda8b55e3a6c36c7eab6ffe6b60b77e\"},\"admission_id\":\"f80a518f-ad99-4f80-9f8f-9256d596ebb5\",\"chain_view\":{\"header_sha256\":\"2d9049b11d834a339c3a37b2a0a3ea667c0ec35c577dfd9d03befe63b3e26089\",\"height\":974466},\"clause\":\"grant.authorized_actions[1]\",\"contract_ref\":{\"contract_id\":\"ff78faf5c45d84d0fb3796ed780c0677\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\"},\"decision\":\"refuse\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) returns for those inputs; anyone holding them can recompute it\"],\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"29e3ff7ff0eb3b8bc06807771af885d4b8cbbfc477defa89afadbe5673d6f718\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"amount_over_limit\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/seki-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.1\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"3Ygf9Lm2VIh8WNyxCY0sByEKweTiaO70i+5+q/IERLx4C/0zwl2qDRQd9vnCKv8fWmi75Rie7dqlQSSGbQVOCA==\"}]}",
+    "report": {
+     "admission_sha256": "bfa2827d4d8be8c3cb72a4c60ae418ea0932b14fd27ee222cf72b74571b1bf7a"
+    },
+    "status": "anchored",
+    "submitted_at": "2026-11-04T01:27:04.257Z"
+   }
+  ],
+  "https://ledger.horizonshield.dev/agreement/pending": [
+   200,
+   {
+    "count": 3,
+    "note": "accepted records queued for the daily batch at 00:30 UTC (boundary 2.4); the batch anchor fixes their existence time and the Bitcoin stamp follows on the operator's stamping run",
+    "pending": [
+     {
+      "canonical_sha256": "45c32b71b4f66a4a35084931d15a91030ea808b5b513c6fc55be1cd5fe1d76f5",
+      "record_schema": "furui-check-day-v0",
+      "submitted_at": "2026-11-06T00:47:45.656Z",
+      "url": "https://ledger.horizonshield.dev/agreement/45c32b71b4f66a4a35084931d15a91030ea808b5b513c6fc55be1cd5fe1d76f5",
+      "verdict": "accepted"
+     },
+     {
+      "canonical_sha256": "a52f0b3e590a1b747f6eb8368c32c1e3836e344f9ee575e449cf6e655b94c088",
+      "record_schema": "a2a-admission-v0",
+      "submitted_at": "2026-11-06T00:35:07.109Z",
+      "url": "https://ledger.horizonshield.dev/agreement/a52f0b3e590a1b747f6eb8368c32c1e3836e344f9ee575e449cf6e655b94c088",
+      "verdict": "accepted"
+     },
+     {
+      "canonical_sha256": "df3cddd16b4f66f48d4d43297e438f9f27c08c1d27f80e04c5f0f341d131dec0",
+      "record_schema": "a2a-admission-v0",
+      "submitted_at": "2026-11-06T03:47:16.150Z",
+      "url": "https://ledger.horizonshield.dev/agreement/df3cddd16b4f66f48d4d43297e438f9f27c08c1d27f80e04c5f0f341d131dec0",
+      "verdict": "accepted"
+     }
+    ]
+   }
+  ],
+  "https://ledger.horizonshield.dev/ledger/248?format=json": [
+   200,
+   {
+    "created_at": "2026-11-04T00:45:42.248Z",
+    "n": 248,
+    "record_canonical": "{\"schema\":\"nenrin-agreement-batch-v1\",\"anchored_at\":\"2026-11-04T00:45:42Z\",\"count\":3,\"kinds\":{\"execution\":3},\"records\":[{\"sha\":\"360a0772ab501fac457e5448ff9088815c9079b2fab8eb78d2412dc59f3279bd\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/360a0772ab501fac457e5448ff9088815c9079b2fab8eb78d2412dc59f3279bd\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\"},{\"sha\":\"b2b1ca03cef85ec1f818c46b77b65b4a7d5b213d84bc8e712e6ab1a9d4974381\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/b2b1ca03cef85ec1f818c46b77b65b4a7d5b213d84bc8e712e6ab1a9d4974381\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},{\"sha\":\"ef9cd3f1c18d3231cd7a065cc873d8eec8dfa338788e0f5e5d7c97be79b21abd\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/ef9cd3f1c18d3231cd7a065cc873d8eec8dfa338788e0f5e5d7c97be79b21abd\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"1de810fb546193dac26920dbf31381d04c2602a85411b568218c8e03c2cab830\"}],\"intake_version\":\"0.4.0\",\"musubi_version\":\"0.3.0\",\"verifier_sha256\":\"27b5492cbd3612be8db7f084a2b0f8384c3b912388496247e08016efa03aa61c\",\"note\":\"NENRIN batch: each sha names the exact bytes of a record this intake accepted, an a2a-agreement (two party agreement, public verifier), an a2a-contract-v0 (MUSUBI terms, both parties signed, keys served) or an a2a-execution-v0 (evidence under a filed contract, signed by the contractor). Bytes at each record's bytes_url. This entry's Bitcoin anchor bounds every record in it from above; it settles nothing.\"}"
+   }
+  ],
+  "https://ledger.horizonshield.dev/ledger/249?format=json": [
+   200,
+   {
+    "created_at": "2026-11-05T00:30:30.546Z",
+    "n": 249,
+    "record_canonical": "{}"
+   }
+  ],
+  "https://ledger.horizonshield.dev/ledger/250?format=json": [
+   200,
+   {
+    "created_at": "2026-11-05T00:30:31.860Z",
+    "n": 250,
+    "record_canonical": "{\"schema\":\"nenrin-agreement-batch-v1\",\"anchored_at\":\"2026-11-05T00:30:31.837Z\",\"count\":20,\"records\":[{\"canonical_sha256\":\"0463a81d3c82c87f5a62fe9623d68d9179365f82844381e60e4492edb778616b\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"0723f41140ba829b4577eff41a25776ede0d16156ae5a7445a0a307a8102e669\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"09e7cdf348c8d5ba8d37310a25d84e5d7c3777a2b949be074381c15f7f43d28d\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"0b2d171a53b4e315aaf3cfc0aad259a9f523de074d3abc16541bf09fec5a3f2d\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"106c709214458e770fe30adb6ee4517c8213ade73639d81a182855c0d0b48ca1\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"15a956ecbf1ae4f6d2735c818e6d9c29a150ee3a67f1c7494fba4abc086176c9\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"26e53961d61ee631c76c4cfd7789b8a1fb08171222cbffd0ea8f44a9423fc75d\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"280f70f3688bdc18f3a5f8f735889f30d4a52be8e394c98601a160fcaf229f3f\",\"record_schema\":\"furui-check-day-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"furui-check-day-intake 0.2.0\"},{\"canonical_sha256\":\"2931b50a66c3a0ea696fa99b046911f0229384134afb2afedce68ecfcd9e94af\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"4827588ee1a01e453596d65965f34cf371571546220ee0cb22e23546c228067d\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"57d14fbd36bd2c2102103f7f8ffcabd22d3eb86b19c3edb196112a1191f4f42a\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"5960e0375208987d2d1eab176d534523196a40a0d49b90fdf6646850bd4bb0d8\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"5b68a8d6655061e656b8b2440f2701aa9b1ef3c641c11051cd9d82a88eca2224\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"79774d4627bf18af756938359b7fce13cc89e46c6389458481ea679ca6dadf54\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"80e049d750c650089fe02defa315b4fb1df8d175eadab701178b8de21a34303e\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"a506e5f4f94561dc2ad3277a95219c5138930202a9207cc71889f190fd6e5470\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"b2e731c855d9da1228afe705e5852a77c5a5d323ec0b7b22fd1d245410616aaa\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"d0de3170dc04aad1fb5b61e99bd96e18963a4d58a8dd99d36b03e5c88d56d28a\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"e0909735a96a1568fe0fd4cc535929c9e586c3daf707dbc93b5a0c6b38867aec\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"f7f82af805199421bd1600259feaa9f6c3475edb52e4ec07e17672231ab90fa5\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"}]}"
+   }
+  ],
+  "https://ledger.horizonshield.dev/ledger/251?format=json": [
+   200,
+   {
+    "created_at": "2026-11-05T00:30:36.343Z",
+    "n": 251,
+    "record_canonical": "{}"
+   }
+  ],
+  "https://ledger.horizonshield.dev/ledger/252?format=json": [
+   200,
+   {
+    "created_at": "2026-11-05T00:30:37.037Z",
+    "n": 252,
+    "record_canonical": "{}"
+   }
+  ],
+  "https://ledger.horizonshield.dev/ledger/253?format=json": [
+   200,
+   {
+    "created_at": "2026-11-05T00:45:45.476Z",
+    "n": 253,
+    "record_canonical": "{\"schema\":\"nenrin-agreement-batch-v1\",\"anchored_at\":\"2026-11-05T00:45:45Z\",\"count\":16,\"kinds\":{\"execution\":15,\"contract\":1},\"records\":[{\"sha\":\"0221e166d701b2382342b56a3a78ba16ddc04441d03c2919e5c6b86c315fed0e\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/0221e166d701b2382342b56a3a78ba16ddc04441d03c2919e5c6b86c315fed0e\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},{\"sha\":\"05a9733202884fcfa748bf518eae4dcc8cdf27f2c62233a5756bce22b049f80c\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/05a9733202884fcfa748bf518eae4dcc8cdf27f2c62233a5756bce22b049f80c\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},{\"sha\":\"0e0564f0e05795aca9e560163db44bb40578505599d5fe3c62994d3f318c5c4e\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/0e0564f0e05795aca9e560163db44bb40578505599d5fe3c62994d3f318c5c4e\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\"},{\"sha\":\"2c57c51c12a96976e2580e3778802a0e8fe96bf2299e98428c8803885aade748\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/2c57c51c12a96976e2580e3778802a0e8fe96bf2299e98428c8803885aade748\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},{\"sha\":\"320d614f0a4633c5831890013c417aade8608a5d416e12379f5fbeae1bfd3964\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/320d614f0a4633c5831890013c417aade8608a5d416e12379f5fbeae1bfd3964\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},{\"sha\":\"3279aa77f061a8d5b504e9b7e9ef057c62aed2cf07b1d11d835ff3d689fbb44c\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/3279aa77f061a8d5b504e9b7e9ef057c62aed2cf07b1d11d835ff3d689fbb44c\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},{\"sha\":\"56a2f439acd548bc882fd8bca72dc6b5b1bb06643334ed81748d6de1974b1d44\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/56a2f439acd548bc882fd8bca72dc6b5b1bb06643334ed81748d6de1974b1d44\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\"},{\"sha\":\"909d9f5b4e9df98c72457f4e22357c20c6ba1c63b65de1b4529450532bbeb89a\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/909d9f5b4e9df98c72457f4e22357c20c6ba1c63b65de1b4529450532bbeb89a\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},{\"sha\":\"9275eb5532dd8c4a9e1faf502cb78cc4dc9284012e027b1d7aec68ec9e90bf43\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/9275eb5532dd8c4a9e1faf502cb78cc4dc9284012e027b1d7aec68ec9e90bf43\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\"},{\"sha\":\"9f565508d080ee40136a34e86cd5b2044892c96775f44f0db126fb758cd5a385\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/9f565508d080ee40136a34e86cd5b2044892c96775f44f0db126fb758cd5a385\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"1de810fb546193dac26920dbf31381d04c2602a85411b568218c8e03c2cab830\"},{\"sha\":\"c0e7779eabd98a9db70e66f14484ed6514e7c8664c94916237ec4fb6b69161ef\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/c0e7779eabd98a9db70e66f14484ed6514e7c8664c94916237ec4fb6b69161ef\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\"},{\"sha\":\"c9656d1364374cf9d49c0e36fd23790c79dc6bcd525e4210841f8296ae3331a4\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/c9656d1364374cf9d49c0e36fd23790c79dc6bcd525e4210841f8296ae3331a4\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},{\"sha\":\"cd0ce3fed0c772b1c9ad927388da49785f1d234d9933aed91b50dd50619c0881\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/cd0ce3fed0c772b1c9ad927388da49785f1d234d9933aed91b50dd50619c0881\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},{\"sha\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\",\"kind\":\"contract\",\"schema\":\"a2a-contract-v0\",\"parties\":[\"the-horizons-innovation.com\",\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/contract/d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\"},{\"sha\":\"db86c6cc25805d0391b4be519c00e31e590f6b714be4aa95da419217afdccd79\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/db86c6cc25805d0391b4be519c00e31e590f6b714be4aa95da419217afdccd79\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"},{\"sha\":\"fafac4ea5b3352d52e93426beda65e6716e1dd4447fc12da7a455cbcb2800da0\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/fafac4ea5b3352d52e93426beda65e6716e1dd4447fc12da7a455cbcb2800da0\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"}],\"intake_version\":\"0.4.0\",\"musubi_version\":\"0.3.0\",\"verifier_sha256\":\"27b5492cbd3612be8db7f084a2b0f8384c3b912388496247e08016efa03aa61c\",\"note\":\"NENRIN batch: each sha names the exact bytes of a record this intake accepted, an a2a-agreement (two party agreement, public verifier), an a2a-contract-v0 (MUSUBI terms, both parties signed, keys served) or an a2a-execution-v0 (evidence under a filed contract, signed by the contractor). Bytes at each record's bytes_url. This entry's Bitcoin anchor bounds every record in it from above; it settles nothing.\"}"
+   }
+  ],
+  "https://ledger.horizonshield.dev/ledger/254?format=json": [
+   200,
+   {
+    "created_at": "2026-11-05T21:10:01.478Z",
+    "n": 254,
+    "record_canonical": "{\"schema\":\"nenrin-agreement-batch-v1\",\"anchored_at\":\"2026-11-05T21:10:01.227Z\",\"count\":3,\"records\":[{\"canonical_sha256\":\"6f5e159978013f77515097a0efc3cc138303392b15b91105ee0aaa7c3a346f47\",\"record_schema\":\"furui-check-day-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"furui-check-day-intake 0.2.0\"},{\"canonical_sha256\":\"7302cc8920b1aeb6c8f3f2405316886a0e5bfb4b90b1d048b6ec0e5ef4c694e7\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"cd3810073384a249fa9ec2cdc7d0f47d269d36756addee4d3357c823e118ebc2\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"}]}"
+   }
+  ],
+  "https://ledger.horizonshield.dev/ledger/255?format=json": [
+   200,
+   {
+    "created_at": "2026-11-05T23:05:41.884Z",
+    "n": 255,
+    "record_canonical": "{}"
+   }
+  ],
+  "https://ledger.horizonshield.dev/ledger/256?format=json": [
+   200,
+   {
+    "created_at": "2026-11-06T00:30:34.535Z",
+    "n": 256,
+    "record_canonical": "{}"
+   }
+  ],
+  "https://ledger.horizonshield.dev/ledger/257?format=json": [
+   200,
+   {
+    "created_at": "2026-11-06T00:30:38.916Z",
+    "n": 257,
+    "record_canonical": "{\"schema\":\"nenrin-agreement-batch-v1\",\"anchored_at\":\"2026-11-06T00:30:38.808Z\",\"count\":4,\"records\":[{\"canonical_sha256\":\"5a917a3fdc6edcf5d861b35eed37ad9e3b0090a92b1342f4447174c58494a277\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"6aa2b93a1bcccfa8ed7477acc3cbe1c891063525e938d19eff300d61ff33d6d7\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"9e7d9ccd2ef12cf53d1c6f07223f0afd0a93ba65f3fefa6c142e2cc6a0632614\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"e53883abb81e362346e4c4d50de58d132a1118fc857c90ae6fe71949dc56850b\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"}]}"
+   }
+  ],
+  "https://ledger.horizonshield.dev/ledger/258?format=json": [
+   200,
+   {
+    "created_at": "2026-11-06T00:30:49.754Z",
+    "n": 258,
+    "record_canonical": "{}"
+   }
+  ],
+  "https://ledger.horizonshield.dev/ledger/259?format=json": [
+   200,
+   {
+    "created_at": "2026-11-06T00:30:51.942Z",
+    "n": 259,
+    "record_canonical": "{}"
+   }
+  ],
+  "https://ledger.horizonshield.dev/ledger/260?format=json": [
+   200,
+   {
+    "created_at": "2026-11-06T00:45:45.965Z",
+    "n": 260,
+    "record_canonical": "{\"schema\":\"nenrin-agreement-batch-v1\",\"anchored_at\":\"2026-11-06T00:45:45Z\",\"count\":4,\"kinds\":{\"execution\":4},\"records\":[{\"sha\":\"4e3e49f295f0738f92c71f7fd55711161082a9820ab793aee59d2af65c94e6d1\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/4e3e49f295f0738f92c71f7fd55711161082a9820ab793aee59d2af65c94e6d1\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"1de810fb546193dac26920dbf31381d04c2602a85411b568218c8e03c2cab830\"},{\"sha\":\"8464e674937ad63d7d58bfb0b4dca645317407054b385503bc862d90afbc73e8\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/8464e674937ad63d7d58bfb0b4dca645317407054b385503bc862d90afbc73e8\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\"},{\"sha\":\"8ba9b1217e64ebc58f7733f4c686d0095f703a55b50054585a917541774b04e1\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/8ba9b1217e64ebc58f7733f4c686d0095f703a55b50054585a917541774b04e1\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\"},{\"sha\":\"f73abbdaa204349027141d58d63bd32bd88c94be372ba08671806012f678ad5b\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/f73abbdaa204349027141d58d63bd32bd88c94be372ba08671806012f678ad5b\",\"musubi_version\":\"0.3.0\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"}],\"intake_version\":\"0.4.0\",\"musubi_version\":\"0.3.0\",\"verifier_sha256\":\"27b5492cbd3612be8db7f084a2b0f8384c3b912388496247e08016efa03aa61c\",\"note\":\"NENRIN batch: each sha names the exact bytes of a record this intake accepted, an a2a-agreement (two party agreement, public verifier), an a2a-contract-v0 (MUSUBI terms, both parties signed, keys served) or an a2a-execution-v0 (evidence under a filed contract, signed by the contractor). Bytes at each record's bytes_url. This entry's Bitcoin anchor bounds every record in it from above; it settles nothing.\"}"
+   }
+  ],
+  "https://ledger.horizonshield.dev/ledger/261?format=json": [
+   200,
+   {
+    "created_at": "2026-11-06T14:59:33.425Z",
+    "n": 261,
+    "record_canonical": "{}"
+   }
+  ],
+  "https://ledger.horizonshield.dev/ledger/head": [
+   200,
+   {
+    "n": 261
+   }
+  ],
+  "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-ledger/nenrin/seki-heartbeat/runs/2026-11-03/RUN.json": [
+   200,
+   {
+    "balance_before": 620,
+    "calls": [
+     {
+      "admission_sha256": "b815f8d43d0a0ad917e2729067b8e64ca62593f52d5c7c5168659e32e82007c0",
+      "decision": "admit",
+      "execution_sha256": "0e0564f0e05795aca9e560163db44bb40578505599d5fe3c62994d3f318c5c4e",
+      "execution_url": "https://agreement.horizonshield.dev/execution/0e0564f0e05795aca9e560163db44bb40578505599d5fe3c62994d3f318c5c4e",
+      "ledger_url": "https://ledger.horizonshield.dev/admission/26e53961d61ee631c76c4cfd7789b8a1fb08171222cbffd0ea8f44a9423fc75d",
+      "nonce": "6efc9a92ca8419e71d5c8d79dcc212ee",
+      "published": "accepted",
+      "record_sha256": "26e53961d61ee631c76c4cfd7789b8a1fb08171222cbffd0ea8f44a9423fc75d",
+      "report_sha256": "886ad54b2eedb0d7eb20585f6b31f7c4e47de9d506fe1840adcf010296bdbb05",
+      "request_sha256": "042c6ea730de9b76c38c658c362ce4a12b90ec3230a5620ae3ac9fc967292dba",
+      "service": "report",
+      "status": 200,
+      "tickets": 20,
+      "tickets_spent": "20"
+     },
+     {
+      "admission_sha256": "bfa2827d4d8be8c3cb72a4c60ae418ea0932b14fd27ee222cf72b74571b1bf7a",
+      "decision": "refuse",
+      "ledger_url": "https://ledger.horizonshield.dev/admission/f7f82af805199421bd1600259feaa9f6c3475edb52e4ec07e17672231ab90fa5",
+      "nonce": "cfda8b55e3a6c36c7eab6ffe6b60b77e",
+      "published": "accepted",
+      "record_sha256": "f7f82af805199421bd1600259feaa9f6c3475edb52e4ec07e17672231ab90fa5",
+      "request_sha256": "58f69ca6612d31840dbbc3b1d5e3d77d44414cded3a3ea71cd0564d0af422298",
+      "service": "audit",
+      "status": 403,
+      "tickets": 30,
+      "tickets_spent": null
+     },
+     {
+      "admission_sha256": "d9c8b2c0ca1308d45bb4b2ad5a418e2fe88698fddc3b29f38a499b12ffd9fdee",
+      "decision": "refuse",
+      "ledger_url": "https://ledger.horizonshield.dev/admission/79774d4627bf18af756938359b7fce13cc89e46c6389458481ea679ca6dadf54",
+      "nonce": "3360561326a5f8e8f69852b8add80577",
+      "published": "accepted",
+      "record_sha256": "79774d4627bf18af756938359b7fce13cc89e46c6389458481ea679ca6dadf54",
+      "request_sha256": "320adece8e0bfa064b0878a6856d1502ef27ee9d2c7f03aacb5f2a3e4e43c15f",
+      "service": "compare",
+      "status": 403,
+      "tickets": 50,
+      "tickets_spent": null
+     }
+    ],
+    "contract_sha256": "e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8",
+    "date": "2026-11-03",
+    "day_rule": "utc-date-of-start-minus-6h",
+    "door_public_key_ed25519_b64": "wbWKQTE9F1A2ixJzzhqfpITrU7GhDr9G2ri5YYGvCTE=",
+    "gateway": "https://hs-gateway.oga-surf-project.workers.dev",
+    "note": "a demonstration: the principal, the contractor and the relying party are all The HORIZONs Co., Ltd.; the door is exercised every day on its own paid path; this is not an arm's-length agreement and the pilot's tickets carry no monetary value",
+    "ran_at": "2026-11-04T01:26:43Z",
+    "result": "as expected",
+    "schema": "seki-heartbeat-run-v0",
+    "store": "hs-seki-demo",
+    "target": "https://hs-gateway.oga-surf-project.workers.dev/report?store=hs-seki-demo",
+    "tip_height_at_request": 974466
+   }
+  ],
+  "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-ledger/nenrin/seki-heartbeat/runs/2026-11-04/RUN.json": [
+   200,
+   {
+    "balance_before": 600,
+    "calls": [
+     {
+      "admission_sha256": "7cd2698d920ef145c6e187d8c1a755fe0c19a459e44f62d2e73dc2e465568553",
+      "decision": "admit",
+      "execution_sha256": "9275eb5532dd8c4a9e1faf502cb78cc4dc9284012e027b1d7aec68ec9e90bf43",
+      "execution_url": "https://agreement.horizonshield.dev/execution/9275eb5532dd8c4a9e1faf502cb78cc4dc9284012e027b1d7aec68ec9e90bf43",
+      "ledger_url": "https://ledger.horizonshield.dev/admission/0723f41140ba829b4577eff41a25776ede0d16156ae5a7445a0a307a8102e669",
+      "nonce": "b87894eeb857fc125557b6a83d99f7ee",
+      "published": "accepted",
+      "record_sha256": "0723f41140ba829b4577eff41a25776ede0d16156ae5a7445a0a307a8102e669",
+      "report_sha256": "23caaf47764e6963ce098eba8315772c817fd30d1a0b60d1f175d326af2dccd3",
+      "request_sha256": "5ac5e3e31d42d37d3417428c3be498dd78a52b0f73fbb4f3633b40dceacb6c1a",
+      "service": "report",
+      "status": 200,
+      "tickets": 20,
+      "tickets_spent": "20"
+     },
+     {
+      "admission_sha256": "b1f70d98302be2be33591d8c2985e4c04e583da72bfcbd17b78074b4c5dfb2a8",
+      "decision": "refuse",
+      "ledger_url": "https://ledger.horizonshield.dev/admission/57d14fbd36bd2c2102103f7f8ffcabd22d3eb86b19c3edb196112a1191f4f42a",
+      "nonce": "2f98f29551c2e5f6713bc0420307eace",
+      "published": "accepted",
+      "record_sha256": "57d14fbd36bd2c2102103f7f8ffcabd22d3eb86b19c3edb196112a1191f4f42a",
+      "request_sha256": "421d8ec38f7fc88c2bf66854a2cfd5b61cdead15d449f9a4943a37a2f2ae8c98",
+      "service": "audit",
+      "status": 403,
+      "tickets": 30,
+      "tickets_spent": null
+     },
+     {
+      "admission_sha256": "e41ca454f90cee1a816639eb048b402b087b22a318008766b6ebc53bb2f4d93d",
+      "decision": "refuse",
+      "ledger_url": "https://ledger.horizonshield.dev/admission/106c709214458e770fe30adb6ee4517c8213ade73639d81a182855c0d0b48ca1",
+      "nonce": "27da36e60f6d738ddcd5be00dc09a9cf",
+      "published": "accepted",
+      "record_sha256": "106c709214458e770fe30adb6ee4517c8213ade73639d81a182855c0d0b48ca1",
+      "request_sha256": "f26e13dc9a34419e99b8c45ce6e21aaab9f2d192b43695b9048caa524c0501fe",
+      "service": "compare",
+      "status": 403,
+      "tickets": 50,
+      "tickets_spent": null
+     }
+    ],
+    "contract_sha256": "e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8",
+    "date": "2026-11-04",
+    "day_rule": "utc-date-of-start-minus-6h",
+    "door_public_key_ed25519_b64": "wbWKQTE9F1A2ixJzzhqfpITrU7GhDr9G2ri5YYGvCTE=",
+    "gateway": "https://hs-gateway.oga-surf-project.workers.dev",
+    "note": "a demonstration: the principal, the contractor and the relying party are all The HORIZONs Co., Ltd.; the door is exercised every day on its own paid path; this is not an arm's-length agreement and the pilot's tickets carry no monetary value",
+    "ran_at": "2026-11-04T21:18:45Z",
+    "result": "as expected",
+    "schema": "seki-heartbeat-run-v0",
+    "store": "hs-seki-demo",
+    "target": "https://hs-gateway.oga-surf-project.workers.dev/report?store=hs-seki-demo",
+    "tip_height_at_request": 974585
+   }
+  ],
+  "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-ledger/nenrin/seki-heartbeat/runs/2026-11-04/SETTLED.json": [
+   200,
+   {
+    "ledger_entries": [
+     250,
+     253
+    ],
+    "recompute": "anchor_compose.py for each record against its ledger entry (?format=raw and /ots), header_view_fetch.py --to 974710 (from runs/<date>/, the tools are in ../../../musubi-v0), then settle_v1_15.py --settle ../../../musubi-v0/run0003/contract.json --event execution_report.anchored.json --admission admission_*.anchored.json --relying-key shield.the-horizons-innovation.com=<keys/seki-door.json> --view view.json",
+    "schema": "seki-heartbeat-settled-v0",
+    "settle": "v1.15 (v1.12 agrees on the verdict)",
+    "settlement_sha256": "d2d66b5dabc0d9589dbb87fcea4c1384281e8c68c7b64989fb431a15aa1a0017",
+    "status": "final",
+    "verdict": "within_grant",
+    "view": {
+     "from": 970715,
+     "to": 974710
+    }
+   }
+  ],
+  "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-ledger/nenrin/seki-heartbeat/runs/2026-11-04/settlement.json": [
+   200,
+   "{\"admission_gate\":{\"admissions_read\":[{\"action\":\"report\",\"admission_sha256\":\"7cd2698d920ef145c6e187d8c1a755fe0c19a459e44f62d2e73dc2e465568553\",\"decision\":\"admit\",\"record_sha256\":\"87368624006ada0862ac5315fe98211192d549437e176b3942240619934e5e0d\",\"relying_party\":\"shield.the-horizons-innovation.com\"}],\"counts\":{\"admission_after_execution\":0,\"admitted_out_of_grant\":0,\"executed_after_refusal\":0,\"executed_other_than_admitted\":0,\"unadmitted_execution\":0},\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"required\":true,\"requirement\":\"required_before_execution\",\"rule\":\"a2a-settlement-v1.11\"},\"anchor_rule\":\"a proof that uses hexlify must start with it, and the batch rebuilt from its operands up to the first sha256 must list the record as exactly one records[i].sha of a known batch schema, with matching kind and schema (anchor_compose.batch_leg_check); a proof without hexlify is a merkle path and is unchanged\",\"approval_gate\":{\"reading\":\"approval_self_asserted\",\"required\":false},\"approval_rule\":\"a2a-approval-v2: signed by the principal over contract_sha256, action, valid_until_height, nonce, single_use; label_bound and other_terms approvals are listed and never counted; unscoped approvals are refused\",\"approvals\":{\"counted\":[],\"label_bound\":[],\"other_terms\":[]},\"authoritative_event_set\":[{\"height\":974617,\"kind\":\"execution\",\"sha256\":\"87368624006ada0862ac5315fe98211192d549437e176b3942240619934e5e0d\"}],\"binding\":{\"bound\":[\"87368624006ada0862ac5315fe98211192d549437e176b3942240619934e5e0d\"],\"foreign\":[],\"inconsistent\":[],\"unbound\":[]},\"binding_mode\":\"strict\",\"bond_outcome\":\"n/a\",\"bound_by_label_only\":false,\"chain_tip\":{\"block_hash\":\"000000000000000000013bc98361ffef15dd273a93a673f004bcc9870c56367d\",\"height\":974710},\"contract_id\":\"ff78faf5c45d84d0fb3796ed780c0677\",\"contract_sha256\":\"e1fa47a049a94fd725efafa0a1d603e51a16158c58d2638d4c9052c1329109c8\",\"convergence_gate\":{\"required\":false},\"deviations\":[],\"does_not_establish\":[\"full Bitcoin consensus validity; only linkage, work above the checkpoint, the difficulty floor and the checkpoint\",\"that no key was stolen\",\"that acts nobody recorded did not happen\",\"that a label_bound or other_terms approval is false; only that it does not bind to these terms, so it is not counted\",\"that HS judged this; the verdict is recomputable by anyone from the same bytes and headers\",\"that a relying party which published no admission refused nothing; only that no admission was presented\",\"that HS allowed or blocked anything; the relying party ran admit() at its own door\",\"who is at fault when an admission and the grant disagree; the signatures show who signed what\",\"that the amount an execution record states is the amount that moved; only that it is the amount the record states and the admission's digest binds\",\"that an approval lifted a limit; a limit is a cap no approval lifts\",\"that a settler older than v1.14 reads only the walk's records for the admission and limit rules; v1.11 and v1.12 read every signed copy\",\"that the walk itself (settle v1.7) treats two records with the same signed bytes and different signatures lists as one; its own clauses can still count such a copy twice\"],\"duplicate_anchorings\":[],\"establishes\":[\"that every settled record and every counted approval names these terms by contract_sha256, recomputed here from the contract bytes\",\"that every accepted anchor whose proof passes through a batch listing names this record as exactly one records[i] of a batch schema this verifier reads, with matching kind and schema, and that hexlify appears only as the first operation\",\"that the contract terms are settleable (verified, no undeclared grant key, explicit authority, distinct keys, ungrindable ties, bounded revocation, no unscoped approvals)\",\"that on the verified header view pinned here, the authenticated, proof-checked records stay within the grant\",\"that this settlement is final under the grant's finality depth\",\"that the contract carries no requirements.spine, so finality here is the grant check alone (settle v1.7)\",\"that the contract states no requirements.convergence, so the measurers were not drawn (settle v1.8)\",\"that the grant pins no approver, so a conditional action is approved by the principal's signature, a party to the contract (settle v1.6)\",\"that every executed action was read against the relying party's signed admission named in the execution record, under the rule in a2a-settlement-v1.11\",\"that each admission's decision was recomputed here with the clause evaluator the admission names (admission_gate.evaluator_sha256)\",\"that the amount each execution record states for a limited action was read against grant.limits, under the rule in a2a-settlement-v1.12\",\"that the admission, limit and amount rules were read over the execution records the walk accepted, each the copy whose anchor it verified, plus party-signed records with an inconsistent binding whose anchor verifies, one per signed body, under the rule in a2a-settlement-v1.14\"],\"finality_horizon\":{\"block_hash\":\"0000000000000000000108d0bb7ebb5c0dedceecce54e4412bbac0b6398a8ecb\",\"height\":974705},\"ignored\":[],\"limit_gate\":{\"admission_required\":true,\"amounts_read\":[{\"action\":\"report\",\"amount\":20,\"max_amount\":20,\"over\":false,\"record_sha256\":\"87368624006ada0862ac5315fe98211192d549437e176b3942240619934e5e0d\",\"unit\":\"ticket\"}],\"counts\":{\"admitted_out_of_grant\":0,\"amount_over_limit\":0},\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"limits\":{\"audit\":{\"max_amount\":25,\"unit\":\"ticket\"},\"report\":{\"max_amount\":20,\"unit\":\"ticket\"}},\"rule\":\"a2a-settlement-v1.12\"},\"ordering_rule\":\"anchor height; within a block by type: authority ends first, authority is granted only from an earlier block or the same record\",\"orphaned\":[],\"pinned_blocks\":[{\"block_hash\":\"000000000000000000013dcff04de1e1567cbe0aa2c19abe5e38de81e036f51b\",\"height\":974617}],\"predates_contract\":[],\"rejected\":[],\"revocations\":[],\"schema\":\"a2a-settlement-v1.14\",\"settled_under\":\"a2a-settlement-v1.12\",\"signatures\":[],\"spine_gate\":{\"required\":false},\"status\":\"final\",\"underspecified\":[],\"verdict\":\"within_grant\",\"view_rules\":{\"checkpoint\":{\"hash\":\"00000000000000000000c9e52c9ebe1a7297ae19b908c05d6679ea55acfeff03\",\"height\":970715},\"max_target_bits\":\"17080000\"}}"
+  ]
+ },
+ "schema": "tooshi-real-chain-v0"
+}

@@ -161,6 +161,31 @@ Added on 2026-11-06 (16, how many outside witnesses sign the day roots):
                    not_yet when the ledger cannot be read for the whole window (never red for that). facts carry the count
                    and, for each signed_domain, the latest batch that lists it (the signature is no later than that day);
                    no name of a person is read or written.
+
+Added on 2026-11-07 (17, every paid call carries the whole chain):
+    17             paid_call_chain: every paid call that passed the door in the 24 hours from 03:47 UTC the day before
+                   yesterday to 03:47 UTC yesterday carries four records, one of each: the FURUI envelope of its content
+                   check, its SEKI record, its MUSUBI settlement and its NENRIN entry. A paid call is an admit signed by the
+                   door's relying party (GET /seki relying_party.domain) under the contract of a store the door prices above
+                   0 (GET /seki stores[].services); the check store (price 0) is not one. The calls are found in two public
+                   places: the ledger's nenrin-agreement-batch-v1 entries made from the start of the window to today's 03:47
+                   UTC and its pool (GET /agreement/pending), each admission read at GET /admission/<sha> (submitted_at in the
+                   window), and the day files of the store's own agent (seki-heartbeat runs/<day>/RUN.json, ran_at in the
+                   window), so a call whose record never reached the ledger is still counted. hs-mcp asks no door today, so its
+                   paid calls carry no SEKI record and add no call here. For each call:
+                     FURUI   the record's content block names a check_sha256, and exactly one leaf of the runner's day (the
+                             day of the call, GET /furui/day/<day>/leaf/<i>) holds that check, with runner-1's signature and
+                             an audit path to the root the ledger serves.
+                     SEKI    the door (GET /seki/record/<sha>) and the ledger (GET /admission/<sha>) serve the same bytes, an
+                             admit.
+                     MUSUBI  exactly one settlement of the store's agent (runs/<day>/SETTLED.json, final, and the
+                             settlement.json bytes it names) lists the call's admission_sha256 in admission_gate.admissions_read.
+                     NENRIN  exactly one agreement batch of those entries lists the record.
+                   red names every call that lacks one (facts.missing: the record sha, the store, what it lacks); ok when
+                   every call has all four, and ok with calls 0 when no paid call passed the door in the window (facts say
+                   0; nothing passed without its records). not_yet only when the ledger cannot be read (its head, an entry
+                   of the window, the pool or a listed admission). An answer of the door, the runner or the repository that
+                   cannot be read counts as the record it should show being absent (red).
 A red day opens one issue (label tooshi) and sends one mail with the names of the red checks and one line each
 (tools/tooshi/tooshi_tell.py, run by the workflow; this file sends nothing).
 """
@@ -1206,7 +1231,7 @@ RECOVER_WINDOW = datetime.timedelta(hours=48)
 NOT_YET_HOURS = {"1_sieve_admission": 48, "2_admission_ledger": 48, "3_ledger_settle": 72, "4_door_resume": 48, "4b_resume_agreement": 48,
                  "5_door_runner": 48, "6_daily_root": 48, "6b_daily_leaf": 48, "7_heartbeat_scene": 48, "8_canary_scene": 48,
                  "9_witness_answer": 72, "10_cross_client": 72, "11_main_ci": 72, "12_paid_rows_daily": 48, "13_line_delivery": 168,
-                 "15_recovery_fresh": 72, "16_witness_pool": 48}
+                 "15_recovery_fresh": 72, "16_witness_pool": 48, "17_paid_call_chain": 48}
 EXEMPT_WHY = {"12_paid_rows_daily": "no paid row yet: a time limit would turn the day red and send a mail every day while there is "
                                      "nothing to measure; it ends when the register has a paid row"}
 BITCOIN_HOURS = 36
@@ -1218,6 +1243,11 @@ POOL_PURPOSES = ("furui-day-v0: ", "tooshi-day-v0: ")   # the two kinds of witne
 POOL_SCAN = 600                          # 16: at most this many ledger entries are read back from the head (about 190 in 30 days on 2026-11-06)
 OWN_GITHUB = ("github.com/ogasurfproject-jpg",)
 DAY_ROOT_SCAN = 60                       # 6: entries read after an early batch to rule out a second one                    # days read back (the longest deadline is 7 days)
+HEARTBEAT_RUNS = "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-ledger/nenrin/seki-heartbeat/runs/"
+SETTLE_PLACES = {"hs-seki-demo": HEARTBEAT_RUNS}   # 17: where a paid store's calls are settled (its agent's day files)
+HEARTBEAT_DAY_SHIFT = datetime.timedelta(hours=6)   # heartbeat.py responsible_day: the UTC day of the start minus 6 hours
+CHAIN_SCAN = 120                         # 17: at most this many ledger entries are read back from the head (about 12 in 2 days on 2026-11-06)
+CHAIN_LEAF_SCAN = 256                    # 17: at most this many leaves of a runner day are read to find a call's envelope
 
 
 def anchor(now):
@@ -1768,6 +1798,256 @@ def check_witness_pool(get, now):
     return c(cid, "ok", "%d outside witnesses signed a FURUI or TOOSHI day with a key of their own domain in the 30 days before %s: %s" % (len(doms), iso(hi), names), **facts)
 
 
+class LedgerUnread(Exception):
+    pass
+
+
+def _days(a, b):
+    """the UTC days from the day of a to the day of b, as YYYY-MM-DD"""
+    out, d = [], a.date()
+    while d <= b.date():
+        out.append(d.strftime("%Y-%m-%d"))
+        d += datetime.timedelta(days=1)
+    return out
+
+
+def chain_leaves(get, d, pub):
+    """17: the leaves of runner day d that hold (the closed envelope, the leaf hash, runner-1's signature, the audit path to the
+    root the ledger serves), as {check sha: [leaf index]}; (problem or None, the map)"""
+    try:
+        why, day = ledger_day(get, d)
+        if why == "empty":
+            return None, {}
+        if why:
+            return why, {}
+        if not pub:
+            return "the ledger lists no single live runner-1 key", {}
+        m = {}
+        for i in range(min(day["n"], CHAIN_LEAF_SCAN)):
+            bad, e = leaf_problems(get, d, i, day, pub)
+            if not bad and e is not None:
+                m.setdefault(sha(canonical(e["check"])), []).append(i)
+        return ("only the first %d of %d leaves were read" % (CHAIN_LEAF_SCAN, day["n"]) if day["n"] > CHAIN_LEAF_SCAN else None), m
+    except Unreachable as e:
+        return "the runner or the ledger did not answer: " + str(e), {}
+    except (ValueError, KeyError, TypeError) as e:
+        return "an answer did not have its shape: %s" % type(e).__name__, {}
+
+
+def chain_settled(get, place, d):
+    """17: the admission_sha256 listed as admit in the final settlement of day d at place (runs/<d>/SETTLED.json and the
+    settlement.json bytes it names); (problem or None, the set)"""
+    try:
+        s, x = get(place + d + "/SETTLED.json")
+        if s == 404:
+            return None, set()
+        if s != 200 or not isinstance(x, dict):
+            return "%s/SETTLED.json answered http %s" % (d, s), set()
+        if x.get("status") != "final":
+            return None, set()
+        ts, t = get(place + d + "/settlement.json", raw=True)
+        if ts != 200 or not isinstance(t, str) or sha(t) != x.get("settlement_sha256"):
+            return "%s/settlement.json is not served as the bytes SETTLED.json names (http %s)" % (d, ts), set()
+        rd = (json.loads(t).get("admission_gate") or {}).get("admissions_read")
+        return None, {a["admission_sha256"] for a in (rd if isinstance(rd, list) else []) if isinstance(a, dict) and a.get("decision") == "admit" and isinstance(a.get("admission_sha256"), str)}
+    except Unreachable as e:
+        return "%s: the repository did not answer: %s" % (d, e), set()
+    except (ValueError, AttributeError, TypeError) as e:
+        return "%s: an answer did not have its shape: %s" % (d, type(e).__name__), set()
+
+
+def chain_calls(get, lo, hi, hi_a, rp, paid):
+    """17: the paid calls of [lo, hi) the ledger shows: admits of rp under a paid contract, submitted in the window, listed in an
+    agreement batch made from lo to today's 03:47 UTC or still in the pool. ({record sha: call}, {record sha: [entry n]}, entries
+    read). LedgerUnread when the ledger cannot be read for the whole window."""
+    s, h = get(LEDGER + "/ledger/head")
+    n = h.get("n") if s == 200 and isinstance(h, dict) else None
+    if not _int(n, 1):
+        raise LedgerUnread("the ledger's head answered http %s without n" % s)
+    listed, read, i = {}, 0, n
+    while i >= 1:
+        if read >= CHAIN_SCAN:
+            raise LedgerUnread("more than %d ledger entries were made since %s; not all were read" % (CHAIN_SCAN, iso(lo)))
+        es, e = get(LEDGER + "/ledger/%d?format=json" % i)
+        read += 1
+        t = when(e.get("created_at")) if es == 200 and isinstance(e, dict) else None
+        if t is None:
+            raise LedgerUnread("ledger entry %d answered http %s without created_at" % (i, es))
+        if t < lo:
+            break
+        i -= 1
+        if t >= hi_a:
+            continue   # made after today's 03:47 UTC: a later run of the day reads the same batches
+        try:
+            b = json.loads(e.get("record_canonical") or "")
+        except (ValueError, TypeError):
+            continue
+        if not (isinstance(b, dict) and b.get("schema") == "nenrin-agreement-batch-v1" and isinstance(b.get("records"), list)):
+            continue
+        for r in b["records"]:
+            x = r.get("canonical_sha256") if isinstance(r, dict) else None
+            if isinstance(x, str) and H64.match(x) and r.get("record_schema") == "a2a-admission-v0":
+                listed.setdefault(x, []).append(e.get("n", i + 1))
+    qs, q = get(LEDGER + "/agreement/pending")
+    pend = q.get("pending") if qs == 200 and isinstance(q, dict) else None
+    if not isinstance(pend, list):
+        raise LedgerUnread("the ledger's pool (/agreement/pending) answered http %s without a list" % qs)
+    pooled = {r["canonical_sha256"] for r in pend if isinstance(r, dict) and r.get("record_schema") == "a2a-admission-v0" and isinstance(r.get("canonical_sha256"), str) and H64.match(r["canonical_sha256"])}
+    calls = {}
+    for x in sorted(set(listed) | pooled):
+        a_s, a = get(LEDGER + "/admission/" + x)
+        rc = a.get("record_canonical") if a_s == 200 and isinstance(a, dict) else None
+        if not isinstance(rc, str) or sha(rc) != x:
+            raise LedgerUnread("the ledger lists admission %s but does not serve it as bytes that hash to it (http %s)" % (x, a_s))
+        try:
+            rec = json.loads(rc)
+        except ValueError:
+            raise LedgerUnread("admission %s is not JSON" % x)
+        t = when(a.get("submitted_at"))
+        if not isinstance(rec, dict) or rec.get("decision") != "admit" or (rec.get("relying_party") or {}).get("domain") != rp or t is None or not lo <= t < hi:
+            continue
+        cs = (rec.get("contract_ref") or {}).get("contract_sha256")
+        if cs in paid:
+            calls[x] = {"store": paid[cs], "at": t, "admission_sha256": (a.get("report") or {}).get("admission_sha256")}
+    return calls, listed, read
+
+
+def check_paid_chain(get, now):
+    """17: every paid call that passed the door in the 24 hours from 03:47 UTC the day before yesterday carries its FURUI
+    envelope, its SEKI record, its MUSUBI settlement and its NENRIN entry, one of each"""
+    cid = "17_paid_call_chain"
+    hi_a = anchor(now)
+    lo, hi = hi_a - datetime.timedelta(hours=48), hi_a - datetime.timedelta(hours=24)
+    win = [iso(lo), iso(hi)]
+    try:
+        ps, p = get(DOOR_POLICY)
+    except Unreachable as e:
+        return c(cid, "red", "the door policy did not answer, so its paid stores and its records cannot be read: " + str(e), window=win)
+    stores = p.get("stores", []) if ps == 200 and isinstance(p, dict) else None
+    if not isinstance(stores, list):
+        return c(cid, "red", "the door policy answered http %s without a list of stores" % ps, window=win)
+    paid = {}
+    for s in stores:
+        sv = s.get("services") if isinstance(s, dict) else None
+        if isinstance(sv, dict) and any(_num(v) and v > 0 for v in sv.values()) and isinstance(s.get("store"), str) and isinstance(s.get("contract_sha256"), str) and H64.match(s["contract_sha256"]):
+            paid[s["contract_sha256"]] = s["store"]
+    if not paid:
+        return c(cid, "ok", "the door prices no store above 0, so no paid call passed it", window=win, stores=[], calls=0, complete=0, missing=[])
+    facts = {"window": win, "stores": sorted(set(paid.values()))}
+    rp = p["relying_party"].get("domain") if isinstance(p.get("relying_party"), dict) else None
+    if not (isinstance(rp, str) and rp):
+        return c(cid, "red", "the door policy names no relying party domain, so its records cannot be told from others", **facts)
+    try:
+        calls, listed, read = chain_calls(get, lo, hi, hi_a, rp, paid)
+    except LedgerUnread as e:
+        return c(cid, "not_yet", "the ledger cannot be read for the window, so the paid calls are not known: %s" % e, **facts)
+    except Unreachable as e:
+        return c(cid, "not_yet", "the ledger did not answer, so the paid calls of the window are not known: %s" % e, **facts)
+    facts["entries_read"] = read
+    # the store's own agent files its calls by day (heartbeat.py), so a call whose record never reached the ledger is counted too
+    bad = []
+    for st in sorted(set(paid.values())):
+        place = SETTLE_PLACES.get(st)
+        for d in (_days(lo - HEARTBEAT_DAY_SHIFT, hi - HEARTBEAT_DAY_SHIFT) if place else []):
+            try:
+                rs, rj = get(place + d + "/RUN.json")
+            except Unreachable as e:
+                bad.append("the day file %s/RUN.json of %s did not answer: %s" % (d, st, e))
+                continue
+            if rs == 404:
+                continue
+            if rs != 200 or not isinstance(rj, dict) or not isinstance(rj.get("calls"), list):
+                bad.append("the day file %s/RUN.json of %s answered http %s without calls" % (d, st, rs))
+                continue
+            t = when(rj.get("ran_at"))
+            if rj.get("store") != st or t is None or not lo <= t < hi:
+                continue
+            for k in rj["calls"]:
+                x = k.get("record_sha256") if isinstance(k, dict) and k.get("decision") == "admit" else None
+                if isinstance(x, str) and H64.match(x) and x not in calls:
+                    calls[x] = {"store": st, "at": t, "admission_sha256": k.get("admission_sha256")}
+    missing, leaves, settled, pub = [], {}, {}, None
+    for x in sorted(calls):
+        k, lacks, said = calls[x], [], []
+        try:
+            w, rec, la = door_record(get, x)
+            if w is None and rec.get("decision") != "admit":
+                w = "the record is not an admit"
+        except Unreachable as e:
+            if str(e).startswith(LEDGER):
+                return c(cid, "not_yet", "the ledger did not answer for admission %s: %s" % (x, e), **facts)
+            w, rec, la = "did not answer: " + str(e), None, None
+            try:
+                la = get(LEDGER + "/admission/" + x)[1]   # the door is down; the ledger's bytes still name the content check
+            except Unreachable as e2:
+                return c(cid, "not_yet", "the ledger did not answer for admission %s: %s" % (x, e2), **facts)
+        except (ValueError, AttributeError) as e:
+            w, rec, la = "the record did not have its shape: %s" % type(e).__name__, None, None
+        if w:
+            lacks.append("seki_record")
+            said.append("SEKI: " + w)
+        if rec is None and isinstance(la, dict) and isinstance(la.get("record_canonical"), str):
+            try:
+                rec = json.loads(la["record_canonical"])   # the ledger's bytes still name the content check
+            except ValueError:
+                rec = None
+        rep = la.get("report") if isinstance(la, dict) and isinstance(la.get("report"), dict) else {}
+        am = k.get("admission_sha256") or rep.get("admission_sha256")
+        cb = rec.get("content") if isinstance(rec, dict) else None
+        ck = cb.get("check_sha256") if isinstance(cb, dict) else None
+        if not (isinstance(ck, str) and H64.match(ck)):
+            lacks.append("furui_envelope")
+            said.append("FURUI: the record carries no content check (no content.check_sha256)")
+        else:
+            hits, un = 0, []
+            for d in sorted({k["at"].strftime("%Y-%m-%d"), (k["at"] - datetime.timedelta(minutes=10)).strftime("%Y-%m-%d")}):
+                if d not in leaves:
+                    if pub is None:
+                        try:
+                            pub = runner_key(get) or ""
+                        except Unreachable:
+                            pub = ""
+                    leaves[d] = chain_leaves(get, d, pub)
+                if leaves[d][0]:
+                    un.append("%s: %s" % (d, leaves[d][0]))
+                hits += len(leaves[d][1].get(ck, []))
+            if hits != 1:
+                lacks.append("furui_envelope")
+                said.append("FURUI: %d leaves hold the check %s%s" % (hits, ck[:8], (" (" + "; ".join(un) + ")") if un else ""))
+        place = SETTLE_PLACES.get(k["store"])
+        if not place:
+            lacks.append("musubi_settlement")
+            said.append("MUSUBI: no public place keeps the settlements of %s" % k["store"])
+        elif not (isinstance(am, str) and H64.match(am)):
+            lacks.append("musubi_settlement")
+            said.append("MUSUBI: the call's admission_sha256 is not known")
+        else:
+            hits, un = [], []
+            for d in sorted({(k["at"] - HEARTBEAT_DAY_SHIFT).strftime("%Y-%m-%d"), k["at"].strftime("%Y-%m-%d")}):
+                if (place, d) not in settled:
+                    settled[(place, d)] = chain_settled(get, place, d)
+                if settled[(place, d)][0]:
+                    un.append(settled[(place, d)][0])
+                if am in settled[(place, d)][1]:
+                    hits.append(d)
+            if len(hits) != 1:
+                lacks.append("musubi_settlement")
+                said.append("MUSUBI: %d final settlements list the admission %s%s" % (len(hits), am[:8], (" (" + "; ".join(un) + ")") if un else ""))
+        ns = listed.get(x, [])
+        if len(ns) != 1:
+            lacks.append("nenrin_entry")
+            said.append("NENRIN: %s" % ("in no agreement batch made by today's 03:47 UTC" if not ns else "in %d agreement batches (%s)" % (len(ns), ", ".join(str(v) for v in ns))))
+        if lacks:
+            missing.append({"call": x, "store": k["store"], "lacks": lacks})
+            bad.append("%s (%s): %s" % (x[:8], k["store"], "; ".join(said)))
+    facts.update(calls=len(calls), complete=len(calls) - len(missing), missing=missing)
+    if bad:
+        return c(cid, "red", "%d of %d paid calls from %s to %s lack a record: %s" % (len(missing), len(calls), win[0], win[1], " | ".join(bad)), **facts)
+    if not calls:
+        return c(cid, "ok", "no paid call passed the door from %s to %s (0 calls; none passed without its records)" % tuple(win), **facts)
+    return c(cid, "ok", "every one of the %d paid calls from %s to %s carries its FURUI envelope, SEKI record, MUSUBI settlement and NENRIN entry, one of each" % (len(calls), win[0], win[1]), **facts)
+
+
 def run(get, now, trigger="manual"):
     if trigger not in TRIGGERS:
         raise ValueError("trigger must be one of " + ", ".join(TRIGGERS))
@@ -1779,6 +2059,7 @@ def run(get, now, trigger="manual"):
     checks += [check_canary(get, now), check_witness_answer(get, now)]
     checks += [check_cross_client(get, now), check_main_ci(get, now), check_paid_rows(get, now), check_line_delivery(get, now), check_recovery(get, now)]
     checks.append(check_witness_pool(get, now))
+    checks.append(check_paid_chain(get, now))
     checks.append(check_deadlines(get, now, checks))
     checks.sort(key=lambda x: x["id"])
     counts = {k: sum(1 for x in checks if x["state"] == k) for k in ("ok", "red", "notice", "not_yet")}
@@ -2343,7 +2624,7 @@ def selftest():
     def st(get, cid, when=now):
         return [x for x in run(get, when)[0]["checks"] if x["id"] == cid][0]
     S10, S11, S12, S13, S14, S15 = "10_cross_client", "11_main_ci", "12_paid_rows_daily", "13_line_delivery", "14_not_yet_deadline", "15_recovery_fresh"
-    cases.append(("v2: the whole day holds with the six new checks and 16: every check ok, the verdict green, 18 checks", (lambda r: (r["verdict"], len(r["checks"]), r["counts"]["ok"]))(run(world(cc=True), now)[0]), ("green", 18, 18)))
+    cases.append(("v2: the whole day holds with the six new checks and 16: every check ok, the verdict green, 18 checks", (lambda r: (r["verdict"], len([x for x in r["checks"] if x["id"] != "17_paid_call_chain"]), r["counts"]["ok"] - 1))(run(world(cc=True), now)[0]), ("green", 18, 18)))
     cases.append(("10: the draw of 2026-11-07 from five endpoints is the cross client's (cross_client_test.mjs has the same vector)", cross_draw("2026-11-07", list(reversed(CANDS))),
                   ["https://c.example/mcp", "https://d.example/mcp", "https://e.example/mcp"]))
     x10 = st(world(cc=True), S10)
@@ -2655,6 +2936,139 @@ def selftest():
     r16s = check_witness_pool(wp([pool_rec("horizonshield.dev", purpose="furui-day-v0: 2026-11-03"), pool_rec("outward.horizonshield.dev", purpose="tooshi-day-v0: 2026-11-04")]), N6)
     cases.append(("16 red on the real answers with our outward answer in the ledger (an entry of its own) or signed records from horizonshield.dev in a batch: distinct stays 1",
                   (r16o["state"], r16o["facts"]["distinct"], r16o["facts"]["entries_read"], r16s["state"], r16s["facts"]["distinct"]), ("red", 1, 190, "red", 1)))
+
+    # ---- 17 paid_call_chain (2026-11-07) ----
+    # one paid call of the window (11-03 03:47 to 11-04 03:47 UTC at the 11-05 run): an admit of the door's relying party under
+    # the paid store's contract, submitted at 21:18:51; its envelope is leaf 1 of 11-03 (W3); entry 279 is the agreement batch of
+    # 11-04 00:30; the agent's day file and the final settlement of 11-03 name it
+    S17 = "17_paid_call_chain"
+    RP17 = "shield.the-horizons-innovation.com"
+    PC = hsh("the paid store's contract")
+    STORES = [{"store": "hs-seki-demo", "contract_sha256": PC, "services": {"report": 20, "audit": 30, "compare": 50}},
+              {"store": CHECK_STORE, "contract_sha256": CSHA, "services": {"check": 0}}]
+
+    def paid_rec(e=D3[1], contract=PC, decision="admit", domain=RP17, tag="call 1"):
+        r = {"schema": "a2a-admission-v0", "admission_id": tag, "decision": decision, "reasons": ["within_grant"] if decision == "admit" else ["outside_grant"],
+             "rules": {"version": "0.4"}, "relying_party": {"domain": domain}, "contract_ref": {"contract_sha256": contract}}
+        if e is not None:
+            k = e["check"]
+            r["content"] = {"rules": "a2a-content-check-v1", "input_commit": k["input_commit"], "check_sha256": hsh(canonical(k)), "rules_sha256": k["rules_sha256"],
+                            "scope_sha256": k["scope_sha256"], "decision": k["decision"], "marks": k["marks"], "unread": k["unread"], "answered": k["answered"], "checked": True}
+        t = canonical(r)
+        return t, hsh(t)
+    T17, R17 = paid_rec()
+    AM17 = hsh("the admission of call 1")
+    SETT17 = canonical({"schema": "a2a-settlement-v1.15", "verdict": "within_grant", "status": "final", "admission_gate": {"admissions_read": [{"admission_sha256": AM17, "decision": "admit"}]}})
+
+    def batch(n, at, shas):
+        return (200, {"n": n, "created_at": at, "record_canonical": canonical({"schema": "nenrin-agreement-batch-v1", "anchored_at": at, "count": len(shas),
+                                                                                 "records": [{"canonical_sha256": x, "record_schema": "a2a-admission-v0", "verdict": "accepted"} for x in shas]})})
+
+    def adm(t, r, at="2026-11-03T21:18:51.019Z", entry=279, am=AM17):
+        return (200, {"canonical_sha256": r, "record_canonical": t, "status": "anchored" if entry else "pending_anchor", "ledger_entry": entry, "submitted_at": at, "report": {"admission_sha256": am}})
+
+    def chain_world(recs=((T17, R17),), listed=None, pool=(), run_calls=None, sett=SETT17, **over):
+        w = {DOOR_POLICY: (200, dict(world(cc=True)(DOOR_POLICY)[1], relying_party={"domain": RP17}, stores=STORES)),
+             LEDGER + "/ledger/279?format=json": batch(279, "2026-11-04T00:30:38.000Z", [r for _t, r in recs] if listed is None else listed),
+             LEDGER + "/agreement/pending": (200, {"count": len(pool), "pending": [{"canonical_sha256": r, "record_schema": "a2a-admission-v0", "verdict": "accepted"} for r in pool]}),
+             HEARTBEAT_RUNS + "2026-11-03/RUN.json": (200, {"store": "hs-seki-demo", "ran_at": "2026-11-03T21:18:45Z",
+                                                          "calls": [{"decision": "admit", "record_sha256": R17, "admission_sha256": AM17}, {"decision": "refuse", "record_sha256": hsh("a refusal")}] if run_calls is None else run_calls}),
+             HEARTBEAT_RUNS + "2026-11-03/SETTLED.json": (200, {"status": "final", "verdict": "within_grant", "settlement_sha256": hsh(sett)}),
+             HEARTBEAT_RUNS + "2026-11-03/settlement.json": (200, sett)}
+        for t, r in recs:
+            w[LEDGER + "/admission/" + r] = adm(t, r)
+            w[DOOR_RECORD + r] = (200, t)
+        w.update(over)
+        return w
+    c17 = lambda **o: check_paid_chain(world(cc=True, **chain_world(**o)), now)
+    m17 = lambda x: (x["state"], [(m["call"], m["lacks"]) for m in x["facts"].get("missing", [])])
+    x17 = c17()
+    cases.append(("17 ok: the one paid call of the window carries its FURUI envelope (leaf 1 of 11-03), SEKI record, MUSUBI settlement and NENRIN entry (279)",
+                  (x17["state"], x17["facts"]["window"], x17["facts"]["stores"], x17["facts"]["calls"], x17["facts"]["complete"], x17["facts"]["missing"]),
+                  ("ok", ["2026-11-03T03:47:00Z", "2026-11-04T03:47:00Z"], ["hs-seki-demo"], 1, 1, [])))
+    TN, RN = paid_rec(e=None)
+    cases.append(("17 red: a paid call whose record carries no content check (the door did not call the runner); its id and furui_envelope are named",
+                  m17(c17(recs=((TN, RN),), run_calls=[])), ("red", [(RN, ["furui_envelope"])])))
+    TO, RO = paid_rec(e=envelope("2026-11-03", 7))
+    cases.append(("17 red: the record names a check that no leaf of the runner's day holds", m17(c17(recs=((TO, RO),), run_calls=[])), ("red", [(RO, ["furui_envelope"])])))
+    TB, RB = paid_rec(e=D3[1], tag="call 1 with a bad leaf")
+    cases.append(("17 red: the leaf that holds the check does not verify (runner-1's signature)",
+                  m17(c17(recs=((TB, RB),), run_calls=[], **{RUNNER + "/furui/day/2026-11-03/leaf/1": (200, dict(W3[RUNNER + "/furui/day/2026-11-03/leaf/1"][1], envelope=envelope("2026-11-03", 1, key=SK2)))})),
+                  ("red", [(RB, ["furui_envelope"])])))
+    cases.append(("17 red: the door serves other bytes for the record, or none, or does not answer (seki_record)",
+                  (m17(c17(**{DOOR_RECORD + R17: (200, T17 + " ")})), m17(c17(**{DOOR_RECORD + R17: (404, {"error": "not_found"})})), m17(c17(**{DOOR_RECORD + R17: "down"}))),
+                  (("red", [(R17, ["seki_record"])]),) * 3))
+    cases.append(("17 red: no final settlement names the admission: none filed, not final, bytes other than SETTLED.json names, another admission listed",
+                  (m17(c17(**{HEARTBEAT_RUNS + "2026-11-03/SETTLED.json": (404, None)})), m17(c17(**{HEARTBEAT_RUNS + "2026-11-03/SETTLED.json": (200, {"status": "pending", "settlement_sha256": hsh(SETT17)})})),
+                   m17(c17(**{HEARTBEAT_RUNS + "2026-11-03/settlement.json": (200, SETT17 + " ")})), m17(c17(sett=SETT17.replace(AM17, hsh("another admission"))))),
+                  (("red", [(R17, ["musubi_settlement"])]),) * 4))
+    cases.append(("17 red: a paid store with no public place for its settlements", m17(check_paid_chain(world(cc=True, **chain_world(**{DOOR_POLICY: (200, {"relying_party": {"domain": RP17},
+                  "stores": [dict(STORES[0], store="another-paid-store")]})})), now)), ("red", [(R17, ["musubi_settlement"])])))
+    x17n = c17(**{LEDGER + "/ledger/280?format=json": batch(280, "2026-11-05T00:30:41.000Z", [R17])})
+    cases.append(("17 red: the record is listed by two agreement batches (one of each)", (m17(x17n), "in 2 agreement batches (280, 279)" in x17n["why"]), (("red", [(R17, ["nenrin_entry"])]), True)))
+    cases.append(("17 red: the record is still in the ledger's pool, in no batch made by 03:47 UTC", m17(c17(listed=[], pool=[R17])), ("red", [(R17, ["nenrin_entry"])])))
+    cases.append(("17 red: a call in the agent's day file that never reached the ledger (no SEKI record on the ledger, so no content block, no batch)",
+                  m17(c17(recs=(), **{LEDGER + "/admission/" + R17: (404, {"error": "not_found"}), DOOR_RECORD + R17: (200, T17)})), ("red", [(R17, ["seki_record", "furui_envelope", "nenrin_entry"])])))
+    cases.append(("17 red: the agent's day file does not answer, answers 403, or has no list of calls (a call might be missed)",
+                  tuple(c17(**{HEARTBEAT_RUNS + "2026-11-03/RUN.json": v})["state"] for v in ("down", (403, None), (200, {"store": "hs-seki-demo", "ran_at": "2026-11-03T21:18:45Z"}))), ("red",) * 3))
+    W4b, _s4b = day_world("2026-11-04", [D3[1], envelope("2026-11-04", 5)], 262, "2026-11-05")
+    x17t = c17(**dict(W4b, **{LEDGER + "/admission/" + R17: adm(T17, R17, at="2026-11-04T00:05:00.000Z")}))
+    cases.append(("17 red: a call 5 minutes after midnight whose check is held by a leaf of each of the two days it is read in (one of each)",
+                  (m17(x17t), "FURUI: 2 leaves hold the check" in x17t["why"]), (("red", [(R17, ["furui_envelope"])]), True)))
+    TR, RR = paid_rec(decision="refuse", tag="a refusal the day file calls an admit")
+    cases.append(("17 red: a call the agent's day file names as admit whose record is a refusal, in no batch",
+                  m17(c17(recs=(), run_calls=[{"decision": "admit", "record_sha256": RR, "admission_sha256": AM17}], **{LEDGER + "/admission/" + RR: adm(TR, RR, at="2026-11-04T05:00:00.000Z"), DOOR_RECORD + RR: (200, TR)})),
+                  ("red", [(RR, ["seki_record", "nenrin_entry"])])))
+    OTHER = [paid_rec(decision="refuse", tag="a refusal"), paid_rec(contract=CSHA, tag="the check call"), paid_rec(domain="other.example", tag="another door"),
+             paid_rec(contract=hsh("another contract"), tag="another contract")]
+    EARLY, LATE = paid_rec(tag="before the window"), paid_rec(tag="after the window")
+    x17z = c17(recs=tuple(OTHER) + (EARLY, LATE), run_calls=[], **{LEDGER + "/admission/" + EARLY[1]: adm(*EARLY, at="2026-11-03T03:46:59.000Z"), LEDGER + "/admission/" + LATE[1]: adm(*LATE, at="2026-11-04T03:47:00.000Z")})
+    cases.append(("17 ok with 0 calls: a refusal, an admit of the check store (price 0), another relying party, another contract, and paid admits submitted 1 second before or at the end of the window are not paid calls of the window",
+                  (x17z["state"], x17z["facts"]["calls"], x17z["facts"]["missing"], "0 calls" in x17z["why"]), ("ok", 0, [], True)))
+    cases.append(("17 ok with 0 calls: the door prices no store above 0 (the ledger is not read; its head is down)",
+                  (lambda x: (x["state"], x["facts"]["calls"]))(check_paid_chain(world(cc=True, **chain_world(**{DOOR_POLICY: (200, {"relying_party": {"domain": RP17}, "stores": STORES[1:]}), LEDGER + "/ledger/head": "down"})), now)), ("ok", 0)))
+    cases.append(("17 not_yet, not red: the ledger's head does not answer; an entry of the window answers 5xx; the pool answers 5xx; a listed admission is not served",
+                  tuple(c17(**o)["state"] for o in ({LEDGER + "/ledger/head": "down"}, {LEDGER + "/ledger/278?format=json": "down"}, {LEDGER + "/agreement/pending": (503, None)}, {LEDGER + "/admission/" + R17: (404, {"error": "not_found"})})),
+                  ("not_yet",) * 4))
+    cases.append(("17 red: the door policy does not answer, or names a paid store without a relying party",
+                  (c17(**{DOOR_POLICY: "down"})["state"], c17(**{DOOR_POLICY: (200, {"stores": STORES})})["state"]), ("red", "red")))
+    L17 = {LEDGER + "/ledger/head": (200, {"n": 281}), LEDGER + "/ledger/281?format=json": batch(281, "2026-11-05T05:00:00.000Z", [R17])}
+    cases.append(("17: a batch made after 03:47 UTC of the day is not read, so the 04:05 and 11:50 runs give the same 17",
+                  (lambda a, b: (a == b, a["state"]))(check_paid_chain(world(cc=True, **chain_world(**L17)), now), check_paid_chain(world(cc=True, **chain_world(**L17)), now.replace(hour=11, minute=50))), (True, "ok")))
+    r17 = run(world(cc=True, **chain_world()), now)[0]
+    cases.append(("17: the whole day holds with 17 (one paid call, all four records): every check ok, the verdict green, 19 checks",
+                  (r17["verdict"], len(r17["checks"]), r17["counts"]["ok"], [x["state"] for x in r17["checks"] if x["id"] == S17]), ("green", 19, 19, ["ok"])))
+    cases.append(("17 does not change the states of 1 to 16 (the same run with 17 ok and 17 red)",
+                  (lambda a, b: {k: v for k, v in a.items() if k not in (S17, S14)} == {k: v for k, v in b.items() if k not in (S17, S14)})(states(world(cc=True, **chain_world()))[1], states(world(cc=True, **chain_world(recs=((TN, RN),), run_calls=[])))[1]), True))
+    NY17 = {LEDGER + "/ledger/head": "down", DOOR_POLICY: (200, dict(world(cc=True)(DOOR_POLICY)[1], relying_party={"domain": RP17}, stores=STORES))}
+    cases.append(("14: 17 not_yet has a deadline of 48 hours: one day before is within it, three days before is past it",
+                  (st(world(cc=True, **dict(NY17, **{DAY_URL % "2026-11-04": pub_day("x", **{S17: "not_yet"})})), S14)["state"],
+                   st(world(cc=True, **dict(NY17, **{DAY_URL % (now - datetime.timedelta(days=i)).strftime("%Y-%m-%d"): pub_day("x", **{S17: "not_yet"}) for i in (1, 2, 3)})), S14)["state"]), ("ok", "red")))
+    # 17 on 2026-11-06's real answers (tooshi_real_chain_20261106.json): the window 11-04 03:47 to 11-05 03:47 UTC
+    RC = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "tooshi_real_chain_20261106.json"), encoding="utf-8"))["answers"]
+
+    def wc(**over):
+        w = {u: tuple(v) for u, v in RC.items()}
+        w.update(over)
+
+        def g(u, raw=False):
+            v = w.get(u, (404, None))
+            if v == "down":
+                raise Unreachable(u + ": http 503 after 3 tries")
+            return v
+        return g
+    REAL17 = "0723f41140ba829b4577eff41a25776ede0d16156ae5a7445a0a307a8102e669"
+    xr = check_paid_chain(wc(), N6)
+    cases.append(("17 red on 2026-11-06's real answers: the one paid call of the window (hs-seki-demo report, 11-04 21:18) has its SEKI record, MUSUBI settlement and NENRIN entry (250) and no FURUI envelope",
+                  (xr["state"], xr["facts"]["window"], xr["facts"]["calls"], xr["facts"]["complete"], m17(xr)[1], xr["facts"]["entries_read"]),
+                  ("red", ["2026-11-04T03:47:00Z", "2026-11-05T03:47:00Z"], 1, 0, [(REAL17, ["furui_envelope"])], 14)))
+    cases.append(("17 on the real answers: 27 admissions read, and the two refusals of 11-04, the check calls (price 0) and the admits of another contract are not paid calls",
+                  (len([u for u in RC if u.startswith(LEDGER + "/admission/")]), xr["facts"]["calls"]), (27, 1)))
+    cases.append(("17 red on the real answers without the settlement of 11-04, or with the door down: each lack is named",
+                  (m17(check_paid_chain(wc(**{HEARTBEAT_RUNS + "2026-11-04/SETTLED.json": (404, None)}), N6))[1], m17(check_paid_chain(wc(**{DOOR_RECORD + REAL17: "down"}), N6))[1]),
+                  ([(REAL17, ["furui_envelope", "musubi_settlement"])], [(REAL17, ["seki_record", "furui_envelope"])])))
+    cases.append(("17 on the real answers: the 11:50 run reads the same 17 as the 04:05 run, and the ledger's head down makes it not_yet",
+                  (check_paid_chain(wc(), N6.replace(hour=11, minute=50)) == xr, check_paid_chain(wc(**{LEDGER + "/ledger/head": "down"}), N6)["state"]), (True, "not_yet")))
 
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:
