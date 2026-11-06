@@ -1,0 +1,12 @@
+{
+  "n": 255,
+  "work": "witness-enroll-v0: pool version 1",
+  "claim_sha256": "3f380f821ea324f0164dedc283feb7dac8734fb3bc79b319b6110181c4a6c0ad",
+  "record_canonical": "# witness-enroll-pool-v0\n\npool_sha256: 96f8be7b1e3de7cb6a87a881281bb84cb408176bb050a7db45b7cdf90ec7d969\npool_version: 1\nprevious_pool_sha256: none\nentries: 1\n\nThis entry fixes one version of the pool of day witnesses for FURUI day records. The draw for a day uses the pool of the latest entry of this kind that was appended before the ledger entry listing that day's record and is anchored in a Bitcoin block at or below that entry's block. The pool is the JSON on the pool_canonical line; its sha256 is pool_sha256. Procedure: https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/witness-enroll-v0/PROCEDURE.md\nEstablishes: that this pool existed no later than the block this entry is anchored to.\nDoes not establish: that anyone in the pool will answer a draw, or anything about their answers.\n\npool_canonical: {\"entries\":[{\"consent\":{\"enrollment_sha256\":null,\"form\":\"email\",\"on\":\"2026-11-04\"},\"joined_on\":\"2026-11-04\",\"key_id\":\"ed25519:375909759fe5e437\",\"key_url\":\"https://pipavlo82.github.io/keys/witness.json\",\"kinds\":[\"furui-day\"],\"left_on\":null,\"left_reason\":null,\"name\":\"pipavlo82\",\"public_key_ed25519_b64\":\"A9cRj87tZ6Ob5FbRU12LazXRD7fNUJcSNK80Rp1U3zM=\",\"signed_domain\":\"pipavlo82.github.io\"}],\"previous_pool_sha256\":null,\"schema\":\"witness-enroll-pool-v0\",\"version\":1}\n",
+  "schema": "v0-plain",
+  "created_at": "2026-11-05T23:05:41.884Z",
+  "ots_status": "confirmed",
+  "bitcoin_block": 974727,
+  "block_time": "2026-11-05 23:25 UTC",
+  "stamped_at": "2026-11-06T00:18:30.960Z"
+}
