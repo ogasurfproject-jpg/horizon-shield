@@ -261,6 +261,44 @@ VERIFY_SELFHEAL_JS = (
 '</script>\n'
 )
 
+# 2026-11-06: 生成に渡るヒアリングの profile には検証の項目が無い。そのため検証済みの店(No.002、8/22 通過)の
+#   頁でも、HTML そのものには「検証手続き中」と書かれていた(ブラウザでは JS が contractors.json を読んで直すが、
+#   JS を動かさない AI のクローラーは食い違う二つの状態を読む)。生成の時に contractors.json から補う。
+#   読めなかったら補わない(確かめられないことは書かない、従来どおり「手続き中」)。
+CONTRACTORS_URL = "https://hearing.horizonshield.dev/contractors.json"
+
+def is_verified(profile):
+    return str(profile.get("verification") or "").lower() == "verified" and profile.get("fairness_score") is not None
+
+def merge_verification(profile):
+    if is_verified(profile):
+        return profile
+    mn = profile.get("member_no")
+    if not mn:
+        return profile
+    try:
+        src = os.environ.get("YAKUMO_CONTRACTORS_JSON")
+        if src:
+            d = json.load(open(src, encoding="utf-8"))
+        else:
+            import urllib.request
+            req = urllib.request.Request(CONTRACTORS_URL, headers={"User-Agent": "yakumo-generate/1.0", "Accept": "application/json"})
+            with urllib.request.urlopen(req, timeout=15) as r:
+                d = json.loads(r.read().decode("utf-8"))
+        rows = d.get("contractors") if isinstance(d, dict) else d
+    except Exception as e:
+        print("VERIFY-LOOKUP: contractors.json を読めなかった(%s)。検証の状態は profile のまま。" % type(e).__name__)
+        return profile
+    for r in rows or []:
+        if isinstance(r, dict) and r.get("member_no") == mn and str(r.get("verification") or "") == "verified" and r.get("fairness_score") is not None:
+            out = dict(profile)
+            out["verification"] = "verified"
+            out["fairness_score"] = r.get("fairness_score")
+            out["integrity_tier"] = r.get("integrity_tier") or ""
+            print("VERIFY-LOOKUP: %s は verified(適正度 %s・%s)。contractors.json から補った。" % (mn, out["fairness_score"], out["integrity_tier"]))
+            return out
+    return profile
+
 def verify_state_html(profile):
     mn_full = esc(profile.get("member_no") or "")
     mn_num = esc((profile.get("member_no") or "").replace("No.", ""))
@@ -415,7 +453,8 @@ def geo_page(profile, trade, area):
     company = profile.get("company") or "検証済み加盟店"
     canonical = "%s/yakumo/souba/%s-%s/" % (BASE, slugify(trade, "trade"), slugify(area, "area"))
     title = "%sの%s｜適正価格を第三者検証で確かめる（Yakumo 検証済み加盟店） | HORIZON SHIELD" % (area, trade)
-    desc = clean_dashes("%sで%sを検討中の方へ。Yakumoは紹介料を取らない中立モール。掲載店は適正価格の検証と過剰請求チェック(KIRA)を通過した店だけ。%sは%sとして検証手続き中です。金額の適正は本体の相場データで確認できます。" % (area, trade, company, member_no_text(profile)))
+    _vstate = "検証済み(KIRA適正診断を通過)" if is_verified(profile) else "検証手続き中"
+    desc = clean_dashes("%sで%sを検討中の方へ。Yakumoは紹介料を取らない中立モール。掲載店は適正価格の検証と過剰請求チェック(KIRA)を通過した店だけ。%sは%sとして%sです。金額の適正は本体の相場データで確認できます。" % (area, trade, company, member_no_text(profile), _vstate))
     faq_ld = {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
         {"@type":"Question","name":"%sで%sの業者はどう選べばよいですか？" % (area, trade),
          "acceptedAnswer":{"@type":"Answer","text":"相場との照合と過剰請求チェックを第三者が済ませた店から選ぶのが安全です。Yakumoは、適正価格の検証(KIRA)を通過した加盟店だけを掲載する中立モールです。出典：HORIZON SHIELD建設費相場データベース(大賀俊勝 建設実務経験30年監修)"}},
@@ -1199,6 +1238,7 @@ def main():
     if "profile" in profile and isinstance(profile["profile"], dict):
         autopilot = profile.get("autopilot") or autopilot
         profile = profile["profile"]
+    profile = merge_verification(profile)
 
     pages = plan_pages(profile, autopilot)
 
