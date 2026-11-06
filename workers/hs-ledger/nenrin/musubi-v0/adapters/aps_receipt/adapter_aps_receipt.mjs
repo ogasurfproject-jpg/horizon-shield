@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // aps-receipt adapter: the input checks the HORIZON SHIELD admission door is to run on the native APS and PIC inputs of
 // the bounded refund sandbox (aeoess/agent-governance-vocabulary#193, contract revision review-2026-10-23, sections 3
-// to 5), before it decides anything. The door side for this sandbox is not built yet; this file is the part that is.
+// to 5), before it decides anything. The door is ../../../refund-door-v0 (2026-11-07), which calls this file.
 //
 // What this file is. A pure function over the eleven retained input files of one case, the runner's run_id and the
 // consumption instant. It parses each file once, strictly, keeps the exact bytes it hashed, and runs steps 1 to 8 of
@@ -10,9 +10,8 @@
 //
 // What it is not. It holds no key, signs nothing, keeps no state and decides nothing. Single-use consumption of the
 // merchant decision, operation_id assignment, the contract's limits, the committed record and the signed admission and
-// mapping records are to belong to the door, which is not built yet for this sandbox and is to be closed source (SEKI is
-// private; see tools/boundary/private_patterns.txt). The door is to call this function and build on its answer.
-// Publishing it lets anyone repeat the input checks of a published case without the door.
+// mapping records belong to the door (../../../refund-door-v0), which calls this function and builds on its answer.
+// Anyone can repeat the input checks of a published case with this file alone, without the door.
 //
 // APS verification is the pinned SDK's own: verifyReceiptV1, verifyReceiptWithDecisionV1, computeActionRefV2 and
 // computePayloadRefV1 of agent-passport-system 8.0.1, refused unless the installed package is byte for byte the one in
@@ -62,7 +61,9 @@ const HEX64 = /^[0-9a-f]{64}$/;
 const UTC_MS = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 const RFC3339_Z = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?Z$/;
 const PAYMENT_ID = /^[A-Za-z0-9_-]+$/;
-const HERE = dirname(fileURLToPath(import.meta.url));
+// Read only by pinnedSdk(), the CLI and readCaseDir(). A worker that bundles this file has no file beside it and passes
+// its own SDK to checkRefundCase (see below), so the path is not resolved when the module loads.
+const here = () => dirname(fileURLToPath(import.meta.url));
 
 function sha256hex(b) {
   return createHash("sha256").update(b).digest("hex");
@@ -184,7 +185,7 @@ export function treeDigest(root) {
 // package equals PINS.json. npm ci separately checks the tarball's sha512 against package-lock.json.
 export async function pinnedSdk() {
   if (PINNED) return PINNED;
-  const pins = JSON.parse(readFileSync(join(HERE, "PINS.json"), "utf8"));
+  const pins = JSON.parse(readFileSync(join(here(), "PINS.json"), "utf8"));
   const entry = fileURLToPath(import.meta.resolve("agent-passport-system"));
   let root = dirname(entry);
   while (!statSafe(join(root, "package.json"))) root = dirname(root);
@@ -236,8 +237,12 @@ function resolverFor(trust, signer, { revocationInStep3 = false } = {}) {
 
 // ---------------------------------------------------------------- one case
 
-export async function checkRefundCase({ files, run_id, consumed_at }) {
-  const { sdk } = await pinnedSdk();
+// sdk: the four SDK functions (verifyReceiptV1, verifyReceiptWithDecisionV1, computeActionRefV2, computePayloadRefV1)
+// and validateActionReferenceInputV2, taken from the installed package by pinnedSdk() when not given. A worker has no
+// filesystem to digest the package with; it passes the same functions, bundled from the same pinned files, and its
+// build checks them against PINS.json instead (refund-door-v0).
+export async function checkRefundCase({ files, run_id, consumed_at, sdk: given = null }) {
+  const sdk = given || (await pinnedSdk()).sdk;
   const out = {
     schema: CASE_SCHEMA, profile: PROFILE, contract_revision: CONTRACT_REVISION,
     run_id: typeof run_id === "string" ? run_id : null, consumed_at: typeof consumed_at === "string" ? consumed_at : null,

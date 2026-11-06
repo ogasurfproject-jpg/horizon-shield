@@ -3,6 +3,8 @@ name: aps-receipt adapter
 # The input checks of the admission door for the bounded refund sandbox (aeoess/agent-governance-vocabulary#193):
 # workers/hs-ledger/nenrin/musubi-v0/adapters/aps_receipt. Installs the pinned APS SDK from the lockfile without
 # install scripts and runs the adapter's selftest, which refuses to run on any package bytes other than PINS.json.
+# Since 2026-11-07 also the door itself (workers/hs-ledger/nenrin/refund-door-v0), which runs the adapter over the same
+# pinned SDK, with its own test: no network (fetch replaced), no secret (test keys from fixed labels).
 # No secret, no network after the install.
 
 on:
@@ -10,12 +12,14 @@ on:
     branches: [main]
     paths:
       - "workers/hs-ledger/nenrin/musubi-v0/adapters/aps_receipt/**"
+      - "workers/hs-ledger/nenrin/refund-door-v0/**"
       - "workers/hs-ledger/nenrin/musubi-v0/canonical_v0.mjs"
       - "workers/hs-ledger/nenrin/agreement-v0/agreement_canonical.mjs"
       - ".github/workflows/aps-receipt-adapter.yml"
   pull_request:
     paths:
       - "workers/hs-ledger/nenrin/musubi-v0/adapters/aps_receipt/**"
+      - "workers/hs-ledger/nenrin/refund-door-v0/**"
       - "workers/hs-ledger/nenrin/musubi-v0/canonical_v0.mjs"
       - "workers/hs-ledger/nenrin/agreement-v0/agreement_canonical.mjs"
       - ".github/workflows/aps-receipt-adapter.yml"
@@ -42,3 +46,6 @@ jobs:
       - name: selftest
         working-directory: workers/hs-ledger/nenrin/musubi-v0/adapters/aps_receipt
         run: node selftest_aps_receipt.mjs
+      - name: the refund sandbox door
+        working-directory: workers/hs-ledger/nenrin/refund-door-v0
+        run: node refund_door_v0.test.mjs

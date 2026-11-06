@@ -24,6 +24,8 @@
   "preview_urls": false,
   "main": "src/worker.js",
   "compatibility_date": "2026-05-18",
+  // 2026-11-07: the refund sandbox door (nenrin/refund-door-v0) runs the pinned APS SDK, which uses node:crypto.
+  "compatibility_flags": ["nodejs_compat"],
   "account_id": "c15ff64aba400e541853dec1fbe5e76a",
   "workers_dev": true,
   "kv_namespaces": [
@@ -77,11 +79,13 @@
   // クラスは src/worker.js で re-export 済み。
   "durable_objects": {
     "bindings": [
-      { "name": "AGREEMENT_DEDUPE_DO", "class_name": "AgreementDedupeDO" }
+      { "name": "AGREEMENT_DEDUPE_DO", "class_name": "AgreementDedupeDO" },
+      { "name": "REFUND_DOOR_DO", "class_name": "RefundDoorDO" }
     ]
   },
   "migrations": [
-    { "tag": "v1", "new_sqlite_classes": ["AgreementDedupeDO"] }
+    { "tag": "v1", "new_sqlite_classes": ["AgreementDedupeDO"] },
+    { "tag": "v2", "new_sqlite_classes": ["RefundDoorDO"] }
   ]
   // PENDING_STALE_HOURS は任意。未設定なら STALE_HOURS_DEFAULT=6 が効く。
   // ダッシュボードで設定していた場合、vars を宣言しない deploy で消える点に注意

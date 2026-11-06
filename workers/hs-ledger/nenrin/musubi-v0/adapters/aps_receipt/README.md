@@ -3,7 +3,7 @@
 The input checks the HORIZON SHIELD admission door is to run for the bounded refund sandbox in
 [aeoess/agent-governance-vocabulary#193](https://github.com/aeoess/agent-governance-vocabulary/issues/193)
 (contract revision `review-2026-10-23`, sections 3 to 5), published so that anyone can repeat them on a published case.
-The door side for this sandbox is not built yet: this adapter is the part that exists, and the door is to call it.
+The door for this sandbox is [`../../../refund-door-v0`](../../../refund-door-v0) (2026-11-07); it calls this adapter.
 
 `adapter_aps_receipt.mjs` is a pure function over the eleven retained input files of one case, the runner's `run_id`
 and the consumption instant. It parses each file once, strictly, keeps the bytes it hashed, and runs steps 1 to 8 of
@@ -28,7 +28,7 @@ A failure gives a reason from the closed `a2a-admission-v0` list (`presentation_
 
 It holds no key, signs nothing, keeps no state and decides nothing. Single-use consumption of the merchant decision,
 the operation ID, the contract's limits, the committed record and the signed admission and mapping records are to be
-the door's; the door side is not built yet and is to be closed source. The adapter does not run PIC: the PIC result is
+the door's ([`refund-door-v0`](../../../refund-door-v0)). The adapter does not run PIC: the PIC result is
 the trusted runner's output, which the adapter binds to the retained bytes. It does not establish that a refund moved,
 that the merchant is legitimate, or any revocation state beyond the selected trust file. Revocation at the consumption
 instant is checked for the approval signer only; the worker key of the intent is checked at the intent's issuance, not

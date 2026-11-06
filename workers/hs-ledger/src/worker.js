@@ -35,6 +35,10 @@ export { AgreementDedupeDO } from "../nenrin/agreement-v0/agreement_intake.mjs";
 // a2a-admission-v0 and a2a-revocation-v0 (2026-10-10). The relying party runs admit() at its own door and signs; this
 // ledger stores what was signed and anchors it with the agreement pool's daily batch. It renders no decision.
 import { handleAdmissionIntake, handleRevocationIntake, handleStoredGet, admissionSelfDescription } from "../nenrin/musubi-v0/admission_intake.mjs";
+// The refund sandbox admission door (2026-11-07, aeoess/agent-governance-vocabulary#193). Unlike the routes of this ledger it
+// decides, so it keeps apart: its own path (/sandbox/refund), its own Durable Object, its own key. ../nenrin/refund-door-v0.
+import { handleRefundSandbox, RefundDoorDO, BASE as REFUND_BASE } from "../nenrin/refund-door-v0/refund_door_worker.mjs";
+export { RefundDoorDO };
 // furui-check-day-v0 (2026-11-02): a content check runner's signed daily root, into the same public pool and daily batch.
 import { handleFuruiDayIntake, handleFuruiDayGet, furuiDaySelfDescription, KEYS_PATH as FURUI_KEYS_PATH, FURUI_DAY_SCHEMA } from "../nenrin/furui-check-day-v0/furui_check_day_intake.mjs";
 import { FURUI_CHECK_KEYS } from "../nenrin/furui-check-day-v0/furui_check_keys.mjs";
@@ -1036,6 +1040,7 @@ function routeLabel(p, url) {
   if (p === "/admission" || /^\/admission\/[0-9a-f]{64}$/i.test(p)) return "admission";
   if (p === "/revocation" || /^\/revocation\/[0-9a-f]{64}$/i.test(p)) return "revocation";
   if (p === "/agreement" || /^\/agreement\/[0-9a-f]{64}$/i.test(p)) return "agreement";
+  if (p === "/sandbox/refund" || p.startsWith("/sandbox/refund/")) return "refund-door";
   return "other";
 }
 
@@ -1643,6 +1648,7 @@ async function handle(request, env) {
     const p = url.pathname.replace(/\/+$/, "") || "/";
     const origin = url.origin;
     if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
+    if (p === REFUND_BASE || p.startsWith(REFUND_BASE + "/")) return handleRefundSandbox(request, env, url);
 
     if (p === "/" || p === "/health")
       return json({ ok: true, service: "hs-ledger", ledger: "JIDEC", anchor: "Bitcoin via OpenTimestamps", claim_schema: "jidec-claim-v1", path_schema: "jidec-path-v1", spec: "SPEC_HASH_INDEPENDENCE_v1.md (entry #2); JIDEC_PATH_SPEC_v1.md (entry #5)", routes: ["/ledger", "/ledger/head", "/ledger/export.jsonl", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}", "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query", "/witness", "/witness/pending", "/witness/{sha}", "/resume?endpoint={url}", "/trust-signal?endpoint={url}", "/agreement", "/agreement/pending", "/agreement/{canonical_sha256}", "/admission", "/admission/{canonical_sha256}", "/revocation", "/revocation/{canonical_sha256}", "/furui-check-day", "/furui-check-day/{canonical_sha256}", "/.well-known/furui-check-keys.json", "/evidence/trace", "/evidence/vouch", "/evidence/vouch/{sha}", "/evidence/vouch/id/{credential id}", "/evidence/slot", "/evidence/slot/{sha}", "/evidence/slot/s/{request_slot}", "/evidence/slot-log", "/evidence/slot-log/{date}", "/evidence/slot-log/{date}.ots"], discovery: { api_catalog: "/.well-known/api-catalog", agent_card: "/.well-known/agent-card.json", jwks: "/.well-known/jwks.json", security_txt: "/.well-known/security.txt", llms_txt: "/llms.txt", a2a: "/a2a", cite: "/cite/{citation}", precedence: "/precedence/{citation}", mcp: MCP_ORIGIN + "/mcp" }, transparency: TRANSPARENCY, privacy: PRIVACY, sequencer: LEDGER_SEQUENCER, chain_read: LEDGER_CHAIN_READ });
