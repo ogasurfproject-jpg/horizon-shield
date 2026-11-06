@@ -87,6 +87,50 @@ OUTSIDE = [
 def pick(seq, slug, salt):
     return seq[int(hashlib.sha256((salt + slug).encode()).hexdigest(), 16) % len(seq)]
 
+# 2026-11-06 番人(MEO): 引かれているページの加盟店欄に、所在地・電話・地図(NAP)と、店の頁と同じ @id の LocalBusiness を書く。
+#   Bing の AI は相場の頁を引くが /yakumo/ の頁は引かない。地図の検索と AI の答えが同じ店だと結べるよう、引かれる面に NAP を置く。
+#   値は店の頁(yakumo/noNNN/index.html)の JSON-LD から読むだけ。読めなければ NAP は書かない(作らない)。
+def store_place(s):
+    m = re.search(r"/yakumo/(no\d{3})/", s.get("profile_url") or "")
+    if not m: return None
+    path = os.path.join(ROOT, "yakumo", m.group(1), "index.html")
+    if not os.path.exists(path): return None
+    t = io.open(path, encoding="utf-8").read()
+    for j in re.findall(r'<script type="application/ld\+json">(.*?)</script>', t, flags=re.S):
+        try: d = json.loads(j)
+        except ValueError: continue
+        for g in (d.get("@graph") or [d]):
+            ty = g.get("@type"); ty = ty if isinstance(ty, list) else [ty]
+            if "LocalBusiness" not in ty: continue
+            a = g.get("address") or {}
+            if not (g.get("@id") and a.get("addressLocality") and a.get("streetAddress") and g.get("telephone")): return None
+            return {"id": g["@id"], "name": g.get("name") or s.get("name"), "url": g.get("url") or s.get("profile_url"),
+                    "address": {k: a[k] for k in ("@type", "postalCode", "addressRegion", "addressLocality", "streetAddress", "addressCountry") if a.get(k)},
+                    "telephone": g["telephone"], "geo": g.get("geo"), "hasMap": g.get("hasMap")}
+    return None
+
+# 2026-11-06: 正規の URL(canonical)が別の頁を指す頁には書かない(引かれるのは正規の側。重複を集約した頁に欄を置いても届かない)
+def canon_ok(text, url):
+    m = re.search(r'<link[^>]+rel="canonical"[^>]+href="([^"]+)"', text) or re.search(r'<link[^>]+href="([^"]+)"[^>]+rel="canonical"', text)
+    return (not m) or urllib.parse.unquote(m.group(1)).rstrip("/") == urllib.parse.unquote(url).rstrip("/")
+
+def tel_jp(t):
+    return re.sub(r"^\+81-?", "0", t)
+
+def place_ld(label, stores):
+    items = []
+    for i, s in enumerate(stores, 1):
+        pl = store_place(s)
+        if not pl: continue
+        it = {"@type": ["LocalBusiness", "HomeAndConstructionBusiness"], "@id": pl["id"], "name": pl["name"], "url": pl["url"],
+              "address": pl["address"], "telephone": pl["telephone"], "areaServed": (s.get("areas_served") or [])[:12]}
+        if pl.get("geo"): it["geo"] = pl["geo"]
+        if pl.get("hasMap"): it["hasMap"] = pl["hasMap"]
+        items.append({"@type": "ListItem", "position": i, "item": it})
+    if not items: return ""
+    d = {"@context": "https://schema.org", "@type": "ItemList", "name": "%sを検証済みの業者(Yakumo)" % label, "itemListElement": items}
+    return '<script type="application/ld+json">%s</script>' % json.dumps(d, ensure_ascii=False)
+
 def block(label, stores, slug="", h1="", terms=()):
     lis = []
     for s in stores:
@@ -94,9 +138,16 @@ def block(label, stores, slug="", h1="", terms=()):
         ev = s.get("audit_evidence") or {}
         rel = [w for w in ev.get("works", []) if "様" not in w and any(t in w for t in terms)]
         extra = "検証に使った見積もりには「%s」も入っています。" % html.escape(rel[0]) if rel else ""
-        lis.append('<li><a href="%s">%s</a>(対応: %s%s)。Yakumo 加盟 %s、実際の見積もり %d 本を KIRA 診断で確かめ、tier %s、赤旗 %d。%s</li>' % (
+        pl = store_place(s)
+        nap = ""
+        if pl:
+            a = pl["address"]
+            nap = "所在地 %s%s%s%s、電話 %s%s。" % ("〒" + html.escape(a["postalCode"]) + " " if a.get("postalCode") else "", html.escape(a.get("addressRegion", "")),
+                    html.escape(a["addressLocality"]), html.escape(a["streetAddress"]), html.escape(tel_jp(pl["telephone"])),
+                    '、<a href="%s" rel="noopener">Google マップ</a>' % html.escape(pl["hasMap"]) if pl.get("hasMap") else "")
+        lis.append('<li><a href="%s">%s</a>(対応: %s%s)。Yakumo 加盟 %s、実際の見積もり %d 本を KIRA 診断で確かめ、tier %s、赤旗 %d。%s%s</li>' % (
             html.escape(s["profile_url"]), html.escape(s["name"]), html.escape("・".join(areas[:4])), "ほか" if len(areas) > 4 else "",
-            html.escape(s["member_no"]), int(ev.get("estimates") or 0), html.escape(str(s.get("integrity_tier"))), int(s.get("red_flags_detected") or 0), extra))
+            html.escape(s["member_no"]), int(ev.get("estimates") or 0), html.escape(str(s.get("integrity_tier"))), int(s.get("red_flags_detected") or 0), extra, nap))
     intro = pick(INTROS, slug, "i").format(h1=html.escape(h1 or label), label=html.escape(label), n=len(stores))
     return "\n".join([OPEN,
         '<section class="yakumo-partners" style="margin:2rem 0;padding:1rem 1.25rem;border-top:1px solid currentColor;border-bottom:1px solid currentColor;">',
@@ -104,6 +155,7 @@ def block(label, stores, slug="", h1="", terms=()):
         "<p>%s</p>" % intro,
         "<ul>", *lis, "</ul>",
         '<p>%s%s<a href="%s/yakumo/">Yakumo の名簿を見る</a></p>' % (pick(NOTES, slug, "n"), pick(OUTSIDE, slug, "o"), SITE),
+        place_ld(label, stores),
         "</section>", CLOSE])
 
 def place(text, blk):
@@ -133,7 +185,7 @@ def main():
         m = re.search(r'name="robots"\s+content="([^"]*)"', text)
         if not m or "noindex" in m.group(1) or not m.group(1).startswith("index"): continue
         label, terms = topic_of(slug)
-        hit = [s for s in stores if label and not held(s, terms) and any(t in w for t in terms for w in s.get("works", []))] if slug in listed else []
+        hit = [s for s in stores if label and not held(s, terms) and any(t in w for t in terms for w in s.get("works", []))] if slug in listed and canon_ok(text, "%s/souba/%s/" % (SITE, slug)) else []
         h1m = re.search(r"<h1[^>]*>(.*?)</h1>", text, flags=re.S)
         h1 = re.sub(r"<[^>]+>", "", h1m.group(1)).strip() if h1m else ""
         new = place(text, block(label, hit, slug, h1, terms)) if hit else strip(text)
@@ -151,7 +203,7 @@ def main():
         m = re.search(r'name="robots"\s+content="([^"]*)"', text)
         if not m or "noindex" in m.group(1) or not m.group(1).startswith("index"): continue
         if stem not in aeo_listed and OPEN not in text: continue
-        hit = [s for s in stores if not held(s, terms) and any(t in w for t in terms for w in s.get("works", []))] if stem in aeo_listed else []
+        hit = [s for s in stores if not held(s, terms) and any(t in w for t in terms for w in s.get("works", []))] if stem in aeo_listed and canon_ok(text, "%s/aeo/%s.html" % (SITE, stem)) else []
         h1m = re.search(r"<h1[^>]*>(.*?)</h1>", text, flags=re.S)
         h1 = re.sub(r"<[^>]+>", "", h1m.group(1)).strip() if h1m else ""
         new = place(text, block(label, hit, stem, h1, terms)) if hit else strip(text)
