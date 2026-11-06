@@ -1,0 +1,10 @@
+{
+  "name": "tooshi-cross-client",
+  "private": true,
+  "description": "TOOSHI check 10: the official MCP TypeScript SDK client, pinned, run against the gate's own endpoint and three register endpoints drawn by the day",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1"
+  }
+}

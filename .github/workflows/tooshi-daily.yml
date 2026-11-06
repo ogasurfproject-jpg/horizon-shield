@@ -1,7 +1,8 @@
 name: tooshi-daily
 
 # TOOSHI: the daily end to end check of the content check chain (tools/tooshi/tooshi_daily.py). It reads public
-# endpoints only (the runner's three GET reads, the ledger, the door's public policy) and uses no secret.
+# endpoints only (the runner's three GET reads, the ledger, the door's public policy) and uses no secret (2026-11-06: the mail
+# step of a red day alone reads the repository secret RESEND_API_KEY; the checks still read public endpoints only).
 # 04:05 UTC: after the ledger's batch (00:30), the runner's close of the day before (00:47) and the heartbeat scene (03:17).
 # 04:35 UTC: a second cron for the days GitHub drops or delays the first (2026-11-03: the 04:05 run came at 11:50).
 # A scheduled run (either cron) does nothing when the day already has a published result (tooshi/days/<day>.json on
@@ -29,6 +30,18 @@ name: tooshi-daily
 # .furui.canary_call) and 9 witness_answer (a signed witness-answer-v0 for the day before yesterday's day record at the
 # ledger's witness intake, with that record's day_sha256, root and n; yesterday's record is batched only at 00:30 UTC of the
 # next day). No secret and no new permission; a not_yet in 8 or 9 at 04:05 is read again by the second run like any other.
+# 2026-11-06 (v2): six more checks (tools/tooshi/tooshi_daily.py). 10 cross_client: before the daily check, the official MCP
+# TypeScript SDK client (@modelcontextprotocol/sdk 1.32.1, npm ci from tools/tooshi/cross_client/package-lock.json, no
+# install scripts) and the gate's POST /check measure the gate's own endpoint and three register endpoints drawn for the
+# day (initialize and tools/list only; no tool is called); nothing is called while the gate's /health says a version
+# before 0.4.24. 11 main_ci reads GitHub's REST API for the push runs on main (the job's token, now with actions: read, only
+# lifts the rate limit). 12 paid_rows_daily, 13 line_delivery (time and place only), 14 not_yet_deadline (from the
+# published days) and 15 recovery_fresh read public endpoints. A red day now opens one issue labelled tooshi (the same
+# shape as bot-watch: a later run of the day red in a check not named yet comments on it; an issue of the day under the
+# old label tooshi-red is found too) and the run that opened it sends one mail to the owner through Resend, from contact@,
+# with the red checks' names and one line each (tools/tooshi/tooshi_tell.py). The mail uses the repository secret
+# RESEND_API_KEY, a send-only Resend key made for this workflow alone (the Workers' key is not reused); without it
+# the step says so and nothing is sent.
 
 on:
   schedule:
@@ -55,6 +68,7 @@ jobs:
     permissions:
       contents: read
       issues: write
+      actions: read
     outputs:
       ran: ${{ steps.decide.outputs.ran }}
       rc: ${{ steps.run.outputs.rc }}
@@ -66,10 +80,18 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.13"
-      - name: self test (the red scenes on fixed answers, the publishing on a scratch folder)
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: the MCP SDK client of 10 (the pinned lockfile, no install scripts)
+        working-directory: tools/tooshi/cross_client
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: self test (the red scenes on fixed answers, the publishing on a scratch folder, the SDK client against stand-in servers)
         run: |
           python -I -B tools/tooshi/tooshi_daily.py --selftest
           python -I -B tools/tooshi/tooshi_publish.py --selftest
+          python -I -B tools/tooshi/tooshi_tell.py --selftest
+          node tools/tooshi/cross_client/cross_client_test.mjs
       - name: which trigger, and has the day a result already
         id: decide
         env:
@@ -99,14 +121,24 @@ jobs:
           { echo "### TOOSHI ($T)"; echo; echo "$OUT"; echo; } >> "$GITHUB_STEP_SUMMARY"
           echo "trigger=$T" >> "$GITHUB_OUTPUT"
           if [ "${OUT%% *}" = "run" ]; then echo "ran=true" >> "$GITHUB_OUTPUT"; else echo "ran=false" >> "$GITHUB_OUTPUT"; fi
+      - name: 10, the SDK client and the gate on the same endpoints (nothing is called before the gate is 0.4.24)
+        if: steps.decide.outputs.ran == 'true'
+        run: |
+          set +e
+          timeout 600 node tools/tooshi/cross_client/cross_client.mjs --out tooshi_cross.json
+          echo "cross client exit $? (a missing or failed result leaves 10 not_yet; the deadline in 14 counts it)"
+          exit 0
       - name: the daily check
         id: run
         if: steps.decide.outputs.ran == 'true'
         env:
           T: ${{ steps.decide.outputs.trigger }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set +e
-          python -I -B tools/tooshi/tooshi_daily.py --trigger "$T" --out tooshi_result.json --body tooshi_body.md --notes tooshi_notes.json > tooshi_out.txt 2>&1
+          CROSS=()
+          if [ -s tooshi_cross.json ]; then CROSS=(--cross tooshi_cross.json); fi
+          python -I -B tools/tooshi/tooshi_daily.py --trigger "$T" --out tooshi_result.json --body tooshi_body.md --notes tooshi_notes.json "${CROSS[@]}" > tooshi_out.txt 2>&1
           rc=$?
           cat tooshi_out.txt
           echo "rc=$rc" >> "$GITHUB_OUTPUT"
@@ -119,17 +151,25 @@ jobs:
           path: |
             tooshi_result.json
             tooshi_notes.json
+            tooshi_cross.json
           retention-days: 7
-      - name: a red day opens one issue (once a day)
+      - name: a red day opens one issue (label tooshi; a later red run of the day comments when it is red in a check not named yet)
+        id: issue
         if: steps.run.outputs.rc == '1'
         env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          T="TOOSHI red $(date -u +%Y-%m-%d)"
-          gh label create tooshi-red --color b60205 --description "TOOSHI daily check found a red" --force >/dev/null
-          N=$(gh issue list --label tooshi-red --state all --limit 100 --json title --jq "[.[] | select(.title == \"$T\")] | length")
-          if [ "$N" -gt 0 ]; then echo "an issue for this day exists already; not writing a second one"; else gh issue create --title "$T" --label tooshi-red --body-file tooshi_body.md; fi
+          set -o pipefail
+          python -I -B tools/tooshi/tooshi_tell.py issue --result tooshi_result.json --body tooshi_body.md --out tooshi_issue.txt | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: the run that opened the day's issue sends one mail to the owner (check names and one line each)
+        if: steps.run.outputs.rc == '1' && steps.issue.outcome == 'success'
+        continue-on-error: true
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          set -o pipefail
+          python -I -B tools/tooshi/tooshi_tell.py mail --result tooshi_result.json --issue-action "$(cat tooshi_issue.txt 2>/dev/null)" | tee -a "$GITHUB_STEP_SUMMARY"
 
   keep:
     needs: tooshi

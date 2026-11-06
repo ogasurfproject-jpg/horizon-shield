@@ -91,8 +91,47 @@ Added on 2026-11-06 (the canary scene and signed witness answers):
                    answer's signature verifies under the key the intake checked at its key_url, its key_id is that key's,
                    and its day_sha256, root and n are the day record's; red when an answer for that day does not verify or
                    names another day_sha256, root or n; not_yet when there is none yet (or the day record is not served).
+
+Added on 2026-11-06 (v2: whether the measures themselves hold, whether main is red now, and a deadline for every not_yet).
+The windows of 11, 12, 13 and 15 are counted from 03:47 UTC of the run's day (anchor), not from the run's own time, so a
+later run of the same day reads the same window.
+    10             cross_client: the official MCP TypeScript SDK client (@modelcontextprotocol/sdk 1.32.1, pinned in
+                   tools/tooshi/cross_client/package-lock.json) sends initialize and tools/list to the gate's own endpoint
+                   (https://mcp.horizonshield.dev/mcp) and to three endpoints of the gate's public register drawn for the
+                   day (cross_draw; outside the operator's zones, not self), and the gate is asked POST /check on the same
+                   endpoints at the same time (tools/tooshi/cross_client/cross_client.mjs, read here with --cross FILE).
+                   ok when the two agree on every reached endpoint; red when they differ (both reasons are written), when
+                   the gate does not answer, or when the SDK client does not reach the own endpoint; not_yet when a drawn
+                   endpoint is not reached, when no result was given, and while the gate's GET /health says a version before
+                   0.4.24 (up to 0.4.22 the gate's MCP calls sent no Accept for text/event-stream, read no event stream, sent
+                   no capabilities or clientInfo and kept no session, so the two would disagree by construction).
+    11             main_ci: no push run on main of horizon-shield failed (failure, timed_out, startup_failure) among the
+                   runs created in the 24 hours before 03:47 UTC (GitHub's REST API; the job's own read-only GITHUB_TOKEN,
+                   when set, only lifts the rate limit). red names the workflow, the failed job and the commit; not_yet
+                   when the repository cannot be read. hs-seki-private and hs-furui-private are left out (CI_LEFT_OUT,
+                   named in facts.left_out): this job's token cannot read them, and the owner's push scripts wait for
+                   their CI themselves. They come back into CI_REPOS when a read token for them is set.
+    12             paid_rows_daily: every paid row (tier paid) of the gate's GET /register was measured at or after 26 hours
+                   before 03:47 UTC; red names the rows that were not; not_yet while the register has no paid row.
+    13             line_delivery: line_last_fail of GET /health of hs-kira-line and hs-kira-group is null or older than 24
+                   hours before 03:47 UTC; red writes the worker, the time and the place (where) only, never the message,
+                   the LINE answer or the person; not_yet when a /health does not answer, has no line_last_fail, or says
+                   "unreadable".
+    14             not_yet_deadline: every not_yet of the other checks has a deadline (NOT_YET_HOURS; 36 hours for a wait
+                   on Bitcoin; 168 hours for 10 while the gate is before 0.4.24). Its age is 24 hours for each published day
+                   just before today (tooshi/days/<day>.json, from raw.githubusercontent.com) where the same check was
+                   not_yet. red names each check past its deadline; not_yet when a published day of the streak could not be
+                   read. 12 with no paid row has no deadline: it waits for a fact, not a time (a time limit would turn the
+                   day red and send a mail every day while there is nothing to measure), and it is named in facts.exempt
+                   with that reason in facts.exempt_why. It ends when the register has a paid row.
+    15             recovery_fresh: Software Heritage's last visit of the repository is at most 7 days before 03:47 UTC,
+                   both recovery drills (survive-drill.yml, latest-github.json and latest-swh.json) rebuilt the ledger
+                   unbroken, and the daily drill rebuilt up to an entry made at most 48 hours before the ledger's head.
+                   not_yet when Software Heritage does not answer.
+A red day opens one issue (label tooshi) and sends one mail with the names of the red checks and one line each
+(tools/tooshi/tooshi_tell.py, run by the workflow; this file sends nothing).
 """
-import base64, datetime, hashlib, json, re, sys, time, urllib.error, urllib.parse, urllib.request
+import base64, datetime, hashlib, json, os, re, sys, time, urllib.error, urllib.parse, urllib.request
 
 RUNNER = "https://furui.horizonshield.dev"
 LEDGER = "https://ledger.horizonshield.dev"
@@ -133,9 +172,15 @@ class Unreachable(Exception):
 def http_get(url, tries=3, wait=10, timeout=30, raw=False):
     """(status, parsed JSON), or (status, the body as text) with raw. A network failure or a 5xx is tried three times; then Unreachable."""
     last = None
+    hd = dict(UA)
+    if url.startswith(GH_API + "/"):
+        # 11 reads GitHub's REST API; in the workflow the job's own read-only token (GITHUB_TOKEN) only lifts the rate limit
+        hd["accept"] = "application/vnd.github+json"
+        if os.environ.get("GITHUB_TOKEN"):
+            hd["authorization"] = "Bearer " + os.environ["GITHUB_TOKEN"]
     for i in range(tries):
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=timeout) as r:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=hd), timeout=timeout) as r:
                 t = r.read().decode("utf-8")
                 return r.status, (t if raw else json.loads(t))
         except urllib.error.HTTPError as e:
@@ -1056,6 +1101,355 @@ def check_witness_answer(get, now):
     return c(cid, "not_yet", "no signed witness answer for %s is at the ledger yet" % y, **facts)
 
 
+# ---- 10 to 15 (2026-11-06): the measures themselves, main's CI, the paid rows, LINE delivery, not_yet deadlines, recovery ----
+GATE = "https://gate.horizonshield.dev"
+CROSS_SOURCE = "tooshi:cross-client"     # main() serves the file of --cross under this name; no network
+CROSS_SDK = {"name": "@modelcontextprotocol/sdk", "version": "1.32.1"}   # tools/tooshi/cross_client/package-lock.json
+CROSS_MIN_GATE = (0, 4, 24)              # before it the gate's MCP calls lacked Accept, SSE, initialize params and session
+CROSS_OWN = "https://mcp.horizonshield.dev/mcp"
+CROSS_SEED = "tooshi-cross-client-v0"
+CROSS_PICK = 3
+OWN_ZONES = ("horizonshield.dev", "the-horizons-innovation.com", "oga-surf-project.workers.dev")
+GH_API = "https://api.github.com"
+CI_REPOS = ("ogasurfproject-jpg/horizon-shield",)
+# left out of 11 until a read token for them is set: the job's GITHUB_TOKEN answers 404 for them, and the owner's push
+# scripts wait for their CI themselves. Named in facts.left_out every day so the gap stays visible.
+CI_LEFT_OUT = ("ogasurfproject-jpg/hs-seki-private", "ogasurfproject-jpg/hs-furui-private")
+CI_LEFT_OUT_WHY = "private; this job holds no token that reads it, and its push scripts wait for its CI themselves"
+CI_WINDOW = datetime.timedelta(hours=24)
+CI_BAD = ("failure", "timed_out", "startup_failure")
+CI_PAGES = 5
+PAID_WINDOW = datetime.timedelta(hours=26)
+LINE_HEALTH = (("hs-kira-line", "https://hs-kira-line.oga-surf-project.workers.dev/health"),
+               ("hs-kira-group", "https://hs-kira-group.oga-surf-project.workers.dev/health"))
+LINE_WINDOW = datetime.timedelta(hours=24)
+SWH_ORIGIN = "https://github.com/ogasurfproject-jpg/horizon-shield"
+SWH_VISIT = "https://archive.softwareheritage.org/api/1/origin/" + SWH_ORIGIN + "/visit/latest/?require_snapshot=true"
+SWH_WINDOW = datetime.timedelta(days=7)
+DRILLS = "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-ledger/nenrin/survive-v0/drills/"
+RECOVER_WINDOW = datetime.timedelta(hours=48)
+# 14: how long each check may stay not_yet, in hours, counted in whole days from the published days before today
+# (tooshi/days/<day>.json); a wait for Bitcoin is 36 hours whatever the check. None: the not_yet ends by a fact, not a time.
+NOT_YET_HOURS = {"1_sieve_admission": 48, "2_admission_ledger": 48, "3_ledger_settle": 72, "4_door_resume": 48, "4b_resume_agreement": 48,
+                 "5_door_runner": 48, "6_daily_root": 48, "6b_daily_leaf": 48, "7_heartbeat_scene": 48, "8_canary_scene": 48,
+                 "9_witness_answer": 72, "10_cross_client": 72, "11_main_ci": 72, "12_paid_rows_daily": 48, "13_line_delivery": 168,
+                 "15_recovery_fresh": 72}
+EXEMPT_WHY = {"12_paid_rows_daily": "no paid row yet: a time limit would turn the day red and send a mail every day while there is "
+                                     "nothing to measure; it ends when the register has a paid row"}
+BITCOIN_HOURS = 36
+GATE_WAIT_HOURS = 168                    # 10 while the gate is before 0.4.24
+DEADLINE_LOOKBACK = 8                    # days read back (the longest deadline is 7 days)
+
+
+def anchor(now):
+    """the day's fixed time (03:47 UTC, DAY_READY): the windows of 11 to 15 are counted from it, so a later run of the same day
+    reads the same window"""
+    return now.replace(hour=DAY_READY[0], minute=DAY_READY[1], second=0, microsecond=0)
+
+
+def iso(t):
+    return t.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def when(s):
+    """an ISO time (Z or +00:00, with or without fractions) as an aware UTC datetime, or None"""
+    if not isinstance(s, str):
+        return None
+    m = re.match(r"^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})(?:\.\d+)?(Z|[+-]00:?00)?$", s.strip())
+    if not m:
+        return None
+    return datetime.datetime.strptime(m.group(1) + "T" + m.group(2), "%Y-%m-%dT%H:%M:%S").replace(tzinfo=datetime.timezone.utc)
+
+
+def version_at_least(v, low):
+    if not (isinstance(v, str) and re.match(r"^\d+\.\d+\.\d+$", v)):
+        return None
+    return tuple(int(x) for x in v.split(".")) >= low
+
+
+def own_zone(endpoint):
+    h = (urllib.parse.urlsplit(endpoint).hostname or "").lower() if isinstance(endpoint, str) else ""
+    return not h or any(h == z or h.endswith("." + z) for z in OWN_ZONES)
+
+
+def cross_draw(day, cands, k=CROSS_PICK):
+    """the day's three endpoints (tools/tooshi/cross_client/cross_client.mjs draw, the same vector in both tests)"""
+    left, out = sorted(cands), []
+    for i in range(k):
+        if not left:
+            break
+        out.append(left.pop(int(sha("%s|%s|%d" % (CROSS_SEED, day, i)), 16) % len(left)))
+    return out
+
+
+def check_cross_client(get, now):
+    """10: the official MCP SDK client and the gate's mcp_endpoint verdict agree on the gate's own endpoint and three drawn ones"""
+    cid = "10_cross_client"
+    today = now.strftime("%Y-%m-%d")
+    try:
+        hs, h = get(GATE + "/health")
+    except Unreachable as e:
+        return c(cid, "red", "the gate's /health did not answer: " + str(e))
+    gv = h.get("gate_version") if hs == 200 and isinstance(h, dict) else None
+    ge = version_at_least(gv, CROSS_MIN_GATE)
+    if ge is None:
+        return c(cid, "red", "the gate's /health answered http %s without a gate_version" % hs)
+    if not ge:
+        return c(cid, "not_yet", "the gate's /health says %s; this check starts when it says 0.4.24 or later (before it, the gate's MCP calls sent no Accept for "
+                 "text/event-stream, read no event stream, sent no capabilities or clientInfo and kept no session, so a disagreement would be known in advance)" % gv,
+                 gate_version=gv, waits_for="gate_0.4.24")
+    s, x = get(CROSS_SOURCE)
+    if s != 200 or not isinstance(x, dict):
+        return c(cid, "not_yet", "no cross client result was given to this run (tools/tooshi/cross_client/cross_client.mjs, then --cross FILE)", gate_version=gv)
+    if x.get("schema") != "tooshi-cross-client-v0" or x.get("day") != today or x.get("sdk") != CROSS_SDK or x.get("own") != CROSS_OWN:
+        return c(cid, "red", "the cross client result is not today's tooshi-cross-client-v0 from %s %s for %s" % (CROSS_SDK["name"], CROSS_SDK["version"], CROSS_OWN), gate_version=gv)
+    if x.get("skipped"):
+        return c(cid, "not_yet", "the cross client called nothing: %s (%s)" % (x.get("skipped"), x.get("why")), gate_version=gv)
+    cands = x.get("candidates") if isinstance(x.get("candidates"), list) else []
+    picked = cross_draw(today, [e for e in cands if isinstance(e, str) and not own_zone(e)])
+    tg = x.get("targets") if isinstance(x.get("targets"), list) else []
+    if [t.get("endpoint") for t in tg if isinstance(t, dict)] != [CROSS_OWN] + picked or x.get("picked") != picked:
+        return c(cid, "red", "the cross client did not measure the own endpoint and the day's draw (%s)" % ", ".join(picked), gate_version=gv, drawn=picked)
+    differ, unreached, gate_silent = [], [], []
+    for t in tg:
+        e, g, k = t["endpoint"], t.get("gate") or {}, t.get("sdk") or {}
+        if g.get("answered") is not True or not isinstance(g.get("pass"), bool):
+            gate_silent.append("%s (%s)" % (e, g.get("error")))
+            continue
+        if k.get("reached") is not True or not isinstance(k.get("pass"), bool):
+            unreached.append((e, t.get("kind"), k.get("error")))
+            continue
+        if g["pass"] != k["pass"]:
+            differ.append("%s: the gate says %s (%s), the SDK client says %s (%s)" % (e, "pass" if g["pass"] else "fail", g.get("reason"), "pass" if k["pass"] else "fail", k.get("reason")))
+    facts = {"gate_version": gv, "drawn": picked, "sdk": CROSS_SDK["version"]}
+    own_unreached = [u for u in unreached if u[1] == "own"]
+    if differ or gate_silent or own_unreached:
+        why = differ + ["the gate did not answer POST /check for " + w for w in gate_silent] + ["the SDK client did not reach the own endpoint %s (%s)" % (u[0], u[2]) for u in own_unreached]
+        return c(cid, "red", "; ".join(why), disagree=len(differ), **facts)
+    if unreached:
+        return c(cid, "not_yet", "the SDK client did not reach %s; the others agree with the gate" % ", ".join("%s (%s)" % (u[0], u[2]) for u in unreached), unreached=len(unreached), **facts)
+    return c(cid, "ok", "the SDK client (%s %s) and the gate agree on mcp_endpoint for the own endpoint and the %d drawn (%s)" % (CROSS_SDK["name"], CROSS_SDK["version"], len(picked), ", ".join(picked)), **facts)
+
+
+def ci_runs_url(repo, lo, page=1):
+    return "%s/repos/%s/actions/runs?branch=main&event=push&per_page=100&page=%d&created=%s" % (GH_API, repo, page, urllib.parse.quote(">=" + iso(lo), safe=""))
+
+
+def check_main_ci(get, now):
+    """11: no push run on main of the repositories in CI_REPOS failed in the 24 hours before today's 03:47 UTC"""
+    cid = "11_main_ci"
+    hi = anchor(now)
+    lo = hi - CI_WINDOW
+    red, unread, counted = [], [], {}
+    for repo in CI_REPOS:
+        runs, total = [], None
+        try:
+            for page in range(1, CI_PAGES + 1):
+                s, j = get(ci_runs_url(repo, lo, page))
+                if s != 200 or not isinstance(j, dict) or not isinstance(j.get("workflow_runs"), list):
+                    raise ValueError("http %s" % s)
+                runs += j["workflow_runs"]
+                total = j.get("total_count")
+                if not isinstance(total, int) or len(runs) >= total or not j["workflow_runs"]:
+                    break
+        except Unreachable as e:
+            unread.append("%s (%s)" % (repo, str(e).split(": ")[-1]))
+            continue
+        except ValueError as e:
+            unread.append("%s (%s)" % (repo, e))
+            continue
+        inside = [r for r in runs if isinstance(r, dict) and r.get("event") == "push" and r.get("head_branch") == "main" and (lambda t: t is not None and lo <= t < hi)(when(r.get("created_at")))]
+        counted[repo.split("/")[1]] = len(inside)
+        for r in inside:
+            if r.get("status") == "completed" and r.get("conclusion") in CI_BAD:
+                jobs = []
+                try:
+                    js, jj = get("%s/repos/%s/actions/runs/%s/jobs?per_page=100" % (GH_API, repo, r.get("id")))
+                    jobs = [x.get("name") for x in (jj.get("jobs") or []) if isinstance(x, dict) and x.get("conclusion") in CI_BAD] if js == 200 and isinstance(jj, dict) else []
+                except Unreachable:
+                    pass
+                red.append("%s: %s, job %s, commit %s (%s)" % (repo.split("/")[1], r.get("name") or r.get("path"), ", ".join(str(x) for x in jobs) or "not read",
+                                                              str(r.get("head_sha") or "")[:8], r.get("conclusion")))
+    facts = {"window": [iso(lo), iso(hi)], "runs": counted, "left_out": {r.split("/")[1]: CI_LEFT_OUT_WHY for r in CI_LEFT_OUT}}
+    if red:
+        return c(cid, "red", "a push run on main failed: " + "; ".join(red), failed=len(red), unreadable=[u.split(" ")[0] for u in unread], **facts)
+    if unread:
+        return c(cid, "not_yet", "GitHub could not be read for %s; no failure in the others" % ", ".join(unread),
+                 unreadable=[u.split(" ")[0] for u in unread], **facts)
+    return c(cid, "ok", "no push run on main of %s failed between %s and %s" % (", ".join(r.split("/")[1] for r in CI_REPOS), iso(lo), iso(hi)), **facts)
+
+
+def check_paid_rows(get, now):
+    """12: every paid row of the gate's public register was measured in the 26 hours before today's 03:47 UTC (or after it)"""
+    cid = "12_paid_rows_daily"
+    lo = anchor(now) - PAID_WINDOW
+    try:
+        s, reg = get(GATE + "/register")
+    except Unreachable as e:
+        return c(cid, "red", "the gate's /register did not answer: " + str(e))
+    rows = reg.get("rows") if s == 200 and isinstance(reg, dict) else None
+    if not isinstance(rows, list):
+        return c(cid, "red", "the gate's /register answered http %s without rows" % s)
+    paid = sorted({r.get("endpoint") for r in rows if isinstance(r, dict) and r.get("tier") == "paid" and isinstance(r.get("endpoint"), str)})
+    if not paid:
+        return c(cid, "not_yet", "the register has no paid row (PayPal or Marketplace) yet; there is nothing to hold to the daily cadence", paid=0, waits_for="a_paid_row")
+    late = []
+    for e in paid:
+        r = [x for x in rows if isinstance(x, dict) and x.get("endpoint") == e][0]
+        at = when((r.get("latest") or {}).get("at") if isinstance(r.get("latest"), dict) else None)
+        if at is None or at < lo:
+            late.append(e)
+    if late:
+        return c(cid, "red", "%d of %d paid rows were not measured since %s: %s" % (len(late), len(paid), iso(lo), ", ".join(late)), paid=len(paid), late=late)
+    return c(cid, "ok", "all %d paid rows were measured since %s" % (len(paid), iso(lo)), paid=len(paid))
+
+
+def check_line_delivery(get, now):
+    """13: neither LINE worker shows a failed send (line_last_fail) in the 24 hours before today's 03:47 UTC or since. Only the
+    time and the place of a failure are read; the message, its text and the person are never read or written."""
+    cid = "13_line_delivery"
+    lo = anchor(now) - LINE_WINDOW
+    fails, unread = [], []
+    for name, url in LINE_HEALTH:
+        try:
+            s, h = get(url)
+        except Unreachable as e:
+            unread.append("%s (did not answer)" % name)
+            continue
+        if s != 200 or not isinstance(h, dict):
+            unread.append("%s (http %s)" % (name, s))
+            continue
+        if "line_last_fail" not in h:
+            unread.append("%s (its /health has no line_last_fail)" % name)
+            continue
+        f = h["line_last_fail"]
+        if f is None:
+            continue
+        if not isinstance(f, dict):
+            unread.append("%s (line_last_fail is %s)" % (name, json.dumps(f) if isinstance(f, str) else type(f).__name__))
+            continue
+        at = when(f.get("at"))
+        if at is None:
+            unread.append("%s (line_last_fail has no time)" % name)
+        elif at >= lo:
+            where_ = f.get("where") if isinstance(f.get("where"), str) else ""
+            fails.append({"worker": name, "at": iso(at), "where": re.sub(r"[^A-Za-z0-9_:./-]", "", where_)[:40]})
+    if fails:
+        return c(cid, "red", "a LINE send failed: " + "; ".join("%s at %s in %s" % (x["worker"], x["at"], x["where"] or "(no place)") for x in fails), fails=fails)
+    if unread:
+        return c(cid, "not_yet", "line_last_fail could not be read: " + "; ".join(unread), unreadable=[u.split(" ")[0] for u in unread])
+    return c(cid, "ok", "no failed LINE send since %s in %s" % (iso(lo), " or ".join(n for n, _ in LINE_HEALTH)))
+
+
+def check_deadlines(get, now, checks):
+    """14: a check's not_yet has a deadline (NOT_YET_HOURS; 36 hours for a wait on Bitcoin). The hours are the whole days the same
+    check was not_yet in the published days just before today (tooshi/days/<day>.json, read like a witness reads them)."""
+    cid = "14_not_yet_deadline"
+    waiting = [x for x in checks if x["state"] == "not_yet" and x["id"] != cid]
+    if not waiting:
+        return c(cid, "ok", "no check is not_yet today", waiting=0)
+    days, unread = {}, []
+    for i in range(1, DEADLINE_LOOKBACK + 1):
+        d = (now - datetime.timedelta(days=i)).strftime("%Y-%m-%d")
+        try:
+            s, j = get(DAY_URL % d)
+        except Unreachable:
+            unread.append(d)
+            days[d] = None
+            continue
+        if s == 404:
+            days[d] = {}
+        elif s == 200 and isinstance(j, dict) and isinstance(j.get("checks"), list):
+            days[d] = {x.get("id"): x.get("state") for x in j["checks"] if isinstance(x, dict)}
+        else:
+            unread.append(d)
+            days[d] = None
+    over, exempt, open_ = [], [], []
+    for x in waiting:
+        why = x.get("why") or ""
+        f = x.get("facts") or {}
+        if x["id"] == "12_paid_rows_daily" and f.get("waits_for") == "a_paid_row":
+            exempt.append(x["id"])
+            continue
+        limit = BITCOIN_HOURS if re.search(r"Bitcoin|not yet anchored|not_yet_anchored", why) else (GATE_WAIT_HOURS if f.get("waits_for") == "gate_0.4.24" else NOT_YET_HOURS.get(x["id"], 48))
+        streak, blind = 0, False
+        for i in range(1, DEADLINE_LOOKBACK + 1):
+            st = days[(now - datetime.timedelta(days=i)).strftime("%Y-%m-%d")]
+            if st is None:
+                blind = True
+                break
+            if st.get(x["id"]) != "not_yet":
+                break
+            streak += 1
+        hours = 24 * streak
+        if hours > limit:
+            over.append("%s not_yet for %d hours (deadline %d)" % (x["id"], hours, limit))
+        else:
+            open_.append({"id": x["id"], "hours": hours, "deadline": limit, "history": "unread" if blind else "read"})
+    facts = {"waiting": len(waiting), "open": open_, "exempt": exempt, "exempt_why": {e: EXEMPT_WHY[e] for e in exempt}}
+    if over:
+        return c(cid, "red", "past the deadline: " + "; ".join(over), overdue=len(over), **facts)
+    if any(o["history"] == "unread" for o in open_):
+        return c(cid, "not_yet", "the published days %s could not be read, so how long %s have been not_yet is not known" % (", ".join(unread), ", ".join(o["id"] for o in open_ if o["history"] == "unread")), **facts)
+    return c(cid, "ok", "every not_yet is within its deadline%s" % ((" (" + ", ".join(exempt) + " waits for a fact, not a time)") if exempt else ""), **facts)
+
+
+def check_recovery(get, now):
+    """15: Software Heritage's last visit of the repository is at most 7 days old, and the daily recovery drill
+    (survive-drill.yml) rebuilt the ledger, unbroken, up to an entry made at most 48 hours before the ledger's head"""
+    cid = "15_recovery_fresh"
+    lo = anchor(now) - SWH_WINDOW
+    try:
+        s, v = get(SWH_VISIT)
+    except Unreachable as e:
+        return c(cid, "not_yet", "Software Heritage did not answer: " + str(e))
+    vt = when(v.get("date")) if s == 200 and isinstance(v, dict) else None
+    if vt is None:
+        return c(cid, "not_yet", "Software Heritage answered http %s without a visit date for %s" % (s, SWH_ORIGIN))
+    bad = []
+    if vt < lo:
+        bad.append("Software Heritage's last visit is %s, more than 7 days before %s" % (iso(vt), iso(anchor(now))))
+    try:
+        hs, h = get(LEDGER + "/ledger/head")
+        hn = h.get("n") if hs == 200 and isinstance(h, dict) else None
+        if not _int(hn, 1):
+            return c(cid, "red", "the ledger's head answered http %s without n" % hs)
+        es, he = get(LEDGER + "/ledger/%d?format=json" % hn)
+        ht = when(he.get("created_at")) if es == 200 and isinstance(he, dict) else None
+        drills = {}
+        for src in ("github", "swh"):
+            ds, dj = get(DRILLS + "latest-%s.json" % src)
+            drills[src] = dj if ds == 200 and isinstance(dj, dict) else None
+        g = drills["github"]
+        if g is None:
+            return c(cid, "red", "the recovery drill's latest-github.json is not served")
+        for src, dj in drills.items():
+            if dj is None:
+                bad.append("latest-%s.json is not served" % src)
+                continue
+            ch, dg = dj.get("chain") or {}, dj.get("digests") or {}
+            if dj.get("outcome") != "rebuilt" or ch.get("broken_at") is not None or dg.get("failed"):
+                bad.append("the %s drill did not rebuild the ledger unbroken (outcome %s, broken_at %s, failed digests %s)" % (src, dj.get("outcome"), ch.get("broken_at"), len(dg.get("failed") or [])))
+        rt = ch_n = None
+        ch_n = (g.get("chain") or {}).get("rebuilt_through")
+        if _int(ch_n, 1):
+            rs, re_ = get(LEDGER + "/ledger/%d?format=json" % ch_n)
+            rt = when(re_.get("created_at")) if rs == 200 and isinstance(re_, dict) else None
+        if ht is None or rt is None:
+            bad.append("the time of the head (%s) or of the rebuilt entry (%s) could not be read" % (hn, ch_n))
+        elif ht - rt > RECOVER_WINDOW:
+            bad.append("the drill rebuilt up to entry %s (%s), more than 48 hours before the head %s (%s)" % (ch_n, iso(rt), hn, iso(ht)))
+    except Unreachable as e:
+        return c(cid, "red", "an endpoint did not answer: " + str(e))
+    except (ValueError, KeyError, TypeError, AttributeError) as e:
+        return c(cid, "red", "an answer did not have its shape: %s" % type(e).__name__)
+    facts = {"swh_visit_within_7_days": vt >= lo, "rebuilt_through": ch_n, "head": hn,
+             "swh_rebuilt_through": ((drills.get("swh") or {}).get("chain") or {}).get("rebuilt_through")}
+    if bad:
+        return c(cid, "red", "; ".join(bad), **facts)
+    return c(cid, "ok", "Software Heritage visited the repository within 7 days, and the drill rebuilt the ledger unbroken up to entry %s, within 48 hours of the head %s" % (ch_n, hn), **facts)
+
+
 def run(get, now, trigger="manual"):
     if trigger not in TRIGGERS:
         raise ValueError("trigger must be one of " + ", ".join(TRIGGERS))
@@ -1065,6 +1459,8 @@ def run(get, now, trigger="manual"):
     checks.append(check_resume_agreement(get, now))
     checks += [check_door_runner(get), check_day_root(get, now), check_leaves(get, now), check_heartbeat(get, now)]
     checks += [check_canary(get, now), check_witness_answer(get, now)]
+    checks += [check_cross_client(get, now), check_main_ci(get, now), check_paid_rows(get, now), check_line_delivery(get, now), check_recovery(get, now)]
+    checks.append(check_deadlines(get, now, checks))
     checks.sort(key=lambda x: x["id"])
     counts = {k: sum(1 for x in checks if x["state"] == k) for k in ("ok", "red", "notice", "not_yet")}
     verdict = "red" if counts["red"] else ("green" if counts["not_yet"] == 0 else "not_all_checked")
@@ -1229,6 +1625,49 @@ def selftest():
         w[LEDGER + "/ledger/278?format=json"] = (200, {"n": 278, "created_at": d + "T23:00:00.000Z", "record_canonical": "{}"})
         return w
 
+    # 10 to 15: the default answers hold (every new check ok on 11-05 at 04:05); the cases below change one answer each
+    LO11 = anchor(now) - CI_WINDOW
+    CANDS = ["https://%s.example/mcp" % x for x in "abcde"]
+    DRAWN = cross_draw("2026-11-05", CANDS)
+
+    def cross(**chg):
+        x = {"schema": "tooshi-cross-client-v0", "day": "2026-11-05", "sdk": dict(CROSS_SDK), "gate": {"origin": GATE, "version": "0.4.24", "commit": "abc"}, "skipped": None,
+             "own": CROSS_OWN, "candidates": list(CANDS), "picked": list(DRAWN),
+             "targets": [{"endpoint": e, "kind": "own" if e == CROSS_OWN else "drawn", "gate": {"answered": True, "pass": True, "reason": "MCP endpoint responds to initialize and tools/list", "record_sha256": "f" * 64},
+                          "sdk": {"reached": True, "pass": True, "reason": "initialize and tools/list answered; 2 well-formed tool(s)", "tools": 2}} for e in [CROSS_OWN] + DRAWN]}
+        x.update(chg)
+        return (200, x)
+
+    def target(i, gate=None, sdk=None):
+        x = json.loads(json.dumps(cross()[1]))
+        x["targets"][i]["gate"].update(gate or {})
+        x["targets"][i]["sdk"].update(sdk or {})
+        return (200, x)
+
+    def ci_run(i, conclusion="success", at="2026-11-04T12:00:00Z", name="public-boundary", **f):
+        return dict({"id": i, "name": name, "path": ".github/workflows/%s.yml" % name, "event": "push", "head_branch": "main", "status": "completed", "conclusion": conclusion,
+                     "created_at": at, "head_sha": "%040x" % i}, **f)
+
+    def ci(runs):
+        return (200, {"total_count": len(runs), "workflow_runs": runs})
+
+    def drill(src, n, **f):
+        x = {"schema": "nenrin-survive-drill-v0", "outcome": "rebuilt", "chain": {"broken_at": None, "rebuilt_through": n}, "digests": {"ok": n, "failed": []}, "source": {"custodian": src}}
+        x.update(f)
+        return (200, x)
+
+    def v2_world():
+        return {GATE + "/health": (200, {"ok": True, "gate_version": "0.4.24", "gate_commit": "abc"}),
+                CROSS_SOURCE: cross(),
+                ci_runs_url(CI_REPOS[0], LO11): ci([ci_run(1), ci_run(2, name="gitleaks")]),
+                GATE + "/register": (200, {"count": 3, "rows": [{"endpoint": CROSS_OWN, "tier": "self", "latest": {"at": "2026-11-04T18:00:49.660Z", "status": "verified"}},
+                                                                 {"endpoint": "https://a.example/mcp", "tier": "free", "latest": {"at": "2026-10-30T18:00:00.000Z"}},
+                                                                 {"endpoint": "https://paid.example/mcp", "tier": "paid", "latest": {"at": "2026-11-04T18:00:12.000Z", "status": "verified"}}]}),
+                LINE_HEALTH[0][1]: (200, {"status": "ok", "service": "hs-kira-line", "version": "v26", "line_last_fail": None}),
+                LINE_HEALTH[1][1]: (200, {"status": "ok", "service": "hs-kira-group", "version": "group-7", "line_last_fail": None}),
+                SWH_VISIT: (200, {"origin": SWH_ORIGIN, "date": "2026-11-04T10:57:22.815000+00:00", "status": "full", "visit": 99}),
+                DRILLS + "latest-github.json": drill("github", 279),
+                DRILLS + "latest-swh.json": drill("software-heritage", 270)}
     def world(cc=False, prev=True, d4key=SK, adm_today=None, adm_prev=None, canary=None, canary_prev=True, wit=None, **over):
         w = {
             RUNNER + "/health": (200, {"runner": "hs-furui-runner 0.4.0", "key_id": "runner-1", "public_key_ed25519_b64": PUB, "rules_sha256": RULES if cc else None, "caps": dict(CAPS), "anthropic_key_set": True}),
@@ -1239,6 +1678,7 @@ def selftest():
         w.update(W3)
         st3 = W3[RUNNER + "/furui/day/2026-11-03/status"][1]["status"]   # 9 reads the day before yesterday (11-03)
         w.update(witness_world("2026-11-03", sha, st3["root"], st3["n"], *(wit(sha, st3["root"], st3["n"]) if wit else ([answer("2026-11-03", sha, st3["root"], st3["n"])],))))
+        w.update(v2_world())
         if cc:
             e5 = envelope("2026-11-05", 0)
             t5, r5 = adm_today or admission(e5)
@@ -1563,6 +2003,100 @@ def selftest():
     cases.append(("9 not_yet: the day record of the day before yesterday is not served yet", st9(world(**{RUNNER + "/furui/day/2026-11-03/status": (200, {"status": None})}))["state"], "not_yet"))
     cases.append(("9 reads the day before yesterday (11-03 at the 11-05 run), not yesterday", (x9["facts"]["day"], st9(world(cc=True), now + datetime.timedelta(days=1))["facts"]["day"]), ("2026-11-03", "2026-11-04")))
     cases.append(("9 red: the ledger head does not answer", st9(world(cc=True, **{LEDGER + "/ledger/head": "down"}))["state"], "red"))
+    # 10 to 15 (2026-11-06)
+    def st(get, cid, when=now):
+        return [x for x in run(get, when)[0]["checks"] if x["id"] == cid][0]
+    S10, S11, S12, S13, S14, S15 = "10_cross_client", "11_main_ci", "12_paid_rows_daily", "13_line_delivery", "14_not_yet_deadline", "15_recovery_fresh"
+    cases.append(("v2: the whole day holds with the six new checks: every check ok, the verdict green, 17 checks", (lambda r: (r["verdict"], len(r["checks"]), r["counts"]["ok"]))(run(world(cc=True), now)[0]), ("green", 17, 17)))
+    cases.append(("10: the draw of 2026-11-07 from five endpoints is the cross client's (cross_client_test.mjs has the same vector)", cross_draw("2026-11-07", list(reversed(CANDS))),
+                  ["https://c.example/mcp", "https://d.example/mcp", "https://e.example/mcp"]))
+    x10 = st(world(cc=True), S10)
+    cases.append(("10 ok: the SDK client and the gate agree on the own endpoint and the three drawn", (x10["state"], x10["facts"]["drawn"], x10["facts"]["sdk"]), ("ok", DRAWN, "1.32.1")))
+    cases.append(("10 not_yet: the gate's /health says 0.4.22 (the check waits for 0.4.24)", (lambda x: (x["state"], x["facts"]["waits_for"]))(st(world(cc=True, **{GATE + "/health": (200, {"gate_version": "0.4.22"})}), S10)), ("not_yet", "gate_0.4.24")))
+    cases.append(("10 not_yet: no cross client result was given (--cross)", st(world(cc=True, **{CROSS_SOURCE: (404, None)}), S10)["state"], "not_yet"))
+    cases.append(("10 not_yet: the cross client called nothing (it saw the gate before 0.4.24)", st(world(cc=True, **{CROSS_SOURCE: cross(skipped="gate_before_0_4_24", targets=[], picked=[])}), S10)["state"], "not_yet"))
+    cases.append(("10 not_yet: a drawn endpoint is not reached by the SDK client, the others agree", st(world(cc=True, **{CROSS_SOURCE: target(2, sdk={"reached": False, "pass": None, "error": "not reached: ENOTFOUND"})}), S10)["state"], "not_yet"))
+    x10r = st(world(cc=True, **{CROSS_SOURCE: target(1, gate={"pass": False, "reason": "initialize failed: http 406"})}), S10)
+    cases.append(("10 red: the gate fails a drawn endpoint that the SDK client passes; both reasons are named", (x10r["state"], "http 406" in x10r["why"] and "SDK client says pass" in x10r["why"], x10r["facts"]["disagree"]), ("red", True, 1)))
+    cases.append(("10 red: the SDK client fails an endpoint that the gate passes", st(world(cc=True, **{CROSS_SOURCE: target(3, sdk={"pass": False, "reason": "http 406"})}), S10)["state"], "red"))
+    cases.append(("10 red: the SDK client does not reach the own endpoint", st(world(cc=True, **{CROSS_SOURCE: target(0, sdk={"reached": False, "pass": None, "error": "not reached: ECONNREFUSED"})}), S10)["state"], "red"))
+    cases.append(("10 red: the cross client measured other endpoints than the day's draw", st(world(cc=True, **{CROSS_SOURCE: cross(picked=list(reversed(DRAWN)))}), S10)["state"], "red"))
+    cases.append(("10 red: the cross client result is yesterday's", st(world(cc=True, **{CROSS_SOURCE: cross(day="2026-11-04")}), S10)["state"], "red"))
+    cases.append(("10 red: the gate's /health answers 5xx three times", st(world(cc=True, **{GATE + "/health": "down"}), S10)["state"], "red"))
+    gw = with_cross(lambda u, raw=False: (404, None), None)
+    cases.append(("10: without --cross the run's getter answers 404 for the cross client result (no network)", gw(CROSS_SOURCE), (404, None)))
+    x11 = st(world(cc=True), S11)
+    cases.append(("11 ok: no push run on main failed in the 24 hours before 03:47 UTC", (x11["state"], x11["facts"]["runs"], x11["facts"]["window"]), ("ok", {"horizon-shield": 2}, ["2026-11-04T03:47:00Z", "2026-11-05T03:47:00Z"])))
+    JOBS7 = "%s/repos/%s/actions/runs/7/jobs?per_page=100" % (GH_API, CI_REPOS[0])
+    x11r = st(world(cc=True, **{ci_runs_url(CI_REPOS[0], LO11): ci([ci_run(1), ci_run(7, "failure", name="public-boundary", at="2026-11-05T01:00:00Z")]),
+                                JOBS7: (200, {"jobs": [{"name": "boundary", "conclusion": "failure"}, {"name": "other", "conclusion": "success"}]})}), S11)
+    cases.append(("11 red: a push run failed; the workflow, the job and the commit are named", (x11r["state"], "public-boundary, job boundary, commit 00000000" in x11r["why"]), ("red", True)))
+    cases.append(("11 ok: a failure created before the window (the day before) is not counted",
+                  st(world(cc=True, **{ci_runs_url(CI_REPOS[0], LO11): ci([ci_run(8, "failure", at="2026-11-04T03:46:59Z")])}), S11)["state"], "ok"))
+    cases.append(("11 ok: a cancelled run and a run still in progress are not failures",
+                  st(world(cc=True, **{ci_runs_url(CI_REPOS[0], LO11): ci([ci_run(9, "cancelled"), ci_run(10, None, status="in_progress")])}), S11)["state"], "ok"))
+    cases.append(("11 not_yet: the repository answers 404",
+                  (lambda x: (x["state"], x["facts"]["unreadable"]))(st(world(cc=True, **{ci_runs_url(CI_REPOS[0], LO11): (404, {"message": "Not Found"})}), S11)), ("not_yet", [CI_REPOS[0]])))
+    seen11, g11 = [], world(cc=True)
+    st(lambda u, *a, **k: (seen11.append(u), g11(u, *a, **k))[1], S11)
+    cases.append(("11: hs-seki-private and hs-furui-private are left out, not read, and named with the reason every day",
+                  (CI_REPOS, sorted(x11["facts"]["left_out"]), all(x11["facts"]["left_out"].values()), len(seen11) > 0, any("hs-seki-private" in u or "hs-furui-private" in u for u in seen11)),
+                  (("ogasurfproject-jpg/horizon-shield",), ["hs-furui-private", "hs-seki-private"], True, True, False)))
+    P2 = ci_runs_url(CI_REPOS[0], LO11, 2)
+    cases.append(("11 red: a failure on the second page of runs is read", st(world(cc=True, **{ci_runs_url(CI_REPOS[0], LO11): (200, {"total_count": 101, "workflow_runs": [ci_run(i) for i in range(100, 200)]}),
+                                                                                          P2: ci([ci_run(12, "failure")])}), S11)["state"], "red"))
+    cases.append(("12 ok: the paid row was measured within 26 hours of 03:47 UTC", (lambda x: (x["state"], x["facts"]["paid"]))(st(world(cc=True), S12)), ("ok", 1)))
+    REG = world(cc=True)(GATE + "/register")[1]
+    def reg_with(*rows):
+        return (200, dict(REG, rows=list(rows)))
+    cases.append(("12 not_yet: no paid row (today's register)", st(world(cc=True, **{GATE + "/register": reg_with(*REG["rows"][:2])}), S12)["state"], "not_yet"))
+    x12 = st(world(cc=True, **{GATE + "/register": reg_with(REG["rows"][0], dict(REG["rows"][2], latest={"at": "2026-11-04T01:46:00.000Z"}))}), S12)
+    cases.append(("12 red: a paid row last measured 26 hours and 1 minute before 03:47 UTC is named", (x12["state"], x12["facts"]["late"]), ("red", ["https://paid.example/mcp"])))
+    cases.append(("12 red: a paid row never measured", st(world(cc=True, **{GATE + "/register": reg_with(dict(REG["rows"][2], latest=None))}), S12)["state"], "red"))
+    cases.append(("12 red: the register answers 5xx three times", st(world(cc=True, **{GATE + "/register": "down"}), S12)["state"], "red"))
+    cases.append(("13 ok: no line_last_fail in either worker", st(world(cc=True), S13)["state"], "ok"))
+    FAIL = {"at": "2026-11-05T01:12:13.000Z", "api": "push", "status": 429, "msg": "SECRET-BODY-TEXT for U1234567890abcdef", "where": "followup_touch"}
+    x13 = st(world(cc=True, **{LINE_HEALTH[0][1]: (200, {"status": "ok", "line_last_fail": FAIL})}), S13)
+    cases.append(("13 red: a failed send in the 24 hours: the worker, the time and the place only", (x13["state"], x13["facts"]["fails"]), ("red", [{"worker": "hs-kira-line", "at": "2026-11-05T01:12:13Z", "where": "followup_touch"}])))
+    cases.append(("13: neither the message, the LINE answer, its status nor the person is in the result", any(w in json.dumps(run(world(cc=True, **{LINE_HEALTH[0][1]: (200, {"line_last_fail": FAIL})}), now)[1]) for w in ("SECRET-BODY", "U1234567890", "429", '"push"')), False))
+    cases.append(("13 ok: the last failed send is older than 24 hours before 03:47 UTC", st(world(cc=True, **{LINE_HEALTH[1][1]: (200, {"line_last_fail": dict(FAIL, at="2026-11-04T03:46:00.000Z")})}), S13)["state"], "ok"))
+    cases.append(("13 not_yet: hs-kira-group's /health has no line_last_fail (its version on main today)", (lambda x: (x["state"], x["facts"]["unreadable"]))(st(world(cc=True, **{LINE_HEALTH[1][1]: (200, {"status": "ok", "service": "hs-kira-group"})}), S13)), ("not_yet", ["hs-kira-group"])))
+    cases.append(("13 not_yet: line_last_fail says unreadable", st(world(cc=True, **{LINE_HEALTH[0][1]: (200, {"line_last_fail": "unreadable"})}), S13)["state"], "not_yet"))
+    cases.append(("13 not_yet: a /health does not answer", st(world(cc=True, **{LINE_HEALTH[0][1]: "down"}), S13)["state"], "not_yet"))
+    # 14: the published days before today, as a witness reads them
+    def pub_day(d, **states):
+        return (200, {"schema": "tooshi-day-v0", "day": d, "checks": [{"id": k, "state": v, "why": ""} for k, v in states.items()]})
+    NY3 = loop_with(day={"settled": False, "status": None, "verdict": None})
+    cases.append(("14 ok: nothing is not_yet today", (lambda x: (x["state"], x["facts"]["waiting"]))(st(world(cc=True), S14)), ("ok", 0)))
+    x14 = st(world(cc=True, **{CHECK_RUNS + "index.json": NY3, DAY_URL % "2026-11-04": pub_day("2026-11-04", **{"3_ledger_settle": "not_yet"})}), S14)
+    cases.append(("14 ok: 3 waits for Bitcoin and was not_yet yesterday too (24 hours, deadline 36)", (x14["state"], x14["facts"]["open"]), ("ok", [{"id": "3_ledger_settle", "hours": 24, "deadline": 36, "history": "read"}])))
+    x14r = st(world(cc=True, **{CHECK_RUNS + "index.json": NY3, DAY_URL % "2026-11-04": pub_day("2026-11-04", **{"3_ledger_settle": "not_yet"}), DAY_URL % "2026-11-03": pub_day("2026-11-03", **{"3_ledger_settle": "not_yet"})}), S14)
+    cases.append(("14 red: 3 waits for Bitcoin and was not_yet the two days before (48 hours, deadline 36)", (x14r["state"], "3_ledger_settle not_yet for 48 hours (deadline 36)" in x14r["why"]), ("red", True)))
+    cases.append(("14 ok: a not_yet streak broken by an ok day starts again", st(world(cc=True, **{CHECK_RUNS + "index.json": NY3, DAY_URL % "2026-11-04": pub_day("2026-11-04", **{"3_ledger_settle": "ok"}),
+                                                                                                   DAY_URL % "2026-11-03": pub_day("2026-11-03", **{"3_ledger_settle": "not_yet"})}), S14)["state"], "ok"))
+    cases.append(("14 not_yet: yesterday's published day could not be read (5xx three times)", st(world(cc=True, **{CHECK_RUNS + "index.json": NY3, DAY_URL % "2026-11-04": "down"}), S14)["state"], "not_yet"))
+    G22 = {GATE + "/health": (200, {"gate_version": "0.4.22"})}
+    six = {DAY_URL % ("2026-11-0%d" % d): pub_day("x", **{"10_cross_client": "not_yet"}) for d in range(1, 5)}
+    cases.append(("14 ok: 10 waits for the gate 0.4.24 four days (96 hours, deadline 168)", st(world(cc=True, **dict(G22, **six)), S14)["state"], "ok"))
+    seven = {DAY_URL % (now - datetime.timedelta(days=i)).strftime("%Y-%m-%d"): pub_day("x", **{"10_cross_client": "not_yet"}) for i in range(1, 9)}
+    cases.append(("14 red: 10 waits for the gate 0.4.24 eight days (192 hours, deadline 168)", st(world(cc=True, **dict(G22, **seven)), S14)["state"], "red"))
+    x14e = st(world(cc=True, **{GATE + "/register": reg_with(REG["rows"][0]), **{DAY_URL % (now - datetime.timedelta(days=i)).strftime("%Y-%m-%d"): pub_day("x", **{"12_paid_rows_daily": "not_yet"}) for i in range(1, 9)}}), S14)
+    cases.append(("14 ok: 12 with no paid row waits for a fact, not a time, and is named as such with the reason", (x14e["state"], x14e["facts"]["exempt"], "a time limit would turn the day red" in x14e["facts"]["exempt_why"]["12_paid_rows_daily"]), ("ok", ["12_paid_rows_daily"], True)))
+    cases.append(("14: a not_yet of 1 to 9 is held to its deadline too (1 not_yet three days, 72 hours, deadline 48)",
+                  st(world(cc=True, prev=False, **{DAY_URL % (now - datetime.timedelta(days=i)).strftime("%Y-%m-%d"): pub_day("x", **{"1_sieve_admission": "not_yet"}) for i in (1, 2, 3)}), S14)["state"], "red"))
+    cases.append(("14 does not change the states of 1 to 9 (the same run with a red 14 and without its history)",
+                  (lambda a, b: {k: v for k, v in a.items() if k[0].isdigit() and int(re.match(r"\d+", k).group()) < 10} == {k: v for k, v in b.items() if k[0].isdigit() and int(re.match(r"\d+", k).group()) < 10})(
+                      states(world(cc=True, **{CHECK_RUNS + "index.json": NY3}))[1], states(world(cc=True, **{CHECK_RUNS + "index.json": NY3, DAY_URL % "2026-11-04": pub_day("a", **{"3_ledger_settle": "not_yet"}), DAY_URL % "2026-11-03": pub_day("b", **{"3_ledger_settle": "not_yet"})}))[1]), True))
+    x15 = st(world(cc=True), S15)
+    cases.append(("15 ok: Software Heritage visited within 7 days, the drill rebuilt up to 279, 5.5 hours before the head 280", (x15["state"], x15["facts"]["rebuilt_through"], x15["facts"]["head"]), ("ok", 279, 280)))
+    cases.append(("15 not_yet: Software Heritage does not answer", st(world(cc=True, **{SWH_VISIT: "down"}), S15)["state"], "not_yet"))
+    cases.append(("15 red: Software Heritage's last visit is more than 7 days before 03:47 UTC", st(world(cc=True, **{SWH_VISIT: (200, {"date": "2026-10-29T03:46:00+00:00"})}), S15)["state"], "red"))
+    cases.append(("15 red: the drill rebuilt only up to an entry more than 48 hours before the head", st(world(cc=True, **{DRILLS + "latest-github.json": drill("github", 278), LEDGER + "/ledger/278?format=json": (200, {"n": 278, "created_at": "2026-11-03T00:30:00.000Z"})}), S15)["state"], "red"))
+    cases.append(("15 red: the drill's chain is broken", st(world(cc=True, **{DRILLS + "latest-swh.json": drill("software-heritage", 270, chain={"broken_at": 133, "rebuilt_through": 132})}), S15)["state"], "red"))
+    cases.append(("15 red: the drill did not rebuild (outcome failed)", st(world(cc=True, **{DRILLS + "latest-github.json": drill("github", 279, outcome="failed")}), S15)["state"], "red"))
+    rv1, _, _ = run(world(cc=True), now, "schedule")
+    rv2, _, _ = run(world(cc=True), now.replace(hour=11, minute=50), "dispatch")
+    cases.append(("v2: the 04:05 run and an 11:50 run of the same day read the same windows (from 03:47 UTC) and get the same day_sha256", day_sha256(rv1) == day_sha256(rv2), True))
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:
         print(("  ok   " if got == want else "  NG   ") + n + ("" if got == want else " (got %r, want %r)" % (got, want)))
@@ -1582,7 +2116,23 @@ def witness_refusal(now, name):
     return None
 
 
-def witness_main(now, name, vantage, ledger, dry):
+def with_cross(get, path):
+    """the getter of a run: CROSS_SOURCE is the file of --cross (tools/tooshi/cross_client/cross_client.mjs), read once; 404 without it"""
+    x = None
+    if path:
+        try:
+            with open(path, encoding="utf-8") as f:
+                x = json.load(f)
+        except (OSError, ValueError):
+            x = "unreadable"
+    def g(url, raw=False):
+        if url == CROSS_SOURCE:
+            return (200, x) if isinstance(x, dict) else ((422, None) if x == "unreadable" else (404, None))
+        return get(url, raw=raw) if raw else get(url)
+    return g
+
+
+def witness_main(now, name, vantage, ledger, dry, cross=None):
     why = witness_refusal(now, name)
     if why == "no_name":
         print("witness: give a name (anonymous is allowed)")
@@ -1590,7 +2140,7 @@ def witness_main(now, name, vantage, ledger, dry):
     if why == "too_early":
         print("witness: the day's checks are not all in before 03:47 UTC (01:05 batch, 03:17 heartbeat, 03:47 door call); run after it")
         return 2
-    res, text, sha = run(http_get, now, "witness")
+    res, text, sha = run(with_cross(http_get, cross), now, "witness")
     for x in res["checks"]:
         print("%-8s %s: %s" % (x["state"], x["id"], x["why"]))
     rc = witness_record(res, name.strip(), vantage, now, tool_sha256())
@@ -1616,8 +2166,8 @@ def main(argv):
     if argv == ["--selftest"]:
         return selftest()
     now, out, bodyf, notesf, trigger, fixed = datetime.datetime.now(datetime.timezone.utc), None, None, None, "manual", False
-    wname, vantage, ledger, dry = None, "unspecified", LEDGER, False
-    usage = "usage: tooshi_daily.py [--now T] [--trigger %s] [--out file] [--body file] [--notes file] | --witness NAME [--vantage V] [--dry-run] [--ledger URL] | --selftest" % "|".join(TRIGGERS[:4])
+    wname, vantage, ledger, dry, cross = None, "unspecified", LEDGER, False, None
+    usage = "usage: tooshi_daily.py [--now T] [--trigger %s] [--out file] [--body file] [--notes file] [--cross file] | --witness NAME [--vantage V] [--dry-run] [--ledger URL] [--cross file] | --selftest" % "|".join(TRIGGERS[:4])
     it = iter(argv)
     try:
         for a in it:
@@ -1629,6 +2179,8 @@ def main(argv):
                 bodyf = next(it)
             elif a == "--notes":
                 notesf = next(it)
+            elif a == "--cross":
+                cross = next(it)
             elif a == "--trigger":
                 trigger = next(it)
                 if trigger not in TRIGGERS[:4]:
@@ -1652,8 +2204,8 @@ def main(argv):
         if fixed or out or bodyf or notesf or trigger != "manual":
             print("witness: --now, --out, --body, --notes and --trigger do not go with --witness (the answers are read now, by you)")
             return 2
-        return witness_main(now, wname, vantage, ledger, dry)
-    res, text, sha = run(http_get, now, trigger)
+        return witness_main(now, wname, vantage, ledger, dry, cross)
+    res, text, sha = run(with_cross(http_get, cross), now, trigger)
     if out:
         open(out, "w", encoding="utf-8").write(text + "\n")
     if bodyf:
