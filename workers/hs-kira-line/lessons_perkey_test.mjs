@@ -235,7 +235,7 @@ console.log("\n6) version and /health marker");
 {
   const r = await W.fetch(new Request("https://x/health"), makeEnv(), { waitUntil: () => {} });
   const j = await r.json();
-  check("/health version is v26-sendcheck-20261106", j.version === "v26-sendcheck-20261106", j.version);
+  check("/health version is v27-quota-20261106", j.version === "v27-quota-20261106", j.version);
   check("/health lessons is per-key-20261013", j.lessons === "per-key-20261013", String(j.lessons));
 }
 

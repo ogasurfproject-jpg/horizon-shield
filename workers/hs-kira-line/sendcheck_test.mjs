@@ -210,7 +210,7 @@ console.log("\n9) 通信が落ちても送信の関数は投げない(拾い直�
 console.log("\n10) /health の版");
 {
   const h = await (await W.fetch(new Request("https://x/health"), makeEnv(), { waitUntil: () => {} })).json();
-  check("version は v26-sendcheck-20261106", h.version === "v26-sendcheck-20261106", h.version);
+  check("version は v27-quota-20261106", h.version === "v27-quota-20261106", h.version);
   check("送れなかった記録が無ければ line_last_fail は null", h.line_last_fail === null, JSON.stringify(h.line_last_fail));
 }
 

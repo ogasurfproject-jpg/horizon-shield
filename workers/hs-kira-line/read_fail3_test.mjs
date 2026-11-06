@@ -149,7 +149,7 @@ console.log("\n4) version");
 {
   const r = await W.fetch(new Request("https://x/health"), makeEnv(), { waitUntil: () => {} });
   const j = await r.json();
-  check("/health version is v26-sendcheck-20261106 (bumped by v26 2026-11-06)", j.version === "v26-sendcheck-20261106", j.version);
+  check("/health version is v27-quota-20261106 (bumped by v26 2026-11-06)", j.version === "v27-quota-20261106", j.version);
 }
 
 console.log("\nchecks: " + checks + ", guards: " + guards + ", failed: " + fail);

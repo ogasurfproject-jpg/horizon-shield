@@ -269,11 +269,12 @@ var worker_default = {
     ctx.waitUntil(sendKiraDigest(env).catch((e) => console.log("[digest] " + String(e))));
     ctx.waitUntil(kiraGlobalSweep(env).catch((e) => console.log("[sweep] " + String(e))));
     ctx.waitUntil(kiraCatchUp(env).catch((e) => console.log("[catchup] " + String(e))));
+    ctx.waitUntil(kiraQuotaWatch(env).catch((e) => console.log("[quota] " + String(e))));
   },
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === "/health") {
-      return json({ status: "ok", version: "v26-sendcheck-20261106", service: "hs-kira-line", lessons: "per-key-20261013", line_last_fail: await kiraLineLastFail(env) });
+      return json({ status: "ok", version: "v27-quota-20261106", service: "hs-kira-line", lessons: "per-key-20261013", line_last_fail: await kiraLineLastFail(env), line_quota: await kiraLineQuota(env) });
     }
     if (url.pathname === "/diagnosis" && request.method === "POST") {
       return handleDiagnosis(request, env, ctx);
@@ -1749,6 +1750,45 @@ const QUOTE_ACK_TEXT = "\u3054\u8fd4\u4fe1\u3042\u308a\u304c\u3068\u3046\u3054\u
 // 2026-11-06 v26: 1 対 1 で黙ってよいのは、お礼や了解だけで閉じる発言のときだけ。それ以外は必ず一言返す。
 const ANSWER_ACK_TEXT = "ご回答ありがとうございます。いただいた内容は記録しました。";
 const KIRA_PURE_THANKS_RE = /^(?:(?:ありがとう(?:ございます|ございました)?|了解(?:です|しました)?|承知(?:しました|いたしました)?|よろしく(?:お願いします|お願いいたします)?|わかりました|分かりました|はい|OK|ok|オッケー)[。、!！\s]*)+$/;
+// 2026-11-06 v27 (TOshi「2度と止まんな」): LINE の月の送信通数を毎時見て、上限の手前で大賀さんに知らせる。
+//   上限に達すると push(ヒアリングの問い、大賀さんへの知らせ、拾い直し、夜のまとめ)が月末まで止まり、
+//   その知らせ自体も届かなくなる。だから 80% と 95% の手前で一度ずつ知らせる(月ごと、送れたら印)。
+//   Reply API は通数に数えないので、加盟店さんへの返信そのものは止まらない。
+const KIRA_QUOTA_STEPS = [95, 80];
+async function lineGetJson(path, channelToken) {
+  try {
+    const r = await fetch("https://api.line.me/v2/bot/message/" + path, { headers: { "Authorization": "Bearer " + channelToken } });
+    if (!r.ok) return { ok: false, status: r.status };
+    return { ok: true, body: await r.json() };
+  } catch (e) { return { ok: false, status: 0 }; }
+}
+async function kiraQuotaWatch(env, nowMs) {
+  const q = await lineGetJson("quota", env.LINE_CHANNEL_TOKEN);
+  const c = await lineGetJson("quota/consumption", env.LINE_CHANNEL_TOKEN);
+  if (!q.ok || !c.ok) { console.log("[quota] could not read quota " + (q.status || "") + " " + (c.status || "")); return null; }
+  const type = String((q.body && q.body.type) || "");
+  const limit = Number(q.body && q.body.value) || 0;
+  const used = Number(c.body && c.body.totalUsage) || 0;
+  const now = nowMs || Date.now();
+  const month = new Date(now + 9 * 3600 * 1000).toISOString().slice(0, 7);
+  try { await env.SEEN_STORE.put("kira_line_quota", JSON.stringify({ at: new Date(now).toISOString(), month, type, limit, used }), { expirationTtl: 60 * 60 * 24 * 40 }); } catch (_e) {}
+  if (type !== "limited" || !(limit > 0)) return { type, limit, used, warned: null };
+  const pct = Math.floor(used * 100 / limit);
+  const step = KIRA_QUOTA_STEPS.find((s) => pct >= s);
+  if (!step) return { type, limit, used, warned: null };
+  const key = "kira_quota_warn:" + month + ":" + step;
+  const seen = await kvFlag(env, key);
+  if (seen !== "no") return { type, limit, used, warned: null };
+  const left = Math.max(0, limit - used);
+  const s = await pushToLine(env.LINE_USER_ID, "【LINE の月の通数 " + step + "% に達しました】今月 " + used + " / " + limit + " 通(残り " + left + " 通)。\n上限に達すると、月末まで次が止まります: ヒアリングの質問、KIRA から大賀さんへの知らせ、返事漏れの拾い直し、夜のまとめ。加盟店さんへの返信(Reply)は止まりません。\nプランを上げる: manager.line.biz → 設定 → 利用と請求 → 月額プラン → アップグレード(ライト 月5,000円・5,000通)", env.LINE_CHANNEL_TOKEN);
+  if (!s.ok) { await kiraNoteSendFail(env, s, "通数の知らせ"); return { type, limit, used, warned: null }; }
+  try { await env.SEEN_STORE.put(key, "1", { expirationTtl: 60 * 60 * 24 * 40 }); } catch (_e) {}
+  return { type, limit, used, warned: step };
+}
+// /health 用。最後に読んだ通数。読めなかったときは "unreadable"。
+async function kiraLineQuota(env) {
+  try { return JSON.parse((await env.SEEN_STORE.get("kira_line_quota")) || "null"); } catch (_e) { return "unreadable"; }
+}
 // /health 用。読めなかったときは null(無い)と言わず "unreadable" と返す(issue #13)。
 async function kiraLineLastFail(env) {
   try { return JSON.parse((await env.SEEN_STORE.get("kira_line_last_fail")) || "null"); } catch (_e) { return "unreadable"; }
