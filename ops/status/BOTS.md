@@ -1,13 +1,13 @@
 # Scheduled workflows
 
-Written by `tools/status/bot_watch.mjs` at 2026-11-06T13:45:48.060Z. 34 scheduled workflows, 1 need attention: bot-watch.yml (FAILING).
+Written by `tools/status/bot_watch.mjs` at 2026-11-06T13:51:45.929Z. 34 scheduled workflows, none needs attention.
 
 | Workflow | Schedule (UTC) | Expected every | Last run | Last counted success | Failures in a row | Status | Last bot commit to its paths |
 |---|---|---|---|---|---|---|---|
 | `adoption-weekly.yml` | `17 0 * * 1` | 7 d | 2026-11-02T06:03:19.000Z schedule success | 2026-11-02T06:03:19.000Z | 0 | ok | 2026-11-02T06:04:43.000Z by horizon-shield-adoption-count |
 | `aps-reader-comparison.yml` | `17 4 * * 3` | 7 d | 2026-11-06T02:48:34.000Z push success | 2026-11-04T12:06:13.000Z | 0 | ok | not inferred |
 | `blog-post.yml` | `0 0 * * *` | 1 d | 2026-11-06T05:55:02.000Z schedule success | 2026-11-06T05:55:02.000Z | 0 | ok | 2026-08-18T01:28:27.000Z by KIRA Bot (quiet) |
-| `bot-watch.yml` | `47 5 * * *` | 1 d | 2026-11-06T13:45:27.000Z workflow_dispatch in_progress | 2026-11-05T13:30:41.000Z (schedule or Worker dispatch) | 2 | FAILING | 2026-11-06T13:17:22.000Z by horizon-shield-bot-watch |
+| `bot-watch.yml` | `47 5 * * *` | 1 d | 2026-11-06T13:51:28.000Z workflow_dispatch in_progress | 2026-11-05T13:30:41.000Z (schedule or Worker dispatch) | 3 | ok | 2026-11-06T13:46:59.000Z by horizon-shield-bot-watch |
 | `conduct-witness-dogfood.yml` | `23 4 * * 1` | 7 d | 2026-11-02T12:37:52.000Z schedule success | 2026-11-02T12:37:52.000Z | 0 | ok | not inferred |
 | `core-tests.yml` | `41 4 * * 2` | 7 d | 2026-11-06T08:52:24.000Z push success | 2026-11-03T12:22:37.000Z | 0 | ok | not inferred |
 | `ehn-card-pages.yml` | `40 15 * * *` | 1 d | 2026-11-05T21:33:15.000Z schedule success | 2026-11-05T21:33:15.000Z | 0 | ok | 2026-10-26T20:44:36.000Z by hs-ehn-card-pages (quiet) |
@@ -43,7 +43,7 @@ Written by `tools/status/bot_watch.mjs` at 2026-11-06T13:45:48.060Z. 34 schedule
 
 Days judged (UTC): 2026-11-05, 2026-11-06. Worker log: read.
 
-- `bot-watch.yml` 2026-11-06: both (run:42173505346 run:42224114946)
+None.
 
 ## Rules
 
@@ -54,6 +54,7 @@ Days judged (UTC): 2026-11-05, 2026-11-06. Worker log: read.
 - A day (UTC, yesterday and today) of such a workflow opens one issue (label bot-watch) when its last finished dispatch run and its last finished scheduled run both failed and so did its last run of the day, or when the Worker's last dispatch of its job that day failed (in the Worker's public /log) and no run of the workflow succeeded that day. A later failure of the same day not named in the issue adds a comment.
 - UNKNOWN: the GitHub API could not be read for this workflow. DISABLED: the workflow is turned off in GitHub; listed here, not counted as a problem.
 - The job that writes this page fails (and GitHub notifies the owner) when any workflow is OVERDUE, FAILING or UNKNOWN.
+- This page's own workflow (bot-watch.yml) fails whenever it reports a problem elsewhere, so its failed runs are reports, not faults: it is never FAILING, opens no day issue, and is OVERDUE only when it has not run at all within the window.
 
 ## What it does not establish
 
