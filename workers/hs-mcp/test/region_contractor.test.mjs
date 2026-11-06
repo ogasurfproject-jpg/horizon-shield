@@ -16,6 +16,8 @@ const FIX_LIVE = { schema: "yakumo-contractors/v1", source: "hs-hearing KV (live
 ] };
 const FIX_STATIC = { schema: "yakumo-contractors/v1", contractors: [ FIX_LIVE.contractors[1] ] };
 
+const FIX_PLACES = { schema: "yakumo-store-places/v1", stores: { "No.002": { name: "テスト住器株式会社", address: "〒254-0073 神奈川県平塚市テスト1-1", telephone: "0463-00-0000", website: "https://example.jp/", map: "https://maps.google.com/?cid=1", construction_license: "神奈川県知事許可 第000000号", verification_record: { url: "https://x/verification-record.json", sha256: "ab" } }, "No.001": { name: "テスト塗装株式会社", telephone: "0561-00-0000" } } };
+let placesMode = "ok";
 let liveMode = "ok"; // ok | fail
 let staticMode = "ok";
 globalThis.fetch = async (url) => {
@@ -24,6 +26,10 @@ globalThis.fetch = async (url) => {
   if (u.includes("hearing.horizonshield.dev/contractors.json")) {
     if (liveMode === "fail") throw new Error("live down");
     return new Response(JSON.stringify(FIX_LIVE), { headers: { "content-type": "application/json" } });
+  }
+  if (u.includes("/data/yakumo-store-places.json")) {
+    if (placesMode === "fail") throw new Error("places down");
+    return new Response(JSON.stringify(FIX_PLACES), { headers: { "content-type": "application/json" } });
   }
   if (u.includes("/data/yakumo-contractors.json")) {
     if (staticMode === "fail") return new Response("nope", { status: 503 });
@@ -199,6 +205,23 @@ const DASH = new RegExp("[" + String.fromCharCode(0x2012, 0x2013, 0x2014, 0x2015
   const r3 = await call("find_verified_contractor", { area: "愛知県" });
   const p1 = (r3.pending_stores || []).concat(r3.stores || []).find(x => x.member_no === "No.001");
   chk("pending の店に検証日は付かない", !p1 || p1.verified_at == null, JSON.stringify(p1));
+}
+
+// ---- 6. 2026-11-06 連絡先: 検証済みの店だけに、公開ファイルの所在地・電話・公式サイト・地図・許可・検証記録が付く ----
+{
+  if (globalThis.__HS_MEMO__) globalThis.__HS_MEMO__.clear();
+  const r = await call("find_verified_contractor", { area: "平塚市" });
+  const s2 = (r.stores || []).find(x => x.member_no === "No.002");
+  chk("連絡先: 検証済みの店に所在地・電話・公式サイト・地図", s2 && s2.contact && s2.contact.telephone === "0463-00-0000" && s2.contact.website === "https://example.jp/" && s2.contact.map, JSON.stringify(s2));
+  chk("連絡先: 許可と検証記録も付く", s2 && s2.construction_license && s2.verification_record && s2.verification_record.sha256 === "ab", JSON.stringify(s2));
+  const r2 = await call("find_verified_contractor", { area: "愛知県" });
+  const p1 = (r2.pending_stores || []).find(x => x.member_no === "No.001");
+  chk("連絡先: 検証の済んでいない店には付けない", !p1 || !p1.contact, JSON.stringify(p1));
+  placesMode = "fail"; if (globalThis.__HS_MEMO__) globalThis.__HS_MEMO__.clear();
+  const r3 = await call("find_verified_contractor", { area: "平塚市" });
+  const s3 = (r3.stores || []).find(x => x.member_no === "No.002");
+  chk("連絡先: 公開ファイルが読めなければ付けない(答えは返る)", s3 && !s3.contact && r3.verified_count === 1, JSON.stringify(s3));
+  placesMode = "ok";
 }
 
 console.log(fail ? ("FAIL " + fail) : "ALL PASS");

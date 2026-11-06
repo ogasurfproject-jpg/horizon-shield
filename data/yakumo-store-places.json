@@ -1,0 +1,35 @@
+{
+ "schema": "yakumo-store-places/v1",
+ "source": "yakumo/noNNN/index.html JSON-LD (the public store pages)",
+ "stores": {
+  "No.001": {
+   "address": "〒480-1124 愛知県長久手市戸田谷1405",
+   "alternate_name": "リフォーム職人",
+   "map": "https://maps.google.com/?cid=16804833412888031870",
+   "name": "リフォーム職人株式会社",
+   "profile_url": "https://shield.the-horizons-innovation.com/yakumo/no001/",
+   "telephone": "0561-56-7974",
+   "verification_record": {
+    "opentimestamps": "https://shield.the-horizons-innovation.com/yakumo/no001/verification-record.json.ots",
+    "sha256": "15de8e84ddcd9127a191ea8348745623af3f5ad015b0280efeefb8dd4f490390",
+    "url": "https://shield.the-horizons-innovation.com/yakumo/no001/verification-record.json"
+   },
+   "website": "https://reform-sn.com/"
+  },
+  "No.002": {
+   "address": "〒254-0073 神奈川県平塚市西八幡3-9-5",
+   "alternate_name": "ミネオトーヨー住器（株）",
+   "construction_license": "神奈川県知事許可 第033529号",
+   "map": "https://maps.google.com/?cid=15777950100245883435",
+   "name": "ミネオトーヨー住器株式会社",
+   "profile_url": "https://shield.the-horizons-innovation.com/yakumo/no002/",
+   "telephone": "0463-61-4955",
+   "verification_record": {
+    "opentimestamps": "https://shield.the-horizons-innovation.com/yakumo/no002/verification-record.json.ots",
+    "sha256": "3c68281e42efd45f598a2da068bf179d4afe8a98fe47f3fae4defd27ac25016d",
+    "url": "https://shield.the-horizons-innovation.com/yakumo/no002/verification-record.json"
+   },
+   "website": "https://mineotfc.com/"
+  }
+ }
+}

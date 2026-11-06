@@ -54,6 +54,9 @@ AEO_PAGES = {
 
 def die(m): print("止めた: " + m, file=sys.stderr); sys.exit(1)
 
+import datetime as _dt
+ROSTER_DAY = (_dt.datetime.utcnow() + _dt.timedelta(hours=9)).strftime("%Y年%-m月%-d日")
+
 def roster():
     body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "list_verified_stores", "arguments": {}}}).encode()
     req = urllib.request.Request(MCP, data=body, headers={"content-type": "application/json", "accept": "application/json, text/event-stream",
@@ -158,6 +161,8 @@ def block(label, stores, slug="", h1="", terms=()):
         "<p>%s</p>" % intro,
         "<ul>", *lis, "</ul>",
         '<p>%s%s<a href="%s/yakumo/">Yakumo の名簿を見る</a></p>' % (pick(NOTES, slug, "n"), pick(OUTSIDE, slug, "o"), SITE),
+        # 2026-11-06: 名簿を読んだ日を見える形で書く(答えのエンジンは新しい日付の頁を選ぶ。SIGIR 2026 "What Gets Cited")。日付は名簿を実際に読んだ日。
+        '<p style="font-size:.85em;">名簿の確認日 %s(Yakumo の公開名簿から読み取り)</p>' % ROSTER_DAY,
         place_ld(label, stores),
         "</section>", CLOSE])
 
