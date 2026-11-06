@@ -121,6 +121,18 @@ later run of the same day reads the same window.
                    their CI themselves. They come back into CI_REPOS when a read token for them is set.
     12             paid_rows_daily: every paid row (tier paid) of the gate's GET /register was measured at or after 26 hours
                    before 03:47 UTC; red names the rows that were not; not_yet while the register has no paid row.
+                   Numbers only (added 2026-11-06, no line: they never change the state): facts.furui_row carries the time
+                   and the cost of one FURUI check over the 7 closed days before today, from public answers. time_ms: from
+                   the start of the door's daily call (GET /seki furui.check_call_prev.at and canary_call_prev.at, the
+                   door's clock when it began the call) to the runner's signature of the same check (signed_at of the
+                   leaf of GET /furui/day/<day>/leaf/<i> whose check has the sha that the door's record, or the canary
+                   call, names), one sample per call; the samples of the days before are read back from the published
+                   days (result_canonical of tooshi/days/<day>.json); p50 and p95 by nearest rank. A paid row's own check
+                   has no public start time, so the two daily calls, which go the same way (door, runner, signature),
+                   stand for it. cost_usd: the runner's GET /furui/day/<day>/status (checks and spent_usd, the runner's
+                   own estimate counted as cap_gate.py does) summed over the 7 days, per_check is their ratio, and the
+                   latest heartbeat's spent_usd (GET /furui/heartbeat, one check). An answer that cannot be read is
+                   named in facts.furui_row.unread.
     13             line_delivery: line_last_fail of GET /health of hs-kira-line and hs-kira-group is null or older than 24
                    hours before 03:47 UTC; red writes the worker, the time and the place (where) only, never the message,
                    the LINE answer or the person; not_yet when a /health does not answer, has no line_last_fail, or says
@@ -1178,6 +1190,9 @@ CI_WINDOW = datetime.timedelta(hours=24)
 CI_BAD = ("failure", "timed_out", "startup_failure")
 CI_PAGES = 5
 PAID_WINDOW = datetime.timedelta(hours=26)
+FURUI_ROW_DAYS = 7                       # 12's numbers: the runner keeps a day's leaves 7 days (GET /health keep.days)
+FURUI_ROW_CALLS = (("check", "check_call_prev"), ("canary", "canary_call_prev"))   # the door's two daily calls, as GET /seki names them
+FURUI_ROW_MAX_MS = 600000                # a sample outside 0 to 10 minutes is not a check's time; it is counted in skipped
 LINE_HEALTH = (("hs-kira-line", "https://hs-kira-line.oga-surf-project.workers.dev/health"),
                ("hs-kira-group", "https://hs-kira-group.oga-surf-project.workers.dev/health"))
 LINE_WINDOW = datetime.timedelta(hours=24)
@@ -1381,6 +1396,139 @@ def ci_fixed_by(get, repo, r, jobs, inside, hi):
 
 
 def check_paid_rows(get, now):
+    """12: the state from the paid rows (paid_rows_state), and the numbers of one FURUI check in facts.furui_row (no line)"""
+    x = paid_rows_state(get, now)
+    x["facts"]["furui_row"] = furui_row_numbers(get, now)
+    return x
+
+
+def ms_of(s):
+    """an ISO time in Z with up to 6 fractional digits, as milliseconds since 1970, or None"""
+    m = re.match(r"^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})(?:\.(\d{1,6}))?Z$", s) if isinstance(s, str) else None
+    if not m:
+        return None
+    t = datetime.datetime.strptime(m.group(1) + "T" + m.group(2), "%Y-%m-%dT%H:%M:%S").replace(tzinfo=datetime.timezone.utc)
+    return int(t.timestamp()) * 1000 + int((m.group(3) or "0").ljust(3, "0")[:3])
+
+
+def rank(xs, p):
+    """the p-th percentile by nearest rank: the smallest sample with at least p percent of the samples at or below it"""
+    if not xs:
+        return None
+    s = sorted(xs)
+    return s[max(1, (p * len(s) + 99) // 100) - 1]
+
+
+def _num(x):
+    return isinstance(x, (int, float)) and not isinstance(x, bool) and x >= 0
+
+
+def signed_at_of(get, d, n, want):
+    """signed_at of the leaf of day d whose check has the sha want (the first LEAF_SCAN_MAX leaves), or None"""
+    for i in range(min(n if isinstance(n, int) and n > 0 else LEAF_SCAN_MAX, LEAF_SCAN_MAX)):
+        s, a = get(RUNNER + "/furui/day/%s/leaf/%d" % (d, i))
+        if s != 200 or not isinstance(a, dict):
+            return None
+        e = a.get("envelope")
+        if isinstance(e, dict) and isinstance(e.get("check"), dict) and sha(canonical(e["check"])) == want:
+            return e["check"].get("signed_at")
+    return None
+
+
+def furui_row_numbers(get, now):
+    """12's numbers: the time (p50, p95) and the cost of one FURUI check over the FURUI_ROW_DAYS closed days before today,
+    from public answers only. Numbers, no line: nothing here changes a state."""
+    days = [(now - datetime.timedelta(days=i)).strftime("%Y-%m-%d") for i in range(1, FURUI_ROW_DAYS + 1)]
+    y, unread, by_day, n_of, checks, spent, skipped = days[0], [], [], {}, 0, 0.0, 0
+    for d in days:
+        try:
+            s, st = get(RUNNER + "/furui/day/%s/status" % d)
+        except Unreachable:
+            unread.append("runner status " + d)
+            break
+        if s != 200 or not isinstance(st, dict) or not isinstance(st.get("checks"), int) or isinstance(st.get("checks"), bool) or st["checks"] < 0 or not _num(st.get("spent_usd")):
+            unread.append("runner status " + d)
+            continue
+        n_of[d] = st["status"].get("n") if isinstance(st.get("status"), dict) else None
+        if st["checks"]:
+            by_day.append({"day": d, "checks": st["checks"], "spent_usd": st["spent_usd"]})
+            checks += st["checks"]
+            spent += st["spent_usd"]
+    heartbeat = None
+    try:
+        s, h = get(RUNNER + "/furui/heartbeat")
+        if s == 200 and isinstance(h, dict) and h.get("ok") is True and _num(h.get("spent_usd")) and isinstance(h.get("at"), str):
+            heartbeat = {"day": h["at"][:10], "spent_usd": h["spent_usd"]}
+    except Unreachable:
+        pass
+    if heartbeat is None:
+        unread.append("runner heartbeat")
+    samples = []
+    try:
+        ps, p = get(DOOR_POLICY)
+        fu = p.get("furui") if ps == 200 and isinstance(p, dict) else None
+    except Unreachable:
+        fu = None
+    if not isinstance(fu, dict):
+        unread.append("door policy")
+        fu = {}
+    for call, key in FURUI_ROW_CALLS:
+        x = fu.get(key)
+        if not isinstance(x, dict) or x.get("day") != y or x.get("ok") is not True:
+            continue
+        try:
+            want = x.get("check_sha256")
+            if call == "check":
+                rs_ = x.get("record_sha256")
+                want = None
+                if isinstance(rs_, str) and H64.match(rs_):
+                    ds, dt = get(DOOR_RECORD + rs_, raw=True)
+                    if ds == 200 and isinstance(dt, str) and sha(dt) == rs_:
+                        want = (json.loads(dt).get("content") or {}).get("check_sha256")
+            signed = signed_at_of(get, y, n_of.get(y), want) if isinstance(want, str) and H64.match(want) else None
+        except Unreachable:
+            signed = None
+        except (ValueError, KeyError, TypeError, AttributeError):
+            signed = None
+        a, b = ms_of(x.get("at")), ms_of(signed)
+        if a is None or b is None:
+            unread.append("%s call %s" % (call, y))
+        elif 0 <= b - a <= FURUI_ROW_MAX_MS:
+            samples.append({"day": y, "call": call, "ms": b - a})
+        else:
+            skipped += 1
+    seen = {(x["day"], x["call"]) for x in samples}
+    for d in days[:-1]:
+        try:
+            s, j = get(DAY_URL % d)
+        except Unreachable:
+            unread.append("published day " + d)
+            break
+        if s == 404:
+            continue
+        try:
+            rc = json.loads(j["result_canonical"])
+            f = [x for x in rc["checks"] if x.get("id") == "12_paid_rows_daily"]
+            old = (((f[0].get("facts") or {}).get("furui_row") or {}).get("time_ms") or {}).get("samples") or [] if f else []
+        except (ValueError, KeyError, TypeError, AttributeError):
+            unread.append("published day " + d)
+            continue
+        for x in old if isinstance(old, list) else []:
+            if not isinstance(x, dict) or x.get("day") not in days or x.get("day") >= d or x.get("call") not in ("check", "canary"):
+                continue
+            ms = x.get("ms")
+            if not isinstance(ms, int) or isinstance(ms, bool) or not 0 <= ms <= FURUI_ROW_MAX_MS or (x["day"], x["call"]) in seen:
+                continue
+            seen.add((x["day"], x["call"]))
+            samples.append({"day": x["day"], "call": x["call"], "ms": ms})
+    samples.sort(key=lambda x: (x["day"], x["call"]), reverse=True)
+    ms = [x["ms"] for x in samples]
+    return {"window": [days[-1], y], "unread": unread,
+            "time_ms": {"n": len(ms), "p50": rank(ms, 50), "p95": rank(ms, 95), "samples": samples, "skipped": skipped},
+            "cost_usd": {"checks": checks, "spent": round(spent, 7), "per_check": round(spent / checks, 7) if checks else None, "by_day": by_day, "heartbeat": heartbeat}}
+
+
+def paid_rows_state(get, now):
     """12: every paid row of the gate's public register was measured in the 26 hours before today's 03:47 UTC (or after it)"""
     cid = "12_paid_rows_daily"
     lo = anchor(now) - PAID_WINDOW
@@ -2242,6 +2390,85 @@ def selftest():
     cases.append(("12 red: a paid row last measured 26 hours and 1 minute before 03:47 UTC is named", (x12["state"], x12["facts"]["late"]), ("red", ["https://paid.example/mcp"])))
     cases.append(("12 red: a paid row never measured", st(world(cc=True, **{GATE + "/register": reg_with(dict(REG["rows"][2], latest=None))}), S12)["state"], "red"))
     cases.append(("12 red: the register answers 5xx three times", st(world(cc=True, **{GATE + "/register": "down"}), S12)["state"], "red"))
+    # 12's numbers (no line), on 2026-11-06's real answers (tooshi_real_furui_20261106.json)
+    RF = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "tooshi_real_furui_20261106.json"), encoding="utf-8"))
+    NF = datetime.datetime(2026, 11, 6, 4, 5, tzinfo=datetime.timezone.utc)
+
+    def wf(**over):
+        w = {DOOR_POLICY: (200, RF["door_policy"]), RUNNER + "/furui/heartbeat": (200, RF["runner_heartbeat"])}
+        for d, v in RF["runner_status"].items():
+            w[RUNNER + "/furui/day/%s/status" % d] = (200, v)
+        for k, v in RF["runner_leaves"].items():
+            w[RUNNER + "/furui/day/%s/leaf/%s" % tuple(k.split("/"))] = (200, v)
+        for k, v in RF["door_record"].items():
+            w[DOOR_RECORD + k] = (200, v)
+        for d, v in RF["published_days"].items():
+            w[DAY_URL % d] = (200, v)
+        w.update(over)
+
+        def g(u, raw=False):
+            v = w.get(u, (404, None))
+            if v == "down":
+                raise Unreachable(u + ": http 503 after 3 tries")
+            return v
+        return g
+
+    def pd(*samples):
+        return (200, {"result_canonical": canonical({"checks": [{"id": S12, "state": "not_yet", "why": "", "facts": {"furui_row": {"time_ms": {"samples": list(samples)}}}}]})})
+    fr = furui_row_numbers(wf(), NF)
+    cases.append(("12 numbers on 2026-11-06's real answers: the check call of 11-05 took 5214 ms from the door's start to the runner's signature (the only sample; no canary call before 11-06)",
+                  (fr["time_ms"], fr["window"], fr["unread"]), ({"n": 1, "p50": 5214, "p95": 5214, "samples": [{"day": "2026-11-05", "call": "check", "ms": 5214}], "skipped": 0}, ["2026-10-30", "2026-11-05"], [])))
+    cases.append(("12 numbers on the real answers: 6 checks in the 7 days for 0.018953 USD (0.0031588 per check), the heartbeat of 11-06 0.0003064 USD",
+                  (fr["cost_usd"]["checks"], fr["cost_usd"]["spent"], fr["cost_usd"]["per_check"], [x["day"] for x in fr["cost_usd"]["by_day"]], fr["cost_usd"]["heartbeat"]),
+                  (6, 0.018953, 0.0031588, ["2026-11-05", "2026-11-04", "2026-11-03"], {"day": "2026-11-06", "spent_usd": 0.0003064})))
+    cases.append(("12 numbers: the 04:05 and 11:50 runs of the same day read the same numbers", furui_row_numbers(wf(), NF.replace(hour=11, minute=50)) == fr, True))
+    cases.append(("12 numbers have no line: the state and the other facts are paid_rows_state's in ok, not_yet and both reds",
+                  all((lambda g: (lambda x, y: x["facts"].pop("furui_row") is not None and x == y)(check_paid_rows(g, now), paid_rows_state(g, now)))(g) for g in (
+                      world(cc=True), world(cc=True, **{GATE + "/register": reg_with(*REG["rows"][:2])}), world(cc=True, **{GATE + "/register": reg_with(dict(REG["rows"][2], latest=None))}),
+                      world(cc=True, **{GATE + "/register": "down"}))), True))
+    def without_numbers(get):
+        keep = globals()["furui_row_numbers"]
+        globals()["furui_row_numbers"] = lambda g, n: None
+        try:
+            return run(get, now)[0]
+        finally:
+            globals()["furui_row_numbers"] = keep
+    cases.append(("12 numbers: the verdict and every state and why are the same with the numbers and without them (a red day and a green day)",
+                  all((lambda a, b: (a["verdict"], [(x["id"], x["state"], x["why"]) for x in a["checks"]]) == (b["verdict"], [(x["id"], x["state"], x["why"]) for x in b["checks"]]))(run(world(cc=True, **o), now)[0], without_numbers(world(cc=True, **o)))
+                      for o in ({}, {GATE + "/register": reg_with(dict(REG["rows"][2], latest=None))})), True))
+    frp = furui_row_numbers(wf(**{DAY_URL % "2026-11-05": pd({"day": "2026-11-04", "call": "check", "ms": 4000}, {"day": "2026-11-04", "call": "canary", "ms": 9000},
+                                                          {"day": "2026-11-05", "call": "canary", "ms": 1}, {"day": "2026-10-29", "call": "check", "ms": 1}, {"day": "2026-11-03", "call": "check", "ms": 6000},
+                                                          {"day": "2026-11-03", "call": "check", "ms": -5}, {"day": "2026-11-03", "call": "check", "ms": True},
+                                                          {"day": "2026-11-03", "call": "other", "ms": 7}, "x"),
+                                  DAY_URL % "2026-11-04": pd({"day": "2026-11-04", "call": "check", "ms": 99999}, {"day": "2026-11-03", "call": "check", "ms": 7777})}), NF)
+    cases.append(("12 numbers: the samples of the days before come from the published days (the newer day wins, its own day, outside the window, negative, bool and other calls are not read); p50 5214, p95 9000 of 4",
+                  (frp["time_ms"]["n"], frp["time_ms"]["p50"], frp["time_ms"]["p95"], [(x["day"], x["call"], x["ms"]) for x in frp["time_ms"]["samples"]]),
+                  (4, 5214, 9000, [("2026-11-05", "check", 5214), ("2026-11-04", "check", 4000), ("2026-11-04", "canary", 9000), ("2026-11-03", "check", 6000)])))
+    cases.append(("12 numbers: p50 and p95 by nearest rank (1 to 20: 10 and 19; none: null)", (rank(list(range(20, 0, -1)), 50), rank(list(range(1, 21)), 95), rank([], 50)), (10, 19, None)))
+    DPK = json.loads(json.dumps(RF["door_policy"]))
+    DPK["furui"]["canary_call_prev"] = dict(DPK["furui"]["canary_call"], day="2026-11-05", at="2026-11-05T03:17:50.000Z", check_sha256=hsh(canonical(RF["runner_leaves"]["2026-11-05/0"]["envelope"]["check"])))
+    cases.append(("12 numbers: yesterday's canary call is a second sample (its check_sha256 names leaf 0 of the day; 2719 ms)",
+                  [(x["call"], x["ms"]) for x in furui_row_numbers(wf(**{DOOR_POLICY: (200, DPK)}), NF)["time_ms"]["samples"]], [("check", 5214), ("canary", 2719)]))
+    DPL = json.loads(json.dumps(RF["door_policy"]))
+    DPL["furui"]["check_call_prev"]["at"] = "2026-11-05T03:47:16.000Z"
+    DPM = json.loads(json.dumps(RF["door_policy"]))
+    DPM["furui"]["check_call_prev"]["at"] = "2026-11-05T03:30:00.000Z"
+    cases.append(("12 numbers: a signature before the call's start, or more than 10 minutes after it, is skipped, not a sample",
+                  [(lambda t: (t["n"], t["skipped"]))(furui_row_numbers(wf(**{DOOR_POLICY: (200, D)}), NF)["time_ms"]) for D in (DPL, DPM)], [(0, 1), (0, 1)]))
+    DPN = json.loads(json.dumps(RF["door_policy"]))
+    DPN["furui"]["check_call_prev"]["ok"] = False
+    DPD = json.loads(json.dumps(RF["door_policy"]))
+    DPD["furui"]["check_call_prev"]["day"] = "2026-11-04"
+    cases.append(("12 numbers: a call that is not yesterday's good call (ok false, or another day) gives no sample and is not unread",
+                  [(lambda r: (r["time_ms"]["n"], r["unread"]))(furui_row_numbers(wf(**{DOOR_POLICY: (200, D)}), NF)) for D in (DPN, DPD)], [(0, []), (0, [])]))
+    RD = dict(RF["door_record"])
+    cases.append(("12 numbers: door record bytes that do not hash to the record sha, or a door that does not answer, are named in unread",
+                  (furui_row_numbers(wf(**{DOOR_RECORD + list(RD)[0]: (200, list(RD.values())[0] + " ")}), NF)["unread"], furui_row_numbers(wf(**{DOOR_POLICY: "down"}), NF)["unread"]),
+                  (["check call 2026-11-05"], ["door policy"])))
+    xr = furui_row_numbers(wf(**{RUNNER + "/furui/day/2026-11-04/status": "down", RUNNER + "/furui/heartbeat": (200, {"at": "2026-11-06T03:17:51.856Z", "ok": False, "spent_usd": 0.4}), DAY_URL % "2026-11-04": "down"}), NF)
+    cases.append(("12 numbers: a runner day that does not answer stops the cost walk there, and a heartbeat that did not run well, and an unread published day are named",
+                  (xr["unread"], xr["cost_usd"]["checks"], xr["cost_usd"]["per_check"], xr["time_ms"]["n"]),
+                  (["runner status 2026-11-04", "runner heartbeat", "published day 2026-11-04"], 2, 0.0003005, 1)))
     cases.append(("13 ok: no line_last_fail in either worker", st(world(cc=True), S13)["state"], "ok"))
     FAIL = {"at": "2026-11-05T01:12:13.000Z", "api": "push", "status": 429, "msg": "SECRET-BODY-TEXT for U1234567890abcdef", "where": "followup_touch"}
     x13 = st(world(cc=True, **{LINE_HEALTH[0][1]: (200, {"status": "ok", "line_last_fail": FAIL})}), S13)
