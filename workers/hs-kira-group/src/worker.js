@@ -8,6 +8,7 @@
 // KV binding (wrangler.jsonc): HS_KIRA_GROUP_KV
 //   直近8発言を grp:<sourceId> に 1日 TTL で保存。他人が貼ったリンクを拾うため。
 //   binding が無い時は記憶なしで動く(同じメッセージ内の URL だけ読む)。
+//   LINE が返信を断った最後の 1 件を kira_group_last_fail に 30 日 TTL で残し、/health の line_last_fail に出す。
 // Webhook URL: この worker の deploy 出力 URL + /webhook
 //
 // 設計(万能2モード + リンク):
@@ -62,7 +63,7 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === "/health") {
-      return json({ status: "ok", service: "hs-kira-group", version: "group-6-readfail2-20261013" });
+      return json({ status: "ok", service: "hs-kira-group", version: "group-6-readfail2-20261013", line_last_fail: await kiraGroupLastFail(env) });
     }
     if (url.pathname === "/webhook" && request.method === "POST") {
       const raw = await request.text();
@@ -143,18 +144,18 @@ async function handleEvent(ev, env) {
   // 自分の userId を1回拾う口(このチャンネルでの userId)。1対1でだけ答える。
   if (!inGroup && /^(whoami|マイid|myid|my id)$/i.test(text)) {
     console.log("[group] whoami", src.type, src.userId || "?");
-    await replyToLine(ev.replyToken, "このチャンネルでのあなたの userId:\n" + (src.userId || "取得不可"), env.LINE_CHANNEL_TOKEN);
+    await noteSendFail(env, await replyToLine(ev.replyToken, "このチャンネルでのあなたの userId:\n" + (src.userId || "取得不可"), env.LINE_CHANNEL_TOKEN), "dm:whoami");
     return;
   }
 
   // プロフィール登録/確認/削除(本人の1対1でのみ。PII なので他人・グループでは一切扱わない)。
   if (!inGroup && isOwner && env.HS_KIRA_GROUP_KV && src.userId) {
     const pmsg = await handleProfileCommand(text, src.userId, env);
-    if (pmsg) { await replyToLine(ev.replyToken, pmsg, env.LINE_CHANNEL_TOKEN); return; }
+    if (pmsg) { await noteSendFail(env, await replyToLine(ev.replyToken, pmsg, env.LINE_CHANNEL_TOKEN), "dm:profile"); return; }
   }
 
   const answer = await answerKira(text, env, sourceId, inGroup, isOwner);
-  if (answer) await replyToLine(ev.replyToken, answer, env.LINE_CHANNEL_TOKEN);
+  if (answer) await noteSendFail(env, await replyToLine(ev.replyToken, answer, env.LINE_CHANNEL_TOKEN), inGroup ? "group:reply" : "dm:reply");
 }
 
 async function rememberMessage(env, sourceId, text) {
@@ -568,14 +569,40 @@ async function answerKira(userText, env, sourceId, inGroup, isOwner) {
   }
 }
 
+// 2026-11-06 hs-kira-line v26 と同じ形: LINE の返事を確かめて { ok, status, msg, api } を返す。通信の失敗でも投げない。
 async function replyToLine(replyToken, text, channelToken) {
-  if (!replyToken || !channelToken) return;
-  const res = await fetch(LINE_REPLY_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${channelToken}` },
-    body: JSON.stringify({ replyToken, messages: [{ type: "text", text: String(text).slice(0, 4900) }] }),
-  });
-  if (!res.ok) console.log("[group] reply failed", res.status, await res.text().catch(() => ""));
+  if (!replyToken || !channelToken) return { ok: false, status: 0, msg: "no reply token or channel token", api: "reply" };
+  let res;
+  try {
+    res = await fetch(LINE_REPLY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${channelToken}` },
+      body: JSON.stringify({ replyToken, messages: [{ type: "text", text: String(text).slice(0, 4900) }] }),
+    });
+  } catch (e) {
+    const m = String((e && e.message) || e).slice(0, 120);
+    console.log("[group] reply network error", m);
+    return { ok: false, status: 0, msg: m, api: "reply" };
+  }
+  if (res.ok) return { ok: true, status: res.status, msg: "", api: "reply" };
+  let msg = "";
+  try { const j = await res.json(); msg = String((j && j.message) || "").slice(0, 120); } catch (_e) {}
+  console.log("[group] reply failed", res.status, msg);
+  return { ok: false, status: res.status, msg, api: "reply" };
+}
+
+// /health 用。読めなかったとき(binding が無いときも)は null(無い)と言わず "unreadable" と返す(issue #13)。
+async function kiraGroupLastFail(env) {
+  if (!env.HS_KIRA_GROUP_KV) return "unreadable";
+  try { return JSON.parse((await env.HS_KIRA_GROUP_KV.get("kira_group_last_fail")) || "null"); } catch (_e) { return "unreadable"; }
+}
+
+// 送れなかった最後の 1 件を KV に残す(/health に出す。本文と相手の ID は残さない)。where は英数字の短い名。
+async function noteSendFail(env, s, where) {
+  if (!s || s.ok || !env.HS_KIRA_GROUP_KV) return;
+  try {
+    await env.HS_KIRA_GROUP_KV.put("kira_group_last_fail", JSON.stringify({ at: new Date().toISOString(), api: s.api || "", status: s.status, msg: s.msg || "", where: String(where || "").slice(0, 40) }), { expirationTtl: 60 * 60 * 24 * 30 });
+  } catch (_e) {}
 }
 
 async function verifySignature(body, signature, channelSecret) {
