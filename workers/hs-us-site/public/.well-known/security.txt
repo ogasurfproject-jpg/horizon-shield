@@ -1,0 +1,6 @@
+Contact: mailto:contact@the-horizons-innovation.com
+Expires: 2027-10-03T00:00:00.000Z
+Preferred-Languages: en, ja
+Canonical: https://horizonshield.dev/.well-known/security.txt
+Policy: https://shield.the-horizons-innovation.com/security/
+Acknowledgments: https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/README.md
