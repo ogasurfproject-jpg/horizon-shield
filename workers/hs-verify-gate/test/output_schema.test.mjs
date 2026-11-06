@@ -171,7 +171,8 @@ t("the fields declared without being exercised are still in the schema (the exce
   Object.entries(NOT_EXERCISED).every(([n, ks]) => ks.every((k) => k in schemaOf[n].properties && !returned[n].has(k))));
 
 // The counts the task was stated in, pinned so a silent change shows up here.
-t("get_conditions returns 19 top-level fields and declares 19", returned.get_conditions.size === 19 && Object.keys(schemaOf.get_conditions.properties).length === 19, returned.get_conditions.size + " returned");
+// 0.4.24 adds mcp_client (how the gate calls an MCP endpoint): 19 became 20.
+t("get_conditions returns 20 top-level fields and declares 20", returned.get_conditions.size === 20 && Object.keys(schemaOf.get_conditions.properties).length === 20, returned.get_conditions.size + " returned");
 t("lookup_server returns 16 fields for an endpoint on the register, 7 for an absent one, 19 distinct, and declares 19",
   returned.lookup_server.size === 19 && Object.keys(schemaOf.lookup_server.properties).length === 19, returned.lookup_server.size + " distinct");
 

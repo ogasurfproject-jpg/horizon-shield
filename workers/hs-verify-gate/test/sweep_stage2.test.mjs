@@ -115,11 +115,13 @@ const t = (kind, name, ok, detail = "") => R.push({ kind, name, ok: !!ok, detail
   const gaps = mins.slice(1).map((x, i) => x - mins[i]);
   t("control", "1 four runs a day, the first at 18:00 UTC, every gap at least 60 minutes (Workers Paid: a Cron of interval 1 hour or more gets 15 min CPU)",
     S.SWEEP_RUNS_PER_DAY === 4 && S.SWEEP_CRONS[0] === "0 18 * * *" && gaps.every((g) => g >= 60) && S.SWEEP_CRONS.every((c) => / \* \* \*$/.test(c)), JSON.stringify(gaps));
-  const worst = S.MAX_PER_SWEEP * 7 + S.SUBREQUEST_WINDOW_OVERHEAD;
-  t("control", "1 a full run at the measured 7 fetches a row stays under a third of the fetch budget (" + worst + " of " + S.SUBREQUEST_BUDGET_DEFAULT + "), and the budget is a tenth of the Paid 10,000",
-    worst * 3 <= S.SUBREQUEST_BUDGET_DEFAULT && S.SUBREQUEST_BUDGET_DEFAULT <= 1000, worst);
+  // 0.4.24: a row is 9 fetches at most (consent file, initialize, notifications/initialized, tools/list, card, jwks, tools/call x2,
+  // the session close), 7 until 0.4.23. The margin under the budget went from a third to two fifths; the budget stays 1000.
+  const worst = S.MAX_PER_SWEEP * 9 + S.SUBREQUEST_WINDOW_OVERHEAD;
+  t("control", "1 a full run at the measured 9 fetches a row stays under two fifths of the fetch budget (" + worst + " of " + S.SUBREQUEST_BUDGET_DEFAULT + "), and the budget is a tenth of the Paid 10,000",
+    worst * 5 <= S.SUBREQUEST_BUDGET_DEFAULT * 2 && S.SUBREQUEST_BUDGET_DEFAULT <= 1000 && S.SUBREQUEST_PER_ENDPOINT === 8, worst);
   t("control", "1 the wall cap leaves at least 5 minutes of the 15 minute Cron wall time for the last row and the writes", S.SWEEP_WALL_BUDGET_MS <= 10 * 60 * 1000, S.SWEEP_WALL_BUDGET_MS);
-  t("control", "1 seats per run are MAX_PER_SWEEP when the budget allows it", S.sweepSeatsPerRun({}) === S.MAX_PER_SWEEP && S.sweepSeatsPerRun({ SUBREQUEST_BUDGET: 50 }) === 6, [S.sweepSeatsPerRun({}), S.sweepSeatsPerRun({ SUBREQUEST_BUDGET: 50 })]);
+  t("control", "1 seats per run are MAX_PER_SWEEP when the budget allows it", S.sweepSeatsPerRun({}) === S.MAX_PER_SWEEP && S.sweepSeatsPerRun({ SUBREQUEST_BUDGET: 50 }) === Math.floor((50 - S.SUBREQUEST_WINDOW_OVERHEAD) / S.SUBREQUEST_PER_ENDPOINT), [S.sweepSeatsPerRun({}), S.sweepSeatsPerRun({ SUBREQUEST_BUDGET: 50 })]);
   const wsrc = readFileSync(path.join(HERE, "..", "src", "worker.js"), "utf8");
   t("attack", "1 the old Free numbers are gone from the code paths (no '= 50' budget default, no 'Workers Free allows 50' note)", !/SUBREQUEST_BUDGET_DEFAULT = 50/.test(wsrc) && !/Workers Free allows 50 fetches/.test(wsrc), "");
 }
@@ -167,7 +169,7 @@ const t = (kind, name, ok, detail = "") => R.push({ kind, name, ok: !!ok, detail
   const { env: e2, post: p2, sweep: sw2 } = freshEnv();
   for (const e of FREE) await p2("/watch", { endpoint: e });
   for (const e of PAID) await p2("/watch", { endpoint: e, tier: "paid" }, { "x-sweep-token": OP });
-  e2.SUBREQUEST_BUDGET = 9 + 6 * 3;   // narrowed after the paid rows were admitted (with 3 seats a run they would be refused, section 5)
+  e2.SUBREQUEST_BUDGET = 9 + S.SUBREQUEST_PER_ENDPOINT * 3;   // narrowed after the paid rows were admitted (with 3 seats a run they would be refused, section 5)
   const b = await sw2({ force: true });
   const measuredTiers = b.j.results.map((r) => r.tier);
   t("attack", "3 when seats run short, paid rows are measured before self and free (a paid row is never pushed out by a free one)", measuredTiers.slice(0, 2).every((x) => x === "paid") && !b.j.results.some((r) => r.tier === "free"), JSON.stringify(measuredTiers));
@@ -182,7 +184,7 @@ const t = (kind, name, ok, detail = "") => R.push({ kind, name, ok: !!ok, detail
   const { env, post, sweep, cron, day } = freshEnv();
   const PAID = ["https://q1.redteam.invalid/mcp", "https://q2.redteam.invalid/mcp", "https://q3.redteam.invalid/mcp"];
   for (const e of PAID) await post("/watch", { endpoint: e, tier: "paid" }, { "x-sweep-token": OP });
-  env.SUBREQUEST_BUDGET = 9 + 6 * 4 + 5;
+  env.SUBREQUEST_BUDGET = 9 + S.SUBREQUEST_PER_ENDPOINT * 4 + 5;
   const d0 = await day();
   t("control", "4 before any run the day reads recorded false and complete false (nothing says the rows were measured)", d0.status === 200 && d0.j.recorded === false && d0.j.complete === false, JSON.stringify(d0.j).slice(0, 160));
   await cron();
@@ -242,12 +244,12 @@ const t = (kind, name, ok, detail = "") => R.push({ kind, name, ok: !!ok, detail
   const cap0 = S.paidCapacity({}, 9, 33);
   t("control", "5 the formula with the default numbers and 2026-10-22's register (self 9, free 33): (4 - 1) x 40 - 9 - ceil(33 x 2 / 7) = 101", cap0.capacity === 101 && cap0.seats_per_day === 120 && cap0.free_reserve === 10, JSON.stringify(cap0));
   // A budget of 3 seats a run: (4 - 1) x 3 = 9 seats a day, minus 9 self rows = 0 paid rows.
-  const { post } = freshEnv({ SUBREQUEST_BUDGET: 9 + 6 * 3 });
+  const { post } = freshEnv({ SUBREQUEST_BUDGET: 9 + S.SUBREQUEST_PER_ENDPOINT * 3 });
   const r = await post("/watch", { endpoint: "https://full.redteam.invalid/mcp", tier: "paid" }, { "x-sweep-token": OP });
   const j = await r.json();
   t("attack", "5 a paid row beyond the daily capacity is refused with 409 paid_capacity_full and the formula", r.status === 409 && j.error === "paid_capacity_full" && j.capacity === 0 && /capacity = /.test(j.formula), JSON.stringify([r.status, j.error, j.capacity]));
   // A budget of 4 seats a run: 12 seats a day - 9 self = 3 paid rows. Free rows reserve ceil(n x 2 / 7).
-  const env4 = freshEnv({ SUBREQUEST_BUDGET: 9 + 6 * 4 });
+  const env4 = freshEnv({ SUBREQUEST_BUDGET: 9 + S.SUBREQUEST_PER_ENDPOINT * 4 });
   const codes = [];
   for (const n of [1, 2, 3, 4]) codes.push((await env4.post("/watch", { endpoint: "https://pp" + n + ".redteam.invalid/mcp", tier: "paid" }, { "x-sweep-token": OP })).status);
   t("control", "5 with 3 paid seats, three paid rows are accepted and the fourth is 409", codes.join(",") === "200,200,200,409", codes.join(","));

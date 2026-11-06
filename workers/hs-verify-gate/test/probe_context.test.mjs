@@ -92,6 +92,19 @@ globalThis.fetch = async (url, init) => {
 };
 
 const RELAY_VARS = { RELAY_URL: "https://relay.redteam.invalid/relay", RELAY_TOKEN: "relay-token" };
+// The legacy weekly rule for a free row (isDueToday in src/worker.js when the window has no beacon): the row is due on
+// the day when floor(now / 1 day) mod 7 equals the first 4 hex of sha256(endpoint) mod 7. Returns the first name that
+// is due on the day of the call.
+async function dueToday(name) {
+  const day = Math.floor(Date.now() / 86400000) % 7;
+  for (let i = 0; i < 1000; i++) {
+    const ep = name(i);
+    const h = Buffer.from(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ep))).toString("hex");
+    if (parseInt(h.slice(0, 4), 16) % 7 === day) return ep;
+  }
+  throw new Error("no due name in 1000 tries");
+}
+
 function freshEnv(extra) {
   const env = Object.assign({ HS_VERIFY_KV: kv(), SWEEP_TOKEN: OP, GATE_COMMIT: "context-local" }, extra || {});
   RELAY_ENV = env;
@@ -160,7 +173,11 @@ const t = (kind, name, ok, detail = "") => R.push({ kind, name, ok: !!ok, detail
 // ---- 3. relay configured: the cron sweep measures the gate's own /mcp through the relay, which comes back in over HTTP ----
 {
   const g = freshEnv(RELAY_VARS);
-  const AFTER = "https://after3.redteam.invalid/mcp";
+  // A free row is measured once a week. Offline the window rule is the legacy one (no beacon), so whether a given free
+  // endpoint is due depends on the date: until 2026-11-06 this scene used after3.redteam.invalid and failed on the six
+  // days of the week that row was not due. The row is now picked so that it is due today under that rule (the same
+  // formula as isDueToday in src/worker.js), and the control below says so before the attack is read.
+  const AFTER = await dueToday((i) => "https://after3-" + i + ".redteam.invalid/mcp");
   await g.post("/watch", { endpoint: AFTER }, {});   // a free row: measured after the self rows
   RELAYED.length = 0; DIRECT.length = 0;
   await g.cron();
@@ -171,6 +188,7 @@ const t = (kind, name, ok, detail = "") => R.push({ kind, name, ok: !!ok, detail
   const recs = {};
   for (const ep of order) recs[ep] = (await g.latestRecord(ep)).rec.probed_via;
   t("control", "3 the cron sweep measured the gate's own /mcp through the relay (the relay's call came back into the gate over HTTP)", gateAt >= 0 && isRelayText(recs[GATE_MCP]) && RELAYED.some((f) => f.host === "gate.horizonshield.dev"), JSON.stringify([gateAt, recs[GATE_MCP]]));
+  t("control", "3 the free row picked for today was measured in this sweep, after the gate's own /mcp (not skipped as not due)", later.includes(AFTER) && !(last.j.skipped || []).some((r) => r && r.endpoint === AFTER), JSON.stringify([AFTER, later.includes(AFTER)]));
   t("attack", "3 the rows measured after it still say cron context (the HTTP request the relay made does not change the sweep's context)", later.length >= 2 && later.includes(AFTER) && later.every((ep) => recs[ep] === CRON_TEXT), JSON.stringify(later.map((ep) => [ep, recs[ep]])));
   const ownOthers = order.filter((ep) => ep !== GATE_MCP && /\.horizonshield\.dev\//.test(ep));
   t("attack", "3 the other own-zone rows are fetched directly in cron context, never through the relay", ownOthers.length === 8 && ownOthers.every((ep) => recs[ep] === CRON_TEXT) && !RELAYED.some((f) => f.host !== "gate.horizonshield.dev"), JSON.stringify(RELAYED.map((f) => f.host).filter((h) => h !== "gate.horizonshield.dev")));
