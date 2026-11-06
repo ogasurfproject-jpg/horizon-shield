@@ -1,0 +1,1 @@
+{"bind:TC06":{"findings":["acted_at_is_stated","trace_claims_not_appraised"],"refusals":["trace:signature_invalid","trace_sha_mismatch"],"verdict":"not_bound"},"same_as_reference":{"TC06":true,"TC17":true},"settle:TC17":{"settlement_sha256":"03da14cf9b63e03c1c85dcbdf1ae4004403342e5c872a2dea3317f03d46d6b4b","status":"final","verdict":"within_grant"}}

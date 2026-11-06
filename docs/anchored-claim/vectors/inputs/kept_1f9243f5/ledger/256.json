@@ -1,0 +1,13 @@
+{
+  "n": 256,
+  "work": "NENRIN witness batch (4 records)",
+  "claim_sha256": "bd5ae432e0e47614ca9e866aa22a2a77a412cb625fea13ed0826983f0da65ad4",
+  "record_canonical": "{\"schema\":\"nenrin-witness-batch-v1\",\"anchored_at\":\"2026-11-06T00:30:34.296Z\",\"count\":4,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"n\":255,\"entry_sha256\":\"d55ba61becace585c3fb52ab78d3782a2a3859f51dc43e4cfbc5c4efebfa5db5\"},\"records\":[{\"sha\":\"562807cc46a6644174f7314a6691d4a640d4048722f205a0abf2cea52e36b2fd\",\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"witness_name\":\"kuangmi-bit\",\"vantage\":\"github-actions hosted runner (Linux) for kuangmi-bit/conduct-witness\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"sha\":\"5ed3b10fc70a92e22c0e31c019aa484a8fc94d22517c0d12a66a22f4aaca9024\",\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"witness_name\":\"kuangmi-bit\",\"vantage\":\"github-actions hosted runner (Linux) for kuangmi-bit/conduct-witness\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"sha\":\"afe669a3aec8fb039304530ad320a77417735f749406ee2a31903ccfce49fdcc\",\"purpose\":\"furui-day-v0: 2026-11-03\",\"witness_name\":\"pipavlo82\",\"vantage\":\"Pavlo Windows machine; Codex assisted; prior collaboration disclosed\",\"signed\":true,\"signed_domain\":\"pipavlo82.github.io\",\"mode\":\"commitment\"},{\"sha\":\"de89817ce3f6f8001567dff8b6cd4578e524eb92d56f05d9e878647eabd1759e\",\"purpose\":\"nenrin-instant-commitment-v1: w2967\",\"witness_name\":\"gate.horizonshield.dev\",\"vantage\":\"cloudflare-worker\",\"signed\":false,\"mode\":\"commitment\"}]}",
+  "schema": "v0-plain",
+  "created_at": "2026-11-06T00:30:34.535Z",
+  "ots_status": "confirmed",
+  "bitcoin_block": 974743,
+  "block_time": "2026-11-06 01:15 UTC",
+  "stamped_at": "2026-11-06T02:18:36.247Z",
+  "anchored_by": "schedule"
+}

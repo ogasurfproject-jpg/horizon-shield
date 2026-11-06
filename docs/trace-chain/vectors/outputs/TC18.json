@@ -1,0 +1,1 @@
+{"detail":"canonical digest 9e7c92ea67590ed642a99a0f44228adb8960dd04c752288641c717b0a88aa55f is not the sha of any entry in records[] (a sha elsewhere in the batch is not a listing; if the batch lists sha256 of the served bytes, those bytes are not canonical(record))","refused":"record_not_listed_in_batch"}

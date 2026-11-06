@@ -1,0 +1,1 @@
+{"attestation_heights":[974072],"entry":231,"header_used":974128,"state":"fail","why":"the header's merkle root is not the one the proof reaches"}

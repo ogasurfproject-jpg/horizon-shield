@@ -1,0 +1,1 @@
+{"intake":{"findings":[],"refusals":["signature_invalid"],"verdict":"refused","why":"the signature does not verify under cnf.jwk"},"now":1792627346}

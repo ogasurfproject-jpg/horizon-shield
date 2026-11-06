@@ -1,0 +1,1 @@
+{"answer_correct":true,"counted_correct":false,"reasons":["producer_not_pinned","runtime_not_pinned","build_not_pinned","appraisal_not_affirming","receipt_outside_window","transcript_mismatch"],"receipt":"refused","row":"r5","trace_sha256":"dded4f16f5724d5788ffd38502ffda6b778cc0380802617c0be1a0390cbe09ec"}

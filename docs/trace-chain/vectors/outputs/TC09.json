@@ -1,0 +1,1 @@
+{"span":{"findings":["acted_at_is_stated","trace_claims_not_appraised"],"refusals":["span_attribute_mismatch:nenrin.record.sha256"],"verdict":"span_not_bound"}}
