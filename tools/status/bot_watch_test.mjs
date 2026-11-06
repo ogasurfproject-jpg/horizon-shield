@@ -6,8 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   parseField, parseCron, fireTimes, expectedIntervalMs, scheduledCrons, writerOf, judge, watch, renderBots, problems, span,
-  WORKER_JOBS, DISPATCHED_FILES, dayAlerts, readWorkerLogs, fileIssues, issueTitle, issueText
-} from "./bot_watch.mjs";
+  WORKER_JOBS, DISPATCHED_FILES, dayAlerts, readWorkerLogs, fileIssues, issueTitle, issueText, SELF_FILE } from "./bot_watch.mjs";
 import { JOBS as WORKER_CORE_JOBS } from "../../workers/hs-cron-dispatch/src/core.mjs";
 
 // no network in this test
@@ -287,6 +286,19 @@ const runI = (id, at, conclusion, event, status = "completed") => ({ id, created
     chk("issues: no alert, no call", (await fileIssues({ alerts: [], repo: "o/r", api: h.api, send: h.send })).length === 0 && h.sent.length === 0);
   }
   chk("issue text: no dash characters", !/[\u2012-\u2015\u2212\uFF0D]/.test(issueText(a1)));
+}
+
+// ---- 2026-11-06: the watcher judging itself must not loop ---------------------------------------------------
+{
+  const two = [run(1 * H, "failure", "workflow_dispatch"), run(8 * H, "failure")];
+  chk("self: two failed runs of the watcher are reports, not FAILING", !judge({ workflow: active, allRuns: two, schedRuns: two, intervalMs: D, nowMs: NOW, self: true }).flags.includes("FAILING"));
+  chk("self: the same runs on any other workflow are FAILING", judge({ workflow: active, allRuns: two, schedRuns: two, intervalMs: D, nowMs: NOW }).flags.includes("FAILING"));
+  const redWeek = [1, 2, 3, 4, 5].map((d) => run(d * D - 2 * H, "failure"));
+  chk("self: red for five days but still running is not OVERDUE", judge({ workflow: active, allRuns: redWeek, schedRuns: redWeek, intervalMs: D, nowMs: NOW, self: true }).flags.length === 0);
+  const stopped = [run(4 * D, "success")];
+  chk("self: a watcher that stopped running is OVERDUE", judge({ workflow: active, allRuns: stopped, schedRuns: stopped, intervalMs: D, nowMs: NOW, self: true }).flags.includes("OVERDUE"));
+  const rows = [{ file: SELF_FILE, runs: { schedule: [run(2 * H, "failure")].map((r) => ({ ...r, id: 1 })), workflow_dispatch: [run(1 * H, "failure", "workflow_dispatch")].map((r) => ({ ...r, id: 2 })) } }];
+  chk("self: no day issue for the watcher's own red runs", dayAlerts({ rows, logs: null, days: [new Date(NOW).toISOString().slice(0, 10)], nowMs: NOW }).length === 0);
 }
 
 chk("span: hours and days", span(H) === "1 h" && span(6 * H) === "6 h" && span(D) === "1 d" && span(92 * D) === "92 d" && span(null) === "n/a");

@@ -49,6 +49,13 @@ export const DISPATCHED_FILES = new Set(Object.values(WORKER_JOBS));
 // The Worker counts a failed slot whose retry is due as waiting until this long after the due time (RETRY_STALE_MS).
 const WORKER_RETRY_STALE_MS = 30 * MIN;
 export const ISSUE_LABEL = "bot-watch";
+// 2026-11-06: this watcher judges its own workflow too. Its run fails whenever it finds a problem elsewhere, so
+// judging it by its own failures made a loop: a red neighbour turned two of its runs red, and from then on it found
+// itself FAILING (and later OVERDUE, having no success) and stayed red after the neighbour was fixed (bot-watch #32
+// and the run after it, 2026-11-06: registry-drift was green again, bot-watch still red, naming only itself).
+// For its own file a failed run is a report, not a fault: it is never FAILING and it is OVERDUE only when it stopped
+// running (no finished run of any conclusion in the window). A crash still fails the step that runs it.
+export const SELF_FILE = "bot-watch.yml";
 const NOT_COUNTED = new Set(["cancelled", "skipped", "neutral", "stale"]);
 
 // ---- cron --------------------------------------------------------------------------------------------------------
@@ -142,7 +149,7 @@ export function writerOf(text) {
 // ---- judging one workflow --------------------------------------------------------------------------------------
 const when = (r) => Date.parse(r.run_started_at || r.created_at);
 
-export function judge({ workflow, allRuns, schedRuns, intervalMs, nowMs, graceMs = GRACE_HOURS * HOUR }) {
+export function judge({ workflow, allRuns, schedRuns, intervalMs, nowMs, graceMs = GRACE_HOURS * HOUR, self = false }) {
   const all = [...(allRuns || [])].sort((a, b) => when(b) - when(a));
   const done = [...(schedRuns || [])].filter((r) => r.status === "completed" && !NOT_COUNTED.has(r.conclusion)).sort((a, b) => when(b) - when(a));
   let consecutive = 0;
@@ -150,11 +157,12 @@ export function judge({ workflow, allRuns, schedRuns, intervalMs, nowMs, graceMs
   const lastSchedOk = done.find((r) => r.conclusion === "success") || null;
   const lastAnyOk = all.find((r) => r.status === "completed" && r.conclusion === "success") || null;
   const limit = Math.max(2 * intervalMs + graceMs, MIN_OVERDUE_HOURS * HOUR);
-  const since = lastSchedOk ? when(lastSchedOk) : Date.parse(workflow && workflow.created_at);
+  const alive = self ? (done[0] || null) : lastSchedOk;
+  const since = alive ? when(alive) : Date.parse(workflow && workflow.created_at);
   const flags = [];
   if (workflow && workflow.state && workflow.state !== "active") flags.push("DISABLED");
   else {
-    if (done.length >= 2 && FAILED.has(done[0].conclusion) && FAILED.has(done[1].conclusion)) flags.push("FAILING");
+    if (!self && done.length >= 2 && FAILED.has(done[0].conclusion) && FAILED.has(done[1].conclusion)) flags.push("FAILING");
     if (!Number.isFinite(since) || nowMs - since > limit) flags.push("OVERDUE");
   }
   const last = all[0] || null;
@@ -177,7 +185,7 @@ const doneRuns = (runs) => (runs || []).filter((r) => r.status === "completed" &
 export function dayAlerts({ rows, logs, days, nowMs }) {
   const out = [];
   for (const row of rows) {
-    if (!row.runs || !DISPATCHED_FILES.has(row.file)) continue;
+    if (!row.runs || !DISPATCHED_FILES.has(row.file) || row.file === SELF_FILE) continue;
     for (const day of days) {
       const sch = doneRuns(row.runs.schedule).filter((r) => dayOf(r) === day);
       const dsp = doneRuns(row.runs.workflow_dispatch).filter((r) => dayOf(r) === day);
@@ -318,7 +326,7 @@ export async function watch({ dir, repo, api, nowMs, graceMs = GRACE_HOURS * HOU
       const dispRuns = DISPATCHED_FILES.has(f) ? (await api(base + "/runs?per_page=100&event=workflow_dispatch")).workflow_runs || [] : [];
       row.counted_events = DISPATCHED_FILES.has(f) ? ["schedule", "workflow_dispatch"] : ["schedule"];
       if (DISPATCHED_FILES.has(f)) row.runs = { schedule: slim(schedRuns), workflow_dispatch: slim(dispRuns) };
-      Object.assign(row, { name: workflow.name, state: workflow.state }, judge({ workflow, allRuns, schedRuns: [...(schedRuns || []), ...dispRuns], intervalMs: row.interval_ms, nowMs, graceMs }));
+      Object.assign(row, { name: workflow.name, state: workflow.state }, judge({ workflow, allRuns, schedRuns: [...(schedRuns || []), ...dispRuns], intervalMs: row.interval_ms, nowMs, graceMs, self: f === SELF_FILE }));
     } catch (e) {
       row.flags = ["UNKNOWN"]; row.error = String(e.message || e).slice(0, 200);
       rows.push(row); continue;
@@ -380,6 +388,7 @@ export function renderBots(rows, nowMs, graceMs = GRACE_HOURS * HOUR, days = nul
   L.push("- A day (UTC, yesterday and today) of such a workflow opens one issue (label " + ISSUE_LABEL + ") when its last finished dispatch run and its last finished scheduled run both failed and so did its last run of the day, or when the Worker's last dispatch of its job that day failed (in the Worker's public /log) and no run of the workflow succeeded that day. A later failure of the same day not named in the issue adds a comment.");
   L.push("- UNKNOWN: the GitHub API could not be read for this workflow. DISABLED: the workflow is turned off in GitHub; listed here, not counted as a problem.");
   L.push("- The job that writes this page fails (and GitHub notifies the owner) when any workflow is OVERDUE, FAILING or UNKNOWN.");
+  L.push("- This page's own workflow (" + SELF_FILE + ") fails whenever it reports a problem elsewhere, so its failed runs are reports, not faults: it is never FAILING, opens no day issue, and is OVERDUE only when it has not run at all within the window.");
   L.push("", "## What it does not establish", "");
   L.push("- A successful run means the job exited 0, not that it did useful work. A bot that has nothing to commit still succeeds.");
   L.push("- The last column is a hint, not a rule: the bot name and paths are read from the workflow text (`git config user.name` and `git add` paths, with a variable substituted only when the file sets it once to a plain path), and only the last 30 commits per path are read. \"quiet\" means no commit by that bot within the overdue window; many bots commit only when something changed, so quiet is not a failure and does not turn this job red.");
