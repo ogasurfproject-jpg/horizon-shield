@@ -112,25 +112,25 @@
   {
    "slug": "yakumo/souba/mado-koukan-hiratsuka",
    "tsha": "fe8191c5",
-   "simhash": "a86ba2c9fbe81bfc",
+   "simhash": "a86ba2c9f9ec0afc",
    "m": "no002"
   },
   {
    "slug": "yakumo/souba/genkan-koukan-hiratsuka",
    "tsha": "726e4e54",
-   "simhash": "a878b0c97bf89bec",
+   "simhash": "a87ba0c97bf89bec",
    "m": "no002"
   },
   {
    "slug": "yakumo/souba/glass-shuri-hiratsuka",
    "tsha": "bea65ab7",
-   "simhash": "a86a80c96f6c9ae8",
+   "simhash": "ae6a84c96f6c9ae8",
    "m": "no002"
   },
   {
    "slug": "yakumo/souba/amido-harikae-hiratsuka",
    "tsha": "3a21b749",
-   "simhash": "d87ba4c960e89ae8",
+   "simhash": "886ba4c960ec9ae8",
    "m": "no002"
   },
   {
@@ -166,11 +166,11 @@
   {
    "slug": "yakumo/jirei/no002",
    "tsha": "621dc3f7",
-   "simhash": "a27e10897599d2eb",
+   "simhash": "a27e00897599d2eb",
    "m": "no002"
   }
  ],
- "updated_at": "2026-11-05T13:36:28Z",
+ "updated_at": "2026-11-06T06:55:29Z",
  "rebuilt_at": "2026-08-23",
  "rebuilt_why": "指紋から剥がす共通枠のパターンを直したため、計算結果が変わった。全エントリを一斉に入れ替えて整合を保った。古い台帳は yakumo-content-manifest.json.bak_prerebuild20260823 に残してある。",
  "stores": {
