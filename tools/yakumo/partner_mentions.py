@@ -31,6 +31,15 @@ TOPICS = [
     ("genkan", "玄関ドアの工事", ["玄関"]), ("amido", "網戸の工事", ["網戸"]), ("glass", "ガラスの工事", ["ガラス"]),
 ]
 
+# 名簿に入っているが、裏付けの無い工種。ここに入れた組み合わせでは、その店をそのページに書かない。
+# 2026-11-06 番人: No.002 の works に「外壁塗装」が入っていたが、聞き取りの答え(窓・玄関の交換、ガラス修理、網戸張替え)にも、
+#   公式サイト(mineotfc.com)にも無い。KIRA の抽出の例文(「外壁塗装、無機3回塗り10年保証」)が混ざった疑い。
+#   名簿の側(hearing:hs-partner-002 の works)を直すまで、外壁塗装のページには書かない。直った後も残して害は無い。
+HOLD = {("No.002", "外壁塗装"): "聞き取りにも公式サイトにも無い工種(2026-11-06)"}
+
+def held(store, terms):
+    return any((store.get("member_no"), t) in HOLD for t in terms)
+
 def die(m): print("止めた: " + m, file=sys.stderr); sys.exit(1)
 
 def roster():
@@ -112,7 +121,7 @@ def main():
         m = re.search(r'name="robots"\s+content="([^"]*)"', text)
         if not m or "noindex" in m.group(1) or not m.group(1).startswith("index"): continue
         label, terms = topic_of(slug)
-        hit = [s for s in stores if label and any(t in w for t in terms for w in s.get("works", []))] if slug in listed else []
+        hit = [s for s in stores if label and not held(s, terms) and any(t in w for t in terms for w in s.get("works", []))] if slug in listed else []
         h1m = re.search(r"<h1[^>]*>(.*?)</h1>", text, flags=re.S)
         h1 = re.sub(r"<[^>]+>", "", h1m.group(1)).strip() if h1m else ""
         new = place(text, block(label, hit, slug, h1, terms)) if hit else strip(text)

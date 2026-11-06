@@ -179,5 +179,27 @@ const DASH = new RegExp("[" + String.fromCharCode(0x2012, 0x2013, 0x2014, 0x2015
   chk("instructions にダッシュ無し", !DASH.test(r.instructions));
 }
 
+// ---- 5. 2026-11-06 検証日: 名簿に verified_at が無ければ audit_evidence.recorded_at を使う ----
+{
+  const c2 = FIX_LIVE.contractors[1];
+  const saved = c2.verified_at;
+  delete c2.verified_at;
+  c2.audit_evidence = { estimates: 5, works: ["内窓9箇所"], recorded_at: "2026-08-22T14:50:35.430Z" };
+  if (globalThis.__HS_MEMO__) globalThis.__HS_MEMO__.clear();
+  const r = await call("find_verified_contractor", { area: "平塚市" });
+  const s2 = (r.stores || []).find(x => x.member_no === "No.002");
+  chk("verified_at が無い名簿でも検証日が出る(recorded_at)", s2 && s2.verified_at === "2026-08-22T14:50:35.430Z", JSON.stringify(s2));
+  delete c2.audit_evidence;
+  if (globalThis.__HS_MEMO__) globalThis.__HS_MEMO__.clear();
+  const r2 = await call("find_verified_contractor", { area: "平塚市" });
+  const s3 = (r2.stores || []).find(x => x.member_no === "No.002");
+  chk("どちらも無ければ null のまま(作らない)", s3 && s3.verified_at === null, JSON.stringify(s3));
+  c2.verified_at = saved;
+  if (globalThis.__HS_MEMO__) globalThis.__HS_MEMO__.clear();
+  const r3 = await call("find_verified_contractor", { area: "愛知県" });
+  const p1 = (r3.pending_stores || []).concat(r3.stores || []).find(x => x.member_no === "No.001");
+  chk("pending の店に検証日は付かない", !p1 || p1.verified_at == null, JSON.stringify(p1));
+}
+
 console.log(fail ? ("FAIL " + fail) : "ALL PASS");
 process.exit(fail ? 1 : 0);
