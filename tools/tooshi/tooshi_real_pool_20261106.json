@@ -1,0 +1,822 @@
+{
+ "entries": {
+  "100": {
+   "claim_sha256": "d72bc40d46d5f078d37f92bd1a394c55f073a8462f47ae2de2f65697ad359468",
+   "created_at": "2026-10-15T00:30:14.243Z",
+   "n": 100,
+   "record_canonical": "{\"anchored_at\":\"2026-10-15T00:30:14.215Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"79670fa6aafd36527083e50b4775fded3e54bc1d286b14bf8a2515ba2358ab0f\",\"n\":99},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"61d966886245d21ba749089dcf15d288255800786ab95468380a9ff5b78f34cb\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"e86663bf97c6e2b99ede96131c24c68d2adac527ecb23c6a615c9ba467fc65fe\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "101": {
+   "created_at": "2026-10-15T00:30:15.033Z",
+   "n": 101
+  },
+  "102": {
+   "created_at": "2026-10-15T00:30:17.492Z",
+   "n": 102
+  },
+  "103": {
+   "claim_sha256": "a072b344f924b21e5ccda6c7a5751cdb4c0e0a61fbf7bb191d09b02ca1916308",
+   "created_at": "2026-10-16T00:30:16.670Z",
+   "n": 103,
+   "record_canonical": "{\"anchored_at\":\"2026-10-16T00:30:16.646Z\",\"count\":3,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"31b9fbf0e5e8466a7001ce8457cedecba605cf6a2435c24bce8f901e07ddd9d1\",\"n\":102},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"102e752954af4e789311d3a1f76c458cec4fd6910a2f0f773b0fa09c3cbf7dc8\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"mode\":\"commitment\",\"purpose\":\"nenrin-instant-commitment-v1: w2964\",\"sha\":\"d1ddeca12b80e45e86178f7fc73c90aeea0cd29bfd2091c524dc37e19913b32b\",\"signed\":false},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"ea05cce3d3e83399035fe0f1c87368d36528debd0f540a3d153cb5f8d0663aac\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "104": {
+   "created_at": "2026-10-16T00:30:18.102Z",
+   "n": 104
+  },
+  "105": {
+   "created_at": "2026-10-16T00:30:20.658Z",
+   "n": 105
+  },
+  "106": {
+   "created_at": "2026-10-16T00:30:21.381Z",
+   "n": 106
+  },
+  "107": {
+   "claim_sha256": "48919a46a1b0f2814da5a2e81c8cee9ebbd0862bbdfffcb05d7fc13326cfffbe",
+   "created_at": "2026-10-17T00:30:11.140Z",
+   "n": 107,
+   "record_canonical": "{\"anchored_at\":\"2026-10-17T00:30:11.033Z\",\"count\":3,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"7f0d48f7b057b9985c977a3c449225c8ab32093f2ccdcfff704f7021211579f2\",\"n\":106},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"0340dc8b55e7a6c08903161c97490a76571beecac2dc21243a3f55fdb401c592\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"1026a92785b4a5779e43de433a3e2024ca65bd59fac6c27ab31799dd36f8a8fb\",\"signed\":true,\"signed_domain\":\"api.babyblueviper.com\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"ae9e437f20be5a7575cf501385882fa381adcc57bb5b88883014ab39db8af292\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "108": {
+   "created_at": "2026-10-17T00:30:14.052Z",
+   "n": 108
+  },
+  "109": {
+   "created_at": "2026-10-17T00:30:21.056Z",
+   "n": 109
+  },
+  "110": {
+   "created_at": "2026-10-17T00:30:41.762Z",
+   "n": 110
+  },
+  "111": {
+   "claim_sha256": "0ccb372f1c463067937c966a921df71b246797758430c0b84b4ede151b25f426",
+   "created_at": "2026-10-18T00:30:49.778Z",
+   "n": 111,
+   "record_canonical": "{\"anchored_at\":\"2026-10-18T00:30:49.566Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"1735e5ee0321f63f6b56252692b49d6b4c76495bdd816d9fce1f592457f3ebdd\",\"n\":110},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"42c9b66c32ed5bde92f022e1a3c3a43652b0f39ce6e439d433175a738ba26c02\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"63b8001e2fe79b7d774c77103980da7dc6e87472f87273c92845e8b52d7f9ad8\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "112": {
+   "created_at": "2026-10-18T00:30:54.103Z",
+   "n": 112
+  },
+  "113": {
+   "created_at": "2026-10-18T00:31:06.333Z",
+   "n": 113
+  },
+  "114": {
+   "created_at": "2026-10-18T15:02:48.608Z",
+   "n": 114
+  },
+  "115": {
+   "created_at": "2026-10-19T00:06:03.773Z",
+   "n": 115
+  },
+  "116": {
+   "claim_sha256": "71bedad8abd314607e7a32b402e4f0bb44d7b1659f4f6e6ec6d0064bfc156cc0",
+   "created_at": "2026-10-19T00:30:49.975Z",
+   "n": 116,
+   "record_canonical": "{\"anchored_at\":\"2026-10-19T00:30:49.775Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"111c86c40878797441468870cb16cd1dd4fb6ad374a0550de2a1997c37e830aa\",\"n\":115},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"6447d1b291fa8b6d3fd2fc033d8636b5c95726e51cb9a289d6eeb80d0b75b491\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"acca3e16a004755b34a601067945575a3d695b24d05f571e8559e0362efd1659\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "117": {
+   "created_at": "2026-10-19T00:30:53.708Z",
+   "n": 117
+  },
+  "118": {
+   "created_at": "2026-10-19T00:31:07.215Z",
+   "n": 118
+  },
+  "119": {
+   "created_at": "2026-10-19T00:31:10.845Z",
+   "n": 119
+  },
+  "120": {
+   "created_at": "2026-10-19T11:38:49.420Z",
+   "n": 120
+  },
+  "121": {
+   "claim_sha256": "6831f625836c52065c6635aaee635e7ec9a0bd405ea782ca4a7dfa78ec9ed975",
+   "created_at": "2026-10-20T00:30:05.776Z",
+   "n": 121,
+   "record_canonical": "{\"anchored_at\":\"2026-10-20T00:30:05.668Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"0df34e6d4391733bdde510d6b84bdb2b453bf2e02bf5d949eb88b5f5a201c0fc\",\"n\":120},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"3b3f9341d8710c9e930181487f258567af32f58e9743487df9ea19270929b8d2\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"5ce167860fbb5c868110e23b4790cc388e6e2795bcee8b3f9d8e4843394d0822\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "122": {
+   "created_at": "2026-10-20T00:30:07.681Z",
+   "n": 122
+  },
+  "123": {
+   "created_at": "2026-10-20T00:30:09.412Z",
+   "n": 123
+  },
+  "124": {
+   "created_at": "2026-10-20T00:30:20.632Z",
+   "n": 124
+  },
+  "125": {
+   "created_at": "2026-10-20T00:30:22.978Z",
+   "n": 125
+  },
+  "126": {
+   "created_at": "2026-10-20T00:45:02.909Z",
+   "n": 126
+  },
+  "127": {
+   "created_at": "2026-10-20T03:48:07.589Z",
+   "n": 127
+  },
+  "128": {
+   "claim_sha256": "2cdac8ef36ca693db7d56d886c372b3f6889d876bb49d6aa24541c7efa3e35d6",
+   "created_at": "2026-10-21T00:30:31.299Z",
+   "n": 128,
+   "record_canonical": "{\"anchored_at\":\"2026-10-21T00:30:31.277Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"ae3c01598dd81c46e4e00a10edd759eb63e7608c0ed70df5ec875e64f19ecb89\",\"n\":127},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"19c0f4c813324b2615a9eeeb8ede59423557a8b2b75780af50563807415f0a38\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"b5ca28b04f6603f3311e4c4721c66d237efca8fc7ab07e4eeedd63186d21023b\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "129": {
+   "created_at": "2026-10-21T00:30:32.125Z",
+   "n": 129
+  },
+  "130": {
+   "created_at": "2026-10-21T00:30:34.850Z",
+   "n": 130
+  },
+  "131": {
+   "created_at": "2026-10-21T00:30:35.537Z",
+   "n": 131
+  },
+  "132": {
+   "created_at": "2026-10-21T00:45:42.374Z",
+   "n": 132
+  },
+  "133": {
+   "claim_sha256": "0ef710b3511aaab30d6882c4a3ed3d9633e004cc8d9720c184a65a5e93537edf",
+   "created_at": "2026-10-22T00:31:05.775Z",
+   "n": 133,
+   "record_canonical": "{\"anchored_at\":\"2026-10-22T00:31:05.541Z\",\"count\":4,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"2c8e4138ea93c60676f385c1fe31f73438b71c1123c98004b76167f0daa9da90\",\"n\":132},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"6e3b41267d85410c42c755e9adee1e1104b8815f5592714c4c2a525b1c8422c7\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"9f02f1f1c2f8cce4c6b19bac8e1bb14d9276235c6c8737309daafddcf739d3c1\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"c33759801eb24010d6800c7f4769b3ae03fac881a852a8f1e26e3cfeb2bc190e\",\"signed\":false},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"feef2a99104ef2f078995fc9cad8f8246fb3ed1cae78effe8d3f87a450b93c17\",\"signed\":false}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "134": {
+   "created_at": "2026-10-22T00:31:16.145Z",
+   "n": 134
+  },
+  "135": {
+   "created_at": "2026-10-22T00:31:35.907Z",
+   "n": 135
+  },
+  "136": {
+   "created_at": "2026-10-22T00:31:38.888Z",
+   "n": 136
+  },
+  "137": {
+   "created_at": "2026-10-22T00:45:43.873Z",
+   "n": 137
+  },
+  "138": {
+   "claim_sha256": "cdeb2216be3dbae8028a6c7b87194d965556f84d7ff96151d6c672643506dc27",
+   "created_at": "2026-10-23T00:30:30.671Z",
+   "n": 138,
+   "record_canonical": "{\"anchored_at\":\"2026-10-23T00:30:30.615Z\",\"count\":3,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"95a9f47c26aebafeb5de0a562dcad4f5053b86a46598f23318dccc9ba8f2168a\",\"n\":137},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"5f0e1a4c79c5b2e63f88b01c98717d7e8b970c8444ce6f5f6f2502e058ef0506\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"9bbaf2ae9f8a2ce4f5bc4c507a359e66a0f448e82112334a652946a792a17958\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"mode\":\"commitment\",\"purpose\":\"nenrin-instant-commitment-v1: w2965\",\"sha\":\"a42c1322b30b99cd1514c636ba61494c6b6d4b90c097f5dbb264613692e31222\",\"signed\":false}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "139": {
+   "created_at": "2026-10-23T00:30:32.142Z",
+   "n": 139
+  },
+  "140": {
+   "created_at": "2026-10-23T00:30:44.432Z",
+   "n": 140
+  },
+  "141": {
+   "created_at": "2026-10-23T00:30:51.847Z",
+   "n": 141
+  },
+  "142": {
+   "created_at": "2026-10-23T00:45:44.351Z",
+   "n": 142
+  },
+  "143": {
+   "created_at": "2026-10-23T23:40:15.452Z",
+   "n": 143
+  },
+  "144": {
+   "claim_sha256": "5692fd4cc2e627f9fd76980f19428368f4910c60a3a6c30520736b0b4bf01d92",
+   "created_at": "2026-10-24T00:30:30.209Z",
+   "n": 144,
+   "record_canonical": "{\"anchored_at\":\"2026-10-24T00:30:30.170Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"087c1eb82c8673780b7bac637b522bb7f3ea9dc67bac060b7ff3b875a67ee5a0\",\"n\":143},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"8aea118ae41bf7f23cb5d9fce8c41dd71e3233d4a429e70089b559f8add1cc2b\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"f9e654805eaee3d0a92d6c15a4a183647655af3333ce01b6f89f2254c7f2b4bf\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "145": {
+   "created_at": "2026-10-24T00:30:31.037Z",
+   "n": 145
+  },
+  "146": {
+   "created_at": "2026-10-24T00:30:34.119Z",
+   "n": 146
+  },
+  "147": {
+   "created_at": "2026-10-24T00:30:34.750Z",
+   "n": 147
+  },
+  "148": {
+   "created_at": "2026-10-24T00:45:42.152Z",
+   "n": 148
+  },
+  "149": {
+   "created_at": "2026-10-24T05:01:50.632Z",
+   "n": 149
+  },
+  "150": {
+   "created_at": "2026-10-24T19:27:25.060Z",
+   "n": 150
+  },
+  "151": {
+   "created_at": "2026-10-24T19:28:34.042Z",
+   "n": 151
+  },
+  "152": {
+   "claim_sha256": "7c97bdbc14670eb035443c27239d14e039dc59f9017628ed91beefc2abbd1b1c",
+   "created_at": "2026-10-25T00:30:33.070Z",
+   "n": 152,
+   "record_canonical": "{\"anchored_at\":\"2026-10-25T00:30:33.011Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"8c6cf7211a914b1d244b64a70ba7f0c9f8b600fb0a0b888b349efa1c257f1c53\",\"n\":151},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"0709912e7b74578eca96d541915a7cbdb16c384b5dd648bf24d7cd70a7c60931\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"c8a754950833cfa21a1ba33241b92c829ff8ccfad907025f49dfac6fc9b77493\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "153": {
+   "created_at": "2026-10-25T00:30:34.185Z",
+   "n": 153
+  },
+  "154": {
+   "created_at": "2026-10-25T00:30:38.542Z",
+   "n": 154
+  },
+  "155": {
+   "created_at": "2026-10-25T00:30:39.349Z",
+   "n": 155
+  },
+  "156": {
+   "created_at": "2026-10-25T00:45:43.949Z",
+   "n": 156
+  },
+  "157": {
+   "created_at": "2026-10-25T17:20:36.160Z",
+   "n": 157
+  },
+  "158": {
+   "created_at": "2026-10-25T17:40:41.383Z",
+   "n": 158
+  },
+  "159": {
+   "claim_sha256": "aef7e8c2bad60c2e813fc9499635add39a7edda1c38f560f3cdf834e315f8a07",
+   "created_at": "2026-10-26T00:30:36.051Z",
+   "n": 159,
+   "record_canonical": "{\"anchored_at\":\"2026-10-26T00:30:35.797Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"fe913bf5426ea59db3445e306d52f34d8ffe8398d32e296d50848e5f888ea2af\",\"n\":158},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"4d43a544f9d5b7dce591aab844e2814e83768f3760c42540da77b6f961548132\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"f667074d6289dda565d5cfcee085ba7cd4fe36f38f548018c0a7af21515a83d6\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "160": {
+   "created_at": "2026-10-26T00:30:47.604Z",
+   "n": 160
+  },
+  "161": {
+   "created_at": "2026-10-26T00:31:32.557Z",
+   "n": 161
+  },
+  "162": {
+   "created_at": "2026-10-26T00:31:38.776Z",
+   "n": 162
+  },
+  "163": {
+   "created_at": "2026-10-26T00:45:42.798Z",
+   "n": 163
+  },
+  "164": {
+   "created_at": "2026-10-26T03:53:02.296Z",
+   "n": 164
+  },
+  "165": {
+   "created_at": "2026-10-26T04:44:36.991Z",
+   "n": 165
+  },
+  "166": {
+   "created_at": "2026-10-26T06:52:51.083Z",
+   "n": 166
+  },
+  "167": {
+   "created_at": "2026-10-26T07:23:12.042Z",
+   "n": 167
+  },
+  "168": {
+   "claim_sha256": "c95546680045ad7039c1387ef7ba7f93b63da80aa633f816e34eb8a46051956d",
+   "created_at": "2026-10-27T00:30:32.934Z",
+   "n": 168,
+   "record_canonical": "{\"anchored_at\":\"2026-10-27T00:30:32.806Z\",\"count\":4,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"50a790ef1b4f2ba0a841b6148f08b063b03602f13357209ea9a1751458f531a1\",\"n\":167},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"0ba3526c46703c434181ea5e4196391bfa47f4ff4359a2121e18c05639318d4f\",\"signed\":false},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"51813c757123aa3a28cdf0aa89368416d23d8de90c0c53c653dfe45a51569def\",\"signed\":false},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"a7158e5412b71ba1f66868cd885929609c148077d4279e02b14f95e33de5f883\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"ee3c4a4de525aaed2a808ef5d8179b09fc8926438d7b439269927bcb7a202835\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "169": {
+   "created_at": "2026-10-27T00:30:36.184Z",
+   "n": 169
+  },
+  "170": {
+   "created_at": "2026-10-27T00:30:37.691Z",
+   "n": 170
+  },
+  "171": {
+   "created_at": "2026-10-27T00:30:47.532Z",
+   "n": 171
+  },
+  "172": {
+   "created_at": "2026-10-27T00:30:49.408Z",
+   "n": 172
+  },
+  "173": {
+   "created_at": "2026-10-27T00:33:08.900Z",
+   "n": 173
+  },
+  "174": {
+   "created_at": "2026-10-27T00:45:42.661Z",
+   "n": 174
+  },
+  "175": {
+   "created_at": "2026-10-27T06:06:55.154Z",
+   "n": 175
+  },
+  "176": {
+   "created_at": "2026-10-27T06:18:25.941Z",
+   "n": 176
+  },
+  "177": {
+   "created_at": "2026-10-27T06:54:51.880Z",
+   "n": 177
+  },
+  "178": {
+   "created_at": "2026-10-27T11:27:32.364Z",
+   "n": 178
+  },
+  "179": {
+   "created_at": "2026-10-27T23:07:26.250Z",
+   "n": 179
+  },
+  "180": {
+   "created_at": "2026-10-27T23:09:50.410Z",
+   "n": 180
+  },
+  "181": {
+   "claim_sha256": "e59a7d1f893ec093b1a3b01f50ee7cc327bc949313d37fe52788c45d5aef05f0",
+   "created_at": "2026-10-28T00:30:37.831Z",
+   "n": 181,
+   "record_canonical": "{\"anchored_at\":\"2026-10-28T00:30:37.525Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"6ef555219c1b7133f3e1c227fb2f3b3517655728725ad71e4fb370dd2ea28db1\",\"n\":180},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"695a0c058ef3f3a2fce7b0ba70b6dee0ce5f0f09a1bdfb7429430890186adddc\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"80ecf765fca0ded762980e3c79b298689ecd11d89217b7c311a3e44f3821c9b0\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "182": {
+   "created_at": "2026-10-28T00:30:43.411Z",
+   "n": 182
+  },
+  "183": {
+   "created_at": "2026-10-28T00:31:03.918Z",
+   "n": 183
+  },
+  "184": {
+   "created_at": "2026-10-28T00:31:08.076Z",
+   "n": 184
+  },
+  "185": {
+   "created_at": "2026-10-28T00:45:43.708Z",
+   "n": 185
+  },
+  "186": {
+   "created_at": "2026-10-28T03:13:04.827Z",
+   "n": 186
+  },
+  "187": {
+   "created_at": "2026-10-28T06:58:30.002Z",
+   "n": 187
+  },
+  "188": {
+   "created_at": "2026-10-28T10:57:57.268Z",
+   "n": 188
+  },
+  "189": {
+   "claim_sha256": "d8ac4fc2843cf91314e7bdd21c4554151288ef0afe7d96e6eea3002992b8cb20",
+   "created_at": "2026-10-29T00:30:31.660Z",
+   "n": 189,
+   "record_canonical": "{\"anchored_at\":\"2026-10-29T00:30:31.584Z\",\"count\":1,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"e3e03b8e751270d12fbc80df0887986c85022fb7a597ff340785dd7f7754e424\",\"n\":188},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"b3c5e599fbd67cb5ef046aff7083a7b9a3cc7e638fd91579cbbaade4875e5178\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "190": {
+   "created_at": "2026-10-29T00:30:33.830Z",
+   "n": 190
+  },
+  "191": {
+   "created_at": "2026-10-29T00:30:42.323Z",
+   "n": 191
+  },
+  "192": {
+   "created_at": "2026-10-29T00:30:43.390Z",
+   "n": 192
+  },
+  "193": {
+   "created_at": "2026-10-29T00:45:42.072Z",
+   "n": 193
+  },
+  "194": {
+   "created_at": "2026-10-29T02:03:52.831Z",
+   "n": 194
+  },
+  "195": {
+   "created_at": "2026-10-29T16:45:41.940Z",
+   "n": 195
+  },
+  "196": {
+   "created_at": "2026-10-29T16:50:18.098Z",
+   "n": 196
+  },
+  "197": {
+   "claim_sha256": "8e8ad77aa59c695aa145892b239062dd3779f6011e9e71d5147f14f2dc33f338",
+   "created_at": "2026-10-30T00:30:30.833Z",
+   "n": 197,
+   "record_canonical": "{\"anchored_at\":\"2026-10-30T00:30:30.795Z\",\"count\":3,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"a70faea5e18b9245147b49d14b416118b7a3233e039baef2657d4ebef6095768\",\"n\":196},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"668318f186ffe2c756a85b56695d13e97758edc509b402793d6be1d7cd471ac0\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"mode\":\"commitment\",\"purpose\":\"nenrin-instant-commitment-v1: w2966\",\"sha\":\"a4f13da7423d3ddeb25052510c43b7713f95b0f6bf1d324f3690f113200deadf\",\"signed\":false},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"cf5201efa761fed85f17d274de546b6a0cb68399ffb24aba2a563edfed1726fe\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "198": {
+   "created_at": "2026-10-30T00:30:32.055Z",
+   "n": 198
+  },
+  "199": {
+   "created_at": "2026-10-30T00:30:35.584Z",
+   "n": 199
+  },
+  "200": {
+   "created_at": "2026-10-30T00:30:36.204Z",
+   "n": 200
+  },
+  "201": {
+   "created_at": "2026-10-30T00:45:43.095Z",
+   "n": 201
+  },
+  "202": {
+   "created_at": "2026-10-30T00:49:57.988Z",
+   "n": 202
+  },
+  "203": {
+   "created_at": "2026-10-30T06:26:42.956Z",
+   "n": 203
+  },
+  "204": {
+   "created_at": "2026-10-30T07:02:49.186Z",
+   "n": 204
+  },
+  "205": {
+   "created_at": "2026-10-30T07:48:22.140Z",
+   "n": 205
+  },
+  "206": {
+   "created_at": "2026-10-30T09:44:24.492Z",
+   "n": 206
+  },
+  "207": {
+   "created_at": "2026-10-30T10:29:43.287Z",
+   "n": 207
+  },
+  "208": {
+   "created_at": "2026-10-30T11:37:03.945Z",
+   "n": 208
+  },
+  "209": {
+   "created_at": "2026-10-30T12:46:40.997Z",
+   "n": 209
+  },
+  "210": {
+   "created_at": "2026-10-30T13:24:36.472Z",
+   "n": 210
+  },
+  "211": {
+   "created_at": "2026-10-30T23:41:23.395Z",
+   "n": 211
+  },
+  "212": {
+   "created_at": "2026-10-30T23:46:20.439Z",
+   "n": 212
+  },
+  "213": {
+   "claim_sha256": "6a7aae8d75747d8b3a06e9d5f19fb31f9c2de4f7fa83ee0c6c84e2df281f94d1",
+   "created_at": "2026-10-31T00:30:31.914Z",
+   "n": 213,
+   "record_canonical": "{\"anchored_at\":\"2026-10-31T00:30:31.800Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"1e302ff3157fa4eb731299a9cc2c06545f43c1df542d0c9956c5b8d3bf6349ef\",\"n\":212},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"a403b085e77fb901be6bf13bbb876691aa00c8a5b70429917c1d32a1b5ac18f8\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"fc77b5b0128667b9a579135647b8c81d816e6df0c24b91a09e5382ef4c8f22c2\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "214": {
+   "created_at": "2026-10-31T00:30:33.978Z",
+   "n": 214
+  },
+  "215": {
+   "created_at": "2026-10-31T00:30:41.702Z",
+   "n": 215
+  },
+  "216": {
+   "created_at": "2026-10-31T00:30:43.325Z",
+   "n": 216
+  },
+  "217": {
+   "created_at": "2026-10-31T00:45:44.467Z",
+   "n": 217
+  },
+  "218": {
+   "created_at": "2026-10-31T01:35:12.125Z",
+   "n": 218
+  },
+  "219": {
+   "created_at": "2026-10-31T03:32:18.627Z",
+   "n": 219
+  },
+  "220": {
+   "created_at": "2026-10-31T04:08:05.814Z",
+   "n": 220
+  },
+  "221": {
+   "created_at": "2026-10-31T04:48:00.262Z",
+   "n": 221
+  },
+  "222": {
+   "created_at": "2026-10-31T04:51:13.961Z",
+   "n": 222
+  },
+  "223": {
+   "created_at": "2026-10-31T04:58:24.712Z",
+   "n": 223
+  },
+  "224": {
+   "created_at": "2026-10-31T05:11:19.025Z",
+   "n": 224
+  },
+  "225": {
+   "created_at": "2026-10-31T10:19:03.312Z",
+   "n": 225
+  },
+  "226": {
+   "claim_sha256": "287083685c40a9be618a50843f569b6ebc5cc1b688d34718ab3c3e831ea9cac9",
+   "created_at": "2026-11-01T00:30:32.117Z",
+   "n": 226,
+   "record_canonical": "{\"anchored_at\":\"2026-11-01T00:30:32.035Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"cf1e8517b4ca0e5b1081f08e96763f0085f045122f984661e9e9e918fb3a6d39\",\"n\":225},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"214bfc6a08bfe100e0653cd3d797c167191709db8c05842ae3058d7f10049155\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"53ee14e84bdbf8cf5b5dbc34411e89f9f2552b8426552980cf10bdbc010d2930\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "227": {
+   "created_at": "2026-11-01T00:30:34.536Z",
+   "n": 227
+  },
+  "228": {
+   "created_at": "2026-11-01T00:30:43.963Z",
+   "n": 228
+  },
+  "229": {
+   "created_at": "2026-11-01T00:30:45.456Z",
+   "n": 229
+  },
+  "230": {
+   "created_at": "2026-11-01T00:45:46.551Z",
+   "n": 230
+  },
+  "231": {
+   "created_at": "2026-11-01T03:20:16.414Z",
+   "n": 231
+  },
+  "232": {
+   "created_at": "2026-11-01T12:40:17.564Z",
+   "n": 232
+  },
+  "233": {
+   "claim_sha256": "2ae0b964ea45f511ea692a0ee3da7ffc4c86bf241a3c86a1e8ec0682662bba87",
+   "created_at": "2026-11-02T00:30:31.642Z",
+   "n": 233,
+   "record_canonical": "{\"anchored_at\":\"2026-11-02T00:30:31.588Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"6e0d8d8ef9c1a8dfa6a355eea4220f6afe51ff185251c0bdc07bb77fb46c47b7\",\"n\":232},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"3f1e05213a7258c41f418e607175db8232a7c3404341f37d9230f4a467aa94d5\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"da733c3ec4ce48101e1d82c9c4a73f542eb785b10925d6721f7c5856c0a59be2\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "234": {
+   "created_at": "2026-11-02T00:30:33.009Z",
+   "n": 234
+  },
+  "235": {
+   "created_at": "2026-11-02T00:30:37.216Z",
+   "n": 235
+  },
+  "236": {
+   "created_at": "2026-11-02T00:30:38.065Z",
+   "n": 236
+  },
+  "237": {
+   "created_at": "2026-11-02T00:45:42.878Z",
+   "n": 237
+  },
+  "238": {
+   "claim_sha256": "480239cda4a32d2cc3070a4f825d15e7bbf49a5440ff6cfe6d47eb40518aaf80",
+   "created_at": "2026-11-03T00:30:33.962Z",
+   "n": 238,
+   "record_canonical": "{\"anchored_at\":\"2026-11-03T00:30:33.811Z\",\"count\":4,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"f42d2322d83285dfcef3cc848ff105714b4423406733eca91c9322e3298ea77f\",\"n\":237},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"32b7e7c513cf9fb3c1fd440553b765e0b821e02cf5f8ff7a62d8d99aa1fc4e5d\",\"signed\":false},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"a4de0c276e42e8ebf44c56a7ebfe1902804a8fb0c9ea427c9d0223efdcf5d859\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"ad4db69c4cafe354138ac104c50aee8b526b42bbcdeb8273ec81851a7c73607b\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"dedcaa09949b1ac3071fa4befb2b8b8e9b38d53bab5b37a2c83001581ff09d6c\",\"signed\":false}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "239": {
+   "created_at": "2026-11-03T00:30:37.111Z",
+   "n": 239
+  },
+  "240": {
+   "created_at": "2026-11-03T00:30:38.329Z",
+   "n": 240
+  },
+  "241": {
+   "created_at": "2026-11-03T00:30:47.898Z",
+   "n": 241
+  },
+  "242": {
+   "created_at": "2026-11-03T00:30:50.660Z",
+   "n": 242
+  },
+  "243": {
+   "created_at": "2026-11-03T00:45:43.443Z",
+   "n": 243
+  },
+  "244": {
+   "claim_sha256": "a3792e4c49478a9b27197483af0c54e2dbfbfcbdae80fc7cf470167699d307ba",
+   "created_at": "2026-11-04T00:30:34.264Z",
+   "n": 244,
+   "record_canonical": "{\"anchored_at\":\"2026-11-04T00:30:34.151Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"d5b8e80caa1c6e3438b0aa84de6c5c4fca798a84a72bef2664a626013a0c1bc2\",\"n\":243},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"25239128af55910a4abfa2f2155c4df6e93502c7a0f7308d148b9de68e6a3479\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"df25ef87c65617767e82253a102639c11ce3becbb5555b8f92f915e0c3f10f77\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "245": {
+   "created_at": "2026-11-04T00:30:37.216Z",
+   "n": 245
+  },
+  "246": {
+   "created_at": "2026-11-04T00:30:47.751Z",
+   "n": 246
+  },
+  "247": {
+   "created_at": "2026-11-04T00:30:49.684Z",
+   "n": 247
+  },
+  "248": {
+   "created_at": "2026-11-04T00:45:42.248Z",
+   "n": 248
+  },
+  "249": {
+   "claim_sha256": "14c4f27b233edff4056b2f3664fdb254f80587c9b662a9d772e90e13d034cbbb",
+   "created_at": "2026-11-05T00:30:30.546Z",
+   "n": 249,
+   "record_canonical": "{\"anchored_at\":\"2026-11-05T00:30:30.510Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"8407f37e6af28c05d7661c03bafcb4b4f9643d19e9013be8afb233694d3f583f\",\"n\":248},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"22cc1f0cbc46656d0878a9f16d14d7bb8eaac1c35d006fdc6a65227be36c1b3f\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"6636ca761e174e52c23535e9f1d16445649507b47584ae87318a1a3ec262e2cb\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "250": {
+   "created_at": "2026-11-05T00:30:31.860Z",
+   "n": 250
+  },
+  "251": {
+   "created_at": "2026-11-05T00:30:36.343Z",
+   "n": 251
+  },
+  "252": {
+   "created_at": "2026-11-05T00:30:37.037Z",
+   "n": 252
+  },
+  "253": {
+   "created_at": "2026-11-05T00:45:45.476Z",
+   "n": 253
+  },
+  "254": {
+   "created_at": "2026-11-05T21:10:01.478Z",
+   "n": 254
+  },
+  "255": {
+   "created_at": "2026-11-05T23:05:41.884Z",
+   "n": 255
+  },
+  "256": {
+   "claim_sha256": "bd5ae432e0e47614ca9e866aa22a2a77a412cb625fea13ed0826983f0da65ad4",
+   "created_at": "2026-11-06T00:30:34.535Z",
+   "n": 256,
+   "record_canonical": "{\"anchored_at\":\"2026-11-06T00:30:34.296Z\",\"count\":4,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"d55ba61becace585c3fb52ab78d3782a2a3859f51dc43e4cfbc5c4efebfa5db5\",\"n\":255},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"562807cc46a6644174f7314a6691d4a640d4048722f205a0abf2cea52e36b2fd\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"5ed3b10fc70a92e22c0e31c019aa484a8fc94d22517c0d12a66a22f4aaca9024\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"mode\":\"commitment\",\"purpose\":\"furui-day-v0: 2026-11-03\",\"sha\":\"afe669a3aec8fb039304530ad320a77417735f749406ee2a31903ccfce49fdcc\",\"signed\":true,\"signed_domain\":\"pipavlo82.github.io\"},{\"mode\":\"commitment\",\"purpose\":\"nenrin-instant-commitment-v1: w2967\",\"sha\":\"de89817ce3f6f8001567dff8b6cd4578e524eb92d56f05d9e878647eabd1759e\",\"signed\":false}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "257": {
+   "created_at": "2026-11-06T00:30:38.916Z",
+   "n": 257
+  },
+  "258": {
+   "created_at": "2026-11-06T00:30:49.754Z",
+   "n": 258
+  },
+  "259": {
+   "created_at": "2026-11-06T00:30:51.942Z",
+   "n": 259
+  },
+  "260": {
+   "created_at": "2026-11-06T00:45:45.965Z",
+   "n": 260
+  },
+  "72": {
+   "created_at": "2026-10-07T00:30:36.903Z",
+   "n": 72
+  },
+  "73": {
+   "claim_sha256": "56f7c78a036b91fed91a55c7ed92701191f29cfa2a68170a74da6e1706eaea09",
+   "created_at": "2026-10-08T00:30:58.102Z",
+   "n": 73,
+   "record_canonical": "{\"anchored_at\":\"2026-10-08T00:30:58.031Z\",\"count\":3,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"6c46c1445f73b7a01c881df9557f5161c9c675004849973a2518e93db4097fdb\",\"n\":72},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"587d28a766187669585029419dec84d429ade625bdb612961b545db753664acd\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/a2a\",\"sha\":\"747ecd97635e104e75185212cfb70e3cc37310ea1f41966a818bfb5b5d57df15\",\"signed\":true,\"signed_domain\":\"pipavlo82.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"e1521f115d61116e3c4d7957903c12afe88617cff468403351f5cea432894b24\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "74": {
+   "created_at": "2026-10-08T00:31:00.684Z",
+   "n": 74
+  },
+  "75": {
+   "claim_sha256": "9f399b29a15631a7bd9b3e0d0f3dca42403e4f54984a010782f8f00799525f1d",
+   "created_at": "2026-10-09T00:30:50.530Z",
+   "n": 75,
+   "record_canonical": "{\"anchored_at\":\"2026-10-09T00:30:50.414Z\",\"count\":3,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"0f53fcb8dc70269d4d7e886a3bb9aa0ecb15255f45b7bc13a08e47f621fa681d\",\"n\":74},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"7b2f8529fb70ebb7b5ef9b17b4d5f996c6f9b57166a5bfbc4e202fdc7f1cb5dc\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"mode\":\"commitment\",\"purpose\":\"nenrin-instant-commitment-v1: w2963\",\"sha\":\"94cd19bef2fef1e2b5e72714c4c151a39655b31db180c1f44394dbd4d83d2390\",\"signed\":false},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"c2d44fe75b3453e6a05d7306921b36d4c41e2fd2468f05114c02eb1ab402e8d4\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "76": {
+   "created_at": "2026-10-09T00:30:53.562Z",
+   "n": 76
+  },
+  "77": {
+   "claim_sha256": "1ea042157e837cbfbe49ec62182dc2d0fc05698cbe15728dd94b55127d63e99a",
+   "created_at": "2026-10-10T00:30:49.421Z",
+   "n": 77,
+   "record_canonical": "{\"anchored_at\":\"2026-10-10T00:30:49.314Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"3fb7f87902e98b41b56a91146888d2f084aeb76e426d18eafd5b206f2b0c684a\",\"n\":76},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"a0d6d262db49f700b3ba9a88538fc40757d311a82140d90e37fd4f9894fb7bf6\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"b9b31f4247551e45cd5da92ff753498efaad9d8897004d8c50ddc42ae15f497b\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "78": {
+   "created_at": "2026-10-10T00:30:52.210Z",
+   "n": 78
+  },
+  "79": {
+   "claim_sha256": "934b1366db0e6fd53c0f5a50edcf79fb114e0a294324a58d00717951d8cf0951",
+   "created_at": "2026-10-11T00:31:14.979Z",
+   "n": 79,
+   "record_canonical": "{\"anchored_at\":\"2026-10-11T00:31:14.941Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"474ed58733bd6ed38bf25595f5d54ca35a2c8a1000f9852d540507cd0d4aadd5\",\"n\":78},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"6307782faeb3f05de0a38045afc640878ddc9f9c0e708c648349f3d21d8e7f6d\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"bcebec183b37846bd7db96f85a6cb89d53de75178940317f44dc1b0486ffcbb3\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "80": {
+   "created_at": "2026-10-11T00:31:15.444Z",
+   "n": 80
+  },
+  "81": {
+   "created_at": "2026-10-11T00:31:16.316Z",
+   "n": 81
+  },
+  "82": {
+   "created_at": "2026-10-11T00:31:17.312Z",
+   "n": 82
+  },
+  "83": {
+   "created_at": "2026-10-11T00:45:50.729Z",
+   "n": 83
+  },
+  "84": {
+   "claim_sha256": "d8d119557562ec956bb424ceea89c771e4eddd52dfeb335d737417b4bdfaace2",
+   "created_at": "2026-10-12T00:30:40.606Z",
+   "n": 84,
+   "record_canonical": "{\"anchored_at\":\"2026-10-12T00:30:40.318Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"28db857300528fe285ee7ce8480ef8036a3e30d1a866cdcec2ce0004b8e167cc\",\"n\":83},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"02e4d8c6d7ce0247e238201495686a033dcd57b486ded58c9cf83821d041a7c9\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"e2e8b83b60a60be09bba9ab164c12fbcac3a72e99fe938df6b809745dceecbf0\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "85": {
+   "created_at": "2026-10-12T00:30:45.076Z",
+   "n": 85
+  },
+  "86": {
+   "created_at": "2026-10-12T00:30:55.183Z",
+   "n": 86
+  },
+  "87": {
+   "created_at": "2026-10-12T00:31:01.621Z",
+   "n": 87
+  },
+  "88": {
+   "created_at": "2026-10-12T00:45:17.400Z",
+   "n": 88
+  },
+  "89": {
+   "claim_sha256": "3fc83ff7cd40baf8dd4a49b572c2d1aca8f221eee4874d463650cae706f1908b",
+   "created_at": "2026-10-13T00:31:00.788Z",
+   "n": 89,
+   "record_canonical": "{\"anchored_at\":\"2026-10-13T00:31:00.751Z\",\"count\":4,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"bbbb357ee6f20a870fdfe5a50eb842674573dba06229593bfb85b304f0497e72\",\"n\":88},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"238003c9ad5d52fc6976803dea88ec85daa66574e0ea7be9057b4f60a88884ea\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"58c112288f128c4da7490daaabaceb18cbdb5afc71b61b8f4cb967605912e534\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"bea1b2399692aa2077a267108f6c203e4725c6df52bd93b876096ea19edde7ff\",\"signed\":false},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"ec76f8fec5034551798bc8ee761e90de2b6367ac364a97fcb3e4c0f49fd7d611\",\"signed\":false}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "90": {
+   "created_at": "2026-10-13T00:31:01.493Z",
+   "n": 90
+  },
+  "91": {
+   "created_at": "2026-10-13T00:31:01.926Z",
+   "n": 91
+  },
+  "92": {
+   "created_at": "2026-10-13T00:31:04.535Z",
+   "n": 92
+  },
+  "93": {
+   "created_at": "2026-10-13T00:31:05.730Z",
+   "n": 93
+  },
+  "94": {
+   "created_at": "2026-10-13T00:45:48.795Z",
+   "n": 94
+  },
+  "95": {
+   "created_at": "2026-10-13T06:13:46.917Z",
+   "n": 95
+  },
+  "96": {
+   "claim_sha256": "fb948c598ab4af72e87130596c39053cffb68b554c3925f27228fec4d30cb685",
+   "created_at": "2026-10-14T00:30:15.710Z",
+   "n": 96,
+   "record_canonical": "{\"anchored_at\":\"2026-10-14T00:30:15.669Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"entry_sha256\":\"1fda4f126dca63e4414c894407a4e959fa5145002c82946bf9f33b4a4fc3227e\",\"n\":95},\"records\":[{\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"sha\":\"5b34f936410930410e8a6ecf1c778fba9343efe1c2f9ba5994048c6f62a2411d\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"sha\":\"ec50de8a9ba6b696a0a1f621265a755507c957aefdbefddea3c377f2e7bdf0d9\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}],\"schema\":\"nenrin-witness-batch-v1\"}"
+  },
+  "97": {
+   "created_at": "2026-10-14T00:30:16.618Z",
+   "n": 97
+  },
+  "98": {
+   "created_at": "2026-10-14T00:30:19.427Z",
+   "n": 98
+  },
+  "99": {
+   "created_at": "2026-10-14T00:30:20.258Z",
+   "n": 99
+  }
+ },
+ "ledger_head_n": 260,
+ "source": "public answers read on 2026-11-06 (JST evening) for the TOOSHI run of 2026-11-06 04:05 UTC: the ledger's GET /ledger/head (n 260, unchanged since 2026-11-06T00:45:45Z) and GET /ledger/<n>?format=json for entries 260 down to 72, the first entry made before 2026-10-07T03:47:00Z. For the 30 nenrin-witness-batch-v1 entries, record_canonical is the batch with witness_name and vantage taken out of every record (names of people are not kept here); claim_sha256 is the ledger's hash of the full bytes (GET /ledger/<n>?format=raw). Other entries keep n and created_at only. 16 reads n, created_at and, in a batch, records[].signed, signed_domain and purpose."
+}

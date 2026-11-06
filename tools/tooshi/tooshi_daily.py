@@ -136,6 +136,19 @@ later run of the same day reads the same window.
                    both recovery drills (survive-drill.yml, latest-github.json and latest-swh.json) rebuilt the ledger
                    unbroken, and the daily drill rebuilt up to an entry made at most 48 hours before the ledger's head.
                    not_yet when Software Heritage does not answer.
+
+Added on 2026-11-06 (16, how many outside witnesses sign the day roots):
+    16             witness_pool: the number of distinct outside witnesses that signed a FURUI day record or a TOOSHI day
+                   (witness-answer-v0, purposes furui-day-v0 and tooshi-day-v0) with a key served from their own domain, in
+                   the 30 days before 03:47 UTC. Counted only from the nenrin-witness-batch-v1 entries of the ledger made in
+                   that window (GET /ledger/head, /ledger/<n>): records with signed true and a signed_domain, one per
+                   signed_domain. A signed_domain is ours, and not counted, when it is one of the operator's zones
+                   (OWN_ZONES: horizonshield.dev, the-horizons-innovation.com, oga-surf-project.workers.dev) or a subdomain of
+                   one, or the operator's GitHub account (github.com/ogasurfproject-jpg). Records still in the pool, walks of
+                   an endpoint (a2a-conduct-walk-v1) and other purposes are not counted. ok at 3 or more; red at 2 or fewer;
+                   not_yet when the ledger cannot be read for the whole window (never red for that). facts carry the count
+                   and, for each signed_domain, the latest batch that lists it (the signature is no later than that day);
+                   no name of a person is read or written.
 A red day opens one issue (label tooshi) and sends one mail with the names of the red checks and one line each
 (tools/tooshi/tooshi_tell.py, run by the workflow; this file sends nothing).
 """
@@ -1178,12 +1191,17 @@ RECOVER_WINDOW = datetime.timedelta(hours=48)
 NOT_YET_HOURS = {"1_sieve_admission": 48, "2_admission_ledger": 48, "3_ledger_settle": 72, "4_door_resume": 48, "4b_resume_agreement": 48,
                  "5_door_runner": 48, "6_daily_root": 48, "6b_daily_leaf": 48, "7_heartbeat_scene": 48, "8_canary_scene": 48,
                  "9_witness_answer": 72, "10_cross_client": 72, "11_main_ci": 72, "12_paid_rows_daily": 48, "13_line_delivery": 168,
-                 "15_recovery_fresh": 72}
+                 "15_recovery_fresh": 72, "16_witness_pool": 48}
 EXEMPT_WHY = {"12_paid_rows_daily": "no paid row yet: a time limit would turn the day red and send a mail every day while there is "
                                      "nothing to measure; it ends when the register has a paid row"}
 BITCOIN_HOURS = 36
 GATE_WAIT_HOURS = 168                    # 10 while the gate is before 0.4.24
 DEADLINE_LOOKBACK = 8
+POOL_WINDOW = datetime.timedelta(days=30)
+POOL_LINE = 3                            # 16: ok from this many distinct outside witnesses
+POOL_PURPOSES = ("furui-day-v0: ", "tooshi-day-v0: ")   # the two kinds of witness-answer-v0 (a day root recomputed and signed)
+POOL_SCAN = 600                          # 16: at most this many ledger entries are read back from the head (about 190 in 30 days on 2026-11-06)
+OWN_GITHUB = ("github.com/ogasurfproject-jpg",)
 DAY_ROOT_SCAN = 60                       # 6: entries read after an early batch to rule out a second one                    # days read back (the longest deadline is 7 days)
 
 
@@ -1533,6 +1551,75 @@ def check_recovery(get, now):
     return c(cid, "ok", "Software Heritage visited the repository within 7 days, and the drill rebuilt the ledger unbroken up to entry %s, within 48 hours of the head %s" % (ch_n, hn), **facts)
 
 
+def own_witness(d):
+    """16: a signed_domain of the operator: one of its zones or a subdomain of one, or its GitHub account (the intake's
+    identity for a key on raw.githubusercontent.com is github.com/<owner>)"""
+    d = d.strip().lower()
+    if d.startswith("github.com/"):
+        return d in OWN_GITHUB
+    return any(d == z or d.endswith("." + z) for z in OWN_ZONES)
+
+
+def check_witness_pool(get, now):
+    """16: at least 3 distinct outside witnesses signed a FURUI or TOOSHI day in the 30 days before today's 03:47 UTC, counted
+    from the ledger's witness batches only"""
+    cid = "16_witness_pool"
+    hi = anchor(now)
+    lo = hi - POOL_WINDOW
+    win = [iso(lo), iso(hi)]
+    last, other, read = {}, set(), 0
+    try:
+        s, h = get(LEDGER + "/ledger/head")
+        n = h.get("n") if s == 200 and isinstance(h, dict) else None
+        if not _int(n, 1):
+            return c(cid, "not_yet", "the ledger's head answered http %s without n, so the witness batches of the 30 days before %s cannot be read" % (s, iso(hi)), window=win)
+        i, done = n, False
+        while i >= 1:
+            if read >= POOL_SCAN:
+                return c(cid, "not_yet", "the 30 days before %s hold more than %d ledger entries; not all were read" % (iso(hi), POOL_SCAN), window=win, entries_read=read)
+            es, e = get(LEDGER + "/ledger/%d?format=json" % i)
+            read += 1
+            t = when(e.get("created_at")) if es == 200 and isinstance(e, dict) else None
+            if t is None:
+                return c(cid, "not_yet", "ledger entry %d answered http %s without created_at, so the window cannot be read whole" % (i, es), window=win, entries_read=read)
+            if t < lo:
+                done = True
+                break
+            i -= 1
+            if t >= hi:
+                continue   # made after today's 03:47 UTC: a later run of the day reads the same window
+            try:
+                b = json.loads(e.get("record_canonical") or "")
+            except (ValueError, TypeError):
+                continue
+            if not (isinstance(b, dict) and b.get("schema") == "nenrin-witness-batch-v1" and isinstance(b.get("records"), list)):
+                continue
+            day = str(b.get("anchored_at") or e.get("created_at"))[:10]
+            for r in b["records"]:
+                if not isinstance(r, dict) or r.get("signed") is not True:
+                    continue
+                d = r.get("signed_domain")
+                if not isinstance(d, str) or not d.strip() or own_witness(d):
+                    continue
+                d = d.strip().lower()
+                if not (isinstance(r.get("purpose"), str) and r["purpose"].startswith(POOL_PURPOSES)):
+                    other.add(d)
+                    continue
+                if d not in last:   # entries are read from the newest, so the first seen is the latest
+                    last[d] = {"signed_domain": d, "last_entry": e.get("n", i + 1), "last_signed": day}
+        if not done and i < 1:
+            done = True   # the whole ledger is inside the window
+    except Unreachable as e:
+        return c(cid, "not_yet", "the ledger did not answer, so the witness batches of the 30 days before %s cannot be read: %s" % (iso(hi), e), window=win, entries_read=read)
+    doms = sorted(last.values(), key=lambda x: x["signed_domain"])
+    facts = {"window": win, "line": POOL_LINE, "distinct": len(doms), "domains": doms, "entries_read": read,
+             "other_purposes_only": len(other - set(last))}
+    names = ", ".join("%s (latest batch %s, entry %s)" % (x["signed_domain"], x["last_signed"], x["last_entry"]) for x in doms) or "none"
+    if len(doms) < POOL_LINE:
+        return c(cid, "red", "%d outside witness(es) signed a FURUI or TOOSHI day with a key of their own domain in the 30 days before %s (the line is %d): %s" % (len(doms), iso(hi), POOL_LINE, names), **facts)
+    return c(cid, "ok", "%d outside witnesses signed a FURUI or TOOSHI day with a key of their own domain in the 30 days before %s: %s" % (len(doms), iso(hi), names), **facts)
+
+
 def run(get, now, trigger="manual"):
     if trigger not in TRIGGERS:
         raise ValueError("trigger must be one of " + ", ".join(TRIGGERS))
@@ -1543,6 +1630,7 @@ def run(get, now, trigger="manual"):
     checks += [check_door_runner(get), check_day_root(get, now), check_leaves(get, now), check_heartbeat(get, now)]
     checks += [check_canary(get, now), check_witness_answer(get, now)]
     checks += [check_cross_client(get, now), check_main_ci(get, now), check_paid_rows(get, now), check_line_delivery(get, now), check_recovery(get, now)]
+    checks.append(check_witness_pool(get, now))
     checks.append(check_deadlines(get, now, checks))
     checks.sort(key=lambda x: x["id"])
     counts = {k: sum(1 for x in checks if x["state"] == k) for k in ("ok", "red", "notice", "not_yet")}
@@ -1751,6 +1839,22 @@ def selftest():
                 SWH_VISIT: (200, {"origin": SWH_ORIGIN, "date": "2026-11-04T10:57:22.815000+00:00", "status": "full", "visit": 99}),
                 DRILLS + "latest-github.json": drill("github", 279),
                 DRILLS + "latest-swh.json": drill("software-heritage", 270)}
+    # 16: below the entries 278 to 280 of witness_world, one witness batch of 2026-10-20 with three outside witnesses of a
+    # furui-day, and entry 276 made before the window (2026-10-06T03:47 UTC at the 11-05 run), where the read stops
+    def pool_rec(dom, purpose="furui-day-v0: 2026-10-18", signed=True, name="A Person"):
+        r = {"sha": hsh("%s|%s" % (dom, purpose)), "purpose": purpose, "witness_name": name, "vantage": "a laptop", "signed": signed, "mode": "commitment"}
+        if dom:
+            r["signed_domain"] = dom
+        return r
+
+    def pool_batch(n, at, recs, **f):
+        return (200, dict({"n": n, "created_at": at, "record_canonical": canonical({"schema": "nenrin-witness-batch-v1", "anchored_at": at, "count": len(recs), "records": recs})}, **f))
+    POOL3 = [pool_rec("a.example"), pool_rec("b.example"), pool_rec("github.com/someone", purpose="tooshi-day-v0: 2026-10-19")]
+
+    def pool_world(recs=None, n277="2026-10-20T00:30:30.000Z"):
+        return {LEDGER + "/ledger/277?format=json": pool_batch(277, n277, POOL3 if recs is None else recs),
+                LEDGER + "/ledger/276?format=json": (200, {"n": 276, "created_at": "2026-10-06T03:46:59.000Z", "record_canonical": "{}"})}
+
     def world(cc=False, prev=True, d4key=SK, adm_today=None, adm_prev=None, canary=None, canary_prev=True, wit=None, **over):
         w = {
             RUNNER + "/health": (200, {"runner": "hs-furui-runner 0.4.0", "key_id": "runner-1", "public_key_ed25519_b64": PUB, "rules_sha256": RULES if cc else None, "caps": dict(CAPS), "anthropic_key_set": True}),
@@ -1762,6 +1866,7 @@ def selftest():
         st3 = W3[RUNNER + "/furui/day/2026-11-03/status"][1]["status"]   # 9 reads the day before yesterday (11-03)
         w.update(witness_world("2026-11-03", sha, st3["root"], st3["n"], *(wit(sha, st3["root"], st3["n"]) if wit else ([answer("2026-11-03", sha, st3["root"], st3["n"])],))))
         w.update(v2_world())
+        w.update(pool_world())
         if cc:
             e5 = envelope("2026-11-05", 0)
             t5, r5 = adm_today or admission(e5)
@@ -2090,7 +2195,7 @@ def selftest():
     def st(get, cid, when=now):
         return [x for x in run(get, when)[0]["checks"] if x["id"] == cid][0]
     S10, S11, S12, S13, S14, S15 = "10_cross_client", "11_main_ci", "12_paid_rows_daily", "13_line_delivery", "14_not_yet_deadline", "15_recovery_fresh"
-    cases.append(("v2: the whole day holds with the six new checks: every check ok, the verdict green, 17 checks", (lambda r: (r["verdict"], len(r["checks"]), r["counts"]["ok"]))(run(world(cc=True), now)[0]), ("green", 17, 17)))
+    cases.append(("v2: the whole day holds with the six new checks and 16: every check ok, the verdict green, 18 checks", (lambda r: (r["verdict"], len(r["checks"]), r["counts"]["ok"]))(run(world(cc=True), now)[0]), ("green", 18, 18)))
     cases.append(("10: the draw of 2026-11-07 from five endpoints is the cross client's (cross_client_test.mjs has the same vector)", cross_draw("2026-11-07", list(reversed(CANDS))),
                   ["https://c.example/mcp", "https://d.example/mcp", "https://e.example/mcp"]))
     x10 = st(world(cc=True), S10)
@@ -2233,6 +2338,81 @@ def selftest():
     cases.append(("6 red on the real answers when the ledger head does not answer (a second batch cannot be ruled out)",
                   check_day_root(w6(**{LEDGER + "/ledger/head": (503, None)}), N6)["state"], "red"))
     cases.append(("6 red on the real answers when the record is in no batch", check_day_root(w6(**{LEDGER + "/furui-check-day/" + SHA6: (200, dict(REAL["rec_1104"], status="pending_anchor", ledger_entry=None))}), N6)["state"], "red"))
+
+    # ---- 16 witness_pool (2026-11-06) ----
+    S16 = "16_witness_pool"
+    x16 = st(world(cc=True), S16)
+    cases.append(("16 ok: three outside witnesses (a furui-day from two domains, a tooshi-day from a GitHub account) in the 30 days before 03:47 UTC",
+                  (x16["state"], x16["facts"]["distinct"], [(d["signed_domain"], d["last_signed"], d["last_entry"]) for d in x16["facts"]["domains"]], x16["facts"]["window"]),
+                  ("ok", 3, [("a.example", "2026-10-20", 277), ("b.example", "2026-10-20", 277), ("github.com/someone", "2026-10-20", 277)], ["2026-10-06T03:47:00Z", "2026-11-05T03:47:00Z"])))
+    p16 = lambda recs, n277="2026-10-20T00:30:30.000Z", **o: st(world(cc=True, **dict(pool_world(recs, n277), **o)), S16)
+    x16r = p16(POOL3[:2])
+    cases.append(("16 red: two outside witnesses (the line is 3); the day is red", (x16r["state"], x16r["facts"]["distinct"], run(world(cc=True, **pool_world(POOL3[:2])), now)[0]["verdict"]), ("red", 2, "red")))
+    cases.append(("16 red: no outside witness at all", (lambda x: (x["state"], x["facts"]["distinct"], x["facts"]["domains"]))(p16([])), ("red", 0, [])))
+    OURS = [pool_rec(d) for d in ("horizonshield.dev", "gate.horizonshield.dev", "the-horizons-innovation.com", "Shield.The-Horizons-Innovation.com",
+                                  "hs-kira-line.oga-surf-project.workers.dev", "github.com/ogasurfproject-jpg", "GitHub.com/OgaSurfProject-JPG")]
+    cases.append(("16 red: our zones, their subdomains (any case) and our GitHub account are not outside witnesses", (lambda x: (x["state"], x["facts"]["distinct"]))(p16(OURS + POOL3[:2])), ("red", 2)))
+    LOOK = [pool_rec("horizonshield.dev.example"), pool_rec("nothorizonshield.dev"), pool_rec("github.com/ogasurfproject-jpg-x")]
+    cases.append(("16 ok: names that only look like ours (a suffix without the dot, a longer GitHub account) are outside witnesses",
+                  (lambda x: (x["state"], [d["signed_domain"] for d in x["facts"]["domains"]]))(p16(LOOK)), ("ok", ["github.com/ogasurfproject-jpg-x", "horizonshield.dev.example", "nothorizonshield.dev"])))
+    WALK = [pool_rec("c.example", purpose="a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp"), pool_rec("d.example", purpose="nenrin-instant-commitment-v1: w1"),
+            pool_rec("e.example", purpose="furui-day-v0 2026-10-18"), pool_rec("f.example", purpose=None)]
+    x16w = p16(POOL3[:2] + WALK)
+    cases.append(("16 red: a walk of an endpoint, other purposes and a purpose without the day's prefix are not signatures over a day root (named as a number only)",
+                  (x16w["state"], x16w["facts"]["distinct"], x16w["facts"]["other_purposes_only"]), ("red", 2, 4)))
+    UNS = [pool_rec("c.example", signed=False), pool_rec(None), pool_rec("", signed=True), pool_rec("  ", signed=True), dict(pool_rec("d.example"), signed="true"), "x", None]
+    cases.append(("16 red: unsigned records, records without a signed_domain and records of another shape are not counted", (lambda x: (x["state"], x["facts"]["distinct"]))(p16(POOL3[:2] + UNS)), ("red", 2)))
+    x16d = st(world(cc=True, **dict(pool_world(POOL3[:2] + [pool_rec("A.Example", purpose="tooshi-day-v0: 2026-10-19")]),
+                                    **{LEDGER + "/ledger/279?format=json": pool_batch(279, "2026-11-04T23:00:00.000Z", [pool_rec("a.example", purpose="furui-day-v0: 2026-11-02")])})), S16)
+    cases.append(("16: one domain in several records and batches is one witness, and its latest batch is named", (x16d["state"], x16d["facts"]["distinct"], x16d["facts"]["domains"][0]),
+                  ("red", 2, {"signed_domain": "a.example", "last_entry": 279, "last_signed": "2026-11-04"})))
+    cases.append(("16 red: a batch made 1 second before the window (2026-10-06T03:46:59Z) is not read; at 03:47:00 it is",
+                  (p16(POOL3, n277="2026-10-06T03:46:59.000Z")["state"], p16(POOL3, n277="2026-10-06T03:47:00.000Z")["state"]), ("red", "ok")))
+    LATE = {LEDGER + "/ledger/head": (200, {"n": 281}), LEDGER + "/ledger/281?format=json": pool_batch(281, "2026-11-05T05:00:00.000Z", [pool_rec("z.example")])}
+    r16a, r16b = run(world(cc=True, **dict(pool_world(POOL3[:2]), **LATE)), now)[0], run(world(cc=True, **dict(pool_world(POOL3[:2]), **LATE)), now.replace(hour=11, minute=50))[0]
+    cases.append(("16: a batch made after 03:47 UTC of the day is not counted, so the 04:05 and 11:50 runs give the same 16",
+                  ([x for x in r16a["checks"] if x["id"] == S16] == [x for x in r16b["checks"] if x["id"] == S16], [x for x in r16a["checks"] if x["id"] == S16][0]["facts"]["distinct"]), (True, 2)))
+    PEND = {LEDGER + "/witness/pending": (200, {"count": 3, "pending": [dict(pool_rec(d), submitted_at="2026-11-05T01:00:00Z") for d in ("x.example", "y.example", "z.example")]})}
+    cases.append(("16 red: signed records still in the pool are not counted (only the ledger's batches)", (lambda x: (x["state"], x["facts"]["distinct"]))(p16(POOL3[:2], **PEND)), ("red", 2)))
+    x16n = st(world(cc=True, **{LEDGER + "/ledger/head": "down"}), S16)
+    cases.append(("16 not_yet, not red: the ledger's head does not answer", (x16n["state"], "did not answer" in x16n["why"]), ("not_yet", True)))
+    cases.append(("16 not_yet, not red: an entry inside the window does not answer (5xx three times) or answers 404",
+                  (st(world(cc=True, **{LEDGER + "/ledger/278?format=json": "down"}), S16)["state"], st(world(cc=True, **{LEDGER + "/ledger/277?format=json": (404, {"error": "not found"})}), S16)["state"]), ("not_yet", "not_yet")))
+    cases.append(("16 not_yet: the head answers without n", st(world(cc=True, **{LEDGER + "/ledger/head": (200, {"schema": "jidec-head-v1"})}), S16)["state"], "not_yet"))
+    MANY = lambda u, raw=False: (200, {"n": 5000}) if u == LEDGER + "/ledger/head" else ((200, {"n": 1, "created_at": "2026-11-01T00:00:00.000Z", "record_canonical": "{}"}) if "/ledger/" in u else (404, None))
+    x16m = check_witness_pool(MANY, now)
+    cases.append(("16 not_yet: the window holds more entries than the scan reads (600)", (x16m["state"], x16m["facts"]["entries_read"]), ("not_yet", POOL_SCAN)))
+    SHORT = {LEDGER + "/ledger/head": (200, {"n": 2}), LEDGER + "/ledger/2?format=json": pool_batch(2, "2026-10-30T00:30:00.000Z", POOL3), LEDGER + "/ledger/1?format=json": (200, {"n": 1, "created_at": "2026-10-29T00:00:00.000Z"})}
+    cases.append(("16 ok: a ledger that starts inside the window is read to entry 1", (lambda x: (x["state"], x["facts"]["entries_read"]))(check_witness_pool(world(**SHORT), now)), ("ok", 2)))
+    NY16 = {LEDGER + "/ledger/head": "down"}
+    cases.append(("14: 16 not_yet has a deadline of 48 hours: one day before is within it, three days before is past it",
+                  (st(world(cc=True, **dict(NY16, **{DAY_URL % "2026-11-04": pub_day("x", **{S16: "not_yet"})})), S14)["state"],
+                   st(world(cc=True, **dict(NY16, **{DAY_URL % (now - datetime.timedelta(days=i)).strftime("%Y-%m-%d"): pub_day("x", **{S16: "not_yet"}) for i in (1, 2, 3)})), S14)["state"]), ("ok", "red")))
+    cases.append(("16: no name of a person is in the result (witness_name and vantage of the batch records are never read)",
+                  any(w in json.dumps(run(world(cc=True), now)[0]) for w in ("A Person", "a laptop")), False))
+    cases.append(("16 does not change the states of 1 to 15 (the same run with 16 ok and 16 red)",
+                  (lambda a, b: {k: v for k, v in a.items() if k != S16} == {k: v for k, v in b.items() if k != S16})(states(world(cc=True))[1], states(world(cc=True, **pool_world([])))[1]), True))
+    # 16 on 2026-11-06's real answers (tooshi_real_pool_20261106.json: the ledger's entries 260 down to 72, names taken out)
+    RP = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "tooshi_real_pool_20261106.json"), encoding="utf-8"))
+
+    def wp(add=None, **over):
+        w = {LEDGER + "/ledger/head": (200, {"n": RP["ledger_head_n"]})}
+        for k, v in RP["entries"].items():
+            w[LEDGER + "/ledger/%s?format=json" % k] = (200, v)
+        if add:
+            e = dict(RP["entries"]["256"]); b = json.loads(e["record_canonical"]); b["records"] = b["records"] + add; e["record_canonical"] = canonical(b)
+            w[LEDGER + "/ledger/256?format=json"] = (200, e)
+        w.update(over)
+        return lambda u, raw=False: w[u] if u in w else (404, None)
+    r16 = check_witness_pool(wp(), N6)
+    cases.append(("16 red on 2026-11-06's real answers: one outside witness signed a day root in the 30 days (pipavlo82.github.io, furui-day of 11-03, entry 256)",
+                  (r16["state"], r16["facts"]["distinct"], r16["facts"]["domains"], r16["facts"]["entries_read"], r16["facts"]["window"]),
+                  ("red", 1, [{"signed_domain": "pipavlo82.github.io", "last_entry": 256, "last_signed": "2026-11-06"}], 189, ["2026-10-07T03:47:00Z", "2026-11-06T03:47:00Z"])))
+    cases.append(("16 on the real answers: the outside domains that only walked an endpoint (two) are a number in facts, not witnesses", r16["facts"]["other_purposes_only"], 2))
+    cases.append(("16 red on the real answers with a second outside witness of the same day (2 of 3)", check_witness_pool(wp([pool_rec("w2.example", purpose="furui-day-v0: 2026-11-03")]), N6)["facts"]["distinct"], 2))
+    cases.append(("16 ok on the real answers with two more outside witnesses of the same day (3)",
+                  check_witness_pool(wp([pool_rec("w2.example", purpose="furui-day-v0: 2026-11-03"), pool_rec("w3.example", purpose="furui-day-v0: 2026-11-03")]), N6)["state"], "ok"))
+    cases.append(("16 not_yet on the real answers when entry 150 inside the window does not answer", check_witness_pool(wp(**{LEDGER + "/ledger/150?format=json": (503, None)}), N6)["state"], "not_yet"))
 
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:
