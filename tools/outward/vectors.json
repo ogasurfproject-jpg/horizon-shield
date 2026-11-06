@@ -1,0 +1,287 @@
+{
+  "cases": [
+    {
+      "expect": "ok",
+      "facts_sha256": "47a7abb9d0b9fa6f2ae14a19fd117abd809845c167073d83a6df3fc1d755f43f",
+      "key_doc": {
+        "key_id": "ed25519:21fe31dfa154a261",
+        "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=",
+        "purpose": "outward witness: HORIZON SHIELD recomputes and signs other projects' records",
+        "since": "2026-11-06"
+      },
+      "name": "slot_log_2026-10-10_ok",
+      "object": {
+        "anchor": {
+          "block_hash": "000000000000000000009f573a04fc58a3c5e4757c3ef97c2254e5fd99803735",
+          "block_height": 970851
+        },
+        "kind": "outside-record",
+        "limits": [
+          "only the steps listed in recomputed were recomputed here; this answer does not say the record is complete or that its content is true",
+          "the bytes are what record_url served to this vantage at observed_at; what it served to others or at other times is not covered",
+          "the Bitcoin block, when named, was checked against two public block explorers that agreed; no node of our own was run"
+        ],
+        "observed_at": "2026-11-06T12:49:18Z",
+        "recomputed": [
+          "bytes_sha256",
+          "entries_parse",
+          "merkle_root",
+          "prev_root_chain",
+          "ots_anchor"
+        ],
+        "record_kind": "invinoveritas-slot-log",
+        "record_sha256": "28c3b6057bea063faf068d889240c692c1608a477e9480fa5165fe2a9b0769b0",
+        "record_url": "https://invinoveritas.dev/decision-receipt/slots/log/2026-10-10",
+        "schema": "witness-answer-v0.1",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "lMj8hJnmOXMg+4PpbtZA8fkTZIsarLvPPhwXY583DANk22YfO/TpydAM347DHxwoccPx+EnLGURcRABHdoCPBA=="
+        },
+        "subject_domain": "invinoveritas.dev",
+        "tool": "tools/outward/outward_witness.py sha256:7c9bbe5ec9b3fb774e8fa0f54247e93c34ddf8e5d16fe3073420de0ae81a262d",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://horizonshield.dev/.well-known/nenrin-witness-key.json",
+          "name": "horizonshield.dev"
+        }
+      },
+      "preimage_sha256": "0c6a4017b41d7491fd20c57caec55864455d57a996a6bbcee19eb52ac2767287"
+    },
+    {
+      "expect": "ok",
+      "facts_sha256": null,
+      "key_doc": {
+        "key_id": "ed25519:21fe31dfa154a261",
+        "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=",
+        "purpose": "outward witness: HORIZON SHIELD recomputes and signs other projects' records",
+        "since": "2026-11-06"
+      },
+      "name": "slot_log_2026-10-10_ots_not_served",
+      "object": {
+        "anchor": null,
+        "kind": "outside-record",
+        "limits": [
+          "only the steps listed in recomputed were recomputed here; this answer does not say the record is complete or that its content is true",
+          "the bytes are what record_url served to this vantage at observed_at; what it served to others or at other times is not covered",
+          "the Bitcoin block, when named, was checked against two public block explorers that agreed; no node of our own was run"
+        ],
+        "observed_at": "2026-11-06T12:49:18Z",
+        "recomputed": [
+          "bytes_sha256",
+          "entries_parse",
+          "merkle_root",
+          "prev_root_chain"
+        ],
+        "record_kind": "invinoveritas-slot-log",
+        "record_sha256": "28c3b6057bea063faf068d889240c692c1608a477e9480fa5165fe2a9b0769b0",
+        "record_url": "https://invinoveritas.dev/decision-receipt/slots/log/2026-10-10",
+        "schema": "witness-answer-v0.1",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "lrnxdffuO1W93AnP3BQVsbc7dBX0E6lB6/8S1kTqNx6RClDDVCOL+OhuEuJP0pCn7xrl97Icuq57DR3MZTscBA=="
+        },
+        "subject_domain": "invinoveritas.dev",
+        "tool": "tools/outward/outward_witness.py sha256:7c9bbe5ec9b3fb774e8fa0f54247e93c34ddf8e5d16fe3073420de0ae81a262d",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://horizonshield.dev/.well-known/nenrin-witness-key.json",
+          "name": "horizonshield.dev"
+        }
+      },
+      "preimage_sha256": "fbf58d0ccaca133f7ed11d2860bb1588076a0425e0fa825aaff54aeb968ec411"
+    },
+    {
+      "expect": "ok",
+      "facts_sha256": null,
+      "key_doc": {
+        "key_id": "ed25519:21fe31dfa154a261",
+        "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=",
+        "purpose": "outward witness: HORIZON SHIELD recomputes and signs other projects' records",
+        "since": "2026-11-06"
+      },
+      "name": "bytes_ed25519_ots_ok",
+      "object": {
+        "anchor": {
+          "block_hash": "4e6312787de95f9b0c3f842c3598a17c40e61fda4381b4ab38457d88331ad491",
+          "block_height": 900001
+        },
+        "kind": "outside-record",
+        "limits": [
+          "only the steps listed in recomputed were recomputed here; this answer does not say the record is complete or that its content is true",
+          "the bytes are what record_url served to this vantage at observed_at; what it served to others or at other times is not covered",
+          "the Bitcoin block, when named, was checked against two public block explorers that agreed; no node of our own was run"
+        ],
+        "observed_at": "2026-11-06T13:00:00Z",
+        "recomputed": [
+          "bytes_sha256",
+          "ots_anchor",
+          "signature"
+        ],
+        "record_kind": "bytes",
+        "record_sha256": "0ad9b44995fc01cd9fa90620235d8dde0a2c424194670dfd75f0f39a6d20d147",
+        "record_url": "https://records.example/r/v1.2.3.json",
+        "schema": "witness-answer-v0.1",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "4la7Blspp2xmOJRE6gtRcHqdGKDNSzVH2nFc8rW1NX81Z1X+edY5mzd1GKVkS6uums3vNbQeiiybTo4LRFoIAg=="
+        },
+        "subject_domain": "records.example",
+        "tool": "tools/outward/outward_witness.py sha256:7c9bbe5ec9b3fb774e8fa0f54247e93c34ddf8e5d16fe3073420de0ae81a262d",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://horizonshield.dev/.well-known/nenrin-witness-key.json",
+          "name": "horizonshield.dev"
+        }
+      },
+      "preimage_sha256": "c5172a8be800aea8eb8c751281c192872109286eb987194fd955a4b539c73f9f"
+    },
+    {
+      "expect": "fail:signature",
+      "facts_sha256": null,
+      "key_doc": {
+        "key_id": "ed25519:21fe31dfa154a261",
+        "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=",
+        "purpose": "outward witness: HORIZON SHIELD recomputes and signs other projects' records",
+        "since": "2026-11-06"
+      },
+      "name": "slot_log_changed_after_signing",
+      "object": {
+        "anchor": {
+          "block_hash": "000000000000000000009f573a04fc58a3c5e4757c3ef97c2254e5fd99803735",
+          "block_height": 970851
+        },
+        "kind": "outside-record",
+        "limits": [
+          "only the steps listed in recomputed were recomputed here; this answer does not say the record is complete or that its content is true",
+          "the bytes are what record_url served to this vantage at observed_at; what it served to others or at other times is not covered",
+          "the Bitcoin block, when named, was checked against two public block explorers that agreed; no node of our own was run"
+        ],
+        "observed_at": "2026-11-06T12:49:18Z",
+        "recomputed": [
+          "bytes_sha256",
+          "entries_parse",
+          "merkle_root",
+          "prev_root_chain",
+          "ots_anchor"
+        ],
+        "record_kind": "invinoveritas-slot-log",
+        "record_sha256": "d9298a10d1b0735837dc4bd85dac641b0f3cef27a47e5d53a54f2f3f5b2fcffa",
+        "record_url": "https://invinoveritas.dev/decision-receipt/slots/log/2026-10-10",
+        "schema": "witness-answer-v0.1",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "lMj8hJnmOXMg+4PpbtZA8fkTZIsarLvPPhwXY583DANk22YfO/TpydAM347DHxwoccPx+EnLGURcRABHdoCPBA=="
+        },
+        "subject_domain": "invinoveritas.dev",
+        "tool": "tools/outward/outward_witness.py sha256:7c9bbe5ec9b3fb774e8fa0f54247e93c34ddf8e5d16fe3073420de0ae81a262d",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://horizonshield.dev/.well-known/nenrin-witness-key.json",
+          "name": "horizonshield.dev"
+        }
+      },
+      "preimage_sha256": "3fe4c1e3cbc1103d5371db4425c111d79d9a5988a3ffdf901762769cfc345905"
+    },
+    {
+      "expect": "fail:key_id",
+      "facts_sha256": null,
+      "key_doc": {
+        "public_key_ed25519_b64": "PUAXw+hDiVqStwqnTRt+vJyYLM8uxJaMwM1V8Sr0Zgw="
+      },
+      "name": "key_url_serves_another_key",
+      "object": {
+        "anchor": {
+          "block_hash": "000000000000000000009f573a04fc58a3c5e4757c3ef97c2254e5fd99803735",
+          "block_height": 970851
+        },
+        "kind": "outside-record",
+        "limits": [
+          "only the steps listed in recomputed were recomputed here; this answer does not say the record is complete or that its content is true",
+          "the bytes are what record_url served to this vantage at observed_at; what it served to others or at other times is not covered",
+          "the Bitcoin block, when named, was checked against two public block explorers that agreed; no node of our own was run"
+        ],
+        "observed_at": "2026-11-06T12:49:18Z",
+        "recomputed": [
+          "bytes_sha256",
+          "entries_parse",
+          "merkle_root",
+          "prev_root_chain",
+          "ots_anchor"
+        ],
+        "record_kind": "invinoveritas-slot-log",
+        "record_sha256": "28c3b6057bea063faf068d889240c692c1608a477e9480fa5165fe2a9b0769b0",
+        "record_url": "https://invinoveritas.dev/decision-receipt/slots/log/2026-10-10",
+        "schema": "witness-answer-v0.1",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "lMj8hJnmOXMg+4PpbtZA8fkTZIsarLvPPhwXY583DANk22YfO/TpydAM347DHxwoccPx+EnLGURcRABHdoCPBA=="
+        },
+        "subject_domain": "invinoveritas.dev",
+        "tool": "tools/outward/outward_witness.py sha256:7c9bbe5ec9b3fb774e8fa0f54247e93c34ddf8e5d16fe3073420de0ae81a262d",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://horizonshield.dev/.well-known/nenrin-witness-key.json",
+          "name": "horizonshield.dev"
+        }
+      },
+      "preimage_sha256": "0c6a4017b41d7491fd20c57caec55864455d57a996a6bbcee19eb52ac2767287"
+    },
+    {
+      "expect": "fail:shape",
+      "facts_sha256": null,
+      "key_doc": {
+        "key_id": "ed25519:21fe31dfa154a261",
+        "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=",
+        "purpose": "outward witness: HORIZON SHIELD recomputes and signs other projects' records",
+        "since": "2026-11-06"
+      },
+      "name": "subject_is_our_own_domain",
+      "object": {
+        "anchor": {
+          "block_hash": "000000000000000000009f573a04fc58a3c5e4757c3ef97c2254e5fd99803735",
+          "block_height": 970851
+        },
+        "kind": "outside-record",
+        "limits": [
+          "only the steps listed in recomputed were recomputed here; this answer does not say the record is complete or that its content is true",
+          "the bytes are what record_url served to this vantage at observed_at; what it served to others or at other times is not covered",
+          "the Bitcoin block, when named, was checked against two public block explorers that agreed; no node of our own was run"
+        ],
+        "observed_at": "2026-11-06T12:49:18Z",
+        "recomputed": [
+          "bytes_sha256",
+          "entries_parse",
+          "merkle_root",
+          "prev_root_chain",
+          "ots_anchor"
+        ],
+        "record_kind": "invinoveritas-slot-log",
+        "record_sha256": "28c3b6057bea063faf068d889240c692c1608a477e9480fa5165fe2a9b0769b0",
+        "record_url": "https://invinoveritas.dev/decision-receipt/slots/log/2026-10-10",
+        "schema": "witness-answer-v0.1",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "lMj8hJnmOXMg+4PpbtZA8fkTZIsarLvPPhwXY583DANk22YfO/TpydAM347DHxwoccPx+EnLGURcRABHdoCPBA=="
+        },
+        "subject_domain": "horizonshield.dev",
+        "tool": "tools/outward/outward_witness.py sha256:7c9bbe5ec9b3fb774e8fa0f54247e93c34ddf8e5d16fe3073420de0ae81a262d",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://horizonshield.dev/.well-known/nenrin-witness-key.json",
+          "name": "horizonshield.dev"
+        }
+      },
+      "preimage_sha256": "c64e11018992e47d44f12003f6bfe3b44519d4f952ef4781c9eca30e147c7698"
+    }
+  ],
+  "key": "RFC 8032 section 7.1 TEST 1 (a public test key)",
+  "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=",
+  "schema": "witness-answer-v0.1-vectors",
+  "tool_sha256_in_answers": "7c9bbe5ec9b3fb774e8fa0f54247e93c34ddf8e5d16fe3073420de0ae81a262d"
+}

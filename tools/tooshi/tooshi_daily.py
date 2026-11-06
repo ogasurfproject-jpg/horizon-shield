@@ -2413,6 +2413,21 @@ def selftest():
     cases.append(("16 ok on the real answers with two more outside witnesses of the same day (3)",
                   check_witness_pool(wp([pool_rec("w2.example", purpose="furui-day-v0: 2026-11-03"), pool_rec("w3.example", purpose="furui-day-v0: 2026-11-03")]), N6)["state"], "ok"))
     cases.append(("16 not_yet on the real answers when entry 150 inside the window does not answer", check_witness_pool(wp(**{LEDGER + "/ledger/150?format=json": (503, None)}), N6)["state"], "not_yet"))
+    # our outward answers (tools/outward/outward_witness.py: horizonshield.dev recomputes another project's record and signs it)
+    # go to the ledger as entries of their own; they are not outside witnesses of our days
+    OUTW = canonical({"schema": "witness-answer-v0.1", "kind": "outside-record", "subject_domain": "invinoveritas.dev", "record_kind": "invinoveritas-slot-log",
+                      "record_url": "https://invinoveritas.dev/decision-receipt/slots/log/2026-10-10", "record_sha256": hsh("day file"),
+                      "recomputed": ["bytes_sha256", "entries_parse", "merkle_root", "prev_root_chain", "ots_anchor"], "anchor": {"block_height": 970851, "block_hash": hsh("block")},
+                      "tool": "tools/outward/outward_witness.py sha256:" + hsh("tool"), "observed_at": "2026-11-05T12:00:00Z", "limits": ["only the steps listed"],
+                      "witness": {"name": "horizonshield.dev", "key_id": "ed25519:0000000000000000", "key_url": "https://horizonshield.dev/.well-known/nenrin-witness-key.json"},
+                      "signature": {"alg": "ed25519", "key_id": "ed25519:0000000000000000", "sig": "A" * 86 + "=="}})
+    NO = RP["ledger_head_n"] + 1
+    r16o = check_witness_pool(wp(**{LEDGER + "/ledger/head": (200, {"n": NO}), LEDGER + "/ledger/%d?format=json" % NO: (200, {"n": NO, "created_at": "2026-11-05T12:00:01.000Z",
+                                    "claim_sha256": hashlib.sha256(OUTW.encode("utf-8")).hexdigest(), "record_canonical": OUTW, "schema": "v0",
+                                    "work": "NENRIN outward witness: invinoveritas.dev invinoveritas-slot-log 2026-10-10"})}), N6)
+    r16s = check_witness_pool(wp([pool_rec("horizonshield.dev", purpose="furui-day-v0: 2026-11-03"), pool_rec("outward.horizonshield.dev", purpose="tooshi-day-v0: 2026-11-04")]), N6)
+    cases.append(("16 red on the real answers with our outward answer in the ledger (an entry of its own) or signed records from horizonshield.dev in a batch: distinct stays 1",
+                  (r16o["state"], r16o["facts"]["distinct"], r16o["facts"]["entries_read"], r16s["state"], r16s["facts"]["distinct"]), ("red", 1, 190, "red", 1)))
 
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:

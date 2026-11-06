@@ -1,0 +1,6 @@
+{
+  "key_id": "ed25519:b90df3ccd6740c50",
+  "public_key_ed25519_b64": "xV59J7HrWYy28nPoAnIq2aNglGO3QeeIM13l6DXy7z4=",
+  "purpose": "outward witness: HORIZON SHIELD recomputes and signs other projects' records",
+  "since": "2026-11-06"
+}
