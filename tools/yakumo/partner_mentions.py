@@ -106,7 +106,8 @@ def store_place(s):
             if not (g.get("@id") and a.get("addressLocality") and a.get("streetAddress") and g.get("telephone")): return None
             return {"id": g["@id"], "name": g.get("name") or s.get("name"), "url": g.get("url") or s.get("profile_url"),
                     "address": {k: a[k] for k in ("@type", "postalCode", "addressRegion", "addressLocality", "streetAddress", "addressCountry") if a.get(k)},
-                    "telephone": g["telephone"], "geo": g.get("geo"), "hasMap": g.get("hasMap")}
+                    "telephone": g["telephone"], "geo": g.get("geo"), "hasMap": g.get("hasMap"),
+                    "alternateName": g.get("alternateName"), "sameAs": g.get("sameAs")}
     return None
 
 # 2026-11-06: 正規の URL(canonical)が別の頁を指す頁には書かない(引かれるのは正規の側。重複を集約した頁に欄を置いても届かない)
@@ -126,6 +127,8 @@ def place_ld(label, stores):
               "address": pl["address"], "telephone": pl["telephone"], "areaServed": (s.get("areas_served") or [])[:12]}
         if pl.get("geo"): it["geo"] = pl["geo"]
         if pl.get("hasMap"): it["hasMap"] = pl["hasMap"]
+        if pl.get("alternateName"): it["alternateName"] = pl["alternateName"]
+        if pl.get("sameAs"): it["sameAs"] = pl["sameAs"]
         items.append({"@type": "ListItem", "position": i, "item": it})
     if not items: return ""
     d = {"@context": "https://schema.org", "@type": "ItemList", "name": "%sを検証済みの業者(Yakumo)" % label, "itemListElement": items}
