@@ -1,0 +1,27 @@
+{
+ "agree": 112,
+ "diffs": {},
+ "one_to_one": {
+  "criteria_committed_before_check": true,
+  "criteria_hash": true
+ },
+ "value_maps": {
+  "criteria_committed_before_check": {
+   "no": [
+    "\"no\""
+   ],
+   "yes": [
+    "\"yes\""
+   ]
+  },
+  "criteria_hash": {
+   "match": [
+    "\"match\""
+   ],
+   "mismatch": [
+    "\"mismatch\""
+   ]
+  }
+ },
+ "vectors": 112
+}

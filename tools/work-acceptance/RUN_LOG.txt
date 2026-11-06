@@ -1,0 +1,18 @@
+2026-11-07T01:51:51+0900 war145 run, source tag v1.4.5 = 066315f0cbf6199339d5432e4bbec4ecf2c59df4
+sandbox profile: (version 1)(allow default)(deny network-outbound)(allow network-outbound (remote ip "localhost:*"))(allow network-outbound (remote unix-socket))
+network probe 1.1.1.1:443 -> PermissionError [Errno 1] Operation not permitted
+Python 3.14.7
+c9a7883c1c3701097af6f1a2f9406ba7e227b8699f9ebaa24d2bc3dc76ba1f22  war145_check.py
+cc601aced836460d020a536169eaa7fe50d02dc1f52009408cad437b99eb16cf  mask144.py
+7510b9a9bce9ca3cd021fc2f707b440263ae04fed62a1398daa0758aaa794fe5  compare.py
+c323320c71e2e3527ee6caf6336557df3025533202707a9007dcddca642195ce  SHA256SUMS_data_066315f.txt
+113
+files 112
+removed field names: {'contributed_by': 85, 'description': 112, 'difference': 1, 'expected': 112, 'expected_is': 6, 'pins': 10, 'proposed_by': 1, 'source': 8, 'spec': 103, 'test_key_seeds': 26, 'title': 110, 'tsa_signature_accepted': 1, 'warning': 109}
+names inside expected (no values): {'criteria_committed_before_check': 110, 'criteria_hash': 110, 'independence': 110, 'problem_codes': 110, 'reason': 2, 'receipt_timestamp': 110, 'refused': 2, 'signature_valid': 110, 'tsa_signature': 28, 'verdict_recomputed': 110, 'verdict_stated': 110, 'warning_codes': 110}
+selftest PASS
+vectors 112
+2026-11-07T01:51:53+0900 FROZEN verdicts sha256 7a56d21edbccf00f318a47913816a076bbf02f35506ec966e0ecd51a5f15f8eb
+agree 112 of 112
+one_to_one {'criteria_hash': True, 'criteria_committed_before_check': True}
+differs from the war144 run (d3093164): ['110-producer-key-only-in-issuer-keys.json', '112-relying-party-key-non-canonical-base64.json']

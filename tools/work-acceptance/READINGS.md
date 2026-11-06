@@ -1,0 +1,23 @@
+# READINGS (written before the freeze; checker impl/war_check.py)
+
+Source text: README.md of maximusrufus/work-acceptance-record at 6bb7d0b9 (draft profile 1.4.3, schema 1.2):
+Properties 1-5, Verification procedure steps 1-11, Changelog, the vector-format paragraph (lines 159-160).
+
+| R | Section | Text | Chosen reading | Other reading | Vectors it touches |
+|---|---|---|---|---|---|
+| R1 | step 2 | "any other key ... is KEY_REJECTED and no signature check is run" | KEY_REJECTED only; signature_valid false; no SIGNATURE_INVALID | KEY_REJECTED and SIGNATURE_INVALID | 26, 27, 75 |
+| R2 | step 8 | "PRODUCER_UNDECLARED follows the parties block (no producer named)" | derived independence is what the checker side gives (here independent); warning only | derived self-checked (independence cannot be shown), which would add INDEPENDENCE_INCONSISTENT | 20 |
+| R3 | Property 3, step 10 | "The checker key must not equal the producer key"; KEY_COLLISION for "two identifiers whose entries decode to one public key" | KEY_COLLISION also when producer and checker name the same key_id | KEY_COLLISION only for two different identifiers; same id gives self-checked only | 05 |
+| R4 | step 10 Types | "refused as an unsupported schema" | outcome is the step 1 refusal object, same reason string | refused with another reason string | 77 |
+| R5 | Property 4 | "any required not-evaluated or error makes it incomplete" | a required result outside the vocabulary is not pass, so the recomputed verdict is incomplete (plus RESULT_VOCABULARY) | recomputed verdict fail, or no recomputed verdict | 19 |
+| R6 | Property 3, step 8 | "a self-check is labelled self-checked and verifiers warn on it" | SELF_CHECKED is raised on the derived independence | raised on the stated independence | 13 (and every vector where stated and derived differ) |
+| R7 | step 4 | "check the results correspond to the criteria" | same set of ids and same required flag per id | only that every result id is in the criteria | 14 |
+| R8 | step 5 | "(CRITERIA_TIMESTAMP_MISMATCH otherwise) ... Without a usable token (none, or one over other bytes), fall back ... and warn CRITERIA_COMMITMENT_UNVERIFIED" | a token over other bytes gives both the problem and the warning, with fallback to committed_at | the warning only | 15, 23-25, 50, 58, 67, 90 |
+| R9 | step 2, step 10, 11 Keys | key rule applies to the signer's entry and any entry a party names; 1.4.2 says self-checked for non-canonical base64 (69) and repeated ids (75) | a party key that is canonical base64 but not a prime-order point (small order, y >= p) is KEY_REJECTED and does not change independence | it also makes independence self-checked | 26, 27 |
+| R10 | outcome form | the text names outcome fields but not the values of criteria_hash and criteria_committed_before_check | criteria_hash: match / mismatch / not_supplied; committed_before: yes / no ("is no" appears in the text) | other spellings; compare decides by a one-to-one value mapping declared before the expected values were opened | all |
+| R11 | step 9 | "Without relying-party anchors ... not_evaluated, and an absent field reads the same" | emit not_evaluated for every token present; in the comparison an absent expected tsa_signature reads as not_evaluated for each token present | emit nothing | all without anchors |
+| R12 | step 5, step 9 | imprint is read from "its signed TSTInfo" | imprint and genTime are read from eContent even when eContentType is not id-ct-TSTInfo; only tsa_signature fails | the token is unusable for step 5 | 39 (if eContentType was changed) |
+| R13 | step 5 | covering token "bounds the check from above"; accuracy "widens its time against committed before"; 1.4.3: round to the ms first, reference down | reference = min(issued_utc, floor_ms(record genTime) - accuracy) | apply accuracy to the record token as + | 22, 31-59 with record tokens |
+| R14 | step 2 | envelope key_id differs: SIGNATURE_INVALID, "the envelope cannot choose the key" | no signature check is run; signature_valid false | check under the signed key_id and report signature_valid true with SIGNATURE_INVALID | 64, 86 |
+| R15 | step 6 | "none (no timestamp or no token supplied)" | none is decided by whether a record token is supplied in the inputs; the envelope's timestamp.status is not read | none also when the envelope says status none or granted without a token | 09-11 (envelope granted, no token) |
+| R16 | step 9 | anchor "matched by subject name and public key" | an anchor matches when its subject equals the certificate's issuer and its key verifies that certificate's signature | compare the SPKI bytes of a token certificate with the anchor | 31-33, 53 |
