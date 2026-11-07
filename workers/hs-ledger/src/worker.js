@@ -2697,9 +2697,69 @@ export class FuruiDayIntake extends WorkerEntrypoint {
   }
 }
 
+// The root's page for browsers and crawlers (2026-11-07). GET / answers JSON, and a crawler that reads it as a web page
+// finds no title. Only a request whose Accept header prefers text/html gets the same JSON as a small HTML page (a title,
+// the JSON shown as it is, a link to the JSON); every other request gets the JSON bytes as before. Both carry
+// Vary: Accept. The rule, with q values parsed (a missing q is 1, an unreadable q counts as 0, wildcards count for neither):
+// HTML only when text/html is listed with q > 0, and, if application/json is also listed with q > 0, html's q is at
+// least json's and text/html comes first. No Accept, */* alone, application/json first, or ?format=json: JSON.
+function acceptPrefersHtml(accept) {
+  let html = null, json = null;
+  String(accept || "").split(",").forEach((part, i) => {
+    const bits = part.split(";").map((s) => s.trim());
+    const type = bits[0].toLowerCase();
+    if (type !== "text/html" && type !== "application/json") return;
+    let q = 1;
+    for (const b of bits.slice(1)) {
+      const m = /^q\s*=\s*(.*)$/i.exec(b);
+      if (m) { q = /^(0(\.\d{0,3})?|1(\.0{0,3})?)$/.test(m[1]) ? Number(m[1]) : 0; break; }
+    }
+    if (q <= 0) return;
+    if (type === "text/html") html = html ? { q: Math.max(html.q, q), i: html.i } : { q, i };
+    else json = json ? { q: Math.max(json.q, q), i: json.i } : { q, i };
+  });
+  if (!html) return false;
+  if (!json) return true;
+  return html.q >= json.q && html.i < json.i;
+}
+
+async function rootFace(request, res) {
+  const url = new URL(request.url);
+  const p = url.pathname.replace(/\/+$/, "") || "/";
+  if (p !== "/" || (request.method !== "GET" && request.method !== "HEAD") || !res || res.status !== 200) return res;
+  const headers = new Headers(res.headers);
+  headers.append("vary", "Accept");
+  if (url.searchParams.get("format") === "json" || !acceptPrefersHtml(request.headers.get("accept")))
+    return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+  const body = await res.text();
+  const page = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>hs-ledger: JIDEC public ledger, anchored to Bitcoin via OpenTimestamps</title>
+<meta name="description" content="The JIDEC ledger of HORIZON SHIELD: an append-only public ledger of hash claims, each anchored to Bitcoin via OpenTimestamps and recomputable by anyone. This page shows the service document that GET / returns as JSON.">
+<link rel="alternate" type="application/json" href="/?format=json">
+<style>body{margin:0;padding:24px 16px;background:#0b0b0f;color:#e8e8ee;font:15px/1.6 -apple-system,"Helvetica Neue",Arial,sans-serif}main{max-width:960px;margin:0 auto}h1{font-size:22px;margin:0 0 8px}a{color:#7b7bff}pre{font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;overflow-wrap:anywhere;border-top:1px solid #33334a;padding-top:12px}.k{font:12px ui-monospace,Menlo,monospace;color:#9a9ab0;text-transform:uppercase;letter-spacing:.08em}</style>
+</head>
+<body>
+<main>
+<div class="k">hs-ledger / ledger.horizonshield.dev</div>
+<h1>JIDEC public ledger, anchored to Bitcoin via OpenTimestamps</h1>
+<p>This is the service document of the ledger, the same content that <code>GET /</code> returns as JSON to clients that ask for JSON. Machine-readable: <a href="/?format=json">/?format=json</a> (or send <code>Accept: application/json</code>). Entries: <a href="/ledger">/ledger</a>.</p>
+<pre>${esc(body)}</pre>
+</main>
+</body>
+</html>
+`;
+  headers.set("content-type", "text/html; charset=utf-8");
+  headers.delete("content-length");
+  return new Response(request.method === "HEAD" ? null : page, { status: 200, headers });
+}
+
 export default {
   async fetch(request, env, ctx) {
-    const res = await handle(request, env);
+    const res = await rootFace(request, await handle(request, env));
     noteSubmitterNetwork(env, ctx, request);
     // 実測は応答を返す**前**に1点書く。writeDataPoint は待たない呼び出しなので
     // 遅延は増えない。noteHit の中は全部 try で囲ってあり、ここは throw しない。
