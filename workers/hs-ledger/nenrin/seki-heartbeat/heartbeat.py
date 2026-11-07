@@ -15,7 +15,8 @@ they wrote under runs/<day>/, the UTC day the run is for (see responsible_day):
              compare  50 tickets, prohibited           must be refused prohibited_action, nothing spent
            Every record the door signs is checked here under the key keys/seki-door.json publishes and must be on
            the ledger. Anything other than the expected answer is a failure (exit 1), so a broken door shows up as a
-           failed run, not as a quiet gap.
+           failed run, not as a quiet gap. Every call carries its payload as content for the door's content check
+           (FURUI); the door reads it only where its policy (GET /seki) requires the check (see the note at PAYLOAD).
   settle   Every earlier day whose records the ledger has batched and Bitcoin has confirmed is settled with
            settle v1.15 (and v1.12, which must agree on the verdict). The anchors are composed with anchor_compose
            from the ledger's own batch bytes and .ots proofs; the header view comes from two explorers, extended
@@ -61,9 +62,18 @@ EXPECT = [("report", 20, "admit", ["within_grant"], 200),
           ("compare", 50, "refuse", ["prohibited_action"], 403)]
 PAYLOAD = {
     "report": {"koji_type": "gaiheki_30tsubo", "teiji_kingaku": 1200000},
-    "audit": {"note": "SEKI heartbeat: the door refuses this call before the payload is read"},
-    "compare": {"note": "SEKI heartbeat: the door refuses this call before the payload is read"},
+    "audit": {"note": "SEKI heartbeat: the door refuses this call, so no report is made and nothing is spent"},
+    "compare": {"note": "SEKI heartbeat: the door refuses this call, so no report is made and nothing is spent"},
 }
+# 2026-11-07. The door can require the content check (FURUI) for a store. It then sends submission.content to its runner
+# itself and builds the admission's content block from the runner's signed envelope; a caller cannot bring an envelope
+# (the door drops submission.furui). So every call carries content, the payload it sends to /report. Whether the door
+# reads it is the door's policy, read once per run from GET /seki (the door's /policy); a run that cannot read it makes
+# no call. While the store does not require the check the door ignores content and the reasons must match exactly, as
+# before. When it does, the reasons the door adds for the content are allowed only where they change nothing: an admit
+# may carry content_off_topic (admission v0.4 keeps it on an admit), a refusal may carry any content_ reason besides its
+# own, and the admitted call's record must name a checked content block (content.checked, a 64 hex check_sha256).
+H64 = set("0123456789abcdef")
 UA = "seki-heartbeat/1 (+https://github.com/ogasurfproject-jpg/horizon-shield)"
 # 2026-10-19: locate() used to look at the newest 40 entries only. Once the ledger head passed 120, the batch holding
 # 2026-10-10's admissions (entry 80) fell out of reach and that day could never settle, although it had settled in a
@@ -181,6 +191,80 @@ def gaps(root, through, days=7):
     return out
 
 
+# --------------------------------------------------------------------------- the content check
+def is_h64(x):
+    return isinstance(x, str) and len(x) == 64 and set(x) <= H64
+
+
+def door_furui_required(policy, store=STORE):
+    """Whether the door's policy (GET /seki) requires the content check for store: the store's own policy.furui.required
+    when the door shows one, else whether .furui.stores_requiring names the store (the stores whose own policy requires
+    it), else the door's default .furui.policy.required. Raises ValueError when the policy does not say."""
+    if not isinstance(policy, dict) or not isinstance(policy.get("stores"), list):
+        raise ValueError("the door policy has no list of stores")
+    mine = [s for s in policy["stores"] if isinstance(s, dict) and s.get("store") == store]
+    if len(mine) != 1:
+        raise ValueError("the door policy lists the store %s %d times" % (store, len(mine)))
+    own = mine[0].get("policy")
+    own = own.get("furui") if isinstance(own, dict) else None
+    if isinstance(own, dict) and isinstance(own.get("required"), bool):
+        return own["required"]
+    fu = policy.get("furui")
+    if not isinstance(fu, dict):
+        raise ValueError("the door policy has no furui block")
+    if isinstance(fu.get("stores_requiring"), list) and store in fu["stores_requiring"]:
+        return True
+    dp = fu.get("policy")
+    if isinstance(dp, dict) and isinstance(dp.get("required"), bool):
+        return dp["required"]
+    raise ValueError("the door policy does not say whether %s requires the content check" % store)
+
+
+def read_door_policy(get=None):
+    """(required, problem): the door's policy for this store, read once per run. problem is None when it was read."""
+    get = get or (lambda u: http("GET", u))
+    try:
+        st, _h, b = get(GATEWAY + "/seki")
+    except Exception as e:
+        return None, "GET /seki did not answer (%s)" % type(e).__name__
+    if st != 200:
+        return None, "GET /seki answered http %s" % st
+    try:
+        return door_furui_required(jl(b)), None
+    except ValueError as e:
+        return None, "GET /seki: %s" % e
+
+
+def reasons_hold(decision, reasons, want_decision, want_reasons, required):
+    """Whether the record's decision and reasons are the expected ones (see the note at PAYLOAD)."""
+    if decision != want_decision or not isinstance(reasons, list) or len(set(map(str, reasons))) != len(reasons):
+        return False
+    if not required:
+        return reasons == want_reasons
+    if want_decision == "admit":
+        return reasons in (want_reasons, want_reasons + ["content_off_topic"])
+    return all(r in reasons for r in want_reasons) and all(isinstance(r, str) and (r in want_reasons or r.startswith("content_")) for r in reasons)
+
+
+def judge_record(service, rec, want_decision, want_reasons, required):
+    """[(name, ok, detail)] for one signed record, and the content block's check_sha256 (None when it names none)."""
+    cb = rec.get("content") if isinstance(rec, dict) and isinstance(rec.get("content"), dict) else None
+    ck = cb.get("check_sha256") if cb is not None and is_h64(cb.get("check_sha256")) else None
+    d, r = (rec.get("decision"), rec.get("reasons")) if isinstance(rec, dict) else (None, None)
+    allowed = "" if not required else (" (content_off_topic allowed)" if want_decision == "admit" else " (content_ reasons allowed besides)")
+    out = [("%s: decision %s, reasons %s%s" % (service, want_decision, want_reasons, allowed), reasons_hold(d, r, want_decision, want_reasons, required), (d, r))]
+    if required and want_decision == "admit":
+        out.append(("%s: the door checked the content (content.checked, a 64 hex content.check_sha256)" % service,
+                    cb is not None and cb.get("checked") is True and ck is not None, cb))
+    return out, ck
+
+
+def call_body(service, req, contract):
+    """The /report body of one call: the payload, and seki with the signed request, the contract and the payload as content."""
+    return dict(PAYLOAD[service], seki={"action_request": req, "presentation": [{"adapter": "musubi-native", "material": {"contract": contract}}],
+                                        "content": dict(PAYLOAD[service])})
+
+
 # --------------------------------------------------------------------------- run
 def run(root, date, now=None, sleep=time.sleep):
     from cryptography.hazmat.primitives import serialization
@@ -230,6 +314,9 @@ def run(root, date, now=None, sleep=time.sleep):
     bal = (jl(b) or {}).get("tickets")
     if not check("the store holds at least the 20 tickets the report needs (balance %s)" % bal, st == 200 and isinstance(bal, int) and bal >= 20, (st, b[:200])):
         return 1
+    required, problem = read_door_policy()
+    if not check("the door's policy says whether %s requires the content check (required %s)" % (STORE, required), problem is None, problem):
+        return 1
     os.makedirs(out, exist_ok=True)
     tmp = tempfile.mkdtemp(prefix="seki-heartbeat-")
     pem = os.path.join(tmp, "agent.pem")
@@ -238,7 +325,7 @@ def run(root, date, now=None, sleep=time.sleep):
         f.write(key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()))
     try:
         record = {"schema": "seki-heartbeat-run-v0", "note": DISCLOSURE, "date": date, "day_rule": DAY_RULE, "contract_sha256": csha, "store": STORE,
-                  "target": TARGET, "door_public_key_ed25519_b64": door_pub, "gateway": GATEWAY, "balance_before": bal,
+                  "target": TARGET, "door_public_key_ed25519_b64": door_pub, "gateway": GATEWAY, "balance_before": bal, "door_furui_required": required,
                   "ran_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "calls": []}
         st, _h, b = http("POST", AGREEMENT + "/contract", ctext.encode("utf-8"), {"content-type": "application/json"})
         j = jl(b) or {}
@@ -249,13 +336,14 @@ def run(root, date, now=None, sleep=time.sleep):
         for service, price, want_decision, want_reasons, want_status in EXPECT:
             nonce = secrets.token_hex(16)
             req = A.build_action_request(contract, service, nonce, expiry, key, target=TARGET, amount=price)
-            body = dict(PAYLOAD[service], seki={"action_request": req, "presentation": [{"adapter": "musubi-native", "material": {"contract": contract}}]})
+            body = call_body(service, req, contract)
             st, hd, rb = http("POST", "%s/report?store=%s&service=%s" % (GATEWAY, STORE, service), json.dumps(body),
                               {"content-type": "application/json", "x-store-token": token})
             hl = {k.lower(): v for k, v in hd.items()}
             call = {"service": service, "tickets": price, "request_sha256": hashlib.sha256(canonical(req).encode()).hexdigest(), "nonce": nonce,
                     "status": st, "decision": hl.get("x-seki-decision"), "admission_sha256": hl.get("x-seki-admission-sha256"),
-                    "record_sha256": hl.get("x-seki-record-sha256"), "published": hl.get("x-seki-published"), "tickets_spent": hl.get("x-tickets-spent")}
+                    "record_sha256": hl.get("x-seki-record-sha256"), "published": hl.get("x-seki-published"), "tickets_spent": hl.get("x-tickets-spent"),
+                    "door_furui_required": required}
             with open(os.path.join(out, "request_%s.json" % service), "w", encoding="utf-8") as f:
                 f.write(canonical(req))
             check("%s: HTTP %d" % (service, want_status), st == want_status, (st, rb[:300]))
@@ -273,7 +361,11 @@ def run(root, date, now=None, sleep=time.sleep):
                 rec = parse_strict(gb.decode("utf-8"))
                 v = A.verify_admission(rec, door_pub, contract)
                 check("%s: the record verifies under the door's published key" % service, v.get("verdict") == "accepted", v)
-                check("%s: decision %s, reasons %s" % (service, want_decision, want_reasons), rec.get("decision") == want_decision and rec.get("reasons") == want_reasons, (rec.get("decision"), rec.get("reasons")))
+                judged, ck = judge_record(service, rec, want_decision, want_reasons, required)
+                for name, ok, detail in judged:
+                    check(name, ok, detail)
+                if ck is not None:
+                    call["content_check_sha256"] = ck
                 with open(os.path.join(out, "admission_%s.json" % service), "w", encoding="utf-8") as f:
                     f.write(gb.decode("utf-8"))
                 lst = None
@@ -757,6 +849,70 @@ def _selftest():
         assert gaps(td, "2026-10-24") == ["2026-10-20", "2026-10-23"] and gaps(td, "2026-10-25") == ["2026-10-20", "2026-10-23", "2026-10-25"]
         assert gaps(td, "2026-10-12", days=7) == [d for d in ["2026-10-11", "2026-10-12"]]   # nothing before GAPS_FROM
     n += 1; print("[12] the real folders: 10-20 and 10-23 have no run; a taken folder is a failure; a rerun of a done day stays green")
+
+    # [13] the door's policy (GET /seki, as the door served it on 2026-11-07: the store's policy shows no furui, the
+    # default says required false, the check store is the one store that requires it)
+    RULES = "2c5a1089a90265717175dd1056be7075472aed44fab5581e6be6e73b1746f195"
+    def pol(default=False, requiring=("tooshi-check",), own=None, drop=()):
+        p = {"stores": [{"store": STORE, "policy": dict({"policy_id": "x"}, **({"furui": own} if own is not None else {}))},
+                        {"store": "tooshi-check", "policy": {"policy_id": "x"}}],
+             "furui": {"policy": {"required": default, "rules_sha256": RULES}, "stores_requiring": list(requiring)}}
+        for k in drop:
+            p["furui"].pop(k)
+        return p
+    assert door_furui_required(pol()) is False
+    assert door_furui_required(pol(default=True)) is True
+    assert door_furui_required(pol(requiring=("tooshi-check", STORE))) is True
+    assert door_furui_required(pol(default=True, own={"required": False})) is False and door_furui_required(pol(own={"required": True})) is True
+    assert door_furui_required(pol(drop=("stores_requiring",))) is False
+    for bad in (None, [], {"furui": {}}, dict(pol(), stores=[]), dict(pol(), stores=pol()["stores"] * 2), pol(drop=("policy",)), dict(pol(), furui=None)):
+        try:
+            door_furui_required(bad); ok = False
+        except ValueError:
+            ok = True
+        assert ok, bad
+    G = lambda st, body: (lambda u: (st, {}, body if isinstance(body, bytes) else json.dumps(body).encode()))
+    assert read_door_policy(G(200, pol())) == (False, None) and read_door_policy(G(200, pol(default=True))) == (True, None)
+    def down(u):
+        raise OSError("no route")
+    for g in (G(503, pol()), G(200, b"<html>"), G(200, {"stores": []}), down):
+        r, why = read_door_policy(g)
+        assert r is None and isinstance(why, str) and why.startswith("GET /seki"), (r, why)
+    for sv in PAYLOAD:
+        bd = call_body(sv, {"nonce": "n"}, {"contract_id": "c"})
+        assert bd["seki"]["content"] == PAYLOAD[sv] and {k: x for k, x in bd.items() if k != "seki"} == PAYLOAD[sv]
+        assert sorted(bd["seki"]) == ["action_request", "content", "presentation"] and canonical(bd["seki"]["content"]) == canonical(PAYLOAD[sv])
+    n += 1; print("[13] the door's policy: the store's own furui, else stores_requiring, else the default; unreadable, it is a failure and no call is made; every call carries its payload as seki.content")
+
+    # [14] the records: exact reasons while the check is not required; with it, only the content reasons that change nothing
+    CK = "ab" * 32
+    rec = lambda d, r, content=None: dict({"decision": d, "reasons": r}, **({"content": content} if content is not None else {}))
+    blk = lambda **k: dict({"checked": True, "check_sha256": CK, "decision": "pass", "marks": []}, **k)
+    J = lambda s, r, req: (lambda out: ([ok for _n, ok, _d in out[0]], out[1]))(judge_record(s, r, *{"report": ("admit", ["within_grant"]), "audit": ("refuse", ["amount_over_limit"]), "compare": ("refuse", ["prohibited_action"])}[s], req))
+    # required false: exactly as before
+    assert J("report", rec("admit", ["within_grant"]), False) == ([True], None)
+    assert J("report", rec("admit", ["within_grant", "content_off_topic"]), False) == ([False], None)
+    assert J("audit", rec("refuse", ["amount_over_limit"]), False) == ([True], None)
+    assert J("audit", rec("refuse", ["amount_over_limit", "content_unchecked"]), False) == ([False], None)
+    # required true: report admitted, plain or off topic, with a checked block naming its check
+    assert J("report", rec("admit", ["within_grant"], blk()), True) == ([True, True], CK)
+    assert J("report", rec("admit", ["within_grant", "content_off_topic"], blk(marks=["off_topic"])), True) == ([True, True], CK)
+    assert J("report", rec("admit", ["content_off_topic", "within_grant"], blk()), True)[0] == [False, True]
+    assert J("report", rec("admit", ["within_grant", "content_flagged"], blk()), True)[0] == [False, True]
+    assert J("report", rec("escalate", ["content_unchecked"], blk(checked=False, check_sha256=None)), True) == ([False, False], None)
+    assert J("report", rec("admit", ["within_grant"]), True) == ([True, False], None)                     # no content block
+    assert J("report", rec("admit", ["within_grant"], blk(check_sha256=None)), True) == ([True, False], None)
+    assert J("report", rec("admit", ["within_grant"], blk(check_sha256="AB" * 32)), True) == ([True, False], None)
+    assert J("report", rec("admit", ["within_grant"], blk(checked=False)), True) == ([True, False], CK)
+    # required true: refusals keep their own reasons, and only content_ reasons may come with them
+    assert J("audit", rec("refuse", ["amount_over_limit"], blk()), True) == ([True], CK)
+    assert J("audit", rec("refuse", ["amount_over_limit", "content_off_topic"], blk(marks=["off_topic"])), True) == ([True], CK)
+    assert J("compare", rec("refuse", ["prohibited_action", "content_flagged", "content_unchecked"]), True) == ([True], None)
+    assert J("compare", rec("refuse", ["content_flagged"]), True) == ([False], None)
+    assert J("compare", rec("refuse", ["prohibited_action", "outside_grant"]), True) == ([False], None)
+    assert J("compare", rec("refuse", ["prohibited_action", "content_off_topic", "content_off_topic"]), True) == ([False], None)
+    assert J("audit", rec("admit", ["within_grant"], blk()), True)[0] == [False]
+    n += 1; print("[14] the records: exact reasons while not required; required: an admit may add content_off_topic and must name a checked content block, a refusal may add only content_ reasons")
     print("ALL PASS (seki heartbeat: %d checks)" % n)
 
 

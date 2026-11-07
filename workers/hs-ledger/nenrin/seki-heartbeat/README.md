@@ -16,6 +16,16 @@ The workflow is `.github/workflows/seki-heartbeat.yml`, daily at 21:17 UTC (GitH
 some days), so the records usually reach the ledger before its 00:30 UTC batch. It uses only the agent's key (an Actions secret) and the store's gateway token. The door's key
 stays in Cloudflare. The pilot's tickets carry no monetary value.
 
+Since 2026-11-07 every call also carries its payload as `seki.content`. Where the door's policy requires the content
+check (FURUI) for `hs-seki-demo`, the door sends that content to its runner itself and the admission carries the
+content block built from the runner's signed envelope; a caller cannot bring its own envelope. `heartbeat.py run` reads
+the door's policy once from `GET /seki` before the calls and makes no call when it cannot. While the check is not
+required the reasons must match exactly, as before. When it is required, the report must be admitted with
+`within_grant` (and may add `content_off_topic`) and its record must name a checked content block
+(`content.checked`, a 64 hex `content.check_sha256`); audit and compare must be refused with their own reason, and may
+add only `content_` reasons. `RUN.json` says `door_furui_required` for the run and each call, and each call's
+`content_check_sha256` when its record names one.
+
 ## The door's daily check call, through the whole chain (since 2026-11-03)
 
 The chain has five names: the content check (FURUI) reads a request, the door (SEKI) admits it with a signed admission,
