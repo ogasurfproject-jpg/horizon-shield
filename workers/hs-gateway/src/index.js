@@ -18,10 +18,10 @@
 
 import { publicDirectoryList, getDirectory } from "./registry.js";
 import { routeVertical } from "./router.js";
-import { callDirectory, buildReceipt, appendToLedger } from "./adapter.js";
+import { callDirectory, buildReceipt, appendToLedger, sha256hex } from "./adapter.js";
 import { canAfford, spend, refund, grantTickets, prepaidStatus, getBalance, PRICES, PACKS, packPrice, YEN_PER_TICKET } from "./tickets.js";
 import { TicketLedgerDO } from "./ticket_do.js";
-import { sekiGuarded, sekiAsk, sekiHeaders, sekiRead, ledgerStoreId, SEKI_TICKETS } from "./seki.js";
+import { sekiGuarded, sekiAsk, sekiHeaders, sekiRead, ledgerStoreId, contentMatch, SEKI_TICKETS } from "./seki.js";
 
 // チケットの販売(2026-10-10 TOshi): 実証期間中は売らない。必要な枚数は運営が /admin/grant で無償で付ける。
 // 売るのは env.TICKET_SALES が "open" のときだけ(wrangler.jsonc の vars。無ければ止まったまま)。
@@ -313,6 +313,9 @@ export default {
           transport: "streamable-http (POST /mcp)",
           prepaid_monitor: { level: prepaid.level, note: prepaid.note }, // 総額の水準だけ。金額詳細は /admin。
           independence: "hs-mcp(審査中)に非依存。建設は hs-webmcp を binding 越しに呼ぶ。",
+          // 2026-11-07: SEKI が守る店の /report は、走る payload と門に見せる seki.content が同じ時だけ通す(src/seki.js contentMatch)。
+          // seki-heartbeat と TOOSHI と deploy の台本が、この欄でこの照らしが入っている事を読む。
+          seki_content_match: true,
           site: SITE
         }, null, 2), { headers: { "Content-Type": "application/json", ...CORS } });
       }
@@ -454,7 +457,10 @@ export default {
       if (!(await verifyStoreToken(env, rstore, rtok))) {
         return new Response(JSON.stringify({ ok: false, error: "invalid_store_token" }), { status: 401, headers: { "Content-Type": "application/json", ...CORS } });
       }
-      var rpayload = await request.json().catch(function () { return null; });
+      // 2026-11-07: 本文は文字のまま受けてから読む。守られた店で中身が合わない時、log にこの本文の sha256 だけを出すため。
+      var rtext = await request.text().catch(function () { return null; });
+      var rpayload = null;
+      try { rpayload = rtext === null ? null : JSON.parse(rtext); } catch (e) { rpayload = null; }
       if (!rpayload || typeof rpayload !== "object") {
         return new Response(JSON.stringify({ ok: false, error: "bad_payload" }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
       }
@@ -470,6 +476,13 @@ export default {
         return new Response(JSON.stringify({ ok: false, error: "store_id_not_canonical", why: "a guarded store is named only by its exact id; nothing was spent" }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
       }
       if (sekiGuarded(rstore)) {
+        // 2026-11-07: the payload that runs must be the payload the door is shown (seki.content), before the door is asked
+        // and before anything is spent. Only the sha256 of the request body is logged, never the body.
+        var rmatch = contentMatch(rpayload);
+        if (!rmatch.ok) {
+          console.log("seki content_mismatch request_sha256=" + (await sha256hex(rtext)));
+          return new Response(JSON.stringify({ ok: false, error: "content_mismatch", why: rmatch.why, spent: 0 }), { status: 400, headers: { "Content-Type": "application/json", ...CORS } });
+        }
         // Tickets first, so the door does not admit a call that cannot be paid for.
         var raf = await canAfford(rstore, rcfg.op, env);
         if (!raf.ok) return new Response(JSON.stringify({ ok: false, error: "insufficient_tickets", need: raf.need, balance: raf.balance }), { status: 402, headers: { "Content-Type": "application/json", ...CORS } });

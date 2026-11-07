@@ -162,6 +162,16 @@ Added on 2026-11-06 (16, how many outside witnesses sign the day roots):
                    and, for each signed_domain, the latest batch that lists it (the signature is no later than that day);
                    no name of a person is read or written.
 
+Added on 2026-11-07 (24, the gateway runs only the payload the door is shown):
+    24             content_mismatch: the scene mismatch of the store's own agent (seki-heartbeat runs/<day>/RUN.json, the
+                   day of today's 03:47 UTC six hours back, the run of 21:17 UTC that day): a compare call whose body is
+                   not its seki.content, which the gateway must refuse 400 content_mismatch before the door. ok when the
+                   scene's row (calls[] with scene "mismatch") says status 400 and error content_mismatch; red when it
+                   says 403 (the door answered, so the gateway that runs has no content match), a 2xx, or anything else,
+                   or when the day file does not answer; not_yet when the row says not_yet (the gateway did not yet say
+                   seki_content_match on GET /health), when the day's run has no such row (a day before the scene), or
+                   when the day is not filed yet.
+
 Added on 2026-11-07 (17, every paid call carries the whole chain):
     17             paid_call_chain: every paid call that passed the door in the 24 hours from 03:47 UTC the day before
                    yesterday to 03:47 UTC yesterday carries four records, one of each: the FURUI envelope of its content
@@ -329,6 +339,35 @@ def check_heartbeat(get, now):
     if hb.get("ok") is not True or got != HEARTBEAT_EXPECT:
         return c(cid, "red", "the scene answered %s, not %s" % (json.dumps(got, sort_keys=True), json.dumps(HEARTBEAT_EXPECT, sort_keys=True)), **facts)
     return c(cid, "ok", "today's scene ran after 03:17 UTC and gave the expected answer", **facts)
+
+
+def check_content_mismatch(get, now):
+    """24: the heartbeat's scene mismatch: the gateway refused a body that is not its seki.content (400 content_mismatch)
+    before the door"""
+    cid = "24_content_mismatch"
+    d = (anchor(now) - HEARTBEAT_DAY_SHIFT).strftime("%Y-%m-%d")
+    try:
+        s, r = get(HEARTBEAT_RUNS + d + "/RUN.json")
+    except Unreachable as e:
+        return c(cid, "red", "the heartbeat's day file of %s did not answer: %s" % (d, e), day=d)
+    if s == 404:
+        return c(cid, "not_yet", "the heartbeat's run of %s is not filed yet" % d, day=d)
+    if s != 200 or not isinstance(r, dict) or not isinstance(r.get("calls"), list):
+        return c(cid, "red", "the heartbeat's day file of %s answered http %s without calls" % (d, s), day=d)
+    rows = [k for k in r["calls"] if isinstance(k, dict) and k.get("scene") == "mismatch"]
+    if not rows:
+        return c(cid, "not_yet", "the heartbeat's run of %s has no scene mismatch (a day before the scene)" % d, day=d)
+    if len(rows) != 1:
+        return c(cid, "red", "the heartbeat's run of %s has %d scene mismatch rows, not one" % (d, len(rows)), day=d)
+    k = rows[0]
+    facts = {"day": d, "status": k.get("status"), "error": k.get("error")}
+    if k.get("not_yet"):
+        return c(cid, "not_yet", "the scene was not run on %s: %s" % (d, k["not_yet"]), **facts)
+    if k.get("status") == 400 and k.get("error") == "content_mismatch":
+        return c(cid, "ok", "on %s the gateway refused a body that is not its seki.content, 400 content_mismatch, before the door" % d, **facts)
+    if k.get("status") == 403:
+        return c(cid, "red", "on %s the scene got 403: the door answered, so the gateway that runs has no content match" % d, **facts)
+    return c(cid, "red", "on %s the scene got http %s (%s), not 400 content_mismatch" % (d, k.get("status"), k.get("error")), **facts)
 
 
 def check_day_root(get, now):
@@ -2055,6 +2094,7 @@ def run(get, now, trigger="manual"):
     checks.append(check_settle(get, now))
     checks.append(check_resume(get, now))
     checks.append(check_resume_agreement(get, now))
+    checks.append(check_content_mismatch(get, now))
     checks += [check_door_runner(get), check_day_root(get, now), check_leaves(get, now), check_heartbeat(get, now)]
     checks += [check_canary(get, now), check_witness_answer(get, now)]
     checks += [check_cross_client(get, now), check_main_ci(get, now), check_paid_rows(get, now), check_line_delivery(get, now), check_recovery(get, now)]
@@ -2284,6 +2324,8 @@ def selftest():
         return {LEDGER + "/ledger/277?format=json": pool_batch(277, n277, POOL3 if recs is None else recs),
                 LEDGER + "/ledger/276?format=json": (200, {"n": 276, "created_at": "2026-10-06T03:46:59.000Z", "record_canonical": "{}"})}
 
+    MM_ROW = {"service": "compare", "scene": "mismatch", "tickets": 50, "status": 400, "error": "content_mismatch", "nonce": "ab" * 16}
+
     def world(cc=False, prev=True, d4key=SK, adm_today=None, adm_prev=None, canary=None, canary_prev=True, wit=None, **over):
         w = {
             RUNNER + "/health": (200, {"runner": "hs-furui-runner 0.4.0", "key_id": "runner-1", "public_key_ed25519_b64": PUB, "rules_sha256": RULES if cc else None, "caps": dict(CAPS), "anthropic_key_set": True}),
@@ -2292,6 +2334,7 @@ def selftest():
             RUNNER + "/furui/heartbeat": (200, {"at": "2026-11-05T03:17:09.000Z", "ok": True, "decision": "pass", "answered": True, "marks": [], "capped": False, "spent_usd": 0.03}),
         }
         w.update(W3)
+        w[HEARTBEAT_RUNS + "2026-11-04/RUN.json"] = (200, {"store": "hs-seki-demo", "ran_at": "2026-11-04T21:18:40Z", "calls": [MM_ROW]})   # 24 reads 11-04
         st3 = W3[RUNNER + "/furui/day/2026-11-03/status"][1]["status"]   # 9 reads the day before yesterday (11-03)
         w.update(witness_world("2026-11-03", sha, st3["root"], st3["n"], *(wit(sha, st3["root"], st3["n"]) if wit else ([answer("2026-11-03", sha, st3["root"], st3["n"])],))))
         w.update(v2_world())
@@ -2624,7 +2667,7 @@ def selftest():
     def st(get, cid, when=now):
         return [x for x in run(get, when)[0]["checks"] if x["id"] == cid][0]
     S10, S11, S12, S13, S14, S15 = "10_cross_client", "11_main_ci", "12_paid_rows_daily", "13_line_delivery", "14_not_yet_deadline", "15_recovery_fresh"
-    cases.append(("v2: the whole day holds with the six new checks and 16: every check ok, the verdict green, 18 checks", (lambda r: (r["verdict"], len([x for x in r["checks"] if x["id"] != "17_paid_call_chain"]), r["counts"]["ok"] - 1))(run(world(cc=True), now)[0]), ("green", 18, 18)))
+    cases.append(("v2: the whole day holds with the six new checks, 16 and 24: every check ok, the verdict green, 19 checks", (lambda r: (r["verdict"], len([x for x in r["checks"] if x["id"] != "17_paid_call_chain"]), r["counts"]["ok"] - 1))(run(world(cc=True), now)[0]), ("green", 19, 19)))
     cases.append(("10: the draw of 2026-11-07 from five endpoints is the cross client's (cross_client_test.mjs has the same vector)", cross_draw("2026-11-07", list(reversed(CANDS))),
                   ["https://c.example/mcp", "https://d.example/mcp", "https://e.example/mcp"]))
     x10 = st(world(cc=True), S10)
@@ -3036,8 +3079,8 @@ def selftest():
     cases.append(("17: a batch made after 03:47 UTC of the day is not read, so the 04:05 and 11:50 runs give the same 17",
                   (lambda a, b: (a == b, a["state"]))(check_paid_chain(world(cc=True, **chain_world(**L17)), now), check_paid_chain(world(cc=True, **chain_world(**L17)), now.replace(hour=11, minute=50))), (True, "ok")))
     r17 = run(world(cc=True, **chain_world()), now)[0]
-    cases.append(("17: the whole day holds with 17 (one paid call, all four records): every check ok, the verdict green, 19 checks",
-                  (r17["verdict"], len(r17["checks"]), r17["counts"]["ok"], [x["state"] for x in r17["checks"] if x["id"] == S17]), ("green", 19, 19, ["ok"])))
+    cases.append(("17: the whole day holds with 17 (one paid call, all four records): every check ok, the verdict green, 20 checks",
+                  (r17["verdict"], len(r17["checks"]), r17["counts"]["ok"], [x["state"] for x in r17["checks"] if x["id"] == S17]), ("green", 20, 20, ["ok"])))
     cases.append(("17 does not change the states of 1 to 16 (the same run with 17 ok and 17 red)",
                   (lambda a, b: {k: v for k, v in a.items() if k not in (S17, S14)} == {k: v for k, v in b.items() if k not in (S17, S14)})(states(world(cc=True, **chain_world()))[1], states(world(cc=True, **chain_world(recs=((TN, RN),), run_calls=[])))[1]), True))
     NY17 = {LEDGER + "/ledger/head": "down", DOOR_POLICY: (200, dict(world(cc=True)(DOOR_POLICY)[1], relying_party={"domain": RP17}, stores=STORES))}
@@ -3069,6 +3112,29 @@ def selftest():
                   ([(REAL17, ["furui_envelope", "musubi_settlement"])], [(REAL17, ["seki_record", "furui_envelope"])])))
     cases.append(("17 on the real answers: the 11:50 run reads the same 17 as the 04:05 run, and the ledger's head down makes it not_yet",
                   (check_paid_chain(wc(), N6.replace(hour=11, minute=50)) == xr, check_paid_chain(wc(**{LEDGER + "/ledger/head": "down"}), N6)["state"]), (True, "not_yet")))
+
+    # ---- 24 content_mismatch (2026-11-07): the heartbeat's scene mismatch, read from the run of the day of 03:47 UTC six hours back ----
+    S24 = "24_content_mismatch"
+    RUN4 = HEARTBEAT_RUNS + "2026-11-04/RUN.json"
+    three = [{"service": "report", "decision": "admit", "record_sha256": hsh("r")}, {"service": "audit", "decision": "refuse"}, {"service": "compare", "decision": "refuse"}]
+    run4 = lambda *rows: (200, {"store": "hs-seki-demo", "ran_at": "2026-11-04T21:18:40Z", "calls": three + list(rows)})
+    s24 = lambda when=now, **o: (lambda x: (x["state"], x["facts"].get("day"), x["facts"].get("status"), x["facts"].get("error")))(st(world(cc=True, **o), S24, when))
+    cases.append(("24 ok: the run of 11-04 (read at the 11-05 04:05 run) has the scene mismatch at 400 content_mismatch", s24(**{RUN4: run4(MM_ROW)}), ("ok", "2026-11-04", 400, "content_mismatch")))
+    cases.append(("24 reads the same day at 03:40 and 11:50 UTC, and the next day at the next day's run",
+                  (s24(datetime.datetime(2026, 11, 5, 3, 40, tzinfo=datetime.timezone.utc))[1], s24(now.replace(hour=11, minute=50))[1], s24(now + datetime.timedelta(days=1))[:2]),
+                  ("2026-11-04", "2026-11-04", ("not_yet", "2026-11-05"))))
+    cases.append(("24 red: the scene got 403 (the door answered: the gateway that runs has no content match), and the why says so",
+                  (s24(**{RUN4: run4(dict(MM_ROW, status=403, error=None))})[0], "the gateway that runs has no content match" in st(world(cc=True, **{RUN4: run4(dict(MM_ROW, status=403, error=None))}), S24)["why"]), ("red", True)))
+    cases.append(("24 red: a 2xx, another 400, a 402, no status (the gateway did not answer)",
+                  tuple(s24(**{RUN4: run4(dict(MM_ROW, **v))})[0] for v in ({"status": 200, "error": None}, {"status": 400, "error": "bad_payload"}, {"status": 402, "error": "insufficient_tickets"}, {"status": None, "error": None})), ("red",) * 4))
+    cases.append(("24 red: two scene rows, the day file answers 403 or without calls, or does not answer",
+                  tuple(s24(**{RUN4: v})[0] for v in (run4(MM_ROW, MM_ROW), (403, None), (200, {"store": "hs-seki-demo"}), "down")), ("red",) * 4))
+    cases.append(("24 not_yet: the scene was not run (the gateway did not say seki_content_match), the run has no scene (a day before it), the day is not filed",
+                  tuple(s24(**{RUN4: v})[0] for v in (run4(dict(MM_ROW, status=None, error=None, not_yet="GET /health answered http 200 without seki_content_match true")), run4(), (404, None))), ("not_yet",) * 3))
+    cases.append(("24's row does not change 17 (the scene row has no decision, so it is not a paid call) and 17's days do not change 24",
+                  (m17(c17(run_calls=[{"decision": "admit", "record_sha256": R17, "admission_sha256": AM17}, dict(MM_ROW)])) == m17(x17), st(world(cc=True, **chain_world()), S24)["state"]), (True, "ok")))
+    cases.append(("24 does not change the states of the other checks (the same run with 24 ok and 24 red)",
+                  (lambda a, b: {k: v for k, v in a.items() if k not in (S24, S14)} == {k: v for k, v in b.items() if k not in (S24, S14)})(states(world(cc=True))[1], states(world(cc=True, **{RUN4: run4(dict(MM_ROW, status=403))}))[1]), True))
 
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:

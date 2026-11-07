@@ -11,6 +11,11 @@
 //     other answer, and every failure to get an answer, is returned to the caller and nothing is spent (fail closed).
 //   - the call as the door must see it: the service, the store, and the tickets the service costs (PRICES). The door
 //     admits only a request signed for exactly that, so an admission for one service cannot carry another through.
+//   - that the payload the door is shown is the payload that runs (2026-11-07, contentMatch below). The door reads
+//     seki.content (and sends it to its content check where its policy requires the check); hs-pdf-gen is sent the
+//     rest of the body. Before this, nothing compared the two, so a harmless seki.content could carry another payload
+//     through. A guarded call runs only when canonical(the body without seki) equals canonical(seki.content); otherwise
+//     the gateway answers 400 content_mismatch before the door is asked and before anything is spent.
 // A store not in SEKI_STORES is untouched: the door is never asked and /report behaves as before.
 // A guarded store is usable only through /report. MCP tools/call (gateway_ask) does not ask the door, so index.js refuses
 // it for a guarded store before anything is called or spent, and the store token is never optional for a guarded store
@@ -38,6 +43,73 @@ export function ledgerStoreId(store) {
 }
 export function sekiGuarded(store) {
   return SEKI_STORES.indexOf(ledgerStoreId(store)) >= 0;
+}
+
+// The content match (2026-11-07). canonical() is the MUSUBI canonical form (musubi-v0/canonical_v0.mjs, the same bytes
+// contract_v0.canonical gives in Python); the gateway is one bundle, so it keeps this small copy. Its rules, in short:
+// object keys sorted by code point at every level and printable ASCII only; no whitespace outside strings; strings escape
+// only '"', '\\' and U+0000..U+001F (short forms for \b \f \n \r \t) and a lone surrogate as \udxxx; numbers are integers
+// within plus or minus (2^53 - 1), written in decimal (-0 is 0), and a fraction, NaN or Infinity has no canonical form;
+// true, false, null as literals. A value with no canonical form throws, and the match then fails (fail closed): a payload
+// whose meaning the door could not be shown exactly does not run at a guarded store.
+var SAFE_INT = 9007199254740991;
+function cstr(s) {
+  var out = '"';
+  for (var ch of s) {
+    var c = ch.codePointAt(0);
+    if (c >= 0xd800 && c <= 0xdfff) out += "\\u" + c.toString(16);
+    else if (ch === '"') out += '\\"';
+    else if (ch === "\\") out += "\\\\";
+    else if (c === 0x08) out += "\\b";
+    else if (c === 0x0c) out += "\\f";
+    else if (c === 0x0a) out += "\\n";
+    else if (c === 0x0d) out += "\\r";
+    else if (c === 0x09) out += "\\t";
+    else if (c < 0x20) out += "\\u" + c.toString(16).padStart(4, "0");
+    else out += ch;
+  }
+  return out + '"';
+}
+export function canonical(v) {
+  if (v === null) return "null";
+  if (v === true) return "true";
+  if (v === false) return "false";
+  if (typeof v === "number") {
+    if (!Number.isInteger(v) || Math.abs(v) > SAFE_INT) throw new Error("no canonical form for the number " + String(v));
+    return v === 0 ? "0" : String(v);
+  }
+  if (typeof v === "string") return cstr(v);
+  if (Array.isArray(v)) return "[" + v.map(canonical).join(",") + "]";
+  if (typeof v === "object") {
+    var keys = Object.keys(v);
+    for (var i = 0; i < keys.length; i++) {
+      for (var j = 0; j < keys[i].length; j++) {
+        var kc = keys[i].charCodeAt(j);
+        if (kc < 0x20 || kc > 0x7e) throw new Error("a key is not printable ASCII");
+      }
+    }
+    keys.sort(function (a, b) { return a < b ? -1 : a > b ? 1 : 0; });
+    return "{" + keys.map(function (k) { return cstr(k) + ":" + canonical(v[k]); }).join(",") + "}";
+  }
+  throw new Error("no canonical form for " + typeof v);
+}
+
+// Whether the payload that will run (the body without its seki member) is the payload the door is shown (seki.content),
+// compared as canonical bytes, so key order and spacing do not matter and every value does. { ok: true } or
+// { ok: false, why }. Never throws.
+export function contentMatch(payload) {
+  var sk = payload && typeof payload === "object" && Object.prototype.hasOwnProperty.call(payload, "seki") ? payload.seki : undefined;
+  if (!sk || typeof sk !== "object" || Array.isArray(sk) || !Object.prototype.hasOwnProperty.call(sk, "content")) {
+    return { ok: false, why: "a guarded store runs a payload only when seki.content carries it; seki.content is missing; nothing was spent" };
+  }
+  var rest = {};
+  Object.keys(payload).forEach(function (k) { if (k !== "seki") rest[k] = payload[k]; });
+  var a, b;
+  try { a = canonical(rest); b = canonical(sk.content); } catch (e) {
+    return { ok: false, why: "the payload or seki.content has no canonical form (" + String(e && e.message || e) + "); nothing was spent" };
+  }
+  if (a !== b) return { ok: false, why: "the payload (the body without seki) is not seki.content, the payload the door is shown; nothing was spent" };
+  return { ok: true };
 }
 
 function closed(status, error, why) {

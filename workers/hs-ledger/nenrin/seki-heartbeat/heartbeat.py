@@ -22,6 +22,10 @@ they wrote under runs/<day>/, the UTC day the run is for (see responsible_day):
            from the ledger's own batch bytes and .ots proofs; the header view comes from two explorers, extended
            from final headers kept in view-chunks/ (written once, never rewritten) and checked again in full every time. Days not yet confirmed are left for a
            later run. settlement.json and the anchored records are written next to the day's records.
+  mismatch After the three calls of run, one more call (2026-11-07): compare with seki.content a copy of its payload and a
+           body payload that differs from it. The gateway must refuse it 400 content_mismatch before the door is asked,
+           so nothing is spent and no record is signed (see the note at MISMATCH). It is filed in RUN.json under calls
+           with scene "mismatch"; settle and the index read only the three calls that reached the door.
 
 Only the agent's key is used here (SEKI_AGENT_SEED_B64, the 32 byte Ed25519 seed in base64, from the repository's
 Actions secrets) with the store's gateway token (HSG_STORE_TOKEN). The agent can do nothing the contract does not
@@ -79,6 +83,18 @@ UA = "seki-heartbeat/1 (+https://github.com/ogasurfproject-jpg/horizon-shield)"
 # 2026-10-10's admissions (entry 80) fell out of reach and that day could never settle, although it had settled in a
 # dry run hours before. A day is now looked for down to entry 1; entries are fetched once per settle run and shared by
 # every day (the ledger had about 120 entries on that day).
+
+# 2026-11-07. The scene mismatch. The gateway runs a guarded /report only when the payload that runs (the body without seki)
+# is seki.content as canonical bytes, and answers 400 content_mismatch otherwise, before the door and before any spend.
+# The scene sends compare (the contract prohibits it, so even a gateway without the match spends nothing: the door
+# refuses prohibited_action) with seki.content PAYLOAD["compare"] and a body whose note differs. Expected: HTTP 400,
+# error content_mismatch, no X-Tickets-Spent, no X-Seki-Decision (the door was not asked). A 403 means the door answered,
+# so the match is not on the gateway that runs: a failure. GET /health says whether the gateway carries the match
+# (seki_content_match true); while it does not, the scene is not run and RUN.json says not_yet, which is not a failure
+# (a run before the gateway is deployed). The scene's result is kept apart from the three calls' result, which settle
+# reads, so a gateway fault never holds back the settlement of the door's records; it still fails the run (exit 1).
+MISMATCH_SERVICE, MISMATCH_TICKETS = "compare", 50
+MISMATCH_NOTE = "SEKI heartbeat, scene mismatch: this body is not its seki.content, so the gateway refuses it before the door"
 
 
 def http(method, url, body=None, headers=None, timeout=120):
@@ -265,6 +281,66 @@ def call_body(service, req, contract):
                                         "content": dict(PAYLOAD[service])})
 
 
+def mismatch_body(req, contract):
+    """The scene mismatch: seki.content is a copy of PAYLOAD["compare"], the body's own payload differs from it (its note)."""
+    body = call_body(MISMATCH_SERVICE, req, contract)
+    body["note"] = MISMATCH_NOTE
+    return body
+
+
+def gateway_content_match(get=None):
+    """(True, None) when GET {GATEWAY}/health says seki_content_match true, else (False, why). Never raises."""
+    get = get or (lambda u: http("GET", u))
+    try:
+        st, _h, b = get(GATEWAY + "/health")
+    except Exception as e:
+        return False, "GET /health did not answer (%s)" % type(e).__name__
+    j = jl(b) if st == 200 else None
+    if isinstance(j, dict) and j.get("seki_content_match") is True:
+        return True, None
+    return False, "GET /health answered http %s without seki_content_match true: the gateway has no content match yet" % st
+
+
+def judge_mismatch(st, hl, body):
+    """[(name, ok, detail)] for the scene's answer: HTTP 400 content_mismatch, nothing spent, the door not asked."""
+    j = jl(body) if isinstance(body, (bytes, str)) else None
+    err = j.get("error") if isinstance(j, dict) else None
+    why = "" if st != 403 else " (403: the door answered, so the gateway that runs has no content match)"
+    return [("mismatch: HTTP 400 content_mismatch from the gateway%s" % why, st == 400 and err == "content_mismatch", (st, (body or b"")[:300])),
+            ("mismatch: nothing was spent", "x-tickets-spent" not in hl, hl.get("x-tickets-spent")),
+            ("mismatch: the door was not asked (no X-Seki-Decision)", "x-seki-decision" not in hl, hl.get("x-seki-decision"))], err
+
+
+def mismatch_scene(contract, key, expiry, token, check, get=None, post=None):
+    """Run the scene mismatch after the three calls: (the row for RUN.json calls, the scene's result). check(name, ok, detail)
+    is run()'s, so a failure here fails the run. Never raises: the three calls are filed already."""
+    post = post or (lambda url, body: http("POST", url, body, {"content-type": "application/json", "x-store-token": token}))
+    scene = {"service": MISMATCH_SERVICE, "scene": "mismatch", "tickets": MISMATCH_TICKETS, "status": None, "error": None}
+    ready, not_yet = gateway_content_match(get)
+    if not ready:
+        scene["not_yet"] = not_yet
+        print("not yet: the scene mismatch was not run (%s)" % not_yet)
+        return scene, "not_yet"
+    nonce = secrets.token_hex(16)
+    req = A.build_action_request(contract, MISMATCH_SERVICE, nonce, expiry, key, target=TARGET, amount=MISMATCH_TICKETS)
+    try:
+        st, hd, rb = post("%s/report?store=%s&service=%s" % (GATEWAY, STORE, MISMATCH_SERVICE), json.dumps(mismatch_body(req, contract)))
+    except Exception as e:
+        st, hd, rb = None, {}, ("did not answer (%s)" % type(e).__name__).encode()
+    hl = {k.lower(): v for k, v in hd.items()}
+    judged, err = judge_mismatch(st, hl, rb)
+    scene.update(nonce=nonce, request_sha256=hashlib.sha256(canonical(req).encode()).hexdigest(), status=st, error=err,
+                 decision=hl.get("x-seki-decision"), tickets_spent=hl.get("x-tickets-spent"))
+    bad = [name for name, ok, detail in judged if not check(name, ok, detail)]
+    return scene, "as expected" if not bad else "NOT as expected: " + "; ".join(bad)
+
+
+def door_calls(r):
+    """The calls of a RUN.json that reached the door (the three of EXPECT). A row with a scene (mismatch, 2026-11-07) asked
+    the gateway only: no record, nothing to settle, no cell in the index."""
+    return [c for c in (r.get("calls") or []) if isinstance(c, dict) and not c.get("scene")]
+
+
 # --------------------------------------------------------------------------- run
 def run(root, date, now=None, sleep=time.sleep):
     from cryptography.hazmat.primitives import serialization
@@ -279,7 +355,7 @@ def run(root, date, now=None, sleep=time.sleep):
             print("FAIL: runs/%s already holds the run for %s (started %s); the calls for %s were NOT made" % (date, held, prev.get("ran_at"), date))
             return 1
         print("already ran for %s (%s); nothing is spent twice" % (date, prev.get("result")))
-        return 0 if prev.get("result") == "as expected" else 1
+        return 0 if prev.get("result") == "as expected" and not str(prev.get("scene_result") or "").startswith("NOT") else 1
     wait = window_wait(now or datetime.datetime.now(datetime.timezone.utc))
     if wait:
         print("waiting %d s: between 00:20 and 00:55 UTC the admission and the execution would land in batches a day apart" % wait)
@@ -388,13 +464,16 @@ def run(root, date, now=None, sleep=time.sleep):
                 call["execution_url"] = AGREEMENT + "/execution/" + call["execution_sha256"]
             record["calls"].append(call)
         record["result"] = "as expected" if not fails else "NOT as expected: " + "; ".join(fails)
+        # the scene mismatch (see the note at MISMATCH): its failures are its own, so settle still reads the three calls
+        scene, record["scene_result"] = mismatch_scene(contract, key, expiry, token, check)
+        record["calls"].append(scene)
         with open(os.path.join(out, "RUN.json"), "w", encoding="utf-8") as f:
             f.write(json.dumps(record, indent=2, ensure_ascii=False) + "\n")
     finally:
         if os.path.exists(pem):
             os.unlink(pem)
         os.rmdir(tmp)
-    print(("\nHEARTBEAT %s: report admitted and executed, audit and compare refused, nothing spent on the refusals" % date)
+    print(("\nHEARTBEAT %s: report admitted and executed, audit and compare refused, nothing spent on the refusals; scene mismatch: %s" % (date, record.get("scene_result")))
           if not fails else "\nFAIL %d: %s" % (len(fails), ", ".join(fails)))
     return 1 if fails else 0
 
@@ -595,6 +674,7 @@ def settle_day(day_dir, contract, chunk_dir, get=None, cache=None):
     r = json.load(open(runp, encoding="utf-8"))
     if r.get("result") != "as expected":
         return "skip (the run itself failed; nothing to settle)"
+    r = dict(r, calls=door_calls(r))           # the three calls that reached the door; a scene row is not settled
     adm_files = {c["service"]: os.path.join(day_dir, "admission_%s.json" % c["service"]) for c in r["calls"]}
     exe_file = os.path.join(day_dir, "execution_report.json")
     shas = [c["record_sha256"] for c in r["calls"]] + [next(c["execution_sha256"] for c in r["calls"] if c.get("execution_sha256"))]
@@ -675,7 +755,7 @@ def write_index(root):
         if not os.path.exists(p):
             continue
         r = json.load(open(p, encoding="utf-8"))
-        calls = {c["service"]: c for c in r.get("calls", [])}
+        calls = {c["service"]: c for c in door_calls(r)}
         sp = os.path.join(root, d, "SETTLED.json")
         sv = json.load(open(sp, encoding="utf-8")) if os.path.exists(sp) else None
         cell = lambda s: "%s %s" % ((calls.get(s) or {}).get("decision") or "?", ((calls.get(s) or {}).get("record_sha256") or "")[:8])
@@ -913,6 +993,81 @@ def _selftest():
     assert J("compare", rec("refuse", ["prohibited_action", "content_off_topic", "content_off_topic"]), True) == ([False], None)
     assert J("audit", rec("admit", ["within_grant"], blk()), True)[0] == [False]
     n += 1; print("[14] the records: exact reasons while not required; required: an admit may add content_off_topic and must name a checked content block, a refusal may add only content_ reasons")
+
+    # [15] the scene mismatch: a body that is not its seki.content is refused by the gateway, 400 content_mismatch, before the door
+    contract = rd(CONTRACT_PATH)
+
+    class NoKey:                                            # the scene signs its request; no real key in a self test
+        def sign(self, b):
+            return b"\0" * 64
+    bd = mismatch_body({"nonce": "n"}, {"contract_id": "c"})
+    assert bd["seki"]["content"] == PAYLOAD["compare"] and bd["note"] != PAYLOAD["compare"]["note"]
+    assert canonical({k: x for k, x in bd.items() if k != "seki"}) != canonical(bd["seki"]["content"]) and sorted(bd) == ["note", "seki"]
+    H = lambda st, body: (lambda u: (st, {}, body if isinstance(body, bytes) else json.dumps(body).encode()))
+    assert gateway_content_match(H(200, {"seki_content_match": True})) == (True, None)
+    for g in (H(200, {"name": "hs-gateway"}), H(200, {"seki_content_match": "true"}), H(503, {"seki_content_match": True}), H(200, b"<html>"), down):
+        r, why = gateway_content_match(g)
+        assert r is False and why.startswith("GET /health"), (r, why)
+
+    def scene(health, answer):
+        sent, seen = [], []
+        def post(url, body):
+            sent.append((url, json.loads(body)))
+            if answer == "down":
+                raise OSError("no route")
+            return answer
+        def chk(name, ok, detail=""):
+            seen.append((name, ok))
+            return ok
+        row, res = mismatch_scene(contract, NoKey(), 100, "t", chk, get=health, post=post)
+        return row, res, sent, seen
+    OK400 = (400, {"Content-Type": "application/json"}, json.dumps({"ok": False, "error": "content_mismatch", "why": "x", "spent": 0}).encode())
+    row, res, sent, seen = scene(H(200, {"seki_content_match": True}), OK400)
+    assert res == "as expected" and [ok for _n, ok in seen] == [True, True, True] and len(sent) == 1
+    assert (row["service"], row["scene"], row["status"], row["error"], row["decision"], row["tickets_spent"]) == ("compare", "mismatch", 400, "content_mismatch", None, None)
+    url, body = sent[0]
+    assert url == GATEWAY + "/report?store=" + STORE + "&service=compare" and body["seki"]["content"] == PAYLOAD["compare"] and body["note"] == MISMATCH_NOTE
+    assert body["seki"]["action_request"]["nonce"] == row["nonce"] and is_h64(row["request_sha256"]) and len(row["nonce"]) == 32
+    assert body["seki"]["action_request"]["action"] == {"action": "compare", "target": TARGET, "amount": 50}
+    assert scene(H(200, {"seki_content_match": True}), OK400)[0]["nonce"] != row["nonce"]          # a new nonce every run
+    for answer, why in [((403, {"X-Seki-Decision": "refuse"}, json.dumps({"type": "x"}).encode()), "403"),
+                        ((200, {"X-Tickets-Spent": "50", "X-Seki-Decision": "admit"}, b"%PDF"), "HTTP 400"),
+                        ((400, {}, json.dumps({"ok": False, "error": "bad_payload"}).encode()), "HTTP 400"),
+                        ((402, {}, json.dumps({"ok": False, "error": "insufficient_tickets"}).encode()), "HTTP 400"),
+                        ("down", "HTTP 400")]:
+        row2, res2, sent2, seen2 = scene(H(200, {"seki_content_match": True}), answer)
+        assert res2.startswith("NOT as expected") and why in res2 and len(sent2) == 1, (answer, res2)
+    row3 = scene(H(200, {"seki_content_match": True}), (403, {"X-Seki-Decision": "refuse"}, b"{}"))[0]
+    assert (row3["status"], row3["decision"]) == (403, "refuse")
+    assert scene(H(200, {"seki_content_match": True}), "down")[0]["status"] is None
+    for g in (H(200, {"name": "hs-gateway"}), down):          # the gateway has no match yet: not run, not a failure
+        row4, res4, sent4, seen4 = scene(g, OK400)
+        assert res4 == "not_yet" and sent4 == [] and seen4 == [] and row4["status"] is None and row4["not_yet"].startswith("GET /health") and row4["scene"] == "mismatch"
+    # the row never reaches settle or the index: settle reads the three calls (4 shas, not 5), the index keeps the real compare
+    calls3 = [{"service": "report", "decision": "admit", "record_sha256": "a1" * 32, "execution_sha256": "e1" * 32},
+              {"service": "audit", "decision": "refuse", "record_sha256": "a2" * 32}, {"service": "compare", "decision": "refuse", "record_sha256": "a3" * 32}]
+    with tempfile.TemporaryDirectory() as td:
+        os.makedirs(os.path.join(td, "2026-11-08"))
+        json.dump({"date": "2026-11-08", "day_rule": DAY_RULE, "ran_at": "2026-11-08T21:18:00Z", "result": "as expected", "scene_result": "as expected",
+                   "calls": calls3 + [dict(row)]}, open(os.path.join(td, "2026-11-08", "RUN.json"), "w"))
+        listed = json.dumps({"records": [{"sha": c["record_sha256"]} for c in calls3] + [{"sha": "e1" * 32}]}).encode()
+        def lg(u):
+            if "/ledger/head" in u:
+                return 200, {}, json.dumps({"n": 1}).encode()
+            if "/verify/1" in u:
+                return 200, {}, json.dumps({"bitcoin_status": "pending"}).encode()
+            return (200, {}, listed) if "/ledger/1" in u else (404, {}, b"")
+        assert settle_day(os.path.join(td, "2026-11-08"), contract, td, get=lg) == "pending: ledger entry 1 is not confirmed in Bitcoin yet"
+        assert door_calls(json.load(open(os.path.join(td, "2026-11-08", "RUN.json")))) == calls3
+        write_index(td)
+        assert "| 2026-11-08 | admit a1a1a1a1 | refuse a2a2a2a2 | refuse a3a3a3a3 |" in open(os.path.join(td, "README.md")).read()
+        assert run(td, "2026-11-08") == 0                                                        # already ran, scene as expected
+        json.dump(dict(json.load(open(os.path.join(td, "2026-11-08", "RUN.json"))), scene_result="NOT as expected: mismatch: HTTP 400"),
+                  open(os.path.join(td, "2026-11-08", "RUN.json"), "w"))
+        assert run(td, "2026-11-08") == 1                                                        # already ran, the scene failed: still red
+        assert settle_day(os.path.join(td, "2026-11-08"), contract, td, get=lg).startswith("pending")   # and the day still settles
+    n += 1; print("[15] the scene mismatch: seki.content is compare's payload and the body differs; 400 content_mismatch with nothing spent and no door is as expected, "
+                  "403, 2xx, another 400, 402 or no answer is not; without seki_content_match on GET /health it is not run (not_yet); the row stays out of settle and the index")
     print("ALL PASS (seki heartbeat: %d checks)" % n)
 
 
