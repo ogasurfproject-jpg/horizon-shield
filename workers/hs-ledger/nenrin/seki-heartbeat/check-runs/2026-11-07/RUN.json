@@ -1,0 +1,14 @@
+{
+  "schema": "seki-check-loop-run-v0",
+  "date": "2026-11-07",
+  "contract_sha256": "d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580",
+  "check_call_at": "2026-11-07T03:47:10.026Z",
+  "admission_sha256": "3b758acd440e4e754533b6c63af03587b4f9fa019c11069237c65345a2d8842d",
+  "record_sha256": "38270d2a7d2a3cdc4cff96c9b825ead74837ab873be4785d48338b0ddb800e5a",
+  "execution_sha256": "85ce2faa49d2ed68ebfd52e818e1e3ed65af63cb29dfda2354824c9e1c52c818",
+  "nenrin_ref": "f4d7cc5a7bbbd47139a72a1fb0a45de1ac9af578f990ff7764576cdc7d4804f7",
+  "contract_url": "https://agreement.horizonshield.dev/contract/d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580",
+  "execution_url": "https://agreement.horizonshield.dev/execution/85ce2faa49d2ed68ebfd52e818e1e3ed65af63cb29dfda2354824c9e1c52c818",
+  "ledger_url": "https://ledger.horizonshield.dev/admission/38270d2a7d2a3cdc4cff96c9b825ead74837ab873be4785d48338b0ddb800e5a",
+  "result": "filed"
+}

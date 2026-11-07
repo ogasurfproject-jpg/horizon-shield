@@ -35,6 +35,16 @@
       "admission_sha256": "eb7ce0dcaf442b0f10d2e4a9384f2022a5d011499f2d46c67095fb173f2a75fd",
       "execution_sha256": "4c0973d4e5dfbbced18880fda45656cc38eea350f2cb9f93a267aa6ccab36692",
       "record_sha256": "df3cddd16b4f66f48d4d43297e438f9f27c08c1d27f80e04c5f0f341d131dec0",
+      "settle": "v1.19",
+      "settled": true,
+      "settlement_sha256": "15e800066373fab08e7683a6aa5957c29dd07eb1b145d4d0b1d4969d41438b26",
+      "status": "final",
+      "verdict": "within_grant"
+    },
+    "2026-11-07": {
+      "admission_sha256": "3b758acd440e4e754533b6c63af03587b4f9fa019c11069237c65345a2d8842d",
+      "execution_sha256": "85ce2faa49d2ed68ebfd52e818e1e3ed65af63cb29dfda2354824c9e1c52c818",
+      "record_sha256": "38270d2a7d2a3cdc4cff96c9b825ead74837ab873be4785d48338b0ddb800e5a",
       "settle": null,
       "settled": false,
       "settlement_sha256": null,
