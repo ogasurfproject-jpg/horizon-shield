@@ -2,12 +2,12 @@
   "schema": "gate-record-mirror-v0",
   "mirror_version": "0.1.1",
   "gate": "https://gate.horizonshield.dev",
-  "taken_at": "2026-11-06T23:29:34.434Z",
-  "register_sha256": "6b91699c2c6315e81c1c800570776d0030d5ce026e0530a6bcef6ccc1483ffcc",
+  "taken_at": "2026-11-07T22:16:04.108Z",
+  "register_sha256": "8d5b2a1d59a236bcfa8d7350001241e0db8fe4363320b075960d49c0191f6745",
   "endpoints": 42,
   "counts": {
-    "mirrored_new": 15,
-    "already_mirrored": 564,
+    "mirrored_new": 14,
+    "already_mirrored": 579,
     "not_stored_by_gate": 248,
     "hash_mismatch": 0,
     "fetch_failed": 0
@@ -715,6 +715,14 @@
       "status": "verified",
       "record_sha256": "eff56c77f3118c49f7722b15ebd3a7011b37d9937d5ca0c7241d58ea0562e57a",
       "file": "mcp-horizonshield-dev-mcp/eff56c77f3118c49f7722b15ebd3a7011b37d9937d5ca0c7241d58ea0562e57a.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://mcp.horizonshield.dev/mcp",
+      "at": "2026-11-07T18:00:25.866Z",
+      "status": "verified",
+      "record_sha256": "c45c3c7ad3c06477db6394e25bc3abd2915822c44adb3384850a646b1d34f369",
+      "file": "mcp-horizonshield-dev-mcp/c45c3c7ad3c06477db6394e25bc3abd2915822c44adb3384850a646b1d34f369.json",
       "result": "mirrored_new"
     },
     {
@@ -1419,6 +1427,14 @@
       "status": "pending",
       "record_sha256": "0cc96f2ea6c96458b376e817923ba3f9345de3834759c55757a11b343ef81c95",
       "file": "hearing-horizonshield-dev-mcp/0cc96f2ea6c96458b376e817923ba3f9345de3834759c55757a11b343ef81c95.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://hearing.horizonshield.dev/mcp",
+      "at": "2026-11-07T18:00:28.004Z",
+      "status": "pending",
+      "record_sha256": "cdebea760c3cef37735c5f5d012dd4de7102d6262aa3a509be5435611f882c24",
+      "file": "hearing-horizonshield-dev-mcp/cdebea760c3cef37735c5f5d012dd4de7102d6262aa3a509be5435611f882c24.json",
       "result": "mirrored_new"
     },
     {
@@ -2123,6 +2139,14 @@
       "status": "verified",
       "record_sha256": "e7d37b39ae371c5e251c9f730046b7a29ef69fe64955f64ec15cc4964838d7c2",
       "file": "web-horizonshield-dev-mcp/e7d37b39ae371c5e251c9f730046b7a29ef69fe64955f64ec15cc4964838d7c2.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://web.horizonshield.dev/mcp",
+      "at": "2026-11-07T18:00:32.312Z",
+      "status": "verified",
+      "record_sha256": "ae97e803c0a01959d0060608c7c3b8892b579173eafb1243a42c5a6043f5b857",
+      "file": "web-horizonshield-dev-mcp/ae97e803c0a01959d0060608c7c3b8892b579173eafb1243a42c5a6043f5b857.json",
       "result": "mirrored_new"
     },
     {
@@ -2811,6 +2835,14 @@
       "status": "pending",
       "record_sha256": "8d216b120dd5345fa30896dfa52859d4c9ac9de846deda65af8dc01b2e727b10",
       "file": "jidec-horizonshield-dev-mcp/8d216b120dd5345fa30896dfa52859d4c9ac9de846deda65af8dc01b2e727b10.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://jidec.horizonshield.dev/mcp",
+      "at": "2026-11-07T18:00:34.307Z",
+      "status": "pending",
+      "record_sha256": "fffe5661a49aa878fce17b3c5d0ec6e7a86264190eaa095e3954f7881624bda5",
+      "file": "jidec-horizonshield-dev-mcp/fffe5661a49aa878fce17b3c5d0ec6e7a86264190eaa095e3954f7881624bda5.json",
       "result": "mirrored_new"
     },
     {
@@ -3515,6 +3547,14 @@
       "status": "verified",
       "record_sha256": "19ff827f2bd8da660e7a22fa3404c14c64455655ae5e6170ba4e73e286bac390",
       "file": "p001-horizonshield-dev-mcp/19ff827f2bd8da660e7a22fa3404c14c64455655ae5e6170ba4e73e286bac390.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://p001.horizonshield.dev/mcp",
+      "at": "2026-11-07T18:00:36.459Z",
+      "status": "verified",
+      "record_sha256": "a6bf30b686b403be0b10ad8ac1b672f64432aec405f87676928303901751d31b",
+      "file": "p001-horizonshield-dev-mcp/a6bf30b686b403be0b10ad8ac1b672f64432aec405f87676928303901751d31b.json",
       "result": "mirrored_new"
     },
     {
@@ -4219,6 +4259,14 @@
       "status": "verified",
       "record_sha256": "16d3507389ecd9622808bb397d7978dad8af8ebf52e10d5691d71affb952e532",
       "file": "p002-horizonshield-dev-mcp/16d3507389ecd9622808bb397d7978dad8af8ebf52e10d5691d71affb952e532.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://p002.horizonshield.dev/mcp",
+      "at": "2026-11-07T18:00:38.715Z",
+      "status": "verified",
+      "record_sha256": "b38b3d26ca40d58656b2252bd6c609d9f820495fcae444ae33bbf8bcc9764329",
+      "file": "p002-horizonshield-dev-mcp/b38b3d26ca40d58656b2252bd6c609d9f820495fcae444ae33bbf8bcc9764329.json",
       "result": "mirrored_new"
     },
     {
@@ -4923,6 +4971,14 @@
       "status": "verified",
       "record_sha256": "0e227269b7de8b7b134e807fc3963cd81a0c798b33c853c3af449517a6039ede",
       "file": "gate-horizonshield-dev-mcp/0e227269b7de8b7b134e807fc3963cd81a0c798b33c853c3af449517a6039ede.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://gate.horizonshield.dev/mcp",
+      "at": "2026-11-07T18:00:41.534Z",
+      "status": "verified",
+      "record_sha256": "9e320f90d8e5b3d5b8263c0caf78237302afaa37b9d1bddc7eb31f2cba0edc61",
+      "file": "gate-horizonshield-dev-mcp/9e320f90d8e5b3d5b8263c0caf78237302afaa37b9d1bddc7eb31f2cba0edc61.json",
       "result": "mirrored_new"
     },
     {
@@ -5451,6 +5507,14 @@
       "status": "verified",
       "record_sha256": "4179fa1a6003b8e79012d86d490cbfedf3aad8ba54015cb01e514e9a37cad9c2",
       "file": "femtech-horizonshield-dev-mcp/4179fa1a6003b8e79012d86d490cbfedf3aad8ba54015cb01e514e9a37cad9c2.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://femtech.horizonshield.dev/mcp",
+      "at": "2026-11-07T18:00:23.763Z",
+      "status": "verified",
+      "record_sha256": "2ed650f000b8cc6841ce5f87e4d579b6ff39e40285f475ff7385785a2c068df8",
+      "file": "femtech-horizonshield-dev-mcp/2ed650f000b8cc6841ce5f87e4d579b6ff39e40285f475ff7385785a2c068df8.json",
       "result": "mirrored_new"
     },
     {
@@ -5659,6 +5723,14 @@
       "status": "pending",
       "record_sha256": "42d9a7580450fc56ca0deec2f1f1b410461e9e641cb79d6784c1b1cd8116a59a",
       "file": "ccdb-horizonshield-dev-mcp/42d9a7580450fc56ca0deec2f1f1b410461e9e641cb79d6784c1b1cd8116a59a.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://ccdb.horizonshield.dev/mcp",
+      "at": "2026-11-07T18:00:20.060Z",
+      "status": "pending",
+      "record_sha256": "047e270d5284ddee7bbcd4b44b0569b23143351374ca836132b510abdeae43a8",
+      "file": "ccdb-horizonshield-dev-mcp/047e270d5284ddee7bbcd4b44b0569b23143351374ca836132b510abdeae43a8.json",
       "result": "mirrored_new"
     },
     {
@@ -5774,6 +5846,14 @@
       "result": "already_mirrored"
     },
     {
+      "endpoint": "https://integrated-system-gzyu.onrender.com/mcp",
+      "at": "2026-11-07T18:00:54.733Z",
+      "status": "held",
+      "record_sha256": "5f20208cba430aa9d6891f4628d8b5f163858e2f4d5b3f4ea77081f735be503b",
+      "file": "integrated-system-gzyu-onrender-com-mcp/5f20208cba430aa9d6891f4628d8b5f163858e2f4d5b3f4ea77081f735be503b.json",
+      "result": "mirrored_new"
+    },
+    {
       "endpoint": "https://x402broker.com/mcp",
       "at": "2026-10-21T18:01:02.290Z",
       "status": "verified",
@@ -5876,6 +5956,14 @@
       "record_sha256": "ab336adc3c318b74f2a8c5c3a0cd3106b412342d07a337d41d514fdd2717ceeb",
       "file": "workflows-agentdiet-dev-mcp/ab336adc3c318b74f2a8c5c3a0cd3106b412342d07a337d41d514fdd2717ceeb.json",
       "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://workflows.agentdiet.dev/mcp",
+      "at": "2026-11-07T18:00:51.245Z",
+      "status": "verified",
+      "record_sha256": "98f75e77e166c3cb21542352f90f4b0c9fdae976cf8215b52a6d4a27140622dc",
+      "file": "workflows-agentdiet-dev-mcp/98f75e77e166c3cb21542352f90f4b0c9fdae976cf8215b52a6d4a27140622dc.json",
+      "result": "mirrored_new"
     },
     {
       "endpoint": "https://preflight.agentdiet.dev/mcp",
@@ -6030,6 +6118,14 @@
       "result": "already_mirrored"
     },
     {
+      "endpoint": "https://rag-diet.agentdiet.dev/mcp",
+      "at": "2026-11-07T18:00:47.535Z",
+      "status": "verified",
+      "record_sha256": "ee7bd287aa040da100ff9f9281fc1b62fb5b14133ff693fd867aad805c20f11f",
+      "file": "rag-diet-agentdiet-dev-mcp/ee7bd287aa040da100ff9f9281fc1b62fb5b14133ff693fd867aad805c20f11f.json",
+      "result": "mirrored_new"
+    },
+    {
       "endpoint": "https://prompt-guard.agentdiet.dev/mcp",
       "at": "2026-10-23T18:00:57.879Z",
       "status": "verified",
@@ -6052,6 +6148,14 @@
       "record_sha256": "3b34693c6aad369e3cf0a430cac79568941a790391be5b1de0500fa326efb8f0",
       "file": "prompt-guard-agentdiet-dev-mcp/3b34693c6aad369e3cf0a430cac79568941a790391be5b1de0500fa326efb8f0.json",
       "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://prompt-guard.agentdiet.dev/mcp",
+      "at": "2026-11-07T18:01:00.260Z",
+      "status": "verified",
+      "record_sha256": "4257c669c3e558acbeb4f2582858e0939740ffcac5673d409dae517e184c7168",
+      "file": "prompt-guard-agentdiet-dev-mcp/4257c669c3e558acbeb4f2582858e0939740ffcac5673d409dae517e184c7168.json",
+      "result": "mirrored_new"
     },
     {
       "endpoint": "https://json-repair.agentdiet.dev/mcp",
@@ -6156,6 +6260,14 @@
       "record_sha256": "74ac9d6afce219830dde4e3364335bebda96418f9fab13dcc5e3ca6ce17eafeb",
       "file": "github-audit-agentdiet-dev-mcp/74ac9d6afce219830dde4e3364335bebda96418f9fab13dcc5e3ca6ce17eafeb.json",
       "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://github-audit.agentdiet.dev/mcp",
+      "at": "2026-11-07T18:00:57.238Z",
+      "status": "verified",
+      "record_sha256": "04cfb89e07d681ded06e3fefc34055fa0780c8eb2c2d88619c2412fae6731cf9",
+      "file": "github-audit-agentdiet-dev-mcp/04cfb89e07d681ded06e3fefc34055fa0780c8eb2c2d88619c2412fae6731cf9.json",
+      "result": "mirrored_new"
     },
     {
       "endpoint": "https://company-enrich.agentdiet.dev/mcp",
@@ -6291,7 +6403,7 @@
       "status": "verified",
       "record_sha256": "2631195d72f4fc2c591160bc5338aa8b1b84cf57591458b16b1882658eea7629",
       "file": "arxiv-digest-agentdiet-dev-mcp/2631195d72f4fc2c591160bc5338aa8b1b84cf57591458b16b1882658eea7629.json",
-      "result": "mirrored_new"
+      "result": "already_mirrored"
     },
     {
       "endpoint": "https://shopify-spy.agentdiet.dev/mcp",
@@ -6363,7 +6475,7 @@
       "status": "verified",
       "record_sha256": "359a89e53c25a264454e6d2109b4a06a293c266e8dc6c458189e48d32522cfb3",
       "file": "onchain-risk-agentdiet-dev-mcp/359a89e53c25a264454e6d2109b4a06a293c266e8dc6c458189e48d32522cfb3.json",
-      "result": "mirrored_new"
+      "result": "already_mirrored"
     },
     {
       "endpoint": "https://token-intel.agentdiet.dev/mcp",
@@ -6451,7 +6563,7 @@
       "status": "verified",
       "record_sha256": "84496231cd2eb310974d997a6a5954adcc9d17d21a6808a9846abfdaba077ba1",
       "file": "defi-yield-agentdiet-dev-mcp/84496231cd2eb310974d997a6a5954adcc9d17d21a6808a9846abfdaba077ba1.json",
-      "result": "mirrored_new"
+      "result": "already_mirrored"
     },
     {
       "endpoint": "https://hn-pulse.agentdiet.dev/mcp",
@@ -6571,7 +6683,7 @@
       "status": "verified",
       "record_sha256": "d24abca095381d40b052113cc61bc651582fe2a258418897e711ccd6cacc139e",
       "file": "alpha-stream-agentdiet-dev-mcp/d24abca095381d40b052113cc61bc651582fe2a258418897e711ccd6cacc139e.json",
-      "result": "mirrored_new"
+      "result": "already_mirrored"
     },
     {
       "endpoint": "https://mcp-compiler.agentdiet.dev/mcp",
@@ -6603,7 +6715,7 @@
       "status": "verified",
       "record_sha256": "d641d8fa018467abb12ae85c82024b372656bed2e1fe8adf56eb3eea7a664b28",
       "file": "mcp-compiler-agentdiet-dev-mcp/d641d8fa018467abb12ae85c82024b372656bed2e1fe8adf56eb3eea7a664b28.json",
-      "result": "mirrored_new"
+      "result": "already_mirrored"
     },
     {
       "endpoint": "https://cve-intel.agentdiet.dev/mcp",
@@ -6627,7 +6739,7 @@
       "status": "verified",
       "record_sha256": "8a44b6c595b567c60805845f7b936ffd2cf4a49c4918bb4b6aa3b1cf85603ec1",
       "file": "cve-intel-agentdiet-dev-mcp/8a44b6c595b567c60805845f7b936ffd2cf4a49c4918bb4b6aa3b1cf85603ec1.json",
-      "result": "mirrored_new"
+      "result": "already_mirrored"
     }
   ],
   "establishes": [
