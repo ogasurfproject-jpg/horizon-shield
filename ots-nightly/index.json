@@ -1,6 +1,24 @@
 {
  "nights": [
   {
+   "answers_sha256": "3f404265c1b0f79210356736a32f8e0469492b5dc4e571608f8d3b7496013f7d",
+   "counts": {
+    "confirmed": 266,
+    "entries": 266,
+    "not_checked": 0,
+    "ok": 266,
+    "other": 0,
+    "pending": 0,
+    "red": 0,
+    "too_recent": 0,
+    "unstamped": 0
+   },
+   "night": "2026-11-07",
+   "path": "nights/2026-11-07.json",
+   "result_sha256": "30d763e1da473ab6b2093d6376e7ad2a5ba15b7cc25b7c06aabbc2d8d14d640e",
+   "verdict": "green"
+  },
+  {
    "answers_sha256": "0c78e7e557ebf694c4a2e14eefa2f2b0b3f13e3c224d8f6f12c7920096e7c630",
    "counts": {
     "confirmed": 254,
