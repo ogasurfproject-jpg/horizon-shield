@@ -47,11 +47,21 @@ function tryJson(body) {
 // ledger: when a legitimate route is added (e.g. /resume, 2026-09-13) this check goes red on purpose,
 // a human confirms the change was intended, and re-pins the set here by hand.
 const LEDGER_ROUTES_EXPECTED = [
-  "/ledger", "/ledger/{n}", "/ledger/{n}/ots", "/verify/{n}", "/reference/{sha}",
+  "/ledger", "/ledger/head", "/ledger/export.jsonl", "/ledger/{n}", "/ledger/{n}/ots",
+  "/verify/{n}", "/reference/{sha}",
   "/paths", "/paths/{sha}", "/paths/{sha}/replay", "/paths/query",
   "/witness", "/witness/pending", "/witness/{sha}",
   "/resume?endpoint={url}",
   "/trust-signal?endpoint={url}",
+  "/agreement", "/agreement/pending", "/agreement/{canonical_sha256}",
+  "/admission", "/admission/{canonical_sha256}",
+  "/revocation", "/revocation/{canonical_sha256}",
+  "/furui-check-day", "/furui-check-day/{canonical_sha256}",
+  "/.well-known/furui-check-keys.json",
+  "/evidence/trace",
+  "/evidence/vouch", "/evidence/vouch/{sha}", "/evidence/vouch/id/{credential id}",
+  "/evidence/slot", "/evidence/slot/{sha}", "/evidence/slot/s/{request_slot}",
+  "/evidence/slot-log", "/evidence/slot-log/{date}", "/evidence/slot-log/{date}.ots",
 ];
 
 const CHECKERS = {
