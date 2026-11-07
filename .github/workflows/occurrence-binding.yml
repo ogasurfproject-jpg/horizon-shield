@@ -7,9 +7,9 @@ name: occurrence binding (#51)
 # naming that call's request digest and saying it did not run.
 # The same pinned package then runs recorded check on the three #51 recorded sets kept under pilot51/:
 # set2/ against the digest list and bindings its corpus member hs51-set2 pins, witness-acks-set2/ and
-# witness-giskard09/ against the SHA256SUMS sha256 written here (the corpus member hs51-set2-acks pins the
-# list as it was at e4ea84f5, before README.md was listed, and giskard09's set has no member). A version
-# bump of the requirements file runs this workflow, so each release is checked against the retained bytes.
+# witness-giskard09/ against the corpus members hs51-set2-acks and hs51-giskard09-acks, which pin the lists
+# they need (set2-acks as it was at e4ea84f5, before README.md was listed). A version bump of the
+# requirements file runs this workflow, so each release is checked against the retained bytes.
 
 on:
   push:
@@ -53,5 +53,5 @@ jobs:
         working-directory: workers/hs-ledger/nenrin/musubi-v0/ca2a-companion-v0/pilot51
         run: |
           agent-evidence-vectors recorded check set2 --member hs51-set2
-          agent-evidence-vectors recorded check witness-acks-set2 --pin a4a4323d9416e32fb3bb600e112740a5564d37982897127feebc961d75f2b978
-          agent-evidence-vectors recorded check witness-giskard09 --pin 686972edf81aabc89e786b80b7339f94dbabea57a0e3a2331c3d7c56a85b50de
+          agent-evidence-vectors recorded check witness-acks-set2 --member hs51-set2-acks
+          agent-evidence-vectors recorded check witness-giskard09 --member hs51-giskard09-acks
