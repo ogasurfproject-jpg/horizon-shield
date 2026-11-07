@@ -52,7 +52,19 @@ export const CONTENT_RULES_V04 = "a2a-content-check-v1";
 export const CONTENT_DECISIONS_V04 = ["stop", "pass"];
 export const CONTENT_MARKS_V04 = ["off_topic", "rule_conflict"];
 const CONTENT_KEYS_V04 = ["rules", "input_commit", "check_sha256", "rules_sha256", "scope_sha256", "decision", "marks", "unread", "answered", "checked"];
-const CONTENT_VERSIONS = [VERSION_CONTENT, VERSION_CONTENT_V04];
+export const VERSION_CONTENT_V05 = "0.5";
+export const REASONS_V05 = REASONS_V04;
+export const CONTENT_RULES_V05 = "a2a-content-check-v2";
+const CONTENT_KEYS_V05 = ["rules", "checked", "input_commit", "scope_sha256", "runners_sha256", "quorum", "decision", "marks", "disagreement_kind", "checks"];
+const CHECK_KEYS_V05 = ["runner_id", "key_id", "rules_sha256", "check_sha256", "day", "decision", "marks", "unread", "answered", "scope_sha256", "why"];
+const QUORUM_KEYS_V05 = ["required", "answered"];
+export const CHECK_WHY_V05 = ["ok", "no_envelope", "timeout", "capped", "signature", "rules_mismatch", "scope_mismatch", "commit_mismatch", "shape",
+  "unread", "decision_null", "not_answered"];
+export const DISAGREEMENT_KINDS_V05 = ["n/a", "none", "decision", "marks", "both"];
+const CONTENT_REASONS_V04 = ["content_flagged", "content_scope_conflict", "content_off_topic", "content_unchecked"];
+const CONTENT_VERSIONS = [VERSION_CONTENT, VERSION_CONTENT_V04, VERSION_CONTENT_V05];
+const RUNNER_ID = /^[A-Za-z0-9._:-]{1,64}$/;
+const DAY = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 export const DOES_NOT_ESTABLISH_V0 = [
   "that HS allowed or blocked anything; the relying party ran the function at its own door",
   "that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show",
@@ -78,6 +90,19 @@ export const DOES_NOT_ESTABLISH_V04 = [...DOES_NOT_ESTABLISH_V02,
     + "identifier of the rule set, the decision and the marks, and nothing else about the content",
   "that the rates measured for the named rule set hold on this contract's scope; they were measured on the scopes of public datasets, not on "
     + "a scope rendered from a contract"];
+export const DOES_NOT_ESTABLISH_V05 = [...DOES_NOT_ESTABLISH_V02,
+  "that any content check ran, or that the same checks would answer the same way again; the record carries a salted commitment to the bytes "
+    + "the relying party says it sent to every runner (only a holder of the bytes and the salt can recompute it), the digest of each check it "
+    + "says it read, the identifiers of the rule sets, each decision and its marks, and nothing else about the content",
+  "that the rates measured for the named rule sets hold on this contract's scope; they were measured on the scopes of public datasets, not "
+    + "on a scope rendered from a contract",
+  "that the runners reached their answers apart from one another, or that their models, prompts or operators differ beyond the keys and "
+    + "rule set digests the record names",
+  "which runner's answer was right when the answers differ; disagreement_kind says only how they differ",
+  "why a runner gave no answer when its check says timeout or capped; those two are the relying party's own account, and no signed "
+    + "envelope shows them",
+  "that a pass here means what a pass means in a v0.4 record; a v0.4 block says pass for a check that answered pass with part of the "
+    + "content unread, while here such a runner is not counted as answered, so the block's decision may be null where v0.4 would say pass"];
 const RECORD_KEYS = ["schema", "admission_id", "relying_party", "contract_ref", "action_ref", "presentation_ref", "chain_view",
   "revocations_seen", "decision", "reasons", "clause", "rules", "establishes", "does_not_establish", "signatures"];
 const HEX32 = /^[0-9a-f]{32}$/;
@@ -210,6 +235,73 @@ export function contentProblemsV04(record) {
   return ok ? [] : ["malformed"];
 }
 
+// admission_verify_v0.check_problem_v05: one element of a v0.5 block's checks[] outside its closed shape.
+function checkProblemV05(k, blockScope) {
+  if (!isObj(k) || !same(Object.keys(k).sort(), [...CHECK_KEYS_V05].sort())) return true;
+  const hexNull = (x) => x === null || (typeof x === "string" && HEX64.test(x));
+  const why = k.why, dec = k.decision, mk = k.marks, un = k.unread;
+  if (!(typeof k.runner_id === "string" && RUNNER_ID.test(k.runner_id) && typeof k.key_id === "string" && RUNNER_ID.test(k.key_id)
+    && typeof k.rules_sha256 === "string" && HEX64.test(k.rules_sha256) && hexNull(k.check_sha256) && hexNull(k.scope_sha256)
+    && (k.day === null || (typeof k.day === "string" && DAY.test(k.day)))
+    && CHECK_WHY_V05.includes(why) && (dec === null || CONTENT_DECISIONS_V04.includes(dec)) && (un === true || un === false || un === null)
+    && Array.isArray(mk) && mk.every((m) => typeof m === "string") && same(mk, CONTENT_MARKS_V04.filter((m) => mk.includes(m)))
+    && typeof k.answered === "boolean")) return true;
+  if (k.answered !== (why === "ok")) return true;                                       // a check that was not read is never answered
+  if (k.scope_sha256 !== null && k.scope_sha256 !== blockScope) return true;            // the scope is the block's, or none
+  if (why === "ok") return !(dec !== null && k.check_sha256 !== null && un === false && (dec === "pass" || mk.length === 0) && (mk.length === 0 || k.scope_sha256 !== null));
+  if (why === "unread") return !(dec === "pass" && un === true && k.check_sha256 !== null && (mk.length === 0 || k.scope_sha256 !== null));
+  return !(dec === null && mk.length === 0 && un !== true);
+}
+
+// admission_verify_v0.content_from_checks_v05: what a v0.5 block says, from its checks[] and quorum.required alone.
+export function contentFromChecksV05(checks, required) {
+  const reasons = new Set(), marks = new Set();
+  const ok = checks.filter((k) => k.why === "ok");
+  for (const k of checks) {
+    if (k.why === "ok" && k.decision === "stop") reasons.add("content_flagged");
+    else if (k.why === "ok" || k.why === "unread") { for (const m of k.marks) marks.add(m); if (k.why === "unread") reasons.add("content_unchecked"); }
+    else reasons.add("content_unchecked");
+  }
+  const answered = new Set(ok.map((k) => k.key_id)).size;
+  if (answered < required) reasons.add("content_unchecked");
+  if (marks.has("rule_conflict")) reasons.add("content_scope_conflict");
+  if (marks.has("off_topic")) reasons.add("content_off_topic");
+  const stop = ok.some((k) => k.decision === "stop");
+  const decision = stop ? "stop" : answered >= required ? "pass" : null;
+  let kind = "n/a";
+  if (answered > 1) {
+    const decDiff = new Set(ok.map((k) => k.decision)).size > 1;
+    const markDiff = new Set(ok.filter((k) => k.decision === "pass").map((k) => k.marks.join(","))).size > 1;
+    kind = decDiff && markDiff ? "both" : decDiff ? "decision" : markDiff ? "marks" : "none";
+  }
+  return { answered, decision, marks: CONTENT_MARKS_V04.filter((m) => marks.has(m)), checked: decision !== null, disagreement_kind: kind, reasons };
+}
+
+const smallInt = (x, lo, hi) => (typeof x === "bigint" && x >= BigInt(lo) && x <= BigInt(hi)) || (Number.isSafeInteger(x) && x >= lo && x <= hi);
+
+// admission_verify_v0.content_problems_v05: a v0.5 record's content block (two or more runners, checks[] and quorum)
+// and its agreement with its checks, decision and reasons. Fields only; a verifier holds no policy.
+export function contentProblemsV05(record) {
+  const c = get(record, "content"), reasons = get(record, "reasons"), d = get(record, "decision");
+  if (!isObj(c) || !same(Object.keys(c).sort(), [...CONTENT_KEYS_V05].sort()) || c.rules !== CONTENT_RULES_V05 || !Array.isArray(reasons)) return ["malformed"];
+  const hexNull = (k) => c[k] === null || (typeof c[k] === "string" && HEX64.test(c[k]));
+  const q = c.quorum, ks = c.checks;
+  if (!(["input_commit", "scope_sha256", "runners_sha256"].every(hexNull) && typeof c.checked === "boolean"
+    && (c.decision === null || CONTENT_DECISIONS_V04.includes(c.decision)) && DISAGREEMENT_KINDS_V05.includes(c.disagreement_kind)
+    && Array.isArray(c.marks) && isObj(q) && same(Object.keys(q).sort(), [...QUORUM_KEYS_V05].sort())
+    && smallInt(q.required, 1, 64) && smallInt(q.answered, 0, 64) && Array.isArray(ks) && ks.length <= 64)) return ["malformed"];
+  if (ks.some((k) => checkProblemV05(k, c.scope_sha256))) return ["malformed"];
+  for (let i = 1; i < ks.length; i++) if (!(ks[i - 1].runner_id < ks[i].runner_id)) return ["malformed"];   // runner_id strictly ascending
+  const f = contentFromChecksV05(ks, Number(q.required));
+  const r = new Set(reasons);
+  const mine = new Set(CONTENT_REASONS_V04.filter((x) => r.has(x)));
+  const ok = c.decision === f.decision && sameStrings(c.marks, f.marks) && c.checked === f.checked && Number(q.answered) === f.answered
+    && c.disagreement_kind === f.disagreement_kind && (!c.checked || c.input_commit !== null)
+    && mine.size === f.reasons.size && [...mine].every((x) => f.reasons.has(x))
+    && (d !== "admit" || (c.decision === "pass" && c.checked === true && !["content_flagged", "content_scope_conflict", "content_unchecked"].some((x) => r.has(x))));
+  return ok ? [] : ["malformed"];
+}
+
 const MAX_SAFE = 2 ** 53 - 1;
 const MAX_SAFE_BIG = BigInt(MAX_SAFE);
 const safeBig = (v) => typeof v === "bigint" && v <= MAX_SAFE_BIG && v >= -MAX_SAFE_BIG;
@@ -307,15 +399,16 @@ function verifyParsed(record, relyingKeyB64, contract, proto) {
   const rp = isObj(get(record, "relying_party")) ? record.relying_party : {};
   const dom = typeof get(rp, "domain") === "string" ? rp.domain : null;
   const reasons = get(record, "reasons");
-  const allowed = version === VERSION_CONTENT_V04 ? REASONS_V04 : version === VERSION_CONTENT ? REASONS_V03 : version === VERSION_IMMUNE ? REASONS_V02 : REASONS;
+  const allowed = version === VERSION_CONTENT_V05 ? REASONS_V05 : version === VERSION_CONTENT_V04 ? REASONS_V04 : version === VERSION_CONTENT ? REASONS_V03 : version === VERSION_IMMUNE ? REASONS_V02 : REASONS;
   if (!DECISIONS.includes(get(record, "decision")) || !Array.isArray(reasons) || !reasons.length || reasons.some((r) => !allowed.includes(r))) ref.add("malformed");
   if (version !== null && version !== VERSION && version !== VERSION_IMMUNE && !CONTENT_VERSIONS.includes(version)) ref.add("malformed");
   if (has(rules, "version") && rules.version === null) ref.add("malformed");   // an explicit null is not v0
   if ((version === VERSION_IMMUNE || CONTENT_VERSIONS.includes(version)) && has(record, "immune")) for (const c of immuneProblems(record)) ref.add(c);
   if (version === VERSION_CONTENT && has(record, "content")) for (const c of contentProblems(record)) ref.add(c);
   if (version === VERSION_CONTENT_V04 && has(record, "content")) for (const c of contentProblemsV04(record)) ref.add(c);
+  if (version === VERSION_CONTENT_V05 && has(record, "content")) for (const c of contentProblemsV05(record)) ref.add(c);
   const dne = get(record, "does_not_establish");
-  const stated = version === VERSION_CONTENT_V04 ? DOES_NOT_ESTABLISH_V04 : version === VERSION_CONTENT ? DOES_NOT_ESTABLISH_V03 : version === VERSION_IMMUNE ? DOES_NOT_ESTABLISH_V02
+  const stated = version === VERSION_CONTENT_V05 ? DOES_NOT_ESTABLISH_V05 : version === VERSION_CONTENT_V04 ? DOES_NOT_ESTABLISH_V04 : version === VERSION_CONTENT ? DOES_NOT_ESTABLISH_V03 : version === VERSION_IMMUNE ? DOES_NOT_ESTABLISH_V02
     : version === VERSION ? DOES_NOT_ESTABLISH : DOES_NOT_ESTABLISH_V0;
   if (!Array.isArray(dne)) ref.add("malformed");
   if (!sameStrings(dne, stated)) ref.add("does_not_establish_altered");

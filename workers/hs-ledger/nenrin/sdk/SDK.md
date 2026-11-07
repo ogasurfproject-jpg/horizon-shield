@@ -72,6 +72,18 @@ account, no token, no trust in HS. A mismatch exits 2 and prints the two trees t
 attestation (who built it, from which commit) and this script (what that commit builds, on your
 machine), the chain source to package is closed at both ends by the reader, not by the operator.
 
+## 0.10.0: `furui-day --runner 2` reads the second runner's day
+
+- `furui-day` takes `--runner 1|2` (1 when left out). Runner 2 is FURUI's second content check runner: its day tree is
+  `https://furui.horizonshield.dev/furui2/day/`, its day record and envelopes carry key_id runner-2, and its day record
+  names runner_id runner-2. A runner-1 day record may name runner_id runner-1 or leave it out; a record that names
+  another runner is refused at step 5 (runner_id_is_not_runner_1 or _2). Earlier versions refuse every runner-2 day
+  (key_id_is_not_runner_1), so a runner-2 day needs this version or later. Python, JavaScript, Go (0.6.0) and Java
+  (0.3.0) give the same answers on `../furui-check-day-v0/verify_vectors.json` (85 cases, 10 of them for the runner).
+- The Python package's MUSUBI copy reads admission records of version 0.5 (the content block of more than one runner: checks[], quorum,
+  disagreement_kind) and carries settle v1.20, which reads them; a 0.5 record needs this version or later, and earlier
+  versions refuse it as malformed. Records of 0.3 and 0.4 read as before.
+
 ## 0.9.0: `--bitcoin-header` checks the block header from two explorers
 
 `furui-day` and `resume-admission` take `--bitcoin-header`: after the anchor, the block header at the proof's height

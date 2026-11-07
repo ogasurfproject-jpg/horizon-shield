@@ -66,6 +66,16 @@ interoperability vectors and reference verifiers. Zenodo. https://doi.org/10.528
 `VerifyTraceBind`, `SpanAttributes`, `CheckSpanAttributes`. `nenrin-verify-go --trace-batch intake|bind|span in out`
 is the TSUNAGI batch form. `go test ./...` runs the three corpora (28, 28, 16); the board referees them nightly.
 
+## nenrin-verify furui-day --runner (0.6.0)
+
+```sh
+nenrin-verify furui-day 2026-11-10 --leaf 0 --runner 2
+```
+
+`furui-day` takes `--runner 1|2` (1 when left out): runner 2 reads runner-2's day tree at `https://furui.horizonshield.dev/furui2/day/`, and wants key_id runner-2 on the day record and on the envelope and runner_id runner-2 on the day record (a runner-1 record may name runner_id runner-1 or leave it out; a record that names another runner is refused at step 5). Without the flag the answers are those of the version before, except that a runner-1 day record that names runner_id runner-1 is now read instead of refused for its shape.
+`FuruiOpts.Runner` is the flag in the library. The same answers as the other three ports on
+`../furui-check-day-v0/verify_vectors.json`. `PortVersion` is 0.6.0.
+
 ## nenrin-verify --bitcoin-header (0.5.0)
 
 ```sh

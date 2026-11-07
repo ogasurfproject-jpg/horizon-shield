@@ -1,12 +1,14 @@
 // furui_day.mjs: check one day of the content check runner, or one admissions[] line of a Resume. The JavaScript twin of
 // the Python nenrin_verify.furui_day; both run ../furui-check-day-v0/verify_vectors.json and give the same verdicts.
 //
-//   nenrin-verify furui-day <day> --leaf <i>
+//   nenrin-verify furui-day <day> --leaf <i> [--runner 1|2]
+//     runner-1 (the default) or runner-2 (--runner 2: its day tree is GET /furui2/day/, its day record and envelopes carry
+//     key_id runner-2, and its day record names runner_id runner-2, which a runner-1 record may leave out)
 //     1 envelope_shape   the envelope the runner serves has the closed shape (furui-check-signed-v1, no text field)
 //     2 leaf_sha256      sha256(0x00 || musubi-canonical-v0(envelope)) is the leaf the runner names
 //     3 audit_path       the RFC 6962 audit path rebuilds the root of the day record the ledger serves
-//     4 signature        runner-1's Ed25519 signature on the day record, and on the envelope
-//     5 runner_key       runner-1's key is in the ledger's /.well-known/furui-check-keys.json, inside from_height (and
+//     4 signature        the runner's Ed25519 signature on the day record, and on the envelope
+//     5 runner_key       the runner's key is in the ledger's /.well-known/furui-check-keys.json, inside from_height (and
 //                        before revoked_height) for the heights of the record and of the envelope
 //     6 bitcoin_anchor   the day record is listed in a ledger batch entry whose OpenTimestamps proof commits the entry's
 //                        sha256 to a Bitcoin block header (not_yet before the batch or before the anchor)
@@ -42,6 +44,9 @@ const SIG88 = /^[A-Za-z0-9+/]{86}==$/;
 const CHECK_KEYS = ["action_binding_digest", "answered", "checked_at_height", "contract_sha256", "decision", "input_commit", "marks",
   "nonce", "rules_sha256", "schema", "scope_sha256", "signed_at", "stage_reached", "trace_sha256", "unread"];
 const DAY_KEYS = ["clock_skew", "day", "first_height", "last_height", "late", "leaf", "n", "publication", "root", "schema", "signatures", "signer", "tree"];
+const DAY_KEYS_RUNNER = [...DAY_KEYS, "runner_id"].sort();     // a day record may name its runner (runner_id; none is runner-1)
+const RUNNER_PATHS = { 1: "/furui/day/", 2: "/furui2/day/" };
+const RUNNER_ID = /^runner-[0-9]{1,3}$/;
 const DAY_LEAF = "sha256(0x00 || musubi-canonical-v0(envelope))";
 const RESUME_ENVELOPE_KEYS = ["evaluated_at", "subject_responses", "not_counted", "scan", "recompute", "resume_sha256"];
 const UNANCHORED = ["not_yet_anchored", "confirmed_without_block_time"];
@@ -118,7 +123,7 @@ export function ed25519Verify(pub, msg, sig) {
   } catch (e) { return false; }
 }
 
-export function envelopeProblem(e) {
+export function envelopeProblem(e, rid = "runner-1") {
   if (!keysAre(e, ["check", "schema", "signatures", "signer"]) || e.schema !== "furui-check-signed-v1") return "envelope_keys";
   const c = e.check;
   if (!keysAre(c, CHECK_KEYS) || c.schema !== "furui-check-v1") return "check_keys";
@@ -134,7 +139,7 @@ export function envelopeProblem(e) {
   if (!keysAre(e.signer, ["domain", "key_url"]) || e.signer.domain !== SIGNER.domain || e.signer.key_url !== SIGNER.key_url) return "signer";
   if (!Array.isArray(e.signatures) || e.signatures.length !== 1) return "signatures";
   const g = e.signatures[0];
-  if (!keysAre(g, ["alg", "domain", "key_id", "sig"]) || g.alg !== "ed25519" || g.domain !== SIGNER.domain || g.key_id !== "runner-1" || !(isStr(g.sig) && SIG88.test(g.sig))) return "signature";
+  if (!keysAre(g, ["alg", "domain", "key_id", "sig"]) || g.alg !== "ed25519" || g.domain !== SIGNER.domain || g.key_id !== rid || !(isStr(g.sig) && SIG88.test(g.sig))) return "signature";
   return null;
 }
 
@@ -146,7 +151,7 @@ export function dayMessage(r) {
 }
 
 function dayRecordProblem(r) {
-  if (!keysAre(r, DAY_KEYS) || r.schema !== "furui-check-day-v0") return "day_record_shape";
+  if (!(keysAre(r, DAY_KEYS) || (keysAre(r, DAY_KEYS_RUNNER) && isStr(r.runner_id) && RUNNER_ID.test(r.runner_id))) || r.schema !== "furui-check-day-v0") return "day_record_shape";
   const s = r.signer;
   const ok = realDay(r.day) && keysAre(s, ["domain", "key_url"]) && isStr(s.domain) && s.domain.length > 0 && isStr(s.key_url) && isInt(r.n, 1)
     && r.tree === "rfc6962-sha256" && r.leaf === DAY_LEAF && isStr(r.root) && H64.test(r.root) && isInt(r.first_height) && isInt(r.last_height)
@@ -339,11 +344,14 @@ export async function furuiDay(day, leaf, getf = httpGet, opts = {}) {
   run.facts = { day, leaf, record_sha256: null, n: null, root: null, ledger_entry: null, bitcoin_block: null, merkle_root: null };
   const args = { day, leaf };
   if (withHeader) { run.facts.bitcoin_header = null; args.bitcoin_header = true; }
+  const runner = opts.runner === undefined ? 1 : opts.runner;
+  if (runner !== 1) args.runner = runner;
+  const rid = "runner-" + runner, path = FURUI + RUNNER_PATHS[runner];
   const done = () => run.result("furui-day", args);
   // 1 envelope_shape
-  const [s, a] = await run.getj(FURUI + "/furui/day/" + day + "/leaf/" + leaf);
+  const [s, a] = await run.getj(path + day + "/leaf/" + leaf);
   if (s === 404 && isObj(a) && a.error === "day_open") {
-    const [ss, st] = await run.getj(FURUI + "/furui/day/" + day + "/status");
+    const [ss, st] = await run.getj(path + day + "/status");
     const v = ss === 200 && isObj(st) && st.day === day ? get(st, "status") : undefined;
     if (isObj(v) && v.state === "empty") run.put("fail", "day_closed_empty"); else run.put("not_yet", "day_open");
     return done();
@@ -352,7 +360,7 @@ export async function furuiDay(day, leaf, getf = httpGet, opts = {}) {
   if (!isObj(a)) { run.put("fail", "leaf_not_json"); return done(); }
   if (get(a, "day") !== day || !isInt(get(a, "index")) || a.index !== leaf) { run.put("fail", "leaf_is_another_day_or_index"); return done(); }
   const env = get(a, "envelope");
-  let p = envelopeProblem(env);
+  let p = envelopeProblem(env, rid);
   if (p) { run.put("fail", "envelope_shape:" + p); return done(); }
   let envc;
   try { envc = canonical(env); } catch (x) { run.put("fail", "envelope_shape:not_canonical"); return done(); }
@@ -400,7 +408,8 @@ export async function furuiDay(day, leaf, getf = httpGet, opts = {}) {
   if (ks !== 200 || !isObj(kd)) { run.put("fail", ks !== 200 ? "keys_http_" + ks : "keys_not_json"); return done(); }
   if (klist === null) { run.put("fail", "keys_not_furui_check"); return done(); }
   if (rec.signer.domain !== SIGNER.domain || rec.signer.key_url !== SIGNER.key_url) { run.put("fail", "signer_is_not_the_ledger_keys"); return done(); }
-  if (kid !== "runner-1") { run.put("fail", "key_id_is_not_runner_1"); return done(); }
+  if (kid !== rid) { run.put("fail", "key_id_is_not_" + rid.replace("-", "_")); return done(); }
+  if ((has(rec, "runner_id") ? rec.runner_id : "runner-1") !== rid) { run.put("fail", "runner_id_is_not_" + rid.replace("-", "_")); return done(); }
   if (k === null) { run.put("fail", "key_not_listed"); return done(); }
   if (pub === null) { run.put("fail", "key_not_32_bytes"); return done(); }
   const fh = get(k, "from_height"), rh = get(k, "revoked_height");
@@ -508,7 +517,7 @@ export async function runCase(c) {
   }
   const g = worldGet(c.world);
   if (c.command === "bitcoin-header") { const [state, code, facts] = await bitcoinHeader(c.args.height, c.args.merkle_root, g); return { state, code, facts }; }
-  const o = { bitcoinHeader: c.args.bitcoin_header === true, headerGet: g };
+  const o = { bitcoinHeader: c.args.bitcoin_header === true, headerGet: g, runner: c.args.runner === undefined ? 1 : c.args.runner };
   if (c.command === "furui-day") return summary(await furuiDay(c.args.day, c.args.leaf, g, o));
   return summary(await resumeAdmission(c.args.endpoint, c.args.record_sha256, g, o));
 }
@@ -525,7 +534,7 @@ export async function runVectors(path, out = (l) => process.stdout.write(l + "\n
   return ok === doc.cases.length ? 0 : 1;
 }
 
-const USAGE = "usage: nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--bitcoin-header]\n       nenrin-verify resume-admission <https endpoint> <record_sha256> [--bitcoin-header]\n       nenrin-verify furui-vectors <vectors.json>";
+const USAGE = "usage: nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--runner 1|2] [--bitcoin-header]\n       nenrin-verify resume-admission <https endpoint> <record_sha256> [--bitcoin-header]\n       nenrin-verify furui-vectors <vectors.json>";
 const EXIT = { ok: 0, fail: 1, not_yet: 3 };
 export const FURUI_COMMANDS = ["furui-day", "resume-admission", "furui-vectors"];
 
@@ -541,6 +550,12 @@ export async function furuiMain(argv) {
   if (["furui-day", "resume-admission"].includes(argv[0]) && argv.slice(1).filter((x) => x === "--bitcoin-header").length === 1) {
     argv.splice(argv.indexOf("--bitcoin-header", 1), 1);
     o.bitcoinHeader = true;
+  }
+  if (argv[0] === "furui-day" && argv.slice(1).filter((x) => x === "--runner").length === 1) {
+    const i = argv.indexOf("--runner", 1);
+    if (!["1", "2"].includes(argv[i + 1])) { process.stderr.write(USAGE + "\n"); return 2; }
+    o.runner = Number(argv[i + 1]);
+    argv.splice(i, 2);
   }
   try {
     if (argv.length === 4 && argv[0] === "furui-day" && argv[2] === "--leaf" && realDay(argv[1]) && /^(0|[1-9]\d{0,8})$/.test(argv[3])) res = await furuiDay(argv[1], Number(argv[3]), httpGet, o);

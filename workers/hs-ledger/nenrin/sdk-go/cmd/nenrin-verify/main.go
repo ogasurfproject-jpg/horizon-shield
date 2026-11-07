@@ -3,7 +3,7 @@
 //
 //	go install github.com/ogasurfproject-jpg/horizon-shield/workers/hs-ledger/nenrin/sdk-go/cmd/nenrin-verify@latest
 //
-//	nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--bitcoin-header]
+//	nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--runner 1|2] [--bitcoin-header]
 //	nenrin-verify resume-admission <https endpoint> <record_sha256> [--bitcoin-header]
 //	nenrin-verify furui-vectors <verify_vectors.json | bitcoin_header_vectors.json>
 //
@@ -22,7 +22,7 @@ import (
 	nv "github.com/ogasurfproject-jpg/horizon-shield/workers/hs-ledger/nenrin/sdk-go/nenrinverify"
 )
 
-const usage = "usage: nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--bitcoin-header]\n       nenrin-verify resume-admission <https endpoint> <record_sha256> [--bitcoin-header]\n       nenrin-verify furui-vectors <vectors.json>"
+const usage = "usage: nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--runner 1|2] [--bitcoin-header]\n       nenrin-verify resume-admission <https endpoint> <record_sha256> [--bitcoin-header]\n       nenrin-verify furui-vectors <vectors.json>"
 
 var (
 	leafRe = regexp.MustCompile(`^(0|[1-9][0-9]{0,8})$`)
@@ -45,6 +45,22 @@ func run(a []string) int {
 		if n == 1 {
 			a = append(append([]string{}, a[:at]...), a[at+1:]...)
 			o.BitcoinHeader = true
+		}
+	}
+	if len(a) > 0 && a[0] == "furui-day" {
+		n, at := 0, 0
+		for i, x := range a[1:] {
+			if x == "--runner" {
+				n, at = n+1, i+1
+			}
+		}
+		if n == 1 {
+			if at+1 >= len(a) || (a[at+1] != "1" && a[at+1] != "2") {
+				fmt.Fprintln(os.Stderr, usage)
+				return 2
+			}
+			o.Runner, _ = strconv.Atoi(a[at+1])
+			a = append(append([]string{}, a[:at]...), a[at+2:]...)
 		}
 	}
 	switch {

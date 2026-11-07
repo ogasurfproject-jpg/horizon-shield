@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { createHash, generateKeyPairSync, sign as cryptoSign } from "node:crypto";
 import { handleAdmissionIntake, handleRevocationIntake, handleStoredGet, admissionSelfDescription, MAX_BYTES, LIMITS_BY_VERSION } from "./admission_intake.mjs";
-import { verifyAdmissionText, DOES_NOT_ESTABLISH_V04 } from "./admission_verify_v0.mjs";
+import { verifyAdmissionText, DOES_NOT_ESTABLISH_V04, DOES_NOT_ESTABLISH_V05, contentFromChecksV05 } from "./admission_verify_v0.mjs";
 import { canonical as musubiCanonical } from "./canonical_v0.mjs";
 import { canonicalUtf8, parseStrict } from "../agreement-v0/agreement_canonical.mjs";
 
@@ -312,6 +312,105 @@ t("the self description says what the intake does not do", d.what_this_does_not_
   const rr = await handleAdmissionIntake(post({ record_canonical: cases.off_topic_admitted_mark_only[0] }), ws.deps);
   t("v0.4: the report says the content block's nine rules were checked, and the record goes to the daily batch", rr.status === 201 && rr.body.report.checked.some((x) => /nine rules/.test(x)) && ws.queued.length === 1);
   t("the intake says it reads v0.4", admissionSelfDescription().versions.some((x) => x.startsWith("0.4")));
+}
+
+// ---- v0.5: the content block of more than one runner (checks[] and quorum). Records made here by the door's rule as far as a
+// test needs it (each answer of fixtures/admission_v05/cases.json becomes one check), signed by a fresh key; the intake and the
+// verifier must agree on every one of them, and on the three v0.4 records the ledger served on 2026-11-07 ----
+{
+  const V5 = JSON.parse(readFileSync(path.join(HERE, "fixtures", "admission_v05", "cases.json"), "utf8"));
+  const CC = JSON.parse(readFileSync(path.join(HERE, "fixtures", "admission_content", "cases.json"), "utf8"));
+  const kp = generateKeyPairSync("ed25519");
+  const pub = kp.publicKey.export({ format: "der", type: "spki" }).subarray(-32).toString("base64");
+  const adm = JSON.parse(CC.records.B_clear_admitted);
+  const keyUrl = adm.relying_party.key_url;
+  const R5 = ["within_grant", "conditional_needs_approval", "prohibited_action", "outside_grant", "amount_over_limit", "delegation_exceeds_parent",
+    "contract_expired", "nonce_reused", "grant_revoked", "key_revoked", "presentation_unverifiable", "signer_not_on_own_domain", "action_digest_mismatch",
+    "content_flagged", "content_unchecked", "exposure_full", "immune_hold", "immune_reject", "content_scope_conflict", "content_off_topic"];
+  const H = (ch) => ch.repeat(64), scope = H("4");
+  const sha = (x) => createHash("sha256").update(x, "utf8").digest("hex");
+  const WHY = { 1: "no_envelope", 2: "signature", 3: "rules_mismatch", 4: "scope_mismatch", 5: "commit_mismatch", 6: "shape", 7: "not_answered", 8: "decision_null", 22: "scope_mismatch" };
+  const MK = { 16: ["off_topic"], 17: ["rule_conflict"], 18: ["off_topic", "rule_conflict"], 20: ["off_topic"], 21: ["rule_conflict"] };
+  const checkOf = (i, rid) => {
+    const read = i >= 9 && i !== 22, why = WHY[i] || ([19, 20, 21].includes(i) ? "unread" : "ok");
+    return { runner_id: rid, key_id: rid, rules_sha256: rid === "runner-1" ? H("3") : H("5"), check_sha256: i === 1 ? null : sha(rid + " " + i),
+      day: read ? "2026-11-09" : null, decision: read ? (i <= 14 ? "stop" : "pass") : null, marks: read ? (MK[i] || []) : [],
+      unread: read ? why === "unread" : null, answered: why === "ok", scope_sha256: (!read || [4, 22, 23].includes(i)) ? null : scope, why };
+  };
+  const door = (answers, required) => {
+    const checks = answers.map((i, j) => checkOf(i, "runner-" + (j + 1))), f = contentFromChecksV05(checks, required);
+    let rs = new Set(f.reasons), dec;
+    if (rs.has("content_flagged")) dec = "refuse";                                   // the paid policy: on_flagged refuse, the others escalate
+    else if (rs.has("content_unchecked") || rs.has("content_scope_conflict")) dec = "escalate";
+    else { dec = "admit"; rs = new Set(["within_grant", ...(rs.has("content_off_topic") ? ["content_off_topic"] : [])]); }
+    const block = { rules: "a2a-content-check-v2", checked: f.checked, input_commit: H("1"), scope_sha256: scope, runners_sha256: H("6"),
+      quorum: { required, answered: f.answered }, decision: f.decision, marks: f.marks, disagreement_kind: f.disagreement_kind, checks };
+    return { block, reasons: R5.filter((r) => rs.has(r)), dec };
+  };
+  const signRec = (o) => {
+    const b = Object.fromEntries(Object.entries(o).filter(([k]) => k !== "signatures"));
+    const sig = cryptoSign(null, Buffer.from("a2a-admission-v0\n" + musubiCanonical(b), "utf8"), kp.privateKey).toString("base64");
+    return musubiCanonical({ ...b, signatures: [{ alg: "ed25519", domain: o.relying_party.domain, sig }] });
+  };
+  const v05 = (block, reasons, decision, extra) => signRec({ ...adm, rules: { ...adm.rules, version: "0.5" }, does_not_establish: [...LIMITS_BY_VERSION["0.5"]],
+    content: block, decision, reasons, ...(extra || {}) });
+  t("v0.5: the intake's stated limits for 0.5 are the verifier's, line for line", JSON.stringify(LIMITS_BY_VERSION["0.5"]) === JSON.stringify(DOES_NOT_ESTABLISH_V05));
+  const cases = {};
+  for (const row of V5.quorum1) { const d = door([row.answer], 1); cases["q1_" + row.answer] = [v05(d.block, d.reasons, d.dec), null]; }
+  let tableAgrees = true;
+  for (const [r1, r2, wantRs, wantAns, wantDec, wantKind] of V5.quorum2) {
+    const d = door([r1, r2], 2);
+    tableAgrees = tableAgrees && JSON.stringify(d.reasons.filter((r) => r.startsWith("content_"))) === JSON.stringify(wantRs) && d.block.quorum.answered === wantAns
+      && d.dec === wantDec && d.block.disagreement_kind === wantKind;
+    cases["q2_" + r1 + "_" + r2] = [v05(d.block, d.reasons, d.dec), null];
+  }
+  t("v0.5: the door's rule here gives the fixture's reasons, runners answered, decision and disagreement_kind for all 529 pairs", tableAgrees);
+  const g = door([15, 15], 2), gk = g.block.checks;
+  const mut = (answers, i, kw) => { const d = door(answers, 2); const ks = d.block.checks.map((k) => ({ ...k })); Object.assign(ks[i], kw); return v05({ ...d.block, checks: ks }, d.reasons, d.dec); };
+  Object.assign(cases, {
+    not_ascending: [v05({ ...g.block, checks: [gk[1], gk[0]] }, g.reasons, g.dec), "malformed"],
+    not_ok_but_answered: [mut([15, 1], 1, { answered: true }), "malformed"],
+    unread_but_answered: [mut([15, 19], 1, { answered: true }), "malformed"],
+    decision_not_the_rule: [v05({ ...g.block, decision: "stop" }, g.reasons, g.dec), "malformed"],
+    kind_not_the_rule: [v05({ ...g.block, disagreement_kind: "marks" }, g.reasons, g.dec), "malformed"],
+    answered_not_the_rule: [v05({ ...g.block, quorum: { required: 2, answered: 1 } }, g.reasons, g.dec), "malformed"],
+    reason_extra: [v05(g.block, ["within_grant", "content_off_topic"], "admit"), "malformed"],
+    admit_short_of_quorum: [v05(door([15, 1], 2).block, ["within_grant"], "admit"), "malformed"],
+    stop_with_marks: [mut([9, 15], 0, { marks: ["off_topic"] }), "malformed"],
+    not_read_keeps_decision: [mut([1, 15], 0, { decision: "pass" }), "malformed"],
+    check_scope_other: [mut([15, 15], 1, { scope_sha256: H("7") }), "malformed"],
+    check_extra_field: [mut([15, 15], 1, { leaf_index: 0 }), "malformed"],
+    block_with_check_sha256: [v05({ ...g.block, check_sha256: H("2") }, g.reasons, g.dec), "malformed"],
+    block_with_version: [v05({ ...g.block, version: "0.4" }, g.reasons, g.dec), "malformed"],
+    same_key_twice_counted_once: [v05({ ...g.block, checks: [gk[0], { ...gk[1], key_id: "runner-1" }], quorum: { required: 2, answered: 1 }, decision: null, checked: false,
+      disagreement_kind: "n/a" }, ["content_unchecked"], "escalate"), null],
+    v04_limits_in_v05: [v05(g.block, g.reasons, g.dec, { does_not_establish: [...LIMITS_BY_VERSION["0.4"]] }), "does_not_establish_altered"],
+  });
+  let agree = 0, n = 0, bad = [];
+  for (const [k, [text, code]] of Object.entries(cases)) {
+    const w1 = world({ keys: { [keyUrl]: pub } });
+    const rr = await handleAdmissionIntake(post({ record_canonical: text }), w1.deps);
+    const v = verifyAdmissionText(text, pub);
+    const ok = code === null ? rr.status === 201 && rr.body.report.admit_version === "0.5" && v.verdict === "accepted"
+      : rr.status === 422 && rr.body.refusals.includes(code) && v.verdict === "refused" && v.refusals.includes(code);
+    agree += ok; n++;
+    if (!ok) bad.push([k, rr.status, rr.body.refusals, v]);
+  }
+  t("v0.5: the intake and the verifier agree on all " + n + " records (" + Object.values(cases).filter((x) => x[1] === null).length + " accepted, "
+    + Object.values(cases).filter((x) => x[1] !== null).length + " refused)", agree === n, bad.slice(0, 3));
+  const w2 = world({ keys: { [keyUrl]: pub } });
+  const rr = await handleAdmissionIntake(post({ record_canonical: cases.q2_16_15[0] }), w2.deps);
+  t("v0.5: the report says the block and the reasons were held to its checks, and the record goes to the daily batch",
+    rr.status === 201 && rr.body.report.checked.some((x) => /what its checks and quorum.required give/.test(x)) && w2.queued.length === 1, rr.body);
+  t("the intake says it reads v0.5", admissionSelfDescription().versions.some((x) => x.startsWith("0.5")));
+  const L4 = V5.live_v04, keyUrl4 = "https://shield.the-horizons-innovation.com/keys/seki-door.json";
+  let live = 0;
+  for (const text of Object.values(L4.records)) {
+    const w3 = world({ keys: { [keyUrl4]: L4.relying_pub_b64 } });
+    const r4 = await handleAdmissionIntake(post({ record_canonical: text }), w3.deps);
+    live += r4.status === 201 && r4.body.report.admit_version === "0.4" && verifyAdmissionText(text, L4.relying_pub_b64).verdict === "accepted";
+  }
+  t("v0.4 as before: the three records the ledger served on 2026-11-07 are accepted by this intake and the verifier", live === 3);
 }
 
 console.log("");

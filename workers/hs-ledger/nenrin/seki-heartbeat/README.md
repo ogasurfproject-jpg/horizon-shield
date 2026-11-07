@@ -7,7 +7,7 @@ exercised every day, and every day is settled.
 
 | file | what it is |
 |---|---|
-| `heartbeat.py` | `run`: the agent's three calls of the day (report admitted, audit over its limit refused, compare prohibited refused), each with a fresh nonce; every record checked under the key `keys/seki-door.json` publishes and found on the ledger. `settle`: every earlier day whose ledger batch Bitcoin has confirmed, settled with settle v1.15 (v1.12 must agree on the verdict). `--selftest` runs offline |
+| `heartbeat.py` | `run`: the agent's three calls of the day (report admitted, audit over its limit refused, compare prohibited refused), each with a fresh nonce; every record checked under the key `keys/seki-door.json` publishes and found on the ledger. `settle`: every earlier day whose ledger batch Bitcoin has confirmed, settled with settle v1.20 (v1.12 must agree on the verdict; v1.15 before admission v0.5, with the same answers on every day it settled). `--selftest` runs offline |
 | `runs/<day>/` (the UTC day the run is for: six hours before it started; until 2026-10-24 it was the date it started, see heartbeat.py responsible_day) | `RUN.json`, the signed requests, the door's records, the execution record; once settled, the anchored records, `settlement.json` and `SETTLED.json` (verdict, view, ledger entries, how to recompute) |
 | `runs/README.md` | one line per day |
 | `view-chunks/` | final Bitcoin headers from the contract's checkpoint, 1000 per file, written once and never rewritten; the whole view is checked under the contract's rules on every run |
@@ -74,14 +74,16 @@ the ledger's pool first, or not at all.
 From `runs/<date>/`, with Python 3 and `cryptography`:
 
     python3 ../../../musubi-v0/header_view_fetch.py --contract ../../../musubi-v0/run0003/contract.json --out view.json --to <view.to in SETTLED.json>
-    python3 ../../../musubi-v0/settle_v1_15.py --settle ../../../musubi-v0/run0003/contract.json \
+    python3 ../../../musubi-v0/settle_v1_20.py --settle ../../../musubi-v0/run0003/contract.json \
       --event execution_report.anchored.json \
       --admission admission_report.anchored.json --admission admission_audit.anchored.json --admission admission_compare.anchored.json \
       --relying-key shield.the-horizons-innovation.com=<public_key_ed25519_b64 from keys/seki-door.json> \
       --view view.json --out /tmp/settlement.json
     shasum -a 256 /tmp/settlement.json
 
-The hash must equal `settlement_sha256` in `SETTLED.json`. Each anchored record's anchor can be checked on its own with
+The hash must equal `settlement_sha256` in `SETTLED.json`. Use the settle that `SETTLED.json` names: a day it says
+`v1.15` was written by `settle_v1_15.py` (with the same arguments), and its bytes are that file's; settle v1.20 gives the
+same verdict, status and deviations for it, in other bytes. Each anchored record's anchor can be checked on its own with
 `../../../musubi-v0/anchor_compose.py` against the ledger entry named in `SETTLED.json` (`/ledger/<n>?format=raw` and
 `/ledger/<n>/ots`).
 

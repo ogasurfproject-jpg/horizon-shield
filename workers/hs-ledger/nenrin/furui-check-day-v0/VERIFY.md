@@ -15,7 +15,7 @@ admission as the Résumé lists it, back to the ledger.
 pip install nenrin-verify            # Python, then: nenrin-verify furui-day 2026-11-03 --leaf 0
 npx nenrin-verify furui-day 2026-11-03 --leaf 0
 
-nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--bitcoin-header]
+nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--runner 1|2] [--bitcoin-header]
 nenrin-verify resume-admission <https endpoint> <record_sha256> [--bitcoin-header]
 nenrin-verify furui-vectors verify_vectors.json
 ```
@@ -48,6 +48,16 @@ check is a fail with `day_closed_empty`: there is no leaf to check.
 | 3 | admission_record | the stored bytes at `/admission/<sha>` hash to the sha; an `a2a-admission-v0` whose relying party is the endpoint's host or its parent; the same decision; the same closed part of a 0.4 content block |
 | 4 | ledger_batch | the entry ledger_n hashes to its claim and lists the record as `a2a-admission-v0` |
 | 5 | bitcoin_anchor | the entry is anchored, and its OpenTimestamps proof reaches a Bitcoin attestation at the entry's block height |
+
+## --runner: the second runner's day (npm and PyPI 0.10.0; Go 0.6.0, Java 0.3.0)
+
+FURUI 1.0 adds a second content check runner. `furui-day --runner 2` reads its day tree at
+`https://furui.horizonshield.dev/furui2/day/<day>/leaf/<i>` (and `/status`), and the same six checks hold with the runner's own
+name: the envelope and the day record carry key_id runner-2, the key is the one `furui-check-keys.json` lists as runner-2, and the
+day record names `runner_id` runner-2. Without the flag, or with `--runner 1`, the answers are runner-1's as before; a runner-1 day
+record may name `runner_id` runner-1 or leave it out, and a record that names another runner is refused at step 5
+(`runner_id_is_not_runner_1`, `runner_id_is_not_runner_2`). Earlier versions refuse every runner-2 day (`key_id_is_not_runner_1`),
+so a runner-2 day needs these versions or later. Ten of the vectors are for the runner (`"runner": 2` in their args where it is 2).
 
 ## --bitcoin-header: the block header from two explorers (npm 0.9.0 and PyPI; Go 0.5.0, Java 0.2.0)
 

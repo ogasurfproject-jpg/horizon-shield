@@ -83,7 +83,20 @@ CONTENT_DECISIONS_V04 = ("stop", "pass")
 CONTENT_MARKS_V04 = ("off_topic", "rule_conflict")
 CONTENT_KEYS_V04 = frozenset(("rules", "input_commit", "check_sha256", "rules_sha256", "scope_sha256", "decision", "marks", "unread", "answered", "checked"))
 CONTENT_REASONS_V04 = ("content_flagged", "content_scope_conflict", "content_off_topic", "content_unchecked")
-CONTENT_VERSIONS = (VERSION_CONTENT, VERSION_CONTENT_V04)
+VERSION_CONTENT_V05 = "0.5"
+REASONS_V05 = REASONS_V04
+CONTENT_RULES_V05 = "a2a-content-check-v2"
+CONTENT_KEYS_V05 = frozenset(("rules", "checked", "input_commit", "scope_sha256", "runners_sha256", "quorum", "decision", "marks",
+                              "disagreement_kind", "checks"))
+CHECK_KEYS_V05 = frozenset(("runner_id", "key_id", "rules_sha256", "check_sha256", "day", "decision", "marks", "unread", "answered",
+                            "scope_sha256", "why"))
+QUORUM_KEYS_V05 = frozenset(("required", "answered"))
+CHECK_WHY_V05 = ("ok", "no_envelope", "timeout", "capped", "signature", "rules_mismatch", "scope_mismatch", "commit_mismatch", "shape",
+                 "unread", "decision_null", "not_answered")
+DISAGREEMENT_KINDS_V05 = ("n/a", "none", "decision", "marks", "both")
+CONTENT_VERSIONS = (VERSION_CONTENT, VERSION_CONTENT_V04, VERSION_CONTENT_V05)
+RUNNER_ID = re.compile(r"^[A-Za-z0-9._:-]{1,64}\Z")
+DAY = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}\Z")
 HEX32 = re.compile(r"^[0-9a-f]{32}\Z")
 HEX64 = re.compile(r"^[0-9a-f]{64}\Z")
 DOES_NOT_ESTABLISH_V0 = [
@@ -111,6 +124,19 @@ DOES_NOT_ESTABLISH_V04 = DOES_NOT_ESTABLISH_V02 + [
     "identifier of the rule set, the decision and the marks, and nothing else about the content",
     "that the rates measured for the named rule set hold on this contract's scope; they were measured on the scopes of public datasets, not on "
     "a scope rendered from a contract"]
+DOES_NOT_ESTABLISH_V05 = DOES_NOT_ESTABLISH_V02 + [
+    "that any content check ran, or that the same checks would answer the same way again; the record carries a salted commitment to the bytes "
+    "the relying party says it sent to every runner (only a holder of the bytes and the salt can recompute it), the digest of each check it "
+    "says it read, the identifiers of the rule sets, each decision and its marks, and nothing else about the content",
+    "that the rates measured for the named rule sets hold on this contract's scope; they were measured on the scopes of public datasets, not "
+    "on a scope rendered from a contract",
+    "that the runners reached their answers apart from one another, or that their models, prompts or operators differ beyond the keys and "
+    "rule set digests the record names",
+    "which runner's answer was right when the answers differ; disagreement_kind says only how they differ",
+    "why a runner gave no answer when its check says timeout or capped; those two are the relying party's own account, and no signed "
+    "envelope shows them",
+    "that a pass here means what a pass means in a v0.4 record; a v0.4 block says pass for a check that answered pass with part of the "
+    "content unread, while here such a runner is not counted as answered, so the block's decision may be null where v0.4 would say pass"]
 
 
 def sha256_hex(b):
@@ -316,6 +342,101 @@ def content_problems_v04(record):
     return [] if ok else ["malformed"]
 
 
+def check_problem_v05(k, block_scope):
+    """True when one element of a v0.5 block's checks[] is not in its closed shape. Each check is the relying party's
+    account of one runner: its answer as read (why ok), read with part of the content unread (why unread), or not read
+    (every other why, whose decision and marks are not kept). answered is true exactly when why is ok."""
+    if not isinstance(k, dict) or set(k) != CHECK_KEYS_V05:
+        return True
+    hexnull = lambda x: x is None or (isinstance(x, str) and bool(HEX64.match(x)))
+    why, dec, mk, un = k.get("why"), k.get("decision"), k.get("marks"), k.get("unread")
+    if not (isinstance(k.get("runner_id"), str) and bool(RUNNER_ID.match(k["runner_id"])) and isinstance(k.get("key_id"), str)
+            and bool(RUNNER_ID.match(k["key_id"])) and isinstance(k.get("rules_sha256"), str) and bool(HEX64.match(k["rules_sha256"]))
+            and hexnull(k.get("check_sha256")) and hexnull(k.get("scope_sha256"))
+            and (k.get("day") is None or (isinstance(k["day"], str) and bool(DAY.match(k["day"]))))
+            and why in CHECK_WHY_V05 and dec in CONTENT_DECISIONS_V04 + (None,) and (un is None or isinstance(un, bool))
+            and isinstance(mk, list) and all(isinstance(m, str) for m in mk) and mk == [m for m in CONTENT_MARKS_V04 if m in mk]
+            and isinstance(k.get("answered"), bool)):
+        return True
+    if k["answered"] != (why == "ok"):
+        return True                                                       # a check that was not read is never answered
+    if k.get("scope_sha256") is not None and k["scope_sha256"] != block_scope:
+        return True                                                       # the scope is the block's, or none
+    if why == "ok":
+        return not (dec is not None and k.get("check_sha256") is not None and un is False and (dec == "pass" or mk == [])
+                    and (not mk or k.get("scope_sha256") is not None))
+    if why == "unread":
+        return not (dec == "pass" and un is True and k.get("check_sha256") is not None and (not mk or k.get("scope_sha256") is not None))
+    return not (dec is None and mk == [] and un is not True)
+
+
+def content_from_checks_v05(checks, required):
+    """What a v0.5 block says follows from its checks[] and quorum.required alone (design 1.2, lines 1 and 2):
+    {answered, decision, marks, checked, disagreement_kind, reasons}. answered counts the keys of the checks read as
+    answers (why ok), each key once. reasons is the set of content_ reasons the record must carry."""
+    reasons, marks = set(), set()
+    ok = [k for k in checks if k["why"] == "ok"]
+    for k in checks:
+        if k["why"] == "ok" and k["decision"] == "stop":
+            reasons.add("content_flagged")
+        elif k["why"] in ("ok", "unread"):
+            marks.update(k["marks"])
+            if k["why"] == "unread":
+                reasons.add("content_unchecked")
+        else:
+            reasons.add("content_unchecked")
+    answered = len({k["key_id"] for k in ok})
+    if answered < required:
+        reasons.add("content_unchecked")
+    if "rule_conflict" in marks:
+        reasons.add("content_scope_conflict")
+    if "off_topic" in marks:
+        reasons.add("content_off_topic")
+    stop = any(k["decision"] == "stop" for k in ok)
+    decision = "stop" if stop else "pass" if answered >= required else None
+    kind = "n/a"
+    if answered > 1:
+        dec_diff = len({k["decision"] for k in ok}) > 1
+        mark_diff = len({tuple(k["marks"]) for k in ok if k["decision"] == "pass"}) > 1
+        kind = "both" if dec_diff and mark_diff else "decision" if dec_diff else "marks" if mark_diff else "none"
+    return {"answered": answered, "decision": decision, "marks": [m for m in CONTENT_MARKS_V04 if m in marks], "checked": decision is not None,
+            "disagreement_kind": kind, "reasons": reasons}
+
+
+def content_problems_v05(record):
+    """[] when a v0.5 record's content block is well formed and agrees with its checks, its decision and its reasons. The
+    block is the relying party's account of more than one runner: checks[] in runner_id order, one per runner its policy
+    names, and quorum.required, the number of runners that must answer. A verifier holds no policy, so every rule here
+    reads the record alone: the block's decision, marks, checked, quorum.answered and disagreement_kind must be what
+    checks[] and quorum.required give (content_from_checks_v05); the record's content_ reasons must be exactly the set
+    they give; an admit needs the decision pass and checked true and carries no content_ reason but content_off_topic."""
+    c, reasons, d = record.get("content"), record.get("reasons"), record.get("decision")
+    if not isinstance(c, dict) or set(c) != CONTENT_KEYS_V05 or c.get("rules") != CONTENT_RULES_V05 or not isinstance(reasons, list):
+        return ["malformed"]
+    hexnull = lambda k: c.get(k) is None or (isinstance(c[k], str) and bool(HEX64.match(c[k])))
+    q, ks = c.get("quorum"), c.get("checks")
+    if not (all(hexnull(k) for k in ("input_commit", "scope_sha256", "runners_sha256")) and isinstance(c.get("checked"), bool)
+            and c.get("decision") in CONTENT_DECISIONS_V04 + (None,) and c.get("disagreement_kind") in DISAGREEMENT_KINDS_V05
+            and isinstance(c.get("marks"), list) and isinstance(q, dict) and set(q) == QUORUM_KEYS_V05
+            and _is_int(q.get("required")) and 1 <= q["required"] <= 64 and _is_int(q.get("answered")) and 0 <= q["answered"] <= 64
+            and isinstance(ks, list) and len(ks) <= 64):
+        return ["malformed"]
+    if any(check_problem_v05(k, c.get("scope_sha256")) for k in ks):
+        return ["malformed"]
+    ids = [k["runner_id"] for k in ks]
+    if any(a >= b for a, b in zip(ids, ids[1:])):
+        return ["malformed"]                                                  # runner_id strictly ascending
+    f = content_from_checks_v05(ks, q["required"])
+    r = set(reasons)
+    ok = (c["decision"] == f["decision"] and c["marks"] == f["marks"] and c["checked"] == f["checked"]
+          and q["answered"] == f["answered"] and c["disagreement_kind"] == f["disagreement_kind"]
+          and (not c["checked"] or c.get("input_commit") is not None)
+          and (r & set(CONTENT_REASONS_V04)) == f["reasons"]
+          and (d != "admit" or (c["decision"] == "pass" and c["checked"] is True
+                                and not (r & {"content_flagged", "content_scope_conflict", "content_unchecked"}))))
+    return [] if ok else ["malformed"]
+
+
 MAX_SAFE = 2 ** 53 - 1
 
 
@@ -452,11 +573,11 @@ def verify_admission(record, relying_key_b64, contract=None):
         ref.append("malformed")
     rp = record.get("relying_party") if isinstance(record.get("relying_party"), dict) else {}
     dom = rp.get("domain") if isinstance(rp.get("domain"), str) else None
-    allowed = REASONS_V04 if ver == VERSION_CONTENT_V04 else REASONS_V03 if ver == VERSION_CONTENT else REASONS_V02 if ver == VERSION_IMMUNE else REASONS
+    allowed = REASONS_V05 if ver == VERSION_CONTENT_V05 else REASONS_V04 if ver == VERSION_CONTENT_V04 else REASONS_V03 if ver == VERSION_CONTENT else REASONS_V02 if ver == VERSION_IMMUNE else REASONS
     if record.get("decision") not in DECISIONS or not isinstance(record.get("reasons"), list) or not record.get("reasons") \
             or any(r not in allowed for r in record.get("reasons") or []):
         ref.append("malformed")
-    if ver not in (None, VERSION, VERSION_IMMUNE, VERSION_CONTENT, VERSION_CONTENT_V04):
+    if ver not in (None, VERSION, VERSION_IMMUNE, VERSION_CONTENT, VERSION_CONTENT_V04, VERSION_CONTENT_V05):
         ref.append("malformed")
     if ver in (VERSION_IMMUNE,) + CONTENT_VERSIONS and "immune" in record:
         ref.extend(immune_problems(record))
@@ -464,8 +585,11 @@ def verify_admission(record, relying_key_b64, contract=None):
         ref.extend(content_problems(record))
     if ver == VERSION_CONTENT_V04 and "content" in record:
         ref.extend(content_problems_v04(record))
+    if ver == VERSION_CONTENT_V05 and "content" in record:
+        ref.extend(content_problems_v05(record))
     # each version carries its own stated limits, and none may carry another's
-    stated = (DOES_NOT_ESTABLISH_V04 if ver == VERSION_CONTENT_V04 else DOES_NOT_ESTABLISH_V03 if ver == VERSION_CONTENT else DOES_NOT_ESTABLISH_V02 if ver == VERSION_IMMUNE
+    stated = (DOES_NOT_ESTABLISH_V05 if ver == VERSION_CONTENT_V05
+              else DOES_NOT_ESTABLISH_V04 if ver == VERSION_CONTENT_V04 else DOES_NOT_ESTABLISH_V03 if ver == VERSION_CONTENT else DOES_NOT_ESTABLISH_V02 if ver == VERSION_IMMUNE
               else DOES_NOT_ESTABLISH if ver == VERSION else DOES_NOT_ESTABLISH_V0)
     dne = record.get("does_not_establish")
     if not isinstance(dne, list):
@@ -852,8 +976,157 @@ def _selftest():
                   "content; rule 0: a v0.1 admit with no content block verifies; the JavaScript twin gives the same verdict and refusal set for all %d"
                   % (n4 - 1, len(d4) - n4, len(d4)))
 
-    print("\nSELF-TEST PASSED: MUSUBI admission records, the verifying side, %d checks (all five versions verify; what does not; the request and its digest; "
-          "the revocation record; the JavaScript twin agrees; v0.2's immune block; v0.3's content block; v0.4's content block)" % n)
+    # [9] v0.5: the content block of more than one runner. The door's rule (FURUI 1.0 design, 1.2) is written here only as
+    # far as a test needs it, to make records: each runner's answer becomes one check (CHECK_OF_ANSWER), the block and the
+    # content_ reasons follow from checks[] and quorum.required (content_from_checks_v05), and the decision from the reasons
+    # and the policy (the most severe wins: a reason the policy does not soften refuses, one it softens escalates). The
+    # expected reasons and decisions come from fixtures/admission_v05/cases.json: the 23 answers under quorum 1 (the v0.4
+    # rule's reasons), P1 to P6, and all 529 pairs under quorum 2.
+    V5 = json.load(open(os.path.join(HERE, "fixtures", "admission_v05", "cases.json"), encoding="utf-8"))
+    scope = H("4")
+    SOFT = (("content_flagged", "on_flagged"), ("content_unchecked", "on_unchecked"), ("content_scope_conflict", "on_scope_conflict"))
+    HARD = {"content_flagged", "content_unchecked", "content_scope_conflict", "amount_over_limit", "prohibited_action", "outside_grant"}
+
+    def check_of_answer(i, rid):
+        """the check a door writes for answer i (the numbers of the fixture's answers) of runner rid"""
+        read = i >= 9 and i != 22
+        why = {1: "no_envelope", 2: "signature", 3: "rules_mismatch", 4: "scope_mismatch", 5: "commit_mismatch", 6: "shape", 7: "not_answered",
+               8: "decision_null", 22: "scope_mismatch"}.get(i, "unread" if i in (19, 20, 21) else "ok")
+        dec = None if not read else ("stop" if i <= 14 else "pass")
+        mk = {16: ["off_topic"], 17: ["rule_conflict"], 18: ["off_topic", "rule_conflict"], 20: ["off_topic"], 21: ["rule_conflict"]}.get(i, []) if read else []
+        return {"runner_id": rid, "key_id": rid, "rules_sha256": H("3") if rid == "runner-1" else H("5"),
+                "check_sha256": hashlib.sha256(("%s %d" % (rid, i)).encode()).hexdigest() if i not in (1,) else None,
+                "day": "2026-11-09" if read else None, "decision": dec, "marks": mk, "unread": (why == "unread") if read else None,
+                "answered": why == "ok", "scope_sha256": None if (i in (4, 22, 23) or not read) else scope, "why": why}
+
+    def door(answers, required, policy, grant=()):
+        """(content block, reasons, decision) for one runner per answer, runner-1, runner-2 and so on"""
+        broken = set(policy) - {"on_flagged", "on_unchecked", "on_scope_conflict"}
+        checks = [] if broken else [check_of_answer(i, "runner-%d" % (j + 1)) for j, i in enumerate(answers)]
+        f = content_from_checks_v05(checks, required)
+        soft = set() if broken else {r for r, k in SOFT if policy.get(k) == "escalate"}
+        rs = set(grant) | f["reasons"]
+        if any(r in HARD and r not in soft for r in rs):
+            dec = "refuse"
+        elif any(r in soft for r in rs):
+            dec = "escalate"
+        else:
+            dec, rs = "admit", {"within_grant"} | (rs & {"content_off_topic"})
+        block = {"rules": CONTENT_RULES_V05, "checked": f["checked"], "input_commit": H("1"), "scope_sha256": scope, "runners_sha256": H("6"),
+                 "quorum": {"required": required, "answered": f["answered"]}, "decision": f["decision"], "marks": f["marks"],
+                 "disagreement_kind": f["disagreement_kind"], "checks": checks}
+        return block, [r for r in REASONS_V05 if r in rs], dec
+
+    def v05(rec, content, **kw):
+        r = dict(rec, rules=dict(rec["rules"], version=VERSION_CONTENT_V05), does_not_establish=list(DOES_NOT_ESTABLISH_V05), content=content)
+        return T(signed(dict(r, **kw)))
+    rec5 = lambda block, reasons, dec: v05(adm, block, decision=dec, reasons=reasons)
+    cr = lambda rs: [r for r in rs if r.startswith("content_")]
+    d5 = {}
+    for row in V5["quorum1"]:
+        block, rs, dec = door([row["answer"]], 1, V5["paid_policy"])
+        assert (cr(rs), dec) == (row["reasons"], row["decision"]), (row, rs, dec)
+        assert block["disagreement_kind"] == "n/a" and block["quorum"]["answered"] == (1 if row["answer"] in (9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 23) else 0)
+        d5["q1_%02d" % row["answer"]] = (rec5(block, rs, dec), [])
+    for k_, pc in enumerate(V5["policy_cases"]):
+        block, rs, dec = door(pc["answers"], max(1, len(pc["answers"])) if pc["answers"] else 2, pc["policy"], pc["grant"])
+        assert dec == pc["decision"], (pc, rs, dec)
+        d5["policy_%s_%d" % (pc["name"], k_)] = (rec5(block, rs, dec), [])
+    for r1, r2, want_rs, want_ans, want_dec, want_kind in V5["quorum2"]:
+        block, rs, dec = door([r1, r2], 2, V5["paid_policy"])
+        assert (cr(rs), block["quorum"]["answered"], dec, block["disagreement_kind"]) == (want_rs, want_ans, want_dec, want_kind), (r1, r2, rs, block)
+        d5["q2_%02d_%02d" % (r1, r2)] = (rec5(block, rs, dec), [])
+    nq = len(d5)
+    # the reader's own rows (TEST_TABLE's last seven and design 8's three): what is accepted and what is malformed
+    good2, gr = door([15, 15], 2, V5["paid_policy"])[:2]
+    gk = good2["checks"]
+    sig = dict(check_of_answer(2, "runner-2"))                                 # a key the policy does not name: why signature
+    nb, nr, nd = door([15], 2, V5["paid_policy"])
+    nb = dict(nb, checks=nb["checks"] + [sig]); nb_rs = [r for r in nr]
+    dup = [dict(gk[0]), dict(gk[1], key_id="runner-1")]                       # the same key twice counts once
+    db = dict(good2, checks=dup, quorum={"required": 2, "answered": 1}, decision=None, checked=False, disagreement_kind="n/a")
+    W = lambda **kw: dict(good2, **kw)
+
+    def swap(answers, i, **kw):
+        """the door's record for answers, with one field of check i changed after the block and the reasons were made"""
+        block, rs, dec = door(answers, 2, V5["paid_policy"])
+        ks = [dict(k) for k in block["checks"]]
+        ks[i].update(kw)
+        return rec5(dict(block, checks=ks), rs, dec)
+    d5.update({
+        "r_two_keys_both_pass": (rec5(good2, gr, "admit"), []),
+        "r_key_not_in_policy_with_unchecked": (rec5(nb, nb_rs, "escalate"), []),
+        "r_key_not_in_policy_without_unchecked": (rec5(nb, ["within_grant"], "admit"), BS),
+        "r_same_key_twice_counted_once": (rec5(db, ["content_unchecked"], "escalate"), []),
+        "r_same_key_twice_counted_twice": (rec5(dict(good2, checks=dup), gr, "admit"), BS),
+        "r_block_with_check_sha256": (rec5(W(check_sha256=H("2")), gr, "admit"), BS),
+        "r_v04_block_with_checks": (v04(adm, dict(c4, checks=gk)), BS),
+        "r_block_with_version": (rec5(W(version="0.4"), gr, "admit"), BS),
+        "r_v04_block_in_v05": (v05(adm, c4), BS),
+        "r_v05_block_in_v04": (v04(adm, good2), BS),
+        "m_checks_not_ascending": (rec5(W(checks=[gk[1], gk[0]]), gr, "admit"), BS),
+        "m_checks_same_runner_twice": (rec5(W(checks=[gk[0], dict(gk[1], runner_id="runner-1")]), gr, "admit"), BS),
+        "m_not_ok_but_answered": (rec5(W(checks=[gk[0], dict(check_of_answer(1, "runner-2"), answered=True)]), gr, "admit"), BS),
+        "m_unread_but_answered": (swap([15, 19], 1, answered=True), BS),
+        "m_decision_not_the_rule": (rec5(W(decision="stop"), gr, "admit"), BS),
+        "m_decision_null_on_admit": (rec5(W(decision=None, checked=False), gr, "admit"), BS),
+        "m_marks_not_the_rule": (rec5(W(marks=["off_topic"]), gr, "admit"), BS),
+        "m_answered_not_the_rule": (rec5(W(quorum={"required": 2, "answered": 1}), gr, "admit"), BS),
+        "m_kind_not_the_rule": (rec5(W(disagreement_kind="none" if good2["disagreement_kind"] != "none" else "marks"), gr, "admit"), BS),
+        "m_checked_not_the_rule": (rec5(W(checked=False), gr, "admit"), BS),
+        "m_reason_missing": (rec5(door([15, 1], 2, V5["paid_policy"])[0], ["outside_grant"], "refuse"), BS),
+        "m_reason_extra": (rec5(good2, ["within_grant", "content_off_topic"], "admit"), BS),
+        "m_admit_with_unchecked": (rec5(door([15, 1], 2, V5["paid_policy"])[0], ["within_grant", "content_unchecked"], "admit"), BS),
+        "m_check_scope_other_than_block": (rec5(W(checks=[gk[0], dict(gk[1], scope_sha256=H("7"))]), gr, "admit"), BS),
+        "m_mark_without_scope": (swap([16, 15], 0, scope_sha256=None), BS),
+        "m_stop_with_marks": (swap([9, 15], 0, marks=["off_topic"]), BS),
+        "m_not_read_keeps_decision": (swap([1, 15], 0, decision="pass"), BS),
+        "m_why_unknown": (rec5(W(checks=[gk[0], dict(gk[1], why="late")]), gr, "admit"), BS),
+        "m_check_extra_field": (rec5(W(checks=[gk[0], dict(gk[1], leaf_index=0)]), gr, "admit"), BS),
+        "m_quorum_zero": (rec5(W(quorum={"required": 0, "answered": 2}), gr, "admit"), BS),
+        "m_quorum_extra_field": (rec5(W(quorum={"required": 2, "answered": 2, "of": 2}), gr, "admit"), BS),
+        "m_rules_v1": (rec5(W(rules=CONTENT_RULES_V04), gr, "admit"), BS),
+        "m_unread_a_string": (rec5(W(checks=[gk[0], dict(gk[1], unread="false")]), gr, "admit"), BS),
+        "m_unread_one": (rec5(W(checks=[gk[0], dict(gk[1], unread=1)]), gr, "admit"), BS),
+        "m_runner_id_with_space": (rec5(W(checks=[gk[0], dict(gk[1], runner_id="runner 2")]), gr, "admit"), BS),
+        "m_v05_with_v04_limits": (v05(adm, good2, does_not_establish=list(DOES_NOT_ESTABLISH_V04)), ["does_not_establish_altered"]),
+        "m_v05_without_content": (T(signed({k_: v_ for k_, v_ in rd(rec5(good2, gr, "admit")).items() if k_ not in ("content", "signatures")})), BS),
+    })
+    for k_, (t, codes) in d5.items():
+        got = verify_admission_text(t, k6p, IP)
+        assert got == {"verdict": "refused" if codes else "accepted", "refusals": codes}, (k_, got)
+    feed = json.dumps({"contract_canonical": IC["contract_canonical"], "relying_pub_b64": k6p, "records": {k_: t for k_, (t, _c) in d5.items()}})
+    r = subprocess.run(["node", twin, "--verify-texts"], input=feed, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr[-600:]
+    J5 = json.loads(r.stdout)
+    py5 = {k_: verify_admission_text(t, k6p, IP) for k_, (t, _c) in d5.items()}
+    assert J5 == py5, [(k_, J5.get(k_), py5[k_]) for k_ in py5 if J5.get(k_) != py5[k_]][:5]
+    n5 = sum(1 for _t, c_ in d5.values() if not c_)
+    n += 1; print("[9] v0.5 (checks[] of more than one runner, quorum): the door's rule gives the fixture's reasons and decisions for the 23 answers "
+                  "under quorum 1, P1 to P6 and all 529 pairs under quorum 2 (disagreement_kind counted with a stop not counting marks); those %d "
+                  "records and %d more verify (two keys both pass, a key the policy does not name with content_unchecked, one key twice counted "
+                  "once); %d are refused (a reason missing or extra, checks out of runner_id order, a check not read but answered, the block's "
+                  "decision, marks, checked, quorum or disagreement_kind other than checks[] give, a v0.4 block in v0.5 and back, an extra "
+                  "field, v0.4's limits); the JavaScript twin gives the same verdict and refusal set for all %d"
+                  % (nq, n5 - nq, len(d5) - n5, len(d5)))
+
+    # [10] three v0.4 records the ledger served on 2026-11-07 read as before: accepted, under the door's published key and the contract
+    L4 = V5["live_v04"]
+    door_pub, C3 = L4["relying_pub_b64"], rd(L4["contract_canonical"])
+    kp_ = os.path.join(HERE, "..", "..", "..", "..", "keys", "seki-door.json")
+    assert not os.path.exists(kp_) or json.load(open(kp_, encoding="utf-8"))["public_key_ed25519_b64"] == door_pub
+    for k_, t in sorted(L4["records"].items()):
+        assert sha256_hex(t.encode("utf-8")) == k_ and rd(t)["rules"]["version"] == VERSION_CONTENT_V04, k_
+        assert verify_admission_text(t, door_pub) == ok and verify_admission_text(t, door_pub, C3) == ok, (k_, verify_admission_text(t, door_pub, C3))
+    feed = json.dumps({"contract_canonical": L4["contract_canonical"], "relying_pub_b64": door_pub, "records": L4["records"]})
+    r = subprocess.run(["node", twin, "--verify-texts"], input=feed, capture_output=True, text=True)
+    assert r.returncode == 0 and all(v == ok for v in json.loads(r.stdout).values()), (r.stdout[-400:], r.stderr[-400:])
+    n += 1; print("[10] %d v0.4 records the ledger served on 2026-11-07 (the heartbeat's report, audit and compare) are accepted, the same bytes, "
+                  "under the door's key and the run0003 contract, in both runtimes" % len(L4["records"]))
+
+    print("\nSELF-TEST PASSED: MUSUBI admission records, the verifying side, %d checks (every version verifies; what does not; the request and its digest; "
+          "the revocation record; the JavaScript twin agrees; v0.2's immune block; v0.3's content block; v0.4's content block; v0.5's content block of "
+          "more than one runner; three v0.4 records of the ledger read as before)" % n)
 
 
 def main():

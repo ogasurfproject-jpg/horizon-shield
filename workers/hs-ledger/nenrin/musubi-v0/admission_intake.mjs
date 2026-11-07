@@ -21,7 +21,7 @@
 import { parseStrict, canonicalUtf8, CanonicalError } from "../agreement-v0/agreement_canonical.mjs";
 import { ed25519Verify } from "../agreement-v0/agreement_verify.mjs";
 
-export const ADMISSION_INTAKE_VERSION = "admission-intake 0.4.0";
+export const ADMISSION_INTAKE_VERSION = "admission-intake 0.5.0";
 export const ADMISSION_SCHEMA = "a2a-admission-v0";
 export const REVOCATION_SCHEMA = "a2a-revocation-v0";
 export const MAX_BYTES = 65536;
@@ -110,6 +110,64 @@ function contentCodesV04(record) {
     && (d !== "admit" || !["content_flagged", "content_scope_conflict", "content_unchecked"].some(has));
   return ok ? [] : ["malformed"];
 }
+// v0.5 carries immune and the content block of more than one runner (a2a-content-check-v2): checks[] in runner_id order, one
+// per runner, quorum {required, answered}, and the block's decision, marks, checked and disagreement_kind, which must be what
+// checks[] and quorum.required give. The record's content_ reasons must be exactly the set they give; an admit needs the
+// decision pass. The same rules as admission_verify_v0.content_problems_v05. It never sees the content and holds no policy.
+const CONTENT_KEYS_V05 = ["checked", "checks", "decision", "disagreement_kind", "input_commit", "marks", "quorum", "rules", "runners_sha256", "scope_sha256"];
+const CHECK_KEYS_V05 = ["answered", "check_sha256", "day", "decision", "key_id", "marks", "rules_sha256", "runner_id", "scope_sha256", "unread", "why"];
+const WHY_V05 = ["ok", "no_envelope", "timeout", "capped", "signature", "rules_mismatch", "scope_mismatch", "commit_mismatch", "shape", "unread", "decision_null", "not_answered"];
+const KINDS_V05 = ["n/a", "none", "decision", "marks", "both"];
+const RUNNER_ID = /^[A-Za-z0-9._:-]{1,64}$/;
+const DAY = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
+const smallInt = (x, lo, hi) => (typeof x === "bigint" && x >= BigInt(lo) && x <= BigInt(hi)) || (Number.isSafeInteger(x) && x >= lo && x <= hi);
+const sameList = (a, b) => Array.isArray(a) && a.length === b.length && a.every((x, i) => x === b[i]);
+function checkBadV05(k, scope) {
+  if (!isObj(k) || JSON.stringify(Object.keys(k).sort()) !== JSON.stringify(CHECK_KEYS_V05)) return true;
+  const hexNull = (x) => x === null || (typeof x === "string" && H64.test(x));
+  const why = k.why, dec = k.decision, mk = k.marks, un = k.unread;
+  if (!(typeof k.runner_id === "string" && RUNNER_ID.test(k.runner_id) && typeof k.key_id === "string" && RUNNER_ID.test(k.key_id)
+    && typeof k.rules_sha256 === "string" && H64.test(k.rules_sha256) && hexNull(k.check_sha256) && hexNull(k.scope_sha256)
+    && (k.day === null || (typeof k.day === "string" && DAY.test(k.day))) && WHY_V05.includes(why) && (dec === null || dec === "stop" || dec === "pass")
+    && (un === true || un === false || un === null) && Array.isArray(mk) && mk.every((m) => typeof m === "string") && sameList(mk, MARKS_V04.filter((m) => mk.includes(m)))
+    && typeof k.answered === "boolean")) return true;
+  if (k.answered !== (why === "ok") || (k.scope_sha256 !== null && k.scope_sha256 !== scope)) return true;
+  if (why === "ok") return !(dec !== null && k.check_sha256 !== null && un === false && (dec === "pass" || mk.length === 0) && (mk.length === 0 || k.scope_sha256 !== null));
+  if (why === "unread") return !(dec === "pass" && un === true && k.check_sha256 !== null && (mk.length === 0 || k.scope_sha256 !== null));
+  return !(dec === null && mk.length === 0 && un !== true);
+}
+function contentCodesV05(record) {
+  const c = record.content, r = record.reasons, d = record.decision;
+  if (!isObj(c) || JSON.stringify(Object.keys(c).sort()) !== JSON.stringify(CONTENT_KEYS_V05) || c.rules !== "a2a-content-check-v2" || !Array.isArray(r)) return ["malformed"];
+  const hexNull = (k) => c[k] === null || (typeof c[k] === "string" && H64.test(c[k]));
+  const q = c.quorum, ks = c.checks;
+  if (!(["input_commit", "scope_sha256", "runners_sha256"].every(hexNull) && typeof c.checked === "boolean" && (c.decision === null || c.decision === "stop" || c.decision === "pass")
+    && KINDS_V05.includes(c.disagreement_kind) && Array.isArray(c.marks) && isObj(q) && JSON.stringify(Object.keys(q).sort()) === JSON.stringify(["answered", "required"])
+    && smallInt(q.required, 1, 64) && smallInt(q.answered, 0, 64) && Array.isArray(ks) && ks.length <= 64)) return ["malformed"];
+  if (ks.some((k) => checkBadV05(k, c.scope_sha256))) return ["malformed"];
+  for (let i = 1; i < ks.length; i++) if (!(ks[i - 1].runner_id < ks[i].runner_id)) return ["malformed"];
+  const want = new Set(), marks = new Set(), ok = ks.filter((k) => k.why === "ok"), required = Number(q.required);
+  for (const k of ks) {
+    if (k.why === "ok" && k.decision === "stop") want.add("content_flagged");
+    else if (k.why === "ok" || k.why === "unread") { for (const m of k.marks) marks.add(m); if (k.why === "unread") want.add("content_unchecked"); }
+    else want.add("content_unchecked");
+  }
+  const answered = new Set(ok.map((k) => k.key_id)).size;
+  if (answered < required) want.add("content_unchecked");
+  if (marks.has("rule_conflict")) want.add("content_scope_conflict");
+  if (marks.has("off_topic")) want.add("content_off_topic");
+  const dec = ok.some((k) => k.decision === "stop") ? "stop" : answered >= required ? "pass" : null;
+  let kind = "n/a";
+  if (answered > 1) {
+    const dd = new Set(ok.map((k) => k.decision)).size > 1, md = new Set(ok.filter((k) => k.decision === "pass").map((k) => k.marks.join(","))).size > 1;
+    kind = dd && md ? "both" : dd ? "decision" : md ? "marks" : "none";
+  }
+  const have = ["content_flagged", "content_scope_conflict", "content_off_topic", "content_unchecked"].filter((x) => r.includes(x));
+  const good = c.decision === dec && sameList(c.marks, MARKS_V04.filter((m) => marks.has(m))) && c.checked === (dec !== null) && Number(q.answered) === answered
+    && c.disagreement_kind === kind && (!c.checked || c.input_commit !== null) && have.length === want.size && have.every((x) => want.has(x))
+    && (d !== "admit" || (dec === "pass" && c.checked === true && !["content_flagged", "content_scope_conflict", "content_unchecked"].some((x) => r.includes(x))));
+  return good ? [] : ["malformed"];
+}
 // The stated limits a record must carry, by the version of admit() that wrote it. A v0 record has no rules.version;
 // a v0.1 record says "0.1" and states the limit about unanchored revocations. A record of one version carrying the
 // other's list is refused, and so is a version this intake does not know.
@@ -138,8 +196,21 @@ const DOES_NOT_ESTABLISH_V0_4 = [...DOES_NOT_ESTABLISH_V0_2,
     + "identifier of the rule set, the decision and the marks, and nothing else about the content",
   "that the rates measured for the named rule set hold on this contract's scope; they were measured on the scopes of public datasets, not on "
     + "a scope rendered from a contract"];
+const DOES_NOT_ESTABLISH_V0_5 = [...DOES_NOT_ESTABLISH_V0_2,
+  "that any content check ran, or that the same checks would answer the same way again; the record carries a salted commitment to the bytes "
+    + "the relying party says it sent to every runner (only a holder of the bytes and the salt can recompute it), the digest of each check it "
+    + "says it read, the identifiers of the rule sets, each decision and its marks, and nothing else about the content",
+  "that the rates measured for the named rule sets hold on this contract's scope; they were measured on the scopes of public datasets, not "
+    + "on a scope rendered from a contract",
+  "that the runners reached their answers apart from one another, or that their models, prompts or operators differ beyond the keys and "
+    + "rule set digests the record names",
+  "which runner's answer was right when the answers differ; disagreement_kind says only how they differ",
+  "why a runner gave no answer when its check says timeout or capped; those two are the relying party's own account, and no signed "
+    + "envelope shows them",
+  "that a pass here means what a pass means in a v0.4 record; a v0.4 block says pass for a check that answered pass with part of the "
+    + "content unread, while here such a runner is not counted as answered, so the block's decision may be null where v0.4 would say pass"];
 export const LIMITS_BY_VERSION = { v0: DOES_NOT_ESTABLISH_V0, "0.1": DOES_NOT_ESTABLISH_V0_1, "0.2": DOES_NOT_ESTABLISH_V0_2, "0.3": DOES_NOT_ESTABLISH_V0_3,
-  "0.4": DOES_NOT_ESTABLISH_V0_4 };
+  "0.4": DOES_NOT_ESTABLISH_V0_4, "0.5": DOES_NOT_ESTABLISH_V0_5 };
 const RECORD_KEYS = ["schema", "admission_id", "relying_party", "contract_ref", "action_ref", "presentation_ref", "chain_view",
   "revocations_seen", "decision", "reasons", "clause", "rules", "establishes", "does_not_establish", "signatures"];
 const REVOKE_KEYS = ["schema", "contract_ref", "revoked_by", "signatures"];
@@ -244,16 +315,17 @@ export async function handleAdmissionIntake(request, deps) {
   const keys = Object.keys(record);
   const rules = isObj(record.rules) ? record.rules : {};
   const version = Object.prototype.hasOwnProperty.call(rules, "version") ? rules.version : "v0";
-  const want = version === "0.3" || version === "0.4" ? [...RECORD_KEYS, "immune", "content"] : version === "0.2" ? [...RECORD_KEYS, "immune"] : RECORD_KEYS;
+  const want = version === "0.3" || version === "0.4" || version === "0.5" ? [...RECORD_KEYS, "immune", "content"] : version === "0.2" ? [...RECORD_KEYS, "immune"] : RECORD_KEYS;
   if (!want.every((k) => keys.includes(k)) || keys.some((k) => !want.includes(k) && k !== "publication")) codes.push("malformed");
   // the same shape rules as admission_verify_v0.verify_admission: every number a safe integer, and these fields of their type
   if (!numbersOk(record) || textProblem(record) || !isObj(record.rules) || !isObj(record.contract_ref) || !Array.isArray(record.does_not_establish)
     || !Array.isArray(record.signatures)) codes.push("malformed");
-  const allowed = version === "0.4" ? REASONS_V0_4 : version === "0.3" ? REASONS_V0_3 : version === "0.2" ? REASONS_V0_2 : REASONS;
+  const allowed = version === "0.4" || version === "0.5" ? REASONS_V0_4 : version === "0.3" ? REASONS_V0_3 : version === "0.2" ? REASONS_V0_2 : REASONS;
   if (!DECISIONS.includes(record.decision) || !Array.isArray(record.reasons) || !record.reasons.length || record.reasons.some((r) => !allowed.includes(r))) codes.push("malformed");
-  if ((version === "0.2" || version === "0.3" || version === "0.4") && keys.includes("immune")) codes.push(...immuneCodes(record));
+  if ((version === "0.2" || version === "0.3" || version === "0.4" || version === "0.5") && keys.includes("immune")) codes.push(...immuneCodes(record));
   if (version === "0.3" && keys.includes("content")) codes.push(...contentCodes(record));
   if (version === "0.4" && keys.includes("content")) codes.push(...contentCodesV04(record));
+  if (version === "0.5" && keys.includes("content")) codes.push(...contentCodesV05(record));
   // the chain height a decision was made at is an integer (a float would let a door step outside the inflammation count)
   const cvh = isObj(record.chain_view) ? record.chain_view.height : undefined;
   // (the strict parser may hand integers over as BigInt)
@@ -286,9 +358,10 @@ export async function handleAdmissionIntake(request, deps) {
   const report = { record_schema: ADMISSION_SCHEMA, verdict: "accepted", canonical_sha256: canonicalSha, admission_sha256: admissionSha,
     relying_party: dom, decision: record.decision, admit_version: version === "v0" ? "0" : version, verifier_version: ADMISSION_INTAKE_VERSION,
     checked: ["canonical bytes", "closed lists for decision and reasons", "the stated limits are unaltered", "key_url on the relying party's own domain",
-      ...(version === "0.2" || version === "0.3" || version === "0.4" ? ["the immune block's shape and its agreement with the decision and reasons (not the immune rules themselves)"] : []),
+      ...(version === "0.2" || version === "0.3" || version === "0.4" || version === "0.5" ? ["the immune block's shape and its agreement with the decision and reasons (not the immune rules themselves)"] : []),
       ...(version === "0.3" ? ["the content block's shape and its seven rules against the decision and reasons (digests and flags only; the content is not sent here)"] : []),
       ...(version === "0.4" ? ["the content block's shape and its nine rules against the decision and reasons (a salted commitment, digests, the decision and the marks; the content is not sent here)"] : []),
+      ...(version === "0.5" ? ["the content block's shape, its checks in runner_id order, and that its decision, marks, checked, quorum.answered, disagreement_kind and the record's content_ reasons are what its checks and quorum.required give (the content is not sent here; no policy is held)"] : []),
       "Ed25519 signature under the key that key_url serves", "signed consent to publication"],
     not_checked: ["the decision itself; this intake does not run admit() and does not hold the contract"] };
   const payload = { canonical_sha256: canonicalSha, record_canonical: rb.b.record_canonical, report, verifier_version: ADMISSION_INTAKE_VERSION,
@@ -376,6 +449,7 @@ export function admissionSelfDescription(origin) {
     function: "https://github.com/ogasurfproject-jpg/horizon-shield/tree/main/workers/hs-ledger/nenrin/musubi-v0 (admission_verify_v0.py, admission_verify_v0.mjs, settle_v1_11.py, settle_v1_12.py, immune_v0.py)",
     versions: ["v0 (no rules.version)", "0.1", "0.2 (carries the immune block of immune_v0.py: digests and codes, no values; the intake checks its shape, not the rules)",
       "0.3 (carries immune and the content block, a2a-content-check-v0: digests and flags, no content; the intake checks its shape and its seven rules, not the check)",
-      "0.4 (carries immune and the content block, a2a-content-check-v1: a salted commitment, digests, the decision and the marks, no content; the intake checks its shape and its nine rules, not the check)"],
+      "0.4 (carries immune and the content block, a2a-content-check-v1: a salted commitment, digests, the decision and the marks, no content; the intake checks its shape and its nine rules, not the check)",
+      "0.5 (carries immune and the content block of more than one runner, a2a-content-check-v2: checks[] and quorum, no content; the intake checks that the block and the reasons follow from its checks, not the checks)"],
     publication: "an admission is stored only when its signed bytes say \"publication\": \"public\"", policy: PRIVACY_POLICY };
 }

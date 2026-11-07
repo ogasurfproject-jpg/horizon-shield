@@ -9,6 +9,8 @@ this directory.** This page describes the shape of the record and how to check a
 identity, and nobody but the relying party stops anything. HORIZON SHIELD anchors records sent to its ledger and
 settles after the fact. It renders no decision.
 
+**Version 0.5 (FURUI 1.0, two runners).** A door that asks more than one content check runner writes version 0.5 (`a2a-content-check-v2`). The content block carries one check per runner (`checks[]`, in `runner_id` order: the runner, its key, its rule set digest, the digest of its check, its decision and marks as read, and `why`, which is `ok` for an answer, `unread` for a pass with part of the content unread, or why the check was not read), `quorum` (how many runners must answer and how many did, each key counted once), `runners_sha256` (the public half of the runner set the door counted under) and the block's `decision`, `marks`, `checked` and `disagreement_kind`. A verifier holds no policy, so every one of those, and the record's `content_` reasons, must be what `checks[]` and `quorum.required` give (`content_from_checks_v05`); an admit needs the decision pass. The words are those of 0.4 with one difference: 0.4 writes pass for a check that passed with part of the content unread, while 0.5 does not count that runner as answered, so its block's decision may be null. `timeout` and `capped` are the door's own account; no signed envelope shows them. The record does not establish that the runners reached their answers apart from one another, or which one was right where they differ (`disagreement_kind` counts how they differ). Records of 0.3 and 0.4 read as before. Settle v1.20 reads 0.5; nenrin-verify 0.10.0 is the first release whose MUSUBI copy reads it, and earlier releases refuse a 0.5 record as malformed.
+
 **Changed 2026-11-01.** MUSUBI admission records can be at version 0.4, in the shape of FURUI A7.4, the version measured in the blind test FURUI blind-06 (plan: ledger entry 231; result: ledger entry 232; records in commit 200d5d96). The content block carries a salted commitment to the content (`input_commit`, so the content cannot be guessed from the public record), the digest of the check, the rule set (`furui-rules-id-v1`), a decision (stop or pass), two marks (`off_topic` and `rule_conflict`), and whether the check was read and answered. Off-topic content is marked and, by default, not stopped (`on_off_topic: mark_only`). A row the model refused to read at both stages is recorded as unchecked; under the default policy (`on_unchecked: refuse`) such a request is refused, which is stricter than the measurement, where it was not stopped (1 of 963 ordinary rows in blind-06). The rates measured in blind-06 hold for the scopes of the public datasets used there; a relying party's scope is rendered from the contract (musubi-scope-v0), and rates on such scopes have not been measured. A door whose policy does not require a content check still writes a v0.1 record with no content block. Settle v1.18 and earlier do not read the 0.4 content block; settle v1.19 reads it (SETTLE_CORE_v0.md section 19). FURUI is not yet wired into the door.
 
 **Changed 2026-10-27.** MUSUBI admission records are now at version 0.3. A relying party that runs its own FURUI check can record the result as digests and three flags (instructions to an AI found, a conflict with the scope it gave, not checked), and settle v1.17 reads them. Records and settlements made before are unchanged byte for byte. FURUI is not yet wired into the door: its policy.furui is required = false, so a submission without a check is admitted as before. Public commit 3eba279d; the ledger intake is admission-intake 0.3.2.
@@ -167,6 +169,20 @@ or an admission that escalated on the immune rules alone; otherwise v1.18's byte
 
 A mark under `on_off_topic: mark_only` is no deviation; settle v1.19 counts the marks of the 0.4 admissions it reads in `content_marks`.
 
+**v1.20.** Only for a contract that requires admission, and only when an execution names an admission of version 0.5;
+otherwise v1.19's bytes.
+
+| deviation | when |
+|---|---|
+| `content_rules_mismatch` | the admission is version 0.5 and, with the runner set in hand (`runners`), its `runners_sha256` is not that set's or a check names a runner the set does not; without it, no check names the contract's `requirements.furui.rules_sha256` |
+| `content_not_checked` | a 0.5 admit whose content block says checked false (the verifier refuses such a record) |
+| `content_quorum_short` | a 0.5 admit with fewer keys answered (checks with why ok) than its `quorum.required` (the verifier refuses such a record) |
+| `executed_after_content_escalate` | as v1.19, read over versions 0.3, 0.4 and 0.5 in one pass with one single_use spend |
+| `executed_after_immune_escalate` | as v1.19 |
+
+Settle v1.20 counts, for the 0.5 admissions it reads, the marks, the admissions with a check unread or short of the quorum,
+and each `disagreement_kind`, in `content_runners`. A difference between runners is counted, not judged.
+
 ## Immune rules (immune_v0.py)
 
 The clauses ask whether a kind of act is inside the grant. The immune rules ask where the values of the act came from.
@@ -237,7 +253,9 @@ served content and the block headers in the fixture:
 
 ## Tests
 
-    python3 admission_verify_v0.py --selftest        # records of all four versions, the request, the revocation, the JavaScript twin
+    python3 admission_verify_v0.py --selftest        # records of every version (0.5 with the 23 answers, P1 to P6 and the 529 pairs of
+                                                     # fixtures/admission_v05), the request, the revocation, the JavaScript twin
+    python3 settle_v1_20.py --selftest               # v1.19 byte for byte without 0.5, the 0.5 gate, the escalate rule over 0.3 to 0.5
     python3 immune_v0.py --selftest                  # the immune rules, and the first attack recomputed
     python3 immune_v0.py --check-demo
     python3 admission_verify_v0.py --check-fixtures

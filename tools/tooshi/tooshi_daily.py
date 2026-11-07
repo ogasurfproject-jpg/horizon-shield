@@ -168,9 +168,10 @@ Added on 2026-11-07 (24, the gateway runs only the payload the door is shown):
                    not its seki.content, which the gateway must refuse 400 content_mismatch before the door. ok when the
                    scene's row (calls[] with scene "mismatch") says status 400 and error content_mismatch; red when it
                    says 403 (the door answered, so the gateway that runs has no content match), a 2xx, or anything else,
-                   or when the day file does not answer; not_yet when the row says not_yet (the gateway did not yet say
-                   seki_content_match on GET /health), when the day's run has no such row (a day before the scene), or
-                   when the day is not filed yet.
+                   or when the day file does not answer; dormant (notice, facts.dormant true, not counted) when the row says
+                   not_yet (the gateway did not yet say seki_content_match on GET /health) or the day's run has no such row
+                   (a day before the scene), and counted from the first day the scene ran; not_yet when the day is not
+                   filed yet.
 
 Added on 2026-11-07 (17, every paid call carries the whole chain):
     17             paid_call_chain: every paid call that passed the door in the 24 hours from 03:47 UTC the day before
@@ -196,6 +197,22 @@ Added on 2026-11-07 (17, every paid call carries the whole chain):
                    0; nothing passed without its records). not_yet only when the ledger cannot be read (its head, an entry
                    of the window, the pool or a listed admission). An answer of the door, the runner or the repository that
                    cannot be read counts as the record it should show being absent (red).
+                   An admission of version 0.5 (more than one runner) names no check_sha256 of its own: each check of its
+                   checks[] read as an answer (why ok) must be held by exactly one leaf of its own runner's day, runner-1's
+                   at GET /furui/day/<day>/leaf/<i>, runner-2's at GET /furui2/day/<day>/leaf/<i> (signed by that runner's
+                   key in furui-check-keys.json), and a 0.5 record with no check read as an answer lacks its envelope.
+
+Added for FURUI 1.0 (18, two runners; dormant until a paid call carries admission 0.5):
+    18             two_runners: what the paid calls of 17's window that carry an admission of version 0.5 say about the two
+                   runners, and runner-2's canary call (GET /seki furui.canary_call_runner2, the shape of canary_call; and
+                   canary_call_runner2_prev). Dormant (notice, facts.dormant true, not counted by the verdict or by 14) while
+                   no paid call of the window carries a 0.5 record. From the first day one does it is counted by itself: red
+                   when a 0.5 admit is short of its quorum (answered below required) or runner-2's canary call says touched
+                   or not ok; ok otherwise, with the quorum and the disagreement_kind counted (a difference between the
+                   runners is counted, not judged).
+Dormant checks (18, 24): the code runs and the row is written with state notice and facts.dormant true; a notice does not
+change the verdict and 14 does not count it. Each is counted again by itself, on the first day the records it reads are
+there, with no change to this file.
 A red day opens one issue (label tooshi) and sends one mail with the names of the red checks and one line each
 (tools/tooshi/tooshi_tell.py, run by the workflow; this file sends nothing).
 """
@@ -205,6 +222,8 @@ RUNNER = "https://furui.horizonshield.dev"
 LEDGER = "https://ledger.horizonshield.dev"
 DOOR_POLICY = "https://hs-gateway.oga-surf-project.workers.dev/seki"
 CAPS = {"request_usd": 0.4, "day_usd": 5.0, "party_per_day": 100}
+RUNNER_DAYS = {"runner-1": "/furui/day", "runner-2": "/furui2/day"}   # each runner's day tree at RUNNER (runner-2 from FURUI 1.0)
+V05_KEY = "_admissions_0_5"          # 17 hands 18 the 0.5 records it read under this key; run() takes it out
 FIRST_HEARTBEAT_DAY = "2026-11-03"   # the runner's first heartbeat scene runs at 03:17 UTC that day
 FIRST_CLOSED_DAY = "2026-11-02"      # the first UTC day the runner 0.2.0 closes (its status exists from the next day)
 HEARTBEAT_AFTER = (3, 17)            # the cron 17 3 * * *
@@ -268,6 +287,13 @@ def http_get(url, tries=3, wait=10, timeout=30, raw=False):
 
 def c(cid, state, why, **facts):
     return {"id": cid, "state": state, "why": why, "facts": facts}
+
+
+def dormant(cid, why, **facts):
+    """a check that is written but not counted yet (18 and 24 until the records they read exist): state notice, which the verdict
+    and 14 do not count, with facts.dormant true and the why starting "dormant: ". It is counted again, by itself, on the
+    first day its records are there (24: a scene row that ran; 18: a paid call carrying admission 0.5)."""
+    return c(cid, "notice", "dormant: " + why, dormant=True, **facts)
 
 
 def check_door_runner(get):
@@ -356,13 +382,13 @@ def check_content_mismatch(get, now):
         return c(cid, "red", "the heartbeat's day file of %s answered http %s without calls" % (d, s), day=d)
     rows = [k for k in r["calls"] if isinstance(k, dict) and k.get("scene") == "mismatch"]
     if not rows:
-        return c(cid, "not_yet", "the heartbeat's run of %s has no scene mismatch (a day before the scene)" % d, day=d)
+        return dormant(cid, "the heartbeat's run of %s has no scene mismatch (a day before the scene); counted from the first day with one" % d, day=d)
     if len(rows) != 1:
         return c(cid, "red", "the heartbeat's run of %s has %d scene mismatch rows, not one" % (d, len(rows)), day=d)
     k = rows[0]
     facts = {"day": d, "status": k.get("status"), "error": k.get("error")}
     if k.get("not_yet"):
-        return c(cid, "not_yet", "the scene was not run on %s: %s" % (d, k["not_yet"]), **facts)
+        return dormant(cid, "the scene was not run on %s: %s" % (d, k["not_yet"]), **facts)
     if k.get("status") == 400 and k.get("error") == "content_mismatch":
         return c(cid, "ok", "on %s the gateway refused a body that is not its seki.content, 400 content_mismatch, before the door" % d, **facts)
     if k.get("status") == 403:
@@ -487,7 +513,7 @@ def _int(x, lo=0):
     return isinstance(x, int) and not isinstance(x, bool) and x >= lo
 
 
-def keep_problems(e):
+def keep_problems(e, rid="runner-1"):
     if not _keys(e, ["check", "schema", "signatures", "signer"]) or e["schema"] != "furui-check-signed-v1":
         return "envelope_keys"
     k = e["check"]
@@ -514,7 +540,7 @@ def keep_problems(e):
     if e["signer"] != SIGNER:
         return "signer"
     g = e["signatures"][0] if isinstance(e["signatures"], list) and len(e["signatures"]) == 1 else None
-    if not _keys(g, ["alg", "domain", "key_id", "sig"]) or g["alg"] != "ed25519" or g["domain"] != SIGNER["domain"] or g["key_id"] != "runner-1" or not (isinstance(g["sig"], str) and re.match(r"^[A-Za-z0-9+/]{86}==$", g["sig"])):
+    if not _keys(g, ["alg", "domain", "key_id", "sig"]) or g["alg"] != "ed25519" or g["domain"] != SIGNER["domain"] or g["key_id"] != rid or not (isinstance(g["sig"], str) and re.match(r"^[A-Za-z0-9+/]{86}==$", g["sig"])):
         return "signature"
     return None
 
@@ -643,9 +669,9 @@ def envelope_message(e):
     return ("furui-check-signed-v1\n" + canonical({"schema": e["schema"], "check": e["check"], "signer": e["signer"]})).encode("utf-8")
 
 
-def ledger_day(get, d):
+def ledger_day(get, d, rid="runner-1"):
     """the runner's closed status of day d and the day record the ledger serves for it: (problem or None, facts)"""
-    s, st = get(RUNNER + "/furui/day/%s/status" % d)
+    s, st = get(RUNNER + RUNNER_DAYS[rid] + "/%s/status" % d)
     v = st.get("status") if s == 200 and isinstance(st, dict) else None
     if not isinstance(v, dict):
         return "the runner holds no closed status for %s (http %s)" % (d, s), None
@@ -664,17 +690,17 @@ def ledger_day(get, d):
     return None, {"sha": rs, "n": rec["n"], "root": rec["root"]}
 
 
-def leaf_problems(get, d, i, day, pub):
+def leaf_problems(get, d, i, day, pub, rid="runner-1"):
     """read leaf i of day d and hold it to the ledger's day record: the closed envelope, the leaf hash, the envelope sha,
-    runner-1's signature and the audit path to the root. (problem words, the envelope)"""
-    s, a = get(RUNNER + "/furui/day/%s/leaf/%d" % (d, i))
+    runner-1's signature (rid's for another runner) and the audit path to the root. (problem words, the envelope)"""
+    s, a = get(RUNNER + RUNNER_DAYS[rid] + "/%s/leaf/%d" % (d, i))
     if s != 200 or not isinstance(a, dict):
         return ["leaf_http_%s_%s" % (s, (a or {}).get("error") if isinstance(a, dict) else None)], None
     bad = []
     if a.get("day") != d or a.get("index") != i or a.get("n") != day["n"] or a.get("root") != day["root"]:
         bad.append("day_index_n_or_root_differs_from_the_ledger_record")
     e = a.get("envelope")
-    p = keep_problems(e)
+    p = keep_problems(e, rid)
     if p:
         return bad + ["envelope_shape:" + p], None
     lh = leaf_hash(e)
@@ -689,13 +715,13 @@ def leaf_problems(get, d, i, day, pub):
     if not isinstance(dr, dict) or dr.get("ledger_canonical_sha256") != day["sha"]:
         bad.append("day_record_is_not_the_ledger_record")
     if not ed25519_verify(pub, envelope_message(e), e["signatures"][0]["sig"]):
-        bad.append("signature_does_not_verify_with_runner_1")
+        bad.append("signature_does_not_verify_with_" + rid.replace("-", "_"))
     return bad, e
 
 
-def runner_key(get):
+def runner_key(get, rid="runner-1"):
     s, k = get(LEDGER + "/.well-known/furui-check-keys.json")
-    listed = [x.get("public_key_ed25519_b64") for x in (k.get("keys", []) if s == 200 and isinstance(k, dict) else []) if isinstance(x, dict) and x.get("key_id") == "runner-1" and x.get("revoked_height") is None]
+    listed = [x.get("public_key_ed25519_b64") for x in (k.get("keys", []) if s == 200 and isinstance(k, dict) else []) if isinstance(x, dict) and x.get("key_id") == rid and x.get("revoked_height") is None]
     return listed[0] if len(listed) == 1 else None
 
 
@@ -1850,20 +1876,20 @@ def _days(a, b):
     return out
 
 
-def chain_leaves(get, d, pub):
+def chain_leaves(get, d, pub, rid="runner-1"):
     """17: the leaves of runner day d that hold (the closed envelope, the leaf hash, runner-1's signature, the audit path to the
-    root the ledger serves), as {check sha: [leaf index]}; (problem or None, the map)"""
+    root the ledger serves), as {check sha: [leaf index]}; (problem or None, the map). rid: another runner's day and key."""
     try:
-        why, day = ledger_day(get, d)
+        why, day = ledger_day(get, d, rid)
         if why == "empty":
             return None, {}
         if why:
             return why, {}
         if not pub:
-            return "the ledger lists no single live runner-1 key", {}
+            return "the ledger lists no single live %s key" % rid, {}
         m = {}
         for i in range(min(day["n"], CHAIN_LEAF_SCAN)):
-            bad, e = leaf_problems(get, d, i, day, pub)
+            bad, e = leaf_problems(get, d, i, day, pub, rid)
             if not bad and e is not None:
                 m.setdefault(sha(canonical(e["check"])), []).append(i)
         return ("only the first %d of %d leaves were read" % (CHAIN_LEAF_SCAN, day["n"]) if day["n"] > CHAIN_LEAF_SCAN else None), m
@@ -2005,7 +2031,24 @@ def check_paid_chain(get, now):
                 x = k.get("record_sha256") if isinstance(k, dict) and k.get("decision") == "admit" else None
                 if isinstance(x, str) and H64.match(x) and x not in calls:
                     calls[x] = {"store": st, "at": t, "admission_sha256": k.get("admission_sha256")}
-    missing, leaves, settled, pub = [], {}, {}, None
+    missing, leaves, settled, pubs, v05 = [], {}, {}, {}, []
+
+    def held(rid, ck, at):
+        """the leaves of rid's day of the call (and of the day before when the call is within 10 minutes of midnight) that hold ck,
+        and what could not be read"""
+        hits, un = 0, []
+        for d in sorted({at.strftime("%Y-%m-%d"), (at - datetime.timedelta(minutes=10)).strftime("%Y-%m-%d")}):
+            if (rid, d) not in leaves:
+                if rid not in pubs:
+                    try:
+                        pubs[rid] = runner_key(get, rid) or ""
+                    except Unreachable:
+                        pubs[rid] = ""
+                leaves[(rid, d)] = chain_leaves(get, d, pubs[rid], rid)
+            if leaves[(rid, d)][0]:
+                un.append("%s: %s" % (d, leaves[(rid, d)][0]))
+            hits += len(leaves[(rid, d)][1].get(ck, []))
+        return hits, un
     for x in sorted(calls):
         k, lacks, said = calls[x], [], []
         try:
@@ -2034,22 +2077,30 @@ def check_paid_chain(get, now):
         am = k.get("admission_sha256") or rep.get("admission_sha256")
         cb = rec.get("content") if isinstance(rec, dict) else None
         ck = cb.get("check_sha256") if isinstance(cb, dict) else None
-        if not (isinstance(ck, str) and H64.match(ck)):
+        v5 = isinstance(cb, dict) and isinstance(rec.get("rules"), dict) and rec["rules"].get("version") == "0.5" and isinstance(cb.get("checks"), list)
+        if v5:
+            # admission 0.5: every check read as an answer, in its own runner's day
+            v05.append({"call": x, "quorum": cb.get("quorum"), "disagreement_kind": cb.get("disagreement_kind")})
+            ks = [q for q in cb["checks"] if isinstance(q, dict) and q.get("why") == "ok"]
+            fs = []
+            for q in ks:
+                rid, qk = q.get("key_id"), q.get("check_sha256")
+                if rid not in RUNNER_DAYS or not (isinstance(qk, str) and H64.match(qk)):
+                    fs.append("FURUI: a check of %s that no runner day can hold" % rid)
+                    continue
+                hits, un = held(rid, qk, k["at"])
+                if hits != 1:
+                    fs.append("FURUI: %d leaves of %s hold the check %s%s" % (hits, rid, qk[:8], (" (" + "; ".join(un) + ")") if un else ""))
+            if not ks:
+                fs.append("FURUI: the v0.5 record names no check read as an answer")
+            if fs:
+                lacks.append("furui_envelope")
+                said.extend(fs)
+        elif not (isinstance(ck, str) and H64.match(ck)):
             lacks.append("furui_envelope")
             said.append("FURUI: the record carries no content check (no content.check_sha256)")
         else:
-            hits, un = 0, []
-            for d in sorted({k["at"].strftime("%Y-%m-%d"), (k["at"] - datetime.timedelta(minutes=10)).strftime("%Y-%m-%d")}):
-                if d not in leaves:
-                    if pub is None:
-                        try:
-                            pub = runner_key(get) or ""
-                        except Unreachable:
-                            pub = ""
-                    leaves[d] = chain_leaves(get, d, pub)
-                if leaves[d][0]:
-                    un.append("%s: %s" % (d, leaves[d][0]))
-                hits += len(leaves[d][1].get(ck, []))
+            hits, un = held("runner-1", ck, k["at"])
             if hits != 1:
                 lacks.append("furui_envelope")
                 said.append("FURUI: %d leaves hold the check %s%s" % (hits, ck[:8], (" (" + "; ".join(un) + ")") if un else ""))
@@ -2081,10 +2132,45 @@ def check_paid_chain(get, now):
             bad.append("%s (%s): %s" % (x[:8], k["store"], "; ".join(said)))
     facts.update(calls=len(calls), complete=len(calls) - len(missing), missing=missing)
     if bad:
-        return c(cid, "red", "%d of %d paid calls from %s to %s lack a record: %s" % (len(missing), len(calls), win[0], win[1], " | ".join(bad)), **facts)
-    if not calls:
-        return c(cid, "ok", "no paid call passed the door from %s to %s (0 calls; none passed without its records)" % tuple(win), **facts)
-    return c(cid, "ok", "every one of the %d paid calls from %s to %s carries its FURUI envelope, SEKI record, MUSUBI settlement and NENRIN entry, one of each" % (len(calls), win[0], win[1]), **facts)
+        out = c(cid, "red", "%d of %d paid calls from %s to %s lack a record: %s" % (len(missing), len(calls), win[0], win[1], " | ".join(bad)), **facts)
+    elif not calls:
+        out = c(cid, "ok", "no paid call passed the door from %s to %s (0 calls; none passed without its records)" % tuple(win), **facts)
+    else:
+        out = c(cid, "ok", "every one of the %d paid calls from %s to %s carries its FURUI envelope, SEKI record, MUSUBI settlement and NENRIN entry, one of each" % (len(calls), win[0], win[1]), **facts)
+    if v05:
+        out[V05_KEY] = v05          # for 18, taken out by run() before the result is written
+    return out
+
+
+def check_two_runners(get, now, v05):
+    """18: the paid calls of 17's window that carry admission 0.5 (quorum and disagreement_kind), and runner-2's canary call in the
+    door's policy. Dormant while no paid call carries 0.5; counted from the first day one does."""
+    cid = "18_two_runners"
+    try:
+        ps, p = get(DOOR_POLICY)
+    except Unreachable:
+        ps, p = None, None
+    fu = p.get("furui") if ps == 200 and isinstance(p, dict) and isinstance(p.get("furui"), dict) else {}
+    k2 = fu.get("canary_call_runner2") if isinstance(fu.get("canary_call_runner2"), dict) else None
+    facts = {"canary_runner2": k2 is not None, "canary_runner2_prev": isinstance(fu.get("canary_call_runner2_prev"), dict)}
+    if k2 is not None:
+        facts.update(canary_runner2_day=k2.get("day"), canary_runner2_decision=k2.get("decision"), canary_runner2_ok=k2.get("ok"))
+    if not v05:
+        return dormant(cid, "no paid call of 17's window carries an admission of version 0.5 (the door writes 0.4 until it calls two runners)",
+                       waits_for="an_admission_0_5", records=0, **facts)
+    kinds, short = {}, []
+    for r in v05:
+        q = r.get("quorum") if isinstance(r.get("quorum"), dict) else {}
+        if not (_int(q.get("required"), 1) and _int(q.get("answered")) and q["answered"] >= q["required"]):
+            short.append(r.get("call"))
+        kinds[str(r.get("disagreement_kind"))] = kinds.get(str(r.get("disagreement_kind")), 0) + 1
+    facts.update(records=len(v05), quorum_short=len(short), disagreement_kind=kinds)
+    if short:
+        return c(cid, "red", "%d of %d paid calls of admission 0.5 are admits short of their quorum: %s" % (len(short), len(v05), ", ".join(str(x)[:8] for x in short)), **facts)
+    if k2 is not None and (k2.get("touched") is True or k2.get("ok") is False):
+        return c(cid, "red", "runner-2's canary call of %s %s" % (k2.get("day"), "touched the phrase" if k2.get("touched") is True else "failed: %s" % k2.get("error")), **facts)
+    return c(cid, "ok", "%d paid call(s) of 17's window carry admission 0.5, each with its quorum (disagreement_kind %s, counted, not judged)"
+             % (len(v05), ", ".join("%s %d" % kv for kv in sorted(kinds.items()))), **facts)
 
 
 def run(get, now, trigger="manual"):
@@ -2099,7 +2185,9 @@ def run(get, now, trigger="manual"):
     checks += [check_canary(get, now), check_witness_answer(get, now)]
     checks += [check_cross_client(get, now), check_main_ci(get, now), check_paid_rows(get, now), check_line_delivery(get, now), check_recovery(get, now)]
     checks.append(check_witness_pool(get, now))
-    checks.append(check_paid_chain(get, now))
+    pc = check_paid_chain(get, now)
+    checks.append(pc)
+    checks.append(check_two_runners(get, now, pc.pop(V05_KEY, [])))
     checks.append(check_deadlines(get, now, checks))
     checks.sort(key=lambda x: x["id"])
     counts = {k: sum(1 for x in checks if x["state"] == k) for k in ("ok", "red", "notice", "not_yet")}
@@ -2667,7 +2755,7 @@ def selftest():
     def st(get, cid, when=now):
         return [x for x in run(get, when)[0]["checks"] if x["id"] == cid][0]
     S10, S11, S12, S13, S14, S15 = "10_cross_client", "11_main_ci", "12_paid_rows_daily", "13_line_delivery", "14_not_yet_deadline", "15_recovery_fresh"
-    cases.append(("v2: the whole day holds with the six new checks, 16 and 24: every check ok, the verdict green, 19 checks", (lambda r: (r["verdict"], len([x for x in r["checks"] if x["id"] != "17_paid_call_chain"]), r["counts"]["ok"] - 1))(run(world(cc=True), now)[0]), ("green", 19, 19)))
+    cases.append(("v2: the whole day holds with the six new checks, 16 and 24: every check ok, the verdict green, 20 checks besides 17 (18 dormant, a notice)", (lambda r: (r["verdict"], len([x for x in r["checks"] if x["id"] != "17_paid_call_chain"]), r["counts"]["ok"] - 1))(run(world(cc=True), now)[0]), ("green", 20, 19)))
     cases.append(("10: the draw of 2026-11-07 from five endpoints is the cross client's (cross_client_test.mjs has the same vector)", cross_draw("2026-11-07", list(reversed(CANDS))),
                   ["https://c.example/mcp", "https://d.example/mcp", "https://e.example/mcp"]))
     x10 = st(world(cc=True), S10)
@@ -3079,10 +3167,76 @@ def selftest():
     cases.append(("17: a batch made after 03:47 UTC of the day is not read, so the 04:05 and 11:50 runs give the same 17",
                   (lambda a, b: (a == b, a["state"]))(check_paid_chain(world(cc=True, **chain_world(**L17)), now), check_paid_chain(world(cc=True, **chain_world(**L17)), now.replace(hour=11, minute=50))), (True, "ok")))
     r17 = run(world(cc=True, **chain_world()), now)[0]
-    cases.append(("17: the whole day holds with 17 (one paid call, all four records): every check ok, the verdict green, 20 checks",
-                  (r17["verdict"], len(r17["checks"]), r17["counts"]["ok"], [x["state"] for x in r17["checks"] if x["id"] == S17]), ("green", 20, 20, ["ok"])))
+    cases.append(("17: the whole day holds with 17 (one paid call, all four records): every check ok, the verdict green, 21 checks (18 dormant, a notice)",
+                  (r17["verdict"], len(r17["checks"]), r17["counts"]["ok"], [x["state"] for x in r17["checks"] if x["id"] == S17]), ("green", 21, 20, ["ok"])))
     cases.append(("17 does not change the states of 1 to 16 (the same run with 17 ok and 17 red)",
                   (lambda a, b: {k: v for k, v in a.items() if k not in (S17, S14)} == {k: v for k, v in b.items() if k not in (S17, S14)})(states(world(cc=True, **chain_world()))[1], states(world(cc=True, **chain_world(recs=((TN, RN),), run_calls=[])))[1]), True))
+    # ---- 17 with admission 0.5 (two runners) and 18 (FURUI 1.0) ----
+    # the paid call's record names two checks: runner-1's is leaf 1 of 11-03 (W3), runner-2's is leaf 0 of runner-2's 11-03, at
+    # /furui2/day, signed with runner-2's key (SK2) listed beside runner-1's in furui-check-keys.json
+    def envelope2(d, i, **chk):
+        e = envelope(d, i, **chk)
+        e["signatures"] = [{"alg": "ed25519", "domain": "horizonshield.dev", "key_id": "runner-2", "sig": base64.b64encode(ed25519_sign(SK2, envelope_message(e))).decode()}]
+        return e
+    E2 = [envelope2("2026-11-03", 0, nonce="%032x" % 77)]
+    W2 = {k.replace("/furui/day/", "/furui2/day/"): v for k, v in day_world("2026-11-03", E2, 9001, "2026-11-04")[0].items()}
+    for k_, v_ in list(W2.items()):
+        if "/furui2/day/" in k_ and "/leaf/" in k_:
+            W2[k_] = (200, dict(v_[1]))
+    KEYS2 = {LEDGER + "/.well-known/furui-check-keys.json": (200, {"use": "furui-check", "keys": [
+        {"key_id": "runner-1", "public_key_ed25519_b64": PUB, "from_height": 0, "revoked_height": None},
+        {"key_id": "runner-2", "public_key_ed25519_b64": base64.b64encode(ed25519_public(SK2)).decode(), "from_height": 0, "revoked_height": None}]})}
+
+    def paid_rec5(checks, tag="call 1 of two runners", kind="none"):
+        r = {"schema": "a2a-admission-v0", "admission_id": tag, "decision": "admit", "reasons": ["within_grant"], "rules": {"version": "0.5"},
+             "relying_party": {"domain": RP17}, "contract_ref": {"contract_sha256": PC},
+             "content": {"rules": "a2a-content-check-v2", "checked": True, "decision": "pass", "quorum": {"required": 2, "answered": sum(1 for q in checks if q["why"] == "ok")},
+                         "disagreement_kind": kind, "marks": [], "checks": checks}}
+        t = canonical(r)
+        return t, hsh(t)
+    q5 = lambda rid, e, why="ok": {"runner_id": rid, "key_id": rid, "check_sha256": hsh(canonical(e["check"])) if e is not None else None, "why": why}
+    T5, R5 = paid_rec5([q5("runner-1", D3[1]), q5("runner-2", E2[0])])
+    c5 = lambda recs, **o: check_paid_chain(world(cc=True, **dict(chain_world(recs=recs, run_calls=[], **o), **W2, **KEYS2)), now)
+    x5 = c5(((T5, R5),))
+    cases.append(("17 ok with admission 0.5: each of the two checks is held by one leaf of its own runner's day (runner-1 at /furui/day, runner-2 at /furui2/day); "
+                  "17 hands 18 the record's quorum and disagreement_kind",
+                  (x5["state"], x5["facts"]["calls"], x5["facts"]["missing"], x5.get(V05_KEY)), ("ok", 1, [], [{"call": R5, "quorum": {"required": 2, "answered": 2}, "disagreement_kind": "none"}])))
+    T5b, R5b = paid_rec5([q5("runner-1", D3[1]), q5("runner-2", envelope2("2026-11-03", 5))], tag="runner-2's check in no leaf")
+    x5b = c5(((T5b, R5b),))
+    cases.append(("17 red with admission 0.5: runner-2's check is in no leaf of runner-2's day (furui_envelope, runner-2 named)",
+                  (m17(x5b), "leaves of runner-2 hold the check" in x5b["why"]), (("red", [(R5b, ["furui_envelope"])]), True)))
+    T5c, R5c = paid_rec5([q5("runner-1", D3[1]), q5("runner-3", E2[0])], tag="a third runner")
+    T5d, R5d = paid_rec5([q5("runner-1", None, "no_envelope"), q5("runner-2", None, "timeout")], tag="no answer")
+    T5e, R5e = paid_rec5([q5("runner-1", D3[1]), q5("runner-2", D3[2])], tag="runner-2's check in runner-1's day")
+    cases.append(("17 red with admission 0.5: a check of a runner with no day tree, no check read as an answer, or runner-2's check held only by runner-1's day",
+                  (m17(c5(((T5c, R5c),))), m17(c5(((T5d, R5d),))), m17(c5(((T5e, R5e),)))),
+                  (("red", [(R5c, ["furui_envelope"])]), ("red", [(R5d, ["furui_envelope"])]), ("red", [(R5e, ["furui_envelope"])]))))
+    cases.append(("17 with admission 0.4 reads as before beside a 0.5 world: the same answer with runner-2's day and key present",
+                  (lambda a, b: (a == b, a["state"]))(c17(), check_paid_chain(world(cc=True, **dict(chain_world(), **W2, **KEYS2)), now)), (True, "ok")))
+    x18 = check_two_runners(world(cc=True), now, [])
+    cases.append(("18 dormant while no paid call carries admission 0.5 (notice, facts.dormant, waits_for an_admission_0_5); the door shows no runner-2 canary yet",
+                  (x18["state"], x18["facts"]["dormant"], x18["why"].startswith("dormant: "), x18["facts"]["waits_for"], x18["facts"]["records"], x18["facts"]["canary_runner2"]),
+                  ("notice", True, True, "an_admission_0_5", 0, False)))
+    K2 = {"day": "2026-11-05", "decision": "stop", "ok": True, "touched": False, "check_sha256": hsh("canary 2")}
+    DP2 = {DOOR_POLICY: (200, dict(world(cc=True)(DOOR_POLICY)[1], furui=dict(world(cc=True)(DOOR_POLICY)[1].get("furui", {}), canary_call_runner2=K2, canary_call_runner2_prev=dict(K2, day="2026-11-04"))))}
+    V5OK = [{"call": R5, "quorum": {"required": 2, "answered": 2}, "disagreement_kind": "none"}, {"call": R5e, "quorum": {"required": 2, "answered": 2}, "disagreement_kind": "marks"}]
+    x18b = check_two_runners(world(cc=True, **DP2), now, V5OK)
+    cases.append(("18 counted from the first paid call with admission 0.5: ok with each quorum met, the disagreement_kind counted (none 1, marks 1), runner-2's canary read",
+                  (x18b["state"], x18b["facts"].get("dormant"), x18b["facts"]["records"], x18b["facts"]["quorum_short"], x18b["facts"]["disagreement_kind"], x18b["facts"]["canary_runner2"],
+                   x18b["facts"]["canary_runner2_prev"], x18b["facts"]["canary_runner2_decision"]), ("ok", None, 2, 0, {"marks": 1, "none": 1}, True, True, "stop")))
+    DPT = {DOOR_POLICY: (200, dict(world(cc=True)(DOOR_POLICY)[1], furui=dict(world(cc=True)(DOOR_POLICY)[1].get("furui", {}), canary_call_runner2=dict(K2, touched=True))))}
+    cases.append(("18 red: a 0.5 admit short of its quorum, or runner-2's canary call touched the phrase; ok without runner-2's canary (it is read, not required)",
+                  (check_two_runners(world(cc=True, **DP2), now, V5OK + [{"call": R5b, "quorum": {"required": 2, "answered": 1}, "disagreement_kind": "n/a"}])["state"],
+                   check_two_runners(world(cc=True, **DPT), now, V5OK)["state"], check_two_runners(world(cc=True), now, V5OK)["state"]), ("red", "red", "ok")))
+    r5 = run(world(cc=True, **dict(chain_world(recs=((T5, R5),), run_calls=[]), **W2, **KEYS2)), now)
+    s5 = {x["id"]: x for x in r5[0]["checks"]}
+    cases.append(("run: 17 ok with the 0.5 record, 18 counted (ok) with it; the hand-over key is not in the written result",
+                  (s5[S17]["state"], s5["18_two_runners"]["state"], s5["18_two_runners"]["facts"]["records"], V05_KEY in r5[1], len(r5[0]["checks"])), ("ok", "ok", 1, False, 21)))
+    rg = run(world(cc=True, **chain_world()), now)[0]
+    sg = {x["id"]: x for x in rg["checks"]}
+    cases.append(("a day with no red is green while 18 and 24 are dormant (both notice with facts.dormant; the verdict and 14 do not count them)",
+                  (rg["verdict"], sg["18_two_runners"]["state"], sg["18_two_runners"]["facts"].get("dormant"), sg["14_not_yet_deadline"]["state"], rg["counts"]["not_yet"]),
+                  ("green", "notice", True, "ok", 0)))
     NY17 = {LEDGER + "/ledger/head": "down", DOOR_POLICY: (200, dict(world(cc=True)(DOOR_POLICY)[1], relying_party={"domain": RP17}, stores=STORES))}
     cases.append(("14: 17 not_yet has a deadline of 48 hours: one day before is within it, three days before is past it",
                   (st(world(cc=True, **dict(NY17, **{DAY_URL % "2026-11-04": pub_day("x", **{S17: "not_yet"})})), S14)["state"],
@@ -3129,8 +3283,13 @@ def selftest():
                   tuple(s24(**{RUN4: run4(dict(MM_ROW, **v))})[0] for v in ({"status": 200, "error": None}, {"status": 400, "error": "bad_payload"}, {"status": 402, "error": "insufficient_tickets"}, {"status": None, "error": None})), ("red",) * 4))
     cases.append(("24 red: two scene rows, the day file answers 403 or without calls, or does not answer",
                   tuple(s24(**{RUN4: v})[0] for v in (run4(MM_ROW, MM_ROW), (403, None), (200, {"store": "hs-seki-demo"}), "down")), ("red",) * 4))
-    cases.append(("24 not_yet: the scene was not run (the gateway did not say seki_content_match), the run has no scene (a day before it), the day is not filed",
-                  tuple(s24(**{RUN4: v})[0] for v in (run4(dict(MM_ROW, status=None, error=None, not_yet="GET /health answered http 200 without seki_content_match true")), run4(), (404, None))), ("not_yet",) * 3))
+    cases.append(("24 dormant (notice, facts.dormant): the scene was not run (the gateway did not say seki_content_match), the run has no scene (a day before it); not_yet: the day is not filed",
+                  tuple((x["state"], x["facts"].get("dormant")) for x in (st(world(cc=True, **{RUN4: v}), S24) for v in (run4(dict(MM_ROW, status=None, error=None, not_yet="GET /health answered http 200 without seki_content_match true")), run4(), (404, None)))),
+                  (("notice", True), ("notice", True), ("not_yet", None))))
+    rd24 = run(world(cc=True, **{RUN4: run4()}), now)[0]
+    cases.append(("a day with no red is green while 24 is dormant (its run has no scene), and 24 is counted from the first day the scene ran",
+                  (rd24["verdict"], [x["state"] for x in rd24["checks"] if x["id"] == S24], st(world(cc=True, **{RUN4: run4(dict(MM_ROW, status=403, error=None))}), S24)["state"]),
+                  ("green", ["notice"], "red")))
     cases.append(("24's row does not change 17 (the scene row has no decision, so it is not a paid call) and 17's days do not change 24",
                   (m17(c17(run_calls=[{"decision": "admit", "record_sha256": R17, "admission_sha256": AM17}, dict(MM_ROW)])) == m17(x17), st(world(cc=True, **chain_world()), S24)["state"]), (True, "ok")))
     cases.append(("24 does not change the states of the other checks (the same run with 24 ok and 24 red)",

@@ -33,10 +33,13 @@ import java.util.regex.Pattern;
  * furui-check-day-v0/verify_vectors.json and give the same verdicts.
  *
  * <p>furui-day: 1 envelope_shape, 2 leaf_sha256, 3 audit_path (RFC 6962, to the root of the day record the ledger
- * serves), 4 signature (runner-1's Ed25519 signature on the day record and on the envelope), 5 runner_key (the key is
+ * serves), 4 signature (the runner's Ed25519 signature on the day record and on the envelope), 5 runner_key (the key is
  * in the ledger's /.well-known/furui-check-keys.json, inside from_height), 6 bitcoin_anchor (the record is in a ledger
  * batch entry whose OpenTimestamps proof reaches a Bitcoin block header; not_yet before). resume-admission: 1 resume,
  * 2 admission_line, 3 admission_record, 4 ledger_batch, 5 bitcoin_anchor.
+ *
+ * <p>furui-day --runner 1|2: runner-1 (the default) or runner-2, whose day tree is /furui2/day/, whose day record and
+ * envelopes carry key_id runner-2 and whose day record names runner_id runner-2 (a runner-1 record may leave it out).
  *
  * <p>--bitcoin-header (either command, optional) adds one step after bitcoin_anchor (7 for furui-day, 6 for
  * resume-admission), bitcoin_header: two block explorers (mempool.space and blockstream.info) name the same block hash
@@ -61,6 +64,9 @@ public final class Furui {
     static final Pattern B64 = Pattern.compile("^[A-Za-z0-9+/]*={0,2}$");
     static final List<String> CHECK_KEYS = Arrays.asList("action_binding_digest", "answered", "checked_at_height", "contract_sha256", "decision", "input_commit", "marks", "nonce", "rules_sha256", "schema", "scope_sha256", "signed_at", "stage_reached", "trace_sha256", "unread");
     static final List<String> DAY_KEYS = Arrays.asList("clock_skew", "day", "first_height", "last_height", "late", "leaf", "n", "publication", "root", "schema", "signatures", "signer", "tree");
+    /** a day record may name its runner (runner_id; none is runner-1) */
+    static final List<String> DAY_KEYS_RUNNER = Arrays.asList("clock_skew", "day", "first_height", "last_height", "late", "leaf", "n", "publication", "root", "runner_id", "schema", "signatures", "signer", "tree");
+    static final Pattern RUNNER_ID = Pattern.compile("^runner-[0-9]{1,3}$");
     static final Set<String> RESUME_ENV = new HashSet<>(Arrays.asList("evaluated_at", "subject_responses", "not_counted", "scan", "recompute", "resume_sha256"));
     static final Set<String> MARKS_OK = new HashSet<>(Arrays.asList("[]", "[\"off_topic\"]", "[\"rule_conflict\"]", "[\"off_topic\",\"rule_conflict\"]"));
     static final List<String> DAY_STEPS = Arrays.asList("envelope_shape", "leaf_sha256", "audit_path", "signature", "runner_key", "bitcoin_anchor");
@@ -236,7 +242,10 @@ public final class Furui {
 
     // ---- shapes ----
 
-    public static String envelopeProblem(Object e) {
+    public static String envelopeProblem(Object e) { return envelopeProblem(e, "runner-1"); }
+
+    /** envelopeProblem for the runner whose key_id is rid. */
+    public static String envelopeProblem(Object e, String rid) {
         if (!keysAre(e, Arrays.asList("check", "schema", "signatures", "signer")) || !strEq(get(e, "schema"), "furui-check-signed-v1")) return "envelope_keys";
         Object c = get(e, "check");
         if (!keysAre(c, CHECK_KEYS) || !strEq(get(c, "schema"), "furui-check-v1")) return "check_keys";
@@ -255,7 +264,7 @@ public final class Furui {
         if (!isArr(get(e, "signatures")) || arr(get(e, "signatures")).size() != 1) return "signatures";
         Object g = arr(get(e, "signatures")).get(0);
         if (!keysAre(g, Arrays.asList("alg", "domain", "key_id", "sig")) || !strEq(get(g, "alg"), "ed25519") || !strEq(get(g, "domain"), "horizonshield.dev")
-            || !strEq(get(g, "key_id"), "runner-1") || !(isStr(get(g, "sig")) && SIG88.matcher((String) get(g, "sig")).matches())) return "signature";
+            || !strEq(get(g, "key_id"), rid) || !(isStr(get(g, "sig")) && SIG88.matcher((String) get(g, "sig")).matches())) return "signature";
         return null;
     }
 
@@ -271,7 +280,9 @@ public final class Furui {
     }
 
     static String dayRecordProblem(Object r) {
-        if (!keysAre(r, DAY_KEYS) || !strEq(get(r, "schema"), "furui-check-day-v0")) return "day_record_shape";
+        Object rv = get(r, "runner_id");
+        boolean runnerOk = keysAre(r, DAY_KEYS) || (keysAre(r, DAY_KEYS_RUNNER) && isStr(rv) && RUNNER_ID.matcher((String) rv).matches());
+        if (!runnerOk || !strEq(get(r, "schema"), "furui-check-day-v0")) return "day_record_shape";
         Object s = get(r, "signer");
         Long fh = integer(get(r, "first_height"), 0), lh = integer(get(r, "last_height"), 0);
         boolean ok = realDay(get(r, "day")) && keysAre(s, Arrays.asList("domain", "key_url")) && isStr(get(s, "domain")) && !((String) get(s, "domain")).isEmpty()
@@ -518,6 +529,11 @@ public final class Furui {
 
     /** furuiDay with --bitcoin-header (step 7) when bitcoinHeader; headerGet reads the explorers. */
     public static Map<String, Object> furuiDay(String day, long leaf, Getter g, boolean bitcoinHeader, Getter headerGet) throws NetError {
+        return furuiDay(day, leaf, g, bitcoinHeader, headerGet, 1);
+    }
+
+    /** furuiDay of runner 1 or 2 (--runner); runner 2 reads /furui2/day/ and wants key_id and runner_id runner-2. */
+    public static Map<String, Object> furuiDay(String day, long leaf, Getter g, boolean bitcoinHeader, Getter headerGet, int runner) throws NetError {
         Run run = new Run(g, steps(DAY_STEPS, bitcoinHeader));
         run.facts = obj("day", day, "leaf", (double) leaf, "record_sha256", Json.NULL, "n", Json.NULL, "root", Json.NULL, "ledger_entry", Json.NULL, "bitcoin_block", Json.NULL, "merkle_root", Json.NULL);
         Map<String, Object> args = obj("day", day, "leaf", (double) leaf);
@@ -525,13 +541,15 @@ public final class Furui {
             run.facts.put("bitcoin_header", Json.NULL);
             args.put("bitcoin_header", true);
         }
+        if (runner != 1) args.put("runner", (double) runner);
+        String rid = "runner-" + runner, path = RUNNER + (runner == 2 ? "/furui2/day/" : "/furui/day/");
         String cmd = "furui-day";
         // 1 envelope_shape
-        Object[] r = run.getj(RUNNER + "/furui/day/" + day + "/leaf/" + leaf);
+        Object[] r = run.getj(path + day + "/leaf/" + leaf);
         int s = status(r);
         Object a = r[1];
         if (s == 404 && strEq(get(a, "error"), "day_open")) {
-            Object[] t = run.getj(RUNNER + "/furui/day/" + day + "/status");
+            Object[] t = run.getj(path + day + "/status");
             Object v = status(t) == 200 && strEq(get(t[1], "day"), day) ? get(t[1], "status") : null;
             if (strEq(get(v, "state"), "empty")) run.put("fail", "day_closed_empty");
             else run.put("not_yet", "day_open");
@@ -542,7 +560,7 @@ public final class Furui {
         Long idx = integer(get(a, "index"), 0);
         if (!strEq(get(a, "day"), day) || idx == null || idx != leaf) { run.put("fail", "leaf_is_another_day_or_index"); return run.result(cmd, args); }
         Object env = get(a, "envelope");
-        String p = envelopeProblem(env);
+        String p = envelopeProblem(env, rid);
         if (p != null) { run.put("fail", "envelope_shape:" + p); return run.result(cmd, args); }
         String envc = canonOrNull(env);
         if (envc == null) { run.put("fail", "envelope_shape:not_canonical"); return run.result(cmd, args); }
@@ -621,7 +639,9 @@ public final class Furui {
         if (!isObj(kd)) { run.put("fail", "keys_not_json"); return run.result(cmd, args); }
         if (!kListed) { run.put("fail", "keys_not_furui_check"); return run.result(cmd, args); }
         if (!signerIs(get(rec, "signer"))) { run.put("fail", "signer_is_not_the_ledger_keys"); return run.result(cmd, args); }
-        if (!"runner-1".equals(kid)) { run.put("fail", "key_id_is_not_runner_1"); return run.result(cmd, args); }
+        if (!rid.equals(kid)) { run.put("fail", "key_id_is_not_" + rid.replace("-", "_")); return run.result(cmd, args); }
+        Object recRid = get(rec, "runner_id");
+        if (!(recRid == null && rid.equals("runner-1")) && !strEq(recRid, rid)) { run.put("fail", "runner_id_is_not_" + rid.replace("-", "_")); return run.result(cmd, args); }
         if (key == null) { run.put("fail", "key_not_listed"); return run.result(cmd, args); }
         if (pub == null) { run.put("fail", "key_not_32_bytes"); return run.result(cmd, args); }
         Long fh = integer(get(key, "from_height"), 0);
@@ -798,7 +818,8 @@ public final class Furui {
             return obj("state", h[0], "code", nz(h[1]), "facts", nz(h[2]));
         }
         boolean bh = Boolean.TRUE.equals(get(a, "bitcoin_header"));
-        if (cmd.equals("furui-day")) return summary(furuiDay((String) get(a, "day"), integer(get(a, "leaf"), 0), g, bh, g));
+        Long rn = integer(get(a, "runner"), 1);
+        if (cmd.equals("furui-day")) return summary(furuiDay((String) get(a, "day"), integer(get(a, "leaf"), 0), g, bh, g, rn != null && rn == 2 ? 2 : 1));
         return summary(resumeAdmission((String) get(a, "endpoint"), (String) get(a, "record_sha256"), g, bh, g));
     }
 }

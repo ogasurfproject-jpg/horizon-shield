@@ -1,6 +1,6 @@
 {
   "name": "nenrin-verify",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Zero-dependency, consumer-runnable verifiers for NENRIN evidence: a provenance bundle (nenrin_verify.mjs), a two-party agreement record (nenrin-agreement-verify) and a TSUGI recovery chain with its random witness draw (tsugi_verify.mjs), and the TSUNAGI board's referee (nenrin-tsunagi) to score your own verifier offline the way the board does. The same reports as the Python package nenrin-verify. Verify yourself, offline, with no trust in the operator.",
   "type": "module",
   "main": "nenrin_verify.mjs",
@@ -71,7 +71,7 @@
     "url": "git+https://github.com/ogasurfproject-jpg/horizon-shield.git",
     "directory": "workers/hs-ledger/nenrin/sdk"
   },
-  "homepage": "https://github.com/ogasurfproject-jpg/horizon-shield/tree/main/workers/hs-ledger/nenrin/sdk",
+  "homepage": "https://shield.the-horizons-innovation.com/verify-directory/",
   "bugs": {
     "url": "https://github.com/ogasurfproject-jpg/horizon-shield/issues"
   },

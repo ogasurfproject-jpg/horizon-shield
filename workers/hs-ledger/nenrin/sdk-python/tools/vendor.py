@@ -38,7 +38,9 @@ MUSUBI_MODULES = ["contract_v0.py", "settle_v1.py", "settle_v1_1.py", "settle_v1
                   "anchor_compose.py", "immune_v0.py",
                   # settle v1.13 to v1.16, the reference of settle core v0 (nenrin-verify 0.7.0)
                   "approval_v3.py", "settle_v1_13.py", "settle_v1_14.py", "settle_v1_15.py", "settle_v1_16.py",
-                  "settle_v1_17.py", "requirements_furui_v0.py", "settle_v1_18.py", "settle_v1_19.py"]
+                  "settle_v1_17.py", "requirements_furui_v0.py", "settle_v1_18.py", "settle_v1_19.py",
+                  # settle v1.20, which reads admission v0.5 (nenrin-verify 0.10.0)
+                  "settle_v1_20.py"]
 MUSUBI_DATA = ["canonical_v0.mjs", "canonical_vectors.json", "anchor_compose_fixture.json", "first_contract_A.json",
                "first_contract_AB.json", "first_contract_unsigned.json", "second_contract_A.json", "second_contract_AB.json",
                "README.md", "run0002/README.md", "run0002/entry63.ots", "run0002/entry63.raw", "run0002/exec_19c44a79.anchored.json",
@@ -57,6 +59,8 @@ MUSUBI_DATA = ["canonical_v0.mjs", "canonical_vectors.json", "anchor_compose_fix
                "fixtures/admission_immune/cases.json", "fixtures/admission_immune/demo.json",
                # admission v0.3 (the content block): the records its self-test reads
                "fixtures/admission_content/cases.json",
+               # admission v0.5 (checks[] of more than one runner): the expectations and the v0.4 records its self-test reads
+               "fixtures/admission_v05/cases.json",
                # requirements.furui (settle v1.17): its self-test holds it to its JavaScript twin
                "requirements_furui_v0.mjs",
                # approval v3 (settle v1.13 and later): the vectors its self-test reads (0.7.0)

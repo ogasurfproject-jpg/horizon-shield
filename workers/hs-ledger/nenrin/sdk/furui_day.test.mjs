@@ -52,7 +52,7 @@ for (const file of [vectors, bhVectors]) {
   for (const c of JSON.parse(readFileSync(file, "utf8")).cases) {
     if (c.command !== "furui-day" && c.command !== "resume-admission") continue;
     const g = worldGet(c.world);
-    const r = summary(c.command === "furui-day" ? await furuiDay(c.args.day, c.args.leaf, g, { headerGet: noExplorer }) : await resumeAdmission(c.args.endpoint, c.args.record_sha256, g, { headerGet: noExplorer }));
+    const r = summary(c.command === "furui-day" ? await furuiDay(c.args.day, c.args.leaf, g, { headerGet: noExplorer, runner: c.args.runner === undefined ? 1 : c.args.runner }) : await resumeAdmission(c.args.endpoint, c.args.record_sha256, g, { headerGet: noExplorer }));
     total++;
     if (c.args.bitcoin_header === true) {
       const f = Object.assign({}, c.expect.facts); delete f.bitcoin_header;

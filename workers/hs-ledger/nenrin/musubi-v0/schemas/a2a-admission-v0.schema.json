@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/musubi-v0/schemas/a2a-admission-v0.schema.json",
   "title": "a2a-admission-v0",
-  "description": "What a relying party's door returned for one action under one signed MUSUBI contract, signed by the relying party. Signed bytes: the ASCII line a2a-admission-v0, a newline, then musubi-canonical-v0 of the record without signatures. Two versions of this record exist: v0 (no rules.version) and v0.1 (rules.version \"0.1\", 2026-10-10). They differ in presentation_ref (v0.1 may carry self_declared), revocations_seen (v0: sha256 strings; v0.1: objects that say whether each revocation carried an anchor) and the third line of does_not_establish. v0.2 (rules.version \"0.2\", 2026-10-20) adds immune (the verdict of a2a-immune-v0 as digests and codes) and the reasons immune_hold and immune_reject. v0.3 (rules.version \"0.3\", 2026-10-27) keeps immune and adds content: the relying party's account of its content check (a2a-content-check-v0) as digests and flags, never the content, and the reason content_scope_conflict. Each later version adds one line to does_not_establish. The seven rules that tie content to decision and reasons are in admission_verify_v0.content_problems. The reference is admission_verify_v0.py; this schema describes the shape and does not replace verify_admission. The implementation of a relying party's door is not public; a record is checked without it. v0.4 (rules.version \"0.4\", after FURUI blind-06) keeps immune and carries content in the shape of FURUI A7.4 (a2a-content-check-v1): a salted commitment input_commit instead of the content's digest, the decision (stop or pass), the marks (off_topic, rule_conflict), unread, answered and checked, the reason content_off_topic, and two lines of does_not_establish of its own. Its rules are in admission_verify_v0.content_problems_v04.",
+  "description": "What a relying party's door returned for one action under one signed MUSUBI contract, signed by the relying party. Signed bytes: the ASCII line a2a-admission-v0, a newline, then musubi-canonical-v0 of the record without signatures. Two versions of this record exist: v0 (no rules.version) and v0.1 (rules.version \"0.1\", 2026-10-10). They differ in presentation_ref (v0.1 may carry self_declared), revocations_seen (v0: sha256 strings; v0.1: objects that say whether each revocation carried an anchor) and the third line of does_not_establish. v0.2 (rules.version \"0.2\", 2026-10-20) adds immune (the verdict of a2a-immune-v0 as digests and codes) and the reasons immune_hold and immune_reject. v0.3 (rules.version \"0.3\", 2026-10-27) keeps immune and adds content: the relying party's account of its content check (a2a-content-check-v0) as digests and flags, never the content, and the reason content_scope_conflict. Each later version adds one line to does_not_establish. The seven rules that tie content to decision and reasons are in admission_verify_v0.content_problems. The reference is admission_verify_v0.py; this schema describes the shape and does not replace verify_admission. The implementation of a relying party's door is not public; a record is checked without it. v0.4 (rules.version \"0.4\", after FURUI blind-06) keeps immune and carries content in the shape of FURUI A7.4 (a2a-content-check-v1): a salted commitment input_commit instead of the content's digest, the decision (stop or pass), the marks (off_topic, rule_conflict), unread, answered and checked, the reason content_off_topic, and two lines of does_not_establish of its own. Its rules are in admission_verify_v0.content_problems_v04. v0.5 (rules.version \"0.5\", FURUI 1.0) keeps immune and carries content for more than one runner (a2a-content-check-v2): checks[] in runner_id order, one per runner the relying party's policy names, each with its why (ok, unread, or why it was not read), quorum {required, answered}, runners_sha256, and the block's decision, marks, checked and disagreement_kind, which must be what checks[] and quorum.required give; the record's content_ reasons must be exactly the set they give. Its rules are in admission_verify_v0.content_problems_v05, and it carries six lines of does_not_establish of its own.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -281,7 +281,8 @@
             "0.1",
             "0.2",
             "0.3",
-            "0.4"
+            "0.4",
+            "0.5"
           ],
           "description": "Absent in a record written by admit v0."
         }
@@ -348,6 +349,22 @@
             "that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record",
             "that any content check ran, or that the same check would answer the same way again; the record carries a salted commitment to the bytes the relying party says it checked (only a holder of the bytes and the salt can recompute it), the digest of the check it says it read, the identifier of the rule set, the decision and the marks, and nothing else about the content",
             "that the rates measured for the named rule set hold on this contract's scope; they were measured on the scopes of public datasets, not on a scope rendered from a contract"
+          ]
+        },
+        {
+          "const": [
+            "that HS allowed or blocked anything; the relying party ran the function at its own door",
+            "that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show",
+            "when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored",
+            "that the action was lawful, safe or wise; only that it was inside or outside the signed grant",
+            "that this record is a legal authorization or determines liability",
+            "that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record",
+            "that any content check ran, or that the same checks would answer the same way again; the record carries a salted commitment to the bytes the relying party says it sent to every runner (only a holder of the bytes and the salt can recompute it), the digest of each check it says it read, the identifiers of the rule sets, each decision and its marks, and nothing else about the content",
+            "that the rates measured for the named rule sets hold on this contract's scope; they were measured on the scopes of public datasets, not on a scope rendered from a contract",
+            "that the runners reached their answers apart from one another, or that their models, prompts or operators differ beyond the keys and rule set digests the record names",
+            "which runner's answer was right when the answers differ; disagreement_kind says only how they differ",
+            "why a runner gave no answer when its check says timeout or capped; those two are the relying party's own account, and no signed envelope shows them",
+            "that a pass here means what a pass means in a v0.4 record; a v0.4 block says pass for a check that answered pass with part of the content unread, while here such a runner is not counted as answered, so the block's decision may be null where v0.4 would say pass"
           ]
         }
       ]
@@ -609,11 +626,227 @@
               "type": "boolean"
             }
           }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "checked",
+            "checks",
+            "decision",
+            "disagreement_kind",
+            "input_commit",
+            "marks",
+            "quorum",
+            "rules",
+            "runners_sha256",
+            "scope_sha256"
+          ],
+          "description": "v0.5: the content check of more than one runner. The block's decision, marks, checked, quorum.answered and disagreement_kind follow from checks[] and quorum.required (admission_verify_v0.content_from_checks_v05); the rules are in admission_verify_v0.content_problems_v05.",
+          "properties": {
+            "rules": {
+              "const": "a2a-content-check-v2"
+            },
+            "checked": {
+              "type": "boolean"
+            },
+            "input_commit": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^[0-9a-f]{64}$",
+              "description": "sha256(r || musubi-canonical-v0 bytes of the content), the same r and content sent to every runner"
+            },
+            "scope_sha256": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "runners_sha256": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^[0-9a-f]{64}$",
+              "description": "sha256 of the canonical list of the public halves of the policy's runners (runner_id, key_id, runner_public_key_ed25519_b64, rules_sha256) in runner_id order"
+            },
+            "quorum": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "answered",
+                "required"
+              ],
+              "properties": {
+                "required": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 64
+                },
+                "answered": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 64
+                }
+              }
+            },
+            "decision": {
+              "enum": [
+                "stop",
+                "pass",
+                null
+              ]
+            },
+            "marks": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "off_topic",
+                  "rule_conflict"
+                ]
+              },
+              "uniqueItems": true
+            },
+            "disagreement_kind": {
+              "enum": [
+                "n/a",
+                "none",
+                "decision",
+                "marks",
+                "both"
+              ]
+            },
+            "checks": {
+              "type": "array",
+              "maxItems": 64,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "answered",
+                  "check_sha256",
+                  "day",
+                  "decision",
+                  "key_id",
+                  "marks",
+                  "rules_sha256",
+                  "runner_id",
+                  "scope_sha256",
+                  "unread",
+                  "why"
+                ],
+                "description": "one runner's check as the door read it. answered is true exactly when why is ok; a check not read (why other than ok and unread) keeps no decision and no marks; scope_sha256 is null or the block's.",
+                "properties": {
+                  "runner_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9._:-]{1,64}$"
+                  },
+                  "key_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9._:-]{1,64}$"
+                  },
+                  "rules_sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "check_sha256": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "pattern": "^[0-9a-f]{64}$",
+                    "description": "sha256 of the canonical furui-check-v1 record of this runner's envelope"
+                  },
+                  "day": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+                  },
+                  "decision": {
+                    "enum": [
+                      "stop",
+                      "pass",
+                      null
+                    ]
+                  },
+                  "marks": {
+                    "type": "array",
+                    "items": {
+                      "enum": [
+                        "off_topic",
+                        "rule_conflict"
+                      ]
+                    },
+                    "uniqueItems": true
+                  },
+                  "unread": {
+                    "type": [
+                      "boolean",
+                      "null"
+                    ]
+                  },
+                  "answered": {
+                    "type": "boolean"
+                  },
+                  "scope_sha256": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "why": {
+                    "enum": [
+                      "ok",
+                      "no_envelope",
+                      "timeout",
+                      "capped",
+                      "signature",
+                      "rules_mismatch",
+                      "scope_mismatch",
+                      "commit_mismatch",
+                      "shape",
+                      "unread",
+                      "decision_null",
+                      "not_answered"
+                    ]
+                  }
+                }
+              }
+            }
+          }
         }
       ]
     }
   },
   "allOf": [
+    {
+      "if": {
+        "properties": {
+          "rules": {
+            "properties": {
+              "version": {
+                "const": "0.5"
+              }
+            },
+            "required": [
+              "version"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "immune",
+          "content"
+        ]
+      }
+    },
     {
       "if": {
         "properties": {
@@ -694,7 +927,8 @@
                   "enum": [
                     "0.2",
                     "0.3",
-                    "0.4"
+                    "0.4",
+                    "0.5"
                   ]
                 }
               },

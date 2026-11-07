@@ -18,7 +18,8 @@ they wrote under runs/<day>/, the UTC day the run is for (see responsible_day):
            failed run, not as a quiet gap. Every call carries its payload as content for the door's content check
            (FURUI); the door reads it only where its policy (GET /seki) requires the check (see the note at PAYLOAD).
   settle   Every earlier day whose records the ledger has batched and Bitcoin has confirmed is settled with
-           settle v1.15 (and v1.12, which must agree on the verdict). The anchors are composed with anchor_compose
+           settle v1.20 (and v1.12, which must agree on the verdict). Before admission v0.5 it was v1.15; v1.20 gives the
+           same verdict, status and deviations on every day settled with v1.15 (self test [16]). The anchors are composed with anchor_compose
            from the ledger's own batch bytes and .ots proofs; the header view comes from two explorers, extended
            from final headers kept in view-chunks/ (written once, never rewritten) and checked again in full every time. Days not yet confirmed are left for a
            later run. settlement.json and the anchored records are written next to the day's records.
@@ -49,6 +50,7 @@ import peer_kit  # noqa: E402
 import settle_v1_1 as v11  # noqa: E402
 import settle_v1_12 as s12  # noqa: E402
 import settle_v1_15 as s15  # noqa: E402
+import settle_v1_20 as s20  # noqa: E402
 from contract_v0 import canonical, contract_sha256, parse_strict  # noqa: E402
 
 CONTRACT_PATH = os.path.join(MUSUBI, "run0003", "contract.json")
@@ -77,6 +79,9 @@ PAYLOAD = {
 # before. When it does, the reasons the door adds for the content are allowed only where they change nothing: an admit
 # may carry content_off_topic (admission v0.4 keeps it on an admit), a refusal may carry any content_ reason besides its
 # own, and the admitted call's record must name a checked content block (content.checked, a 64 hex check_sha256).
+# Admission v0.5 (FURUI 1.0). A door with more than one runner writes admission v0.5: the content block has no check_sha256 of its own but
+# checks[], one per runner. Both are read: a v0.4 record must name its check_sha256 as above, a v0.5 record must be checked
+# and name a 64 hex check_sha256 for every check it read as an answer (why ok), and at least one.
 H64 = set("0123456789abcdef")
 UA = "seki-heartbeat/1 (+https://github.com/ogasurfproject-jpg/horizon-shield)"
 # 2026-10-19: locate() used to look at the newest 40 entries only. Once the ledger head passed 120, the batch holding
@@ -262,14 +267,30 @@ def reasons_hold(decision, reasons, want_decision, want_reasons, required):
     return all(r in reasons for r in want_reasons) and all(isinstance(r, str) and (r in want_reasons or r.startswith("content_")) for r in reasons)
 
 
-def judge_record(service, rec, want_decision, want_reasons, required):
-    """[(name, ok, detail)] for one signed record, and the content block's check_sha256 (None when it names none)."""
+def content_checks(rec):
+    """[(runner_id, check_sha256)] of the checks a v0.5 record read as answers (why ok), or None when the record is not
+    v0.5 or its block has no list of checks. A check_sha256 that is not 64 hex is kept as None."""
+    rules = rec.get("rules") if isinstance(rec, dict) and isinstance(rec.get("rules"), dict) else {}
     cb = rec.get("content") if isinstance(rec, dict) and isinstance(rec.get("content"), dict) else None
-    ck = cb.get("check_sha256") if cb is not None and is_h64(cb.get("check_sha256")) else None
+    if rules.get("version") != "0.5" or cb is None or not isinstance(cb.get("checks"), list):
+        return None
+    return [(k.get("runner_id"), k.get("check_sha256") if is_h64(k.get("check_sha256")) else None)
+            for k in cb["checks"] if isinstance(k, dict) and k.get("why") == "ok"]
+
+
+def judge_record(service, rec, want_decision, want_reasons, required):
+    """[(name, ok, detail)] for one signed record, and the content block's check_sha256 (None when it names none; for a
+    v0.5 record, the list content_checks gives)."""
+    cb = rec.get("content") if isinstance(rec, dict) and isinstance(rec.get("content"), dict) else None
+    ks = content_checks(rec)
+    ck = ks if ks is not None else (cb.get("check_sha256") if cb is not None and is_h64(cb.get("check_sha256")) else None)
     d, r = (rec.get("decision"), rec.get("reasons")) if isinstance(rec, dict) else (None, None)
     allowed = "" if not required else (" (content_off_topic allowed)" if want_decision == "admit" else " (content_ reasons allowed besides)")
     out = [("%s: decision %s, reasons %s%s" % (service, want_decision, want_reasons, allowed), reasons_hold(d, r, want_decision, want_reasons, required), (d, r))]
-    if required and want_decision == "admit":
+    if required and want_decision == "admit" and ks is not None:
+        out.append(("%s: the door checked the content (content.checked, a 64 hex check_sha256 for each check read as an answer)" % service,
+                    cb.get("checked") is True and bool(ks) and all(h is not None for _rid, h in ks), cb))
+    elif required and want_decision == "admit":
         out.append(("%s: the door checked the content (content.checked, a 64 hex content.check_sha256)" % service,
                     cb is not None and cb.get("checked") is True and ck is not None, cb))
     return out, ck
@@ -440,7 +461,9 @@ def run(root, date, now=None, sleep=time.sleep):
                 judged, ck = judge_record(service, rec, want_decision, want_reasons, required)
                 for name, ok, detail in judged:
                     check(name, ok, detail)
-                if ck is not None:
+                if isinstance(ck, list):
+                    call["content_checks"] = [{"runner_id": rid, "check_sha256": h} for rid, h in ck]
+                elif ck is not None:
                     call["content_check_sha256"] = ck
                 with open(os.path.join(out, "admission_%s.json" % service), "w", encoding="utf-8") as f:
                     f.write(gb.decode("utf-8"))
@@ -706,19 +729,19 @@ def settle_day(day_dir, contract, chunk_dir, get=None, cache=None):
     admissions = [anchored[adm_files[c["service"]]] for c in r["calls"]]
     events = [anchored[exe_file]]
     keys = {DOOR_DOMAIN: door_key()}
-    s = s15.settle_v1_15(contract, events, view, admissions=admissions, relying_keys=keys)
+    s = s20.settle_v1_20(contract, events, view, admissions=admissions, relying_keys=keys)
     s_12 = s12.settle_v1_12(contract, events, view, admissions=admissions, relying_keys=keys)
     if s.get("verdict") != s_12.get("verdict"):
-        raise RuntimeError("settle v1.15 says %s and v1.12 says %s for %s" % (s.get("verdict"), s_12.get("verdict"), day_dir))
+        raise RuntimeError("settle v1.20 says %s and v1.12 says %s for %s" % (s.get("verdict"), s_12.get("verdict"), day_dir))
     tip = view["headers"][-1]["height"]
     with open(os.path.join(day_dir, "settlement.json"), "w", encoding="utf-8") as f:
         f.write(canonical(s))
     with open(os.path.join(day_dir, "SETTLED.json"), "w", encoding="utf-8") as f:
-        f.write(json.dumps({"schema": "seki-heartbeat-settled-v0", "settle": "v1.15 (v1.12 agrees on the verdict)", "verdict": s.get("verdict"),
+        f.write(json.dumps({"schema": "seki-heartbeat-settled-v0", "settle": "v1.20 (v1.12 agrees on the verdict)", "verdict": s.get("verdict"),
                             "status": s.get("status"), "view": {"from": view["headers"][0]["height"], "to": tip},
                             "ledger_entries": entries, "settlement_sha256": hashlib.sha256(canonical(s).encode()).hexdigest(),
                             "recompute": "anchor_compose.py for each record against its ledger entry (?format=raw and /ots), "
-                                         "header_view_fetch.py --to %d (from runs/<date>/, the tools are in ../../../musubi-v0), then settle_v1_15.py --settle ../../../musubi-v0/run0003/contract.json "
+                                         "header_view_fetch.py --to %d (from runs/<date>/, the tools are in ../../../musubi-v0), then settle_v1_20.py --settle ../../../musubi-v0/run0003/contract.json "
                                          "--event execution_report.anchored.json --admission admission_*.anchored.json "
                                          "--relying-key %s=<keys/seki-door.json> --view view.json" % (tip, DOOR_DOMAIN)},
                            indent=2) + "\n")
@@ -1068,6 +1091,54 @@ def _selftest():
         assert settle_day(os.path.join(td, "2026-11-08"), contract, td, get=lg).startswith("pending")   # and the day still settles
     n += 1; print("[15] the scene mismatch: seki.content is compare's payload and the body differs; 400 content_mismatch with nothing spent and no door is as expected, "
                   "403, 2xx, another 400, 402 or no answer is not; without seki_content_match on GET /health it is not run (not_yet); the row stays out of settle and the index")
+
+    # [16] admission v0.5 (more than one runner): checks[] in place of check_sha256; and settle v1.20 in place of v1.15
+    k5 = lambda rid, h=CK, why="ok": {"runner_id": rid, "check_sha256": h, "why": why}
+    r5 = lambda d, r, ks, checked=True: {"decision": d, "reasons": r, "rules": {"version": "0.5"}, "content": {"checked": checked, "decision": "pass", "checks": ks}}
+    two = [k5("runner-1"), k5("runner-2", "cd" * 32)]
+    assert J("report", r5("admit", ["within_grant"], two), True) == ([True, True], [("runner-1", CK), ("runner-2", "cd" * 32)])
+    assert J("report", r5("admit", ["within_grant"], two, checked=False), True)[0] == [True, False]
+    assert J("report", r5("admit", ["within_grant"], [k5("runner-1"), k5("runner-2", None)]), True)[0] == [True, False]
+    assert J("report", r5("admit", ["within_grant"], [k5("runner-1", None, "no_envelope")]), True) == ([True, False], [])
+    assert J("report", r5("admit", ["within_grant"], [k5("runner-1"), k5("runner-2", None, "timeout")]), True) == ([True, True], [("runner-1", CK)])
+    assert J("audit", r5("refuse", ["amount_over_limit"], two), True) == ([True], [("runner-1", CK), ("runner-2", "cd" * 32)])
+    assert J("report", rec("admit", ["within_grant"], blk()), True) == ([True, True], CK)                 # v0.4 reads as before
+    assert content_checks(dict(r5("admit", ["within_grant"], two), rules={"version": "0.4"})) is None
+    # every day settled so far, whose view lies in view-chunks/ (no network): v1.20 gives v1.15's verdict, status and deviations,
+    # v1.12 the same verdict, and v1.15 the bytes settlement.json holds
+    contract = rd(CONTRACT_PATH)
+    hd = []
+    for name in _chunks(os.path.join(HERE, "view-chunks")):
+        hd += json.load(open(os.path.join(HERE, "view-chunks", name), encoding="utf-8"))["headers"]
+    top = hd[-1]["height"] if hd else -1
+    days, beyond = [], []
+    for d in sorted(x for x in os.listdir(os.path.join(HERE, "runs")) if len(x) == 10):
+        dd = os.path.join(HERE, "runs", d)
+        if not os.path.exists(os.path.join(dd, "SETTLED.json")):
+            continue
+        S = json.load(open(os.path.join(dd, "SETTLED.json"), encoding="utf-8"))
+        if S["view"]["to"] > top:
+            beyond.append(d)
+            continue
+        view = {"headers": [x for x in hd if x["height"] <= S["view"]["to"]]}
+        r = json.load(open(os.path.join(dd, "RUN.json"), encoding="utf-8"))
+        adms = [rd(os.path.join(dd, "admission_%s.anchored.json" % c["service"])) for c in door_calls(r)]   # a scene row reached no door
+        evs = [rd(os.path.join(dd, "execution_report.anchored.json"))]
+        keys = {DOOR_DOMAIN: door_key()}
+        a15 = s15.settle_v1_15(contract, evs, view, admissions=adms, relying_keys=keys)
+        a20 = s20.settle_v1_20(contract, evs, view, admissions=adms, relying_keys=keys)
+        a12 = s12.settle_v1_12(contract, evs, view, admissions=adms, relying_keys=keys)
+        stored = open(os.path.join(dd, "settlement.json"), encoding="utf-8").read()
+        assert canonical(a15 if S.get("settle", "").startswith("v1.15") else a20) == stored, d
+        assert (a20["verdict"], a20["status"], canonical(a20["deviations"])) == (a15["verdict"], a15["status"], canonical(a15["deviations"])) == (
+            S["verdict"], S["status"], canonical(json.loads(stored)["deviations"])), d
+        assert a12["verdict"] == a20["verdict"], d
+        days.append(d)
+    assert len(days) >= 24, days
+    n += 1; print("[16] the records of v0.5: checked, and a 64 hex check_sha256 for each check read as an answer (v0.4 as before); %d settled days "
+                  "(%s to %s) settle under v1.20 with v1.15's verdict, status and deviations and v1.12's verdict, and the settle SETTLED.json names gives the "
+                  "bytes settlement.json holds (%d later days need headers past view-chunks/ and are left to the run that settles them)"
+                  % (len(days), days[0], days[-1], len(beyond)))
     print("ALL PASS (seki heartbeat: %d checks)" % n)
 
 

@@ -1,12 +1,14 @@
 """furui-day and resume-admission: check one day of the content check runner, or one admissions[] line of a Resume.
 
-  nenrin-verify furui-day <day> --leaf <i>
-      Six checks on leaf i of day <day> (YYYY-MM-DD, UTC):
+  nenrin-verify furui-day <day> --leaf <i> [--runner 1|2]
+      Six checks on leaf i of day <day> (YYYY-MM-DD, UTC) of runner-1 (the default) or runner-2 (--runner 2, whose
+      day tree is GET /furui2/day/ and whose day record and envelopes carry key_id runner-2; its day record names
+      runner_id runner-2, which a runner-1 record may leave out):
         1 envelope_shape   the envelope the runner serves has the closed shape (furui-check-signed-v1, no text field)
         2 leaf_sha256      sha256(0x00 || musubi-canonical-v0(envelope)) is the leaf the runner names
         3 audit_path       the RFC 6962 audit path rebuilds the root of the day record the ledger serves
-        4 signature        runner-1's Ed25519 signature on the day record, and on the envelope
-        5 runner_key       runner-1's key is in the ledger's /.well-known/furui-check-keys.json, inside from_height
+        4 signature        the runner's Ed25519 signature on the day record, and on the envelope
+        5 runner_key       the runner's key is in the ledger's /.well-known/furui-check-keys.json, inside from_height
                            (and before revoked_height) for the heights of the record and of the envelope
         6 bitcoin_anchor   the day record is listed in a ledger batch entry whose OpenTimestamps proof commits the
                            entry's sha256 to a Bitcoin block header (not_yet before the batch or before the anchor)
@@ -63,6 +65,8 @@ CHECK_KEYS = sorted(["action_binding_digest", "answered", "checked_at_height", "
                      "nonce", "rules_sha256", "schema", "scope_sha256", "signed_at", "stage_reached", "trace_sha256", "unread"])
 DAY_KEYS = sorted(["clock_skew", "day", "first_height", "last_height", "late", "leaf", "n", "publication", "root", "schema",
                    "signatures", "signer", "tree"])
+DAY_KEYS_RUNNER = sorted(DAY_KEYS + ["runner_id"])       # a day record may name its runner (runner_id; none is runner-1)
+RUNNER_PATHS = {1: "/furui/day/", 2: "/furui2/day/"}
 DAY_LEAF = "sha256(0x00 || musubi-canonical-v0(envelope))"
 RESUME_ENVELOPE_KEYS = ("evaluated_at", "subject_responses", "not_counted", "scan", "recompute", "resume_sha256")
 UNANCHORED = ("not_yet_anchored", "confirmed_without_block_time")
@@ -181,7 +185,7 @@ def ed25519_verify(pub, msg, sig):
 
 
 # ---- the closed envelope (runner 0.3.0 keepProblems) ----
-def envelope_problem(e):
+def envelope_problem(e, rid="runner-1"):
     if not _keys(e, ["check", "schema", "signatures", "signer"]) or e["schema"] != "furui-check-signed-v1":
         return "envelope_keys"
     c = e["check"]
@@ -214,7 +218,7 @@ def envelope_problem(e):
         return "signatures"
     g = e["signatures"][0]
     if (not _keys(g, ["alg", "domain", "key_id", "sig"]) or g["alg"] != "ed25519" or g["domain"] != SIGNER["domain"]
-            or g["key_id"] != "runner-1" or not (isinstance(g["sig"], str) and SIG88.fullmatch(g["sig"]))):
+            or g["key_id"] != rid or not (isinstance(g["sig"], str) and SIG88.fullmatch(g["sig"]))):
         return "signature"
     return None
 
@@ -229,7 +233,8 @@ def day_message(r):
 
 def day_record_problem(r):
     """the intake's closed shape (furui_check_day_intake.mjs shapeProblems) and publication public"""
-    if not _keys(r, DAY_KEYS) or r["schema"] != "furui-check-day-v0":
+    if not (_keys(r, DAY_KEYS) or (_keys(r, DAY_KEYS_RUNNER) and isinstance(r["runner_id"], str) and re.fullmatch(r"runner-[0-9]{1,3}", r["runner_id"]))) \
+            or r["schema"] != "furui-check-day-v0":
         return "day_record_shape"
     s = r["signer"]
     ok = (_real_day(r["day"]) and _keys(s, ["domain", "key_url"]) and isinstance(s["domain"], str) and s["domain"]
@@ -545,18 +550,21 @@ def _header_step(run, header_get):
     run.put(state, code)
 
 
-def furui_day(day, leaf, get=http_get, bitcoin_header=False, header_get=http_get_explorer):
+def furui_day(day, leaf, get=http_get, bitcoin_header=False, header_get=http_get_explorer, runner=1):
     run = _Run(get, DAY_STEPS + ([HEADER_STEP] if bitcoin_header else []))
     run.facts = {"day": day, "leaf": leaf, "record_sha256": None, "n": None, "root": None, "ledger_entry": None, "bitcoin_block": None, "merkle_root": None}
     args = {"day": day, "leaf": leaf}
     if bitcoin_header:
         run.facts["bitcoin_header"] = None
         args["bitcoin_header"] = True
+    if runner != 1:
+        args["runner"] = runner
+    rid, path = "runner-%d" % runner, FURUI + RUNNER_PATHS[runner]
     # 1 envelope_shape
-    s, a = run.getj(FURUI + "/furui/day/%s/leaf/%d" % (day, leaf))
+    s, a = run.getj(path + "%s/leaf/%d" % (day, leaf))
     if s == 404 and isinstance(a, dict) and a.get("error") == "day_open":
         # the runner answers day_open for every day without leaves; its status says whether the day closed empty
-        ss, st = run.getj(FURUI + "/furui/day/%s/status" % day)
+        ss, st = run.getj(path + "%s/status" % day)
         v = st.get("status") if ss == 200 and isinstance(st, dict) and st.get("day") == day else None
         if isinstance(v, dict) and v.get("state") == "empty":
             run.put("fail", "day_closed_empty")
@@ -573,7 +581,7 @@ def furui_day(day, leaf, get=http_get, bitcoin_header=False, header_get=http_get
         run.put("fail", "leaf_is_another_day_or_index")
         return run.result("furui-day", args)
     env = a.get("envelope")
-    p = envelope_problem(env)
+    p = envelope_problem(env, rid)
     if p:
         run.put("fail", "envelope_shape:" + p)
         return run.result("furui-day", args)
@@ -665,8 +673,11 @@ def furui_day(day, leaf, get=http_get, bitcoin_header=False, header_get=http_get
     if rec["signer"] != SIGNER:
         run.put("fail", "signer_is_not_the_ledger_keys")
         return run.result("furui-day", args)
-    if kid != "runner-1":
-        run.put("fail", "key_id_is_not_runner_1")
+    if kid != rid:
+        run.put("fail", "key_id_is_not_" + rid.replace("-", "_"))
+        return run.result("furui-day", args)
+    if rec.get("runner_id", "runner-1") != rid:
+        run.put("fail", "runner_id_is_not_" + rid.replace("-", "_"))
         return run.result("furui-day", args)
     if k is None:
         run.put("fail", "key_not_listed")
@@ -833,7 +844,7 @@ def run_case(c):
     a = c["args"]
     bh = a.get("bitcoin_header") is True
     if c["command"] == "furui-day":
-        return furui_day(a["day"], a["leaf"], get, bitcoin_header=bh, header_get=get)
+        return furui_day(a["day"], a["leaf"], get, bitcoin_header=bh, header_get=get, runner=a.get("runner", 1))
     return resume_admission(a["endpoint"], a["record_sha256"], get, bitcoin_header=bh, header_get=get)
 
 
@@ -876,7 +887,7 @@ def run_vectors(path, out=None):
     return 0 if ok == len(doc["cases"]) else 1
 
 
-USAGE = ("usage: nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--bitcoin-header]\n"
+USAGE = ("usage: nenrin-verify furui-day <YYYY-MM-DD> --leaf <i> [--runner 1|2] [--bitcoin-header]\n"
          "       nenrin-verify resume-admission <https endpoint> <record_sha256> [--bitcoin-header]\n"
          "       nenrin-verify furui-vectors <vectors.json>")
 EXIT = {"ok": 0, "fail": 1, "not_yet": 3}
@@ -888,11 +899,18 @@ def main(argv):
     if argv and argv[0] in ("furui-day", "resume-admission") and argv[1:].count("--bitcoin-header") == 1:
         argv.remove("--bitcoin-header")
         bh = True
+    runner = 1
     try:
+        if argv and argv[0] == "furui-day" and argv[1:].count("--runner") == 1:
+            i = argv.index("--runner")
+            if i + 1 >= len(argv) or argv[i + 1] not in ("1", "2"):
+                raise ValueError
+            runner = int(argv[i + 1])
+            del argv[i:i + 2]
         if len(argv) == 4 and argv[0] == "furui-day" and argv[2] == "--leaf":
             if not _real_day(argv[1]) or not re.fullmatch(r"0|[1-9][0-9]{0,8}", argv[3]):
                 raise ValueError
-            res = furui_day(argv[1], int(argv[3]), bitcoin_header=bh)
+            res = furui_day(argv[1], int(argv[3]), bitcoin_header=bh, runner=runner)
         elif len(argv) == 3 and argv[0] == "resume-admission":
             if not re.fullmatch(r"https://[^\s]+", argv[1]) or not H64.fullmatch(argv[2]) or not _host(argv[1]):
                 raise ValueError

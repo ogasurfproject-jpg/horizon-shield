@@ -17,10 +17,11 @@ A release is a GitHub release `nenrin-verify-java-vX.Y.Z` of this repository wit
 
 ```sh
 shasum -a 256 -c SHA256SUMS
-java -jar nenrin-verify-java-0.2.0.jar furui-day 2026-11-03 --leaf 0
-java -jar nenrin-verify-java-0.2.0.jar resume-admission https://shield.the-horizons-innovation.com/ <record_sha256>
-java -jar nenrin-verify-java-0.2.0.jar furui-day 2026-11-03 --leaf 0 --bitcoin-header
-java -jar nenrin-verify-java-0.2.0.jar furui-vectors verify_vectors.json
+java -jar nenrin-verify-java-0.3.0.jar furui-day 2026-11-03 --leaf 0
+java -jar nenrin-verify-java-0.3.0.jar furui-day 2026-11-10 --leaf 0 --runner 2
+java -jar nenrin-verify-java-0.3.0.jar resume-admission https://shield.the-horizons-innovation.com/ <record_sha256>
+java -jar nenrin-verify-java-0.3.0.jar furui-day 2026-11-03 --leaf 0 --bitcoin-header
+java -jar nenrin-verify-java-0.3.0.jar furui-vectors verify_vectors.json
 ```
 
 Or build it yourself (no build tool):
@@ -32,6 +33,8 @@ jar --create --file nenrin-verify.jar --manifest manifest.txt -C out .
 java -jar nenrin-verify.jar furui-vectors ../furui-check-day-v0/verify_vectors.json
 java -jar nenrin-verify.jar furui-vectors ../furui-check-day-v0/bitcoin_header_vectors.json
 ```
+
+`--runner 1|2` (0.3.0, furui-day) (1 when left out): runner 2 reads runner-2's day tree at `https://furui.horizonshield.dev/furui2/day/`, and wants key_id runner-2 on the day record and on the envelope and runner_id runner-2 on the day record (a runner-1 record may name runner_id runner-1 or leave it out; a record that names another runner is refused at step 5). Without the flag the answers are those of the version before, except that a runner-1 day record that names runner_id runner-1 is now read instead of refused for its shape. `Furui.furuiDay(day, leaf, g, bitcoinHeader, headerGet, runner)` in the library.
 
 `--bitcoin-header` (0.2.0, either command): after the anchor, the block header at the proof's height from
 mempool.space and blockstream.info (the same block hash and the same 80 byte header from both, sha256d to that hash,

@@ -193,7 +193,7 @@ def test_without_the_flag_no_explorer_is_asked_and_nothing_changes():
             continue
         a, g = c["args"], F.world_get(c["world"])
         if c["command"] == "furui-day":
-            plain = F.summary(F.furui_day(a["day"], a["leaf"], g, header_get=_no_explorer))
+            plain = F.summary(F.furui_day(a["day"], a["leaf"], g, header_get=_no_explorer, runner=a.get("runner", 1)))
         else:
             plain = F.summary(F.resume_admission(a["endpoint"], a["record_sha256"], g, header_get=_no_explorer))
         assert "bitcoin_header" not in plain["facts"]
@@ -273,3 +273,26 @@ def test_javascript_twin_on_bitcoin_header_mutations():
         assert not diff, "%d of %d differ, first: %s | %s" % (len(diff), len(py), py[diff[0]], js[diff[0]])
     finally:
         shutil.rmtree(d)
+
+
+def test_runner_option():
+    """--runner 2 reads runner-2's day tree (/furui2/day/) with key_id and runner_id runner-2; the default and --runner 1
+    give runner-1's answer, with args as before; anything else is a usage error"""
+    doc = _doc()
+    c2 = next(x for x in doc["cases"] if x["args"].get("runner") == 2 and x["expect"]["verdict"] == "ok")
+    seen = []
+    g = F.world_get(c2["world"])
+
+    def get(url):
+        seen.append(url)
+        return g(url)
+    r = F.furui_day(c2["args"]["day"], c2["args"]["leaf"], get, runner=2)
+    assert r["verdict"] == "ok" and r["args"] == {"day": c2["args"]["day"], "leaf": c2["args"]["leaf"], "runner": 2}
+    assert any("/furui2/day/" in u for u in seen) and not any("/furui/day/" in u for u in seen)
+    c1 = next(x for x in doc["cases"] if x["command"] == "furui-day" and "runner" not in x["args"] and x["expect"]["verdict"] == "ok")
+    r1 = F.furui_day(c1["args"]["day"], c1["args"]["leaf"], F.world_get(c1["world"]))
+    assert r1["args"] == {"day": c1["args"]["day"], "leaf": c1["args"]["leaf"]}
+    assert F.summary(r1) == F.summary(F.furui_day(c1["args"]["day"], c1["args"]["leaf"], F.world_get(c1["world"]), runner=1))
+    for bad in (["furui-day", "2026-11-03", "--leaf", "1", "--runner", "3"], ["furui-day", "2026-11-03", "--leaf", "1", "--runner"],
+                ["furui-day", "2026-11-03", "--leaf", "1", "--runner", "2", "--runner", "2"], ["resume-admission", "https://a.example/", "a" * 64, "--runner", "2"]):
+        assert F.main(bad) == 2, bad

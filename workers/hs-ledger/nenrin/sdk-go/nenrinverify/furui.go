@@ -4,12 +4,14 @@ package nenrinverify
 // JavaScript sdk/furui_day.mjs. All three, and the Java port, run ../furui-check-day-v0/verify_vectors.json and give
 // the same verdicts.
 //
-// furui-day <day> --leaf <i>: six checks on leaf i of the content check runner's day.
+// furui-day <day> --leaf <i> [--runner 1|2]: six checks on leaf i of the content check runner's day, runner-1 (the
+// default) or runner-2 (its day tree at /furui2/day/, key_id runner-2 on its day record and envelopes, and runner_id
+// runner-2 on its day record, which a runner-1 record may leave out).
 //   1 envelope_shape   the envelope the runner serves has the closed shape (furui-check-signed-v1, no text field)
 //   2 leaf_sha256      sha256(0x00 || musubi-canonical-v0(envelope)) is the leaf the runner names
 //   3 audit_path       the RFC 6962 audit path rebuilds the root of the day record the ledger serves
-//   4 signature        runner-1's Ed25519 signature on the day record, and on the envelope
-//   5 runner_key       runner-1's key is in the ledger's /.well-known/furui-check-keys.json, inside from_height (and
+//   4 signature        the runner's Ed25519 signature on the day record, and on the envelope
+//   5 runner_key       the runner's key is in the ledger's /.well-known/furui-check-keys.json, inside from_height (and
 //                      before revoked_height) for the heights of the record and of the envelope
 //   6 bitcoin_anchor   the day record is listed in a ledger batch entry whose OpenTimestamps proof commits the entry's
 //                      sha256 to a Bitcoin block header (not_yet before the batch or before the anchor)
@@ -72,6 +74,11 @@ var (
 	fResSteps   = []string{"resume", "admission_line", "admission_record", "ledger_batch", "bitcoin_anchor"}
 	fAllowHosts = map[string]bool{"ledger.horizonshield.dev": true, "furui.horizonshield.dev": true}
 	otsMagic, _ = hex.DecodeString("004f70656e54696d657374616d7073000050726f6f6600bf89e2e884e89294")
+
+	// a day record may name its runner (runner_id; none is runner-1)
+	fDayKeysRunner = []string{"clock_skew", "day", "first_height", "last_height", "late", "leaf", "n", "publication", "root", "runner_id", "schema", "signatures", "signer", "tree"}
+	fRunnerID      = regexp.MustCompile(`^runner-[0-9]{1,3}$`)
+	fRunnerPaths   = map[int]string{1: "/furui/day/", 2: "/furui2/day/"}
 )
 
 // --bitcoin-header: two Esplora APIs, asked in this order; GET /block-height/<h> and GET /block/<hash>/header
@@ -275,8 +282,11 @@ func fSignerIs(v Value) bool {
 	return fKeysAre(v, []string{"domain", "key_url"}) && fIsStrEq(fGet(v, "domain"), "horizonshield.dev") && fIsStrEq(fGet(v, "key_url"), FuruiKeysURL)
 }
 
-// FuruiEnvelopeProblem is runner 0.3.0's keepProblems: "" when the envelope has the closed shape.
-func FuruiEnvelopeProblem(e Value) string {
+// FuruiEnvelopeProblem is runner 0.3.0's keepProblems: "" when the envelope has the closed shape (signed as runner-1).
+func FuruiEnvelopeProblem(e Value) string { return FuruiEnvelopeProblemFor(e, "runner-1") }
+
+// FuruiEnvelopeProblemFor is FuruiEnvelopeProblem for the runner whose key_id is rid.
+func FuruiEnvelopeProblemFor(e Value, rid string) string {
 	if !fKeysAre(e, []string{"check", "schema", "signatures", "signer"}) || !fIsStrEq(fGet(e, "schema"), "furui-check-signed-v1") {
 		return "envelope_keys"
 	}
@@ -324,7 +334,7 @@ func FuruiEnvelopeProblem(e Value) string {
 		return "signatures"
 	}
 	g := sg[0]
-	if s, ok := fStr(fGet(g, "sig")); !fKeysAre(g, []string{"alg", "domain", "key_id", "sig"}) || !fIsStrEq(fGet(g, "alg"), "ed25519") || !fIsStrEq(fGet(g, "domain"), "horizonshield.dev") || !fIsStrEq(fGet(g, "key_id"), "runner-1") || !ok || !fSig88.MatchString(s) {
+	if s, ok := fStr(fGet(g, "sig")); !fKeysAre(g, []string{"alg", "domain", "key_id", "sig"}) || !fIsStrEq(fGet(g, "alg"), "ed25519") || !fIsStrEq(fGet(g, "domain"), "horizonshield.dev") || !fIsStrEq(fGet(g, "key_id"), rid) || !ok || !fSig88.MatchString(s) {
 		return "signature"
 	}
 	return ""
@@ -349,7 +359,8 @@ func fDayMessage(r *Object) []byte {
 }
 
 func fDayRecordProblem(r Value) string {
-	if !fKeysAre(r, fDayKeys) || !fIsStrEq(fGet(r, "schema"), "furui-check-day-v0") {
+	rid, ridok := fStr(fGet(r, "runner_id"))
+	if !(fKeysAre(r, fDayKeys) || (fKeysAre(r, fDayKeysRunner) && ridok && fRunnerID.MatchString(rid))) || !fIsStrEq(fGet(r, "schema"), "furui-check-day-v0") {
 		return "day_record_shape"
 	}
 	s := fGet(r, "signer")
@@ -841,6 +852,7 @@ func fHeaderStep(r *fRun, headerGet FuruiGet) error {
 type FuruiOpts struct {
 	BitcoinHeader bool
 	HeaderGet     FuruiGet
+	Runner        int // furui-day only: 1 (the default, also when 0) or 2
 }
 
 func (o FuruiOpts) steps(base []string) []string {
@@ -872,14 +884,22 @@ func FuruiDayWith(day string, leaf int64, get FuruiGet, o FuruiOpts) (*FuruiResu
 		r.facts.set("bitcoin_header", nil)
 		args.set("bitcoin_header", true)
 	}
+	runner := o.Runner
+	if runner == 0 {
+		runner = 1
+	}
+	if runner != 1 {
+		args.set("runner", float64(runner))
+	}
+	rid, path := fmt.Sprintf("runner-%d", runner), FuruiRunner+fRunnerPaths[runner]
 	done := func() (*FuruiResult, error) { return r.result("furui-day", args), nil }
 	// 1 envelope_shape
-	s, a, err := r.getj(fmt.Sprintf("%s/furui/day/%s/leaf/%d", FuruiRunner, day, leaf))
+	s, a, err := r.getj(fmt.Sprintf("%s%s/leaf/%d", path, day, leaf))
 	if err != nil {
 		return nil, err
 	}
 	if s == 404 && fIsStrEq(fGet(a, "error"), "day_open") {
-		ss, st, err := r.getj(fmt.Sprintf("%s/furui/day/%s/status", FuruiRunner, day))
+		ss, st, err := r.getj(fmt.Sprintf("%s%s/status", path, day))
 		if err != nil {
 			return nil, err
 		}
@@ -907,7 +927,7 @@ func FuruiDayWith(day string, leaf int64, get FuruiGet, o FuruiOpts) (*FuruiResu
 		return done()
 	}
 	env := fGet(a, "envelope")
-	if p := FuruiEnvelopeProblem(env); p != "" {
+	if p := FuruiEnvelopeProblemFor(env, rid); p != "" {
 		r.put("fail", "envelope_shape:"+p)
 		return done()
 	}
@@ -1064,8 +1084,12 @@ func FuruiDayWith(day string, leaf int64, get FuruiGet, o FuruiOpts) (*FuruiResu
 		r.put("fail", "signer_is_not_the_ledger_keys")
 		return done()
 	}
-	if kid != "runner-1" {
-		r.put("fail", "key_id_is_not_runner_1")
+	if kid != rid {
+		r.put("fail", "key_id_is_not_"+strings.ReplaceAll(rid, "-", "_"))
+		return done()
+	}
+	if rv := Get(rec, "runner_id"); !(rv == Undefined && rid == "runner-1") && !fIsStrEq(rv, rid) {
+		r.put("fail", "runner_id_is_not_"+strings.ReplaceAll(rid, "-", "_"))
 		return done()
 	}
 	if k == Undefined {
@@ -1400,6 +1424,9 @@ func FuruiRunCase(c Value) (Value, error) {
 	}
 	bh, _ := fGet(a, "bitcoin_header").(bool)
 	o := FuruiOpts{BitcoinHeader: bh, HeaderGet: g}
+	if rn, ok := fInt(fGet(a, "runner"), 1); ok && rn == 2 {
+		o.Runner = 2
+	}
 	var res *FuruiResult
 	var err error
 	if cmd == "furui-day" {

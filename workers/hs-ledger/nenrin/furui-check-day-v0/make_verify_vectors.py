@@ -39,14 +39,14 @@ def pub(seed):
     return base64.b64encode(k.public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw)).decode()
 
 
-def envelope(day, i, seed=SEED, **chk):
+def envelope(day, i, seed=SEED, rid="runner-1", **chk):
     k = {"schema": "furui-check-v1", "input_commit": h("ic%s%d" % (day, i)), "rules_sha256": h("rules"), "scope_sha256": h("scope"),
          "action_binding_digest": h("abd%d" % i), "contract_sha256": h("contract"), "trace_sha256": h("trace%d" % i), "decision": "pass",
          "marks": [], "unread": False, "answered": True, "stage_reached": 4, "checked_at_height": 100 + i,
          "nonce": "heartbeat-%s" % day if i == 0 else h("nonce%d" % i)[:32], "signed_at": "%sT03:%02d:09.123Z" % (day, 17 + i)}
     k.update(chk)
     e = {"schema": "furui-check-signed-v1", "check": k, "signer": dict(F.SIGNER), "signatures": []}
-    e["signatures"] = [{"alg": "ed25519", "domain": "horizonshield.dev", "key_id": "runner-1", "sig": sign(seed, F.envelope_message(e))}]
+    e["signatures"] = [{"alg": "ed25519", "domain": "horizonshield.dev", "key_id": rid, "sig": sign(seed, F.envelope_message(e))}]
     return e
 
 
@@ -96,8 +96,9 @@ def jbody(o):
     return {"status": 200, "body": json.dumps(o, ensure_ascii=False, indent=1)}
 
 
-def day_world(day="2026-11-03", n=5, entry=301, height=971234, seed=SEED, env_over=None, rec_over=None, keys=None, status="anchored", ots_status="confirmed", root_tail=""):
-    envs = [envelope(day, i, seed=seed) for i in range(n)]
+def day_world(day="2026-11-03", n=5, entry=301, height=971234, seed=SEED, env_over=None, rec_over=None, keys=None, status="anchored", ots_status="confirmed", root_tail="",
+              rid="runner-1", path="/furui/day/", rec_kid=None):
+    envs = [envelope(day, i, seed=seed, rid=rid) for i in range(n)]
     for i, e in (env_over or {}).items():
         envs[i] = e
     lv = [F.leaf_hash(e) for e in envs]
@@ -105,7 +106,7 @@ def day_world(day="2026-11-03", n=5, entry=301, height=971234, seed=SEED, env_ov
     rec = {"schema": "furui-check-day-v0", "day": day, "signer": dict(F.SIGNER), "n": n, "tree": "rfc6962-sha256", "leaf": F.DAY_LEAF, "root": root,
            "first_height": 100, "last_height": 100 + n - 1, "late": 0, "clock_skew": 0, "publication": "public", "signatures": []}
     rec.update(rec_over or {})
-    rec["signatures"] = [{"alg": "ed25519", "domain": "horizonshield.dev", "key_id": "runner-1", "sig": sign(seed, F.day_message(rec))}]
+    rec["signatures"] = [{"alg": "ed25519", "domain": "horizonshield.dev", "key_id": rec_kid or rid, "sig": sign(seed, F.day_message(rec))}]
     rc = F.canonical(rec)
     rs = h(rc)
     w = {F.KEYS_URL: jbody(keys if keys is not None else {"schema": "furui-check-keys-v0", "use": "furui-check",
@@ -114,7 +115,7 @@ def day_world(day="2026-11-03", n=5, entry=301, height=971234, seed=SEED, env_ov
                                                    "status": status, "ledger_entry": entry if status == "anchored" else None,
                                                    "ledger_url": LEDGER + "/ledger/%d" % entry if status == "anchored" else None, "submitted_at": "2026-11-04T00:47:03.000Z"})}
     for i, e in enumerate(envs):
-        w[FURUI + "/furui/day/%s/leaf/%d" % (day, i)] = jbody({"day": day, "index": i, "n": n, "root": root, "leaf_sha256": lv[i], "envelope_sha256": h(F.canonical(e)),
+        w[FURUI + path + "%s/leaf/%d" % (day, i)] = jbody({"day": day, "index": i, "n": n, "root": root, "leaf_sha256": lv[i], "envelope_sha256": h(F.canonical(e)),
                                                                "envelope": e, "proof": F.audit_path(i, lv), "proof_kind": "rfc6962-audit-path",
                                                                "day_record": {"state": "accepted", "ledger_canonical_sha256": rs}, "kept_until": "2026-11-10"})
     other = (h("another record"), "a2a-admission-v0", "admission-intake 0.4.0")
@@ -301,6 +302,34 @@ DW = "\uff12\uff10\uff12\uff16-11-03"
 wx, _, _ = day_world(day=DW, entry=336)
 add("fail 1: a day in fullwidth digits, the heartbeat nonce", "furui-day", {"day": DW, "leaf": 0}, wx, "fail", 1, "envelope_shape:check_nonce")
 add("fail 1: a day in fullwidth digits, signed_at", "furui-day", {"day": DW, "leaf": 1}, wx, "fail", 1, "envelope_shape:check_signed_at")
+
+# ---- furui-day --runner 2 (FURUI 1.0): runner-2's day tree at /furui2/day/, its key listed as runner-2, its day record
+# naming runner_id runner-2; a runner-1 record may name runner_id runner-1 or leave it out ----
+K2 = {"schema": "furui-check-keys-v0", "use": "furui-check", "keys": [
+    {"key_id": "runner-1", "public_key_ed25519_b64": pub(SEED), "from_height": 0, "revoked_height": None},
+    {"key_id": "runner-2", "public_key_ed25519_b64": pub(SEED2), "from_height": 0, "revoked_height": None}]}
+R2 = dict(rid="runner-2", path="/furui2/day/", seed=SEED2, keys=K2)
+D2 = dict(DA, runner=2)
+wx, _, _ = day_world(n=3, entry=340, rec_over={"runner_id": "runner-2"}, **R2)
+add("runner 2: day ok, leaf 1 of 3 (/furui2/day, key_id and runner_id runner-2)", "furui-day", dict(D2, leaf=1), wx, "ok")
+add("runner 1 asked of runner-2's day: there is no leaf at /furui/day", "furui-day", dict(DA, leaf=1), wx, "fail", 1, "leaf_http_404",
+    note="the world answers 404 for a URL it does not hold")
+wx, _, _ = day_world(n=3, entry=341, **R2)
+add("runner 2: the day record does not name runner_id runner-2", "furui-day", dict(D2, leaf=1), wx, "fail", 5, "runner_id_is_not_runner_2")
+wx, _, _ = day_world(n=3, entry=342, rec_over={"runner_id": "runner-2"}, rec_kid="runner-1", **R2)
+add("runner 2: the day record says key_id runner-1 and is signed by runner-2's key", "furui-day", dict(D2, leaf=1), wx, "fail", 4, "day_record_signature")
+wx, _, _ = day_world(n=3, entry=347, rec_over={"runner_id": "runner-2"}, rec_kid="runner-1", **dict(R2, seed=SEED))
+add("runner 2: record and envelopes signed by runner-1's key, the record under key_id runner-1", "furui-day", dict(D2, leaf=1), wx, "fail", 5, "key_id_is_not_runner_2")
+wx, _, _ = day_world(n=3, entry=343, rec_over={"runner_id": "runner-2"}, env_over={1: envelope(D, 1, seed=SEED2, rid="runner-1")}, **R2)
+add("runner 2: an envelope says key_id runner-1", "furui-day", dict(D2, leaf=1), wx, "fail", 1, "envelope_shape:signature")
+wx, _, _ = day_world(n=3, entry=344, rec_over={"runner_id": "runner 2"}, **R2)
+add("runner 2: runner_id out of its shape (a space)", "furui-day", dict(D2, leaf=1), wx, "fail", 3, "day_record_shape")
+wx, _, _ = day_world(n=3, entry=345, rec_over={"runner_id": "runner-1"})
+add("runner 1: a day record that names runner_id runner-1", "furui-day", dict(DA, leaf=1), wx, "ok")
+wx, _, _ = day_world(n=3, entry=346, rec_over={"runner_id": "runner-2"})
+add("runner 1: a runner-1 signed record that names runner_id runner-2", "furui-day", dict(DA, leaf=1), wx, "fail", 5, "runner_id_is_not_runner_1")
+add("runner 2 not_yet 1: runner-2's day is still open (404 day_open at /furui2/day)", "furui-day", {"day": "2026-11-09", "leaf": 0, "runner": 2},
+    {FURUI + "/furui2/day/2026-11-09/leaf/0": {"status": 404, "body": '{"error":"day_open"}'}}, "not_yet", 1, "day_open")
 
 # ---- resume-admission ----
 w, rs, ep = resume_world()
