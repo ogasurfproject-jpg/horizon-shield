@@ -1,0 +1,9 @@
+# READINGS147 (written after the expected results of vectors 114 and 115 had been seen; checker war147_check.py)
+
+Source text: README.md of maximusrufus/work-acceptance-record at 6f7a075f (tag v1.4.7), step 12, step 2 and the Changelog line for 1.4.7.
+R1 to R25 of READINGS.md (war12), READINGS144.md and READINGS145.md are carried over, except that R26 narrows R9 and R22 for keys other than the signer's.
+
+| R | Section | Text | Chosen reading | Other reading | Vectors it touches |
+|---|---|---|---|---|---|
+| R26 | step 2 key rule, step 11 Keys, step 12 (1.4.7) | step 2: "The rule applies to the key named by the signed receipt.key_id only"; step 12: a small-order producer key "never establishes the producer's key and derived independence is self-checked" | a party key (checker or producer) that is canonical base64 but fails the point rule, and is not the key named by the signed key_id, is not KEY_REJECTED; KEY_REJECTED for a party key stays for non-canonical base64 and repeated identifiers (69, 75, 79). Whether such a key changes independence is left to R9 (no) and R27 (yes under step 12) | keep KEY_REJECTED for such a key when relying_party_keys is not supplied | 114, 115 only (no vector in 01-113 has a party key, other than the signer's, that fails only the point rule; no vector has one without relying_party_keys) |
+| R27 | step 12 (1.4.7) | "The producer's key must pass step 2's point rule (a canonical point of prime order)" | when step 12 applies, the producer's key counts only when it is canonical base64, passes the point rule and its decoded bytes are found among the decoded relying_party_keys entries; otherwise derived independence is self-checked. The entry's key_id is still not compared (R23), so a point-rule failure is decided on the producer's key, whatever list holds it | check the point rule on the relying_party_keys entry instead | 114, 115 |
