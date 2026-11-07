@@ -8,6 +8,7 @@
 // The core is shared with python (workers/hs-ledger/nenrin/resume-v1, byte-match 21/21); the worker only
 // injects its own Web Crypto hasher. No node imports in the core, so this bundles as is.
 import { ed25519PointOk } from "./ed25519_point.mjs";
+import { servedKeyB64 } from "./ssh_ed25519.mjs";
 import { walkChain, exportRow, boundHeadRecord, markerSha, CHAIN_SCHEMA, CHAIN_ROOT, CHAIN_FIELDS, CHAIN_RECIPE, HEAD_FIELDS, HEAD_RECIPE } from "./chain_v1.mjs";
 import { appendEntry, LEDGER_SEQUENCER } from "./ledger_append.mjs";
 import { assembleResume as assembleResumeV1, Reject as ResumeReject, checkMeasurement as resumeCheckMeasurement, admissionLine as resumeAdmissionLine } from "../nenrin/resume-v1/resume_v1.mjs";
@@ -392,7 +393,7 @@ function witnessValidate(recordCanonical) {
 // not the string in witness.name, is the witness's identity. Fetched fresh on every submission (2026-10-09, red team
 // R1-1): a 24-hour cache kept accepting a stolen key and refusing the owner's new one for a day after a rotation.
 // Submissions are capped per day, so one fetch each is cheap; a fetch that fails is never answered from an old key.
-async function witnessFetchDomainKey(env, keyUrl) {
+async function witnessFetchDomainKey(env, keyUrl, { ssh = false } = {}) {
   try {
     const host = (() => { try { return new URL(keyUrl).hostname.toLowerCase(); } catch (_e) { return ""; } })();
     const opts = { headers: { accept: "application/json" }, redirect: "manual" };
@@ -406,9 +407,11 @@ async function witnessFetchDomainKey(env, keyUrl) {
     }
     if (res.status >= 300 && res.status < 400) return { ok: false, why: "key_url redirected (" + res.status + "); a key_url must serve the key directly under the party's own domain, not via redirect" };
     if (!res.ok) return { ok: false, why: "key_url answered " + res.status };
-    const j = await res.json().catch(() => null);
-    const k = j && typeof j.public_key_ed25519_b64 === "string" ? j.public_key_ed25519_b64 : null;
-    if (!k) return { ok: false, why: "key_url did not serve {public_key_ed25519_b64}" };
+    // 2026-11-07: for a witness (POST /witness only), also one OpenSSH line "ssh-ed25519 <base64> [comment]"
+    // (src/ssh_ed25519.mjs), read to the same 32 bytes. The other intakes that use this fetch read the JSON as before.
+    const text = await res.text().catch(() => null);
+    const k = servedKeyB64(text, { ssh });
+    if (!k) return { ok: false, why: ssh ? "key_url did not serve {public_key_ed25519_b64} or one ssh-ed25519 line" : "key_url did not serve {public_key_ed25519_b64}" };
     return { ok: true, key: k, cached: false };
   } catch (e) {
     return { ok: false, why: "key_url unreachable: " + String(e && e.message || e) };
@@ -670,7 +673,8 @@ function witnessSelfDescription(origin) {
                "v1.1: when the record carries witness.key_url (https, under the witness's domain), the same public key must be served there as {public_key_ed25519_b64}; " +
                "the domain then becomes the witness's identity (signed_domain). A key_url under the walked agent's own domain is refused as self_witness. " +
                "2026-10-16: with no domain of your own, serve the key from a repository you own at raw.githubusercontent.com/<owner>/<repo>/<branch or tag>/<path>; signed_domain is then github.com/<owner>. " +
-               "A commit SHA as the ref is refused (GitHub serves fork commits under the parent's path), and other shared GitHub hosts are refused.",
+               "A commit SHA as the ref is refused (GitHub serves fork commits under the parent's path), and other shared GitHub hosts are refused. " +
+               "2026-11-07: the key_url may instead serve one OpenSSH public key line, ssh-ed25519 <base64> [comment] (the file ssh-keygen writes), read to the same 32-byte key; the record is still signed with plain Ed25519 over record_canonical, not with ssh-keygen -Y sign.",
     conduct_v1_1: {
       spec: "section 11 of https://gate.horizonshield.dev/ext/conduct/v1 (served since gate 0.4.0, 2026-09-07; same URI as conduct-v1, every added field optional; the JSON at that URI carries spec_markdown_sha256)",
       record_fields: "mode (full | hash-only | commitment), establishes[], does_not_establish[] (both required when mode is present), " +
@@ -1810,7 +1814,7 @@ async function handle(request, env) {
           return json({ error: "self_witness", reason_code: "self_witness", note: "the ledger's own domain is not a witness domain" }, 422);
         if (v.github_owner && WITNESS_OUR_GITHUB_OWNERS.includes(v.github_owner))
           return json({ error: "self_witness", reason_code: "self_witness", note: "a key served from this project's own GitHub account cannot witness this project's agents" }, 422);
-        const dk = await witnessFetchDomainKey(env, v.key_url);
+        const dk = await witnessFetchDomainKey(env, v.key_url, { ssh: true });
         if (!dk.ok) return json({ error: "key_url_unreachable", reason_code: "key_url_unreachable", why: dk.why, note: "retry later, or omit key_url to file as an address-lane record" }, 503);
         if (dk.key !== b.public_key_ed25519_b64)
           return json({ error: "key_url_mismatch", reason_code: "key_url_mismatch", note: "the key served at witness.key_url is not the key that signed this record" }, 422);

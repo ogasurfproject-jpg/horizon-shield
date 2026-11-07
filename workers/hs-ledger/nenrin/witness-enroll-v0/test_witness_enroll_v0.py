@@ -333,6 +333,60 @@ class Live(unittest.TestCase):
             E.http_get(E.LEDGER + "/ledger/head")
 
 
+# A key_url that serves one OpenSSH line (2026-11-07). The key part of https://sencor.ai/keys/witness.pub (fetched
+# 2026-11-07) with a generic comment; the fingerprint and the key come from the base64 alone.
+SENCOR = b"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJDSZavjq+n3yxyvowCNma1gpeC1NXooMLI70YbwN3Px witness key\n"
+SENCOR_RAW = bytes.fromhex("90d265abe3abe9f7cb1cafa3008d99ad60a5e0b5357a2830b23bd186f03773f1")
+
+
+def wire(name, key, tail=b""):
+    s = lambda b: len(b).to_bytes(4, "big") + b
+    return base64.b64encode(s(name) + s(key) + tail)
+
+
+class SshKey(unittest.TestCase):
+    def test_published_line(self):
+        blob = base64.b64decode(SENCOR.split(b" ")[1])
+        self.assertEqual("SHA256:" + base64.b64encode(hashlib.sha256(blob).digest()).decode().rstrip("="),
+                         "SHA256:zuNo8wSV2fuhmuqhf3sv+0wEyL3p5/1wWvUub+3RoWE")
+        k = E.ssh_ed25519_key(SENCOR)
+        self.assertEqual(k, SENCOR_RAW)
+        self.assertEqual(W.key_id_of(k), "ed25519:06bcf268b400a48b")
+        self.assertTrue(W.key_ok(k))
+        self.assertEqual(E.served_key(SENCOR), SENCOR_RAW)
+
+    def test_lines_read_and_refused(self):
+        B = wire(b"ssh-ed25519", SENCOR_RAW)
+        pad1 = wire(b"ssh-ed25519", SENCOR_RAW, b"\x00")
+        non_canon = pad1[:-3] + bytes([pad1[-3] + 1]) + b"=="
+        good = [b"ssh-ed25519 " + B + b"\n", b"ssh-ed25519 " + B + b" c", b"ssh-ed25519 " + B + b" c\r\n",
+                b"ssh-ed25519\t" + B + b"\tc", b"ssh-ed25519 " + B + b" \n"]
+        bad = [b"ssh-rsa " + B + b" c\n", b"ssh-ed25519 " + wire(b"ssh-ed25518", SENCOR_RAW) + b"\n",
+               b'from="*" ssh-ed25519 ' + B + b"\n", b" ssh-ed25519 " + B + b"\n", b"ssh-ed25519 " + B + b"\nssh-ed25519 " + B + b"\n",
+               b"ssh-ed25519 " + B + b"\n\n", b"ssh-ed25519 " + wire(b"ssh-ed25519", SENCOR_RAW[:31]) + b"\n",
+               b"ssh-ed25519 " + wire(b"ssh-ed25519", SENCOR_RAW + b"\x01") + b"\n", b"ssh-ed25519 " + pad1 + b"\n",
+               b"ssh-ed25519 " + non_canon + b"\n", b"ssh-ed25519 " + pad1.rstrip(b"=") + b"\n", b"ssh-ed25519\n", b"ssh-ed25519 \n",
+               b"ssh-ed25519 " + B + " darr\u00e9n\n".encode("utf-8"), b"ssh-ed25519 " + B + b" a\x00b\n", b""]
+        for t in good:
+            self.assertEqual(E.ssh_ed25519_key(t), SENCOR_RAW, t)
+        for t in bad:
+            self.assertIsNone(E.ssh_ed25519_key(t), t)
+            with self.assertRaises(W.Bad):
+                E.served_key(t)
+
+    def test_json_document_as_before(self):
+        self.assertEqual(E.served_key(json.dumps({"public_key_ed25519_b64": base64.b64encode(PUB1).decode()}).encode()), PUB1)
+        for doc in ({"key": "x"}, None, [], SENCOR.decode()):        # an ssh line inside a JSON string is not read
+            with self.assertRaises(W.Bad):
+                E.served_key(json.dumps(doc).encode())
+
+    def test_key_served_reads_an_ssh_line(self):
+        e = entry(SENCOR_RAW, "sencor.example")
+        self.assertTrue(E.key_served(e, lambda u: (200, SENCOR)))
+        self.assertFalse(E.key_served(entry(PUB1, "a.example"), lambda u: (200, SENCOR)))
+        self.assertFalse(E.key_served(e, lambda u: (200, b"ssh-ed25519 " + wire(b"ssh-ed25519", SENCOR_RAW, b"\x00") + b"\n")))
+
+
 def make_vectors():
     cases = []
     p1 = load("pool.json")

@@ -23,7 +23,7 @@ The beacon is read from mempool.space and blockstream.info; both must give the s
 Exit: 0 ok, 1 inconsistent or refused, 2 a public endpoint did not answer, 3 not yet, 4 no pool or no eligible witness,
 9 usage or a bad input file.
 """
-import datetime, hashlib, importlib.util, json, os, re, sys
+import base64, datetime, hashlib, importlib.util, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _sp = importlib.util.spec_from_file_location("witness_answer_v0", os.path.join(HERE, "..", "witness-answer-v0", "witness_answer_v0.py"))
@@ -428,13 +428,55 @@ def tool_sha():
         return hashlib.sha256(f.read()).hexdigest()
 
 
+# 2026-11-07: a key_url may serve one OpenSSH line, the file ssh-keygen writes for an Ed25519 key: "ssh-ed25519 <base64>
+# [comment]". The base64 is the SSH wire form (RFC 4253 6.6, RFC 8709 4): string "ssh-ed25519" (4-byte length 11, then
+# the name), string key (4-byte length 32, then the 32 bytes), nothing after. Those 32 bytes are the key; key_id is
+# unchanged. Anything else is None: another key type, options before the type, a second line, lengths other than 11 and
+# 32, bytes after the key, base64 that is not the one spelling of its bytes, a comment outside printable ASCII. The
+# JavaScript twin is sshEd25519Key in workers/hs-ledger/src/ssh_ed25519.mjs (the ledger's witness intake).
+SSH_LINE = re.compile(r"ssh-ed25519[ \t]+([A-Za-z0-9+/]+={0,2})(?:[ \t]+[\x20-\x7e\t]*)?")
+
+
+def ssh_ed25519_key(b):
+    """bytes as served: one line, with at most one final \\n or \\r\\n -> the 32 key bytes, or None"""
+    try:
+        t = b.decode("ascii")
+    except (UnicodeDecodeError, AttributeError):
+        return None
+    t = t[:-2] if t.endswith("\r\n") else t[:-1] if t.endswith("\n") else t
+    m = SSH_LINE.fullmatch(t)
+    if not m:
+        return None
+    try:
+        w = base64.b64decode(m.group(1), validate=True)
+    except ValueError:
+        return None
+    if base64.b64encode(w).decode() != m.group(1) or len(w) != 4 + 11 + 4 + 32:
+        return None
+    if w[:4] != (11).to_bytes(4, "big") or w[4:15] != b"ssh-ed25519" or w[15:19] != (32).to_bytes(4, "big"):
+        return None
+    return w[19:]
+
+
+def served_key(b):
+    """the 32 key bytes a key_url serves: {"public_key_ed25519_b64": ...} as before, or one ssh-ed25519 line"""
+    try:
+        doc = json.loads(b.decode("utf-8"))
+    except ValueError:
+        k = ssh_ed25519_key(b)
+        if k is None:
+            raise Bad("the key_url serves neither {\"public_key_ed25519_b64\": ...} nor one ssh-ed25519 line")
+        return k
+    return W.key_from_doc(doc)
+
+
 def key_served(e, get=http_get):
     """True when key_url serves the entry's key now"""
     s, b = get(e["key_url"])
     if s != 200:
         raise Unreachable("%s answered %d" % (e["key_url"], s)) if s >= 500 or s == 429 else Stop("%s answered %d" % (e["key_url"], s))
     try:
-        return W.key_from_doc(json.loads(b.decode("utf-8"))) == W.b64d(e["public_key_ed25519_b64"], 32)
+        return served_key(b) == W.b64d(e["public_key_ed25519_b64"], 32)
     except (ValueError, Bad):
         return False
 
