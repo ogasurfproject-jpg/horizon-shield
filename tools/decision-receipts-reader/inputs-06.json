@@ -1,0 +1,937 @@
+{
+ "B_b64": [
+  "eyJjb21taXRfYWxnIjoic2hhMjU2LXNhbHRlZC12MSIsImNvbXBhcmF0b3IiOiI+",
+  "PSIsImRhdGFzZXRfaWRfY29tbWl0Ijoic2hhMjU2OmEyMWJhNGQ5NmM4MDNkNDI2",
+  "M2RkM2QyMTYxYmMwMzlhMzBmNDQ2MmJkNTk0NzBlMzFiYTVhOWFiMGE5YjNiNjMi",
+  "LCJtZXRyaWMiOiJhY2N1cmFjeSIsIm1vZGVsX2lkX2NvbW1pdCI6InNoYTI1Njo5",
+  "MDRkZTQyNTYyZjlhMTk2NTFlMTllYjdhYjE2NWU0ZmZlMTE0Y2U1YTJmOThlNTdk",
+  "YTU4Mzg5NTk2ODRmYjBmIiwibiI6MTgwMCwicGFzc2VkIjp0cnVlLCJzY2hlbWEi",
+  "OiJodHRwczovL3NpZ25lZC1ldmlkZW5jZS5vcmcvZXZhbC1yZWNlaXB0L3YxIiwi",
+  "c2NvcmUiOiIwLjgzNCIsInN1aXRlIjoiYWNtZS1zYWZldHktc3VpdGUiLCJzdWl0",
+  "ZV92ZXJzaW9uIjoiMS4yLjAiLCJ0aHJlc2hvbGQiOiIwLjgwMCIsInRpbWVzdGFt",
+  "cCI6IjIwMjYtMTAtMDJUMDA6MDA6MDBaIn0="
+ ],
+ "B_sha256": "8cd849a6dcce08aee334511d7b2f31c54e478885dda1795d3c8f972dd0d4811c",
+ "defaults": {
+  "aud": "observer-1",
+  "dm_id": "gate-1",
+  "executor_id": "forge:agent-42-bot"
+ },
+ "inputs": {
+  "F15-SER-P1": {
+   "file": "vectors/f15-ser-p1-receipt.json",
+   "sha256": "02036d1f57509858330383755ec16c532bdc58b0f2d949464488d57abc9f95e7"
+  },
+  "a1": {
+   "file": "vectors/v1-action.txt",
+   "sha256": "dec54f771352454097310ae4bd6608c0070ebebb3955c6be013c1b3a8e310bd0"
+  },
+  "a2": {
+   "file": "vectors/v2-action.txt",
+   "sha256": "5a7549948a1441addb710f5ada59e06dbce25cc5a59accf14f140379f47adb5b"
+  },
+  "a3": {
+   "file": "vectors/v3-action.json",
+   "sha256": "9165c850b7e03cd59578efa1769be74c5386cff5ce96df6b59e25d38ad6f88b4"
+  },
+  "ap": {
+   "file": "vectors/v1-approval-record.json",
+   "sha256": "88e5b6d69b3e4bc250a42aeffea0414d406e5f04ba4f991ee432a78231da1170"
+  },
+  "ap10": {
+   "file": "vectors/in-ap10.json",
+   "sha256": "eaca112629476248efd0b59a749b7c548ab347b7489a13128e45f7d2d28ce328"
+  },
+  "ap2": {
+   "file": "vectors/f-ap2.json",
+   "sha256": "37ec7f3fa06f086626268a6c818ba5b5af7fd16ba292735ce964a83c42c0357c"
+  },
+  "ap3": {
+   "file": "vectors/in-ap3.json",
+   "sha256": "b4ee9ca3400fe58cc8f5b88db70b0a662e811a2a65ac3be1a47e0451b93cc479"
+  },
+  "ap4": {
+   "file": "vectors/in-ap4.json",
+   "sha256": "100dcee48c0f2cf0411649da2e9f5a59d1644c1b113d485738343212115ed236"
+  },
+  "ap5": {
+   "file": "vectors/in-ap5.json",
+   "sha256": "be16b3dacb346d4d33696ff47fb1926c34504744517b052642d4948c4dba0e25"
+  },
+  "ap6": {
+   "file": "vectors/in-ap6.json",
+   "sha256": "07733e5408f841f9340086efe818ad046f4f34fb3525643a10564f7aea8334f5"
+  },
+  "ap7": {
+   "file": "vectors/in-ap7.json",
+   "sha256": "2e9ce0cdd4ba1a2a43d365653e69ffcbac6a78342ddee8e1c38987e30ba96a4a"
+  },
+  "ap8": {
+   "file": "vectors/in-ap8.json",
+   "sha256": "1eb382f6f65f34044b6404baf6a8dfb2c376249ab40d8209f2ebb52b07d2b130"
+  },
+  "ap9": {
+   "file": "vectors/in-ap9.json",
+   "sha256": "0eec6ee1fa1bdec7ae05889c59cccbff18ab6d42d3045d46e191b631454d5b0a"
+  },
+  "c1": {
+   "file": "vectors/f-c1.json",
+   "sha256": "f13fce72c54f1872232c0339fa98b33ffe5142f72481cd31e378bc6a680b6f6a"
+  },
+  "c2": {
+   "file": "vectors/f-c2.json",
+   "sha256": "3e9cea5ebe4860d1f5743526dcdf1f5200c11e8abd7ce67326abfa16f30c6c7f"
+  },
+  "c3": {
+   "file": "vectors/in-c3.json",
+   "sha256": "2aea8ba9b0793773d1e282163cfc31b9cb6135247ec02e3c06c13d52ad9ebe2e"
+  },
+  "e3": {
+   "file": "vectors/v3-effect.json",
+   "sha256": "d3d824cf55168298c0f651244853ec9d9620ea09087abe899243ceb8f9df3a6d"
+  }
+ },
+ "keys": {
+  "gate-1": {
+   "label": "draft-gruszka-audit-decision-receipts test key gate-1",
+   "pub_b64": "TWfs75IN1In3CNI8TnyIOUHgtwilOPGcRFQLJ670CJc=",
+   "seed": "100fa92fa6464c141f791a96327f555c1c0cfbf3095af986537e50c3c4335f8c"
+  },
+  "observer-1": {
+   "label": "draft-gruszka-audit-decision-receipts test key observer-1",
+   "pub_b64": "4hDsi5TCL+A+9SB7k2l4EkY7XePUheE+zE9mBazt2Fs=",
+   "seed": "f03ad5b668ad225ea15fd9fd272fc8df84be59f467da86b0f2ad0a5ad26f4ddd"
+  }
+ },
+ "notes": {
+  "V3-decision": "no result of its own (A.3); shown is the Case 3 pair with V3-good"
+ },
+ "payload_sha256_from_text": {
+  "F10": {
+   "file": "vectors/f10.dsse.json",
+   "sha256": "c299b48e0a0596f8c8eb252beef0138c7d1133f113cdc03150abb6cb41bcdcce"
+  },
+  "V1-bad": {
+   "file": "vectors/v1-approval-bad.dsse.json",
+   "sha256": "69eb87fb33a29153182b0e0c89a444023cc00c82fe7c8db1c7e0893363b2c926"
+  },
+  "V1-good": {
+   "file": "vectors/v1-approval-good.dsse.json",
+   "sha256": "b9dfd26537542632013d0df166141a788551b4987dfa33b060d5b5ebba78dfb1"
+  },
+  "V2-bad": {
+   "file": "vectors/v2-declined-bad.dsse.json",
+   "sha256": "646d4b2229a55c54848361030bf6d57816597a96bd7d1fb00d7da0f03b009bd2"
+  },
+  "V2-good": {
+   "file": "vectors/v2-declined-good.dsse.json",
+   "sha256": "ed149a1c7383842eebf8304001da9de97d130b0b15080d1315ab8fbf1274ed44"
+  },
+  "V3-bad": {
+   "file": "vectors/v3-outcome-bad.dsse.json",
+   "sha256": "48be708cf3f959556323474f4a5c9193b417d2bfea5c88bb852daf00b64827b4"
+  },
+  "V3-decision": {
+   "file": "vectors/v3-decision.dsse.json",
+   "sha256": "0014b1c419798125c3984e85a4b322ee619a3227978840cac5f9d282b189521f"
+  },
+  "V3-good": {
+   "file": "vectors/v3-outcome-good.dsse.json",
+   "sha256": "f0ff90cf25e2db1e989fa79869d4b3b46899112e8c2269d9a18a64b751aa7274"
+  }
+ },
+ "policies": {
+  "A1": "vectors/trust-policy.json",
+  "P2": "vectors/policy-P2.json",
+  "P3": "vectors/policy-P3.json"
+ },
+ "v3_good_env": "vectors/v3-outcome-good.dsse.json",
+ "vectors": [
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap",
+   "env": "vectors/v1-approval-good.dsse.json",
+   "name": "V1-good",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap",
+   "env": "vectors/v1-approval-bad.dsse.json",
+   "name": "V1-bad",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/v2-declined-good.dsse.json",
+   "name": "V2-good",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/v2-declined-bad.dsse.json",
+   "name": "V2-bad",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "V3-decision",
+   "outcome_env": "vectors/v3-outcome-good.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "V3-good",
+   "outcome_env": "vectors/v3-outcome-good.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "V3-bad",
+   "outcome_env": "vectors/v3-outcome-bad.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:05:00.000001Z",
+   "action": "a2",
+   "env": "vectors/v2-micro.dsse.json",
+   "name": "V2-micro",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap",
+   "env": "vectors/f1.dsse.json",
+   "name": "F1",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f2.dsse.json",
+   "name": "F2",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f3.dsse.json",
+   "name": "F3",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:05:05Z",
+   "action": "a1",
+   "approval": "ap",
+   "env": "vectors/v1-approval-good.dsse.json",
+   "name": "F4",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a1",
+   "env": "vectors/v2-declined-good.dsse.json",
+   "name": "F5",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F6",
+   "outcome_env": "vectors/f6.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F7",
+   "outcome_env": "vectors/f7.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F8",
+   "outcome_env": "vectors/f8.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:16:00Z",
+   "action": "a1",
+   "approval": "ap",
+   "env": "vectors/f9.dsse.json",
+   "name": "F9",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:21:00Z",
+   "action": "a1",
+   "approval": "ap2",
+   "env": "vectors/f10.dsse.json",
+   "name": "F10",
+   "proc": "case1",
+   "state": "c1"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f11.dsse.json",
+   "name": "F11",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f12.dsse.json",
+   "name": "F12",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap",
+   "env": "vectors/v1-approval-good.dsse.json",
+   "name": "F13",
+   "proc": "case1",
+   "state": "c2"
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap",
+   "env": "vectors/f14.dsse.json",
+   "name": "F14",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f15-ser-p1-receipt.json",
+   "name": "F15",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f16-bom.dsse.json",
+   "name": "F16",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/f17.dsse.json",
+   "effect": "e3",
+   "name": "F17",
+   "outcome_env": "vectors/f17-outcome.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F18",
+   "outcome_env": "vectors/f18.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f19.dsse.json",
+   "name": "F19",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f20.dsse.json",
+   "name": "F20",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f21.dsse.json",
+   "name": "F21",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f22.dsse.json",
+   "name": "F22",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f23.dsse.json",
+   "name": "F23",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f24.dsse.json",
+   "name": "F24",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f25.dsse.json",
+   "name": "F25",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f26.dsse.json",
+   "name": "F26",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f27.dsse.json",
+   "name": "F27",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f28.dsse.json",
+   "name": "F28",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f29.dsse.json",
+   "name": "F29",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f30.dsse.json",
+   "name": "F30",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/f31.dsse.json",
+   "effect": "e3",
+   "name": "F31",
+   "outcome_env": "vectors/v3-outcome-good.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/f32.dsse.json",
+   "effect": "e3",
+   "name": "F32",
+   "outcome_env": "vectors/v3-outcome-good.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/f33.dsse.json",
+   "effect": "e3",
+   "name": "F33",
+   "outcome_env": "vectors/v3-outcome-good.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/f34.dsse.json",
+   "effect": "e3",
+   "name": "F34",
+   "outcome_env": "vectors/v3-outcome-good.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f35.dsse.json",
+   "name": "F35",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f36.dsse.json",
+   "name": "F36",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:04:00Z",
+   "action": "a2",
+   "env": "vectors/v2-declined-good.dsse.json",
+   "name": "F37",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "aud": "observer-2",
+   "env": "vectors/v2-declined-good.dsse.json",
+   "name": "F38",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/v2-declined-good.dsse.json",
+   "name": "F39",
+   "nonce": "dec-0009",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap",
+   "env": "vectors/f40.dsse.json",
+   "name": "F40",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap",
+   "env": "vectors/f41.dsse.json",
+   "name": "F41",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": null,
+   "env": "vectors/v1-approval-good.dsse.json",
+   "name": "F42",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap2",
+   "env": "vectors/v1-approval-good.dsse.json",
+   "name": "F43",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap3",
+   "env": "vectors/f44.dsse.json",
+   "name": "F44",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap4",
+   "env": "vectors/f45.dsse.json",
+   "name": "F45",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap5",
+   "env": "vectors/f46.dsse.json",
+   "name": "F46",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap6",
+   "env": "vectors/f47.dsse.json",
+   "name": "F47",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap7",
+   "env": "vectors/f48.dsse.json",
+   "name": "F48",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap8",
+   "env": "vectors/f49.dsse.json",
+   "name": "F49",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap9",
+   "env": "vectors/f50.dsse.json",
+   "name": "F50",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f51.dsse.json",
+   "name": "F51",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f52.dsse.json",
+   "name": "F52",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f53.dsse.json",
+   "name": "F53",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F54",
+   "outcome_env": "vectors/f54.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F55",
+   "outcome_env": "vectors/f55.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F56",
+   "outcome_env": "vectors/f56.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F57",
+   "outcome_env": "vectors/f57.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F58",
+   "outcome_env": "vectors/f58.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F59",
+   "outcome_env": "vectors/f59.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F60",
+   "outcome_env": "vectors/f60.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F61",
+   "outcome_env": "vectors/f61.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F62",
+   "outcome_env": "vectors/f62.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F63",
+   "outcome_env": "vectors/f63.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F64",
+   "outcome_env": "vectors/f64.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "executor_id": "forge:another-actor",
+   "name": "F65",
+   "outcome_env": "vectors/f6.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F66",
+   "outcome_env": "vectors/f66.dsse.json",
+   "policy": "P2",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "executor_id": "gate-1",
+   "name": "F67",
+   "outcome_env": "vectors/f67.dsse.json",
+   "policy": "P3",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F68",
+   "outcome_env": "vectors/f68.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "a3",
+   "name": "F69",
+   "outcome_env": "vectors/v3-outcome-good.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F70",
+   "outcome_env": "vectors/f70.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap",
+   "env": "vectors/v1-approval-good.dsse.json",
+   "name": "F71",
+   "proc": "case1",
+   "state": "c3"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f72.dsse.json",
+   "name": "F72",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:05:00Z",
+   "action": "a2",
+   "env": "vectors/v2-micro.dsse.json",
+   "name": "F73",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap",
+   "env": "vectors/f74.dsse.json",
+   "name": "F74",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F75",
+   "outcome_env": "vectors/f75.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap10",
+   "env": "vectors/f76.dsse.json",
+   "name": "F76",
+   "proc": "case1",
+   "state": null
+  },
+  {
+   "T": "2026-10-15T09:01:00Z",
+   "action": "a1",
+   "approval": "ap",
+   "env": "vectors/v1-approval-good.dsse.json",
+   "name": "F77",
+   "proc": "case1",
+   "state": "c1"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f78.dsse.json",
+   "name": "F78",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f79.dsse.json",
+   "name": "F79",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f80.dsse.json",
+   "name": "F80",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f81.dsse.json",
+   "name": "F81",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:11:00Z",
+   "action": "a3",
+   "decision_env": "vectors/v3-decision.dsse.json",
+   "effect": "e3",
+   "name": "F82",
+   "outcome_env": "vectors/f82.dsse.json",
+   "proc": "case3"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f83.dsse.json",
+   "name": "F83",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f84.dsse.json",
+   "name": "F84",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f85.dsse.json",
+   "name": "F85",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f86.dsse.json",
+   "name": "F86",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f87.dsse.json",
+   "name": "F87",
+   "proc": "case2"
+  },
+  {
+   "T": "2026-10-15T09:06:00Z",
+   "action": "a2",
+   "env": "vectors/f88.dsse.json",
+   "name": "F88",
+   "proc": "case2"
+  }
+ ]
+}
