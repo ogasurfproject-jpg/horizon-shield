@@ -6,8 +6,9 @@ test_witness_answer_v0.py (no network) and vectors.json.
     python3 -I -B witness_answer_v0.py build-furui  --check leaf0.json [--check leaf1.json ...] --name NAME --key-url URL --limit "..." [--key key.pem | --pub B64] --out answer.json
     python3 -I -B witness_answer_v0.py preimage     answer.json --out preimage.bin          (to sign with your own tool, e.g. openssl)
     python3 -I -B witness_answer_v0.py attach-sig   answer.json --sig-file sig.bin --out answer.json
-    python3 -I -B witness_answer_v0.py verify       answer.json --key-doc witness.json      (offline: the JSON your key_url serves)
+    python3 -I -B witness_answer_v0.py verify       answer.json --key-doc witness.json      (offline: the file your key_url serves, JSON or one ssh-ed25519 line)
     python3 -I -B witness_answer_v0.py verify       answer.json --fetch                     (GET key_url, https only, no redirects)
+    python3 -I -B witness_answer_v0.py key-of       witness.pub                             (the base64 for --pub and the key_id of a key file)
     python3 -I -B witness_answer_v0.py compare-tooshi --result mine.json --published day.json
     python3 -I -B witness_answer_v0.py intake-body  answer.json --vantage TEXT [--key key.pem | --record-sig-file sig.bin --pub B64] --out body.json
     python3 -I -B witness_answer_v0.py enroll       --name NAME --key-url URL --kind furui-day --kind tooshi-day --limit "..." [--key key.pem | --pub B64] --out enroll.json
@@ -29,7 +30,8 @@ The answer (every key required, no other key allowed):
     limits        one line each, in the witness's own words: what this answer does not establish
     witness       {name, key_id, key_url}
     signature     {alg: "ed25519", key_id, sig}
-key_id = "ed25519:" + the first 16 hex of sha256(raw 32-byte public key). The key_url serves {"public_key_ed25519_b64": ...}.
+key_id = "ed25519:" + the first 16 hex of sha256(raw 32-byte public key). The key_url serves {"public_key_ed25519_b64": ...}
+or one OpenSSH line "ssh-ed25519 <base64> [comment]", read to the same 32 bytes as the ledger's witness intake reads it.
 preimage = UTF-8 bytes of "witness-answer-v0\n" + canonical JSON of the answer without "signature".
 canonical = RFC 8785 (JCS) on the closed value set used here: no floats, integers within +-(2^53-1), printable ASCII keys,
 no lone surrogates. On that set JCS equals json.dumps(sort_keys=True, separators=(",", ":"), ensure_ascii=False).
@@ -56,15 +58,28 @@ SAFE = 9007199254740991
 LINE_MAX, LIMITS_MAX, NAME_MAX = 500, 20, 120
 TOOSHI_DAY_URL = "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/tooshi/days/%s.json"
 LEDGER = "https://ledger.horizonshield.dev"
-# Hosts an outside witness cannot sign from: the operator's own, and hosts that serve many people's files
-# (the same idea as WITNESS_SHARED_HOSTS and WITNESS_OUR_GITHUB_OWNERS in workers/hs-ledger/src/worker.js).
+# Hosts an outside witness cannot sign from. SHARED_HOSTS, SHARED_S3 and OPERATOR_GITHUB are the rules of the ledger's
+# witness intake, in the same order (WITNESS_SHARED_HOSTS, the path-style S3 pattern of witnessSharedHost and
+# WITNESS_OUR_GITHUB_OWNERS in workers/hs-ledger/src/worker.js); workers/hs-ledger/test/witness_answer_helper.test.mjs reads
+# them from worker.js and holds this file to the same lists and the same answers. OPERATOR_SUFFIXES is narrower than the
+# intake on purpose: the intake refuses only the ledger's own host by rule, but a TOOSHI day and a FURUI day record are this
+# project's own records, so a key on any of its domains would be the operator witnessing itself.
 OPERATOR_SUFFIXES = ("horizonshield.dev", "the-horizons-innovation.com", "oga-surf-project.workers.dev")
 OPERATOR_GITHUB = ("ogasurfproject-jpg",)
-SHARED_HOSTS = ("github.com", "gist.github.com", "gist.githubusercontent.com", "objects.githubusercontent.com", "codeload.github.com",
-                "gitlab.com", "bitbucket.org", "codeberg.org", "huggingface.co", "cdn.jsdelivr.net", "unpkg.com", "esm.sh",
-                "storage.googleapis.com", "s3.amazonaws.com", "drive.google.com", "docs.google.com", "dropbox.com",
-                "www.dropbox.com", "dl.dropboxusercontent.com", "pastebin.com", "web.archive.org", "archive.org", "pypi.org",
-                "files.pythonhosted.org", "registry.npmjs.org", "medium.com", "notion.site")
+SHARED_HOSTS = (
+    "github.com", "gist.github.com", "gist.githubusercontent.com", "objects.githubusercontent.com", "codeload.github.com",
+    "user-images.githubusercontent.com", "camo.githubusercontent.com", "media.githubusercontent.com",
+    "gitlab.com", "bitbucket.org", "codeberg.org", "gitee.com", "git.sr.ht", "huggingface.co",
+    "cdn.jsdelivr.net", "fastly.jsdelivr.net", "unpkg.com", "esm.sh", "raw.githack.com", "rawcdn.githack.com", "cdn.statically.io",
+    "storage.googleapis.com", "storage.cloud.google.com", "firebasestorage.googleapis.com", "s3.amazonaws.com",
+    "drive.google.com", "docs.google.com", "sites.google.com", "dl.dropboxusercontent.com", "www.dropbox.com", "dropbox.com",
+    "onedrive.live.com", "1drv.ms", "pastebin.com", "paste.ee", "hastebin.com", "web.archive.org", "archive.org",
+    "npmjs.com", "www.npmjs.com", "registry.npmjs.org", "pypi.org", "files.pythonhosted.org", "medium.com", "notion.site")
+SHARED_S3 = r"s3[.-](?:[a-z0-9-]+\.)?amazonaws\.com"      # path-style S3 endpoints
+GITHUB_RAW = "raw.githubusercontent.com"
+GITHUB_OWNER = r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})"
+# a path segment the URL parser of the intake folds (".", "..", and their percent-encoded spellings)
+DOT_SEGMENTS = (".", "..", "%2e", ".%2e", "%2e.", "%2e%2e")
 
 
 class Bad(ValueError):
@@ -231,25 +246,45 @@ def key_url_problem(u):
     if not m:
         return "key_url must be https, lower-case host, no port, no query or fragment"
     host, path = m.group(1), m.group(2)
-    if host in SHARED_HOSTS:
+    if "\\" in path or any(s.lower() in DOT_SEGMENTS for s in path.split("/")):
+        return "key_url takes no backslash and no . or .. path segment"
+    if host in SHARED_HOSTS or re.fullmatch(SHARED_S3, host):
         return host + " serves many people's files and is not a witness identity"
     if any(host == s or host.endswith("." + s) for s in OPERATOR_SUFFIXES):
         return "the operator's own domain cannot be an outside witness"
-    if host == "raw.githubusercontent.com":
-        parts = [p for p in path.split("/") if p]
-        if len(parts) < 4:
-            return "raw.githubusercontent.com/<owner>/<repo>/<branch or tag>/<path>"
-        if parts[0].lower() in OPERATOR_GITHUB:
+    if host == GITHUB_RAW:
+        owner, _repo, _ref, _rest, why = _github_raw(path)
+        if why:
+            return why
+        if owner.lower() in OPERATOR_GITHUB:
             return "the operator's own GitHub account cannot be an outside witness"
-        if re.fullmatch(r"[0-9a-fA-F]{7,64}", parts[2]):
-            return "a commit SHA cannot be the ref of a key_url"
     return None
 
 
+def _github_raw(path):
+    """raw.githubusercontent.com/<owner>/<repo>/<branch or tag>/<path>, or with refs/heads/<branch> or refs/tags/<tag>
+    as the ref, read as worker.js witnessKeyIdentity reads it -> (owner, repo, ref, rest, problem or None)"""
+    parts = [p for p in path.split("/") if p]
+    owner, repo = (parts + ["", ""])[:2]
+    if parts[2:4] in (["refs", "heads"], ["refs", "tags"]):
+        ref, rest = (parts[4] if len(parts) > 4 else ""), parts[5:]
+    else:
+        ref, rest = (parts[2] if len(parts) > 2 else ""), parts[3:]
+    if not re.fullmatch(GITHUB_OWNER, owner):
+        return owner, repo, ref, rest, "a GitHub key_url must name the owner account: raw.githubusercontent.com/<owner>/<repo>/<branch>/<path>"
+    if not repo or not ref or not rest:
+        return owner, repo, ref, rest, ("raw.githubusercontent.com/<owner>/<repo>/<branch or tag>/<path> (the ref may also be written "
+                                        "refs/heads/<branch> or refs/tags/<tag>)")
+    if re.fullmatch(r"[0-9a-fA-F]{7,64}", ref):
+        return owner, repo, ref, rest, "a commit SHA cannot be the ref of a key_url"
+    return owner, repo, ref, rest, None
+
+
 def identity_of(u):
-    host = re.fullmatch(r"https://([a-z0-9.-]+)/.*", u).group(1)
-    if host == "raw.githubusercontent.com":
-        return "github.com/" + u.split("/")[3].lower()
+    m = re.fullmatch(r"https://([a-z0-9.-]+)(/.*)", u)
+    host = m.group(1)
+    if host == GITHUB_RAW:
+        return "github.com/" + _github_raw(m.group(2))[0].lower()
     return host
 
 
@@ -259,7 +294,56 @@ def key_from_doc(doc):
     return b64d(doc["public_key_ed25519_b64"], 32)
 
 
+# One OpenSSH line, the file ssh-keygen writes for an Ed25519 key: "ssh-ed25519 <base64> [comment]". The base64 is the SSH
+# wire form (RFC 4253 6.6, RFC 8709 4): string "ssh-ed25519" (4-byte length 11, then the name), string key (4-byte length
+# 32, then the 32 bytes), nothing after. Anything else is None, as in sshEd25519Key of workers/hs-ledger/src/ssh_ed25519.mjs
+# (the ledger's witness intake) and ssh_ed25519_key of ../witness-enroll-v0/witness_enroll_v0.py.
+SSH_LINE = re.compile(r"ssh-ed25519[ \t]+([A-Za-z0-9+/]+={0,2})(?:[ \t]+[\x20-\x7e\t]*)?")
+
+
+def _served_text(b):
+    # a fetch body is read as text the way the intake's res.text() reads it: UTF-8, one leading BOM dropped, bad bytes replaced
+    return b.decode("utf-8-sig", "replace") if isinstance(b, bytes) else b
+
+
+def ssh_ed25519_key(text):
+    """one line, with at most one final \\n or \\r\\n -> the 32 key bytes, or None"""
+    t = _served_text(text)
+    t = t[:-2] if t.endswith("\r\n") else t[:-1] if t.endswith("\n") else t
+    m = SSH_LINE.fullmatch(t)
+    if not m:
+        return None
+    try:
+        w = base64.b64decode(m.group(1), validate=True)
+    except ValueError:
+        return None
+    if base64.b64encode(w).decode() != m.group(1) or len(w) != 4 + 11 + 4 + 32:
+        return None
+    if w[:4] != (11).to_bytes(4, "big") or w[4:15] != b"ssh-ed25519" or w[15:19] != (32).to_bytes(4, "big"):
+        return None
+    return w[19:]
+
+
+def _no_constant(x):
+    raise ValueError("not JSON: " + x)          # NaN and Infinity are not JSON to the intake's JSON.parse
+
+
+def served_key(body):
+    """the 32 key bytes a key_url serves, read as the intake reads it (servedKeyB64 with ssh, POST /witness): a body that is
+    JSON must be {"public_key_ed25519_b64": ...}; a body that is not JSON must be one ssh-ed25519 line"""
+    t = _served_text(body)
+    try:
+        doc = json.loads(t, parse_constant=_no_constant)
+    except ValueError:
+        k = ssh_ed25519_key(t)
+        if k is None:
+            raise Bad("the key_url serves neither {\"public_key_ed25519_b64\": ...} nor one ssh-ed25519 line")
+        return k
+    return key_from_doc(doc)
+
+
 def fetch_key_doc(u, timeout=15):
+    """GET key_url -> the body as served (bytes); verify reads it with served_key"""
     import urllib.request, urllib.error
 
     class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -268,11 +352,16 @@ def fetch_key_doc(u, timeout=15):
     if key_url_problem(u):
         raise Bad(key_url_problem(u))
     op = urllib.request.build_opener(NoRedirect)
-    req = urllib.request.Request(u, headers={"accept": "application/json", "user-agent": "witness-answer-v0/0.1"})
+    req = urllib.request.Request(u, headers={"accept": "application/json", "user-agent": "witness-answer-v0/0.2"})
     with op.open(req, timeout=timeout) as r:
-        if r.status != 200:
+        if not 200 <= r.status < 300:
             raise Bad("key_url answered %d" % r.status)
-        return json.loads(r.read(65536).decode("utf-8"))
+        return r.read(65536)
+
+
+def key_of(key_doc):
+    """the 32 key bytes: key_doc is the body your key_url serves (bytes or text, read by served_key) or its parsed JSON object"""
+    return served_key(key_doc) if isinstance(key_doc, (bytes, str)) else key_from_doc(key_doc)
 
 
 # ---- the answer ----
@@ -395,7 +484,7 @@ def verify(a, key_doc, schema=SCHEMA):
     holder = {}
 
     def k():
-        holder["pub"] = key_from_doc(key_doc)
+        holder["pub"] = key_of(key_doc)
         if not key_ok(holder["pub"]):
             raise Bad("the key served at key_url is not a valid prime-order Ed25519 point")
     if not step("key_url_key", k):
@@ -483,6 +572,12 @@ def intake_record(a, vantage):
         purpose, base = "tooshi-day-v0: " + a["day"], TOOSHI_DAY_URL % a["day"]
     else:
         purpose, base = "furui-day-v0: " + a["day"], LEDGER + "/furui-check-day/" + a["day_sha256"]
+    # the intake refuses a key served from the host the record walked (its base) or from the ledger's own host as
+    # self_witness (worker.js, POST /witness); say so here rather than after the POST
+    kh, bh, lh = ((re.fullmatch(r"https://([a-z0-9.-]+)/.*", x) or [None, None])[1] for x in (a["witness"]["key_url"], base, LEDGER + "/"))
+    if kh and kh in (bh, lh):
+        raise Bad("the intake refuses this key_url as self_witness: %s is the host this record walks (%s)%s; serve the key from "
+                  "your own domain or <you>.github.io" % (kh, base, ", which is every TOOSHI day's base" if a["kind"] == "tooshi-day" else ""))
     rec = {"schema": "jidec-path-v1", "purpose": purpose, "walked_at": a["observed_at"], "base": base, "mode": "commitment",
            "commitment": a["day_sha256"], "witness": {"name": a["witness"]["name"], "vantage": vantage, "key_url": a["witness"]["key_url"]},
            "establishes": ["the witness recomputed: " + ", ".join(a["recomputed"]),
@@ -522,7 +617,7 @@ def pool_entry(e, key_doc):
     if not all(ok for _, ok, _ in verify(e, key_doc, ENROLL_SCHEMA)):
         raise Bad("the enrollment does not verify")
     return {"signed_domain": identity_of(e["witness"]["key_url"]), "key_url": e["witness"]["key_url"],
-            "public_key_ed25519_b64": key_doc["public_key_ed25519_b64"]}
+            "public_key_ed25519_b64": base64.b64encode(key_of(key_doc)).decode()}
 
 
 # ---- command line ----
@@ -617,13 +712,24 @@ def main(argv):
         return 0
     if cmd == "verify":
         a = _load(pos[0])
-        doc = fetch_key_doc(a["witness"]["key_url"]) if opt.get("--fetch") else _load(opt["--key-doc"])
+        if opt.get("--fetch"):
+            doc = fetch_key_doc(a["witness"]["key_url"])
+        else:
+            with open(opt["--key-doc"], "rb") as f:
+                doc = f.read()
         res = verify(a, doc, a.get("schema") if a.get("schema") in (SCHEMA, ENROLL_SCHEMA) else SCHEMA)
         for name, ok, why in res:
             print("%-4s %s%s" % ("ok" if ok else "FAIL", name, "" if ok else ": " + why))
         good = len(res) == 4 and all(ok for _, ok, _ in res)
         print("VERDICT " + ("signed_answer_ok identity " + identity_of(a["witness"]["key_url"]) if good else "not_ok"))
         return 0 if good else 1
+    if cmd == "key-of":
+        with open(pos[0], "rb") as f:
+            pub = served_key(f.read())
+        if not key_ok(pub):
+            raise Bad("the key is not a valid prime-order Ed25519 point")
+        print("pub %s key_id %s" % (base64.b64encode(pub).decode(), key_id_of(pub)))
+        return 0
     if cmd == "compare-tooshi":
         same, lines = compare_tooshi(_load(opt["--result"]), _load(opt["--published"]))
         print("\n".join(lines))

@@ -47,7 +47,15 @@ What is signed (the preimage): the UTF-8 bytes of `"witness-answer-v0\n"` follow
 
 Your `key_url` must be an https URL on your own domain or on your own `<you>.github.io`. If you already serve `{"public_key_ed25519_b64": "<base64 of the raw 32 byte key>"}` there, use it as `key_url`. Nothing needs to change in that file.
 
-Do not use `raw.githubusercontent.com` for the key. The ledger's witness intake today refuses a signed record whose key is served from the host the record walked (`self_witness`), and the base of a TOOSHI day record is the day file on `raw.githubusercontent.com`, so a key there is refused for every TOOSHI day, whoever owns it. The helper still accepts such a `key_url` inside an answer; the intake is what refuses it. Gist, github.com, package registries and other hosts that serve many people's files are refused by the helper as well, and so are this project's own domains and GitHub account.
+The `key_url` may instead serve one OpenSSH public key line, the `.pub` file `ssh-keygen -t ed25519` writes:
+
+    ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... [comment]
+
+The base64 is the SSH wire form (RFC 4253 section 6.6, RFC 8709 section 4): the string `ssh-ed25519`, then the string of the 32 byte key, nothing after. Those 32 bytes are your key, and `key_id` is computed from them as above. One line only, with at most one final line feed; no options before `ssh-ed25519`, no other key type, a comment in printable ASCII. The ledger's witness intake reads this line, and so do `verify --fetch` and `verify --key-doc` here. `python3 -I -B witness_answer_v0.py key-of witness.pub` prints the base64 to give as `--pub` and the `key_id`. The signature is still a plain Ed25519 signature over the preimage bytes (`--key`, or `preimage` and `attach-sig` below), not the output of `ssh-keygen -Y sign`, which signs a different structure.
+
+Do not use `raw.githubusercontent.com` for the key of a TOOSHI day. The ledger's witness intake refuses a signed record whose key is served from the host the record walked (`self_witness`), and the base of a TOOSHI day record is the day file on `raw.githubusercontent.com`, so a key there is refused for every TOOSHI day, whoever owns it. The answer itself still verifies; `intake-body` refuses to wrap it, so you learn this before you post. For a FURUI day record the intake takes a key at `raw.githubusercontent.com/<owner>/<repo>/<branch or tag>/<path>` (the ref may also be written `refs/heads/<branch>` or `refs/tags/<tag>`) and counts it as `github.com/<owner>`; a commit SHA as the ref is refused, because GitHub serves commits from any fork under the parent repository's path.
+
+Hosts that serve many people's files (gist, github.com, package registries, file and paste services, path-style S3 endpoints and the like) are refused by the helper exactly as the intake refuses them: the helper's list is the intake's list, and a test in `workers/hs-ledger/test/` holds the two equal. This project's GitHub account is refused by both. This project's own domains (`horizonshield.dev`, `the-horizons-innovation.com`, `oga-surf-project.workers.dev` and their subdomains) are refused by the helper for these two kinds: a TOOSHI day and a FURUI day record are this project's own records, so a key there would be the operator witnessing itself. The intake by rule refuses only the ledger's own host there, so the helper is narrower on purpose. The helper also takes the `key_url` only in one spelling: lower-case host, no port, no query or fragment, a path, no `.` or `..` segment.
 
 Otherwise:
 
@@ -95,7 +103,7 @@ The commands use 2026-11-06 as the day; put your day in its place.
 
         python3 -I -B witness_answer_v0.py verify answer.json --fetch
 
-   This fetches your `key_url` and prints `VERDICT signed_answer_ok identity <your domain>`.
+   This fetches your `key_url` (the JSON document or the one ssh-ed25519 line) and prints `VERDICT signed_answer_ok identity <your domain>`.
 
 6. File it at the ledger's existing witness intake (optional, but it gives the answer a time anchored in Bitcoin). The helper wraps the answer in a commitment record and signs the record bytes with the same key, which is what the intake checks today:
 
@@ -119,7 +127,7 @@ The commands use 2026-11-06 as the day; put your day in its place.
         python3 -I -B witness_answer_v0.py build-furui --check leaf0.json --check leaf1.json \
           --name <your handle> --key-url <your key_url> --key witness_key.pem --limit "<a line>" --out answer.json
 
-   Steps that were not ok for every leaf are left out of `recomputed`. If the anchor is not yet there, `bitcoin_anchor` is not in the answer, and you can sign a second answer after it lands.
+   Steps that were not ok for every leaf are left out of `recomputed`. If the anchor is not yet there, `bitcoin_anchor` is not in the answer, and you can sign a second answer after it lands. The intake stores every record it accepts, but counts only the first one per witness identity, per day record and per UTC day; a second answer filed on the same UTC day is stored and marked `counted: false`.
 
 ## What a verified answer shows, and what it does not
 

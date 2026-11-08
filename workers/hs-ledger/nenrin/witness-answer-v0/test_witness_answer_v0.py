@@ -14,7 +14,7 @@ socket.socket = _no_network
 socket.create_connection = _no_network
 socket.getaddrinfo = _no_network
 
-import base64, copy, hashlib, importlib.util, json, os, sys, tempfile, unittest
+import base64, copy, hashlib, importlib.util, json, os, re, sys, tempfile, unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _sp = importlib.util.spec_from_file_location("witness_answer_v0", os.path.join(HERE, "witness_answer_v0.py"))
@@ -256,6 +256,126 @@ class Enroll(unittest.TestCase):
         e2 = copy.deepcopy(e)
         e2["kinds"] = ["tooshi-day"]
         self.assertEqual(verdict(e2, DOC1, W.ENROLL_SCHEMA), "signature")
+
+
+def ssh_line(pub, comment=" witness key\n", tail=b""):
+    s = lambda b: len(b).to_bytes(4, "big") + b
+    return "ssh-ed25519 " + base64.b64encode(s(b"ssh-ed25519") + s(pub) + tail).decode() + comment
+
+
+WORKER = os.path.join(HERE, "..", "..", "src", "worker.js")
+
+
+class KeyUrlAsTheIntake(unittest.TestCase):
+    """the key_url rules of POST /witness (workers/hs-ledger/src/worker.js witnessKeyIdentity and the self_witness checks).
+    workers/hs-ledger/test/witness_answer_helper.test.mjs runs the intake itself on the same cases."""
+    def test_shared_hosts_are_the_intakes(self):
+        if not os.path.exists(WORKER):
+            self.skipTest("worker.js is not beside this folder (the helper taken by itself)")
+        with open(WORKER, "r", encoding="utf-8") as f:
+            src = f.read()
+        m = re.search(r"const WITNESS_SHARED_HOSTS = \[(.*?)\];", src, re.S)
+        self.assertEqual(tuple(re.findall(r'"([^"]+)"', m.group(1))), W.SHARED_HOSTS)
+        self.assertIn("/^" + W.SHARED_S3 + "$/.test(host)", src)
+        m = re.search(r"const WITNESS_OUR_GITHUB_OWNERS = \[(.*?)\];", src, re.S)
+        self.assertEqual(tuple(re.findall(r'"([^"]+)"', m.group(1))), W.OPERATOR_GITHUB)
+
+    def test_hosts_that_serve_many_peoples_files(self):
+        for h in ("1drv.ms", "camo.githubusercontent.com", "cdn.statically.io", "fastly.jsdelivr.net", "firebasestorage.googleapis.com",
+                  "git.sr.ht", "gitee.com", "hastebin.com", "media.githubusercontent.com", "npmjs.com", "onedrive.live.com", "paste.ee",
+                  "raw.githack.com", "rawcdn.githack.com", "sites.google.com", "storage.cloud.google.com",
+                  "user-images.githubusercontent.com", "www.npmjs.com", "s3-us-west-2.amazonaws.com", "s3.eu-central-1.amazonaws.com"):
+            self.assertIn("many people's files", W.key_url_problem("https://%s/k/witness.json" % h) or "", h)
+        self.assertIsNone(W.key_url_problem("https://my-bucket.s3.amazonaws.com/witness.json"))   # one owner per bucket host
+        self.assertIsNone(W.key_url_problem("https://s3.dualstack.us-east-1.amazonaws.com/k.json"))   # two labels: not the intake's pattern either
+
+    def test_github_raw_refs_heads_and_tags(self):
+        R = "https://raw.githubusercontent.com/"
+        for u, ident in ((R + "alice/keys/refs/heads/main/witness.json", "github.com/alice"),
+                         (R + "Alice/keys/refs/tags/v1/k/witness.json", "github.com/alice"),
+                         (R + "alice/keys/main/witness.json", "github.com/alice"),
+                         (R + "alice//keys/main/witness.json", "github.com/alice"),
+                         (R + "alice/keys/refs/main/witness.json", "github.com/alice")):   # "refs" is then the branch name
+            self.assertIsNone(W.key_url_problem(u), u)
+            self.assertEqual(W.identity_of(u), ident, u)
+        for u in (R + "alice/keys/refs/heads/0123abc/witness.json",                 # a commit SHA behind refs/heads
+                  R + "alice/keys/refs/tags/0123456789abcdef0123456789abcdef01234567/k.json",
+                  R + "alice/keys/refs/heads/main", R + "alice/keys/refs/heads/main/",   # no file after the ref
+                  R + "alice/keys/main", R + "alice/keys", R + "-alice/keys/main/k.json", R + "a_b/keys/main/k.json",
+                  R + "a" * 40 + "/keys/main/k.json", R + "ogasurfproject-jpg/x/refs/heads/main/k.json",
+                  R + "alice/../ogasurfproject-jpg/x/main/k.json", R + "alice/%2E%2E/x/main/k.json",
+                  R + "alice/keys/main/./k.json", "https://witness.example/a\\b/k.json"):
+            self.assertIsNotNone(W.key_url_problem(u), u)
+        self.assertIsNone(W.key_url_problem(R + "a" * 39 + "/keys/main/k.json"))
+
+    def test_intake_body_refuses_self_witness(self):
+        a = tooshi_answer()
+        a["witness"]["key_url"] = "https://raw.githubusercontent.com/alice/keys/main/witness.json"
+        W.finish(a, PUB1, SEED1)
+        self.assertEqual(verdict(a), "ok")                                           # the answer itself verifies
+        with self.assertRaises(W.Bad) as e:
+            W.intake_record(a, "v")                                                  # but the intake would refuse the record
+        self.assertIn("self_witness", str(e.exception))
+        f = furui_answer()
+        f["witness"]["key_url"] = "https://raw.githubusercontent.com/alice/keys/main/witness.json"
+        W.finish(f, PUB1, SEED1)
+        self.assertEqual(json.loads(W.intake_record(f, "v"))["witness"]["key_url"], f["witness"]["key_url"])   # a FURUI day's base is the ledger
+
+    def test_operator_domains_stay_refused(self):
+        for u in ("https://horizonshield.dev/.well-known/nenrin-witness-key.json", "https://x.oga-surf-project.workers.dev/k.json",
+                  "https://the-horizons-innovation.com/k.json"):
+            self.assertIn("operator's own domain", W.key_url_problem(u) or "", u)
+
+
+class SshKeyLine(unittest.TestCase):
+    """a key_url may serve one OpenSSH line, as at the intake (src/ssh_ed25519.mjs, servedKeyB64 with ssh)"""
+    def test_verify_reads_an_ssh_line(self):
+        a = furui_answer()
+        for body in (ssh_line(PUB1), ssh_line(PUB1, "\r\n"), ssh_line(PUB1, "")):
+            self.assertEqual(verdict(a, body.encode("utf-8")), "ok", repr(body))
+            self.assertEqual(verdict(a, body), "ok", repr(body))
+        self.assertEqual(verdict(a, b"\xef\xbb\xbf" + ssh_line(PUB1).encode()), "ok")       # res.text() drops one BOM
+        self.assertEqual(verdict(a, ssh_line(PUB2).encode()), "key_id")
+        for body in (ssh_line(PUB1, "\n\n"), ssh_line(PUB1, tail=b"\x00"), "ssh-rsa " + ssh_line(PUB1)[12:], " " + ssh_line(PUB1),
+                     json.dumps(ssh_line(PUB1)), "", "NaN", '{"public_key_ed25519_b64": NaN}', ssh_line(PUB1, " darr\u00e9n\n")):
+            self.assertEqual(verdict(a, body.encode("utf-8")), "key_url_key", repr(body))
+
+    def test_json_body_as_before_and_with_bom(self):
+        a = furui_answer()
+        self.assertEqual(verdict(a, json.dumps(DOC1).encode()), "ok")
+        self.assertEqual(verdict(a, b"\xef\xbb\xbf" + json.dumps(DOC1).encode()), "ok")    # res.text() drops one BOM
+        self.assertEqual(verdict(a, json.dumps({"key": "x"}).encode()), "key_url_key")
+
+    def test_same_as_the_enroll_twin(self):
+        sp = importlib.util.spec_from_file_location("witness_enroll_v0", os.path.join(HERE, "..", "witness-enroll-v0", "witness_enroll_v0.py"))
+        if sp is None or not os.path.exists(sp.origin):
+            self.skipTest("witness-enroll-v0 is not beside this folder")
+        E = importlib.util.module_from_spec(sp)
+        sp.loader.exec_module(E)
+        for body in (ssh_line(PUB1), ssh_line(PUB1, "\r\n"), ssh_line(PUB1, "\tc"), ssh_line(PUB1, "\n\n"), ssh_line(PUB1, tail=b"\x00"),
+                     ssh_line(PUB1[:31]), "ssh-ed25519 \n", ""):
+            self.assertEqual(W.ssh_ed25519_key(body.encode()), E.ssh_ed25519_key(body.encode()), repr(body))
+
+    def test_verify_fetch_and_key_doc_read_an_ssh_line(self):
+        a = furui_answer()
+        with tempfile.TemporaryDirectory() as td:
+            ap, kp = os.path.join(td, "answer.json"), os.path.join(td, "witness.pub")
+            with open(ap, "w") as f:
+                json.dump(a, f)
+            with open(kp, "w") as f:
+                f.write(ssh_line(PUB1))
+            got, keep = [], W.fetch_key_doc
+            W.fetch_key_doc = lambda u: (got.append(u), ssh_line(PUB1).encode())[1]
+            try:
+                self.assertEqual(W.main(["verify", ap, "--fetch"]), 0)
+            finally:
+                W.fetch_key_doc = keep
+            self.assertEqual(got, [KEY_URL])
+            self.assertEqual(W.main(["verify", ap, "--key-doc", kp]), 0)
+            self.assertEqual(W.main(["key-of", kp]), 0)
+        self.assertEqual(W.pool_entry(W.finish({"schema": W.ENROLL_SCHEMA, "kinds": ["furui-day"], "enrolled_at": "2026-11-04T03:00:00Z",
+                                                "limits": LIMITS, "witness": {"name": "x", "key_id": "", "key_url": KEY_URL}}, PUB1, SEED1, W.ENROLL_SCHEMA),
+                                       ssh_line(PUB1).encode())["public_key_ed25519_b64"], DOC1["public_key_ed25519_b64"])
 
 
 def make_vectors():

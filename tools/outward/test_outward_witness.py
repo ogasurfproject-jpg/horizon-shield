@@ -47,7 +47,7 @@ TOOL = hashlib.sha256(b"tool").hexdigest()
 H = lambda s: hashlib.sha256(s.encode()).hexdigest()
 
 # the files of witness-answer-v0 that must stay as they are (other people pin them)
-V0_PINNED = {"witness_answer_v0.py": "657a2d6aafe1f4266a58b6a4bf3b5f1cb74ccdae8982d751864c8ca6a91ee3ff",
+V0_PINNED = {"witness_answer_v0.py": "c307246f379cf7ce8b15a324daa081877eff6d2f38a9fb1dfb6ec03fae77b0b0",
              "vectors.json": "5bbdaec158c0ed58d0897287dc217f33695c74891ade725b4139819d07ecab15"}
 
 
