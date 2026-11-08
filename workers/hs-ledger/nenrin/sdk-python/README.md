@@ -169,7 +169,7 @@ Bitcoin) → Résumé. TOOSHI checks the whole chain every day, and TSUGI (継) 
 `furui-day` checks one FURUI leaf up to the NENRIN ledger and its Bitcoin anchor; `resume-admission` checks one SEKI
 admission as the Résumé lists it, back to the ledger.
 
-## Walk one paid call (next version, `tasuki`; Python only for now)
+## Walk one paid call (0.11.0, `tasuki`; Python only for now)
 
 ```sh
 nenrin-verify tasuki <record_sha256>
@@ -191,6 +191,12 @@ GET only, no redirects: the ledger, the runner, agreement.horizonshield.dev, raw
 repository's main branch) and the relying party's `key_url`. The output carries `does_not_establish`: a chain that
 holds shows that each handoff left a record that names the one before it; it does not show that any judgment in it was
 right. The JavaScript twin comes next.
+
+## 0.11.0
+
+- `tasuki <record_sha256>`: walks one paid call link by link, from its SEKI admission record to the Bitcoin anchor
+  (the section "Walk one paid call" above). Python only; the npm package stays at 0.10.0 and has no `tasuki`, so the
+  same version number never names two different sets of commands.
 
 ## 0.10.0
 
