@@ -1,0 +1,6 @@
+{
+  "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEDSXtlcaqtcJJzrnbx8mh+tpHE823\nsF7PaRR+7TA98Nn6Srf0KjxYEj7e8vumuxsMIkigtBWuBls9I9CfDs9PWg==\n-----END PUBLIC KEY-----\n",
+  "key_sha256": "390856f65b708cbf2f181e732726939f622eff65a9ffedd2e1c141038ff29507",
+  "purpose": "daily head of the HORIZON SHIELD ledger: the sha256 of the jidec-head-v1 end marker served at https://ledger.horizonshield.dev/ledger/head, signed with this key as a hashedrekord entry in the Rekor log at https://rekor.sigstore.dev; one row a day in rekor-heads/rekor-heads.jsonl of https://github.com/ogasurfproject-jpg/horizon-shield",
+  "since": "2026-11-08"
+}
