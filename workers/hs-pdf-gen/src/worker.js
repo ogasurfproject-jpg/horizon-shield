@@ -18155,7 +18155,8 @@ function hsBuildNegotiation(ex, audit) {
 // ---- 紺×金 診断書HTML(本家plan版デザイン完全ミラー / IPAGothic) ----
 function hsGenerateEstimateAuditHTML(ex, audit, meta) {
   meta = meta || {};
-  function h(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  // 2026-11-08: one escaper for the whole file (escapeHtml, 5 characters). Every value placed in the HTML goes through h(), numbers included.
+  var h = escapeHtml;
   function yen(n) { return n == null ? "" : Math.round(n).toLocaleString(); }
   var vLabel = { ok: "妥当", watch: "要注意", alert: "過大疑い", confirm: "要確認" };
   var vColor = { ok: "#2e7d32", watch: "#b26a00", alert: "#b02a2a", confirm: "#888" };
@@ -18168,13 +18169,13 @@ function hsGenerateEstimateAuditHTML(ex, audit, meta) {
   var rowsHtml = "";
   audit.rows.forEach(function (r) {
     var bg = r.verdict === "alert" ? "#fbeaea" : (r.verdict === "watch" ? "#fbf4e2" : "#fff");
-    rowsHtml += "<tr style='background:" + bg + "'><td class='c'>" + r.no + "</td><td>" + h(r.description) + "</td><td class='n'>" + (r.qty == null ? "" : r.qty) + " " + h(r.unit || "") + "</td><td class='n'>" + yen(r.unit_price) + "</td><td class='n'>" + yen(r.amount) + "</td><td class='c' style='color:" + vColor[r.verdict] + ";font-weight:700'>" + vLabel[r.verdict] + "</td><td class='rs'>" + h(r.reason) + "</td></tr>";
+    rowsHtml += "<tr style='background:" + bg + "'><td class='c'>" + h(r.no) + "</td><td>" + h(r.description) + "</td><td class='n'>" + h(r.qty) + " " + h(r.unit || "") + "</td><td class='n'>" + yen(r.unit_price) + "</td><td class='n'>" + yen(r.amount) + "</td><td class='c' style='color:" + vColor[r.verdict] + ";font-weight:700'>" + vLabel[r.verdict] + "</td><td class='rs'>" + h(r.reason) + "</td></tr>";
   });
 
   var fHtml = "";
   audit.findings.forEach(function (f) {
     var c = f.level === "alert" ? "#b02a2a" : (f.level === "watch" ? "#b26a00" : "#555");
-    fHtml += "<li><span class='tag'>" + (ruleLabel[f.rule] || f.rule) + "</span><span style='color:" + c + "'>" + h(f.msg) + "</span></li>";
+    fHtml += "<li><span class='tag'>" + h(ruleLabel[f.rule] || f.rule) + "</span><span style='color:" + c + "'>" + h(f.msg) + "</span></li>";
   });
 
   var adviceHtml = "";
@@ -18239,9 +18240,9 @@ function hsGenerateEstimateAuditHTML(ex, audit, meta) {
     "<div class='section-title'>Summary ／ 総括</div>" +
     "<div class='gates" + (audit.gates.pass ? "" : " ng") + "'>" + gatesLine + "</div>" +
     "<div class='cards'>" +
-    "<div class='card'><div class='k'>総額判定" + (audit.total_anchor ? "(適正 " + yen(audit.total_anchor.range[0]) + "〜" + yen(audit.total_anchor.range[2]) + "円)" : "") + "</div><div class='v' style='color:" + (audit.total_anchor ? vColor[audit.total_anchor.verdict] : "#0f3460") + "'>" + (audit.total_anchor ? vLabel[audit.total_anchor.verdict] + " " + (audit.total_anchor.vs_avg_pct > 0 ? "+" : "") + audit.total_anchor.vs_avg_pct + "%" : "対象外") + "</div><div class='s'>" + (audit.total_anchor ? "souba-db平均比" : "スコープ外カテゴリ") + "</div></div>" +
+    "<div class='card'><div class='k'>総額判定" + (audit.total_anchor ? "(適正 " + yen(audit.total_anchor.range[0]) + "〜" + yen(audit.total_anchor.range[2]) + "円)" : "") + "</div><div class='v' style='color:" + (audit.total_anchor ? vColor[audit.total_anchor.verdict] : "#0f3460") + "'>" + (audit.total_anchor ? vLabel[audit.total_anchor.verdict] + " " + (audit.total_anchor.vs_avg_pct > 0 ? "+" : "") + h(audit.total_anchor.vs_avg_pct) + "%" : "対象外") + "</div><div class='s'>" + (audit.total_anchor ? "souba-db平均比" : "スコープ外カテゴリ") + "</div></div>" +
     "<div class='card'><div class='k'>単価超過の過大候補額</div><div class='v' style='color:" + (audit.summary.over_candidate_yen > 0 ? "#b02a2a" : "#0f3460") + "'>約 " + yen(audit.summary.over_candidate_yen) + "円</div><div class='s'>適正上限との差の合計(参考)</div></div>" +
-    "<div class='card'><div class='k'>諸経費率(目安10〜16%)</div><div class='v' style='color:" + vColor[audit.summary.keihi_level] + "'>" + audit.summary.keihi_pct + "%</div><div class='s'>一式比率 " + audit.summary.isshiki_pct + "%" + (audit.summary.front_load_pct != null ? " ／ 着工前受領 " + audit.summary.front_load_pct + "%" : "") + "</div></div>" +
+    "<div class='card'><div class='k'>諸経費率(目安10〜16%)</div><div class='v' style='color:" + vColor[audit.summary.keihi_level] + "'>" + h(audit.summary.keihi_pct) + "%</div><div class='s'>一式比率 " + h(audit.summary.isshiki_pct) + "%" + (audit.summary.front_load_pct != null ? " ／ 着工前受領 " + h(audit.summary.front_load_pct) + "%" : "") + "</div></div>" +
     "</div>" +
     (fHtml ? "<div class='section-title'>Findings ／ 指摘事項</div><ol class='findings'>" + fHtml + "</ol>" : "") +
     (adviceHtml ? "<div class='section-title'>One Point Advice ／ ワンポイントアドバイス(監修: 大賀俊勝・建設実務30年)</div><ul class='advice'>" + adviceHtml + "</ul>" : "") +
@@ -18318,7 +18319,7 @@ function hsCompareAudits(quotes, bench, opts) {
 
 function hsGenerateCompareHTML(cmp, meta) {
   meta = meta || {};
-  function h(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  var h = escapeHtml;
   function yen(n) { return n == null ? "" : Math.round(n).toLocaleString(); }
   var vLabel = { ok: "妥当", watch: "要注意", alert: "過大疑い", confirm: "要確認" };
   var vColor = { ok: "#2e7d32", watch: "#b26a00", alert: "#b02a2a", confirm: "#888" };
@@ -18361,9 +18362,9 @@ function hsGenerateCompareHTML(cmp, meta) {
     totalRows += "<tr><td><b>" + h(a.vendor) + "</b>" + mark + "</td>" +
       "<td class='n'>" + yen(a.total_inc_tax) + "円</td>" +
       "<td class='n'>" + (diff === 0 ? "基準" : "+" + yen(diff) + "円 (+" + diffPct + "%)") + "</td>" +
-      "<td class='c' style='color:" + (ta ? vColor[ta.verdict] : "#888") + "'>" + (ta ? vLabel[ta.verdict] + " " + (ta.vs_avg_pct > 0 ? "+" : "") + ta.vs_avg_pct + "%" : "対象外") + "</td>" +
+      "<td class='c' style='color:" + (ta ? vColor[ta.verdict] : "#888") + "'>" + (ta ? vLabel[ta.verdict] + " " + (ta.vs_avg_pct > 0 ? "+" : "") + h(ta.vs_avg_pct) + "%" : "対象外") + "</td>" +
       "<td class='n' style='color:" + ((s.over_candidate_yen > 0) ? "#b02a2a" : "#0f3460") + "'>約 " + yen(s.over_candidate_yen || 0) + "円</td>" +
-      "<td class='c' style='color:" + (vColor[s.keihi_level] || "#888") + "'>" + (s.keihi_pct == null ? "-" : s.keihi_pct + "%") + "</td>" +
+      "<td class='c' style='color:" + (vColor[s.keihi_level] || "#888") + "'>" + (s.keihi_pct == null ? "-" : h(s.keihi_pct) + "%") + "</td>" +
       "<td class='c'><span style='color:#b26a00'>要注意 " + (cnt.watch || 0) + "</span> ／ <span style='color:#b02a2a'>過大疑い " + (cnt.alert || 0) + "</span></td></tr>";
   });
 
@@ -18399,7 +18400,7 @@ function hsGenerateCompareHTML(cmp, meta) {
     else if (a.vendor === cmp.highest && f.high.length) tail = "総額が最も高く、上限を超える単価が含まれます。該当項目の根拠提示を求めてください。";
     revHtml += "<div class='rev'><div class='rev-h'>" + h(a.vendor) + "</div><div class='rev-b'>" +
       parts.join("／") + "。単価超過の過大候補額 約 " + yen(s.over_candidate_yen || 0) + "円、諸経費率 " +
-      (s.keihi_pct == null ? "-" : s.keihi_pct + "%") + "、一式比率 " + (s.isshiki_pct == null ? "-" : s.isshiki_pct + "%") + "。" + tail + "</div></div>";
+      (s.keihi_pct == null ? "-" : h(s.keihi_pct) + "%") + "、一式比率 " + (s.isshiki_pct == null ? "-" : h(s.isshiki_pct) + "%") + "。" + tail + "</div></div>";
   });
 
   var subText = audience === "partner"
@@ -18671,7 +18672,7 @@ async function hsHandleEstimateAudit(request, env) {
         "<div style='font-size:11px;letter-spacing:3px;color:#c9a227'>HORIZON SHIELD</div>" +
         "<div style='font-size:19px;font-weight:900;margin-top:6px'>見積書明細診断書が発行されました</div></div>" +
         "<div style='padding:20px 26px;font-size:14px;line-height:1.9'>" +
-        "<p>ご依頼の見積書(" + (ex.doc.estimate_no || "-") + ")の明細診断が完了しました。以下より診断書(PDF)をご確認ください。</p>" +
+        "<p>ご依頼の見積書(" + escapeHtml(ex.doc.estimate_no || "-") + ")の明細診断が完了しました。以下より診断書(PDF)をご確認ください。</p>" +
         "<p style='text-align:center;margin:22px 0'><a href='" + pdfUrl + "' style='background:#0f3460;color:#fff;text-decoration:none;padding:12px 30px;border-radius:6px;font-weight:700'>診断書を開く</a></p>" +
         "<p style='font-size:12px;color:#555'>PTKA刻印 SHA-256: <span style='font-family:monospace'>" + hash + "</span><br>OpenTimestamps: " + otsStatus + "</p>" +
         "<p style='font-size:11px;color:#999'>本診断は買い手側の第三者所見であり、工事金額を保証するものではありません。<br>The HORIZ音s株式会社 ／ HORIZON SHIELD</p>" +
@@ -19896,7 +19897,7 @@ var worker_default = {
         return json({
           ok: true,
           service: "hs-pdf-gen",
-          version: "11.0.0",
+          version: "11.0.1",
           engine: "Browser Rendering (Puppeteer + Chrome)",
           channels: {
             line: !!env.LINE_CHANNEL_TOKEN,
@@ -20123,7 +20124,7 @@ var worker_default = {
 
         const _enc = new TextEncoder();
         const _hex = (buf) => Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
-        const _esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const _esc = escapeHtml;
         const _yen = (n) => "¥" + Math.round(n).toLocaleString("ja-JP");
 
         const hasYakumoData = Array.isArray(params.rooms) && params.rooms.length > 0 && Array.isArray(params.items) && params.items.length > 0;
