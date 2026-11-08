@@ -1,15 +1,15 @@
 # Endpoint status
 
-Written by `tools/status/probe.mjs` at 2026-11-07T16:54:18.284Z. Machine readable: [status.json](status.json) (status_sha256 `1044fd3d34c64551f3d53c653cd2c5298b4b595889e62200e83a0e935786f82f`). Raw rows of the last 30 days: [history.jsonl](history.jsonl).
+Written by `tools/status/probe.mjs` at 2026-11-08T00:46:32.010Z. Machine readable: [status.json](status.json) (status_sha256 `64b3eee3bb2f8c38c91d6d274664730241cf96476fa389b39ab0386e01e145f0`). Raw rows of the last 30 days: [history.jsonl](history.jsonl).
 
 | Endpoint | Last run | Reach 24 h | Reach 7 d | Call success 7 d | Call P50 7 d | Call P95 7 d | Server version | Tools |
 |---|---|---|---|---|---|---|---|---|
-| [hs-mcp](https://mcp.horizonshield.dev/mcp)<br>`get_price_range` | ok at 2026-11-07T16:54:18.284Z | 100% (5/5) | 100% (26/26) | 100% (26/26) | 518 ms | 736 ms | 1.1.0 | 15 |
-| [ccdb](https://ccdb.horizonshield.dev/mcp)<br>`search_jccdb_items` | ok at 2026-11-07T16:54:18.284Z | 100% (5/5) | 100% (26/26) | 100% (26/26) | 2022 ms | 6046 ms | 1.0.0 | 15 |
-| [gate](https://gate.horizonshield.dev/mcp)<br>`get_conditions` | ok at 2026-11-07T16:54:18.284Z | 100% (5/5) | 100% (26/26) | 100% (26/26) | 39 ms | 97 ms | 0.4.24 | 6 |
-| [jidec](https://jidec.horizonshield.dev/mcp)<br>`nenrin_ledger_head` | ok at 2026-11-07T16:54:18.284Z | 100% (5/5) | 100% (26/26) | 100% (26/26) | 2402 ms | 2962 ms | 1.4.0 | 13 |
-| [yakumo-contractors](https://hearing.horizonshield.dev/mcp)<br>`mall_overview` | ok at 2026-11-07T16:54:18.284Z | 100% (5/5) | 100% (26/26) | 100% (26/26) | 816 ms | 1363 ms | 2.3.2-rmw-20261013 | 6 |
-| [ledger](https://ledger.horizonshield.dev/health)<br>GET | ok at 2026-11-07T16:54:18.284Z | 100% (5/5) | 100% (26/26) | 100% (26/26) | 135 ms | 351 ms | n/a | n/a |
+| [hs-mcp](https://mcp.horizonshield.dev/mcp)<br>`get_price_range` | ok at 2026-11-08T00:46:32.010Z | 100% (5/5) | 100% (26/26) | 100% (26/26) | 518 ms | 736 ms | 1.1.0 | 15 |
+| [ccdb](https://ccdb.horizonshield.dev/mcp)<br>`search_jccdb_items` | ok at 2026-11-08T00:46:32.010Z | 100% (5/5) | 100% (26/26) | 100% (26/26) | 2007 ms | 6046 ms | 1.0.0 | 15 |
+| [gate](https://gate.horizonshield.dev/mcp)<br>`get_conditions` | ok at 2026-11-08T00:46:32.010Z | 100% (5/5) | 100% (26/26) | 100% (26/26) | 39 ms | 79 ms | 0.4.24 | 6 |
+| [jidec](https://jidec.horizonshield.dev/mcp)<br>`nenrin_ledger_head` | ok at 2026-11-08T00:46:32.010Z | 100% (5/5) | 100% (26/26) | 100% (26/26) | 2445 ms | 2962 ms | 1.4.0 | 13 |
+| [yakumo-contractors](https://hearing.horizonshield.dev/mcp)<br>`mall_overview` | ok at 2026-11-08T00:46:32.010Z | 100% (5/5) | 100% (26/26) | 100% (26/26) | 836 ms | 1363 ms | 2.3.2-rmw-20261013 | 6 |
+| [ledger](https://ledger.horizonshield.dev/health)<br>GET | ok at 2026-11-08T00:46:32.010Z | 100% (5/5) | 100% (26/26) | 100% (26/26) | 135 ms | 309 ms | n/a | n/a |
 
 ## How it is measured
 
