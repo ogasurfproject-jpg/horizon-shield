@@ -9,6 +9,8 @@
                                        the six checks of one leaf of the content check runner's day (furui_day.py)
   nenrin-verify resume-admission <endpoint> <record_sha256>
                                        one admissions[] line of a Resume against the ledger (furui_day.py)
+  nenrin-verify tasuki <record_sha256> one paid call from its admission record to the Bitcoin anchor, link by link
+                                       (holds, missing or not_yet for each link; tasuki.py)
   nenrin-agreement-verify record.json  the agreement report (the repository's agreement_verify.py, unchanged)
   tsugi-verify chain.json [options]    the TSUGI recovery-chain report, as `node tsugi_verify.mjs` prints it
   musubi-verify <module> [args]        a MUSUBI module, as python3 <module>.py in musubi-v0 (see musubi.py)
@@ -24,6 +26,9 @@ def main(argv=None):
     if argv and argv[0] in ("furui-day", "resume-admission", "furui-vectors"):
         from . import furui_day
         return furui_day.main(argv)
+    if argv and argv[0] == "tasuki":
+        from . import tasuki
+        return tasuki.main(argv)
     if argv and argv[0] in ("-V", "--version"):
         print("nenrin-verify " + __version__)
         return 0
@@ -33,7 +38,7 @@ def main(argv=None):
     if argv and argv[0] == "--sha":
         sha_only, argv = True, argv[1:]
     if len(argv) != 1 or argv[0].startswith("-"):
-        print("usage: nenrin-verify [--sha] <bundle.json> | --selftest | --version | furui-day <day> --leaf <i> | resume-admission <endpoint> <record_sha256>", file=sys.stderr)
+        print("usage: nenrin-verify [--sha] <bundle.json> | --selftest | --version | furui-day <day> --leaf <i> | resume-admission <endpoint> <record_sha256> | tasuki <record_sha256>", file=sys.stderr)
         return 2
     try:
         with open(argv[0], "rb") as f:

@@ -223,7 +223,21 @@ Added on 2026-11-07 (22, the loss bound of each admitted call; loss-bound-v0, mu
                    then; a red would be red every day until the contract's next version). Dormant (notice, facts.dormant)
                    when the day is not filed or has no admit. A contract or a policy that cannot be read is named in the
                    notice; it is never red.
-Dormant checks (18, 22, 24): the code runs and the row is written with state notice and facts.dormant true; a notice does not
+Added on 2026-11-08 (25, every paid call walked as one chain; nenrin-verify tasuki):
+    25             tasuki_chain: each paid call of 17's window walked with nenrin-verify tasuki (workers/hs-ledger/nenrin/
+                   sdk-python/src/nenrin_verify/tasuki.py), from its admission record to the Bitcoin anchor, link by link:
+                   adm->check, check->day, day->entry, adm->entry, adm->exec, exec->result, exec->entry, exec->settle,
+                   settle->recompute, entry->ots, day->witness, each holds, missing or not_yet. The walk's clock is 03:47 UTC of
+                   the run's day, so a later run of the day reads the same waits. facts carry the calls, how many are chains
+                   with no link missing (every link holds or not_yet), the missing links counted by name (only links that are
+                   causes, follows null; a link that follows a missing one is not counted again), one row per call, the calls
+                   the walk could not finish (unwalked, with why), and agrees_with_17: for each call, 17's furui_envelope,
+                   musubi_settlement and nenrin_entry against adm->check, exec->settle and adm->entry (17 lacks it exactly when
+                   the link does not hold). Always a notice for now (written, never red): the first days are read before a
+                   missing link turns the day red. Dormant (notice, facts.dormant) when 17's window has no paid call. Reads
+                   with the walk's own GET (the ledger, the runner, the agreement intake, raw.githubusercontent.com and the
+                   relying party's key_url); needs the cryptography package for the Ed25519 signatures.
+Dormant checks (18, 22, 24, 25): the code runs and the row is written with state notice and facts.dormant true; a notice does not
 change the verdict and 14 does not count it. Each is counted again by itself, on the first day the records it reads are
 there, with no change to this file.
 A red day opens one issue (label tooshi) and sends one mail with the names of the red checks and one line each
@@ -237,6 +251,7 @@ DOOR_POLICY = "https://hs-gateway.oga-surf-project.workers.dev/seki"
 CAPS = {"request_usd": 0.4, "day_usd": 5.0, "party_per_day": 100}
 RUNNER_DAYS = {"runner-1": "/furui/day", "runner-2": "/furui2/day"}   # each runner's day tree at RUNNER (runner-2 from FURUI 1.0)
 V05_KEY = "_admissions_0_5"          # 17 hands 18 the 0.5 records it read under this key; run() takes it out
+CALLS_KEY = "_paid_calls"            # 17 hands 25 the record shas of its paid calls under this key; run() takes it out
 FIRST_HEARTBEAT_DAY = "2026-11-03"   # the runner's first heartbeat scene runs at 03:17 UTC that day
 FIRST_CLOSED_DAY = "2026-11-02"      # the first UTC day the runner 0.2.0 closes (its status exists from the next day)
 HEARTBEAT_AFTER = (3, 17)            # the cron 17 3 * * *
@@ -2228,6 +2243,7 @@ def check_paid_chain(get, now):
         out = c(cid, "ok", "every one of the %d paid calls from %s to %s carries its FURUI envelope, SEKI record, MUSUBI settlement and NENRIN entry, one of each" % (len(calls), win[0], win[1]), **facts)
     if v05:
         out[V05_KEY] = v05          # for 18, taken out by run() before the result is written
+    out[CALLS_KEY] = sorted(calls)  # for 25, taken out by run() before the result is written
     return out
 
 
@@ -2262,7 +2278,76 @@ def check_two_runners(get, now, v05):
              % (len(v05), ", ".join("%s %d" % kv for kv in sorted(kinds.items()))), **facts)
 
 
-def run(get, now, trigger="manual"):
+TASUKI_SRC = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "workers", "hs-ledger", "nenrin", "sdk-python", "src"))
+TASUKI_17 = (("furui_envelope", "adm->check"), ("musubi_settlement", "exec->settle"), ("nenrin_entry", "adm->entry"))
+
+
+def tasuki_module():
+    """nenrin-verify's tasuki.py from this repository (not an installed copy)"""
+    if TASUKI_SRC not in sys.path:
+        sys.path.insert(0, TASUKI_SRC)
+    from nenrin_verify import tasuki
+    return tasuki
+
+
+def tasuki_get(get):
+    """the walk's GET, (status, bytes), over this file's get (the self test's worlds read here)"""
+    def g(url):
+        try:
+            s, v = get(url, raw=True)
+        except Unreachable as e:
+            raise OSError(str(e))
+        if isinstance(v, bytes):
+            return s, v
+        if isinstance(v, str):
+            return s, v.encode("utf-8")
+        return s, (b"" if v is None else json.dumps(v, ensure_ascii=False).encode("utf-8"))
+    return g
+
+
+def check_tasuki(now, calls, pc, walk_get, walk=None):
+    """25: each paid call of 17's window walked as one chain (nenrin-verify tasuki). A notice: counted, never red for now"""
+    cid = "25_tasuki_chain"
+    if calls is None and (pc.get("facts") or {}).get("calls") == 0:
+        calls = []
+    if calls is None:
+        return c(cid, "notice", "17 did not list the paid calls of its window (17 is %s), so no chain was walked today (not red)" % pc.get("state"), calls=None)
+    if not calls:
+        return dormant(cid, "17's window has no paid call; no chain to walk", calls=0)
+    at = anchor(now)
+    if walk is None:
+        try:
+            walk = tasuki_module().walk
+        except Exception as e:
+            return c(cid, "notice", "the walk (nenrin-verify tasuki) could not be loaded: %s: %s; no chain was walked today (not red)" % (type(e).__name__, e), calls=len(calls))
+    lacks17 = {m.get("call"): set(m.get("lacks") or []) for m in ((pc.get("facts") or {}).get("missing") or []) if isinstance(m, dict)}
+    rows, held, by_link, unwalked, differ, compared = [], 0, {}, [], [], 0
+    for x in sorted(calls):
+        try:
+            r = walk(x, walk_get, at)
+        except Exception as e:
+            unwalked.append({"call": x, "why": "%s: %s" % (type(e).__name__, str(e)[:200])})
+            continue
+        st = {l["link"]: l for l in r["links"]}
+        causes = [l["link"] for l in r["links"] if l["state"] == "missing" and l["follows"] is None]
+        for k in causes:
+            by_link[k] = by_link.get(k, 0) + 1
+        held += not any(l["state"] == "missing" for l in r["links"])
+        rows.append({"call": x, "verdict": r["verdict"], "missing": causes, "not_yet": [l["link"] for l in r["links"] if l["state"] == "not_yet" and l["follows"] is None]})
+        for k17, link in TASUKI_17:
+            compared += 1
+            a, b = k17 in lacks17.get(x, set()), st[link]["state"] != "holds"
+            if a != b:
+                differ.append({"call": x, "record_17": k17, "lacks_17": a, "link": link, "state": st[link]["state"]})
+    facts = {"walked_at": iso(at), "calls": len(calls), "walked": len(rows), "no_link_missing": held, "missing_by_link": by_link, "rows": rows,
+             "unwalked": unwalked, "agrees_with_17": {"compared": compared, "differ": differ}}
+    why = ("%d of %d paid calls of 17's window are chains with no link missing (every link holds or not_yet)%s; missing links by name: %s; "
+           "17 and 25 agree on %d of %d records (counted, not red)" % (held, len(calls), (", %d not walked" % len(unwalked)) if unwalked else "",
+                                                                     ", ".join("%s %d" % kv for kv in sorted(by_link.items())) or "none", compared - len(differ), compared))
+    return c(cid, "notice", why, **facts)
+
+
+def run(get, now, trigger="manual", walk_get=None):
     if trigger not in TRIGGERS:
         raise ValueError("trigger must be one of " + ", ".join(TRIGGERS))
     checks = check_call_checks(get, now)
@@ -2278,6 +2363,7 @@ def run(get, now, trigger="manual"):
     pc = check_paid_chain(get, now)
     checks.append(pc)
     checks.append(check_two_runners(get, now, pc.pop(V05_KEY, [])))
+    checks.append(check_tasuki(now, pc.pop(CALLS_KEY, None), pc, walk_get or tasuki_get(get)))
     checks.append(check_deadlines(get, now, checks))
     checks.sort(key=lambda x: x["id"])
     counts = {k: sum(1 for x in checks if x["state"] == k) for k in ("ok", "red", "notice", "not_yet")}
@@ -2845,7 +2931,7 @@ def selftest():
     def st(get, cid, when=now):
         return [x for x in run(get, when)[0]["checks"] if x["id"] == cid][0]
     S10, S11, S12, S13, S14, S15 = "10_cross_client", "11_main_ci", "12_paid_rows_daily", "13_line_delivery", "14_not_yet_deadline", "15_recovery_fresh"
-    cases.append(("v2: the whole day holds with the six new checks, 16 and 24: every check ok, the verdict green, 21 checks besides 17 (18 and 22 dormant, notices)", (lambda r: (r["verdict"], len([x for x in r["checks"] if x["id"] != "17_paid_call_chain"]), r["counts"]["ok"] - 1))(run(world(cc=True), now)[0]), ("green", 21, 19)))
+    cases.append(("v2: the whole day holds with the six new checks, 16 and 24: every check ok, the verdict green, 22 checks besides 17 (18, 22 and 25 dormant, notices)", (lambda r: (r["verdict"], len([x for x in r["checks"] if x["id"] != "17_paid_call_chain"]), r["counts"]["ok"] - 1))(run(world(cc=True), now)[0]), ("green", 22, 19)))
     cases.append(("10: the draw of 2026-11-07 from five endpoints is the cross client's (cross_client_test.mjs has the same vector)", cross_draw("2026-11-07", list(reversed(CANDS))),
                   ["https://c.example/mcp", "https://d.example/mcp", "https://e.example/mcp"]))
     x10 = st(world(cc=True), S10)
@@ -3257,8 +3343,8 @@ def selftest():
     cases.append(("17: a batch made after 03:47 UTC of the day is not read, so the 04:05 and 11:50 runs give the same 17",
                   (lambda a, b: (a == b, a["state"]))(check_paid_chain(world(cc=True, **chain_world(**L17)), now), check_paid_chain(world(cc=True, **chain_world(**L17)), now.replace(hour=11, minute=50))), (True, "ok")))
     r17 = run(world(cc=True, **chain_world()), now)[0]
-    cases.append(("17: the whole day holds with 17 (one paid call, all four records): every check ok, the verdict green, 21 checks (18 dormant, a notice)",
-                  (r17["verdict"], len(r17["checks"]), r17["counts"]["ok"], [x["state"] for x in r17["checks"] if x["id"] == S17]), ("green", 22, 20, ["ok"])))
+    cases.append(("17: the whole day holds with 17 (one paid call, all four records): every check ok, the verdict green, 23 checks (18 and 22 dormant, 25 a notice)",
+                  (r17["verdict"], len(r17["checks"]), r17["counts"]["ok"], [x["state"] for x in r17["checks"] if x["id"] == S17]), ("green", 23, 20, ["ok"])))
     cases.append(("17 does not change the states of 1 to 16 (the same run with 17 ok and 17 red)",
                   (lambda a, b: {k: v for k, v in a.items() if k not in (S17, S14)} == {k: v for k, v in b.items() if k not in (S17, S14)})(states(world(cc=True, **chain_world()))[1], states(world(cc=True, **chain_world(recs=((TN, RN),), run_calls=[])))[1]), True))
     # ---- 17 with admission 0.5 (two runners) and 18 (FURUI 1.0) ----
@@ -3321,7 +3407,7 @@ def selftest():
     r5 = run(world(cc=True, **dict(chain_world(recs=((T5, R5),), run_calls=[]), **W2, **KEYS2)), now)
     s5 = {x["id"]: x for x in r5[0]["checks"]}
     cases.append(("run: 17 ok with the 0.5 record, 18 counted (ok) with it; the hand-over key is not in the written result",
-                  (s5[S17]["state"], s5["18_two_runners"]["state"], s5["18_two_runners"]["facts"]["records"], V05_KEY in r5[1], len(r5[0]["checks"])), ("ok", "ok", 1, False, 22)))
+                  (s5[S17]["state"], s5["18_two_runners"]["state"], s5["18_two_runners"]["facts"]["records"], V05_KEY in r5[1], len(r5[0]["checks"])), ("ok", "ok", 1, False, 23)))
     rg = run(world(cc=True, **chain_world()), now)[0]
     sg = {x["id"]: x for x in rg["checks"]}
     cases.append(("a day with no red is green while 18 and 24 are dormant (both notice with facts.dormant; the verdict and 14 do not count them)",
@@ -3431,6 +3517,50 @@ def selftest():
                     same.append(o.returncode == 0 and o.stdout.strip() == canonical(loss_bound(co, a, LBP[1]["stores"][0]["policy"])))
         cases.append(("22's loss_bound gives the bytes of musubi-v0/loss_bound_v0.py (a test contract and run0003/contract.json, four actions each)", (len(same), all(same)), (8, True)))
 
+    # ---- 25 tasuki_chain (2026-11-08): each paid call of 17's window walked as one chain; a notice, never red for now ----
+    S25 = "25_tasuki_chain"
+    def lk(link, state, follows=None):
+        return {"link": link, "state": state, "why": "", "digests": {}, "follows": follows}
+    T_LINKS = ["adm->check", "check->day", "day->entry", "adm->entry", "adm->exec", "exec->result", "exec->entry", "exec->settle", "settle->recompute", "entry->ots", "day->witness"]
+    def walked(**states):
+        ls = [lk(k, states.get(k, "holds")) for k in T_LINKS]
+        for l in ls:
+            if l["link"] in ("check->day", "day->entry", "day->witness") and states.get("adm->check") == "missing":
+                l.update(state="missing", follows="adm->check")
+        v = "missing" if any(l["state"] == "missing" for l in ls) else ("not_yet" if any(l["state"] == "not_yet" for l in ls) else "holds")
+        return {"verdict": v, "links": ls}
+    WALKS = {hsh("c1"): walked(), hsh("c2"): walked(**{"adm->check": "missing"}), hsh("c3"): walked(**{"exec->settle": "not_yet", "settle->recompute": "not_yet"})}
+    def fake_walk(x, g, at):
+        if x == hsh("boom"):
+            raise OSError("the ledger did not answer")
+        assert at == anchor(now)
+        return WALKS[x]
+    PC = {"state": "red", "facts": {"calls": 3, "missing": [{"call": hsh("c2"), "lacks": ["furui_envelope"]}, {"call": hsh("c3"), "lacks": ["musubi_settlement"]}]}}
+    x25 = check_tasuki(now, sorted(WALKS), PC, None, walk=fake_walk)
+    cases.append(("25 notice: 2 of 3 chains have no link missing; missing counted by the cause only (adm->check 1, not the three links that follow it); 17 agrees on all 9 records",
+                  (x25["state"], x25["facts"]["no_link_missing"], x25["facts"]["missing_by_link"], x25["facts"]["agrees_with_17"], [r["not_yet"] for r in x25["facts"]["rows"] if r["call"] == hsh("c3")]),
+                  ("notice", 2, {"adm->check": 1}, {"compared": 9, "differ": []}, [["exec->settle", "settle->recompute"]])))
+    x25d = check_tasuki(now, sorted(WALKS), {"state": "ok", "facts": {"calls": 3, "missing": []}}, None, walk=fake_walk)
+    cases.append(("25: where 17 says complete and the walk finds adm->check missing and exec->settle not_yet, the two differ and both are named",
+                  sorted((d["call"] == hsh("c2"), d["link"], d["state"]) for d in x25d["facts"]["agrees_with_17"]["differ"]), [(False, "exec->settle", "not_yet"), (True, "adm->check", "missing")]))
+    x25u = check_tasuki(now, [hsh("c1"), hsh("boom")], {"state": "ok", "facts": {"calls": 2, "missing": []}}, None, walk=fake_walk)
+    cases.append(("25: a walk that cannot finish is named in unwalked and is not counted as a chain (notice)", (x25u["state"], x25u["facts"]["walked"], len(x25u["facts"]["unwalked"]), x25u["facts"]["no_link_missing"]), ("notice", 1, 1, 1)))
+    cases.append(("25 dormant with 0 calls (17 ok with 0 calls, or the door prices no store); a notice when 17 could not list its calls",
+                  ((lambda x: (x["state"], x["facts"].get("dormant")))(check_tasuki(now, [], {"state": "ok", "facts": {"calls": 0}}, None, walk=fake_walk)),
+                   (lambda x: (x["state"], x["facts"].get("dormant")))(check_tasuki(now, None, {"state": "ok", "facts": {"calls": 0}}, None, walk=fake_walk)),
+                   check_tasuki(now, None, {"state": "not_yet", "facts": {}}, None, walk=fake_walk)["state"]), (("notice", True), ("notice", True), "notice")))
+    try:
+        T = tasuki_module()
+    except Exception:
+        T = None
+    if T is not None:
+        wt = check_tasuki(now, [R17], {"state": "ok", "facts": {"calls": 1, "missing": []}}, tasuki_get(world(cc=True, **{LEDGER + "/admission/" + R17: (404, {"error": "not_found"})})))
+        cases.append(("25 with the repository's own walk over this file's get: an admission the ledger does not serve is missing at adm->check, adm->entry and adm->exec (the causes), the rest follow",
+                      (wt["state"], wt["facts"]["missing_by_link"], wt["facts"]["walked"]), ("notice", {"adm->check": 1, "adm->entry": 1, "adm->exec": 1}, 1)))
+    r25 = run(world(cc=True, **chain_world()), now)[0]
+    cases.append(("25 in a run: a notice that names 17's paid call, and the verdict is the one the other checks give (25 is never red)",
+                  ([x["state"] for x in r25["checks"] if x["id"] == S25], [x["facts"]["calls"] for x in r25["checks"] if x["id"] == S25], r25["verdict"], CALLS_KEY in json.dumps(r25)), (["notice"], [1], "green", False)))
+
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:
         print(("  ok   " if got == want else "  NG   ") + n + ("" if got == want else " (got %r, want %r)" % (got, want)))
@@ -3466,6 +3596,14 @@ def with_cross(get, path):
     return g
 
 
+def tasuki_fetcher():
+    """25 reads with the walk's own GET (bytes, so an OpenTimestamps proof reads too); None when the walk cannot be loaded"""
+    try:
+        return tasuki_module().Fetcher()
+    except Exception:
+        return None
+
+
 def witness_main(now, name, vantage, ledger, dry, cross=None):
     why = witness_refusal(now, name)
     if why == "no_name":
@@ -3474,7 +3612,7 @@ def witness_main(now, name, vantage, ledger, dry, cross=None):
     if why == "too_early":
         print("witness: the day's checks are not all in before 03:47 UTC (01:05 batch, 03:17 heartbeat, 03:47 door call); run after it")
         return 2
-    res, text, sha = run(with_cross(http_get, cross), now, "witness")
+    res, text, sha = run(with_cross(http_get, cross), now, "witness", walk_get=tasuki_fetcher())
     for x in res["checks"]:
         print("%-8s %s: %s" % (x["state"], x["id"], x["why"]))
     rc = witness_record(res, name.strip(), vantage, now, tool_sha256())
@@ -3539,7 +3677,7 @@ def main(argv):
             print("witness: --now, --out, --body, --notes and --trigger do not go with --witness (the answers are read now, by you)")
             return 2
         return witness_main(now, wname, vantage, ledger, dry, cross)
-    res, text, sha = run(with_cross(http_get, cross), now, trigger)
+    res, text, sha = run(with_cross(http_get, cross), now, trigger, walk_get=tasuki_fetcher())
     if out:
         open(out, "w", encoding="utf-8").write(text + "\n")
     if bodyf:

@@ -169,6 +169,29 @@ Bitcoin) → Résumé. TOOSHI checks the whole chain every day, and TSUGI (継) 
 `furui-day` checks one FURUI leaf up to the NENRIN ledger and its Bitcoin anchor; `resume-admission` checks one SEKI
 admission as the Résumé lists it, back to the ledger.
 
+## Walk one paid call (next version, `tasuki`; Python only for now)
+
+```sh
+nenrin-verify tasuki <record_sha256>
+```
+
+`record_sha256` is the sha256 of a SEKI admission record's bytes, the key the ledger serves it under
+(`GET /admission/<sha>`). The walk goes from that record to the Bitcoin anchor and answers each handoff (link) of the
+call with `holds`, `missing` or `not_yet`, a reason, and the digests it compared: `adm->check`, `check->day`,
+`day->entry`, `adm->entry`, `adm->exec`, `exec->result`, `exec->entry`, `exec->settle`, `settle->recompute`,
+`entry->ots`, `day->witness`. Each link asks whether the later record names the earlier one by its digest, and calls the
+checks this package already has: `furui-day` for the leaf, the day record and its batch, the vendored
+`admission_verify_v0` for the record's signature and its `admission_sha256`, and the settle version `SETTLED.json`
+names for `settle->recompute`, which runs the settlement again from the anchored records of `runs/<day>/` and the
+headers of `seki-heartbeat/view-chunks` and compares the bytes. `not_yet` is a wait: the runner's day closes at 00:47
+UTC the next day, then the ledger batch, the Bitcoin confirmation, the settlement and the witness answer. A link whose
+earlier link does not hold takes that state and names it in `follows`; `causes` lists the links that do not hold on
+their own. Exit 0 every link holds, 3 none missing and some not_yet, 1 a link is missing, 2 usage or network error.
+GET only, no redirects: the ledger, the runner, agreement.horizonshield.dev, raw.githubusercontent.com (this
+repository's main branch) and the relying party's `key_url`. The output carries `does_not_establish`: a chain that
+holds shows that each handoff left a record that names the one before it; it does not show that any judgment in it was
+right. The JavaScript twin comes next.
+
 ## 0.10.0
 
 - `furui-day` takes `--runner 1|2` (1 when left out). Runner 2 is FURUI's second content check runner: its day tree is
