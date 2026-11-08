@@ -2,6 +2,22 @@
  "days": [
   {
    "counts": {
+    "not_yet": 3,
+    "notice": 3,
+    "ok": 14,
+    "red": 2
+   },
+   "day": "2026-11-08",
+   "day_sha256": "9929bd5d7993d69a96460608aa85756f75a01b3e21d8a0341459756bab4da223",
+   "path": "days/2026-11-08.json",
+   "result_sha256": "7d1a96a86ce8ceb0c65bdd5a94e6333adf54e3697c2c76c54387197006bbe2a8",
+   "run_url": "https://github.com/ogasurfproject-jpg/horizon-shield/actions/runs/42445363963",
+   "runs": 1,
+   "trigger": "schedule",
+   "verdict": "red"
+  },
+  {
+   "counts": {
     "not_yet": 2,
     "notice": 0,
     "ok": 15,
@@ -65,7 +81,7 @@
    "verdict": "not_all_checked"
   }
  ],
- "latest": "2026-11-07",
+ "latest": "2026-11-08",
  "recipe": "result_sha256 = sha256 of the UTF-8 bytes of result_canonical. day_sha256 = sha256 of the same JSON with checked_at and trigger removed, schema set to tooshi-day-view-v0 and day added, keys sorted, separators , and : without spaces, UTF-8 (tools/tooshi/tooshi_daily.py day_view). Any run of the same day after 03:47 UTC that reads the same answers gets the same day_sha256. notes, when present, are what that run saw at notes.observed_at; they are not in result_canonical, so neither sha covers them.",
  "schema": "tooshi-index-v0"
 }
