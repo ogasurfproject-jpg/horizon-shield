@@ -1,0 +1,16 @@
+{
+  "n": 270,
+  "work": "NENRIN head checkpoint (entries 1..266)",
+  "claim_sha256": "07e146756ac051532e9e17dfb88824a0584257de3975e9586b26a5554efb6031",
+  "record_canonical": "{\"schema\":\"nenrin-head-checkpoint-v1\",\"anchored_at\":\"2026-11-08T00:30:37.126Z\",\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"n\":266,\"entry_sha256\":\"79a01a275bde1dacdfa7039235276c46292a575788f8738afe35347ce6e22f90\",\"marker_sha256\":\"98e6e4271ac9f85a7e3e8c439723f79efc8a60d5ecba50995ba8d21926cd4056\"},\"note\":\"the jidec-chain-v1 head of entries 1..n and the hash of the bound jidec-head-v1 end marker at n; this entry's claim_sha256 is stamped to Bitcoin, which bounds both from above\"}",
+  "schema": "v0-plain",
+  "created_at": "2026-11-08T00:30:37.162Z",
+  "ots_status": "pending",
+  "bitcoin_block": null,
+  "block_time": null,
+  "stamped_at": "2026-11-08T00:42:56.083Z",
+  "anchored_by": "schedule",
+  "pending_stage": "fresh",
+  "pending_hours": 2,
+  "pending_stale_after_hours": 6
+}
