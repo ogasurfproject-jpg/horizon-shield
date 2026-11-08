@@ -210,7 +210,20 @@ Added for FURUI 1.0 (18, two runners; dormant until a paid call carries admissio
                    when a 0.5 admit is short of its quorum (answered below required) or runner-2's canary call says touched
                    or not ok; ok otherwise, with the quorum and the disagreement_kind counted (a difference between the
                    runners is counted, not judged).
-Dormant checks (18, 24): the code runs and the row is written with state notice and facts.dormant true; a notice does not
+Added on 2026-11-07 (22, the loss bound of each admitted call; loss-bound-v0, musubi-v0/loss_bound_v0.py):
+    22             loss_bound: the admits of the store's own agent on the day 24 reads (seki-heartbeat runs/<day>/RUN.json,
+                   calls[] without a scene, decision admit), each read against the store's contract (LB_CONTRACTS, its
+                   contract_sha256 must be RUN.json's) and the door's published policy for that store (GET /seki
+                   stores[].policy.exposure), as loss_bound_v0.py reads one call: class, amount_max and unit from the grant,
+                   open_fields payload_unbound for every action the grant lets run (a contract of a2a-contract-v0 has no
+                   field that binds the payload), and finite only when amount_max is an integer and open_fields is empty.
+                   facts carry the number of admits, how many are finite, the ones that are not (record, action, why), the
+                   window (amount_max x max_acts per window_blocks) and what the unit is (the pilot's tickets carry no
+                   monetary value). Always a notice while contracts do not bind the payload (every admit is not finite until
+                   then; a red would be red every day until the contract's next version). Dormant (notice, facts.dormant)
+                   when the day is not filed or has no admit. A contract or a policy that cannot be read is named in the
+                   notice; it is never red.
+Dormant checks (18, 22, 24): the code runs and the row is written with state notice and facts.dormant true; a notice does not
 change the verdict and 14 does not count it. Each is counted again by itself, on the first day the records it reads are
 there, with no change to this file.
 A red day opens one issue (label tooshi) and sends one mail with the names of the red checks and one line each
@@ -394,6 +407,82 @@ def check_content_mismatch(get, now):
     if k.get("status") == 403:
         return c(cid, "red", "on %s the scene got 403: the door answered, so the gateway that runs has no content match" % d, **facts)
     return c(cid, "red", "on %s the scene got http %s (%s), not 400 content_mismatch" % (d, k.get("status"), k.get("error")), **facts)
+
+
+LB_CONTRACTS = {"hs-seki-demo": "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-ledger/nenrin/musubi-v0/run0003/contract.json"}
+LB_UNITS = {"hs-seki-demo": "ticket: the pilot's tickets carry no monetary value (the gateway's SEKI_TICKETS); an amount is written in the grant's unit and not converted"}
+LB_RUNS = ("authorized", "conditional")
+
+
+def lb_contract_sha256(c):
+    """contract_v0.contract_sha256: sha256 of "a2a-contract-v0\\n" and the canonical contract without its signatures"""
+    return sha(b"a2a-contract-v0\n" + canonical({k: v for k, v in c.items() if k != "signatures"}).encode("utf-8"))
+
+
+def loss_bound(contract, action, policy=None):
+    """loss-bound-v0 of one call, as musubi-v0/loss_bound_v0.py writes it (the self test compares the two when that file is beside)"""
+    g = contract.get("grant") if isinstance(contract.get("grant"), dict) else {}
+    pro, aut = set(g.get("prohibited_actions") or []), set(g.get("authorized_actions") or [])
+    cond = {x.get("action") for x in (g.get("conditional") or []) if isinstance(x, dict)}
+    kind = lambda a: "prohibited" if a in pro else "conditional" if a in cond else "authorized" if a in aut else "unauthorized"
+    lm = g.get("limits") if isinstance(g.get("limits"), dict) else {}
+    lim = lm.get(action) if isinstance(lm.get(action), dict) else None
+    mx = lim.get("max_amount") if lim is not None else None
+    mx = mx if isinstance(mx, int) and not isinstance(mx, bool) else None
+    unit = lim.get("unit") if lim is not None and isinstance(lim.get("unit"), str) else None
+    k = kind(action)
+    amount_max, open_fields = (mx, "payload_unbound") if k in LB_RUNS else (0, [])
+    names = [a for a in (g.get("authorized_actions") or []) if isinstance(a, str)] + [x.get("action") for x in (g.get("conditional") or []) if isinstance(x, dict) and isinstance(x.get("action"), str)]
+    ex = policy.get("exposure") if isinstance(policy, dict) else None
+    w = ex.get(action) if isinstance(ex, dict) else None
+    win = {"window_blocks": w["window_blocks"], "max_acts": w["max_acts"]} if isinstance(w, dict) and _int(w.get("window_blocks"), 1) and _int(w.get("max_acts"), 1) else None
+    return {"schema": "loss-bound-v0", "contract_sha256": lb_contract_sha256(contract), "action": action, "class": k, "amount_max": amount_max, "unit": unit,
+            "actions": sorted({a for a in names if kind(a) in LB_RUNS}), "open_fields": open_fields, "holds": False, "window": win,
+            "finite": bool(k not in LB_RUNS or (_int(amount_max) and open_fields == []))}
+
+
+def check_loss_bound(get, now):
+    """22: the loss bound (loss-bound-v0) of each admit of the store's own agent on the day 24 reads. A notice, never red, while the
+    contract does not bind the payload"""
+    cid = "22_loss_bound"
+    d = (anchor(now) - HEARTBEAT_DAY_SHIFT).strftime("%Y-%m-%d")
+    try:
+        s, r = get(HEARTBEAT_RUNS + d + "/RUN.json")
+    except Unreachable as e:
+        return c(cid, "notice", "the heartbeat's day file of %s did not answer (%s); no loss bound read today (not red)" % (d, e), day=d, unread="run")
+    if s == 404:
+        return dormant(cid, "the heartbeat's run of %s is not filed yet; no admit to bound" % d, day=d, admits=0)
+    if s != 200 or not isinstance(r, dict) or not isinstance(r.get("calls"), list):
+        return c(cid, "notice", "the heartbeat's day file of %s answered http %s without calls; no loss bound read today (not red)" % (d, s), day=d, unread="run")
+    store = r.get("store")
+    adm = [k for k in r["calls"] if isinstance(k, dict) and not k.get("scene") and k.get("decision") == "admit"]
+    if not adm:
+        return dormant(cid, "the heartbeat's run of %s has no admit; nothing to bound" % d, day=d, admits=0)
+    facts = {"day": d, "store": store, "admits": len(adm), "unit_note": LB_UNITS.get(store)}
+    url = LB_CONTRACTS.get(store)
+    try:
+        cs, ct = get(url) if url else (None, None)
+    except Unreachable:
+        cs, ct = None, None
+    if not (cs == 200 and isinstance(ct, dict)) or lb_contract_sha256(ct) != r.get("contract_sha256"):
+        return c(cid, "notice", "the contract of %s (%s) could not be read or is not the one the run names (%s); no loss bound read today (not red)"
+                 % (store, url, str(r.get("contract_sha256"))[:12]), unread="contract", **facts)
+    try:
+        ps, p = get(DOOR_POLICY)
+    except Unreachable:
+        ps, p = None, None
+    row = [x for x in (p.get("stores") or []) if isinstance(x, dict) and x.get("store") == store] if ps == 200 and isinstance(p, dict) and isinstance(p.get("stores"), list) else []
+    pol = row[0].get("policy") if len(row) == 1 and isinstance(row[0].get("policy"), dict) else None
+    recs = [(k, loss_bound(ct, k.get("service"), pol)) for k in adm]
+    nf = [{"record_sha256": k.get("record_sha256"), "action": x["action"], "class": x["class"], "amount_max": x["amount_max"], "unit": x["unit"], "open_fields": x["open_fields"]}
+          for k, x in recs if not x["finite"]]
+    wins = [{"action": x["action"], "amount": x["amount_max"] * x["window"]["max_acts"], "unit": x["unit"], "per_blocks": x["window"]["window_blocks"]}
+            for _k, x in recs if x["window"] is not None and _int(x["amount_max"])]
+    facts.update(finite=len(recs) - len(nf), not_finite=nf, window=wins, policy="read" if pol is not None else "unread")
+    why = ("%d of %d admits of %s on %s have a finite loss bound; not finite: %s (open_fields payload_unbound: the contract does not bind the payload, "
+           "so L is not finite until it does; counted, not red)" % (len(recs) - len(nf), len(recs), store, d,
+                                                                   ", ".join("%s %s %s %s" % (str(x["record_sha256"])[:8], x["action"], x["amount_max"], x["unit"]) for x in nf) or "none"))
+    return c(cid, "notice", why, **facts)
 
 
 def check_day_root(get, now):
@@ -2181,6 +2270,7 @@ def run(get, now, trigger="manual"):
     checks.append(check_resume(get, now))
     checks.append(check_resume_agreement(get, now))
     checks.append(check_content_mismatch(get, now))
+    checks.append(check_loss_bound(get, now))
     checks += [check_door_runner(get), check_day_root(get, now), check_leaves(get, now), check_heartbeat(get, now)]
     checks += [check_canary(get, now), check_witness_answer(get, now)]
     checks += [check_cross_client(get, now), check_main_ci(get, now), check_paid_rows(get, now), check_line_delivery(get, now), check_recovery(get, now)]
@@ -2755,7 +2845,7 @@ def selftest():
     def st(get, cid, when=now):
         return [x for x in run(get, when)[0]["checks"] if x["id"] == cid][0]
     S10, S11, S12, S13, S14, S15 = "10_cross_client", "11_main_ci", "12_paid_rows_daily", "13_line_delivery", "14_not_yet_deadline", "15_recovery_fresh"
-    cases.append(("v2: the whole day holds with the six new checks, 16 and 24: every check ok, the verdict green, 20 checks besides 17 (18 dormant, a notice)", (lambda r: (r["verdict"], len([x for x in r["checks"] if x["id"] != "17_paid_call_chain"]), r["counts"]["ok"] - 1))(run(world(cc=True), now)[0]), ("green", 20, 19)))
+    cases.append(("v2: the whole day holds with the six new checks, 16 and 24: every check ok, the verdict green, 21 checks besides 17 (18 and 22 dormant, notices)", (lambda r: (r["verdict"], len([x for x in r["checks"] if x["id"] != "17_paid_call_chain"]), r["counts"]["ok"] - 1))(run(world(cc=True), now)[0]), ("green", 21, 19)))
     cases.append(("10: the draw of 2026-11-07 from five endpoints is the cross client's (cross_client_test.mjs has the same vector)", cross_draw("2026-11-07", list(reversed(CANDS))),
                   ["https://c.example/mcp", "https://d.example/mcp", "https://e.example/mcp"]))
     x10 = st(world(cc=True), S10)
@@ -3168,7 +3258,7 @@ def selftest():
                   (lambda a, b: (a == b, a["state"]))(check_paid_chain(world(cc=True, **chain_world(**L17)), now), check_paid_chain(world(cc=True, **chain_world(**L17)), now.replace(hour=11, minute=50))), (True, "ok")))
     r17 = run(world(cc=True, **chain_world()), now)[0]
     cases.append(("17: the whole day holds with 17 (one paid call, all four records): every check ok, the verdict green, 21 checks (18 dormant, a notice)",
-                  (r17["verdict"], len(r17["checks"]), r17["counts"]["ok"], [x["state"] for x in r17["checks"] if x["id"] == S17]), ("green", 21, 20, ["ok"])))
+                  (r17["verdict"], len(r17["checks"]), r17["counts"]["ok"], [x["state"] for x in r17["checks"] if x["id"] == S17]), ("green", 22, 20, ["ok"])))
     cases.append(("17 does not change the states of 1 to 16 (the same run with 17 ok and 17 red)",
                   (lambda a, b: {k: v for k, v in a.items() if k not in (S17, S14)} == {k: v for k, v in b.items() if k not in (S17, S14)})(states(world(cc=True, **chain_world()))[1], states(world(cc=True, **chain_world(recs=((TN, RN),), run_calls=[])))[1]), True))
     # ---- 17 with admission 0.5 (two runners) and 18 (FURUI 1.0) ----
@@ -3231,7 +3321,7 @@ def selftest():
     r5 = run(world(cc=True, **dict(chain_world(recs=((T5, R5),), run_calls=[]), **W2, **KEYS2)), now)
     s5 = {x["id"]: x for x in r5[0]["checks"]}
     cases.append(("run: 17 ok with the 0.5 record, 18 counted (ok) with it; the hand-over key is not in the written result",
-                  (s5[S17]["state"], s5["18_two_runners"]["state"], s5["18_two_runners"]["facts"]["records"], V05_KEY in r5[1], len(r5[0]["checks"])), ("ok", "ok", 1, False, 21)))
+                  (s5[S17]["state"], s5["18_two_runners"]["state"], s5["18_two_runners"]["facts"]["records"], V05_KEY in r5[1], len(r5[0]["checks"])), ("ok", "ok", 1, False, 22)))
     rg = run(world(cc=True, **chain_world()), now)[0]
     sg = {x["id"]: x for x in rg["checks"]}
     cases.append(("a day with no red is green while 18 and 24 are dormant (both notice with facts.dormant; the verdict and 14 do not count them)",
@@ -3294,6 +3384,52 @@ def selftest():
                   (m17(c17(run_calls=[{"decision": "admit", "record_sha256": R17, "admission_sha256": AM17}, dict(MM_ROW)])) == m17(x17), st(world(cc=True, **chain_world()), S24)["state"]), (True, "ok")))
     cases.append(("24 does not change the states of the other checks (the same run with 24 ok and 24 red)",
                   (lambda a, b: {k: v for k, v in a.items() if k not in (S24, S14)} == {k: v for k, v in b.items() if k not in (S24, S14)})(states(world(cc=True))[1], states(world(cc=True, **{RUN4: run4(dict(MM_ROW, status=403))}))[1]), True))
+
+    # ---- 22 loss_bound (2026-11-07): loss-bound-v0 of each admit of the day 24 reads; a notice, never red, while the payload is not bound ----
+    S22 = "22_loss_bound"
+    LBC = {"contract_id": "11" * 16, "grant": {"authorized_actions": ["report", "audit"], "prohibited_actions": ["compare"], "conditional": [],
+                                               "limits": {"report": {"max_amount": 20, "unit": "ticket"}, "audit": {"max_amount": 25, "unit": "ticket"}}},
+           "signatures": [{"domain": "x.invalid", "sig_b64": "AA=="}]}
+    LBS = lb_contract_sha256(LBC)
+    LBP = (200, {"stores": [{"store": "hs-seki-demo", "policy": {"exposure": {"report": {"window_blocks": 6, "max_acts": 1}}}}]})
+    run22 = lambda *rows, csha=LBS: (200, {"store": "hs-seki-demo", "contract_sha256": csha, "ran_at": "2026-11-04T21:18:40Z", "calls": list(rows)})
+    A22 = {"service": "report", "decision": "admit", "record_sha256": hsh("r22")}
+    w22 = lambda run_=None, **o: world(cc=True, **dict({RUN4: run_ or run22(A22, {"service": "audit", "decision": "refuse"}, MM_ROW), LB_CONTRACTS["hs-seki-demo"]: (200, LBC), DOOR_POLICY: LBP}, **o))
+    x22 = st(w22(), S22)
+    cases.append(("22 notice: the admit of report under limits 20 ticket is not finite (payload_unbound); the window of the door's policy is 20 ticket per 6 blocks",
+                  (x22["state"], x22["facts"]["admits"], x22["facts"]["finite"], x22["facts"]["not_finite"], x22["facts"]["window"], x22["facts"].get("dormant")),
+                  ("notice", 1, 0, [{"record_sha256": hsh("r22"), "action": "report", "class": "authorized", "amount_max": 20, "unit": "ticket", "open_fields": "payload_unbound"}],
+                   [{"action": "report", "amount": 20, "unit": "ticket", "per_blocks": 6}], None)))
+    cases.append(("22: the why names the call that is not finite, says why, and the facts say what a ticket is",
+                  ("0 of 1 admits" in x22["why"] and hsh("r22")[:8] in x22["why"] and "payload_unbound" in x22["why"], "no monetary value" in x22["facts"]["unit_note"]), (True, True)))
+    x22p = st(w22(run22(dict(A22, service="compare"), A22)), S22)
+    cases.append(("22: an admit of a prohibited action has L 0 and is finite; the other is named", (x22p["facts"]["finite"], [x["action"] for x in x22p["facts"]["not_finite"]]), (1, ["report"])))
+    cases.append(("22 dormant (notice, facts.dormant): the day's run has no admit (only the scene), or is not filed",
+                  tuple((x["state"], x["facts"].get("dormant")) for x in (st(world(cc=True), S22), st(w22(run_=(404, None)), S22))), (("notice", True), ("notice", True))))
+    cases.append(("22 never red: the day file down, the contract not the run's, the contract down, the policy down (window empty)",
+                  (st(w22(run_="down"), S22)["state"], st(w22(run_=run22(A22, csha="00" * 32)), S22)["facts"].get("unread"),
+                   st(w22(**{LB_CONTRACTS["hs-seki-demo"]: "down"}), S22)["facts"].get("unread"), (lambda x: (x["state"], x["facts"]["window"], x["facts"]["policy"]))(st(w22(**{DOOR_POLICY: "down"}), S22))),
+                  ("notice", "contract", "contract", ("notice", [], "unread"))))
+    vnot = lambda r: (lambda xs: "red" if any(x["state"] == "red" for x in xs) else ("green" if not any(x["state"] == "not_yet" for x in xs) else "not_all_checked"))([x for x in r["checks"] if x["id"] != S22])
+    r22s = [run(g, now)[0] for g in (w22(), w22(run_=run22(dict(A22, service="compare"), A22)), w22(run_="down"), world(cc=True))]
+    cases.append(("22 is a notice on every day above and the verdict is what the other checks give without it",
+                  ([[x["state"] for x in r["checks"] if x["id"] == S22] for r in r22s], all(r["verdict"] == vnot(r) for r in r22s)), ([["notice"]] * 4, True)))
+    lbpy = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "workers", "hs-ledger", "nenrin", "musubi-v0", "loss_bound_v0.py")
+    if os.path.isfile(lbpy):
+        import subprocess, tempfile
+        real = os.path.join(os.path.dirname(lbpy), "run0003", "contract.json")
+        same = []
+        with tempfile.TemporaryDirectory() as td:
+            pp = os.path.join(td, "policy.json")
+            open(pp, "w").write(json.dumps(LBP[1]["stores"][0]["policy"]))
+            for cf, cobj in ((os.path.join(td, "c.json"), LBC), (real, None)):
+                if cobj is not None:
+                    open(cf, "w").write(json.dumps(cobj))
+                co = cobj if cobj is not None else json.load(open(cf, encoding="utf-8"))
+                for a in ("report", "audit", "compare", "ship"):
+                    o = subprocess.run([sys.executable, "-I", "-B", lbpy, "--contract", cf, "--action", a, "--policy", pp], capture_output=True, text=True, timeout=120)
+                    same.append(o.returncode == 0 and o.stdout.strip() == canonical(loss_bound(co, a, LBP[1]["stores"][0]["policy"])))
+        cases.append(("22's loss_bound gives the bytes of musubi-v0/loss_bound_v0.py (a test contract and run0003/contract.json, four actions each)", (len(same), all(same)), (8, True)))
 
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:

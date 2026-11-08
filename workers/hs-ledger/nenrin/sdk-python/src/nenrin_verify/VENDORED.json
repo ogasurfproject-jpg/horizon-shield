@@ -451,8 +451,8 @@
   },
   "_repo/musubi-v0/README.md": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/README.md",
-    "source_sha256": "3bce73bcb4db3d7d43aa44fbfa20966213849bb5dfab7db016b691b365728f51",
-    "vendored_sha256": "3bce73bcb4db3d7d43aa44fbfa20966213849bb5dfab7db016b691b365728f51"
+    "source_sha256": "9c9c98ae6bc6cb4fdd80d389a72d9c90bfba81a54c9b5fef29ab4d206c280cb7",
+    "vendored_sha256": "9c9c98ae6bc6cb4fdd80d389a72d9c90bfba81a54c9b5fef29ab4d206c280cb7"
   },
   "_repo/musubi-v0/admission_verify_v0.mjs": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/admission_verify_v0.mjs",

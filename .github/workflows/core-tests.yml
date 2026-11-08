@@ -97,13 +97,15 @@ jobs:
       - name: settle core, its vectors against the reference (and sections 17, 18 and 19 against settle v1.17, v1.18 and v1.19)
         working-directory: workers/hs-ledger/nenrin/musubi-v0/settle-core-v0
         run: python -I -B run_reference.py
-      - name: settle v1.17, v1.18, v1.19 and v1.20, furui-rules-id-v0 and v1 and musubi-scope-v0 (self tests, with their JavaScript twins)
+      - name: settle v1.17 to v1.21, loss-bound-v0, furui-rules-id-v0 and v1 and musubi-scope-v0 (self tests, with their JavaScript twins)
         working-directory: workers/hs-ledger/nenrin/musubi-v0
         run: |
           python -I -B settle_v1_17.py --selftest | tail -1 | grep "^SELF-TEST PASSED"
           python -I -B settle_v1_18.py --selftest | tail -1 | grep "^SELF-TEST PASSED"
           python -I -B settle_v1_19.py --selftest | tail -1 | grep "^SELF-TEST PASSED"
           python -I -B settle_v1_20.py --selftest | tail -1 | grep "^SELF-TEST PASSED"
+          python -I -B loss_bound_v0.py --selftest | tail -1 | grep "^SELF-TEST PASSED"
+          python -I -B settle_v1_21.py --selftest | tail -1 | grep "^SELF-TEST PASSED"
           python -I -B furui_rules_id_v0.py --selftest | tail -1 | grep "^SELF-TEST PASSED"
           python -I -B furui_rules_id_v1.py --selftest | tail -1 | grep "^SELF-TEST PASSED"
           python -I -B render_scope_v0.py --selftest | tail -1 | grep "^SELF-TEST PASSED"

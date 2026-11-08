@@ -24,6 +24,7 @@ settles after the fact. It renders no decision.
 | `clause_eval_v0.py`, `clause_eval_v0.mjs` | how one action reads against a signed grant, limits included. Every admission names the Python file by sha256, and settlement imports it |
 | `settle_v1_11.py` | settle v1.10 plus one rule, applied only when `requirements.admission` is `required_before_execution` |
 | `settle_v1_12.py` | settle v1.11 plus one rule, applied only when the grant carries `limits` |
+| `loss_bound_v0.py`, `loss_bound_v0.mjs`, `settle_v1_21.py` | the loss bound of one admitted call (loss-bound-v0, [LOSS_BOUND.md](LOSS_BOUND.md)) and settle v1.20 with that bound for each admit it reads |
 | `contract_v0.py`, `contract_door_v0.mjs` | the contract door, with `grant.limits`, in Python and JavaScript |
 | `admission_intake.mjs` | `POST /admission` and `POST /revocation` for the ledger worker. Stores and anchors what was signed. It decides nothing |
 | `peer_kit.py` | the applicant's side: `request` before acting, `exec` naming the admission, `settle` |
@@ -183,6 +184,15 @@ otherwise v1.19's bytes.
 Settle v1.20 counts, for the 0.5 admissions it reads, the marks, the admissions with a check unread or short of the quorum,
 and each `disagreement_kind`, in `content_runners`. A difference between runners is counted, not judged.
 
+**v1.21.** The verdict, status and deviations of v1.20, byte for byte, and one more field when an accepted execution names an
+admission that verifies: `loss_bound`, one loss-bound-v0 record ([LOSS_BOUND.md](LOSS_BOUND.md)) for each admit it reads, of any
+version from 0.1 to 0.5, with the number that are finite and the number that are not. The door's published policy (`--policy`)
+gives each record its window. Otherwise v1.20's bytes.
+
+L is computed from the contract's grant and the door's published policy alone, without the content check's answer. A pass does
+not mean the call was harmless; a wrong pass is bounded by L. While the contract does not bind the payload, L is not finite and
+the record says so.
+
 ## Immune rules (immune_v0.py)
 
 The clauses ask whether a kind of act is inside the grant. The immune rules ask where the values of the act came from.
@@ -256,6 +266,8 @@ served content and the block headers in the fixture:
     python3 admission_verify_v0.py --selftest        # records of every version (0.5 with the 23 answers, P1 to P6 and the 529 pairs of
                                                      # fixtures/admission_v05), the request, the revocation, the JavaScript twin
     python3 settle_v1_20.py --selftest               # v1.19 byte for byte without 0.5, the 0.5 gate, the escalate rule over 0.3 to 0.5
+    python3 loss_bound_v0.py --selftest              # loss-bound-v0 and its JavaScript twin
+    python3 settle_v1_21.py --selftest               # v1.20's verdict on every existing vector, with loss_bound for each admit
     python3 immune_v0.py --selftest                  # the immune rules, and the first attack recomputed
     python3 immune_v0.py --check-demo
     python3 admission_verify_v0.py --check-fixtures
