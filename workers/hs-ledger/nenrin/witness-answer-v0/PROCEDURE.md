@@ -1,5 +1,7 @@
 # Signed witness answers for a TOOSHI day and a FURUI day record
 
+The helper needs Python 3.8 or later, standard library only.
+
 Status: v0, 2026-11-04. Everything this page uses is in this folder (`workers/hs-ledger/nenrin/witness-answer-v0/` in ogasurfproject-jpg/horizon-shield):
 
 * `witness_answer_v0.py`: the helper. Python 3 standard library only. It builds, signs and verifies an answer, compares a TOOSHI day, and writes the body for the ledger's witness intake. It sends nothing; only `verify --fetch` reads your `key_url`.
@@ -33,9 +35,9 @@ A JSON object with these keys and no others:
 * `root`: the RFC 6962 root the day record names (furui-day); `null` (tooshi-day)
 * `leaf_index`: the leaves you checked, ascending, each below `n` (furui-day); `[]` (tooshi-day)
 * `recomputed`: only what you recomputed yourself. furui-day: the nenrin-verify step names that were ok for every leaf you list, in the tool's order (`envelope_shape`, `leaf_sha256`, `audit_path`, `signature`, `runner_key`, `bitcoin_anchor`). tooshi-day: `"day_view"`, then the ids of the checks your run actually made (state ok, red or notice), sorted
-* `tool`: one line, for example `nenrin-verify 0.8.1 furui-day` or `tools/tooshi/tooshi_daily.py sha256:<hex>`
+* `tool`: one line of at most 200 characters, for example `nenrin-verify 0.9.0 furui-day` or `tools/tooshi/tooshi_daily.py sha256:<hex>`
 * `observed_at`: `YYYY-MM-DDTHH:MM:SSZ`
-* `limits`: one line each, in your own words, saying what this answer does not establish
+* `limits`: 1 to 20 lines of at most 500 characters each, in your own words, saying what this answer does not establish. Details that do not fit in `tool` (more tool digests, the block explorers you used) go in a `limits` line
 * `witness`: `{"name", "key_id", "key_url"}`
 * `signature`: `{"alg": "ed25519", "key_id", "sig"}` with `sig` the base64 of the 64 byte signature
 
@@ -63,6 +65,43 @@ Otherwise:
     openssl pkey -in witness_key.pem -pubout -outform DER | tail -c 32 | base64
 
 Publish the second line's output as `{"public_key_ed25519_b64": "..."}` at your `key_url` (your domain or `<you>.github.io`). The URL must answer directly with 200 (no redirect).
+
+### An OpenSSH key
+
+If your key is an Ed25519 key made by `ssh-keygen -t ed25519 -f witness_key`, you can serve `witness_key.pub` as it is: the ledger's witness intake reads a `key_url` that serves one line `ssh-ed25519 <base64> [comment]` and takes the same 32 byte key from it. What you sign does not change: a plain Ed25519 signature over the exact bytes. `ssh-keygen -Y sign` writes an SSHSIG structure over other bytes, so its output does not verify here. These five steps sign with that key (`witness_key` is the private key file, `witness_key.pub` the public one):
+
+1. Print the public key in the base64 form the helper takes as `--pub` (the 32 key bytes are bytes 19 to 50 of the SSH wire form):
+
+        python3 -c 'import base64,sys; b=base64.b64decode(open(sys.argv[1]).read().split()[1]); print(base64.b64encode(b[19:51]).decode())' witness_key.pub
+
+2. Build the answer with `--pub` in place of `--key`, and with your `key_url` set to the URL that serves `witness_key.pub`; then write the bytes to sign:
+
+        python3 -I -B witness_answer_v0.py build-furui ... --key-url <your key_url> --pub <the base64 from step 1> --out answer.json
+        python3 -I -B witness_answer_v0.py preimage answer.json --out preimage.bin
+
+   `build-tooshi` takes `--pub` the same way.
+
+3. Sign `preimage.bin` with the Python `cryptography` package (`python3 -m pip install cryptography`). The output is the 64 raw signature bytes:
+
+        python3 -c 'import sys; from cryptography.hazmat.primitives.serialization import load_ssh_private_key as L; k = L(open(sys.argv[1], "rb").read(), password=None); open(sys.argv[3], "wb").write(k.sign(open(sys.argv[2], "rb").read()))' witness_key preimage.bin sig.bin
+
+   If the key has a passphrase, also install `bcrypt` (`python3 -m pip install bcrypt`), and write `import sys, getpass` in place of `import sys` and `password=getpass.getpass().encode()` in place of `password=None`; it then asks for the passphrase.
+
+4. Attach the signature and check it offline against a key document that holds the same key:
+
+        python3 -I -B witness_answer_v0.py attach-sig answer.json --sig-file sig.bin --out answer.json
+        printf '{"public_key_ed25519_b64": "%s"}\n' <the base64 from step 1> > witness.json
+        python3 -I -B witness_answer_v0.py verify answer.json --key-doc witness.json
+
+   This prints `VERDICT signed_answer_ok identity <your domain>`. A helper that has the `key-of` command also reads the `.pub` line itself, with `--key-doc witness_key.pub` or `--fetch`.
+
+5. For the ledger, write the record bytes, sign them with the command of step 3, and run `intake-body` again with the same `--vantage`:
+
+        python3 -I -B witness_answer_v0.py intake-body answer.json --vantage "<where you ran it from>" --out body.json
+        python3 -c 'import sys; from cryptography.hazmat.primitives.serialization import load_ssh_private_key as L; k = L(open(sys.argv[1], "rb").read(), password=None); open(sys.argv[3], "wb").write(k.sign(open(sys.argv[2], "rb").read()))' witness_key body.json.record rsig.bin
+        python3 -I -B witness_answer_v0.py intake-body answer.json --vantage "<where you ran it from>" --record-sig-file rsig.bin --pub <the base64 from step 1> --out body.json
+
+   Then POST `body.json` as in step 6 of a TOOSHI day below.
 
 ## A TOOSHI day
 
@@ -112,15 +151,18 @@ The commands use 2026-11-06 as the day; put your day in its place.
 
    The reply carries `sha`, `signed: true` and `signed_domain`. Anyone can read it back at `https://ledger.horizonshield.dev/witness/<sha>`. Records are bundled into a ledger entry daily at 00:30 UTC; the Bitcoin stamp follows. Signing elsewhere works here too: without `--key` the helper writes the record bytes to `body.json.record`; sign that file and run again with `--record-sig-file` and `--pub`.
 
+   Send the POST with curl, as above, or with a User-Agent header of your own. Today the edge in front of the ledger refuses the default User-Agent of Python's urllib with HTTP 403 (Cloudflare error 1010). This note goes when the edge stops refusing it.
+
 ## A FURUI day record
 
-1. Install the reader and check every leaf of the day (it reads only the ledger and the runner):
+1. Install the reader and check every leaf of the day (it reads only the ledger and the runner). Use nenrin-verify 0.9.0 or later (the current release on PyPI), or the version the day record names, if it names one (then install `nenrin-verify==<that version>`). nenrin-verify needs Python 3.9 or later.
 
-        python3 -m pip install nenrin-verify==0.8.1
+        python3 -m pip install 'nenrin-verify>=0.9.0'
+        nenrin-verify --version
         nenrin-verify furui-day 2026-11-03 --leaf 0 > leaf0.json
         nenrin-verify furui-day 2026-11-03 --leaf 1 > leaf1.json
 
-   `facts.n` in the output is the number of leaves. Exit 0 is ok, 3 is not yet (for example the Bitcoin anchor), 1 is a failure.
+   `facts.n` in the output is the number of leaves. Exit 0 is ok, 3 is not yet (for example the Bitcoin anchor), 1 is a failure. In step 2, add `--tool "nenrin-verify <the version it printed> furui-day"`; without `--tool` the helper writes `nenrin-verify 0.8.1 furui-day` into the answer.
 
 2. Build, sign, verify and file as in steps 4 to 6 above, with `build-furui`:
 
