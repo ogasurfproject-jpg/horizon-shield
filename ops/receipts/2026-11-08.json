@@ -1,0 +1,26 @@
+{
+ "schema": "hs-fair-price-receipt-day-copy-v1",
+ "date": "2026-11-08",
+ "store": "https://mcp.horizonshield.dev/ledger/",
+ "count": 1,
+ "receipts": [
+  {
+   "sha": "1492eb38731806a9ca6c380b0ffe0211b6fad899cd0247b3980db1a2d9e0af59",
+   "record": {
+    "claim": {
+     "work": "外壁塗装 30坪 一式（シリコン）",
+     "unit": "一式",
+     "fair_min": 700000,
+     "fair_avg": 900000,
+     "fair_max": 1150000,
+     "source": "HORIZON SHIELD souba-db",
+     "issued_at": "2026-11-08T23:07:09.058Z"
+    },
+    "claim_sha256": "1492eb38731806a9ca6c380b0ffe0211b6fad899cd0247b3980db1a2d9e0af59",
+    "bitcoin_block": 949356,
+    "issued_at": "2026-11-08T23:07:09.058Z"
+   }
+  }
+ ],
+ "refused": []
+}
