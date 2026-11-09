@@ -248,6 +248,28 @@ const consProfile = { industry: "construction", company: "リフォーム職人�
   const story = AP.nextQuestions(consProfile, askedTimes("q_story", 3, "2026-08-08T00:00:00Z"), 10);
   check("打ち切ってよい問い(q_story)は3回で止まったまま",
         !story.find((q) => q.qid === "q_story"), story.map((q) => q.qid).join(","));
+
+  // 2026-11-04 (a) 打ち切らない問いはどれも、4回目以降は言い換えの文面で届く。
+  for (const qid of AP.NEVER_GIVE_UP) {
+    check(qid + " には言い換えの文面がある", typeof AP.LAST_RESORT_TEXT[qid] === "string" &&
+          AP.LAST_RESORT_TEXT[qid].length > 0, String(AP.LAST_RESORT_TEXT[qid]).slice(0, 24));
+    const got = AP.nextQuestions(consProfile, askedTimes(qid, 3, "2026-08-08T00:00:00Z"), 99)
+      .find((q) => q.qid === qid);
+    check(qid + " は上限3回のあとも14日で戻り、4回目は言い換えの文面", !!got &&
+          got.text === AP.LAST_RESORT_TEXT[qid], got ? got.text.slice(0, 24) : "出なかった");
+  }
+
+  // 2026-11-04 (b) 人に回した店には、理由が何であれ設問を出さない。
+  for (const why of ["5回続けて送って、返事が一度も無い",
+                     "1通の返事をどの設問に当てるか決められない(q_faqs+q_cases)",
+                     "見積書がLINEで届いた(未読1件)。読み取って estimates_for_audit に入れること"]) {
+    const ap = { focus_primary: "franchise", focus_all: ["franchise"],
+                 needs_human: { since: "2026-09-01T00:00:00Z", why } };
+    const open = AP.nextQuestions(consProfile, { focus_primary: "franchise", focus_all: ["franchise"] }, 99);
+    const shut = AP.nextQuestions(consProfile, ap, 99);
+    check("人送りの店には設問が出ない(" + why.slice(0, 12) + ")",
+          open.length > 0 && shut.length === 0, "印なし " + open.length + " 問 / 印あり " + shut.length + " 問");
+  }
 }
 {
   const { env, stores } = await doneStore({ member_no: "No.001", completed: true });

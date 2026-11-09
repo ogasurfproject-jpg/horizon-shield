@@ -38,10 +38,21 @@ export const MIN_AUDIT_ESTIMATES = 3;
    estimates_for_audit は 0 本のまま。機械はもう二度と聞かない状態だった。
    打ち切らない代わりに、間隔を 3 日から RETRY_COOL_D 日へ延ばし、文面も変える。
    同じ文を 4 回送るのは熱心ではなく、聞こえていないだけである。 */
-export const NEVER_GIVE_UP = ["q_estimates"];
+/* 2026-11-04 打ち切らない問いを 6 つにした。どれも 4 回目以降は LAST_RESORT_TEXT の
+   言い換えで聞く。言い換えの無い問いをここに足すと、同じ文が 14 日おきに届き続ける。
+   足すときは LAST_RESORT_TEXT にも同じ qid を足す(deadlock_test の D が確かめる)。 */
+export const NEVER_GIVE_UP = ["q_estimates", "q_faqs", "q_cases", "q_areas", "q_ai_summary", "q_ai_found"];
 export const RETRY_COOL_D = 14;
+// 2026-11-09 望みの頁が空のまま打ち切られた設問を、4 回目から聞き直すときの前置き。
+export const FOCUS_RETRY_LEAD = "以前にもお尋ねした問いです。御社のご希望の「%s」の頁がまだ空のため、もう一度だけお願いします。分かるところだけ、一言でも構いません。\n";
+export const FOCUS_LABEL_JA = { recruit: "人材募集", leads: "案件の獲得", homeowners: "お客様からの相談", franchise: "協力店・加盟店の募集", brand: "認知度" };
 export const LAST_RESORT_TEXT = {
   q_estimates: "検証を進めるために、実際の見積もりが3本必要です。今はまだ0本のため、御社の値付けを測る土台がありません。写真でも、PDFでも、手書きのメモでも構いません。工種と概算金額だけでも助かります。金額は一切公開しません。公開するのは『何本見て検証したか』という本数だけです。",
+  q_faqs: "お忙しいところ恐れ入ります。1つだけで構いません。最近お客様に聞かれたことを、聞かれた言葉のまま教えてください。答えは、いつもの話し方で結構です。",
+  q_cases: "最近の工事を1件、題名だけで構いません(例: 平塚市 戸建て 窓交換)。写真があれば、一緒にいただけると助かります。",
+  q_areas: "対応できる市区町村を、思いつく限り教えてください。お客様は地名で探すので、多いほど見つけてもらえます。",
+  q_ai_summary: "御社を知らない方に、一言で何と説明しますか。10秒で言える形で結構です。",
+  q_ai_found: "最近のお客様は、どうやって御社を見つけてくれましたか。紹介、検索、看板など、思い出せる1件で結構です。",
 };
 
 // 2026-08-20 reply-resets-cooldown. 追撃質問の門は二つある。
@@ -520,10 +531,31 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
   const missing = comp.askable || comp.missing;
   const focusList = focusKeys(autopilot);
   const flat = [];
+  /* 2026-11-04 人に回した店(needs_human)には設問を出さない。
+     needs_human は handOff(3回無返答)のほかに、返事の当て先が決められない時と、
+     見積書が届いて人が読む番になった時にも立つ。その二つでは handOff が立たないので、
+     日次巡回の追撃の枝がそのまま設問を送っていた。人の番の店に機械が割り込まない。 */
+  const extraNow = (profile && profile.extra) || {};
+  const emptyFocus = new Set();
+  for (const fk of focusList) {
+    const bank = QUESTION_BANK[fk];
+    if (!bank || typeof bank !== "object" || bank.text) continue;
+    const bq = Object.keys(bank);
+    if (!bq.some((q) => answered(extraNow, q))) for (const q of bq) emptyFocus.add(q);
+  }
+  /* 2026-11-09 望みの頁が空のうちは、その目的の設問を打ち切らない。
+     実測: 峰尾さま(002)の望みは受注と採用、001 の望みは協力店・加盟店の増強。だが採用の答え 0、
+     協力店の答えは「進めて下さい」の 1 件だけ。3 回聞いて打ち切る決まり(ASK_MAX)で、
+     加盟店の一番の望みの設問が二度と出ず、その穴を人が LINE で手で埋めていた。
+     頁が空の目的の設問は、打ち切らない問い(NEVER_GIVE_UP)と同じ扱いにする。
+     4 回目からは RETRY_COOL_D 日おきに、FOCUS_RETRY_LEAD を前に付けて聞く(同じ文の繰り返しにしない)。
+     一つ答えが入れば頁が立つので、残りは普通の決まり(3 回で打ち切り)に戻る。 */
+  const handedToHuman = !!(autopilot && autopilot.needs_human);
   for (const m of missing) {
+    if (handedToHuman) break;
     if (outstanding.has(m.qid)) continue;   // 返事待ちの設問は二重に出さない
     const askedN = askedCount[m.qid] || 0;
-    const neverGiveUp = NEVER_GIVE_UP.indexOf(m.qid) >= 0;
+    const neverGiveUp = NEVER_GIVE_UP.indexOf(m.qid) >= 0 || emptyFocus.has(m.qid);
     if (askedN >= ASK_MAX) {
       // 2026-09-07 打ち切ってよい問いは、これまでどおりここで止める。
       if (!neverGiveUp) continue;
@@ -551,8 +583,11 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
     if (!q) continue;
     // 2026-09-07 打ち切らない問いを上限超えで送るときは、言い方を変える。
     //   同じ文面の繰り返しは、相手には催促にしか見えない。
-    const text = (neverGiveUp && askedN >= ASK_MAX && LAST_RESORT_TEXT[m.qid])
+    let text = (neverGiveUp && askedN >= ASK_MAX && LAST_RESORT_TEXT[m.qid])
       ? LAST_RESORT_TEXT[m.qid] : q.text;
+    if (askedN >= ASK_MAX && !LAST_RESORT_TEXT[m.qid] && emptyFocus.has(m.qid)) {
+      text = FOCUS_RETRY_LEAD.replace("%s", FOCUS_LABEL_JA[ownerFocus] || "ご希望") + text;
+    }
     flat.push({ qid: m.qid, w: m.w, text: text });
   }
   /* 2026-10-02 望みの頁が空のままの目的を、先に訊く。
@@ -562,14 +597,6 @@ export function nextQuestions(profile, autopilot, maxN = 2) {
      前に出すのは可視性と業種の設問の前までで、基本の欄(地域・強み・FAQ・見積もり・信頼、重み10以上)は
      越えない。そちらは全部の頁の土台だからである。重みを 9.5 と見なし、目的の中では元の重みの順。
      一つ答えが入れば頁が立つので、残りはこれまでどおり重みの順に戻る。 */
-  const extraNow = (profile && profile.extra) || {};
-  const emptyFocus = new Set();
-  for (const fk of focusList) {
-    const bank = QUESTION_BANK[fk];
-    if (!bank || typeof bank !== "object" || bank.text) continue;
-    const bq = Object.keys(bank);
-    if (!bq.some((q) => answered(extraNow, q))) for (const q of bq) emptyFocus.add(q);
-  }
   const effW = (q) => (emptyFocus.has(q.qid) ? 9.5 + q.w / 100 : q.w);
   // フォーカス未判明なら q_focus を最優先に押し上げ
   flat.sort((a, b) => (a.qid === "q_focus" ? -1 : b.qid === "q_focus" ? 1 : effW(b) - effW(a)));
