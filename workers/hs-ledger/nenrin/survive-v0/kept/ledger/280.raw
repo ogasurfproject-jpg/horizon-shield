@@ -1,0 +1,12 @@
+# witness-enroll-pool-v0
+
+pool_sha256: ecebb3ccf4a1ea72e73512ed5295634b06fceec86536a601015eaa39de973970
+pool_version: 2
+previous_pool_sha256: 96f8be7b1e3de7cb6a87a881281bb84cb408176bb050a7db45b7cdf90ec7d969
+entries: 2
+
+This entry fixes one version of the pool of day witnesses for FURUI day records. The draw for a day uses the pool of the latest entry of this kind that was appended before the ledger entry listing that day's record and is anchored in a Bitcoin block at or below that entry's block. The pool is the JSON on the pool_canonical line; its sha256 is pool_sha256. Procedure: https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/workers/hs-ledger/nenrin/witness-enroll-v0/PROCEDURE.md
+Establishes: that this pool existed no later than the block this entry is anchored to.
+Does not establish: that anyone in the pool will answer a draw, or anything about their answers.
+
+pool_canonical: {"entries":[{"consent":{"enrollment_sha256":null,"form":"email","on":"2026-11-04"},"joined_on":"2026-11-04","key_id":"ed25519:375909759fe5e437","key_url":"https://pipavlo82.github.io/keys/witness.json","kinds":["furui-day"],"left_on":null,"left_reason":null,"name":"pipavlo82","public_key_ed25519_b64":"A9cRj87tZ6Ob5FbRU12LazXRD7fNUJcSNK80Rp1U3zM=","signed_domain":"pipavlo82.github.io"},{"consent":{"enrollment_sha256":"2ecf33749f5732c587936dba3335857954ccee1602a9eaac4466d8db203e0404","form":"witness-enroll-v0","on":"2026-11-08"},"joined_on":"2026-11-09","key_id":"ed25519:40082b94a5e7476d","key_url":"https://invinoveritas.dev/.well-known/nenrin-witness-key.json","kinds":["furui-day"],"left_on":null,"left_reason":null,"name":"invinoveritas.dev","public_key_ed25519_b64":"NBKmkqsxwj00+TFnw5Lz8OhTkDCHyTmzYf9MbNqbVcs=","signed_domain":"invinoveritas.dev"}],"previous_pool_sha256":"96f8be7b1e3de7cb6a87a881281bb84cb408176bb050a7db45b7cdf90ec7d969","schema":"witness-enroll-pool-v0","version":2}

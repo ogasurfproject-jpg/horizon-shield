@@ -1,0 +1,15 @@
+{
+  "n": 278,
+  "work": "HORIZON SHIELD fair-price receipts 2026-11-08 (1)",
+  "claim_sha256": "36e09e7cdd460d6b70e93f8f6b31ab9e55be61467409036a468691fc79aff112",
+  "record_canonical": "{\"schema\":\"hs-fair-price-receipt-batch-v1\",\"date\":\"2026-11-08\",\"count\":1,\"store\":\"https://mcp.horizonshield.dev/ledger/\",\"records\":[{\"sha\":\"1492eb38731806a9ca6c380b0ffe0211b6fad899cd0247b3980db1a2d9e0af59\"}],\"note\":\"Each sha is the SHA-256(JSON.stringify(claim)) of a HORIZON SHIELD fair-price receipt issued on this UTC day, served at store + sha and copied in horizon-shield ops/receipts/<date>.json. This entry's Bitcoin anchor bounds every listed receipt from above. It says the receipt existed; it does not say the price is right.\"}",
+  "schema": "v0",
+  "created_at": "2026-11-09T01:38:15.583Z",
+  "ots_status": "pending",
+  "bitcoin_block": null,
+  "block_time": null,
+  "stamped_at": "2026-11-09T01:51:21.788Z",
+  "pending_stage": "fresh",
+  "pending_hours": 1,
+  "pending_stale_after_hours": 6
+}

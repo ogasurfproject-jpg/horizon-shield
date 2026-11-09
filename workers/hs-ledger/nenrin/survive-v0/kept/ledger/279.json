@@ -1,0 +1,15 @@
+{
+  "n": 279,
+  "work": "aio-prereg-commit-v0",
+  "claim_sha256": "dddac83096ae89d5415862bce06eab84b13b64c285e8f00f218876ab8f46db6b",
+  "record_canonical": "# aio-prereg-commit-v0\n\ncreated_at: 2026-11-09T01:55:52Z\nprereg_document_sha256: d46c912ec5457a8bb1c2cb59e4260ff8a0dcdd4c3064712f1d0f8c203f5f7fd3\n\nThis entry fixes the sha256 of a document written before the measurement it describes. The document stays private until it is published; anyone given it can recompute the sha256 above.\nEstablishes: that a document with this sha256 existed no later than the block this entry is anchored to.\nDoes not establish: anything about the content of the document before it is published.\n",
+  "schema": "v0-plain",
+  "created_at": "2026-11-09T01:56:17.383Z",
+  "ots_status": "pending",
+  "bitcoin_block": null,
+  "block_time": null,
+  "stamped_at": "2026-11-09T01:56:25.119Z",
+  "pending_stage": "fresh",
+  "pending_hours": 1,
+  "pending_stale_after_hours": 6
+}
