@@ -1,6 +1,6 @@
 {
   "schema": "hs-adoption-count-v1",
-  "measured_at": "2026-11-02T06:03:42Z",
+  "measured_at": "2026-11-09T06:29:42Z",
   "metrics": {
     "independent_implementations": {
       "count": 19,
@@ -265,11 +265,11 @@
       ]
     },
     "independent_witnesses": {
-      "count": 3,
+      "count": 6,
       "ledger": {
-        "ledger_n": 237,
-        "ledger_head": "f42d2322d83285dfcef3cc848ff105714b4423406733eca91c9322e3298ea77f",
-        "witness_batches": 41,
+        "ledger_n": 280,
+        "ledger_head": "db9c454abc40dbe1123c11de501529401b6b4e2a36a3338540ceb69cfcfba8d6",
+        "witness_batches": 48,
         "unreadable_entries": [],
         "refused_shared_host": [],
         "signed_domains": {
@@ -277,6 +277,9 @@
             57,
             61,
             107
+          ],
+          "invinoveritas.dev": [
+            273
           ],
           "kuangmi-bit.github.io": [
             71,
@@ -305,11 +308,25 @@
             197,
             213,
             226,
-            233
+            233,
+            238,
+            244,
+            249,
+            256,
+            262,
+            267,
+            273
+          ],
+          "ovaic.org": [
+            273
           ],
           "pipavlo82.github.io": [
             65,
-            73
+            73,
+            256
+          ],
+          "sencor.ai": [
+            273
           ]
         },
         "unsigned_names": {
@@ -637,7 +654,7 @@
       }
     },
     "external_evidence_producers": {
-      "count": 4,
+      "count": 7,
       "identities": [
         {
           "id": "agent-passport.org",
@@ -654,6 +671,12 @@
           ]
         },
         {
+          "id": "invinoveritas.dev",
+          "via": [
+            "ledger witness walk"
+          ]
+        },
+        {
           "id": "kuangmi-bit.github.io",
           "via": [
             "MUSUBI contract",
@@ -661,7 +684,19 @@
           ]
         },
         {
+          "id": "ovaic.org",
+          "via": [
+            "ledger witness walk"
+          ]
+        },
+        {
           "id": "pipavlo82.github.io",
+          "via": [
+            "ledger witness walk"
+          ]
+        },
+        {
+          "id": "sencor.ai",
           "via": [
             "ledger witness walk"
           ]
@@ -688,7 +723,7 @@
           "repo": "kuangmi-bit/conduct-witness",
           "created_from_template": true,
           "reproduce_success_last_30_days": true,
-          "last_success": "2026-10-26T11:32:39Z"
+          "last_success": "2026-11-02T13:51:05Z"
         }
       ],
       "method": "GitHub search for repositories named like conduct-witness, kept when template_repository is ogasurfproject-jpg/conduct-witness-template and reproduce.yml has a successful run in the last 30 days"

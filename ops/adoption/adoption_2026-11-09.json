@@ -1,0 +1,739 @@
+{
+  "schema": "hs-adoption-count-v1",
+  "measured_at": "2026-11-09T06:29:42Z",
+  "metrics": {
+    "independent_implementations": {
+      "count": 19,
+      "distinct_authors": 7,
+      "authors": [
+        "aeoess",
+        "agenstry.com",
+        "astrogilda",
+        "babyblueviper1",
+        "giskard09",
+        "kuangmi-bit",
+        "luiksksk"
+      ],
+      "links_answering": 22,
+      "by_subject": {
+        "a2a-card-canonical-form": 1,
+        "a2a-card-sign-v01": 7,
+        "a2a-card-walk": 1,
+        "agent-card-signature": 1,
+        "musubi-approval-v2": 1,
+        "nenrin-action-presence": 2,
+        "nenrin-provenance": 3,
+        "nenrin-witness-reader": 1,
+        "trace-intake": 1,
+        "vate-nenrin-s3-crosswalk": 1
+      },
+      "other_kinds": {
+        "reproduction": {
+          "count": 2,
+          "distinct_authors": 2
+        },
+        "integration": {
+          "count": 1,
+          "distinct_authors": 1
+        }
+      },
+      "open_calls": {
+        "nenrin-provenance": "A NENRIN provenance verifier by a further author, in any language, that reproduces the verdict signatures of interop-v0, interop-v0.1 and interop-v0.2/edge. Two so far, both by kuangmi-bit: workers/hs-ledger/nenrin/interop-v0/INTEROP.md",
+        "nenrin-interop-v0.3-survivors": "Point any NENRIN provenance verifier, in any language, at the nine survivors vectors and post the result: npx nenrin-tsunagi run nenrin-interop-v0.3-survivors -- \"<your verifier command> {in} {out}\". The reference takes one command after npm install nenrin-verify@0.5.2 (papers/nenrin-stack/README.md, section Rerun it from outside; replication package doi:10.5281/zenodo.23344510)"
+      },
+      "items": [
+        {
+          "who": "kuangmi-bit",
+          "author": "kuangmi-bit",
+          "kind": "implementation",
+          "subject": "a2a-card-canonical-form",
+          "evidence": "https://github.com/a2aproject/a2a-go/issues/445#issuecomment-5879965988",
+          "date": "2026-09-28",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "kuangmi-bit",
+          "author": "kuangmi-bit",
+          "kind": "implementation",
+          "subject": "a2a-card-sign-v01",
+          "evidence": "https://github.com/a2aproject/A2A/issues/2122#issuecomment-5937659218",
+          "date": "2026-10-01",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "astrogilda",
+          "author": "astrogilda",
+          "kind": "implementation",
+          "subject": "a2a-card-sign-v01",
+          "evidence": "https://github.com/a2aproject/A2A/issues/2122#issuecomment-5936546281",
+          "date": "2026-10-01",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "aeoess",
+          "author": "aeoess",
+          "kind": "implementation",
+          "subject": "a2a-card-sign-v01",
+          "evidence": "https://github.com/a2aproject/A2A/issues/2122#issuecomment-5940903881",
+          "date": "2026-10-01",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "Agenstry",
+          "author": "agenstry.com",
+          "kind": "implementation",
+          "subject": "agent-card-signature",
+          "evidence": "https://agenstry.com/agents/gate.horizonshield.dev",
+          "date": "2026-09-28",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "astrogilda, Probity AI",
+          "author": "astrogilda",
+          "kind": "implementation",
+          "subject": "a2a-card-sign-v01",
+          "evidence": "https://github.com/probityai/agent-evidence-vectors/pull/34",
+          "date": "2026-10-02",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "aeoess",
+          "author": "aeoess",
+          "kind": "implementation",
+          "subject": "a2a-card-sign-v01",
+          "evidence": "https://github.com/a2aproject/A2A/issues/2122#issuecomment-5946262435",
+          "date": "2026-10-02",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "astrogilda, Probity AI",
+          "author": "astrogilda",
+          "kind": "implementation",
+          "subject": "a2a-card-sign-v01",
+          "evidence": "https://github.com/probityai/agent-evidence-vectors/pull/42",
+          "date": "2026-10-02",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "kuangmi-bit",
+          "author": "kuangmi-bit",
+          "kind": "implementation",
+          "subject": "nenrin-provenance",
+          "evidence": "https://github.com/a2aproject/A2A/discussions/1631#discussioncomment-18738206",
+          "date": "2026-10-04",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "kuangmi-bit",
+          "author": "kuangmi-bit",
+          "kind": "implementation",
+          "subject": "nenrin-provenance",
+          "evidence": "https://github.com/a2aproject/A2A/discussions/1631#discussioncomment-18739314",
+          "date": "2026-10-04",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "babyblueviper1",
+          "author": "babyblueviper1",
+          "kind": "implementation",
+          "subject": "musubi-approval-v2",
+          "evidence": "https://github.com/ogasurfproject-jpg/horizon-shield/issues/29#issuecomment-5987427704",
+          "date": "2026-10-05",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "a2aproject/a2a-python (reviewed and merged by Iwaniukooo11)",
+          "author": "a2aproject/a2a-python",
+          "kind": "integration",
+          "subject": "a2a-card-sign-v01",
+          "evidence": "https://github.com/a2aproject/a2a-python/pull/1286",
+          "date": "2026-10-07",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "luiksksk",
+          "author": "luiksksk",
+          "kind": "implementation",
+          "subject": "trace-intake",
+          "evidence": "https://github.com/ogasurfproject-jpg/horizon-shield/pull/38",
+          "date": "2026-10-09",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "astrogilda, Probity AI",
+          "author": "astrogilda",
+          "kind": "implementation",
+          "subject": "nenrin-witness-reader",
+          "evidence": "https://github.com/probityai/agent-evidence-atlas/blob/2bff38d8c13f7038d8d773bc77e44ab4f160751a/examples/nenrin-witness-pair/README.md",
+          "date": "2026-10-09",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "giskard09",
+          "author": "giskard09",
+          "kind": "implementation",
+          "subject": "a2a-card-sign-v01",
+          "evidence": "https://github.com/a2aproject/a2a-tck/pull/246#issuecomment-6133531509",
+          "date": "2026-10-12",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "Poke-nushi, VATE",
+          "author": "Poke-nushi",
+          "kind": "reproduction",
+          "subject": "nenrin-provenance",
+          "evidence": "https://github.com/Poke-nushi/Verifiable-Agent-Trust-Envelope/issues/84#issuecomment-6155572648",
+          "date": "2026-10-13",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "kuangmi-bit",
+          "author": "kuangmi-bit",
+          "kind": "implementation",
+          "subject": "nenrin-action-presence",
+          "evidence": "https://github.com/ogasurfproject-jpg/horizon-shield/pull/40",
+          "date": "2026-10-11",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "astrogilda, Probity AI",
+          "author": "astrogilda",
+          "kind": "implementation",
+          "subject": "nenrin-action-presence",
+          "evidence": "https://github.com/ogasurfproject-jpg/horizon-shield/pull/42",
+          "date": "2026-10-12",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "babyblueviper1",
+          "author": "babyblueviper1",
+          "kind": "implementation",
+          "subject": "nenrin-provenance",
+          "evidence": "https://github.com/ogasurfproject-jpg/horizon-shield/pull/44",
+          "date": "2026-10-15",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "astrogilda, Probity AI",
+          "author": "astrogilda",
+          "kind": "implementation",
+          "subject": "a2a-card-walk",
+          "evidence": "https://github.com/probityai/agent-evidence-vectors/issues/55#issuecomment-6203981315",
+          "date": "2026-10-15",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "astrogilda, Probity AI",
+          "author": "astrogilda",
+          "kind": "reproduction",
+          "subject": "priorseal-reader-v0",
+          "evidence": "https://github.com/probityai/agent-evidence/issues/30#issuecomment-6247270386",
+          "date": "2026-10-13",
+          "link_status": 200,
+          "link_ok": true
+        },
+        {
+          "who": "kuangmi-bit",
+          "author": "kuangmi-bit",
+          "kind": "implementation",
+          "subject": "vate-nenrin-s3-crosswalk",
+          "evidence": "https://github.com/ogasurfproject-jpg/horizon-shield/issues/29#issuecomment-6201950453",
+          "date": "2026-10-15",
+          "link_status": 200,
+          "link_ok": true
+        }
+      ]
+    },
+    "independent_witnesses": {
+      "count": 6,
+      "ledger": {
+        "ledger_n": 280,
+        "ledger_head": "db9c454abc40dbe1123c11de501529401b6b4e2a36a3338540ceb69cfcfba8d6",
+        "witness_batches": 48,
+        "unreadable_entries": [],
+        "refused_shared_host": [],
+        "signed_domains": {
+          "api.babyblueviper.com": [
+            57,
+            61,
+            107
+          ],
+          "invinoveritas.dev": [
+            273
+          ],
+          "kuangmi-bit.github.io": [
+            71,
+            73,
+            75,
+            77,
+            79,
+            84,
+            89,
+            96,
+            100,
+            103,
+            107,
+            111,
+            116,
+            121,
+            128,
+            133,
+            138,
+            144,
+            152,
+            159,
+            168,
+            181,
+            189,
+            197,
+            213,
+            226,
+            233,
+            238,
+            244,
+            249,
+            256,
+            262,
+            267,
+            273
+          ],
+          "ovaic.org": [
+            273
+          ],
+          "pipavlo82.github.io": [
+            65,
+            73,
+            256
+          ],
+          "sencor.ai": [
+            273
+          ]
+        },
+        "unsigned_names": {
+          "Baby Blue Viper (invinoveritas)": [
+            38
+          ],
+          "Federico Blanco Sanchez-Llanos (invinoveritas operator, babyblueviper1)": [
+            35
+          ],
+          "pipavlo82": [
+            58
+          ]
+        },
+        "trace_pins_anchored": []
+      },
+      "reverification_pool": {
+        "admitted": [
+          "api.babyblueviper.com",
+          "qunling-001-d7gwxqdou24c9dad4.service.tcloudbase.com"
+        ],
+        "file": "workers/hs-ledger/nenrin/recovery-v0/pool_report.json",
+        "generated_at": "2026-10-22T14:42:22Z",
+        "quorum_of_independent_controls_needed": 2,
+        "control_clusters": "2",
+        "diversity_file": "workers/hs-ledger/nenrin/recovery-v0/witness_diversity_report.json"
+      }
+    },
+    "outside_trace_pins": {
+      "count": 0,
+      "keys": [],
+      "pending_pool": 0
+    },
+    "external_contracts": {
+      "count": 3,
+      "signed_by_both": 4,
+      "with_an_outside_party": 3,
+      "with_no_party_from_us": 1,
+      "settled_final_recomputed": 1,
+      "items": [
+        {
+          "contract_id": "4e392387a71a2dcf59fbc43314231d4c",
+          "file": "workers/hs-ledger/nenrin/musubi-v0/first_contract_AB.json",
+          "parties": [
+            "horizonshield.dev",
+            "api.babyblueviper.com"
+          ],
+          "outside_parties": [
+            "api.babyblueviper.com"
+          ]
+        },
+        {
+          "contract_id": "ff78faf5c45d84d0fb3796ed780c0677",
+          "file": "workers/hs-ledger/nenrin/musubi-v0/run0003/contract.json",
+          "parties": [
+            "the-horizons-innovation.com",
+            "shield.the-horizons-innovation.com"
+          ],
+          "outside_parties": []
+        },
+        {
+          "contract_id": "8f113a3ea64a109085de8a83f47121eb",
+          "file": "workers/hs-ledger/nenrin/musubi-v0/second_contract_AB.json",
+          "parties": [
+            "horizonshield.dev",
+            "api.babyblueviper.com"
+          ],
+          "outside_parties": [
+            "api.babyblueviper.com"
+          ]
+        },
+        {
+          "contract_id": "34ee9d22f9f448de7f15db1e1dd4d697",
+          "file": "https://raw.githubusercontent.com/kuangmi-bit/musubi-peer-contract/main/c.AB.json",
+          "contract_sha256": "d7118f285250241513db1ce244a7ec4b4fbfd9160123ba466abdfad727b70f81",
+          "parties": [
+            "agent-passport.org",
+            "kuangmi-bit.github.io"
+          ],
+          "outside_parties": [
+            "agent-passport.org",
+            "kuangmi-bit.github.io"
+          ],
+          "published_by_the_parties": true,
+          "settlement_url": "https://raw.githubusercontent.com/kuangmi-bit/musubi-peer-contract/main/settlement.json",
+          "settlement": {
+            "settlement_url": "https://raw.githubusercontent.com/kuangmi-bit/musubi-peer-contract/main/settlement.json",
+            "recomputed_identical": true,
+            "schema": "a2a-settlement-v1.10",
+            "status": "final",
+            "verdict": "within_grant",
+            "final_at_height": 970543,
+            "settlement_sha256": "a21190c7f30ed2436b96efe05d7434f9319b41d5cf42e50ed8c730d6b4067fe7",
+            "recomputed_with": "workers/hs-ledger/nenrin/musubi-v0/settle_v1_10.py"
+          }
+        }
+      ],
+      "published_not_counted": [],
+      "repo_not_counted": [
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b01/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b02/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b02/parent.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b03/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b04/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b04/parent.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b05/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b06/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b07/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b08/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b09/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b10/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b10/parent.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b11/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b12/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b13/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b14/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b15/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b15/parent.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b16/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b17/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b18/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b19/contract.json",
+          "why": "verify_contract did not accept it"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b20/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b21/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b22/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b23/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b24/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b24/parent.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b25/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b26/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b27/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b28/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b29/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b30/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b31/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b32/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b33/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b34/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b35/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b36/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b37/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b38/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b39/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b40/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b41/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b42/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b43/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b44/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b44/parent.json",
+          "why": "verify_contract did not accept it"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b45/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b46/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b47/contract.json",
+          "why": "a party has a reserved test name"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b48/contract.json",
+          "why": "verify_contract did not accept it"
+        },
+        {
+          "file": "workers/hs-ledger/nenrin/musubi-v0/settle-core-blind-01/inputs/b48/parent.json",
+          "why": "a party has a reserved test name"
+        }
+      ],
+      "repo_test_material_skipped": {
+        "dirs": [
+          "workers/hs-ledger/nenrin/musubi-v0/settle-core-v0"
+        ],
+        "json_files": 854
+      }
+    },
+    "external_evidence_producers": {
+      "count": 7,
+      "identities": [
+        {
+          "id": "agent-passport.org",
+          "via": [
+            "MUSUBI contract"
+          ]
+        },
+        {
+          "id": "api.babyblueviper.com",
+          "via": [
+            "MUSUBI contract",
+            "agreement record",
+            "ledger witness walk"
+          ]
+        },
+        {
+          "id": "invinoveritas.dev",
+          "via": [
+            "ledger witness walk"
+          ]
+        },
+        {
+          "id": "kuangmi-bit.github.io",
+          "via": [
+            "MUSUBI contract",
+            "ledger witness walk"
+          ]
+        },
+        {
+          "id": "ovaic.org",
+          "via": [
+            "ledger witness walk"
+          ]
+        },
+        {
+          "id": "pipavlo82.github.io",
+          "via": [
+            "ledger witness walk"
+          ]
+        },
+        {
+          "id": "sencor.ai",
+          "via": [
+            "ledger witness walk"
+          ]
+        }
+      ],
+      "agreements_signed_by_both": [
+        {
+          "file": "workers/hs-ledger/nenrin/agreement-v0/first_agreement_record.json",
+          "parties": [
+            "horizonshield.dev",
+            "api.babyblueviper.com"
+          ],
+          "outside_parties": [
+            "api.babyblueviper.com"
+          ]
+        }
+      ]
+    },
+    "third_party_ci_reproductions": {
+      "count": 1,
+      "from_template": 1,
+      "repos": [
+        {
+          "repo": "kuangmi-bit/conduct-witness",
+          "created_from_template": true,
+          "reproduce_success_last_30_days": true,
+          "last_success": "2026-11-02T13:51:05Z"
+        }
+      ],
+      "method": "GitHub search for repositories named like conduct-witness, kept when template_repository is ogasurfproject-jpg/conduct-witness-template and reproduce.yml has a successful run in the last 30 days"
+    }
+  },
+  "not_measured": [],
+  "how_to_recompute": "python3 tools/adoption/count_adoption.py",
+  "does_not_establish": [
+    "a count is not a score or an endorsement",
+    "an implementation that reproduced bytes did not thereby adopt or approve anything",
+    "absent from these sources is not absent from the world"
+  ]
+}
