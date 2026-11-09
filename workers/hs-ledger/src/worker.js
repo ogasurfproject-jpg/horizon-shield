@@ -313,6 +313,20 @@ function witnessSharedHost(host) {
   return false;
 }
 const WITNESS_OUR_GITHUB_OWNERS = ["ogasurfproject-jpg"];
+// 2026-11-08. This project's own domains. A key served from one of them, or from a name under one, is this project
+// signing. On a record that walked one of these names or this ledger it is refused as self_witness (the operator cannot
+// witness its own records). On a record about anyone else it is kept and batched, but never counted (count_reason
+// "operator") and it takes no first-count slot, so it cannot pass for an outside witness. A trailing dot names the same
+// host and is read the same; upper case and a port are already gone from URL.hostname.
+const WITNESS_OUR_DOMAINS = ["horizonshield.dev", "the-horizons-innovation.com", "ogasurfproject-jpg.github.io", "oga-surf-project.workers.dev"];
+function witnessOurDomain(host) {
+  const h = String(host || "").replace(/\.$/, "");
+  return WITNESS_OUR_DOMAINS.some((d) => h === d || h.endsWith("." + d));
+}
+// The host a walked URL names, whatever its scheme (an http base still names that host).
+function witnessAnyHost(u) {
+  try { return new URL(u).hostname.toLowerCase().replace(/\.$/, ""); } catch (_e) { return ""; }
+}
 function witnessKeyIdentity(keyUrl) {
   const host = witnessHost(keyUrl);
   if (!host) return { ok: false, why: "witness.key_url must be an https URL under the witness's own domain" };
@@ -672,6 +686,8 @@ function witnessSelfDescription(origin) {
     signature: "Optional Ed25519 over the exact record_canonical bytes (signature_ed25519_b64 + public_key_ed25519_b64). Present and invalid: rejected. Absent: accepted and recorded as signed: false. " +
                "v1.1: when the record carries witness.key_url (https, under the witness's domain), the same public key must be served there as {public_key_ed25519_b64}; " +
                "the domain then becomes the witness's identity (signed_domain). A key_url under the walked agent's own domain is refused as self_witness. " +
+               "2026-11-08: a key_url under this project's own domains (horizonshield.dev, the-horizons-innovation.com, ogasurfproject-jpg.github.io, oga-surf-project.workers.dev and every name under them) " +
+               "is refused as self_witness when the record walked one of those names or this ledger; on a record about anyone else it is kept and batched but never counted (counted: false, count_reason: operator). " +
                "2026-10-16: with no domain of your own, serve the key from a repository you own at raw.githubusercontent.com/<owner>/<repo>/<branch or tag>/<path>; signed_domain is then github.com/<owner>. " +
                "A commit SHA as the ref is refused (GitHub serves fork commits under the parent's path), and other shared GitHub hosts are refused. " +
                "2026-11-07: the key_url may instead serve one OpenSSH public key line, ssh-ed25519 <base64> [comment] (the file ssh-keygen writes), read to the same 32-byte key; the record is still signed with plain Ed25519 over record_canonical, not with ssh-keygen -Y sign.",
@@ -683,7 +699,8 @@ function witnessSelfDescription(origin) {
       github_key_url: "raw.githubusercontent.com/<owner>/<repo>/<branch or tag>/<path> serving {public_key_ed25519_b64}; identity github.com/<owner>; a commit SHA ref is refused",
       counting: "every accepted record is stored; per (witness identity, walked endpoint, UTC day) only the first is counted: true. " +
                 "The identity is signed_domain when the record is domain-signed, else name:<witness.name>. The pool and the batch carry counted for every record; " +
-                "nothing is hidden by the cap, only the ring's counts respect it.",
+                "nothing is hidden by the cap, only the ring's counts respect it. " +
+                "A record signed with a key served from this project's own domains is stored with counted: false and count_reason operator, and takes no first-count slot.",
       not_established: "acceptance here proves that a record of this shape was filed at this time; it does not prove that the walk happened, that the endpoint answered as described, or who the witness is beyond signed_domain when present"
     },
     privacy: "No IP addresses are stored. Rate counters use a 16-hex prefix of sha256(ip) and expire within 25 hours.",
@@ -1804,7 +1821,7 @@ async function handle(request, env) {
         if (!signed) return json({ error: "signature_invalid", reason_code: "signature_invalid", note: "a present signature must verify; omit it to submit unsigned" }, 422);
       }
       // v1.1 domain binding. A key_url without a signature binds nothing and is refused as such.
-      let signedDomain = null;
+      let signedDomain = null, operatorKey = false;
       if (v.key_url) {
         if (!signed) return json({ error: "key_url_without_signature", reason_code: "bad_key_url", note: "witness.key_url only means something on a signed record" }, 422);
         const walkedHosts = [witnessHost(v.base), witnessHost(v.endpoint)].filter(Boolean);
@@ -1814,6 +1831,12 @@ async function handle(request, env) {
           return json({ error: "self_witness", reason_code: "self_witness", note: "the ledger's own domain is not a witness domain" }, 422);
         if (v.github_owner && WITNESS_OUR_GITHUB_OWNERS.includes(v.github_owner))
           return json({ error: "self_witness", reason_code: "self_witness", note: "a key served from this project's own GitHub account cannot witness this project's agents" }, 422);
+        if (witnessOurDomain(v.key_host)) {
+          const ledgerHost = witnessAnyHost(origin);
+          if ([v.base, v.endpoint].map(witnessAnyHost).some((h) => h && (witnessOurDomain(h) || h === ledgerHost)))
+            return json({ error: "self_witness", reason_code: "self_witness", note: "a key served from this project's own domain cannot witness this project's own records" }, 422);
+          operatorKey = true;
+        }
         const dk = await witnessFetchDomainKey(env, v.key_url, { ssh: true });
         if (!dk.ok) return json({ error: "key_url_unreachable", reason_code: "key_url_unreachable", why: dk.why, note: "retry later, or omit key_url to file as an address-lane record" }, 503);
         if (dk.key !== b.public_key_ed25519_b64)
@@ -1839,12 +1862,16 @@ async function handle(request, env) {
       if (dupP || dupA) return json({ sha, status: dupA ? "anchored" : "pending", dedup: true, url: `${origin}/witness/${sha}` });
 
       // Counting, not storage, is capped: first record per (identity, endpoint, day) is counted.
-      const identity = signedDomain ? `domain:${signedDomain}` : `name:${v.witness_name}`;
-      const cntKey = `wit:cnt:${day}:${(await sha256hex(identity + "|" + v.endpoint)).slice(0, 32)}`;
-      const already = await env.LEDGER.get(cntKey);
-      const counted = !already;
-      const countReason = counted ? null : "same witness, same endpoint, same day; stored, not counted";
-      if (counted) await env.LEDGER.put(cntKey, sha, { expirationTtl: 90000 });
+      // 2026-11-08: a record signed with this project's own key is never counted and does not read or take the slot.
+      let counted = false, countReason = "operator";
+      if (!operatorKey) {
+        const identity = signedDomain ? `domain:${signedDomain}` : `name:${v.witness_name}`;
+        const cntKey = `wit:cnt:${day}:${(await sha256hex(identity + "|" + v.endpoint)).slice(0, 32)}`;
+        const already = await env.LEDGER.get(cntKey);
+        counted = !already;
+        countReason = counted ? null : "same witness, same endpoint, same day; stored, not counted";
+        if (counted) await env.LEDGER.put(cntKey, sha, { expirationTtl: 90000 });
+      }
 
       const stored = {
         sha, record_canonical: b.record_canonical, signed,
@@ -1861,7 +1888,7 @@ async function handle(request, env) {
       await env.LEDGER.put(`wit:pending:${sha}`, JSON.stringify(stored));
       await env.LEDGER.put(`wit:count:${day}`, String(g + 1), { expirationTtl: 90000 });
       await env.LEDGER.put(laneKey, String(gl + 1), { expirationTtl: 90000 });
-      if (NET_TOOSHI_PURPOSE.test(v.purpose)) await noteNetworkFace(env, request, "tooshi");
+      if (NET_TOOSHI_PURPOSE.test(v.purpose) && !operatorKey) await noteNetworkFace(env, request, "tooshi");
       return json({
         sha, status: "pending", signed, signed_domain: signedDomain, mode: v.mode, counted, count_reason: countReason, url: `${origin}/witness/${sha}`,
         anchor_policy: "pending submissions are bundled into a nenrin-witness-batch-v1 ledger entry daily at 00:30 UTC by the ledger's schedule when the pool is not empty; the batch anchor fixes the existence time of every record in it; the Bitcoin stamp follows on the operator's stamping run"
@@ -1883,7 +1910,8 @@ async function handle(request, env) {
       return json({ count: out.length, counted, stored_not_counted: out.length - counted, pending: out,
                     caps: { daily_global: WITNESS_DAILY_GLOBAL, daily_per_ip: WITNESS_DAILY_PER_IP, daily_per_domain: WITNESS_DAILY_PER_DOMAIN },
                     note: "public pool; bundled into a ledger entry daily at 00:30 UTC by schedule when not empty; the Bitcoin stamp follows on the operator's stamping run; " +
-                          "counted false means a second record from the same witness for the same endpoint on the same day: stored, anchored, not counted by the ring" });
+                          "counted false means a second record from the same witness for the same endpoint on the same day: stored, anchored, not counted by the ring; " +
+                          "since 2026-11-08 it also marks a record signed with a key served from this project's own domains (count_reason operator at GET /witness/{sha}): stored, anchored, never counted" });
     }
 
     const wm = p.match(/^\/witness\/([0-9a-f]{64})$/i);

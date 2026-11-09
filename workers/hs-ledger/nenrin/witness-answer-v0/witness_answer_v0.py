@@ -61,10 +61,11 @@ LEDGER = "https://ledger.horizonshield.dev"
 # Hosts an outside witness cannot sign from. SHARED_HOSTS, SHARED_S3 and OPERATOR_GITHUB are the rules of the ledger's
 # witness intake, in the same order (WITNESS_SHARED_HOSTS, the path-style S3 pattern of witnessSharedHost and
 # WITNESS_OUR_GITHUB_OWNERS in workers/hs-ledger/src/worker.js); workers/hs-ledger/test/witness_answer_helper.test.mjs reads
-# them from worker.js and holds this file to the same lists and the same answers. OPERATOR_SUFFIXES is narrower than the
-# intake on purpose: the intake refuses only the ledger's own host by rule, but a TOOSHI day and a FURUI day record are this
-# project's own records, so a key on any of its domains would be the operator witnessing itself.
-OPERATOR_SUFFIXES = ("horizonshield.dev", "the-horizons-innovation.com", "oga-surf-project.workers.dev")
+# them from worker.js and holds this file to the same lists and the same answers. OPERATOR_SUFFIXES is the intake's
+# WITNESS_OUR_DOMAINS. The intake refuses a key on them for a record that walked those names or the ledger (a FURUI day) and
+# keeps any other record uncounted (count_reason operator); the helper refuses them for both kinds, because a TOOSHI day
+# record is this project's own record too, so a key on any of its domains would be the operator witnessing itself.
+OPERATOR_SUFFIXES = ("horizonshield.dev", "the-horizons-innovation.com", "ogasurfproject-jpg.github.io", "oga-surf-project.workers.dev")
 OPERATOR_GITHUB = ("ogasurfproject-jpg",)
 SHARED_HOSTS = (
     "github.com", "gist.github.com", "gist.githubusercontent.com", "objects.githubusercontent.com", "codeload.github.com",

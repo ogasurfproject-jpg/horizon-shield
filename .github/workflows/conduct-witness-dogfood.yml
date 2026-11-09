@@ -12,11 +12,15 @@ jobs:
       - uses: ogasurfproject-jpg/horizon-shield/conduct-witness-action@4a8d10bb5e5cc4544bd390153a7b814a7fb79a02
         with:
           witness_name: "HORIZON SHIELD self-witness (github runner)"
+          # 2026-11-08: walk only, file nothing (submit and bind_task off). The ledger refuses a record about this project's
+          # own agents signed with a key served from this project's own domains (self_witness), and the task observation
+          # would go to the ledger too. The records stay in this run's artifact.
+          submit: "false"
           origins: |
             https://mcp.horizonshield.dev a2a
             https://gate.horizonshield.dev mcp
           walker_sha256: a7e36d3828c03b1a0e22079f248549c372f723c2859d1a6fb8b7b051f3792f9f
-          bind_task: "true"
+          bind_task: "false"
           task_bind_sha256: b0777582dff8e15edf2ec30e3b22181835a7ebfaebaa5ba2d7709bd4de41d771
           producer_sha256: 2ea6385ffc613545b858dab8acacb2bdcba99eebc6f785c0ba5c134cd58b9d86
           # Signed task emission activates when the HS_WITNESS_KEY secret (an Ed25519 PEM) exists and its

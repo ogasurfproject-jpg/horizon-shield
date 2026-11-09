@@ -4,9 +4,11 @@
 // refuses the helper must refuse first, so nobody signs and posts an answer the intake then turns away. This file holds the
 // two to that: (1) the helper's host lists are the intake's lists, read from src/worker.js; (2) for each key_url below the
 // helper builds and wraps a furui-day and a tooshi-day answer and the intake answers the POST; (3) the body a key_url serves
-// (JSON or one ssh-ed25519 line) is read to the same key by both. The helper is narrower than the intake in two stated ways
-// only: this project's own domains (a TOOSHI day and a FURUI day record are this project's own records) and URL spellings
-// the helper does not take (port, query, upper-case host, no path, dot segments).
+// (JSON or one ssh-ed25519 line) is read to the same key by both. This project's own domains are one list in both
+// (OPERATOR_SUFFIXES is WITNESS_OUR_DOMAINS): on a FURUI day, which walks the ledger, both refuse a key there; on a TOOSHI
+// day, which walks raw.githubusercontent.com, the intake keeps the record without counting it (count_reason operator) and
+// the helper refuses it, since a TOOSHI day is this project's own record too. Apart from that the helper is narrower than
+// the intake only in URL spellings it does not take (port, query, upper-case host, no path, dot segments).
 // Run: node test/witness_answer_helper.test.mjs   (offline; fetch is replaced for key_url lookups; python3 runs the helper)
 
 import { readFileSync } from "node:fs";
@@ -34,13 +36,15 @@ function py(lines, input) {
 // 1. The lists.
 const arr = (name) => { const m = new RegExp("const " + name + " = \\[([\\s\\S]*?)\\];").exec(SRC); return m ? JSON.parse("[" + m[1] + "]") : null; };
 const s3 = /if \(\/\^(.+?)\$\/\.test\(host\)\) return true;\s*\/\/ path-style S3/.exec(SRC);
-const lists = py(["print(json.dumps({'shared': list(W.SHARED_HOSTS), 's3': W.SHARED_S3, 'github': list(W.OPERATOR_GITHUB)}))"], null);
-chk("worker.js still names WITNESS_SHARED_HOSTS, the path-style S3 pattern and WITNESS_OUR_GITHUB_OWNERS", arr("WITNESS_SHARED_HOSTS") && s3 && arr("WITNESS_OUR_GITHUB_OWNERS"));
+const lists = py(["print(json.dumps({'shared': list(W.SHARED_HOSTS), 's3': W.SHARED_S3, 'github': list(W.OPERATOR_GITHUB), 'operator': list(W.OPERATOR_SUFFIXES)}))"], null);
+chk("worker.js still names WITNESS_SHARED_HOSTS, the path-style S3 pattern, WITNESS_OUR_GITHUB_OWNERS and WITNESS_OUR_DOMAINS", arr("WITNESS_SHARED_HOSTS") && s3 && arr("WITNESS_OUR_GITHUB_OWNERS") && arr("WITNESS_OUR_DOMAINS"));
 if (lists) {
   chk("the helper's SHARED_HOSTS is the intake's WITNESS_SHARED_HOSTS, " + lists.shared.length + " hosts in the same order",
     JSON.stringify(lists.shared) === JSON.stringify(arr("WITNESS_SHARED_HOSTS")), JSON.stringify(lists.shared));
   chk("the helper's SHARED_S3 is the intake's path-style S3 pattern", s3 && lists.s3 === s3[1], lists.s3 + " / " + (s3 && s3[1]));
   chk("the helper's OPERATOR_GITHUB is the intake's WITNESS_OUR_GITHUB_OWNERS", JSON.stringify(lists.github) === JSON.stringify(arr("WITNESS_OUR_GITHUB_OWNERS")));
+  chk("the helper's OPERATOR_SUFFIXES is the intake's WITNESS_OUR_DOMAINS, " + lists.operator.length + " domains in the same order",
+    JSON.stringify(lists.operator) === JSON.stringify(arr("WITNESS_OUR_DOMAINS")), JSON.stringify(lists.operator));
 }
 
 // 2. key_urls: the helper's answer and the intake's answer.
@@ -58,9 +62,12 @@ const SAME = [
   "https://ledger.horizonshield.dev/witness-key.json", "http://witness.example/k.json",
   ...lists ? [...lists.shared.map((h) => "https://" + h + "/k/witness.json"), "https://s3-us-west-2.amazonaws.com/b/k.json", "https://s3.eu-central-1.amazonaws.com/b/k.json"] : [],
 ];
-const NARROWER = [
+const OPERATOR = [
   "https://horizonshield.dev/.well-known/nenrin-witness-key.json", "https://x.oga-surf-project.workers.dev/k.json",
-  "https://the-horizons-innovation.com/k.json", "https://witness.example:8443/k.json", "https://witness.example/k.json?v=1",
+  "https://the-horizons-innovation.com/k.json", "https://ogasurfproject-jpg.github.io/keys/witness.json",
+];
+const NARROWER = [
+  "https://witness.example:8443/k.json", "https://witness.example/k.json?v=1",
   "https://Witness.example/k.json", "https://witness.example", "https://witness.example/a/../k.json", "https://witness.example/a/./k.json",
 ];
 const cases = py([
@@ -91,7 +98,7 @@ const cases = py([
   "        out.append({'u': u, 'kind': kind, 'helper_ok': why is None, 'why': why, 'identity': None if p else W.identity_of(u),",
   "                    'body': W.intake_body(rc, PUB, seed=SEED)})",
   "print(json.dumps({'pub': base64.b64encode(PUB).decode(), 'cases': out}))",
-], [...SAME, ...NARROWER]);
+], [...SAME, ...OPERATOR, ...NARROWER]);
 
 const worker = await loadWorker("src/worker.js");
 const ORIGIN = "https://ledger.horizonshield.dev";
@@ -102,12 +109,19 @@ async function post(body) {
   const res = await worker.fetch(new Request(ORIGIN + "/witness", { method: "POST", headers: { "content-type": "application/json", "cf-connecting-ip": "203.0.113.9" }, body: JSON.stringify(body) }), env);
   return { status: res.status, j: await res.json() };
 }
-let nSame = 0, nNarrow = 0, nOk = 0;
+let nSame = 0, nNarrow = 0, nOk = 0, nOp = 0;
 for (const c of cases ? cases.cases : []) {
   const r = await post(c.body);
   const intakeOk = r.status === 201 && r.j.signed === true;
   const label = c.kind + " " + c.u;
-  if (NARROWER.includes(c.u)) {
+  if (OPERATOR.includes(c.u)) {
+    nOp++;
+    if (c.kind === "furui-day")
+      chk("this project's domain, both refuse it (a FURUI day walks the ledger): " + label, !c.helper_ok && r.status === 422 && r.j.reason_code === "self_witness", JSON.stringify({ why: c.why, status: r.status, intake: r.j }));
+    else
+      chk("this project's domain on a TOOSHI day: the helper refuses, the intake keeps it uncounted (operator): " + label,
+        !c.helper_ok && intakeOk && r.j.counted === false && r.j.count_reason === "operator", JSON.stringify({ why: c.why, status: r.status, intake: r.j }));
+  } else if (NARROWER.includes(c.u)) {
     nNarrow++;
     chk("narrower on purpose, the helper refuses and the intake takes it: " + label, !c.helper_ok && intakeOk, JSON.stringify({ why: c.why, intake: r.j }));
   } else {
@@ -117,7 +131,8 @@ for (const c of cases ? cases.cases : []) {
       c.helper_ok === intakeOk && (!intakeOk || r.j.signed_domain === c.identity), JSON.stringify({ why: c.why, status: r.status, intake: r.j }));
   }
 }
-chk("the cases ran: " + nSame + " the same (" + nOk + " taken), " + nNarrow + " narrower", cases && nSame === 2 * SAME.length && nNarrow === 2 * NARROWER.length && nOk > 10);
+chk("the cases ran: " + nSame + " the same (" + nOk + " taken), " + nOp + " on this project's domains, " + nNarrow + " narrower",
+  cases && nSame === 2 * SAME.length && nOp === 2 * OPERATOR.length && nNarrow === 2 * NARROWER.length && nOk > 10);
 
 // 3. The body a key_url serves: the intake's res.text() and servedKeyB64 against the helper's served_key.
 const KEY = Buffer.from(PUB_B64, "base64");

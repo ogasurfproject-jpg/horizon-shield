@@ -279,6 +279,8 @@ class KeyUrlAsTheIntake(unittest.TestCase):
         self.assertIn("/^" + W.SHARED_S3 + "$/.test(host)", src)
         m = re.search(r"const WITNESS_OUR_GITHUB_OWNERS = \[(.*?)\];", src, re.S)
         self.assertEqual(tuple(re.findall(r'"([^"]+)"', m.group(1))), W.OPERATOR_GITHUB)
+        m = re.search(r"const WITNESS_OUR_DOMAINS = \[(.*?)\];", src, re.S)
+        self.assertEqual(tuple(re.findall(r'"([^"]+)"', m.group(1))), W.OPERATOR_SUFFIXES)
 
     def test_hosts_that_serve_many_peoples_files(self):
         for h in ("1drv.ms", "camo.githubusercontent.com", "cdn.statically.io", "fastly.jsdelivr.net", "firebasestorage.googleapis.com",
@@ -323,8 +325,11 @@ class KeyUrlAsTheIntake(unittest.TestCase):
 
     def test_operator_domains_stay_refused(self):
         for u in ("https://horizonshield.dev/.well-known/nenrin-witness-key.json", "https://x.oga-surf-project.workers.dev/k.json",
-                  "https://the-horizons-innovation.com/k.json"):
+                  "https://the-horizons-innovation.com/k.json", "https://ogasurfproject-jpg.github.io/keys/witness.json",
+                  "https://x.ogasurfproject-jpg.github.io/k.json"):
             self.assertIn("operator's own domain", W.key_url_problem(u) or "", u)
+        for u in ("https://ogasurfproject-jpg-fan.github.io/k.json", "https://evilhorizonshield.dev/k.json"):   # look-alikes are not
+            self.assertIsNone(W.key_url_problem(u), u)
 
 
 class SshKeyLine(unittest.TestCase):
