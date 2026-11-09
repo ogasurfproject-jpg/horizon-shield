@@ -727,9 +727,21 @@ def focus_has_answer(profile, focus):
     extra = profile.get("extra") or {}
     for qid in FOCUS_DEF[focus]["qids"]:
         ans = extra.get(qid)
-        if isinstance(ans, dict) and safe_pub(ans.get("text") or "").strip():
+        if isinstance(ans, dict) and substantive(safe_pub(ans.get("text") or "")):
             return True
     return False
+
+# 2026-11-09 番人: 「進めて下さい」(001 の q_fr_support、代理店の話への返事)が network/no001 の「提供できるサポート」に
+#   そのまま出ていた。受け答えや一言は頁の答えにしない。12 字未満、または了解・お礼だけの文は載せない。
+THIN_RE = re.compile(r"^(?:いつも|引き続き|今後とも)?(?:お世話にな(?:っており|ってい|り)ます|はい|了解|承知|かしこまり|よろしく|宜しく|お願い|ありがとう|進めて|OK|ok|大丈夫|ご連絡お待ち|お待ちして)")
+def substantive(txt):
+    """受け答え・挨拶・了解だけの文は False。どれか一文に中身があり、全体が 12 字以上なら True。"""
+    t = re.sub(r"\s+", "", str(txt or ""))
+    t = re.sub(r"[🙇‍♂️🙇]+", "", t)
+    parts = [x for x in re.split(r"[。!！?？]", t) if x]
+    if not parts or len(t) < 12:
+        return False
+    return any(not THIN_RE.match(x) for x in parts)
 
 def focus_page(profile, focus, news):
     fd = FOCUS_DEF[focus]
@@ -751,7 +763,7 @@ def focus_page(profile, focus, news):
     for qid, label in zip(fd["qids"], fd["labels"]):
         ans = extra.get(qid)
         txt = safe_pub((ans or {}).get("text") if isinstance(ans, dict) else "")[:600]
-        if txt:
+        if substantive(txt):
             wrote_any = True
             body += '<div class="section"><h2>%s</h2><p>%s</p></div>' % (esc(label), esc(txt))
     if not wrote_any:
