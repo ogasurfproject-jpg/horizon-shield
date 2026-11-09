@@ -17,9 +17,27 @@
    "name": "pipavlo82",
    "public_key_ed25519_b64": "A9cRj87tZ6Ob5FbRU12LazXRD7fNUJcSNK80Rp1U3zM=",
    "signed_domain": "pipavlo82.github.io"
+  },
+  {
+   "consent": {
+    "enrollment_sha256": "2ecf33749f5732c587936dba3335857954ccee1602a9eaac4466d8db203e0404",
+    "form": "witness-enroll-v0",
+    "on": "2026-11-08"
+   },
+   "joined_on": "2026-11-09",
+   "key_id": "ed25519:40082b94a5e7476d",
+   "key_url": "https://invinoveritas.dev/.well-known/nenrin-witness-key.json",
+   "kinds": [
+    "furui-day"
+   ],
+   "left_on": null,
+   "left_reason": null,
+   "name": "invinoveritas.dev",
+   "public_key_ed25519_b64": "NBKmkqsxwj00+TFnw5Lz8OhTkDCHyTmzYf9MbNqbVcs=",
+   "signed_domain": "invinoveritas.dev"
   }
  ],
- "previous_pool_sha256": null,
+ "previous_pool_sha256": "96f8be7b1e3de7cb6a87a881281bb84cb408176bb050a7db45b7cdf90ec7d969",
  "schema": "witness-enroll-pool-v0",
- "version": 1
+ "version": 2
 }

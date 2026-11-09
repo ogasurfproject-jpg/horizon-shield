@@ -2,7 +2,8 @@
 
 Status: v0, 2026-11-05. The pool file and the draw rule are published here. A draw runs only for a day whose record is listed in a ledger entry that comes after an anchored pool entry (see "When a draw can run"). Everything this page uses is in this folder (`workers/hs-ledger/nenrin/witness-enroll-v0/` in ogasurfproject-jpg/horizon-shield) and in `../witness-answer-v0/`:
 
-* `pool.json`: the pool, version 1.
+* `pool.json`: the pool, version 2.
+* `pool_v1.json`: version 1 of the pool, as fixed in ledger entry 255. `previous_pool_sha256` in `pool.json` is its `pool_sha256`; the tests and `vectors.json` use it.
 * `witness_enroll_v0.py`: the helper. Python 3 standard library only. It checks a pool, writes the ledger record that fixes a pool version, computes the draw for a day from public endpoints, and recomputes a recorded draw. It loads `../witness-answer-v0/witness_answer_v0.py` for the key, key_url and canonical JSON rules, so keep the two folders side by side. It only reads (GET); it sends nothing.
 * `test_witness_enroll_v0.py`: its tests. They block every socket before they start. Run `python3 -I -B test_witness_enroll_v0.py` (or `python3 -I -B witness_enroll_v0.py selftest`).
 * `vectors.json`: draws with their expected witness, leaves and record hash. The tests rebuild it and compare.

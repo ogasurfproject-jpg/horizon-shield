@@ -1,0 +1,25 @@
+{
+ "entries": [
+  {
+   "consent": {
+    "enrollment_sha256": null,
+    "form": "email",
+    "on": "2026-11-04"
+   },
+   "joined_on": "2026-11-04",
+   "key_id": "ed25519:375909759fe5e437",
+   "key_url": "https://pipavlo82.github.io/keys/witness.json",
+   "kinds": [
+    "furui-day"
+   ],
+   "left_on": null,
+   "left_reason": null,
+   "name": "pipavlo82",
+   "public_key_ed25519_b64": "A9cRj87tZ6Ob5FbRU12LazXRD7fNUJcSNK80Rp1U3zM=",
+   "signed_domain": "pipavlo82.github.io"
+  }
+ ],
+ "previous_pool_sha256": null,
+ "schema": "witness-enroll-pool-v0",
+ "version": 1
+}

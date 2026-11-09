@@ -112,13 +112,24 @@ class World:
 
 class Pool(unittest.TestCase):
     def test_pool_file_is_the_published_key(self):
-        p = load("pool.json")
+        p = load("pool_v1.json")
         E.check_pool(p)
+        self.assertEqual(E.pool_sha256(p), "96f8be7b1e3de7cb6a87a881281bb84cb408176bb050a7db45b7cdf90ec7d969")
         doc = json.load(open(os.path.join(HERE, "..", "witness-answer-v0", "fixtures", "pipavlo82_witness_json_20261104.json"), encoding="utf-8"))
         (e,) = p["entries"]
         self.assertEqual(e["public_key_ed25519_b64"], doc["public_key_ed25519_b64"])
         self.assertEqual(e["key_id"], "ed25519:375909759fe5e437")
         self.assertEqual(e["signed_domain"], "pipavlo82.github.io")
+        self.assertEqual([x["signed_domain"] for x in E.active(p, DAY)], ["pipavlo82.github.io"])
+
+    def test_pool_file_version_2(self):
+        p, p1 = load("pool.json"), load("pool_v1.json")
+        E.check_pool(p)
+        self.assertEqual((p["version"], p["previous_pool_sha256"]), (2, E.pool_sha256(p1)))
+        self.assertEqual(p["entries"][:1], p1["entries"])
+        for e in p["entries"][1:]:
+            self.assertEqual(e["consent"]["form"], "witness-enroll-v0")
+            self.assertEqual((e["left_on"], e["left_reason"]), (None, None))
         self.assertEqual([x["signed_domain"] for x in E.active(p, DAY)], ["pipavlo82.github.io"])
 
     def test_refusals(self):
@@ -389,7 +400,7 @@ class SshKey(unittest.TestCase):
 
 def make_vectors():
     cases = []
-    p1 = load("pool.json")
+    p1 = load("pool_v1.json")
     left = copy.deepcopy(POOL3)
     left["entries"][1].update(left_on=DAY, left_reason="asked to leave")
     for name, pl, n, day in (("pool_json_two_leaves", p1, 2, DAY), ("pool_json_one_leaf", p1, 1, DAY), ("pool_json_many_leaves", p1, 1000, DAY),
