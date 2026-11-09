@@ -1,6 +1,6 @@
 {
   "schema": "hs-status-v0",
-  "generated_at": "2026-11-08T23:48:08.420Z",
+  "generated_at": "2026-11-09T06:51:38.665Z",
   "measured_from": "one GitHub Actions hosted runner per run (GitHub does not say where; usually the United States)",
   "cadence": "every endpoint once an hour, one after another",
   "timeout_ms": 20000,
@@ -14,10 +14,10 @@
       "url": "https://mcp.horizonshield.dev/mcp",
       "tool": "get_price_range",
       "last": {
-        "at": "2026-11-08T23:48:08.420Z",
+        "at": "2026-11-09T06:51:38.665Z",
         "ok": true,
         "error": null,
-        "call_ms": 503
+        "call_ms": 543
       },
       "reach_24h_pct": 100,
       "reach_24h": {
@@ -40,7 +40,7 @@
       "server_version": "1.1.0",
       "protocol_version": "2025-06-18",
       "tool_count": 15,
-      "last_initialize_ms": 205
+      "last_initialize_ms": 162
     },
     {
       "id": "ccdb",
@@ -48,10 +48,10 @@
       "url": "https://ccdb.horizonshield.dev/mcp",
       "tool": "search_jccdb_items",
       "last": {
-        "at": "2026-11-08T23:48:08.420Z",
+        "at": "2026-11-09T06:51:38.665Z",
         "ok": true,
         "error": null,
-        "call_ms": 2038
+        "call_ms": 2485
       },
       "reach_24h_pct": 100,
       "reach_24h": {
@@ -74,7 +74,7 @@
       "server_version": "1.0.0",
       "protocol_version": "2025-06-18",
       "tool_count": 15,
-      "last_initialize_ms": 176
+      "last_initialize_ms": 106
     },
     {
       "id": "gate",
@@ -82,10 +82,10 @@
       "url": "https://gate.horizonshield.dev/mcp",
       "tool": "get_conditions",
       "last": {
-        "at": "2026-11-08T23:48:08.420Z",
+        "at": "2026-11-09T06:51:38.665Z",
         "ok": true,
         "error": null,
-        "call_ms": 109
+        "call_ms": 28
       },
       "reach_24h_pct": 100,
       "reach_24h": {
@@ -108,7 +108,7 @@
       "server_version": "0.4.24",
       "protocol_version": "2025-06-18",
       "tool_count": 6,
-      "last_initialize_ms": 197
+      "last_initialize_ms": 212
     },
     {
       "id": "jidec",
@@ -116,10 +116,10 @@
       "url": "https://jidec.horizonshield.dev/mcp",
       "tool": "nenrin_ledger_head",
       "last": {
-        "at": "2026-11-08T23:48:08.420Z",
+        "at": "2026-11-09T06:51:38.665Z",
         "ok": true,
         "error": null,
-        "call_ms": 3062
+        "call_ms": 2229
       },
       "reach_24h_pct": 100,
       "reach_24h": {
@@ -142,7 +142,7 @@
       "server_version": "1.4.0",
       "protocol_version": "2025-11-25",
       "tool_count": 13,
-      "last_initialize_ms": 237
+      "last_initialize_ms": 125
     },
     {
       "id": "yakumo-contractors",
@@ -150,10 +150,10 @@
       "url": "https://hearing.horizonshield.dev/mcp",
       "tool": "mall_overview",
       "last": {
-        "at": "2026-11-08T23:48:08.420Z",
+        "at": "2026-11-09T06:51:38.665Z",
         "ok": true,
         "error": null,
-        "call_ms": 623
+        "call_ms": 74
       },
       "reach_24h_pct": 100,
       "reach_24h": {
@@ -170,13 +170,13 @@
         "ok": 26,
         "of": 26
       },
-      "call_p50_ms_7d": 836,
+      "call_p50_ms_7d": 832,
       "call_p95_ms_7d": 1363,
       "server_name": "HORIZON SHIELD YAKUMO",
       "server_version": "2.3.2-rmw-20261013",
       "protocol_version": "2025-06-18",
       "tool_count": 6,
-      "last_initialize_ms": 132
+      "last_initialize_ms": 96
     },
     {
       "id": "ledger",
@@ -184,10 +184,10 @@
       "url": "https://ledger.horizonshield.dev/health",
       "tool": null,
       "last": {
-        "at": "2026-11-08T23:48:08.420Z",
+        "at": "2026-11-09T06:51:38.665Z",
         "ok": true,
         "error": null,
-        "call_ms": 283
+        "call_ms": 292
       },
       "reach_24h_pct": 100,
       "reach_24h": {
@@ -213,5 +213,5 @@
       "last_initialize_ms": null
     }
   ],
-  "status_sha256": "d296b48b9177d28899f9f34f50389278d8da79c730fb56d676f7648e61f1da4d"
+  "status_sha256": "ad9e06ba511e62e721d5c49c55d4b14c18ef821cc4784fbc339d46e19e25bc38"
 }
