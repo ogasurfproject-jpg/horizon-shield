@@ -1,0 +1,50 @@
+{
+ "source_id": "ktr-zairyo-as-r8-11",
+ "pdf_sha256": "6b060f36f0b7484899d1b24e1219ca5f9018ee1cd835f5276da953a06ab7e58d",
+ "rows": 136,
+ "status": {
+  "published_pdl": 73,
+  "not_set": 63
+ },
+ "areas": 34,
+ "area_members_unmatched": [],
+ "area_table_labels": 164,
+ "area_table_miss": 0,
+ "max_col_dist_pt": 0.04,
+ "pages_multiset_equal": 3,
+ "pages": 3,
+ "layout_tokens": 136,
+ "bbox_values": 136,
+ "per_page": [
+  {
+   "page": 1,
+   "rows": 4,
+   "cols": 11,
+   "layout_value_tokens": 44,
+   "bbox_values": 44,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.04,
+   "group_err_pt": 0.07
+  },
+  {
+   "page": 2,
+   "rows": 4,
+   "cols": 11,
+   "layout_value_tokens": 44,
+   "bbox_values": 44,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.04,
+   "group_err_pt": 0.07
+  },
+  {
+   "page": 3,
+   "rows": 4,
+   "cols": 12,
+   "layout_value_tokens": 48,
+   "bbox_values": 48,
+   "multiset_equal": true,
+   "max_col_dist_pt": 0.04,
+   "group_err_pt": 0.13
+  }
+ ]
+}

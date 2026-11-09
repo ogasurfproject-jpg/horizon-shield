@@ -32,6 +32,7 @@ MONTHS = {
     "r8_04": ("kkr-zairyo-r8-04", "2026-04", "92e35f0663e09bca28456c5d105d728b17734c38e58e7e9accbc7f2502b7bc22"),
     "r8_09": ("kkr-zairyo-r8-09", "2026-09", "07691505e9319935539a58bb33ed74ca2e3d749b12753eb87c83333690e22886"),
     "r8_10": ("kkr-zairyo-r8-10", "2026-10", "82538ace3f1f9da28e4acdbf0dc1e875d46da91afbb12da23e652e5ac75701bd"),
+    "r8_11": ("kkr-zairyo-r8-11", "2026-11", "e91ed1498a952f448f1864521218660d5a5d4ee1a2ebe7caf65fb4f7fddec79a"),
 }
 
 # 近畿地整 別表-2 の奈良県の地区(原本の文言のまま。v1 build_obs.py の KKR_NARA と同じ)
@@ -50,6 +51,8 @@ KKR_GROUP_PREF = {"福井": "福井県", "滋賀": "滋賀県", "京都北部": 
                   "兵庫": "兵庫県", "兵庫北部": "兵庫県", "兵庫西部": "兵庫県", "奈良": "奈良県", "和歌山": "和歌山県",
                   "三重": "三重県", "岐阜": "岐阜県"}
 NOTE = "近畿地整が独自調査で設定した単価(物価資料に載っていない地区・規格だけ)。消費税抜き。"
+# 2026-11 から生コンの頁に「山間・遠隔地割増額」の行が載った。単価ではなく、単価に加える 1 m3 あたりの額なので note で区別する(price_basis は変えない)
+NOTE_SURCHARGE = "近畿地整が独自調査で設定した割増額(単価ではない。該当地区の生コンの単価に加える 1 m3 あたりの額)。消費税抜き。"
 
 
 def opt(name, default=None):
@@ -205,7 +208,7 @@ def main():
                 "period": period, "effective_from": led.get("effective_from", ""), "source_id": sid, "source_page": str(x["page"]),
                 "evidence_url": led["url"], "license": led["license"],
                 "jccdb_v4_item_id": idx.get((cat, nfkc(name)), "") if cat else "",
-                "note": NOTE})
+                "note": NOTE_SURCHARGE if "割増額" in x["cement"] + x["spec"] else NOTE})
     n = write_obs(out, obs)
     rep = {"month": month, "source_id": sid, "pdf_sha256": sha, "rows": n, "pages": [c["page"] for c in checks],
            "rows_bbox": sum(c["rows_bbox"] for c in checks), "rows_layout": sum(c["rows_layout"] for c in checks),

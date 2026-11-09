@@ -67,6 +67,14 @@ MONTHS = {
                   "out": "observations/jp/material_qsr_zairyo_r8_10.csv",
                   "sha256": "a94b1b33adb70f1a93ee0923f748d09df8ff6d6e1eb388c8f27a1dca3a97576c",
                   "cover": [(1, "（令和８年１０月）"), (2, "令和８年１０月１日以降に入札を行う工事")]},
+        # 令和８年度土木工事設計材料単価表(令和８年１１月)。2026-11-02 取得
+        # 組版が変わった(作成ソフト JUST PDF 6。1-2頁と表の頁 6-258頁は横長の用紙で回転なし、10月までは全頁が縦長の用紙を 90 度回転)。頁数・目次・地区割り一覧表(3-4頁、10月と同じ回転)は10月と同じ。
+        "r8_11": {"source_id": "qsr-zairyo-r8-11", "pdf": "raw/qsr-zairyo-r8-11.pdf",
+                  "url": "https://www.qsr.mlit.go.jp/content/000003450.pdf",
+                  "period": "2026-11", "effective_from": "2026-11-01",
+                  "out": "observations/jp/material_qsr_zairyo_r8_11.csv",
+                  "sha256": "347bbe7b3d591b4743f6fdaaf1ad3023a783a672950c6f923f0d07e1a798a8d2",
+                  "cover": [(1, "（令和８年１１月）"), (2, "令和８年１１月１日以降に入札を行う工事")]},
     },
     "thr": {
         "r8_04": {},
@@ -327,6 +335,8 @@ def main():
         foot = " ".join(w[4] for w in sorted(r["footer"], key=lambda t: (round(t[1]), t[0])))
         foot = re.sub(r"-\s*\d+\s*-", " ", foot)
         foot = re.sub(r"\s+\d+\s*$", "", " " + foot).strip()
+        # 2026-11 の九州の原本(JUST PDF 6 で組み直し)では頁番号が注記の行より上にあり、注記の頭に付く。「※」で始まる注記の頭の頁番号だけ外す(2026-11-02 番人)
+        foot = re.sub(r"^\d+\s+(?=※)", "", foot)
         if foot:
             footers[foot] += 1
         prev = {"item": "", "spec": "", "unit": ""}

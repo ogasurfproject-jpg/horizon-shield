@@ -11,7 +11,7 @@ parse_ktr_zairyo.py の parse_grid_page(pdftotext -bbox-layout の語の座標�
 空欄のセル(4月1日版では物価資料の単価を使う印)は、この月の PDF には無いことを確かめる(あれば止める)。
 照合: 頁ごとに pdftotext -layout の値の形の語(数と「-」)の多重集合から、番号・種別№・規格・地区コードなど値でない欄の数の語を引いたものが、
 bbox で値として列に割り当てた語の多重集合と一致すること(parse_ktr_zairyo と同じ照合)。
-使い方: python3 parse_ktr_as_monthly.py r8_05|r8_06|r8_07|r8_08|r8_09 [--check 照合.json]
+使い方: python3 parse_ktr_as_monthly.py r8_05|r8_06|r8_07|r8_08|r8_09|r8_11 [--check 照合.json]
 """
 import sys, os, re, json, hashlib, collections
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -29,6 +29,8 @@ MONTHS = {
     "r8_07": ("000949745", "2026-07", "2026-07-01", "令和8年6月(令和8年7月号)", "3ff7a8204d5c2d646725a3188e4200edec0184c561df415c231a904ad321a42c"),
     "r8_08": ("000953486", "2026-08", "2026-08-01", "令和8年7月(令和8年8月号)", "fac567c3f1d4910d2dedc9d05ae4ad4f835e82516b2835535a9654afc929d9e4"),
     "r8_09": ("000956094", "2026-09", "2026-09-01", "令和8年8月(令和8年9月号)", "9fcab580504f8004522232a243f9346f8347721f8f1cf0d518a2b553154d2ff5"),
+    # 10月1日以降適用は特別調査(令和8年10月1日)の表を参照(別の月次ファイルは無い。ktr-zairyo-r8-10 として取り込み済み)。2026-11-02 取得
+    "r8_11": ("000962165", "2026-11", "2026-11-01", "令和8年10月(令和8年11月号)", "6b060f36f0b7484899d1b24e1219ca5f9018ee1cd835f5276da953a06ab7e58d"),
 }
 AREA_PDF = os.path.join(OBS2, "raw", "ktr-zairyo-r8-04.pdf")
 

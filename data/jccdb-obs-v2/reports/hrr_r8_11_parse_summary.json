@@ -1,0 +1,40 @@
+{
+ "source_id": "hrr-zairyo-r8-11",
+ "pdf_sha256": "da760abbf951b9eee1bbcdd1206cfa646e5e2f36f1a92f467e4058072b486208",
+ "rows_written": 4786,
+ "stats": {
+  "pages": 66,
+  "rows": 1112,
+  "status:published_pdl": 4786,
+  "layer:material": 4782,
+  "layer:work": 4
+ },
+ "max_col_dist_pt": 0.12,
+ "max_group_split_err_pt": 0.11,
+ "col_offset_pt_range": [
+  17.5,
+  17.77
+ ],
+ "layout_check": {
+  "pages": 66,
+  "pages_equal": 66,
+  "layout_tokens": 4786,
+  "bbox_values": 4786,
+  "mismatch": []
+ },
+ "area_entries": 41,
+ "area_quote": [
+  "※令和６年４月１日現在の市町村名。"
+ ],
+ "unmatched_area": [],
+ "month": "r8_11",
+ "pages_total": 72,
+ "nontable_pages": {
+  "1": "土木工事設計材料単価について１はじめにこの「土木工事設計材料（公表）単価一覧表」",
+  "2": "別表地区割り一覧表県コード地区コード該当市町村名県番号県名",
+  "3": "県コード地区コード該当市町村名県番号県名地区番号地区名",
+  "4": "県コード地区コード該当市町村名県番号県名地区番号地区名",
+  "5": "土木工事設計材料（公表）単価一覧表（2026年11月単価）北陸地方整備局",
+  "31": "土木工事設計材料（公表）単価一覧表（2026年11月単価）北陸地方整備局"
+ }
+}

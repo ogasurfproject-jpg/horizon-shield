@@ -1,0 +1,68 @@
+{
+ "source_id": "mlit-deflator-nendo-261030",
+ "country": "JP",
+ "title": "建設工事費デフレーター（2020年度基準）年度次 defnendo_261030.xlsx(令和8年10月30日付け、1951〜2025年度)",
+ "publisher": "国土交通省 総合政策局 情報政策課 建設経済統計調査室",
+ "url": "https://www.mlit.go.jp/statistics/details/content/defnendo_261030.xlsx",
+ "landing": "https://www.mlit.go.jp/statistics/details/t-other-2_tk_000362.html",
+ "published": "2026-10-30",
+ "retrieved_at": "2026-11-02",
+ "bytes": 35949,
+ "sha256": "da82552a06aec526f4912721d2264ce058a4ba312e592b7df39ac7879ab3ef5f",
+ "http_last_modified": "Fri, 30 Oct 2026 05:33:14 GMT",
+ "license": "PDL1.0",
+ "license_url": "https://www.mlit.go.jp/link.html",
+ "license_quote": "国土交通省ウェブサイトで掲載・発信している情報（以下「コンテンツ」といいます。）の著作権は、特記されていない限り国土交通省に帰属し、権利表記の記載がない限り「公共データ利用規約（第1.0版）」（PDL1.0）に準拠した利用条件の下で、利用することができます。 / イ　コンテンツを編集・加工等して利用する場合は、上記出典とは別に、編集・加工等を行ったことを記載してください。なお、編集・加工した情報を、あたかも国（又は府省等）が作成したかのような態様で公表・利用してはいけません。",
+ "attribution": "出典：「建設工事費デフレーター」（国土交通省）（https://www.mlit.go.jp/statistics/details/content/defnendo_261030.xlsx）を加工して作成",
+ "scope_quote": "建設工事費デフレーターは、令和8年4月分から2020年度基準に改定しました。(統計ページ) / *　建設工事費デフレーターは、その算定にあたり採用するウエイト項目に営業余剰や間接税（消費税を含む）等を含めていません。(ファイルの注)",
+ "how_read": "openpyxl(data_only)でセルを直接読んだ(tools/parsers/parse_mlit_deflator.py --month 2608 --nendo 261030)。1951〜2025年度 x 75系列(5,625 セル、うち「***」の not_set 1,541)。表頭8段が前の版(defnendo_260630)と全セル同じで、月次ファイル(deftsuki_2608)とも同じことを確かめた。年度の表示は「2023年度（暫定）」が「2023年度」に変わり、2024・2025年度は「（暫定）」のまま。暫定ウエイトの注はこの版で「2023年度までの数値については、当該年度の実績を基に算出した建設投資のウエイトを用いています。また、2024年度以降は2021～2023年度の平均値を暫定的に用いています。」(前の版は 2022年度までが実績、2023年度以降が 2020～2022年度の平均)。parser はこの注から暫定の年度を読み、年度の表示の「（暫定）」と合うことを確かめた。照合: 年度値と月別(deftsuki_2608 の 4〜3月)12か月平均の一致を全セル数えた(reports/W2-deflator-checks.json: 見出しどおりで一致 585、2021年度以降の「地方道路公社等」から「S事務所・その他」の33列は左隣の系列とだけ一致 147 / 見出しどおりでも一致 14 / どちらとも不一致 4 で、前の版と同じ列ずれが続いている)。続けて tools/parsers/post_mlit_deflator.py --month 2608 --nendo 261030 で 2026-09-26 番人の判断(apply_decisions_20260926 の hold_deflator と realign_deflator)を当てた: 列ずれの疑いの年度別 165 行を observations_hold/ へ、月別と全セル 0.1 以内で一致した 160 セルを正しい系列に付け直して index_mlit_deflator_realigned.csv へ(値がどの列にも無い 5 セルは not_set)。",
+ "values_copied": true,
+ "fetched_via": "Apify apify/website-content-crawler(crawlerType=cheerio, saveContentTypes=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)で取得し、キー値ストアのレコードを get-key-value-store-record で受け取った(作業環境から官公庁サイトへ直接は届かないため)。apify/web-fetch の formats=raw は .xlsx を文字列として扱い不正なバイトを U+FFFD に置き換えて壊す(2026-11-02 の月次 deftsuki_2608.xlsx でも起きた)ので使っていない。受け取ったバイト列の MD5 がサーバーの ETag と一致した。",
+ "http_etag": "\"be7fb212ed989dab25028e9dc9fc2c3e\"",
+ "md5": "be7fb212ed989dab25028e9dc9fc2c3e",
+ "md5_note": "取得したバイト列の MD5 がサーバーの ETag(S3 の単一パート・アップロードでは内容の MD5)と一致",
+ "license_checked": "2026-10-04 に国土交通省の link.html(Last-Modified Fri, 11 Oct 2024 09:49:38 GMT)を取り直し、license_quote の条文が頁の文字と変わっていないことを確かめた(台帳 mlit-deflator-tsuki-2607)。2026-11-02 の取得では link.html を取り直していない。",
+ "previous_edition": "mlit-deflator-nendo-260630",
+ "edition_handling": "年度次ファイルは版ごとに直近の年度を改定して出し直すので、月次と同じく系列の正本は最新の版の1本とした(出力のファイル名に版を付けない)。observations/jp/index_mlit_deflator_nendo.csv、index_mlit_deflator_realigned.csv の年度別の行、observations_hold/jp/index_mlit_deflator_nendo_suspect_shift.csv を、この版の中身で書き直した(parse_mlit_deflator.py と post_mlit_deflator.py に --nendo を足した。省くと 260630 で今までと同じ)。前の版(mlit-deflator-nendo-260630)の行は観測のファイルに残していない(同じ時点の値を二つの版で並べない)。前の版の台帳と原本(raw/mlit-deflator-nendo-260630.xlsx)は記録として残す。",
+ "revision_vs_previous": {
+  "rows_previous": 5625,
+  "rows_this": 5625,
+  "new_period": "なし(1951〜2025年度のまま)",
+  "values_changed": 54,
+  "values_changed_by_period": {
+   "FY2023 年度別": 15,
+   "FY2024 年度別": 14,
+   "FY2025 年度別": 25
+  },
+  "change_pct": {
+   "median": 0.082,
+   "max": 0.268,
+   "min": -0.089
+  },
+  "change_pct_abs": {
+   "median": 0.084,
+   "max": 0.268,
+   "min": 0.08
+  },
+  "change_points": {
+   "-0.1": 25,
+   "0.1": 19,
+   "0.2": 7,
+   "0.3": 3
+  },
+  "note": "比べたのは公開の組み立てに入る行(index_mlit_deflator_nendo.csv と付け直しの年度別)。change_pct は (この版 - 前の版) / 前の版 x 100 の符号つき、change_pct_abs はその絶対値。改定は 2023〜2025年度だけで、2022年度以前は 1 セルも変わっていない。例: defnendo2020!W83 治水総合 2023年度 111.9 から 112.2、BV85 の値 121.1 から 121(付け先 RC学校 2025年度)を原本のセルで確かめた。原本の改定 55 セルのうち 1 セル(AR85、「地方道路公社等」の見出しの下の値)は列ずれで付け先が無く、使っていない。年度の表示「2023年度（暫定）」が「2023年度」になり、note の文は 2023〜2025年度の全行(225 行)と、付け直しの照合の差の表示(2021年度 2 行)で変わった。"
+ },
+ "files_written": {
+  "observations/jp/index_mlit_deflator_nendo.csv": {
+   "published_pdl": 3919,
+   "not_set": 1541
+  },
+  "observations/jp/index_mlit_deflator_realigned.csv": {
+   "published_pdl": 160,
+   "not_set": 5
+  },
+  "observations_hold/jp/index_mlit_deflator_nendo_suspect_shift.csv": {
+   "published_pdl": 165
+  }
+ }
+}

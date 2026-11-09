@@ -6,7 +6,7 @@
   - 生コンクリートの頁(PDF 10〜36 頁)は observations/jp/material_kkr_namacon_r8_09.csv にあるので除く。
   - 別表-1(PDF 3 頁)と別表-2(PDF 4〜7 頁)から、地区コード・府県番号と、含まれる市町村の文言を読む。
 値は座標で読む(mlit_zairyo_common.parse_table_page)。空欄は「単価を設定していない」(原本 2 頁の説明)として not_set。
-使い方: python3 parse_kkr_zairyo.py [OBS2 のルート] [--month r8_09|r8_10] [--out 出力.csv] [--diag 診断.json]
+使い方: python3 parse_kkr_zairyo.py [OBS2 のルート] [--month r8_09|r8_10|r8_11] [--out 出力.csv] [--diag 診断.json]
   --month を省くと r8_09(B1 が作った 9月の表)。月ごとに別の source_id・別のファイル(古い月の行は消さない)。
   頁の範囲は原本の表紙(「土木工事設計材料（公表）単価一覧表」の頁)と各頁の種別から決める。r8_09 では B1 の固定の範囲と同じになることを確かめる。
   --out / --diag を渡すと、そこに書く(古い月に当て直して md5 を比べるときに、既存のファイルを書き換えないため)。
@@ -35,6 +35,11 @@ MONTHS = {
     "r8_10": {"sid": "kkr-zairyo-r8-10", "period": "2026-10",
               "sha": "82538ace3f1f9da28e4acdbf0dc1e875d46da91afbb12da23e652e5ac75701bd",
               "diag": os.path.join("reports", "J2-latest-editions.kkr_r8_10_diag.json"),
+              "pages": None},
+    # 11月: 2026_11tanka.pdf(2026-11-02 取り込み)。頁の範囲は 10月と同じく表紙と各頁の種別から自動で決める
+    "r8_11": {"sid": "kkr-zairyo-r8-11", "period": "2026-11",
+              "sha": "e91ed1498a952f448f1864521218660d5a5d4ee1a2ebe7caf65fb4f7fddec79a",
+              "diag": os.path.join("reports", "kkr_r8_11_diag.json"),
               "pages": None},
 }
 MONTH = _opt("--month", "r8_09")

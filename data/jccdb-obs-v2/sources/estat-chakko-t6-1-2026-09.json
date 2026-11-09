@@ -1,0 +1,29 @@
+{
+ "source_id": "estat-chakko-t6-1-2026-09",
+ "country": "JP",
+ "title": "建築着工統計調査 建築物着工統計 月次 第６表－１ 着工建築物：都道府県別、構造別（建築物の数、床面積の合計、工事費予定額）(令和8年9月分)",
+ "publisher": "国土交通省 総合政策局 情報政策課 建設経済統計調査室(政府統計の総合窓口 e-Stat で提供)",
+ "url": "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000040521857&fileKind=0",
+ "landing": "https://www.e-stat.go.jp/stat-search/files?page=1&layout=datalist&cycle=1&toukei=00600120&tstat=000001016965&tclass1val=0&year=20260&month=23070909",
+ "published": "2026-10-30",
+ "retrieved_at": "2026-11-02",
+ "bytes": 64000,
+ "sha256": "ace180359069e2699de9fd0a80a117dd4fe9d9c0c9ac8eac09caf261d4f3fbc1",
+ "file_format": "Excel 97-2003 (.xls, OLE2/BIFF。先頭 d0cf11e0a1b11ae1)、シート B00601 の1枚",
+ "license": "GOV-STD-2.0",
+ "license_url": "https://www.e-stat.go.jp/terms-of-use",
+ "license_quote": "当サイトで公開している情報（以下「コンテンツ」といいます。）は、どなたでも以下の１）～６）に従って、複製、公衆送信、翻訳・変形等の翻案等、自由に利用できます。商用利用も可能です。また、数値データ、簡単な表・グラフ等は著作権の対象ではありませんので、これらについては本利用ルールの適用はなく、自由に利用できます。 / １）出典の記載について / イ　コンテンツを編集・加工等して利用する場合は、上記出典とは別に、編集・加工等を行ったことを記載してください。なお、編集・加工した情報を、あたかも国（又は府省等）が作成したかのような態様で公表・利用してはいけません。 / ６）その他 / イ　本利用ルールは、平成２８年１月２９日に定めたものです。本利用ルールは、政府標準利用規約（第2.0版）に準拠しています。本利用ルールは、今後変更される可能性があります。既に政府標準利用規約の以前の版にしたがってコンテンツを利用している場合は、引き続きその条件が適用されます。 / ウ　本利用ルールは、クリエイティブ・コモンズ・ライセンスの表示 4.0 国際（https://creativecommons.org/licenses/by/4.0/legalcode.ja に規定される著作権利用許諾条件。以下「CC BY」といいます。）と互換性があり、本利用ルールが適用されるコンテンツはCC BYに従うことでも利用することができます。",
+ "attribution": "出典：政府統計の総合窓口(e-Stat)（https://www.e-stat.go.jp/）「建築着工統計調査」（国土交通省）を加工して作成",
+ "how_read": "xlrd でセルを直接読んだ(tools/parsers/parse_estat_chakko_pref.py --month 2026-09。parser は STAT_INF に 2026-09 の statInfId 2 つの 1 行を足しただけで、足す前は tools/parsers/parse_estat_chakko_pref.py.20261102.bak。足したあとも 2026-08 を作業場で作り直すと既存の cost_sqft_mlit_chakko_2026_08.csv と reports/W2-chakko-checks_2026_08.json に md5 で一致した)。表頭2行(構造 見出し、用途 見出しと 建築物の数/床面積の合計/工事費予定額)が都道府県・市部・郡部の3段で同じことを確かめ、全国計と47都道府県の段を行にした。照合(全国計=47都道府県の和 78/78、都道府県計=市部計+郡部計 3744/3744、総計=6構造の和 144/144、第６表の総計=第７表の全建築物計 144/144、第７表の用途18区分の和=全建築物計 144/144。不一致 0)の数字は reports/W2-chakko-checks_2026_09.json。1㎡あたり工事費予定額は原本に無く、工事費予定額x10000÷床面積の合計 を自分で計算した(行の note に明記)。続けて tools/parsers/post_estat_chakko.py --month 2026-09 で 2026-09-26 番人の判断(apply_decisions_20260926.stat_zero: 統計の件数・金額の 0 は値 0)を当てた(このファイルで 633 行)。",
+ "values_copied": true,
+ "fetched_via": "Apify apify/website-content-crawler(crawlerType=cheerio, saveContentTypes=application/octet-stream, maxCrawlDepth 0)で取得し、キー値ストアのレコードを get-key-value-store-record で受け取った(作業環境から官公庁サイトへ直接は届かないため)。2026-11-02 の run Ygae7tDvlvrxNnYqj、キー値ストア yZMnXQv2ovhLI0GYL のレコード file-d6e697a-file-download。データセットの行は crawl.httpStatusCode 200、crawl.contentType application/octet-stream、crawl.loadedTime 2026-11-02T00:36:05.162Z。run の statusMessage は「0 succeeded, 1 failed」と出たが、ファイルのレコードは保存されていて、下の検査を通った。apify/web-fetch の formats=raw はこの種のバイナリを文字列として扱い壊すので使っていない。受け取ったバイト列は先頭 d0cf11e0a1b11ae1、長さ 64000 は 512 の倍数、U+FFFD の UTF-8(efbfbd)は 0 か所、xlrd で開けた。この経路では応答ヘッダー(Content-Length、Last-Modified、ETag)を受け取れないので、bytes はこの照合で確かめた(前の月の台帳にも http_last_modified は無い)。",
+ "stat_inf_id": "000040521857",
+ "license_checked": "2026-11-02 e-Stat の利用規約の頁を Apify web-fetch で取り直し、license_quote の条文が頁の文字と変わっていないこと(空白の入り方の違いだけ)を確かめた。",
+ "scope_note": "この月次の表(第６表－１、令和8年9月分)のセルに注記の文は無く、「＊」(秘匿)のセルも無い(167 行 x 24 列を xlrd で全部見た)。2026-07 以前の台帳(estat-chakko-t6-1-2026-07 など)の scope_quote の秘匿の注記は年計の表(estat-chakko-t6-1-2025)にある文で、月次の表には無い。",
+ "previous_edition": "estat-chakko-t6-1-2026-08",
+ "files_written": {
+  "observations/jp/cost_sqft_mlit_chakko_2026_09.csv": {
+   "published_cc_by": 1278
+  }
+ }
+}

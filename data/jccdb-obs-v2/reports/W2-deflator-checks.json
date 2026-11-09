@@ -1,13 +1,13 @@
 {
  "files": {
   "observations/jp/index_mlit_deflator.csv": {
-   "rows": 12375,
+   "rows": 12450,
    "by_status": {
-    "published_pdl": 12375
+    "published_pdl": 12450
    },
-   "periods": 165,
+   "periods": 166,
    "series": 75,
-   "sha256": "23a8dacc6f507872e35c084b22f4a333133706a541d6d3218b65010b8f7430c9"
+   "sha256": "84e432996aa1a68e47739c0cb8ab96e9884567dda1b55e0388a91e94489bd696"
   },
   "observations/jp/index_mlit_deflator_nendo.csv": {
    "rows": 5625,
@@ -17,7 +17,7 @@
    },
    "periods": 75,
    "series": 75,
-   "sha256": "f1269ae8ad9f54e5dd7cddf808dadaa8ccac406d16af2dc4c59767f470f452ed"
+   "sha256": "ac683f76e71dc88680115a0f9e8b2493ca353d69d110b54531495f4e012465c8"
   }
  },
  "checks": {
@@ -25,20 +25,20 @@
   "H_month_vs_year_same": true,
   "month_first_last": [
    "2016-04",
-   "2026-07"
+   "2026-08"
   ],
   "Q": {
    "other:same": 2250,
-   "late_tail:left_only": 650,
-   "late_tail:same": 155,
+   "late_tail:left_only": 649,
+   "late_tail:same": 156,
    "late_tail:neither": 20
   },
   "Q_absdiff_max_other": "0.1",
   "Y": {
    "other:same": 585,
    "late_tail:neither": 4,
-   "late_tail:left_only": 146,
-   "late_tail:same": 15
+   "late_tail:left_only": 147,
+   "late_tail:same": 14
   },
   "Y_absdiff_max_other": "0.1",
   "Y_diffs_gt_0.1_other": []

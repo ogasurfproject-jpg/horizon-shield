@@ -4,7 +4,7 @@
 観測層 v2 に取り込む。両局とも「材料単価【設計】」の同じ帳票(sekisan_layout.py)。値は pdftotext -bbox-layout の座標で読む。
 
 使い方: python3 parse_hrr_cbr_zairyo.py hrr|cbr
-       python3 parse_hrr_cbr_zairyo.py hrr [--month r8_09|r8_10] [--out 出力.csv] [--summary 要約.json]
+       python3 parse_hrr_cbr_zairyo.py hrr [--month r8_09|r8_10|r8_11] [--out 出力.csv] [--summary 要約.json]
        python3 parse_hrr_cbr_zairyo.py cbr [--month r8_10|r8_11] [--out 出力.csv] [--summary 要約.json]
   hrr: 原本 OBS2/raw/hrr-zairyo-<月>.pdf(PDL1.0。値を入れる)。--month を省くと r8_09(9月、最初の取り込みと同じ動き)。
        月ごとに別の source_id・別のファイル(古い月の行は消さない)。原本は HRR_MONTHS の sha256 で固定し、
@@ -42,6 +42,10 @@ HRR_MONTHS = {
     "r8_10": {"sid": "hrr-zairyo-r8-10", "url": "https://www.hrr.mlit.go.jp/gijyutu/tannka/2026.10.pdf", "period": "2026-10",
               "sha": "a9c356653604a4d409b87e3ae9711f95a5d9aaf52685afd9ba00952bf43ac536",
               "summary": os.path.join(OBS2, "reports", "hrr_r8_10_parse_summary.json")},
+    # 11月: 2026-11-02 取得(Apify、Last-Modified 2026-10-29)
+    "r8_11": {"sid": "hrr-zairyo-r8-11", "url": "https://www.hrr.mlit.go.jp/gijyutu/tannka/2026.11.pdf", "period": "2026-11",
+              "sha": "da760abbf951b9eee1bbcdd1206cfa646e5e2f36f1a92f467e4058072b486208",
+              "summary": os.path.join(OBS2, "reports", "hrr_r8_11_parse_summary.json")},
 }
 
 

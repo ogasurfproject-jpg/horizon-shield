@@ -12,6 +12,7 @@ v1 の tools/parse_nara_namacon_status.py(令和8年9月版)と同じ読み方�
       [--last-modified <HTTP の Last-Modified>] [--etag <ETag>]
   原本は raw_restricted/nara-shizai-<月>.pdf に置いておく(raw_restricted は .gitignore)。
   出力: observations/jp/material_nara_namacon_status_<月>.csv と sources/nara-shizai-<月>.json(前の月の台帳を写して直す)。
+  台帳の pages は原本の頁数(r8_10 までは手で足していた欄。2026-11-02 から parser が書く)。
   照合: 前の月の CSV と、規格の集合・地区ごとの状態を突き合わせて差を出す(差があっても止めない。報告する)。
 """
 import csv, hashlib, html, json, os, re, statistics, subprocess, sys, collections
@@ -141,6 +142,7 @@ def main():
                 "previous_edition": prev_ledger[-1][:-5]})
     if opt("--etag"):
         led["http_etag"] = opt("--etag")
+    led["pages"] = sum(1 for _ in words_of(PDF))
     for k in ("license_quote_previous", "license_quote_fixed", "row_listing_previous"):
         led.pop(k, None)
     json.dump(led, open(LEDGER, "w", encoding="utf-8"), ensure_ascii=False, indent=2)

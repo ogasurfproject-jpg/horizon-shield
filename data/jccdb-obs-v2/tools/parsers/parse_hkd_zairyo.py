@@ -2,7 +2,7 @@
 """
 北海道開発局「北海道開発局単価(令和8年9月1日以降入札書提出期限日の請負工事・業務等に適用)」(閲覧単価一覧、A3横、52頁)を、
 罫線の格子とセルの座標で読み、観測層 v2 に書く。
-使い方: python3 parse_hkd_zairyo.py [--month r8_09|r8_10] [--out 出力.csv] [--debug 出力.csv] [--check 照合結果.json]
+使い方: python3 parse_hkd_zairyo.py [--month r8_09|r8_10|r8_11] [--out 出力.csv] [--debug 出力.csv] [--check 照合結果.json]
   --month を省くと r8_09(9月の表、最初の取り込みと同じ動き)。月ごとに別の source_id・別のファイル(古い月の行は消さない)。
   開発局は同じ URL の PDF を毎月差し替えるので、原本は raw/<source_id>.pdf を MONTHS の sha256 で固定し、表紙の適用日の文言で月を確かめる。
   --out を渡すとそこに書く(古い月に当て直して md5 を比べるときに、既存のファイルを書き換えないため)。
@@ -41,6 +41,10 @@ MONTHS = {
     "r8_10": {"sid": "hkd-zairyo-r8-10", "period": "2026-10", "effective_from": "2026-10-01",
               "cover": "令和8年10月1日以降入札書提出期限日の請負工事・業務等に適用",
               "sha": "fe077f82241bbe76aab13faeecbf04e6c7c15ef3207305f2c2c41707e4ca7c08"},
+    # 11月: 同じ URL の差し替え(2026-11-02 取得)
+    "r8_11": {"sid": "hkd-zairyo-r8-11", "period": "2026-11", "effective_from": "2026-11-01",
+              "cover": "令和8年11月1日以降入札書提出期限日の請負工事・業務等に適用",
+              "sha": "c1bb894257d4fc3cdf3ed3887c3369e0e0018f5003d8fc37817575ea5708ca0a"},
 }
 MONTH = _opt("--month", "r8_09")
 M = MONTHS[MONTH]

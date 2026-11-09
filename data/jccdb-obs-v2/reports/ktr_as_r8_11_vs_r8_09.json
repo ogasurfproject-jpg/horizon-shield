@@ -1,0 +1,96 @@
+{
+ "new_file": "observations/jp/material_ktr_zairyo_as_r8_11.csv",
+ "key": "品名|規格|単位|地区コード|地区名",
+ "vs_r8_09": {
+  "old": "observations/jp/material_ktr_zairyo_as_r8_09.csv (ktr-zairyo-as-r8-09、2026年9月1日以降適用)",
+  "rows_old": 136,
+  "rows_new": 136,
+  "rows_common": 136,
+  "rows_only_old": [],
+  "rows_only_new": [],
+  "status_old": {
+   "published_pdl": 73,
+   "not_set": 63
+  },
+  "status_new": {
+   "published_pdl": 73,
+   "not_set": 63
+  },
+  "common_both_valued": 73,
+  "values_same": 73,
+  "n_up": 0,
+  "n_down": 0,
+  "status_changed": 0,
+  "pct_change_median": null,
+  "pct_change_max": null,
+  "pct_change_min": null,
+  "changes": [],
+  "area_members_same": true,
+  "source_page_same": true
+ },
+ "vs_ktr_r8_10_special_survey": {
+  "old": "observations/jp/material_ktr_zairyo_r8_10.csv のアスファルト合材 136 行 (ktr-zairyo-r8-10、特別調査 令和8年10月1日)",
+  "rows_old": 136,
+  "rows_new": 136,
+  "rows_common": 136,
+  "rows_only_old": [],
+  "rows_only_new": [],
+  "status_old": {
+   "published_pdl": 73,
+   "not_set": 63
+  },
+  "status_new": {
+   "published_pdl": 73,
+   "not_set": 63
+  },
+  "common_both_valued": 73,
+  "values_same": 73,
+  "n_up": 0,
+  "n_down": 0,
+  "status_changed": 0,
+  "pct_change_median": null,
+  "pct_change_max": null,
+  "pct_change_min": null,
+  "changes": [],
+  "area_members_same": true,
+  "source_page_same": false
+ },
+ "columns_same_as_r8_09": true,
+ "columns_differing_from_r8_09": {
+  "obs_id": 136,
+  "period": 136,
+  "effective_from": 136,
+  "source_id": 136,
+  "evidence_url": 136,
+  "note": 136
+ },
+ "note_same_as_r8_09_except_heading": true,
+ "pdf_text_vs_r8_09": "pdftotext -layout の文字は、頁の見出し(令和8年8月(令和8年9月号) → 令和8年10月(令和8年11月号))と列の空白の幅のほかは 9月の版と同じ(値の語はすべて同じ)。",
+ "verified_in_pdf": [
+  {
+   "row": "再生瀝青安定処理材（４０） D097 飯山・D098 信州新町・D100 上田(3頁)",
+   "value": "18,800",
+   "note": "再生瀝青安定処理材（４０）の最大の値。-layout の 3頁の行『再生瀝青安定処理材（４０）』の値の並び 14,300 14,300 17,800 16,800 18,800 18,800 17,800 18,800 が見出し D071〜D100 の列の順(「-」を含め全セルが埋まっているので順で列が決まる)。9月も同じ。"
+  },
+  {
+   "row": "瀝青安定処理材（３０） D063 小田原(3頁)",
+   "value": "19,200",
+   "note": "この版の最大の値(瀝青安定処理材（３０）)。3頁の値の並び 16,800 19,200 18,500 17,600 の 2 番目(見出し D061 横浜・D063 小田原・D065 横須賀・D096 平塚)。9月も同じ。"
+  },
+  {
+   "row": "AS安定処理(再生) (30) D051 都内・D052 八王子・D053 町田・D054 立川(2頁)",
+   "value": "12,800",
+   "note": "この版の最小の値。2頁の行『AS安定処理(再生) (30)』の値の並び 16,000 14,000 13,800 13,600 13,000 14,300 14,200 12,800 12,800 12,800 12,800 の後ろ 4 個。9月も同じ。"
+  },
+  {
+   "row": "瀝青安定処理材（２５） 34 地区すべて",
+   "value": "-",
+   "note": "3 頁とも行がすべて「-」(not_set)。9月も同じ。"
+  }
+ ],
+ "value_range_new": {
+  "min": 12800,
+  "max": 19200,
+  "valued_rows": 73
+ }
+}
