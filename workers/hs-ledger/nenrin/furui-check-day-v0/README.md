@@ -47,8 +47,13 @@ One record per runner per UTC day, and none for a day without checks. Its fields
 `publication` (`public`) and one Ed25519 signature over `furui-check-day-v0\n` followed by the canonical bytes of the
 record without `signatures`.
 
+A record may also carry `runner_id` (`runner-1`, `runner-2`), the runner whose key signs it (intake 0.3.0). A record
+without it is runner-1's, as every record written before; such a record is read exactly as before. runner-2's records
+carry `runner_id` `runner-2` and are signed with the key listed as `runner-2`. One record a day is counted per runner.
+
 The ledger accepts a record only when its bytes are canonical (musubi-canonical-v0), its shape is closed, its
-`key_url` is the ledger's own keys path, its key is listed there for `furui-check` and valid for the record's heights,
+`key_url` is the ledger's own keys path, its key is listed there for `furui-check` and for the record's runner (an
+entry without `runner_id` is runner-1's) and valid for the record's heights,
 and the signature verifies. A second record for a day that already holds one with the same root is answered with the
 first record's sha and not stored. Another root for the same day is refused (`day_already_recorded`).
 
@@ -60,7 +65,7 @@ The ledger, https://ledger.horizonshield.dev
 |---|---|
 | `/furui-check-day` | the format, the intake rules and the caps |
 | `/furui-check-day/{canonical_sha256}` | the stored bytes of a day record, its status (`pending_anchor` or `anchored`) and its ledger entry |
-| `/.well-known/furui-check-keys.json` | the runner's keys: `key_id`, the Ed25519 public half, `from_height`, `revoked_height` |
+| `/.well-known/furui-check-keys.json` | the runners' keys: `key_id`, the Ed25519 public half, `from_height`, `revoked_height`, and `runner_id` on an entry that is not runner-1's |
 | `/admission/{canonical_sha256}` | the stored bytes of an admission record and its status |
 | `/agreement/{canonical_sha256}` | the stored bytes of an agreement record and its status |
 | `/resume?endpoint={url}` | the Résumé of an endpoint, with `agreements[]` and `admissions[]` |
