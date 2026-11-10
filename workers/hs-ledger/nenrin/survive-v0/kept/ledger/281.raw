@@ -1,0 +1,9 @@
+# aio-prereg-addendum-v0
+
+created_at: 2026-11-09T10:24:26Z
+amends: d46c912ec5457a8bb1c2cb59e4260ff8a0dcdd4c3064712f1d0f8c203f5f7fd3
+addendum_document_sha256: 094bcae5e384f1b4b4f70ceaec5a87cc08de4b841f1770856346f64e46fae6f5
+
+This entry fixes the sha256 of an addendum to the pre-registration document named in amends, written before the first measurement it applies to. The addendum stays private until it is published with that document; anyone given it can recompute the sha256 above.
+Establishes: that a document with this sha256 existed no later than the block this entry is anchored to.
+Does not establish: anything about the content of the document before it is published.

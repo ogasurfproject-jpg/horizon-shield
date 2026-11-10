@@ -1,0 +1,12 @@
+{
+  "n": 281,
+  "work": "aio-prereg-addendum-v0",
+  "claim_sha256": "1c2b873dbfd03f627cbfb0d43d947c51611589e5f86dd9016dd886f72e2579b0",
+  "record_canonical": "# aio-prereg-addendum-v0\n\ncreated_at: 2026-11-09T10:24:26Z\namends: d46c912ec5457a8bb1c2cb59e4260ff8a0dcdd4c3064712f1d0f8c203f5f7fd3\naddendum_document_sha256: 094bcae5e384f1b4b4f70ceaec5a87cc08de4b841f1770856346f64e46fae6f5\n\nThis entry fixes the sha256 of an addendum to the pre-registration document named in amends, written before the first measurement it applies to. The addendum stays private until it is published with that document; anyone given it can recompute the sha256 above.\nEstablishes: that a document with this sha256 existed no later than the block this entry is anchored to.\nDoes not establish: anything about the content of the document before it is published.\n",
+  "schema": "v0-plain",
+  "created_at": "2026-11-09T10:25:04.737Z",
+  "ots_status": "confirmed",
+  "bitcoin_block": 975162,
+  "block_time": "2026-11-09 10:36 UTC",
+  "stamped_at": "2026-11-09T11:18:29.660Z"
+}

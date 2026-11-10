@@ -1,0 +1,26 @@
+# aio-weekly-v0
+
+day: 2026-11-10
+label: AIO_2026-11-10
+prereg: ledger entry 279, claim dddac83096ae89d5415862bce06eab84b13b64c285e8f00f218876ab8f46db6b, document_sha256 d46c912ec5457a8bb1c2cb59e4260ff8a0dcdd4c3064712f1d0f8c203f5f7fd3
+block: height 975187, hash 00000000000000000000758142dec4108bff7b676f319393dd1d85fe131c318a
+period: pre
+excluded_from_pre: false (day block 975187, prereg anchor block 975121)
+draw_manifest_sha256: c3ad0c7cc2c4db4a9a9c64171a57e71001019388eac9f66bbab1a03264fb0056
+draw_manifest_file_sha256: 8886363f83fe38196c00becd3909e5e881508a176154a2ff280fd8e5936f1ebb
+assign: treated hs-partner-002; control hs-partner-001
+report horizon-shield: record_sha256 a9144088b82032b875709a3c6eccc6be94d2b78ee37e930b679c4d9c0f4f6d86, runs_sha256 1ea5406a7acf4b2f21fe3ce9afc806e6732d5338687e510e69b938c70eca144b, answers 40 of 40
+report hs-partner-001: record_sha256 a5c384bc0ad736533d17a6763311acd0b2bb2c192b90d3916e49038e437daec2, runs_sha256 0a0474160b3a94aec27fe56dbd1e1b56453bb9b628f14aa01c650c2904420195, answers 40 of 40
+report hs-partner-002: record_sha256 31a6137c41593757a7ec08995a917be8c6ad86adb91ff18ed9616250522e2dcc, runs_sha256 141b41d68f02db812d5071b46056fe65218bf82a51fb68fad8072698255b2f8f, answers 40 of 40
+report yakumo: record_sha256 a3b6384b174908346699659ac15cbbdceb5d209cf0b19cf777c9353dd7fe9fe1, runs_sha256 93e5fe8220151c6b1807dd98ae7941ac3badaa75410c1f60dbce63a646a6c6de, answers 39 of 40
+complete: no
+unreachable: none
+woven_summary_sha256: 95f4a706bf34faec1980e9ee04a1737e8c0a62f97b348940d7a93e728325d9f7
+woven horizon-shield: drafts 8, pages 0, passed 0
+woven hs-partner-001: drafts 0, pages 0, passed 0
+woven hs-partner-002: drafts 8, pages 1, passed 1
+woven yakumo: drafts 8, pages 0, passed 0
+
+This entry fixes, for one measurement day, the questions drawn from the registered panels by the registered rule, and the sha256 of each report computed from the answers of that day. The answers, reports and panels stay private; anyone given them can recompute every hash above.
+Establishes: that this draw and these reports existed no later than the block this entry is anchored to.
+Does not establish: that any subject is named or cited outside these answers, or any effect of a change.

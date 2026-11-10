@@ -1,0 +1,13 @@
+{
+  "n": 283,
+  "work": "NENRIN witness batch (6 records)",
+  "claim_sha256": "b4a4664bd2cc82833298e54d635a7fe9ab52c94820e4ceb065d172d308ecbc8d",
+  "record_canonical": "{\"schema\":\"nenrin-witness-batch-v1\",\"anchored_at\":\"2026-11-10T00:30:36.247Z\",\"count\":6,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"n\":282,\"entry_sha256\":\"c2c91975e26c59f93925392994eeb83e091d1de6bb29168ec7c18281d4fcb4ba\"},\"records\":[{\"sha\":\"1ae5ff6de9ec02501650ffe6860c9b88318989086749ed79fe1dee4930ceb9b2\",\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"witness_name\":\"HORIZON SHIELD self-witness (github runner)\",\"vantage\":\"github-actions hosted runner (Linux) for kuangmi-bit/horizon-shield\",\"signed\":false},{\"sha\":\"1ec09a0f82597dd60081456d0663d576b433e3fe1c222a7a46711913d5a3b378\",\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"witness_name\":\"kuangmi-bit\",\"vantage\":\"github-actions hosted runner (Linux) for kuangmi-bit/conduct-witness\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"sha\":\"23984d4c11e1cb313b7f185a1bd31534c3868e59d3583e6096370e1413470ae9\",\"purpose\":\"furui-day-v0: 2026-11-08\",\"witness_name\":\"agent-passport.org\",\"vantage\":\"macOS 26.5 arm64, own machine\",\"signed\":true,\"signed_domain\":\"agent-passport.org\",\"mode\":\"commitment\"},{\"sha\":\"5e0c7524b36023cb880c1cee927b1779d132e3bc61363d75c796c3ecf45d3e6d\",\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"witness_name\":\"kuangmi-bit\",\"vantage\":\"github-actions hosted runner (Linux) for kuangmi-bit/conduct-witness\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"sha\":\"762291b8668693333de7eec517c93b70d5968e690287f458d848eb66f8f8a8f3\",\"purpose\":\"furui-day-v0: 2026-11-08\",\"witness_name\":\"invinoveritas.dev\",\"vantage\":\"invinoveritas.dev server (Hetzner, Linux); automated run of the published reader and helper; prior collaboration with HORIZON SHIELD disclosed\",\"signed\":true,\"signed_domain\":\"invinoveritas.dev\",\"mode\":\"commitment\"},{\"sha\":\"8c7fd2972e395f9f3abdeff08cc01252aaccadcb37a7440bc3dcb2a80e7827a2\",\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"witness_name\":\"HORIZON SHIELD self-witness (github runner)\",\"vantage\":\"github-actions hosted runner (Linux) for kuangmi-bit/horizon-shield\",\"signed\":false}]}",
+  "schema": "v0-plain",
+  "created_at": "2026-11-10T00:30:36.400Z",
+  "ots_status": "confirmed",
+  "bitcoin_block": 975235,
+  "block_time": "2026-11-10 01:31 UTC",
+  "stamped_at": "2026-11-10T02:03:03.702Z",
+  "anchored_by": "schedule"
+}

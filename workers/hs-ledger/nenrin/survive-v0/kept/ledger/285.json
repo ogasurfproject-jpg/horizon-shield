@@ -1,0 +1,13 @@
+{
+  "n": 285,
+  "work": "NENRIN agreement batch (8 records)",
+  "claim_sha256": "30e39fc3fadd6e32ad25c2d5d062c8380b0f1ab89b22ad66b2c20f95723e6db1",
+  "record_canonical": "{\"schema\":\"nenrin-agreement-batch-v1\",\"anchored_at\":\"2026-11-10T00:30:42.731Z\",\"count\":8,\"records\":[{\"canonical_sha256\":\"116088635ab980d7eb2be38cf1dad3f23a698354a95cc66bdba75f381173c50b\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"15381fc1a224c4154437c1f01bc412d54c297f07c5da20d2a448d7d7b56f8c27\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.4.0\"},{\"canonical_sha256\":\"1e80362a96bee22e8d29a6898f2f2436a743aef9fa4e15c3bce85e0d80d46746\",\"record_schema\":\"furui-check-day-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"furui-check-day-intake 0.2.0\"},{\"canonical_sha256\":\"1ea6b8c8afaf64f8f15d8e39fe68621e62ab79afd60839eff8a07ed46c7067f2\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"2fc779d88d3425ed1dcf6436805421876cc23867197372c27ff930c5b15c4187\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"c4f63ffc6a7af0b57c955208f9c157d22a991a55ed91203fc5a9f9c6d1cf4876\",\"record_schema\":\"furui-check-day-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"furui-check-day-intake 0.3.0\"},{\"canonical_sha256\":\"ccffd1bd0105d0e64c371dad0a07bd8e332327fb163c59e7211b3e0f058331a6\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"d9cfdbd43286eaaadcc666482006bda8cd611110a3c92cc52ba4eeb0d56b119d\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"}]}",
+  "schema": "v0-plain",
+  "created_at": "2026-11-10T00:30:42.852Z",
+  "ots_status": "confirmed",
+  "bitcoin_block": 975235,
+  "block_time": "2026-11-10 01:31 UTC",
+  "stamped_at": "2026-11-10T02:03:16.917Z",
+  "anchored_by": "schedule"
+}
