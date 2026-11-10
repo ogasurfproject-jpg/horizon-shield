@@ -1,15 +1,15 @@
 {
- "checked_at": "2026-11-09T04:36:32Z",
+ "checked_at": "2026-11-10T04:06:30Z",
  "checks": [
   {
    "id": "10_cross_client",
    "state": "ok",
-   "why": "the SDK client (@modelcontextprotocol/sdk 1.32.1) and the gate agree on mcp_endpoint for the own endpoint and the 3 drawn (https://mcp-gateway.agentdiet.dev/mcp, https://agentdiet.dev/mcp, https://x402broker.com/mcp)"
+   "why": "the SDK client (@modelcontextprotocol/sdk 1.32.1) and the gate agree on mcp_endpoint for the own endpoint and the 3 drawn (https://assay.agentdiet.dev/mcp, https://polymarket-odds.agentdiet.dev/mcp, https://github-audit.agentdiet.dev/mcp)"
   },
   {
    "id": "11_main_ci",
    "state": "ok",
-   "why": "no push run on main of horizon-shield failed between 2026-11-08T03:47:00Z and 2026-11-09T03:47:00Z"
+   "why": "no push run on main of horizon-shield failed between 2026-11-09T03:47:00Z and 2026-11-10T03:47:00Z"
   },
   {
    "id": "12_paid_rows_daily",
@@ -19,7 +19,7 @@
   {
    "id": "13_line_delivery",
    "state": "ok",
-   "why": "no failed LINE send since 2026-11-08T03:47:00Z in hs-kira-line or hs-kira-group"
+   "why": "no failed LINE send since 2026-11-09T03:47:00Z in hs-kira-line or hs-kira-group"
   },
   {
    "id": "14_not_yet_deadline",
@@ -29,17 +29,17 @@
   {
    "id": "15_recovery_fresh",
    "state": "ok",
-   "why": "Software Heritage visited the repository within 7 days, and the drill rebuilt the ledger unbroken up to entry 280, within 48 hours of the head 280"
+   "why": "Software Heritage visited the repository within 7 days, and the drill rebuilt the ledger unbroken up to entry 289, within 48 hours of the head 289"
   },
   {
    "id": "16_witness_pool",
    "state": "ok",
-   "why": "4 outside witnesses signed a FURUI or TOOSHI day with a key of their own domain in the 30 days before 2026-11-09T03:47:00Z: invinoveritas.dev (latest batch 2026-11-09, entry 273), ovaic.org (latest batch 2026-11-09, entry 273), pipavlo82.github.io (latest batch 2026-11-06, entry 256), sencor.ai (latest batch 2026-11-09, entry 273)"
+   "why": "5 outside witnesses signed a FURUI or TOOSHI day with a key of their own domain in the 30 days before 2026-11-10T03:47:00Z: agent-passport.org (latest batch 2026-11-10, entry 283), invinoveritas.dev (latest batch 2026-11-10, entry 283), ovaic.org (latest batch 2026-11-09, entry 273), pipavlo82.github.io (latest batch 2026-11-06, entry 256), sencor.ai (latest batch 2026-11-09, entry 273)"
   },
   {
    "id": "17_paid_call_chain",
    "state": "ok",
-   "why": "every one of the 1 paid calls from 2026-11-07T03:47:00Z to 2026-11-08T03:47:00Z carries its FURUI envelope, SEKI record, MUSUBI settlement and NENRIN entry, one of each"
+   "why": "every one of the 1 paid calls from 2026-11-08T03:47:00Z to 2026-11-09T03:47:00Z carries its FURUI envelope, SEKI record, MUSUBI settlement and NENRIN entry, one of each"
   },
   {
    "id": "18_two_runners",
@@ -48,18 +48,18 @@
   },
   {
    "id": "1_sieve_admission",
-   "state": "ok",
-   "why": "yesterday's call: its content block's check_sha256 is the check of leaf 1 of 2026-11-08, signed by runner-1, in the day root the ledger serves, with the same input_commit, rules, scope and answer"
+   "state": "red",
+   "why": "today's check call failed: fewer than two block sources answered with a tip (1)"
   },
   {
    "id": "22_loss_bound",
    "state": "notice",
-   "why": "0 of 1 admits of hs-seki-demo on 2026-11-08 have a finite loss bound; not finite: 62ce1e38 report 20 ticket (open_fields payload_unbound: the contract does not bind the payload, so L is not finite until it does; counted, not red)"
+   "why": "0 of 1 admits of hs-seki-demo on 2026-11-09 have a finite loss bound; not finite: 11608863 report 20 ticket (open_fields payload_unbound: the contract does not bind the payload, so L is not finite until it does; counted, not red)"
   },
   {
    "id": "24_content_mismatch",
    "state": "ok",
-   "why": "on 2026-11-08 the gateway refused a body that is not its seki.content, 400 content_mismatch, before the door"
+   "why": "on 2026-11-09 the gateway refused a body that is not its seki.content, 400 content_mismatch, before the door"
   },
   {
    "id": "25_tasuki_chain",
@@ -68,18 +68,18 @@
   },
   {
    "id": "2_admission_ledger",
-   "state": "ok",
-   "why": "the ledger serves the call's record ccffd1bd0105d0e64c371dad0a07bd8e332327fb163c59e7211b3e0f058331a6 under its sha, the door serves the same bytes, a v0.4 record with the fixed content answer under the door's rules id"
+   "state": "red",
+   "why": "today's check call failed: fewer than two block sources answered with a tip (1)"
   },
   {
    "id": "3_ledger_settle",
    "state": "ok",
-   "why": "the check call of 2026-11-07 is settled within_grant, final, under settle v1.19: the admission is anchored on the ledger and the execution naming it is at the MUSUBI intake"
+   "why": "the check call of 2026-11-08 is settled within_grant, final, under settle v1.19: the admission is anchored on the ledger and the execution naming it is at the MUSUBI intake"
   },
   {
    "id": "4_door_resume",
    "state": "ok",
-   "why": "yesterday's check call record is in the Resume of https://shield.the-horizons-innovation.com/: admit, not revoked, the fixed content answer, ledger entry 274"
+   "why": "yesterday's check call record is in the Resume of https://shield.the-horizons-innovation.com/: admit, not revoked, the fixed content answer, ledger entry 285"
   },
   {
    "id": "4b_resume_agreement",
@@ -94,12 +94,12 @@
   {
    "id": "6_daily_root",
    "state": "ok",
-   "why": "2026-11-07 was accepted, is served by the ledger and is in batch entry 274 of 2026-11-09"
+   "why": "2026-11-08 was accepted, is served by the ledger and is in batch entry 285 of 2026-11-10"
   },
   {
    "id": "6b_daily_leaf",
    "state": "ok",
-   "why": "2026-11-07: leaves 0,5 match their envelopes, carry runner-1's signature, and their audit paths rebuild the root of the day record the ledger serves"
+   "why": "2026-11-08: leaves 0,5 match their envelopes, carry runner-1's signature, and their audit paths rebuild the root of the day record the ledger serves"
   },
   {
    "id": "7_heartbeat_scene",
@@ -108,73 +108,45 @@
   },
   {
    "id": "8_canary_scene",
-   "state": "ok",
-   "why": "today's canary text was stopped and the phrase was not touched; yesterday's canary envelope is leaf 2 of 2026-11-08, signed by runner-1, saying stop"
+   "state": "red",
+   "why": "today's canary call failed: canary_call_failed: fewer than two block sources answered with a tip (1)"
   },
   {
    "id": "9_witness_answer",
-   "state": "not_yet",
-   "why": "no signed witness answer for 2026-11-07 is at the ledger yet"
+   "state": "ok",
+   "why": "2 signed answer(s) for 2026-11-08 carry the day record's day_sha256, root and n under the key each witness serves (agent-passport.org, invinoveritas.dev)"
   }
  ],
  "counts": {
-  "not_yet": 2,
+  "not_yet": 1,
   "notice": 3,
-  "ok": 18,
-  "red": 0
+  "ok": 16,
+  "red": 3
  },
- "day": "2026-11-09",
- "day_sha256": "9a5aac074d1e9dabcfc99e9e9be0c20b16b570a9ec7195ee564c4488322fe2af",
- "earlier": [
-  {
-   "checked_at": "2026-11-09T04:06:31Z",
-   "day_sha256": "9a5aac074d1e9dabcfc99e9e9be0c20b16b570a9ec7195ee564c4488322fe2af",
-   "notes": {
-    "items": [
-     {
-      "about": "3_ledger_settle",
-      "bitcoin_status": "confirmed",
-      "day": "2026-11-08",
-      "entry": 274,
-      "record": "af16aa6ec9f7b91755c4359b516a284211115b4a16e42452f334e5d1e5ca419d",
-      "state": "confirmed",
-      "what": "yesterday_batch_bitcoin",
-      "why": "the ledger batch holding yesterday's admission (entry 274) is confirmed in Bitcoin; 2026-11-08 is settled by the 21:17 UTC run"
-     }
-    ],
-    "observed_at": "2026-11-09T04:06:31Z",
-    "outside": "what this run saw at observed_at, beside the checks; not part of result_canonical, result_sha256 or day_sha256, and not recomputed by a witness",
-    "schema": "tooshi-notes-v0"
-   },
-   "result_sha256": "fca091846be455f84cfad8967efb26a33fcfc60072a8c85749ecf7acdd4f86dd",
-   "run_url": "https://github.com/ogasurfproject-jpg/horizon-shield/actions/runs/42559837277",
-   "trigger": "schedule",
-   "verdict": "not_all_checked"
-  }
- ],
+ "day": "2026-11-10",
+ "day_sha256": "4dc4b1678f2dfc43284c23af5fbb433bb8c485ea3d7f438279c6547eb6fa3f6f",
+ "earlier": [],
  "notes": {
   "items": [
    {
     "about": "3_ledger_settle",
-    "bitcoin_status": "confirmed",
-    "day": "2026-11-08",
-    "entry": 274,
-    "record": "af16aa6ec9f7b91755c4359b516a284211115b4a16e42452f334e5d1e5ca419d",
-    "state": "confirmed",
+    "day": "2026-11-09",
+    "record": "ccffd1bd0105d0e64c371dad0a07bd8e332327fb163c59e7211b3e0f058331a6",
+    "state": "settled",
     "what": "yesterday_batch_bitcoin",
-    "why": "the ledger batch holding yesterday's admission (entry 274) is confirmed in Bitcoin; 2026-11-08 is settled by the 21:17 UTC run"
+    "why": "2026-11-09 is settled final already"
    }
   ],
-  "observed_at": "2026-11-09T04:36:32Z",
+  "observed_at": "2026-11-10T04:06:30Z",
   "outside": "what this run saw at observed_at, beside the checks; not part of result_canonical, result_sha256 or day_sha256, and not recomputed by a witness",
   "schema": "tooshi-notes-v0"
  },
  "recipe": "result_sha256 = sha256 of the UTF-8 bytes of result_canonical. day_sha256 = sha256 of the same JSON with checked_at and trigger removed, schema set to tooshi-day-view-v0 and day added, keys sorted, separators , and : without spaces, UTF-8 (tools/tooshi/tooshi_daily.py day_view). Any run of the same day after 03:47 UTC that reads the same answers gets the same day_sha256. notes, when present, are what that run saw at notes.observed_at; they are not in result_canonical, so neither sha covers them.",
- "result_canonical": "{\"checked_at\":\"2026-11-09T04:36:32Z\",\"checks\":[{\"facts\":{\"drawn\":[\"https://mcp-gateway.agentdiet.dev/mcp\",\"https://agentdiet.dev/mcp\",\"https://x402broker.com/mcp\"],\"gate_version\":\"0.4.24\",\"sdk\":\"1.32.1\"},\"id\":\"10_cross_client\",\"state\":\"ok\",\"why\":\"the SDK client (@modelcontextprotocol/sdk 1.32.1) and the gate agree on mcp_endpoint for the own endpoint and the 3 drawn (https://mcp-gateway.agentdiet.dev/mcp, https://agentdiet.dev/mcp, https://x402broker.com/mcp)\"},{\"facts\":{\"left_out\":{\"hs-furui-private\":\"private; this job holds no token that reads it, and its push scripts wait for its CI themselves\",\"hs-seki-private\":\"private; this job holds no token that reads it, and its push scripts wait for its CI themselves\"},\"runs\":{\"horizon-shield\":61},\"window\":[\"2026-11-08T03:47:00Z\",\"2026-11-09T03:47:00Z\"]},\"id\":\"11_main_ci\",\"state\":\"ok\",\"why\":\"no push run on main of horizon-shield failed between 2026-11-08T03:47:00Z and 2026-11-09T03:47:00Z\"},{\"facts\":{\"furui_row\":{\"cost_usd\":{\"by_day\":[{\"checks\":6,\"day\":\"2026-11-08\",\"spent_usd\":0.038742},{\"checks\":6,\"day\":\"2026-11-07\",\"spent_usd\":0.052267},{\"checks\":3,\"day\":\"2026-11-06\",\"spent_usd\":0.017757},{\"checks\":2,\"day\":\"2026-11-05\",\"spent_usd\":0.000601},{\"checks\":2,\"day\":\"2026-11-04\",\"spent_usd\":0.000601},{\"checks\":2,\"day\":\"2026-11-03\",\"spent_usd\":0.017751}],\"checks\":21,\"heartbeat\":{\"day\":\"2026-11-09\",\"spent_usd\":0.00029570000000000003},\"per_check\":0.0060819,\"spent\":0.127719},\"time_ms\":{\"n\":6,\"p50\":5623,\"p95\":10636,\"samples\":[{\"call\":\"check\",\"day\":\"2026-11-08\",\"ms\":4963},{\"call\":\"canary\",\"day\":\"2026-11-08\",\"ms\":7976},{\"call\":\"check\",\"day\":\"2026-11-07\",\"ms\":5623},{\"call\":\"canary\",\"day\":\"2026-11-07\",\"ms\":9336},{\"call\":\"check\",\"day\":\"2026-11-06\",\"ms\":4487},{\"call\":\"canary\",\"day\":\"2026-11-06\",\"ms\":10636}],\"skipped\":0},\"unread\":[],\"window\":[\"2026-11-02\",\"2026-11-08\"]},\"paid\":0,\"waits_for\":\"a_paid_row\"},\"id\":\"12_paid_rows_daily\",\"state\":\"not_yet\",\"why\":\"the register has no paid row (PayPal or Marketplace) yet; there is nothing to hold to the daily cadence\"},{\"facts\":{},\"id\":\"13_line_delivery\",\"state\":\"ok\",\"why\":\"no failed LINE send since 2026-11-08T03:47:00Z in hs-kira-line or hs-kira-group\"},{\"facts\":{\"exempt\":[\"12_paid_rows_daily\"],\"exempt_why\":{\"12_paid_rows_daily\":\"no paid row yet: a time limit would turn the day red and send a mail every day while there is nothing to measure; it ends when the register has a paid row\"},\"open\":[{\"deadline\":72,\"history\":\"read\",\"hours\":72,\"id\":\"9_witness_answer\"}],\"waiting\":2},\"id\":\"14_not_yet_deadline\",\"state\":\"ok\",\"why\":\"every not_yet is within its deadline (12_paid_rows_daily waits for a fact, not a time)\"},{\"facts\":{\"head\":280,\"rebuilt_through\":280,\"swh_rebuilt_through\":271,\"swh_visit_within_7_days\":true},\"id\":\"15_recovery_fresh\",\"state\":\"ok\",\"why\":\"Software Heritage visited the repository within 7 days, and the drill rebuilt the ledger unbroken up to entry 280, within 48 hours of the head 280\"},{\"facts\":{\"distinct\":4,\"domains\":[{\"last_entry\":273,\"last_signed\":\"2026-11-09\",\"signed_domain\":\"invinoveritas.dev\"},{\"last_entry\":273,\"last_signed\":\"2026-11-09\",\"signed_domain\":\"ovaic.org\"},{\"last_entry\":256,\"last_signed\":\"2026-11-06\",\"signed_domain\":\"pipavlo82.github.io\"},{\"last_entry\":273,\"last_signed\":\"2026-11-09\",\"signed_domain\":\"sencor.ai\"}],\"entries_read\":203,\"line\":3,\"other_purposes_only\":2,\"window\":[\"2026-10-10T03:47:00Z\",\"2026-11-09T03:47:00Z\"]},\"id\":\"16_witness_pool\",\"state\":\"ok\",\"why\":\"4 outside witnesses signed a FURUI or TOOSHI day with a key of their own domain in the 30 days before 2026-11-09T03:47:00Z: invinoveritas.dev (latest batch 2026-11-09, entry 273), ovaic.org (latest batch 2026-11-09, entry 273), pipavlo82.github.io (latest batch 2026-11-06, entry 256), sencor.ai (latest batch 2026-11-09, entry 273)\"},{\"facts\":{\"calls\":1,\"complete\":1,\"entries_read\":15,\"missing\":[],\"stores\":[\"hs-seki-demo\"],\"window\":[\"2026-11-07T03:47:00Z\",\"2026-11-08T03:47:00Z\"]},\"id\":\"17_paid_call_chain\",\"state\":\"ok\",\"why\":\"every one of the 1 paid calls from 2026-11-07T03:47:00Z to 2026-11-08T03:47:00Z carries its FURUI envelope, SEKI record, MUSUBI settlement and NENRIN entry, one of each\"},{\"facts\":{\"canary_runner2\":false,\"canary_runner2_prev\":false,\"dormant\":true,\"records\":0,\"waits_for\":\"an_admission_0_5\"},\"id\":\"18_two_runners\",\"state\":\"notice\",\"why\":\"dormant: no paid call of 17's window carries an admission of version 0.5 (the door writes 0.4 until it calls two runners)\"},{\"facts\":{\"day\":\"2026-11-09\",\"decision\":\"admit\",\"leaf\":1,\"record\":\"ccffd1bd0105d0e64c371dad0a07bd8e332327fb163c59e7211b3e0f058331a6\"},\"id\":\"1_sieve_admission\",\"state\":\"ok\",\"why\":\"yesterday's call: its content block's check_sha256 is the check of leaf 1 of 2026-11-08, signed by runner-1, in the day root the ledger serves, with the same input_commit, rules, scope and answer\"},{\"facts\":{\"admits\":1,\"day\":\"2026-11-08\",\"finite\":0,\"not_finite\":[{\"action\":\"report\",\"amount_max\":20,\"class\":\"authorized\",\"open_fields\":\"payload_unbound\",\"record_sha256\":\"62ce1e38f961d18fc3f20be691931c3691ead5842c3cbdb6f2971b3023f361ec\",\"unit\":\"ticket\"}],\"policy\":\"read\",\"store\":\"hs-seki-demo\",\"unit_note\":\"ticket: the pilot's tickets carry no monetary value (the gateway's SEKI_TICKETS); an amount is written in the grant's unit and not converted\",\"window\":[]},\"id\":\"22_loss_bound\",\"state\":\"notice\",\"why\":\"0 of 1 admits of hs-seki-demo on 2026-11-08 have a finite loss bound; not finite: 62ce1e38 report 20 ticket (open_fields payload_unbound: the contract does not bind the payload, so L is not finite until it does; counted, not red)\"},{\"facts\":{\"day\":\"2026-11-08\",\"error\":\"content_mismatch\",\"status\":400},\"id\":\"24_content_mismatch\",\"state\":\"ok\",\"why\":\"on 2026-11-08 the gateway refused a body that is not its seki.content, 400 content_mismatch, before the door\"},{\"facts\":{\"agrees_with_17\":{\"compared\":3,\"differ\":[]},\"calls\":1,\"missing_by_link\":{},\"no_link_missing\":1,\"rows\":[{\"call\":\"44ee1e0206c2e26ab3d7fb805b5d5bff4d476959e71e1a290079eec955398097\",\"missing\":[],\"not_yet\":[\"settle->recompute\",\"day->witness\"],\"verdict\":\"not_yet\"}],\"unwalked\":[],\"walked\":1,\"walked_at\":\"2026-11-09T03:47:00Z\"},\"id\":\"25_tasuki_chain\",\"state\":\"notice\",\"why\":\"1 of 1 paid calls of 17's window are chains with no link missing (every link holds or not_yet); missing links by name: none; 17 and 25 agree on 3 of 3 records (counted, not red)\"},{\"facts\":{\"day\":\"2026-11-09\",\"decision\":\"admit\",\"record\":\"ccffd1bd0105d0e64c371dad0a07bd8e332327fb163c59e7211b3e0f058331a6\"},\"id\":\"2_admission_ledger\",\"state\":\"ok\",\"why\":\"the ledger serves the call's record ccffd1bd0105d0e64c371dad0a07bd8e332327fb163c59e7211b3e0f058331a6 under its sha, the door serves the same bytes, a v0.4 record with the fixed content answer under the door's rules id\"},{\"facts\":{\"contract\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\",\"day\":\"2026-11-07\",\"execution\":\"85ce2faa49d2ed68ebfd52e818e1e3ed65af63cb29dfda2354824c9e1c52c818\",\"record\":\"38270d2a7d2a3cdc4cff96c9b825ead74837ab873be4785d48338b0ddb800e5a\"},\"id\":\"3_ledger_settle\",\"state\":\"ok\",\"why\":\"the check call of 2026-11-07 is settled within_grant, final, under settle v1.19: the admission is anchored on the ledger and the execution naming it is at the MUSUBI intake\"},{\"facts\":{\"day\":\"2026-11-08\",\"ledger_n\":274,\"record\":\"af16aa6ec9f7b91755c4359b516a284211115b4a16e42452f334e5d1e5ca419d\"},\"id\":\"4_door_resume\",\"state\":\"ok\",\"why\":\"yesterday's check call record is in the Resume of https://shield.the-horizons-innovation.com/: admit, not revoked, the fixed content answer, ledger entry 274\"},{\"facts\":{\"contract\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\",\"entry\":253},\"id\":\"4b_resume_agreement\",\"state\":\"ok\",\"why\":\"the check contract is listed in the agreements[] of the Resume of https://shield.the-horizons-innovation.com/ (ledger entry 253)\"},{\"facts\":{\"check_store_required\":true,\"door_required\":false,\"rules_sha256\":\"2c5a1089a90265717175dd1056be7075472aed44fab5581e6be6e73b1746f195\",\"runner\":\"hs-furui-runner 0.4.1\"},\"id\":\"5_door_runner\",\"state\":\"ok\",\"why\":\"the runner's key, caps, model key and rules id agree with the ledger and the door\"},{\"facts\":{\"day\":\"2026-11-07\",\"entry\":274,\"record\":\"909df8904a4c2cc81c86251cf0644cff068bf44b204ee43f59b38bb90214b586\"},\"id\":\"6_daily_root\",\"state\":\"ok\",\"why\":\"2026-11-07 was accepted, is served by the ledger and is in batch entry 274 of 2026-11-09\"},{\"facts\":{\"day\":\"2026-11-07\",\"leaves\":[0,5],\"record\":\"909df8904a4c2cc81c86251cf0644cff068bf44b204ee43f59b38bb90214b586\"},\"id\":\"6b_daily_leaf\",\"state\":\"ok\",\"why\":\"2026-11-07: leaves 0,5 match their envelopes, carry runner-1's signature, and their audit paths rebuild the root of the day record the ledger serves\"},{\"facts\":{\"at\":\"2026-11-09T03:17:51.451Z\",\"capped\":false,\"spent_usd\":0.00029570000000000003},\"id\":\"7_heartbeat_scene\",\"state\":\"ok\",\"why\":\"today's scene ran after 03:17 UTC and gave the expected answer\"},{\"facts\":{\"bound\":true,\"check_sha256\":\"4e935164ff5788b6b42bf1f0288f0d65a76b78d2f3370e30b8a192717a37e08e\",\"day\":\"2026-11-09\",\"decision\":\"stop\",\"leaf\":2,\"mark_sha256\":\"e98398e463edaec87f919b84abf223dcd67a783006edacf833e4eb6b1529cd63\",\"stage_reached\":3,\"touched\":false},\"id\":\"8_canary_scene\",\"state\":\"ok\",\"why\":\"today's canary text was stopped and the phrase was not touched; yesterday's canary envelope is leaf 2 of 2026-11-08, signed by runner-1, saying stop\"},{\"facts\":{\"answers\":0,\"day\":\"2026-11-07\",\"record\":\"909df8904a4c2cc81c86251cf0644cff068bf44b204ee43f59b38bb90214b586\",\"witnesses\":[]},\"id\":\"9_witness_answer\",\"state\":\"not_yet\",\"why\":\"no signed witness answer for 2026-11-07 is at the ledger yet\"}],\"counts\":{\"not_yet\":2,\"notice\":3,\"ok\":18,\"red\":0},\"schema\":\"tooshi-daily-v0\",\"trigger\":\"second\",\"verdict\":\"not_all_checked\"}",
- "result_sha256": "34c765c3d56c93f88f4a5508163c85aed092c890f42f388e4ac618ac6a8d6312",
- "run_url": "https://github.com/ogasurfproject-jpg/horizon-shield/actions/runs/42562664053",
+ "result_canonical": "{\"checked_at\":\"2026-11-10T04:06:30Z\",\"checks\":[{\"facts\":{\"drawn\":[\"https://assay.agentdiet.dev/mcp\",\"https://polymarket-odds.agentdiet.dev/mcp\",\"https://github-audit.agentdiet.dev/mcp\"],\"gate_version\":\"0.4.24\",\"sdk\":\"1.32.1\"},\"id\":\"10_cross_client\",\"state\":\"ok\",\"why\":\"the SDK client (@modelcontextprotocol/sdk 1.32.1) and the gate agree on mcp_endpoint for the own endpoint and the 3 drawn (https://assay.agentdiet.dev/mcp, https://polymarket-odds.agentdiet.dev/mcp, https://github-audit.agentdiet.dev/mcp)\"},{\"facts\":{\"left_out\":{\"hs-furui-private\":\"private; this job holds no token that reads it, and its push scripts wait for its CI themselves\",\"hs-seki-private\":\"private; this job holds no token that reads it, and its push scripts wait for its CI themselves\"},\"runs\":{\"horizon-shield\":16},\"window\":[\"2026-11-09T03:47:00Z\",\"2026-11-10T03:47:00Z\"]},\"id\":\"11_main_ci\",\"state\":\"ok\",\"why\":\"no push run on main of horizon-shield failed between 2026-11-09T03:47:00Z and 2026-11-10T03:47:00Z\"},{\"facts\":{\"furui_row\":{\"cost_usd\":{\"by_day\":[{\"checks\":6,\"day\":\"2026-11-09\",\"spent_usd\":0.040015},{\"checks\":6,\"day\":\"2026-11-08\",\"spent_usd\":0.038742},{\"checks\":6,\"day\":\"2026-11-07\",\"spent_usd\":0.052267},{\"checks\":3,\"day\":\"2026-11-06\",\"spent_usd\":0.017757},{\"checks\":2,\"day\":\"2026-11-05\",\"spent_usd\":0.000601},{\"checks\":2,\"day\":\"2026-11-04\",\"spent_usd\":0.000601},{\"checks\":2,\"day\":\"2026-11-03\",\"spent_usd\":0.017751}],\"checks\":27,\"heartbeat\":{\"day\":\"2026-11-10\",\"spent_usd\":0.00029430000000000005},\"per_check\":0.0062124,\"spent\":0.167734},\"time_ms\":{\"n\":8,\"p50\":7976,\"p95\":12149,\"samples\":[{\"call\":\"check\",\"day\":\"2026-11-09\",\"ms\":9460},{\"call\":\"canary\",\"day\":\"2026-11-09\",\"ms\":12149},{\"call\":\"check\",\"day\":\"2026-11-08\",\"ms\":4963},{\"call\":\"canary\",\"day\":\"2026-11-08\",\"ms\":7976},{\"call\":\"check\",\"day\":\"2026-11-07\",\"ms\":5623},{\"call\":\"canary\",\"day\":\"2026-11-07\",\"ms\":9336},{\"call\":\"check\",\"day\":\"2026-11-06\",\"ms\":4487},{\"call\":\"canary\",\"day\":\"2026-11-06\",\"ms\":10636}],\"skipped\":0},\"unread\":[],\"window\":[\"2026-11-03\",\"2026-11-09\"]},\"paid\":0,\"waits_for\":\"a_paid_row\"},\"id\":\"12_paid_rows_daily\",\"state\":\"not_yet\",\"why\":\"the register has no paid row (PayPal or Marketplace) yet; there is nothing to hold to the daily cadence\"},{\"facts\":{},\"id\":\"13_line_delivery\",\"state\":\"ok\",\"why\":\"no failed LINE send since 2026-11-09T03:47:00Z in hs-kira-line or hs-kira-group\"},{\"facts\":{\"exempt\":[\"12_paid_rows_daily\"],\"exempt_why\":{\"12_paid_rows_daily\":\"no paid row yet: a time limit would turn the day red and send a mail every day while there is nothing to measure; it ends when the register has a paid row\"},\"open\":[],\"waiting\":1},\"id\":\"14_not_yet_deadline\",\"state\":\"ok\",\"why\":\"every not_yet is within its deadline (12_paid_rows_daily waits for a fact, not a time)\"},{\"facts\":{\"head\":289,\"rebuilt_through\":289,\"swh_rebuilt_through\":280,\"swh_visit_within_7_days\":true},\"id\":\"15_recovery_fresh\",\"state\":\"ok\",\"why\":\"Software Heritage visited the repository within 7 days, and the drill rebuilt the ledger unbroken up to entry 289, within 48 hours of the head 289\"},{\"facts\":{\"distinct\":5,\"domains\":[{\"last_entry\":283,\"last_signed\":\"2026-11-10\",\"signed_domain\":\"agent-passport.org\"},{\"last_entry\":283,\"last_signed\":\"2026-11-10\",\"signed_domain\":\"invinoveritas.dev\"},{\"last_entry\":273,\"last_signed\":\"2026-11-09\",\"signed_domain\":\"ovaic.org\"},{\"last_entry\":256,\"last_signed\":\"2026-11-06\",\"signed_domain\":\"pipavlo82.github.io\"},{\"last_entry\":273,\"last_signed\":\"2026-11-09\",\"signed_domain\":\"sencor.ai\"}],\"entries_read\":207,\"line\":3,\"other_purposes_only\":2,\"window\":[\"2026-10-11T03:47:00Z\",\"2026-11-10T03:47:00Z\"]},\"id\":\"16_witness_pool\",\"state\":\"ok\",\"why\":\"5 outside witnesses signed a FURUI or TOOSHI day with a key of their own domain in the 30 days before 2026-11-10T03:47:00Z: agent-passport.org (latest batch 2026-11-10, entry 283), invinoveritas.dev (latest batch 2026-11-10, entry 283), ovaic.org (latest batch 2026-11-09, entry 273), pipavlo82.github.io (latest batch 2026-11-06, entry 256), sencor.ai (latest batch 2026-11-09, entry 273)\"},{\"facts\":{\"calls\":1,\"complete\":1,\"entries_read\":19,\"missing\":[],\"stores\":[\"hs-seki-demo\"],\"window\":[\"2026-11-08T03:47:00Z\",\"2026-11-09T03:47:00Z\"]},\"id\":\"17_paid_call_chain\",\"state\":\"ok\",\"why\":\"every one of the 1 paid calls from 2026-11-08T03:47:00Z to 2026-11-09T03:47:00Z carries its FURUI envelope, SEKI record, MUSUBI settlement and NENRIN entry, one of each\"},{\"facts\":{\"canary_runner2\":false,\"canary_runner2_prev\":false,\"dormant\":true,\"records\":0,\"waits_for\":\"an_admission_0_5\"},\"id\":\"18_two_runners\",\"state\":\"notice\",\"why\":\"dormant: no paid call of 17's window carries an admission of version 0.5 (the door writes 0.4 until it calls two runners)\"},{\"facts\":{\"day\":\"2026-11-10\",\"decision\":null,\"record\":null},\"id\":\"1_sieve_admission\",\"state\":\"red\",\"why\":\"today's check call failed: fewer than two block sources answered with a tip (1)\"},{\"facts\":{\"admits\":1,\"day\":\"2026-11-09\",\"finite\":0,\"not_finite\":[{\"action\":\"report\",\"amount_max\":20,\"class\":\"authorized\",\"open_fields\":\"payload_unbound\",\"record_sha256\":\"116088635ab980d7eb2be38cf1dad3f23a698354a95cc66bdba75f381173c50b\",\"unit\":\"ticket\"}],\"policy\":\"read\",\"store\":\"hs-seki-demo\",\"unit_note\":\"ticket: the pilot's tickets carry no monetary value (the gateway's SEKI_TICKETS); an amount is written in the grant's unit and not converted\",\"window\":[]},\"id\":\"22_loss_bound\",\"state\":\"notice\",\"why\":\"0 of 1 admits of hs-seki-demo on 2026-11-09 have a finite loss bound; not finite: 11608863 report 20 ticket (open_fields payload_unbound: the contract does not bind the payload, so L is not finite until it does; counted, not red)\"},{\"facts\":{\"day\":\"2026-11-09\",\"error\":\"content_mismatch\",\"status\":400},\"id\":\"24_content_mismatch\",\"state\":\"ok\",\"why\":\"on 2026-11-09 the gateway refused a body that is not its seki.content, 400 content_mismatch, before the door\"},{\"facts\":{\"agrees_with_17\":{\"compared\":3,\"differ\":[]},\"calls\":1,\"missing_by_link\":{},\"no_link_missing\":1,\"rows\":[{\"call\":\"62ce1e38f961d18fc3f20be691931c3691ead5842c3cbdb6f2971b3023f361ec\",\"missing\":[],\"not_yet\":[\"settle->recompute\"],\"verdict\":\"not_yet\"}],\"unwalked\":[],\"walked\":1,\"walked_at\":\"2026-11-10T03:47:00Z\"},\"id\":\"25_tasuki_chain\",\"state\":\"notice\",\"why\":\"1 of 1 paid calls of 17's window are chains with no link missing (every link holds or not_yet); missing links by name: none; 17 and 25 agree on 3 of 3 records (counted, not red)\"},{\"facts\":{\"day\":\"2026-11-10\",\"decision\":null,\"record\":null},\"id\":\"2_admission_ledger\",\"state\":\"red\",\"why\":\"today's check call failed: fewer than two block sources answered with a tip (1)\"},{\"facts\":{\"contract\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\",\"day\":\"2026-11-08\",\"execution\":\"09542ebd743337a09339e9d08194d2da3b07ac7c85f2dbcce9b80239fead08d9\",\"record\":\"af16aa6ec9f7b91755c4359b516a284211115b4a16e42452f334e5d1e5ca419d\"},\"id\":\"3_ledger_settle\",\"state\":\"ok\",\"why\":\"the check call of 2026-11-08 is settled within_grant, final, under settle v1.19: the admission is anchored on the ledger and the execution naming it is at the MUSUBI intake\"},{\"facts\":{\"day\":\"2026-11-09\",\"ledger_n\":285,\"record\":\"ccffd1bd0105d0e64c371dad0a07bd8e332327fb163c59e7211b3e0f058331a6\"},\"id\":\"4_door_resume\",\"state\":\"ok\",\"why\":\"yesterday's check call record is in the Resume of https://shield.the-horizons-innovation.com/: admit, not revoked, the fixed content answer, ledger entry 285\"},{\"facts\":{\"contract\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\",\"entry\":253},\"id\":\"4b_resume_agreement\",\"state\":\"ok\",\"why\":\"the check contract is listed in the agreements[] of the Resume of https://shield.the-horizons-innovation.com/ (ledger entry 253)\"},{\"facts\":{\"check_store_required\":true,\"door_required\":false,\"rules_sha256\":\"2c5a1089a90265717175dd1056be7075472aed44fab5581e6be6e73b1746f195\",\"runner\":\"hs-furui-runner 0.4.1\"},\"id\":\"5_door_runner\",\"state\":\"ok\",\"why\":\"the runner's key, caps, model key and rules id agree with the ledger and the door\"},{\"facts\":{\"day\":\"2026-11-08\",\"entry\":285,\"record\":\"1e80362a96bee22e8d29a6898f2f2436a743aef9fa4e15c3bce85e0d80d46746\"},\"id\":\"6_daily_root\",\"state\":\"ok\",\"why\":\"2026-11-08 was accepted, is served by the ledger and is in batch entry 285 of 2026-11-10\"},{\"facts\":{\"day\":\"2026-11-08\",\"leaves\":[0,5],\"record\":\"1e80362a96bee22e8d29a6898f2f2436a743aef9fa4e15c3bce85e0d80d46746\"},\"id\":\"6b_daily_leaf\",\"state\":\"ok\",\"why\":\"2026-11-08: leaves 0,5 match their envelopes, carry runner-1's signature, and their audit paths rebuild the root of the day record the ledger serves\"},{\"facts\":{\"at\":\"2026-11-10T03:17:51.436Z\",\"capped\":false,\"spent_usd\":0.00029430000000000005},\"id\":\"7_heartbeat_scene\",\"state\":\"ok\",\"why\":\"today's scene ran after 03:17 UTC and gave the expected answer\"},{\"facts\":{\"check_sha256\":null,\"day\":\"2026-11-10\",\"decision\":null,\"mark_sha256\":null,\"stage_reached\":null,\"touched\":null},\"id\":\"8_canary_scene\",\"state\":\"red\",\"why\":\"today's canary call failed: canary_call_failed: fewer than two block sources answered with a tip (1)\"},{\"facts\":{\"answers\":2,\"day\":\"2026-11-08\",\"record\":\"1e80362a96bee22e8d29a6898f2f2436a743aef9fa4e15c3bce85e0d80d46746\",\"witnesses\":[\"agent-passport.org\",\"invinoveritas.dev\"]},\"id\":\"9_witness_answer\",\"state\":\"ok\",\"why\":\"2 signed answer(s) for 2026-11-08 carry the day record's day_sha256, root and n under the key each witness serves (agent-passport.org, invinoveritas.dev)\"}],\"counts\":{\"not_yet\":1,\"notice\":3,\"ok\":16,\"red\":3},\"schema\":\"tooshi-daily-v0\",\"trigger\":\"schedule\",\"verdict\":\"red\"}",
+ "result_sha256": "cb698cdf932d67e09f81c24de67c3bb4da6a89b00bd41a323aed76e0f549ad48",
+ "run_url": "https://github.com/ogasurfproject-jpg/horizon-shield/actions/runs/42753579553",
  "schema": "tooshi-day-v0",
- "trigger": "second",
- "verdict": "not_all_checked",
+ "trigger": "schedule",
+ "verdict": "red",
  "witness": "python3 -I -B tools/tooshi/tooshi_daily.py --witness <your name> [--vantage <your network>] [--dry-run]"
 }
