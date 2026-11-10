@@ -240,6 +240,42 @@ Added on 2026-11-08 (25, every paid call walked as one chain; nenrin-verify tasu
 Dormant checks (18, 22, 24, 25): the code runs and the row is written with state notice and facts.dormant true; a notice does not
 change the verdict and 14 does not count it. Each is counted again by itself, on the first day the records it reads are
 there, with no change to this file.
+Added on 2026-11-10 (the day's facts, beside the checks): the result carries facts, read from public files with GET only.
+They have no state: the verdict, the counts and 14 do not read them, and none of them is ever red. They are inside
+result_canonical and day_sha256, so a witness who reads the same files gets the same facts. tooshi_publish.py copies them
+to the top of the day file and to the day's line in index.json. A fact that cannot be made says so (unread) and the run goes on.
+    red_zero_streak       the days in a row, ending today, with red 0. Each day is read from tooshi/days/<day>.json on
+                          raw.githubusercontent.com (DAY_URL), newest first; a day counts when its result_canonical hashes to
+                          its result_sha256, its counts.red is 0 and no run of that day under earlier[] says red. Today counts
+                          when this run has red 0 and today's published file, if there is one yet, says no red.
+                            today red                       days 0: the streak goes back to 0 on every red day (ended_by today, red)
+                            an earlier run of a day red     that day ends the streak (a later run of the day that is not red
+                                                            does not keep it; ended_by an_earlier_run_red)
+                            a day not published (404)       ends the streak: a day without a published result is not a day
+                                                            with red 0 (ended_by missing; before 2026-11-04, before_first_day)
+                            a day that cannot be read       days null; at_least the days counted before it, unread the day
+                                                            and why (5xx three times, no result_canonical, a sha that does
+                                                            not match); the next run that reads it counts again
+                          facts: days, since (the oldest day counted), through (today), ended_by {day, why}, read (the
+                          published days read), at_least, unread. Anyone recounts it from the day files alone.
+    anchored_ledger_days  the number of distinct UTC days that hold a Bitcoin block anchoring a NENRIN ledger entry, as the
+                          OpenTimestamps nightly check read the proofs (ots-nightly/nights/<night>.json, ots_nightly.py;
+                          yesterday's night, or the day before's when yesterday's is not kept). The night's answers_sha256 is
+                          recomputed first. A block is counted when the night says ok for it and for an entry in it; its day
+                          is the UTC date of the time in its own 80 byte header (bytes 68 to 71), and the header must hash
+                          (sha256d) to the block hash the night names. facts: days, first_day, last_day, span_days (first to
+                          last, both counted), gap_days (span_days minus days: days with no anchoring block), blocks, night,
+                          answers_sha256. It counts the days a block holds, not the days since the first entry, so a gap
+                          stays a gap. days null with unread when the night cannot be read or does not hash.
+    pypi_wheel            nenrin-verify 0.11.0 (PYPI_WATCH): the sha256 of each wheel PyPI serves for the version (GET
+                          https://pypi.org/pypi/nenrin-verify/0.11.0/json) against the digest GitHub gives for the asset of
+                          the same name in a release of this repository (GET /repos/<repo>/releases, assets[].digest), or
+                          against a SHA256SUMS asset of a release named for the version, and against the sha256 the
+                          statements of PyPI's provenance name for the file (GET https://pypi.org/integrity/<project>/
+                          <version>/<wheel>/provenance; the statement is read, its signature is not checked here).
+                          state: match (GitHub names the sha256 PyPI serves), differ (GitHub or the provenance names
+                          another), no_release_wheel (on PyPI, and no release gives a sha256 for the wheel; the provenance
+                          is written), not_yet (the version, or a wheel of it, is not on PyPI), unread.
 A red day opens one issue (label tooshi) and sends one mail with the names of the red checks and one line each
 (tools/tooshi/tooshi_tell.py, run by the workflow; this file sends nothing).
 """
@@ -2347,6 +2383,233 @@ def check_tasuki(now, calls, pc, walk_get, walk=None):
     return c(cid, "notice", why, **facts)
 
 
+# ---- the day's facts (2026-11-10): beside the checks, never a check; the verdict, the counts and 14 do not read them ----
+FIRST_DAY = "2026-11-04"                 # the first published day (tooshi/days/2026-11-04.json)
+STREAK_SCAN = 4000                       # published days read back at most for red_zero_streak (about eleven years)
+OTS_NIGHT_URL = "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/ots-nightly/nights/%s.json"   # ots_nightly.py write
+PYPI_WATCH = ("nenrin-verify", "0.11.0")
+PYPI_URL = "https://pypi.org/pypi/%s/%s/json"
+PYPI_PROVENANCE = "https://pypi.org/integrity/%s/%s/%s/provenance"
+RELEASES_URL = GH_API + "/repos/ogasurfproject-jpg/horizon-shield/releases?per_page=100"
+SUMS_NAME = re.compile(r"(?i)sha256sums")
+VERDICTS = ("green", "not_all_checked", "red")
+
+
+def published_result(get, d):
+    """a published day read as a witness reads it: (state, verdicts, why). state is read (its result_canonical hashes to
+    result_sha256 and is the result of day d), missing (404) or unread. verdicts: the kept result's (red when counts.red is
+    above 0), then each earlier run's of the same day."""
+    try:
+        s, j = get(DAY_URL % d)
+    except Unreachable as e:
+        return "unread", [], str(e)
+    if s == 404:
+        return "missing", [], "no published day"
+    if s != 200 or not isinstance(j, dict) or not isinstance(j.get("result_canonical"), str):
+        return "unread", [], "http %s without result_canonical" % s
+    t = j["result_canonical"]
+    if sha(t) != j.get("result_sha256"):
+        return "unread", [], "result_canonical does not hash to result_sha256"
+    try:
+        r = json.loads(t)
+    except ValueError:
+        return "unread", [], "result_canonical is not JSON"
+    cn = r.get("counts") if isinstance(r, dict) else None
+    if not (isinstance(cn, dict) and _int(cn.get("red")) and str(r.get("checked_at"))[:10] == d and r.get("verdict") in VERDICTS):
+        return "unread", [], "the result is not a result of %s with a red count" % d
+    ea = j.get("earlier") or []
+    if not isinstance(ea, list) or any(not isinstance(e, dict) or e.get("verdict") not in VERDICTS for e in ea):
+        return "unread", [], "an earlier run of %s has no verdict" % d
+    return "read", ["red" if cn["red"] else r["verdict"]] + [e["verdict"] for e in ea], ""
+
+
+def red_zero_streak(get, now, counts):
+    """the days in a row, ending today, with red 0 (docstring: red_zero_streak). Recounted from the day files alone."""
+    d0 = now.strftime("%Y-%m-%d")
+    f = {"days": None, "since": None, "through": d0, "ended_by": None, "read": 0, "at_least": None, "unread": None}
+    if counts["red"]:
+        return dict(f, days=0, ended_by={"day": d0, "why": "red"})
+    st, vs, why = published_result(get, d0)
+    if st == "unread":
+        return dict(f, at_least=0, unread={"day": d0, "why": why})
+    if "red" in vs:
+        return dict(f, days=0, ended_by={"day": d0, "why": "an_earlier_run_red"})
+    n = 0
+    for i in range(1, STREAK_SCAN + 1):
+        d = (now - datetime.timedelta(days=i)).strftime("%Y-%m-%d")
+        st, vs, why = published_result(get, d)
+        if st == "unread":
+            return dict(f, read=i - 1, at_least=1 + n, unread={"day": d, "why": why})
+        if st == "missing" or "red" in vs:
+            w = ("before_first_day" if d < FIRST_DAY else "missing") if st == "missing" else ("red" if vs[0] == "red" else "an_earlier_run_red")
+            return dict(f, days=1 + n, since=(now - datetime.timedelta(days=n)).strftime("%Y-%m-%d"), ended_by={"day": d, "why": w}, read=i - 1 if st == "missing" else i)
+        n += 1
+    return dict(f, read=STREAK_SCAN, at_least=1 + n, unread={"day": None, "why": "more than %d days back" % STREAK_SCAN})
+
+
+def anchored_ledger_days(get, now):
+    """the distinct UTC days of the Bitcoin blocks that anchor ledger entries, as the OpenTimestamps nightly check read the
+    proofs (docstring: anchored_ledger_days)"""
+    f = {"days": None, "first_day": None, "last_day": None, "span_days": None, "gap_days": None, "blocks": None, "night": None, "answers_sha256": None, "unread": None}
+    tried = []
+    for back in (1, 2):
+        night = (now - datetime.timedelta(days=back)).strftime("%Y-%m-%d")
+        tried.append(night)
+        try:
+            s, j = get(OTS_NIGHT_URL % night)
+        except Unreachable as e:
+            return dict(f, night=night, unread=str(e))
+        if s != 404:
+            break
+    else:
+        return dict(f, unread="no OTS nightly result is kept for %s" % " or ".join(tried))
+    f["night"] = night
+    if s != 200 or not isinstance(j, dict) or j.get("schema") != "nenrin-ots-nightly-v1" or j.get("night") != night:
+        return dict(f, unread="the night answered http %s, not a nenrin-ots-nightly-v1 result of %s" % (s, night))
+    ans = {k: j.get(k) for k in ("entries", "blocks", "counts", "verdict")}
+    if sha(json.dumps(ans, sort_keys=True, separators=(",", ":"), ensure_ascii=False)) != j.get("answers_sha256"):
+        return dict(f, unread="the night's entries, blocks, counts and verdict do not hash to its answers_sha256")
+    if not isinstance(j["blocks"], dict) or not isinstance(j["entries"], list):
+        return dict(f, unread="the night has no blocks or entries")
+    f["answers_sha256"] = j["answers_sha256"]
+    held = {e.get("bitcoin_block") for e in j["entries"] if isinstance(e, dict) and e.get("state") == "ok" and _int(e.get("bitcoin_block"))}
+    days, blocks, bad = set(), 0, []
+    for h in sorted(j["blocks"], key=lambda x: (len(x), x)):
+        b = j["blocks"][h]
+        if not (isinstance(b, dict) and b.get("state") == "ok" and h.isdigit() and int(h) in held):
+            continue
+        try:
+            hd = bytes.fromhex(b.get("header"))
+        except (TypeError, ValueError):
+            hd = b""
+        if len(hd) != 80 or hashlib.sha256(hashlib.sha256(hd).digest()).digest()[::-1].hex() != b.get("block_hash"):
+            bad.append(h)
+            continue
+        days.add(datetime.datetime.fromtimestamp(int.from_bytes(hd[68:72], "little"), datetime.timezone.utc).strftime("%Y-%m-%d"))
+        blocks += 1
+    if bad:
+        return dict(f, unread="the header of block %s does not hash to the block hash the night names" % ", ".join(bad))
+    if not days:
+        return dict(f, days=0, blocks=0)
+    lo, hi = min(days), max(days)
+    span = (datetime.date.fromisoformat(hi) - datetime.date.fromisoformat(lo)).days + 1
+    return dict(f, days=len(days), first_day=lo, last_day=hi, span_days=span, gap_days=span - len(days), blocks=blocks)
+
+
+def wheel_provenance(get, proj, ver, fn):
+    """PyPI's provenance of one file (PEP 740): the publishers and the sha256 the statements name for the file. The
+    statement is read; its signature is not checked here."""
+    try:
+        s, p = get(PYPI_PROVENANCE % (proj, ver, fn))
+    except Unreachable as e:
+        return {"state": "unread", "why": str(e)}
+    if s == 404:
+        return {"state": "none"}
+    if s != 200 or not isinstance(p, dict) or not isinstance(p.get("attestation_bundles"), list):
+        return {"state": "unread", "why": "http %s without attestation_bundles" % s}
+    pubs, subj = [], set()
+    for b in p["attestation_bundles"]:
+        if not isinstance(b, dict):
+            continue
+        pb = b.get("publisher") if isinstance(b.get("publisher"), dict) else {}
+        pubs.append({k: pb.get(k) for k in ("kind", "repository", "workflow", "environment")})
+        for a in b.get("attestations") or []:
+            try:
+                stj = json.loads(base64.b64decode(a["envelope"]["statement"]).decode("utf-8"))
+                for x in stj["subject"]:
+                    if x.get("name") == fn and H64.match(str(x["digest"]["sha256"])):
+                        subj.add(x["digest"]["sha256"])
+            except (KeyError, TypeError, ValueError, AttributeError):
+                continue
+    return {"state": "read", "publishers": pubs, "subject_sha256": sorted(subj), "signature_checked": False}
+
+
+def pypi_wheel(get):
+    """the wheels of PYPI_WATCH on PyPI against GitHub's release assets and PyPI's provenance (docstring: pypi_wheel)"""
+    proj, ver = PYPI_WATCH
+    f = {"project": proj, "version": ver, "state": None, "why": None, "wheels": [], "releases": None}
+    try:
+        s, j = get(PYPI_URL % (proj, ver))
+    except Unreachable as e:
+        return dict(f, state="unread", why="PyPI did not answer: " + str(e))
+    if s == 404:
+        return dict(f, state="not_yet", why="%s %s is not on PyPI" % (proj, ver))
+    if s != 200 or not isinstance(j, dict) or not isinstance(j.get("urls"), list):
+        return dict(f, state="unread", why="PyPI answered http %s without urls" % s)
+    ws = []
+    for u in j["urls"]:
+        if isinstance(u, dict) and u.get("packagetype") == "bdist_wheel":
+            fn, dg = u.get("filename"), (u.get("digests") or {}).get("sha256") if isinstance(u.get("digests"), dict) else None
+            if not (isinstance(fn, str) and fn.endswith(".whl") and isinstance(dg, str) and H64.match(dg)):
+                return dict(f, state="unread", why="a wheel of %s %s on PyPI has no filename or sha256" % (proj, ver))
+            ws.append({"filename": fn, "pypi_sha256": dg, "uploaded": u.get("upload_time_iso_8601"), "yanked": bool(u.get("yanked")),
+                       "github": None, "github_same": None, "provenance": None, "provenance_same": None})
+    if not ws:
+        return dict(f, state="not_yet", why="%s %s is on PyPI without a wheel" % (proj, ver))
+    names = {w["filename"]: w for w in ws}
+    try:
+        rs, rel = get(RELEASES_URL)
+    except Unreachable as e:
+        rs, rel = None, str(e)
+    if rs == 200 and isinstance(rel, list):
+        f["releases"] = "read"
+        for r in rel:
+            for a in (r.get("assets") or []) if isinstance(r, dict) else []:
+                w = names.get(a.get("name")) if isinstance(a, dict) else None
+                if w is None or (w["github"] or {}).get("sha256"):
+                    continue
+                dg = a.get("digest")
+                ok = isinstance(dg, str) and dg.startswith("sha256:") and bool(H64.match(dg[7:]))
+                w["github"] = {"release": r.get("tag_name"), "asset": a.get("name"), "sha256": dg[7:] if ok else None, "via": "asset_digest" if ok else "asset_without_digest"}
+        for r in rel:
+            if not (isinstance(r, dict) and ver in (str(r.get("tag_name")) + " " + str(r.get("name")))):
+                continue
+            for a in r.get("assets") or []:
+                if not (isinstance(a, dict) and SUMS_NAME.search(str(a.get("name"))) and isinstance(a.get("browser_download_url"), str)):
+                    continue
+                try:
+                    ss, txt = get(a["browser_download_url"], raw=True)
+                except Unreachable:
+                    continue
+                for line in (txt.splitlines() if ss == 200 and isinstance(txt, str) else []):
+                    m = re.match(r"^([0-9a-f]{64}) [ *]?(\S+)$", line.strip())
+                    w = names.get(m.group(2)) if m else None
+                    if w is not None and not (w["github"] or {}).get("sha256"):
+                        w["github"] = {"release": r.get("tag_name"), "asset": a["name"], "sha256": m.group(1), "via": "sha256sums"}
+    else:
+        f["releases"] = "unread: " + (rel if isinstance(rel, str) else "http %s" % rs)
+    for w in ws:
+        g = (w["github"] or {}).get("sha256")
+        w["github_same"] = None if g is None else g == w["pypi_sha256"]
+        w["provenance"] = wheel_provenance(get, proj, ver, w["filename"])
+        ps = w["provenance"].get("subject_sha256") or []
+        w["provenance_same"] = None if not ps else ps == [w["pypi_sha256"]]
+    f["wheels"] = ws
+    differ = [w["filename"] for w in ws if w["github_same"] is False or w["provenance_same"] is False]
+    if differ:
+        return dict(f, state="differ", why="a GitHub release or PyPI's provenance names another sha256 for %s" % ", ".join(differ))
+    if all(w["github_same"] for w in ws):
+        return dict(f, state="match", why="GitHub names the sha256 PyPI serves for %s" % ", ".join(sorted(names)))
+    if f["releases"] != "read":
+        return dict(f, state="unread", why="the releases of this repository could not be read (%s)" % f["releases"])
+    return dict(f, state="no_release_wheel", why="no release of this repository gives a sha256 for %s; PyPI's provenance %s" % (
+        ", ".join(w["filename"] for w in ws if not w["github_same"]),
+        "names the same sha256" if all(w["provenance_same"] for w in ws) else "was not read or names none"))
+
+
+def day_facts(get, now, counts):
+    """the result's facts: numbers read from public files, beside the checks. A fact that cannot be made says so and never
+    stops the run."""
+    out = {}
+    for k, fn in (("red_zero_streak", lambda: red_zero_streak(get, now, counts)), ("anchored_ledger_days", lambda: anchored_ledger_days(get, now)),
+                  ("pypi_wheel", lambda: pypi_wheel(get))):
+        try:
+            out[k] = fn()
+        except Exception as e:
+            out[k] = {"unread": "the fact could not be made: %s" % type(e).__name__}
+    return out
+
+
 def run(get, now, trigger="manual", walk_get=None):
     if trigger not in TRIGGERS:
         raise ValueError("trigger must be one of " + ", ".join(TRIGGERS))
@@ -2369,6 +2632,7 @@ def run(get, now, trigger="manual", walk_get=None):
     counts = {k: sum(1 for x in checks if x["state"] == k) for k in ("ok", "red", "notice", "not_yet")}
     verdict = "red" if counts["red"] else ("green" if counts["not_yet"] == 0 else "not_all_checked")
     res = {"schema": "tooshi-daily-v0", "checked_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "trigger": trigger, "verdict": verdict, "counts": counts, "checks": checks}
+    res["facts"] = day_facts(get, now, counts)   # after the verdict: the facts read it (red_zero_streak) and change nothing in it
     text = json.dumps(res, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return res, text, hashlib.sha256(text.encode("utf-8")).hexdigest()
 
@@ -2420,6 +2684,15 @@ def http_post(url, obj, timeout=30):
             return e.code, json.loads(e.read().decode("utf-8"))
         except ValueError:
             return e.code, None
+
+
+def facts_line(res):
+    f = res.get("facts") or {}
+    rz, an, pw = f.get("red_zero_streak") or {}, f.get("anchored_ledger_days") or {}, f.get("pypi_wheel") or {}
+    return "facts    red_zero_streak %s (since %s)%s anchored_ledger_days %s (%s to %s, gap %s, night %s)%s pypi_wheel %s %s %s" % (
+        rz.get("days"), rz.get("since"), (" at_least %s unread %s" % (rz.get("at_least"), rz.get("unread"))) if rz.get("unread") else "",
+        an.get("days"), an.get("first_day"), an.get("last_day"), an.get("gap_days"), an.get("night"), (" unread " + str(an["unread"])) if an.get("unread") else "",
+        pw.get("version"), pw.get("state"), pw.get("why") or pw.get("unread") or "")
 
 
 def body(res, sha):
@@ -3561,6 +3834,145 @@ def selftest():
     cases.append(("25 in a run: a notice that names 17's paid call, and the verdict is the one the other checks give (25 is never red)",
                   ([x["state"] for x in r25["checks"] if x["id"] == S25], [x["facts"]["calls"] for x in r25["checks"] if x["id"] == S25], r25["verdict"], CALLS_KEY in json.dumps(r25)), (["notice"], [1], "green", False)))
 
+    # ---- the day's facts (2026-11-10): red_zero_streak, anchored_ledger_days, pypi_wheel; GET only, never a check ----
+    def fg(wd):
+        def g(url, raw=False):
+            v = wd.get(url, (404, None))
+            if v == "down":
+                raise Unreachable(url + ": http 503 after 3 tries")
+            return v
+        return g
+    def pubr(d, red=0, earlier=(), bad_sha=False, verdict=None):
+        r = {"schema": "tooshi-daily-v0", "checked_at": d + "T04:05:00Z", "trigger": "schedule", "verdict": verdict or ("red" if red else "not_all_checked"),
+             "counts": {"ok": 5, "red": red, "notice": 0, "not_yet": 1}, "checks": []}
+        t = json.dumps(r, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        return (200, {"schema": "tooshi-day-v0", "day": d, "result_canonical": t, "result_sha256": "0" * 64 if bad_sha else hsh(t),
+                      "earlier": [{"trigger": "schedule", "verdict": v} for v in earlier]})
+    N20 = datetime.datetime(2026, 11, 20, 4, 5, tzinfo=datetime.timezone.utc)
+    dd = lambda i: (N20 - datetime.timedelta(days=i)).strftime("%Y-%m-%d")
+    G0 = {"ok": 18, "red": 0, "notice": 3, "not_yet": 2}
+    SW = {DAY_URL % dd(i): pubr(dd(i)) for i in range(1, 6)}
+    SW[DAY_URL % dd(6)] = pubr(dd(6), red=2)
+    rz = red_zero_streak(fg(SW), N20, G0)
+    cases.append(("facts red_zero_streak: today and the 5 days before have red 0, the 6th day before is red: 6 days since 11-15, ended by 11-14 red",
+                  (rz["days"], rz["since"], rz["through"], rz["ended_by"], rz["read"], rz["unread"]), (6, "2026-11-15", "2026-11-20", {"day": "2026-11-14", "why": "red"}, 6, None)))
+    rr = red_zero_streak(fg(SW), N20, dict(G0, red=1))
+    cases.append(("facts red_zero_streak: a red today goes back to 0, and no day is read", (rr["days"], rr["ended_by"], rr["read"]), (0, {"day": "2026-11-20", "why": "red"}, 0)))
+    re_ = red_zero_streak(fg(dict(SW, **{DAY_URL % dd(3): pubr(dd(3), earlier=("red",))})), N20, G0)
+    cases.append(("facts red_zero_streak: a day whose kept run is not red but whose earlier run was red ends the streak (3 days)", (re_["days"], re_["ended_by"]), (3, {"day": "2026-11-17", "why": "an_earlier_run_red"})))
+    rt = red_zero_streak(fg(dict(SW, **{DAY_URL % dd(0): pubr(dd(0), red=1)})), N20, G0)
+    cases.append(("facts red_zero_streak: today's published run was red and this run is not: 0 (the second run of a red day)", (rt["days"], rt["ended_by"]), (0, {"day": "2026-11-20", "why": "an_earlier_run_red"})))
+    rm = red_zero_streak(fg({k: v for k, v in SW.items() if k != DAY_URL % dd(3)}), N20, G0)
+    cases.append(("facts red_zero_streak: a day not published ends the streak (3 days, ended by 11-17 missing)", (rm["days"], rm["since"], rm["ended_by"]), (3, "2026-11-18", {"day": "2026-11-17", "why": "missing"})))
+    ru = red_zero_streak(fg(dict(SW, **{DAY_URL % dd(3): "down"})), N20, G0)
+    cases.append(("facts red_zero_streak: a day that cannot be read (5xx three times): days null, at least 3, the day named",
+                  (ru["days"], ru["at_least"], ru["unread"]["day"], ru["ended_by"]), (None, 3, "2026-11-17", None)))
+    rb = red_zero_streak(fg(dict(SW, **{DAY_URL % dd(2): pubr(dd(2), bad_sha=True)})), N20, G0)
+    cases.append(("facts red_zero_streak: a day whose result_canonical does not hash to its result_sha256 is not read (days null, at least 2)",
+                  (rb["days"], rb["at_least"], rb["unread"]["why"]), (None, 2, "result_canonical does not hash to result_sha256")))
+    N05 = datetime.datetime(2026, 11, 5, 4, 5, tzinfo=datetime.timezone.utc)
+    rf = red_zero_streak(fg({DAY_URL % "2026-11-04": pubr("2026-11-04")}), N05, G0)
+    cases.append(("facts red_zero_streak: the first published day reached: 2 days, ended by 11-03 before_first_day", (rf["days"], rf["ended_by"]), (2, {"day": "2026-11-03", "why": "before_first_day"})))
+    cases.append(("facts red_zero_streak: the same files give the same streak (recounted twice)", red_zero_streak(fg(SW), N20, G0) == rz, True))
+
+    def hdr(t, salt=0):
+        return (b"\x00" * 4 + bytes([salt]) * 32 + b"\x11" * 32 + int(t).to_bytes(4, "little") + b"\x00" * 8).hex()
+    def bhash(hx):
+        return hashlib.sha256(hashlib.sha256(bytes.fromhex(hx)).digest()).digest()[::-1].hex()
+    def night(d, blocks, entries):
+        bl = {}
+        for h, (ts, salt, st) in blocks.items():
+            hx = hdr(ts, salt)
+            bl[str(h)] = {"block_hash": bhash(hx), "header": hx, "state": st, "entries": [], "code": None, "merkle_root": "", "sources": None}
+        en = [{"n": i + 1, "bitcoin_block": h, "state": st, "ots_status": "confirmed"} for i, (h, st) in enumerate(entries)]
+        cn = {"entries": len(en)}
+        ans = {"entries": en, "blocks": bl, "counts": cn, "verdict": "green"}
+        return {"schema": "nenrin-ots-nightly-v1", "night": d, "entries": en, "blocks": bl, "counts": cn, "verdict": "green",
+                "answers_sha256": hsh(json.dumps(ans, sort_keys=True, separators=(",", ":"), ensure_ascii=False))}
+    T22, T24 = 1784721600, 1784721600 + 2 * 86400   # 2026-07-22T12:00Z and 2026-07-24T12:00Z
+    NT = night("2026-11-19", {100: (T22, 1, "ok"), 101: (T22 + 3600, 2, "ok"), 102: (T24, 3, "ok"), 103: (T24 + 86400, 4, "ok"), 104: (T24 + 2 * 86400, 5, "pending")},
+               [(100, "ok"), (101, "ok"), (102, "ok"), (103, "too_recent"), (104, "ok")])
+    an = anchored_ledger_days(fg({OTS_NIGHT_URL % "2026-11-19": (200, NT)}), N20)
+    cases.append(("facts anchored_ledger_days: blocks on 07-22 (two) and 07-24 with ok entries: 2 days, span 3, gap 1; a block whose entry is too_recent and a pending block are not counted",
+                  (an["days"], an["first_day"], an["last_day"], an["span_days"], an["gap_days"], an["blocks"], an["night"], an["unread"]), (2, "2026-07-22", "2026-07-24", 3, 1, 3, "2026-11-19", None)))
+    an2 = anchored_ledger_days(fg({OTS_NIGHT_URL % "2026-11-18": (200, dict(NT, night="2026-11-18"))}), N20)
+    cases.append(("facts anchored_ledger_days: yesterday's night not kept: the night before is read and named", (an2["night"], an2["days"], an2["unread"]), ("2026-11-18", 2, None)))
+    NT18 = night("2026-11-18", {100: (T22, 1, "ok")}, [(100, "ok")])
+    an3 = anchored_ledger_days(fg({OTS_NIGHT_URL % "2026-11-18": (200, NT18)}), N20)
+    cases.append(("facts anchored_ledger_days: the night before's own result: 1 day", (an3["night"], an3["days"], an3["gap_days"]), ("2026-11-18", 1, 0)))
+    NTb = json.loads(json.dumps(NT))
+    NTb["blocks"]["100"]["header"] = hdr(T22 - 86400, 1)
+    NTb["answers_sha256"] = hsh(json.dumps({k: NTb[k] for k in ("entries", "blocks", "counts", "verdict")}, sort_keys=True, separators=(",", ":"), ensure_ascii=False))
+    cases.append(("facts anchored_ledger_days: a header moved a day back no longer hashes to its block hash: unread, not counted",
+                  (lambda x: (x["days"], "block 100" in str(x["unread"])))(anchored_ledger_days(fg({OTS_NIGHT_URL % "2026-11-19": (200, NTb)}), N20)), (None, True)))
+    cases.append(("facts anchored_ledger_days: no night kept for the two days, or the night down: days null with unread",
+                  tuple(anchored_ledger_days(fg(w_), N20)["days"] for w_ in ({}, {OTS_NIGHT_URL % "2026-11-19": "down"})), (None, None)))
+
+    PV = PYPI_WATCH
+    WHL = "nenrin_verify-0.11.0-py3-none-any.whl"
+    WS = hsh("the wheel bytes")
+    PJ = (200, {"urls": [{"packagetype": "sdist", "filename": "nenrin_verify-0.11.0.tar.gz", "digests": {"sha256": hsh("sdist")}},
+                         {"packagetype": "bdist_wheel", "filename": WHL, "digests": {"sha256": WS}, "upload_time_iso_8601": "2026-11-10T01:00:00.000000Z", "yanked": False}]})
+    def rel(tag, *assets):
+        return {"tag_name": tag, "name": tag, "assets": list(assets)}
+    def prov(dg, repo="ogasurfproject-jpg/horizon-shield"):
+        stm = base64.b64encode(json.dumps({"_type": "https://in-toto.io/Statement/v1", "subject": [{"name": WHL, "digest": {"sha256": dg}}]}).encode()).decode()
+        return (200, {"version": 1, "attestation_bundles": [{"publisher": {"kind": "GitHub", "repository": repo, "workflow": "pypi-publish-nenrin-verify.yml", "environment": "pypi"},
+                                                             "attestations": [{"version": 1, "envelope": {"statement": stm, "signature": "AA=="}}]}]})
+    PVU = PYPI_PROVENANCE % (PV[0], PV[1], WHL)
+    pw = lambda **o: pypi_wheel(fg(dict({PYPI_URL % PV: PJ, RELEASES_URL: (200, []), PVU: prov(WS)}, **o)))
+    x = pw(**{PYPI_URL % PV: (404, {"message": "Not Found"})})
+    cases.append(("facts pypi_wheel: 0.11.0 not on PyPI yet: not_yet", (x["state"], x["wheels"]), ("not_yet", [])))
+    x = pw(**{PYPI_URL % PV: (200, {"urls": [PJ[1]["urls"][0]]})})
+    cases.append(("facts pypi_wheel: 0.11.0 on PyPI with an sdist only: not_yet", x["state"], "not_yet"))
+    x = pw(**{RELEASES_URL: (200, [rel("nenrin-verify-v0.11.0", {"name": WHL, "digest": "sha256:" + WS})])})
+    cases.append(("facts pypi_wheel: the release asset's digest is the sha256 PyPI serves, and the provenance names it too: match",
+                  (x["state"], x["wheels"][0]["github"], x["wheels"][0]["github_same"], x["wheels"][0]["provenance_same"]),
+                  ("match", {"release": "nenrin-verify-v0.11.0", "asset": WHL, "sha256": WS, "via": "asset_digest"}, True, True)))
+    x = pw(**{RELEASES_URL: (200, [rel("nenrin-verify-v0.11.0", {"name": WHL, "digest": "sha256:" + hsh("other bytes")})])})
+    cases.append(("facts pypi_wheel: the release asset's digest differs from PyPI's: differ, the wheel named", (x["state"], WHL in x["why"], x["wheels"][0]["github_same"]), ("differ", True, False)))
+    x = pw()
+    cases.append(("facts pypi_wheel: no release carries the wheel: no_release_wheel, with the provenance's publisher and the same sha256",
+                  (x["state"], x["wheels"][0]["github"], x["wheels"][0]["provenance"]["publishers"][0]["repository"], x["wheels"][0]["provenance_same"], x["wheels"][0]["provenance"]["signature_checked"]),
+                  ("no_release_wheel", None, "ogasurfproject-jpg/horizon-shield", True, False)))
+    x = pw(**{PVU: prov(hsh("other bytes"))})
+    cases.append(("facts pypi_wheel: no release, and the provenance names another sha256: differ", (x["state"], x["wheels"][0]["provenance_same"]), ("differ", False)))
+    SUMS = "https://github.com/ogasurfproject-jpg/horizon-shield/releases/download/nenrin-verify-v0.11.0/SHA256SUMS"
+    x = pw(**{RELEASES_URL: (200, [rel("nenrin-verify-v0.11.0", {"name": "SHA256SUMS", "browser_download_url": SUMS})]), SUMS: (200, "%s  %s\n%s  other.whl\n" % (WS, WHL, hsh("o")))})
+    cases.append(("facts pypi_wheel: a SHA256SUMS asset of the version's release names the same sha256: match via sha256sums", (x["state"], x["wheels"][0]["github"]["via"]), ("match", "sha256sums")))
+    x = pw(**{RELEASES_URL: (200, [rel("nenrin-verify-v0.11.0", {"name": WHL})])})
+    cases.append(("facts pypi_wheel: the asset is there without a digest: no_release_wheel, and the asset is named", (x["state"], x["wheels"][0]["github"]["via"]), ("no_release_wheel", "asset_without_digest")))
+    cases.append(("facts pypi_wheel: PyPI down, or the releases down: unread",
+                  (pw(**{PYPI_URL % PV: "down"})["state"], pw(**{RELEASES_URL: "down"})["state"]), ("unread", "unread")))
+
+    # in a run (the world of 11-05): the facts are in the result and in day_sha256, and change no state, no count and no verdict
+    FW0 = {DAY_URL % "2026-11-04": pubr("2026-11-04")}
+    FW = dict(FW0, **{OTS_NIGHT_URL % "2026-11-04": (200, dict(NT, night="2026-11-04")), PYPI_URL % PV: PJ,
+                      RELEASES_URL: (200, [rel("nenrin-verify-v0.11.0", {"name": WHL, "digest": "sha256:" + hsh("x")})]), PVU: prov(WS)})
+    def wf2(**over):
+        g0 = world(cc=True)
+        def g(url, raw=False):
+            if url in over:
+                v = over[url]
+                if v == "down":
+                    raise Unreachable(url)
+                return v
+            return g0(url)
+        return g
+    ra, _, _ = run(wf2(**FW0), now)
+    rb_, _, _ = run(wf2(**FW), now)
+    cases.append(("facts in a run: the same states, counts and verdict with and without the facts' files; red_zero_streak 2 (11-05 and 11-04), anchored days 2, pypi differ",
+                  ({x["id"]: x["state"] for x in ra["checks"]} == {x["id"]: x["state"] for x in rb_["checks"]}, ra["counts"] == rb_["counts"], ra["verdict"], rb_["verdict"],
+                   rb_["facts"]["red_zero_streak"]["days"], rb_["facts"]["anchored_ledger_days"]["days"], rb_["facts"]["pypi_wheel"]["state"], sum(rb_["counts"].values()) == len(rb_["checks"])),
+                  (True, True, "green", "green", 2, 2, "differ", True)))
+    cases.append(("facts in a run: inside the day view, so day_sha256 moves with them; the checks 9 and 14 are as before",
+                  (day_sha256(ra) != day_sha256(rb_), "facts" in day_view(rb_), [x for x in ra["checks"] if x["id"] in ("9_witness_answer", "14_not_yet_deadline")] == [x for x in rb_["checks"] if x["id"] in ("9_witness_answer", "14_not_yet_deadline")]),
+                  (True, True, True)))
+    rr_ = run(wf2(**dict(FW, **{RUNNER + "/health": (200, {"key_id": "runner-1", "public_key_ed25519_b64": "B" * 43 + "=", "rules_sha256": None, "caps": dict(CAPS), "anthropic_key_set": True})})), now)[0]
+    cases.append(("facts in a run: a red day has red_zero_streak 0 (ended by today, red)", (rr_["verdict"], rr_["facts"]["red_zero_streak"]["days"], rr_["facts"]["red_zero_streak"]["ended_by"]), ("red", 0, {"day": "2026-11-05", "why": "red"})))
+    xf = run(wf2(**{RELEASES_URL: (200, "not a list"), PYPI_URL % PV: PJ}), now)[0]
+    cases.append(("facts in a run: a fact that cannot be made is written as such and the run goes on", (xf["facts"]["pypi_wheel"]["state"], xf["facts"]["anchored_ledger_days"]["days"], xf["verdict"]), ("unread", None, "green")))
+
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:
         print(("  ok   " if got == want else "  NG   ") + n + ("" if got == want else " (got %r, want %r)" % (got, want)))
@@ -3689,6 +4101,7 @@ def main(argv):
         open(notesf, "w", encoding="utf-8").write(json.dumps(nt, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n")
         for x in nt["items"]:
             print("note     %s %s %s: %s (outside day_sha256)" % (x["about"], x["day"], x["state"], x["why"]))
+    print(facts_line(res))
     print("TOOSHI %s %s ok %d red %d notice %d not_yet %d result_sha256 %s day_sha256 %s trigger %s" % (res["checked_at"], res["verdict"], res["counts"]["ok"], res["counts"]["red"], res["counts"]["notice"], res["counts"]["not_yet"], sha, day_sha256(res), trigger))
     return 1 if res["verdict"] == "red" else 0
 

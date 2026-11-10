@@ -21,8 +21,12 @@
                                    with --notes, the run's notes (tooshi_daily.py --notes, tooshi-notes-v0, observed_at
                                    equal to the result's checked_at) under notes. The notes are outside result_canonical,
                                    so they change neither result_sha256 nor day_sha256 (added 2026-11-05).
+                                   When the result carries facts (tooshi_daily.py, 2026-11-10: red_zero_streak,
+                                   anchored_ledger_days, pypi_wheel), a copy of them sits at the top of the day file under
+                                   facts; they are inside result_canonical, so both shas cover them.
           tooshi/latest.json       the newest day, the same bytes as its day file
-          tooshi/index.json        one line per day, newest first
+          tooshi/index.json        one line per day, newest first (with facts: the days of red_zero_streak and
+                                   anchored_ledger_days and the state of pypi_wheel)
         and prints "TOOSHI_KEPT <day> <result_sha256> <day_sha256>".
     python3 -I -B tools/tooshi/tooshi_publish.py --selftest
 Standard library only. Writes only under --dir.
@@ -152,6 +156,8 @@ def write(result_path, run_url, out_dir, notes_path=None):
         "trigger": res["trigger"], "checked_at": res["checked_at"], "run_url": run_url, "earlier": earlier,
         "recipe": RECIPE, "witness": WITNESS,
     }
+    if isinstance(res.get("facts"), dict):
+        day["facts"] = res["facts"]   # a copy of the result's facts, which result_canonical already holds
     if nt is not None:
         day["notes"] = nt   # outside result_canonical: neither result_sha256 nor day_sha256 covers it
     _write(dayf, day)
@@ -160,6 +166,10 @@ def write(result_path, run_url, out_dir, notes_path=None):
     rows = [r for r in (idx.get("days") or []) if isinstance(r, dict) and r.get("day") != d]
     rows.append({"day": d, "verdict": res["verdict"], "counts": res["counts"], "result_sha256": rs, "day_sha256": ds,
                  "trigger": res["trigger"], "run_url": run_url, "path": "days/%s.json" % d, "runs": len(earlier) + 1})
+    if isinstance(res.get("facts"), dict):
+        f = res["facts"]
+        rows[-1]["facts"] = {"red_zero_streak": (f.get("red_zero_streak") or {}).get("days"), "anchored_ledger_days": (f.get("anchored_ledger_days") or {}).get("days"),
+                             "pypi_wheel": (f.get("pypi_wheel") or {}).get("state")}
     rows.sort(key=lambda r: r["day"], reverse=True)
     _write(idxf, {"schema": "tooshi-index-v0", "latest": rows[0]["day"], "days": rows, "recipe": RECIPE})
     latest = _load(os.path.join(out_dir, "days", rows[0]["day"] + ".json"))
@@ -233,6 +243,17 @@ def selftest():
     except ValueError:
         refused = True
     cases.append(("a result file that is not the canonical bytes is refused", refused, True))
+    pf, rf = result("2026-11-06T04:05:00Z", "schedule")
+    rf["facts"] = {"red_zero_streak": {"days": 3, "since": "2026-11-04"}, "anchored_ledger_days": {"days": 67}, "pypi_wheel": {"state": "not_yet"}}
+    with open(pf, "w", encoding="utf-8") as f:
+        f.write(canon(rf) + "\n")
+    outf = os.path.join(tmp, "facts")
+    write(p1, "https://example.invalid/run/1", outf)
+    write(pf, "https://example.invalid/run/f", outf)
+    dyf, ixf = _load(os.path.join(outf, "days", "2026-11-06.json")), _load(os.path.join(outf, "index.json"))
+    cases.append(("a result with facts: the day file carries a copy at the top, the index line the two numbers and the state, and day_sha256 covers them",
+                  (dyf["facts"] == rf["facts"], ixf["days"][0]["facts"], dyf["day_sha256"] == day_sha256(rf), "facts" in _load(os.path.join(outf, "days", "2026-11-04.json"))),
+                  (True, {"red_zero_streak": 3, "anchored_ledger_days": 67, "pypi_wheel": "not_yet"}, True, False)))
     r4 = dict(r1); del r4["trigger"]
     p4 = os.path.join(tmp, "notrigger.json")
     with open(p4, "w", encoding="utf-8") as f:
