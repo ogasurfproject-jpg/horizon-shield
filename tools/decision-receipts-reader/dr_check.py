@@ -1,7 +1,12 @@
-"""dr_check 0.1.0: a reader of draft-gruszka-audit-decision-receipts-06, Sections 3.2 to 3.5, 3.8 and the
+"""dr_check 0.1.1: a reader of draft-gruszka-audit-decision-receipts-06, Sections 3.2 to 3.5, 3.8 and the
 relying-party check of Section 4, written from the draft text only.  It began as a reader of -04 and was changed
 for each later revision only where the text changed; the changes for -05 and -06 are listed below, and each place
 changed for -06 is marked "-06:" in the code.
+0.1.1: the verdicts file names each input whose SHA-256 differs from inputs-06.json (build_checks_off, with the
+vectors that read it, and inputs_off in each of those vectors); the verdicts still come from the steps of the draft
+alone, so such an input fails a vector only where a step checks its bytes (3.2 step 10, Case 1, 3.4 step 6).  A
+vector whose files are not in the package is reported as not run, and an input file that is not there is reported
+as missing.
 -06 changes applied: timestamp form (fraction of one to six digits, compared as microseconds), strict base64 for
 payload (3.2 step 2) and sig (3.2 step 3), RFC 8785 numbers as IEEE 754 doubles (3.2 step 4), 3.4 step 1 failures
 named as that step, trust policy read from a file (3.4 step 5 with the policies P2 and P3), Section 4 items as -06
@@ -14,12 +19,12 @@ Statement-level overrides for F11 and F12, consumption state with generations (c
 Python standard library plus cryptography (Ed25519).  No network access.
 
 Usage: python3 -I -B dr_check.py inputs-06.json <package_dir> <out_dir>
-  verifies the 96 vectors of the test package by the procedure inputs-06.json names for each, and writes
+  verifies the vectors of the test package by the procedure inputs-06.json names for each, and writes
   <out_dir>/gruszka06_verdicts.json.  No expected result is read; expected.json is not opened.
   count.py then compares the verdicts with expected.json of the package.
 
 Readings where the text leaves a choice (cited as G-n where used):"""
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 import base64, copy, hashlib, json, os, re, sys
 from datetime import datetime, timezone
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
@@ -709,6 +714,14 @@ def _lenient_decision_id(b):
         return None
 
 
+def _input_names(v):
+    return [v[k] for k in ("action", "approval", "effect", "state") if v.get(k)]
+
+
+def _env_files(v):
+    return [v[k] for k in ("env", "decision_env", "outcome_env") if v.get(k)]
+
+
 def load_policy(b):
     pol = json.loads(b)
     dec = {base64.b64decode(k): v for k, v in pol["decision"].items()}
@@ -759,16 +772,25 @@ def main():
     pkg = sys.argv[2]
     od = sys.argv[3]
     rd = lambda path: open(os.path.join(pkg, path), "rb").read()
-    checks = {}
+    have = lambda path: os.path.isfile(os.path.join(pkg, path))
+    checks, off = {}, {}  # 0.1.1: off names the file, the two values and the vectors that read it
     for n, f in inp["inputs"].items():
         if f.get("sha256"):
-            checks["input " + n] = sha(rd(f["file"])) == f["sha256"]
+            got = sha(rd(f["file"])) if have(f["file"]) else "missing"
+            checks["input " + n] = got == f["sha256"]
+            if got != f["sha256"]:
+                off["input " + n] = {"file": f["file"], "sha256_inputs": f["sha256"], "sha256_found": got,
+                                     "vectors": [v["name"] for v in inp["vectors"] if n in _input_names(v)]}
     checks["B from A.1 base64"] = sha(base64.b64decode("".join(inp["B_b64"]))) == inp["B_sha256"]
     for n, ps in inp["payload_sha256_from_text"].items():
         try:
-            checks["payload " + n] = sha(base64.b64decode(json.loads(rd(ps["file"]))["payload"])) == ps["sha256"]
+            got = sha(base64.b64decode(json.loads(rd(ps["file"]))["payload"])) if have(ps["file"]) else "missing"
         except Exception:
-            checks["payload " + n] = False
+            got = "unreadable"
+        checks["payload " + n] = got == ps["sha256"]
+        if got != ps["sha256"]:
+            off["payload " + n] = {"file": ps["file"], "sha256_inputs": ps["sha256"], "sha256_found": got,
+                                   "vectors": [v["name"] for v in inp["vectors"] if ps["file"] in _env_files(v)]}
     kc = {}
     for n, k in inp["keys"].items():
         seed = hashlib.sha256(k["label"].encode()).digest()
@@ -776,7 +798,15 @@ def main():
         kc[n] = {"seed_ok": seed.hex() == k["seed"], "pub_ok": base64.b64encode(pub).decode() == k["pub_b64"]}
     results, held = {}, {}
     for v in inp["vectors"]:
+        gone = [p for p in _env_files(v) + [inp["inputs"][n]["file"] for n in _input_names(v)] if not have(p)]
+        if gone:  # 0.1.1: a vector of another revision of the package
+            results[v["name"]] = {"procedure": v["proc"], "T": v["T"], "result": "not run", "step": None,
+                                  "why": "not in this package: " + ", ".join(gone)}
+            continue
         r, h = run_vector(v, rd, inp)
+        mine = sorted(k for k, o in off.items() if v["name"] in o["vectors"])
+        if mine:
+            r["inputs_off"] = mine
         results[v["name"]] = r
         if h:
             held[v["name"]] = h
@@ -800,11 +830,14 @@ def main():
             both[n] = (held[n][0], held[n][1])
     sc2 = set_checks(both, outs, approvals)
     doc = {"checker": "dr_check " + __version__, "draft": "draft-gruszka-audit-decision-receipts-06", "readings": READINGS,
-           "build_checks": checks, "key_checks": kc, "results": results, "count": len(results),
+           "build_checks": checks, "build_checks_off": off, "key_checks": kc, "results": results, "count": len(results),
            "set_checks_3_5_A3": sc, "set_checks_3_5_A3_plus_F10_F77_one_scope_for_information": sc2}
     data = json.dumps(doc, sort_keys=True, indent=1).encode()
     os.makedirs(od, exist_ok=True)
     open(os.path.join(od, "gruszka06_verdicts.json"), "wb").write(data)
+    for k in sorted(off):  # 0.1.1: the verdicts are not changed by this, only reported
+        print("build check off: %s (%s, found %s), read by %d vectors"
+              % (k, off[k]["file"], off[k]["sha256_found"][:8], len(off[k]["vectors"])), file=sys.stderr)
     print(sha(data))
 
 

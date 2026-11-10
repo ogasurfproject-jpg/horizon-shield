@@ -1,8 +1,9 @@
-"""count.py (dr_check 0.1.0): counts the vectors where the verdicts of dr_check.py agree with expected.json of the
+"""count.py (dr_check 0.1.1): counts the vectors where the verdicts of dr_check.py agree with expected.json of the
 author's test package, on the result (pass, fail or refused) and on the failing step or the Section 4 item.
 Usage: python3 -I -B count.py <out_dir>/gruszka06_verdicts.json <package_dir>/expected.json
 Prints "<agree>/<total> vectors agree (result and step)" and one line for each vector that does not. Exit 0 only
-when every vector agrees and both files name the same vectors. Python standard library only."""
+when every vector agrees and every vector of the verdicts that expected.json does not name was not run (its files
+are not in this package). Python standard library only."""
 import json, re, sys
 
 
@@ -34,12 +35,16 @@ def main():
             agree += 1
         else:
             bad.append("%s: expected %s, dr_check %s" % (n, want, got))
-    extra = sorted(set(ours) - {e["name"] for e in exp})
+    names = {e["name"] for e in exp}
+    extra = sorted(n for n in set(ours) - names if ours[n]["result"] != "not run")
+    absent = sorted(n for n in set(ours) - names if ours[n]["result"] == "not run")
     print("%d/%d vectors agree (result and step)" % (agree, len(exp)))
     for b in bad:
         print("  " + b)
     for n in extra:
         print("  %s: in the verdicts, not in expected.json" % n)
+    for n in absent:
+        print("  %s: not in this package, not run" % n)
     return 0 if agree == len(exp) and not extra else 1
 
 

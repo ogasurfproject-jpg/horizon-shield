@@ -1,4 +1,4 @@
-# dr_check 0.1.0
+# dr_check 0.1.1
 
 dr_check reads draft-gruszka-audit-decision-receipts-06 (and -07 when published); counts 96/96 on the author's vectors.
 
@@ -32,6 +32,13 @@ checks the SHA-256 of every input file, writes `out/gruszka06_verdicts.json` and
 open `expected.json`. `count.py` then prints `96/96 vectors agree (result and step)` on the -06 package: the result
 (pass, fail, or refused under Section 4) and the failing step or Section 4 item of every vector are the ones
 `expected.json` gives.
+
+An input file whose SHA-256 differs from the value in `inputs-06.json` does not stop the run. The draft decides what
+such bytes do to a vector: action bytes are checked in step 10 of Section 3.2, the approval record in Case 1 and
+effect bytes in step 6 of Section 3.4, so a vector that reaches that step fails there. `gruszka06_verdicts.json`
+names every such input under `build_checks_off`, with the file, both values and the vectors that read it, and each of
+those vectors carries `inputs_off`; `dr_check.py` also prints one line for each on standard error. A vector whose
+files are not in the package is reported as `not run`, and `count.py` lists it apart.
 
 ## Readings
 
