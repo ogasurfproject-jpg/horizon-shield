@@ -1,0 +1,12 @@
+{
+  "n": 296,
+  "work": "design-commit-v0",
+  "claim_sha256": "e07ba99eacd1e9eedfc24233e17793fc1f77c4f2a5d2a3eb01d621d0e759b1b5",
+  "record_canonical": "# design-commit-v0\n\ncreated_at: 2026-11-10T14:02:58Z\ndocument_sha256: 0c6c3274b55973dcc944e890e9d89a541b72ca9af8b493cb9216adeaf1287491\ndocument_sha256: 11443e075156e3d7409b21628b9e68940082d663c91fa59d5a7f9e283577df9f\ndocument_sha256: 208aec561ad99114b4b53361bece47781e91caf34418263a4a3e998fb7adfa59\ndocument_sha256: a2370b99b0cc87d26b75d8995957bfc35010066ff72d728ee1df4690c3c50ef4\ndocument_sha256: a389cb2a60f06ae232228e6422092c5a46f5d390988f2d498190642914fc4983\ndocument_sha256: c80e6d2bd932c9f163a920ef98c4c88f969c0be5203089250b03751311831b11\n\nThis entry fixes the sha256 values of documents held privately by the operator. They stay private until they are published; anyone given them can recompute the sha256 values above.\nEstablishes: that documents with these sha256 values existed no later than the block this entry is anchored to.\nDoes not establish: anything about the content of the documents before they are published.\n",
+  "schema": "v0-plain",
+  "created_at": "2026-11-10T14:03:40.994Z",
+  "ots_status": "confirmed",
+  "bitcoin_block": 975310,
+  "block_time": "2026-11-10 14:54 UTC",
+  "stamped_at": "2026-11-10T15:18:52.084Z"
+}

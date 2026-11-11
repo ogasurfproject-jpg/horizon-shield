@@ -1,0 +1,13 @@
+# design-commit-v0
+
+created_at: 2026-11-10T11:50:51Z
+document_sha256: 192f78fbf4de5a4b3769d24c1779f6446ac3a23c764c9e2c206b820d78352a10
+document_sha256: 32224a0b1237a649362ff03d8d7ee2e47d9a83e2f11b8fbed5f779fbe71ce122
+document_sha256: 3aa13d28c7a6ce8b004c7dd1dab9f0b1f196f53ed9e13161be01cac8915eaadf
+document_sha256: 44ce4e1fbfbb8a10d7733e24ed515ba13783dfdfce7cc441fcb956a3bff0e045
+document_sha256: 76b03c029accc31a9aa5573f6b0a81c2aa3cd2e8b21cb3b13126a84081f1b1df
+document_sha256: f2a33cbd32cff538ed077bbfc382822cbc7f04bb5e5e23ce9293a3c14bbfd89f
+
+This entry fixes the sha256 values of documents held privately by the operator. They stay private until they are published; anyone given them can recompute the sha256 values above.
+Establishes: that documents with these sha256 values existed no later than the block this entry is anchored to.
+Does not establish: anything about the content of the documents before they are published.

@@ -1,0 +1,12 @@
+{
+  "n": 293,
+  "work": "design-commit-v0",
+  "claim_sha256": "a6b184bd889e2681e6d53ce260f8158c20cc97895b51fb7aa64c5b8f811160ce",
+  "record_canonical": "# design-commit-v0\n\ncreated_at: 2026-11-10T09:53:58Z\ndocument_sha256: 0761a17cbf042b23ed17ea847fe0b928f71fbb6d49aac897d7dde9ec06b7e0de\ndocument_sha256: 0c220016cb3136646e0391956ec3e3d91127c1b428f97b38ef8f8ddbd94298f9\ndocument_sha256: 27a7cc6db18b1ff5a1437d542ed1315d0274b539f31bc00d0341bbbe39287c51\ndocument_sha256: 3a02813c8b88c1682d8ea490f16410e95e847b446639b61684b4fd53abc2973d\ndocument_sha256: 4b5efc512f5a6b12b4f3314b510d8663151e4acc81e8067a6ef193ea8630f740\ndocument_sha256: 5f1c20e7694138051a266a0e3629f67f38ed8f0f0e110c5af377655679d5cd01\ndocument_sha256: 7ea4c090b1c1fdb8a18ef290213bf2f2674d47c1835915a9da6e3f8bba79369b\ndocument_sha256: 82ba44e1499a852b1cff6f7ff99d9ac8921365d8218016c0e27b346d308830ec\ndocument_sha256: ad629ac759583683c0726ad4b0906d0459bebda9cb84a6b68d89f6ad661f2794\ndocument_sha256: b4533888c3d5f1f2b90da7e5c97c0cfbe2a4be717fcfbd2888a35e30d430ef08\ndocument_sha256: d6c45020564ed773960776f2d2bca110dc56604c1c96d47ac79f179111ce2ecc\ndocument_sha256: fa4e0431a0d3259503c59d2365603cafa2a85741c78eddadc1dfcb1087f0c783\n\nThis entry fixes the sha256 values of documents held privately by the operator. They stay private until they are published; anyone given them can recompute the sha256 values above.\nEstablishes: that documents with these sha256 values existed no later than the block this entry is anchored to.\nDoes not establish: anything about the content of the documents before they are published.\n",
+  "schema": "v0-plain",
+  "created_at": "2026-11-10T09:54:16.780Z",
+  "ots_status": "confirmed",
+  "bitcoin_block": 975288,
+  "block_time": "2026-11-10 10:43 UTC",
+  "stamped_at": "2026-11-10T11:18:33.882Z"
+}
