@@ -288,6 +288,8 @@ CAPS = {"request_usd": 0.4, "day_usd": 5.0, "party_per_day": 100}
 RUNNER_DAYS = {"runner-1": "/furui/day", "runner-2": "/furui2/day"}   # each runner's day tree at RUNNER (runner-2 from FURUI 1.0)
 V05_KEY = "_admissions_0_5"          # 17 hands 18 the 0.5 records it read under this key; run() takes it out
 CALLS_KEY = "_paid_calls"            # 17 hands 25 the record shas of its paid calls under this key; run() takes it out
+SHORT_KEY = "_admissions_0_5_short"  # 17 hands 18 the 0.5 escalations short of their quorum under this key; run() takes it out
+ANSWERED_WHY = ("ok", "unread")      # a 0.5 check with another why gave the door no answer it could count
 FIRST_HEARTBEAT_DAY = "2026-11-03"   # the runner's first heartbeat scene runs at 03:17 UTC that day
 FIRST_CLOSED_DAY = "2026-11-02"      # the first UTC day the runner 0.2.0 closes (its status exists from the next day)
 HEARTBEAT_AFTER = (3, 17)            # the cron 17 3 * * *
@@ -2061,10 +2063,25 @@ def chain_settled(get, place, d):
         return "%s: an answer did not have its shape: %s" % (d, type(e).__name__), set()
 
 
-def chain_calls(get, lo, hi, hi_a, rp, paid):
+def unanswered_05(rec):
+    """18: for an admission of version 0.5 whose content block is short of its quorum (quorum.answered < quorum.required), its
+    quorum and, per runner, the why of each check that gave no answer the door could count (why other than ok and unread);
+    else None."""
+    if not isinstance(rec, dict) or not isinstance(rec.get("rules"), dict) or rec["rules"].get("version") != "0.5":
+        return None
+    cb = rec.get("content") if isinstance(rec.get("content"), dict) else {}
+    q = cb.get("quorum") if isinstance(cb.get("quorum"), dict) else {}
+    if not (_int(q.get("required"), 1) and _int(q.get("answered")) and q["answered"] < q["required"]):
+        return None
+    why = {str(k.get("runner_id")): str(k.get("why")) for k in (cb.get("checks") or []) if isinstance(k, dict) and k.get("why") not in ANSWERED_WHY}
+    return {"quorum": {"required": q["required"], "answered": q["answered"]}, "why": why}
+
+
+def chain_calls(get, lo, hi, hi_a, rp, paid, short=None):
     """17: the paid calls of [lo, hi) the ledger shows: admits of rp under a paid contract, submitted in the window, listed in an
     agreement batch made from lo to today's 03:47 UTC or still in the pool. ({record sha: call}, {record sha: [entry n]}, entries
-    read). LedgerUnread when the ledger cannot be read for the whole window."""
+    read). LedgerUnread when the ledger cannot be read for the whole window. With a list as short, the escalations of the same
+    window, rp and paid contracts that are admission 0.5 short of their quorum (unanswered_05) are appended to it, for 18."""
     s, h = get(LEDGER + "/ledger/head")
     n = h.get("n") if s == 200 and isinstance(h, dict) else None
     if not _int(n, 1):
@@ -2109,6 +2126,11 @@ def chain_calls(get, lo, hi, hi_a, rp, paid):
         except ValueError:
             raise LedgerUnread("admission %s is not JSON" % x)
         t = when(a.get("submitted_at"))
+        if short is not None and isinstance(rec, dict) and rec.get("decision") == "escalate" and (rec.get("relying_party") or {}).get("domain") == rp \
+                and t is not None and lo <= t < hi and (rec.get("contract_ref") or {}).get("contract_sha256") in paid:
+            u = unanswered_05(rec)
+            if u is not None:
+                short.append(dict(u, call=x, store=paid[rec["contract_ref"]["contract_sha256"]]))
         if not isinstance(rec, dict) or rec.get("decision") != "admit" or (rec.get("relying_party") or {}).get("domain") != rp or t is None or not lo <= t < hi:
             continue
         cs = (rec.get("contract_ref") or {}).get("contract_sha256")
@@ -2143,7 +2165,8 @@ def check_paid_chain(get, now):
     if not (isinstance(rp, str) and rp):
         return c(cid, "red", "the door policy names no relying party domain, so its records cannot be told from others", **facts)
     try:
-        calls, listed, read = chain_calls(get, lo, hi, hi_a, rp, paid)
+        short = []
+        calls, listed, read = chain_calls(get, lo, hi, hi_a, rp, paid, short)
     except LedgerUnread as e:
         return c(cid, "not_yet", "the ledger cannot be read for the window, so the paid calls are not known: %s" % e, **facts)
     except Unreachable as e:
@@ -2280,12 +2303,17 @@ def check_paid_chain(get, now):
     if v05:
         out[V05_KEY] = v05          # for 18, taken out by run() before the result is written
     out[CALLS_KEY] = sorted(calls)  # for 25, taken out by run() before the result is written
+    if short:
+        out[SHORT_KEY] = sorted(short, key=lambda r: r["call"])   # for 18, taken out by run() before the result is written
     return out
 
 
-def check_two_runners(get, now, v05):
+def check_two_runners(get, now, v05, short=()):
     """18: the paid calls of 17's window that carry admission 0.5 (quorum and disagreement_kind), and runner-2's canary call in the
-    door's policy. Dormant while no paid call carries 0.5; counted from the first day one does."""
+    door's policy. Dormant while no paid call carries 0.5 and runner-2's canary has not failed; counted from the first day one
+    does. Red when a 0.5 admit is short of its quorum, or runner-2's canary touched the phrase or says ok false (also before the
+    first 0.5 record). short: the 0.5 escalations of the window short of their quorum (17 hands them over); they are counted in
+    the facts (unanswered_escalate, unanswered_by runner and why), never red."""
     cid = "18_two_runners"
     try:
         ps, p = get(DOOR_POLICY)
@@ -2296,23 +2324,34 @@ def check_two_runners(get, now, v05):
     facts = {"canary_runner2": k2 is not None, "canary_runner2_prev": isinstance(fu.get("canary_call_runner2_prev"), dict)}
     if k2 is not None:
         facts.update(canary_runner2_day=k2.get("day"), canary_runner2_decision=k2.get("decision"), canary_runner2_ok=k2.get("ok"))
-    if not v05:
+    short = [r for r in (short or []) if isinstance(r, dict)]
+    by = {}
+    for r in short:
+        for rid, w in sorted((r.get("why") or {}).items()):
+            by["%s:%s" % (rid, w)] = by.get("%s:%s" % (rid, w), 0) + 1
+    facts.update(unanswered_escalate=len(short), unanswered_by=by)
+    canary_red = None
+    if k2 is not None and (k2.get("touched") is True or k2.get("ok") is False):
+        canary_red = "runner-2's canary call of %s %s" % (k2.get("day"), "touched the phrase" if k2.get("touched") is True else "failed: %s" % k2.get("error"))
+    if not v05 and not short:
+        if canary_red:
+            return c(cid, "red", canary_red + " (no paid call of 17's window carries admission 0.5 yet)", records=0, **facts)
         return dormant(cid, "no paid call of 17's window carries an admission of version 0.5 (the door writes 0.4 until it calls two runners)",
                        waits_for="an_admission_0_5", records=0, **facts)
-    kinds, short = {}, []
+    kinds, short_admits = {}, []
     for r in v05:
         q = r.get("quorum") if isinstance(r.get("quorum"), dict) else {}
         if not (_int(q.get("required"), 1) and _int(q.get("answered")) and q["answered"] >= q["required"]):
-            short.append(r.get("call"))
+            short_admits.append(r.get("call"))
         kinds[str(r.get("disagreement_kind"))] = kinds.get(str(r.get("disagreement_kind")), 0) + 1
-    facts.update(records=len(v05), quorum_short=len(short), disagreement_kind=kinds)
-    if short:
-        return c(cid, "red", "%d of %d paid calls of admission 0.5 are admits short of their quorum: %s" % (len(short), len(v05), ", ".join(str(x)[:8] for x in short)), **facts)
-    if k2 is not None and (k2.get("touched") is True or k2.get("ok") is False):
-        return c(cid, "red", "runner-2's canary call of %s %s" % (k2.get("day"), "touched the phrase" if k2.get("touched") is True else "failed: %s" % k2.get("error")), **facts)
-    return c(cid, "ok", "%d paid call(s) of 17's window carry admission 0.5, each with its quorum (disagreement_kind %s, counted, not judged)"
-             % (len(v05), ", ".join("%s %d" % kv for kv in sorted(kinds.items()))), **facts)
-
+    facts.update(records=len(v05), quorum_short=len(short_admits), disagreement_kind=kinds)
+    if short_admits:
+        return c(cid, "red", "%d of %d paid calls of admission 0.5 are admits short of their quorum: %s" % (len(short_admits), len(v05), ", ".join(str(x)[:8] for x in short_admits)), **facts)
+    if canary_red:
+        return c(cid, "red", canary_red, **facts)
+    return c(cid, "ok", "%d paid call(s) of 17's window carry admission 0.5, each with its quorum (disagreement_kind %s, counted, not judged); "
+             "%d escalated for want of answers (%s, counted, not red)"
+             % (len(v05), ", ".join("%s %d" % kv for kv in sorted(kinds.items())) or "none", len(short), ", ".join("%s %d" % kv for kv in sorted(by.items())) or "none"), **facts)
 
 TASUKI_SRC = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "workers", "hs-ledger", "nenrin", "sdk-python", "src"))
 TASUKI_17 = (("furui_envelope", "adm->check"), ("musubi_settlement", "exec->settle"), ("nenrin_entry", "adm->entry"))
@@ -2625,7 +2664,7 @@ def run(get, now, trigger="manual", walk_get=None):
     checks.append(check_witness_pool(get, now))
     pc = check_paid_chain(get, now)
     checks.append(pc)
-    checks.append(check_two_runners(get, now, pc.pop(V05_KEY, [])))
+    checks.append(check_two_runners(get, now, pc.pop(V05_KEY, []), pc.pop(SHORT_KEY, [])))
     checks.append(check_tasuki(now, pc.pop(CALLS_KEY, None), pc, walk_get or tasuki_get(get)))
     checks.append(check_deadlines(get, now, checks))
     checks.sort(key=lambda x: x["id"])
@@ -3677,6 +3716,40 @@ def selftest():
     cases.append(("18 red: a 0.5 admit short of its quorum, or runner-2's canary call touched the phrase; ok without runner-2's canary (it is read, not required)",
                   (check_two_runners(world(cc=True, **DP2), now, V5OK + [{"call": R5b, "quorum": {"required": 2, "answered": 1}, "disagreement_kind": "n/a"}])["state"],
                    check_two_runners(world(cc=True, **DPT), now, V5OK)["state"], check_two_runners(world(cc=True), now, V5OK)["state"]), ("red", "red", "ok")))
+    KF = dict(K2, ok=False, error="runner_no_envelope", decision=None)
+    DPF = {DOOR_POLICY: (200, dict(world(cc=True)(DOOR_POLICY)[1], furui=dict(world(cc=True)(DOOR_POLICY)[1].get("furui", {}), canary_call_runner2=KF)))}
+    x18f, x18t = check_two_runners(world(cc=True, **DPF), now, []), check_two_runners(world(cc=True, **DPT), now, [])
+    cases.append(("18 red before the first 0.5 record when runner-2's canary says ok false or touched the phrase (not dormant then); dormant with a canary that held",
+                  (x18f["state"], "failed: runner_no_envelope" in x18f["why"], x18f["facts"].get("dormant"), x18t["state"], check_two_runners(world(cc=True, **DP2), now, [])["state"]),
+                  ("red", True, None, "red", "notice")))
+    SH = [{"call": hsh("short 1"), "store": "hs-seki-demo", "quorum": {"required": 2, "answered": 1}, "why": {"runner-2": "timeout"}},
+          {"call": hsh("short 2"), "store": "hs-seki-demo", "quorum": {"required": 2, "answered": 0}, "why": {"runner-1": "no_envelope", "runner-2": "capped"}}]
+    x18s, x18o = check_two_runners(world(cc=True, **DP2), now, V5OK, SH), check_two_runners(world(cc=True, **DP2), now, [], SH)
+    cases.append(("18 counts the 0.5 escalations short of their quorum in its facts (unanswered_escalate, unanswered_by runner:why), never red; with only such escalations it is counted, not dormant",
+                  (x18s["state"], x18s["facts"]["unanswered_escalate"], x18s["facts"]["unanswered_by"], x18o["state"], x18o["facts"].get("dormant"), x18o["facts"]["records"],
+                   check_two_runners(world(cc=True, **DPF), now, V5OK, SH)["state"]),
+                  ("ok", 2, {"runner-1:no_envelope": 1, "runner-2:capped": 1, "runner-2:timeout": 1}, "ok", None, 0, "red")))
+
+    def esc_rec5(checks, tag, version="0.5"):
+        r = {"schema": "a2a-admission-v0", "admission_id": tag, "decision": "escalate", "reasons": ["content_unchecked"], "rules": {"version": version},
+             "relying_party": {"domain": RP17}, "contract_ref": {"contract_sha256": PC},
+             "content": {"rules": "a2a-content-check-v2", "checked": False, "decision": None, "quorum": {"required": 2, "answered": sum(1 for q in checks if q["why"] == "ok")},
+                         "disagreement_kind": "n/a", "marks": [], "checks": checks}}
+        t = canonical(r)
+        return t, hsh(t)
+    TS1, RS1 = esc_rec5([q5("runner-1", D3[1]), q5("runner-2", None, "timeout")], "runner-2 timed out")
+    TS2, RS2 = esc_rec5([q5("runner-1", D3[1]), q5("runner-2", E2[0])], "a rule conflict, both answered")
+    TS3, RS3 = esc_rec5([q5("runner-1", None, "no_envelope")], "a 0.4 escalation", version="0.4")
+    x5s = c5(((T5, R5), (TS1, RS1), (TS2, RS2), (TS3, RS3)))
+    sh5 = x5s.get(SHORT_KEY) or [{}]
+    cases.append(("17 hands 18 the 0.5 escalations of its window short of their quorum (runner-2 timed out), not one whose quorum was met nor a 0.4 one; the admit is read as before",
+                  (x5s["state"], x5s["facts"]["calls"], len(x5s.get(SHORT_KEY) or []), sh5[0].get("call"), sh5[0].get("quorum"), sh5[0].get("why"), sh5[0].get("store") in x5s["facts"]["stores"]),
+                  ("ok", 1, 1, RS1, {"required": 2, "answered": 1}, {"runner-2": "timeout"}, True)))
+    r5s = run(world(cc=True, **dict(chain_world(recs=((T5, R5), (TS1, RS1)), run_calls=[]), **W2, **KEYS2)), now)
+    s5s = {x["id"]: x for x in r5s[0]["checks"]}
+    cases.append(("run: 18 counts the escalation 17 handed over (unanswered_escalate 1, runner-2:timeout 1) and stays ok; the hand-over key is not in the written result",
+                  (s5s["18_two_runners"]["state"], s5s["18_two_runners"]["facts"]["unanswered_escalate"], s5s["18_two_runners"]["facts"]["unanswered_by"], SHORT_KEY in r5s[1]),
+                  ("ok", 1, {"runner-2:timeout": 1}, False)))
     r5 = run(world(cc=True, **dict(chain_world(recs=((T5, R5),), run_calls=[]), **W2, **KEYS2)), now)
     s5 = {x["id"]: x for x in r5[0]["checks"]}
     cases.append(("run: 17 ok with the 0.5 record, 18 counted (ok) with it; the hand-over key is not in the written result",
