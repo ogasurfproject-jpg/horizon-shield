@@ -636,8 +636,8 @@
   },
   "_repo/musubi-v0/contract_v0.py": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/contract_v0.py",
-    "source_sha256": "211a568783705e11df789727f0ff0df18879f9635dca80804a34be31324b1c94",
-    "vendored_sha256": "211a568783705e11df789727f0ff0df18879f9635dca80804a34be31324b1c94"
+    "source_sha256": "005106eba997a39b1b38bab73d6825cdd0deef879bf16da1aa047ae51bdc9042",
+    "vendored_sha256": "005106eba997a39b1b38bab73d6825cdd0deef879bf16da1aa047ae51bdc9042"
   },
   "_repo/musubi-v0/convergence_v0.py": {
     "source": "workers/hs-ledger/nenrin/musubi-v0/convergence_v0.py",

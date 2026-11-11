@@ -35,3 +35,42 @@ One record per call, a closed set of keys (`loss_bound_v0.py` is the reference, 
     python3 loss_bound_v0.py --contract run0003/contract.json --action report [--policy policy.json]
     node loss_bound_v0.mjs --contract run0003/contract.json --action report
     python3 settle_v1_21.py --selftest
+
+## loss-bound-v1 (2026-11-09): a contract that binds the payload
+
+The sentence above that a contract has no field binding the payload held for every grant until 2026-11-09. Two grant keys
+now exist (`contract_v0.py`, `contract_door_v0.mjs`), each requiring `requirements.admission` like `limits`:
+
+- `grant.payload_schema[action]`, a `payload-schema-v0` object: every field of the payload named with its type (`enum`,
+  `integer`, `token` of `[A-Za-z0-9._-]`, or `text`), and `"other_fields": "refuse"`. `contract_v0.payload_problems` (and
+  `payloadProblems` in JavaScript) gives the codes under which a payload is refused: `payload_not_object`,
+  `payload_field_unknown`, `payload_field_missing`, `payload_field_value`. A `text` field is free text and is listed as open.
+- `grant.exposure[action]` = `{"window_blocks": 1..4320, "max_acts": 1..100000}`: at most `max_acts` admitted calls in any
+  `window_blocks` blocks, counted by the door from its own admissions.
+
+A child grant may narrow both, never widen or drop them. A reader older than these keys refuses such a contract
+(`grant_key_unknown`), so it cannot read it the wrong way.
+
+`loss_bound_v1.py` (and `loss_bound_v1.mjs`) writes the record `loss-bound-v1`: the fields of v0, with `open_fields` read from
+the schema (`[]` when it has no text field, the text fields by name otherwise, `"payload_unbound"` without a schema), and
+
+    "terms_window": grant.exposure[action] | null,
+    "day_blocks":   144,
+    "calls_day":    max_acts x ceil(144 / window_blocks), or null,
+    "l_day":        amount_max x calls_day when finite, or null,
+    "l_day_policy": the same from the door's policy window (a reference value), or null,
+    "bounds":       "amount"
+
+`finite` keeps the rule of v0. One day is 144 blocks, not a calendar day. finite speaks of the amount one admitted call can
+state, in the grant's unit; it does not say that what a call carries is harmless. v0 and settle v1.21 are not changed.
+
+`seki_demo_v2/contract_unsigned.json` is the next contract for the demonstration store hs-seki-demo, not yet signed: `report`
+only (`audit` and `compare` prohibited), 20 tickets a call, a payload of `koji_type` (the 189 ids of `data/souba-db.json`),
+`teiji_kingaku`, `region` and `orderId`, and at most 4 report calls in any 144 blocks. Under it `loss_bound_v1.py` reads report
+as finite: L 20 tickets, `open_fields` `[]`, `l_day` 80 tickets per 144 blocks. Tickets in this demonstration carry no monetary
+value. Its `agreed_at` is null: the parties write the time of signing into it when they sign, so the contract_sha256 of the signed
+contract (`seki_demo_v2/contract.json`) is known only then.
+
+    python3 loss_bound_v1.py --selftest
+    python3 loss_bound_v1.py --contract seki_demo_v2/contract_unsigned.json --action report
+    python3 contract_door_check.py

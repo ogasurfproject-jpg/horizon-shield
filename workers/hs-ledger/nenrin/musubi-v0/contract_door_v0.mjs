@@ -7,7 +7,7 @@
 // contract in fixtures/contract_door/corpus.json must get the same verdict and the same refusal codes from both, and
 // every pair of grants the same number of subset violations.
 //
-//   node contract_door_v0.mjs --parts corpus.json     prints {doors: [{verdict, refusals}], subsets: [n]} for the corpus
+//   node contract_door_v0.mjs --parts corpus.json     prints {doors: [{verdict, refusals}], subsets: [n], payloads: [[code, ...]]} for the corpus
 //
 // What is compared and what is not. Verdict, refusal codes (in order) and the count of subset violations are compared.
 // The wording of a refusal is the reference's and is not restated here.
@@ -29,7 +29,7 @@ import { normDomain as normDomainStrict, hostOfHttps, underDomain, pyStrip, publ
 export const SCHEMA = "a2a-contract-v0";
 export const LIMITS_NEED = "required_before_execution";
 export const GRANT_KEYS = ["authorized_actions", "prohibited_actions", "conditional", "delegation", "data_access", "max_hops", "privacy",
-  "revocation", "finality", "witnesses", "expiry_height", "ordering", "approval_policy", "limits"];
+  "revocation", "finality", "witnesses", "expiry_height", "ordering", "approval_policy", "limits", "payload_schema", "exposure"];
 const REVOCATION_MODES = ["anchor", "delivery_ack"];
 const REQUIRED_DNE = [["runtime enforcement", ["runtime", "enforce"]], ["HS does not judge liability", ["judge", "liability", "fault"]],
   ["deviation is provable, not prevented", ["deviat"]], ["not a legal contract", ["legal"]]];
@@ -77,6 +77,89 @@ function ed25519Check(pubB64, sigB64, message) {
     const key = createPublicKey({ key: { kty: "OKP", crv: "Ed25519", x: pk.toString("base64url") }, format: "jwk" });
     return edVerify(null, message, key, sig) === true;
   } catch (_e) { return null; }
+}
+
+// ---- grant.payload_schema (payload-schema-v0) and grant.exposure (2026-11-09): contract_v0.payload_schema_problem,
+// open_fields, payload_schema_within and payload_problems ----
+export const PAYLOAD_SCHEMA = "payload-schema-v0";
+const FIELD_NAME = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
+const TOKEN = /^[A-Za-z0-9._-]+$/;
+const FIELD_KEYS = { enum: [["type", "values", "required"], ["values_from"]], integer: [["type", "min", "max", "required"], []],
+  token: [["type", "max_chars", "required"], []], text: [["type", "max_chars", "required"], []] };
+const MAX_CHARS = { token: 256, text: 65536 };
+const OPEN_TYPES = ["text"];
+const chars = (s) => [...s].length;
+const keysAre = (o, need, may = []) => need.every((k) => has(o, k)) && Object.keys(o).every((k) => need.includes(k) || may.includes(k));
+
+function fieldOk(f) {
+  if (!isObj(f) || !isStr(get(f, "type")) || !has(FIELD_KEYS, f.type)) return false;
+  const [need, may] = FIELD_KEYS[f.type];
+  if (!keysAre(f, need, may) || typeof f.required !== "boolean") return false;
+  if (f.type === "enum") {
+    const v = f.values;
+    if (!(Array.isArray(v) && v.length >= 1 && v.length <= 1024 && v.every((x) => isStr(x) && x !== "") && new Set(v).size === v.length)) return false;
+    if (has(f, "values_from")) {
+      const s = f.values_from;
+      if (!(isObj(s) && keysAre(s, ["path", "sha256", "pointer"]) && isStr(s.path) && s.path !== "" && isStr(s.sha256) && HEX64.test(s.sha256)
+        && isStr(s.pointer) && s.pointer !== "")) return false;
+    }
+    return true;
+  }
+  if (f.type === "integer") return int(f.min) !== null && int(f.max) !== null && f.min <= f.max;
+  return int(f.max_chars) !== null && f.max_chars >= 1 && f.max_chars <= MAX_CHARS[f.type];
+}
+
+// true when s is a payload-schema-v0 object
+export function payloadSchemaOk(s) {
+  if (!isObj(s) || !keysAre(s, ["schema", "fields", "other_fields"])) return false;
+  if (s.schema !== PAYLOAD_SCHEMA || s.other_fields !== "refuse") return false;
+  const fs = s.fields;
+  if (!isObj(fs) || Object.keys(fs).length < 1 || Object.keys(fs).length > 64) return false;
+  return Object.keys(fs).every((n) => FIELD_NAME.test(n) && fieldOk(fs[n]));
+}
+
+// the names of the fields that carry free text, ascending
+export const openFields = (s) => Object.keys(s.fields).filter((n) => OPEN_TYPES.includes(s.fields[n].type)).sort((x, y) => (x < y ? -1 : x > y ? 1 : 0));
+
+// true when every payload the schema c accepts, the schema p accepts too (both well formed)
+export function payloadSchemaWithin(c, p) {
+  const cf = c.fields, pf = p.fields;
+  if (Object.keys(cf).some((n) => !has(pf, n))) return false;
+  for (const n of Object.keys(pf)) if (pf[n].required && !(has(cf, n) && cf[n].required)) return false;
+  for (const n of Object.keys(cf)) {
+    const x = cf[n], y = pf[n];
+    if (x.type !== y.type) return false;
+    if (x.type === "enum" && x.values.some((v) => !y.values.includes(v))) return false;
+    if (x.type === "integer" && !(y.min <= x.min && x.max <= y.max)) return false;
+    if (has(MAX_CHARS, x.type) && x.max_chars > y.max_chars) return false;
+  }
+  return true;
+}
+
+function valueOk(f, v) {
+  if (f.type === "enum") return isStr(v) && f.values.includes(v);
+  if (f.type === "integer") return int(v) !== null && f.min <= v && v <= f.max;
+  if (f.type === "token") return isStr(v) && chars(v) <= f.max_chars && TOKEN.test(v);
+  return isStr(v) && chars(v) <= f.max_chars;
+}
+
+// contract_v0.payload_problems: the codes under which grant.payload_schema[action] refuses this payload, ascending; [] when
+// it fits or when the grant sets no schema for the action
+export function payloadProblems(contract, action, payload) {
+  const g = isObj(contract) && isObj(get(contract, "grant")) ? contract.grant : {};
+  const ps = get(g, "payload_schema");
+  if (ps === null) return [];
+  if (isObj(ps) && !has(ps, action)) return [];
+  const s = isObj(ps) ? get(ps, action) : null;
+  if (!payloadSchemaOk(s)) return ["payload_schema_unreadable"];
+  if (!isObj(payload)) return ["payload_not_object"];
+  const out = new Set(), fs = s.fields;
+  if (Object.keys(payload).some((n) => !has(fs, n))) out.add("payload_field_unknown");
+  for (const n of Object.keys(fs)) {
+    if (!has(payload, n)) { if (fs[n].required) out.add("payload_field_missing"); }
+    else if (!valueOk(fs[n], payload[n])) out.add("payload_field_value");
+  }
+  return [...out].sort();
 }
 
 function bitsToTarget(bits) {
@@ -174,6 +257,26 @@ export function grantTypeProblems(grant) {
       }
     }
   }
+  const named = new Set(Array.isArray(get(grant, "authorized_actions")) ? grant.authorized_actions.filter(isStr) : []);
+  for (const x of Array.isArray(get(grant, "conditional")) ? grant.conditional : []) if (isObj(x) && isStr(get(x, "action"))) named.add(x.action);
+  const ps = get(grant, "payload_schema");
+  if (ps !== null) {
+    if (!isObj(ps)) bad();
+    else for (const a of Object.keys(ps)) {
+      if (a === "" || !named.has(a)) bad();
+      if (!payloadSchemaOk(ps[a])) bad();
+    }
+  }
+  const ex = get(grant, "exposure");
+  if (ex !== null) {
+    if (!isObj(ex)) bad();
+    else for (const a of Object.keys(ex)) {
+      if (a === "" || !named.has(a)) bad();
+      const x = ex[a];
+      if (!(isObj(x) && keysAre(x, ["window_blocks", "max_acts"]) && int(x.window_blocks) !== null && x.window_blocks >= 1 && x.window_blocks <= 4320
+        && int(x.max_acts) !== null && x.max_acts >= 1 && x.max_acts <= 100000)) bad();
+    }
+  }
   const rv = get(grant, "revocation");
   if (isObj(rv)) {
     if (Object.keys(rv).some((k) => !["effective_at", "ack_window"].includes(k))) bad();
@@ -244,6 +347,16 @@ export function grantSubset(child, parent) {
     if (cp.has(a) || (!ca.has(a) && !cc.has(a))) continue;
     if (!has(cl, a) || cl[a].unit !== pl[a].unit || cl[a].max_amount > pl[a].max_amount) v += 1;
   }
+  const psp = isObj(get(P, "payload_schema")) ? P.payload_schema : {}, psc = isObj(get(C, "payload_schema")) ? C.payload_schema : {};
+  for (const a of Object.keys(psp)) {
+    if (cp.has(a) || (!ca.has(a) && !cc.has(a))) continue;
+    if (!has(psc, a) || !payloadSchemaWithin(psc[a], psp[a])) v += 1;
+  }
+  const exp = isObj(get(P, "exposure")) ? P.exposure : {}, exc = isObj(get(C, "exposure")) ? C.exposure : {};
+  for (const a of Object.keys(exp)) {
+    if (cp.has(a) || (!ca.has(a) && !cc.has(a))) continue;
+    if (!has(exc, a) || !(exc[a].max_acts <= exp[a].max_acts && exc[a].window_blocks >= exp[a].window_blocks)) v += 1;
+  }
   const pap = isObj(get(P, "approval_policy")) ? P.approval_policy : {}, cap = isObj(get(C, "approval_policy")) ? C.approval_policy : {};
   if (get(cap, "allow_unscoped") === true && get(pap, "allow_unscoped") !== true) v += 1;
   const norm = (a) => (Array.isArray(get(a, "approvers")) ? a.approvers.map(canonical).sort() : []);
@@ -312,6 +425,12 @@ function door(record, parent) {
       const rq = get(record, "requirements");
       if (!(isObj(rq) && get(rq, "admission") === LIMITS_NEED)) refuse("limits_need_admission");
     }
+    for (const k of ["payload_schema", "exposure"]) {
+      if (get(grant, k) !== null) {
+        const rq = get(record, "requirements");
+        if (!(isObj(rq) && get(rq, "admission") === LIMITS_NEED)) refuse(k + "_needs_admission");
+      }
+    }
   }
   const pc = get(record, "parent_contract");
   if (pc !== null) {
@@ -369,5 +488,6 @@ if (isMain) {
   const inp = JSON.parse(readFileSync(process.argv[i + 1], "utf8"));
   process.stdout.write(JSON.stringify({
     doors: (inp.doors || []).map((x) => verifyContract(x.contract, x.parent ?? null)),
-    subsets: (inp.subsets || []).map((x) => { try { return grantSubset(x.child, x.parent); } catch (_e) { return -1; } }) }) + "\n");
+    subsets: (inp.subsets || []).map((x) => { try { return grantSubset(x.child, x.parent); } catch (_e) { return -1; } }),
+    payloads: (inp.payloads || []).map((x) => { try { return payloadProblems(x.contract, x.action, x.payload); } catch (_e) { return ["unreadable"]; } }) }) + "\n");
 }

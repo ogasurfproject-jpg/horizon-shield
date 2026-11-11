@@ -95,12 +95,149 @@ def contract_sha256(record):
 # "authorized_prohibited" silently replaced prohibited_actions in the v0 and v1 settle paths).
 GRANT_KEYS = frozenset(("authorized_actions", "prohibited_actions", "conditional", "delegation", "data_access",
                         "max_hops", "privacy", "revocation", "finality", "witnesses", "expiry_height",
-                        "ordering", "approval_policy", "limits"))
+                        "ordering", "approval_policy", "limits", "payload_schema", "exposure"))
 # grant.limits (2026-10-10): {"<action>": {"max_amount": positive integer, "unit": "JPY"}}. One action may not carry
 # more than max_amount in one execution. The amount of an execution is stated only in an admission request and in the
 # execution record's admission_ref, so a contract that carries limits must require admission before execution
 # (LIMITS_NEED), or no settle layer could see the amount the limit is about.
 LIMITS_NEED = "required_before_execution"
+
+# grant.payload_schema (2026-11-09): {"<action>": payload-schema-v0}. The closed shape the payload of one call of the action
+# must have: every field named with its type, nothing else accepted. The relying party's door compares the payload with it
+# before it admits, so, like limits, it needs requirements.admission (LIMITS_NEED). A field of type "text" is free text and
+# is listed by name as open (open_fields); every other type is closed.
+#
+#   {"schema": "payload-schema-v0",
+#    "fields": {"<name>": {"type": "enum",    "values": [string, ...], "required": bool, "values_from"?: {"path", "sha256", "pointer"}}
+#                       | {"type": "integer", "min": integer, "max": integer, "required": bool}
+#                       | {"type": "token",   "max_chars": 1..256, "required": bool}            ([A-Za-z0-9._-], 1 to max_chars)
+#                       | {"type": "text",    "max_chars": 1..65536, "required": bool}},        (any string up to max_chars: open)
+#    "other_fields": "refuse"}
+#
+# values_from names where an enum's values were taken from (a file and its sha256); a reader compares the payload with
+# "values" alone. grant.exposure (2026-11-09): {"<action>": {"window_blocks": 1..4320, "max_acts": 1..100000}}, at most
+# max_acts admitted calls of the action in any window_blocks blocks, counted by the door from its own admits; it too needs
+# requirements.admission. The ranges are the ones immune_v0 reads for requirements.immune.exposure.
+PAYLOAD_SCHEMA = "payload-schema-v0"
+FIELD_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,63}\Z")
+TOKEN = re.compile(r"^[A-Za-z0-9._-]+\Z")
+FIELD_KEYS = {"enum": ({"type", "values", "required"}, {"values_from"}), "integer": ({"type", "min", "max", "required"}, set()),
+              "token": ({"type", "max_chars", "required"}, set()), "text": ({"type", "max_chars", "required"}, set())}
+MAX_CHARS = {"token": 256, "text": 65536}
+OPEN_TYPES = ("text",)
+
+
+def _field_problem(f):
+    """None when f is one field of payload-schema-v0, else why not"""
+    if not isinstance(f, dict) or not isinstance(f.get("type"), str) or f["type"] not in FIELD_KEYS:
+        return "a field must be an object whose type is one of %s" % sorted(FIELD_KEYS)
+    need, may = FIELD_KEYS[f["type"]]
+    if not (need <= set(f) <= need | may):
+        return "a field of type %s has exactly the keys %s (and may have %s)" % (f["type"], sorted(need), sorted(may))
+    if not isinstance(f["required"], bool):
+        return "required must be true or false"
+    t = f["type"]
+    if t == "enum":
+        v = f["values"]
+        if not (isinstance(v, list) and 1 <= len(v) <= 1024 and all(isinstance(x, str) and x for x in v) and len(set(v)) == len(v)):
+            return "an enum's values are 1 to 1024 distinct non empty strings"
+        if "values_from" in f:
+            s = f["values_from"]
+            if not (isinstance(s, dict) and set(s) == {"path", "sha256", "pointer"} and isinstance(s["path"], str) and s["path"]
+                    and isinstance(s["sha256"], str) and HEX64.match(s["sha256"]) and isinstance(s["pointer"], str) and s["pointer"]):
+                return "values_from is {path, sha256 (64 lowercase hex), pointer}"
+    elif t == "integer":
+        if _int(f["min"]) is None or _int(f["max"]) is None or f["min"] > f["max"]:
+            return "an integer field has integer min and max, min <= max"
+    elif _int(f["max_chars"]) is None or not 1 <= f["max_chars"] <= MAX_CHARS[t]:
+        return "max_chars of a %s field is an integer from 1 to %d" % (t, MAX_CHARS[t])
+    return None
+
+
+def payload_schema_problem(s):
+    """None when s is a payload-schema-v0 object, else why not"""
+    if not isinstance(s, dict) or set(s) != {"schema", "fields", "other_fields"}:
+        return "a payload schema is an object with exactly schema, fields and other_fields"
+    if s["schema"] != PAYLOAD_SCHEMA:
+        return "schema must be %r" % PAYLOAD_SCHEMA
+    if s["other_fields"] != "refuse":
+        return "other_fields must be \"refuse\": a schema that lets unnamed fields through binds nothing"
+    fs = s["fields"]
+    if not (isinstance(fs, dict) and 1 <= len(fs) <= 64):
+        return "fields is an object of 1 to 64 fields"
+    for name in sorted(fs, key=str):
+        if not (isinstance(name, str) and FIELD_NAME.match(name)):
+            return "field name %r is not [A-Za-z_][A-Za-z0-9_]{0,63}" % (name,)
+        why = _field_problem(fs[name])
+        if why:
+            return "field %s: %s" % (name, why)
+    return None
+
+
+def open_fields(s):
+    """the names of the fields of a payload-schema-v0 object that carry free text, ascending"""
+    return sorted(n for n, f in s["fields"].items() if f["type"] in OPEN_TYPES)
+
+
+def payload_schema_within(c, p):
+    """True when every payload the schema c accepts, the schema p accepts too (both well formed)"""
+    cf, pf = c["fields"], p["fields"]
+    if set(cf) - set(pf):
+        return False
+    for n, x in pf.items():
+        if x["required"] and not (n in cf and cf[n]["required"]):
+            return False
+    for n, x in cf.items():
+        y = pf[n]
+        if x["type"] != y["type"]:
+            return False
+        if x["type"] == "enum" and set(x["values"]) - set(y["values"]):
+            return False
+        if x["type"] == "integer" and not (y["min"] <= x["min"] and x["max"] <= y["max"]):
+            return False
+        if x["type"] in MAX_CHARS and x["max_chars"] > y["max_chars"]:
+            return False
+    return True
+
+
+def _value_ok(f, v):
+    t = f["type"]
+    if t == "enum":
+        return isinstance(v, str) and v in f["values"]
+    if t == "integer":
+        return _int(v) is not None and f["min"] <= v <= f["max"]
+    if t == "token":
+        return isinstance(v, str) and len(v) <= f["max_chars"] and TOKEN.match(v) is not None
+    return isinstance(v, str) and len(v) <= f["max_chars"]
+
+
+def payload_problems(contract, action, payload):
+    """The codes under which grant.payload_schema[action] refuses this payload, ascending: payload_not_object,
+    payload_field_unknown, payload_field_missing, payload_field_value. [] when the payload fits, and [] when the grant sets
+    no schema for the action (nothing binds it then; loss_bound_v1 lists it as payload_unbound). A schema that is not well
+    formed refuses every payload (payload_schema_unreadable)."""
+    g = contract.get("grant") if isinstance(contract, dict) and isinstance(contract.get("grant"), dict) else {}
+    ps = g.get("payload_schema")
+    if ps is None:
+        return []
+    s = ps.get(action) if isinstance(ps, dict) else None
+    if s is None and isinstance(ps, dict) and action not in ps:
+        return []
+    if payload_schema_problem(s) is not None:
+        return ["payload_schema_unreadable"]
+    if not isinstance(payload, dict):
+        return ["payload_not_object"]
+    out = set()
+    fs = s["fields"]
+    if set(payload) - set(fs):
+        out.add("payload_field_unknown")
+    for n, f in fs.items():
+        if n not in payload:
+            if f["required"]:
+                out.add("payload_field_missing")
+        elif not _value_ok(f, payload[n]):
+            out.add("payload_field_value")
+    return sorted(out)
 
 
 def _delegates(grant):
@@ -267,6 +404,33 @@ def grant_type_problems(grant):
                     bad("grant.limits[%s].max_amount must be an integer >= 1 (got %s %r); a limit of another type is a limit no reader applies" % (a, type(x["max_amount"]).__name__, x["max_amount"]))
                 if not (isinstance(x["unit"], str) and x["unit"]):
                     bad("grant.limits[%s].unit must be a non empty string" % a)
+    # grant.payload_schema and grant.exposure (2026-11-09): keyed by actions the grant carries, like limits; one problem per
+    # entry at most, so that the JavaScript twin counts the same
+    named = set(x for x in (grant.get("authorized_actions") or []) if isinstance(x, str)) if isinstance(grant.get("authorized_actions"), list) else set()
+    named |= {x.get("action") for x in (grant.get("conditional") or []) if isinstance(x, dict)} if isinstance(grant.get("conditional"), list) else set()
+    ps = grant.get("payload_schema")
+    if ps is not None:
+        if not isinstance(ps, dict):
+            bad("grant.payload_schema must be an object {action: payload-schema-v0}")
+        else:
+            for a in sorted(ps, key=str):
+                if not (isinstance(a, str) and a) or a not in named:
+                    bad("grant.payload_schema names %r, which is neither in authorized_actions nor in conditional" % (a,))
+                why = payload_schema_problem(ps[a])
+                if why:
+                    bad("grant.payload_schema[%s]: %s" % (a, why))
+    ex = grant.get("exposure")
+    if ex is not None:
+        if not isinstance(ex, dict):
+            bad("grant.exposure must be an object {action: {window_blocks, max_acts}}")
+        else:
+            for a in sorted(ex, key=str):
+                if not (isinstance(a, str) and a) or a not in named:
+                    bad("grant.exposure names %r, which is neither in authorized_actions nor in conditional" % (a,))
+                x = ex[a]
+                if not (isinstance(x, dict) and set(x) == {"window_blocks", "max_acts"} and _int(x["window_blocks"]) is not None
+                        and 1 <= x["window_blocks"] <= 4320 and _int(x["max_acts"]) is not None and 1 <= x["max_acts"] <= 100000):
+                    bad("grant.exposure[%s] must be {window_blocks: 1..4320, max_acts: 1..100000}" % a)
     rv = grant.get("revocation")
     if isinstance(rv, dict):
         if set(rv.keys()) - {"effective_at", "ack_window"}:
@@ -414,6 +578,27 @@ def grant_subset(child, parent):
             v.append("limit for %r changes unit from %r to %r; amounts in different units are not compared" % (a, pl[a]["unit"], cl[a]["unit"]))
         elif cl[a]["max_amount"] > pl[a]["max_amount"]:
             v.append("limit for %r is %d, above parent (%d)" % (a, cl[a]["max_amount"], pl[a]["max_amount"]))
+    # payload_schema (2026-11-09): a child accepts no payload the parent's schema refuses; dropping the schema widens
+    ps_p = parent.get("payload_schema") if isinstance(parent.get("payload_schema"), dict) else {}
+    ps_c = child.get("payload_schema") if isinstance(child.get("payload_schema"), dict) else {}
+    for a in sorted(ps_p, key=str):
+        if a in cp or (a not in ca and a not in cc):
+            continue
+        if a not in ps_c:
+            v.append("parent binds the payload of %r but child carries it with no payload_schema" % a)
+        elif not payload_schema_within(ps_c[a], ps_p[a]):
+            v.append("payload_schema for %r accepts a payload the parent's refuses" % a)
+    # exposure (2026-11-09): at most as many calls, in a window at least as long
+    ex_p = parent.get("exposure") if isinstance(parent.get("exposure"), dict) else {}
+    ex_c = child.get("exposure") if isinstance(child.get("exposure"), dict) else {}
+    for a in sorted(ex_p, key=str):
+        if a in cp or (a not in ca and a not in cc):
+            continue
+        if a not in ex_c:
+            v.append("parent limits how often %r runs but child carries it with no exposure" % a)
+        elif not (ex_c[a]["max_acts"] <= ex_p[a]["max_acts"] and ex_c[a]["window_blocks"] >= ex_p[a]["window_blocks"]):
+            v.append("exposure for %r (%d in %d blocks) is not within the parent's (%d in %d blocks)" % (
+                a, ex_c[a]["max_acts"], ex_c[a]["window_blocks"], ex_p[a]["max_acts"], ex_p[a]["window_blocks"]))
     # approvals: the child cannot accept looser approvals than the parent
     pap = parent.get("approval_policy") if isinstance(parent.get("approval_policy"), dict) else {}
     cap = child.get("approval_policy") if isinstance(child.get("approval_policy"), dict) else {}
@@ -594,6 +779,13 @@ def verify_contract(record, parent=None, now=None):
             if not (isinstance(rq, dict) and rq.get("admission") == LIMITS_NEED):
                 r.refuse("limits_need_admission", "grant.limits is present, so requirements.admission must be %r: the "
                                                   "amount of an execution is recorded only with its admission" % LIMITS_NEED)
+        # payload_schema and exposure need admission (2026-11-09): the door is what compares a payload with the schema and
+        # counts the calls in a window, so a contract that does not require the door states them to no one.
+        for k in ("payload_schema", "exposure"):
+            if grant.get(k) is not None:
+                rq = record.get("requirements")
+                if not (isinstance(rq, dict) and rq.get("admission") == LIMITS_NEED):
+                    r.refuse(k + "_needs_admission", "grant.%s is present, so requirements.admission must be %r" % (k, LIMITS_NEED))
 
     # delegation monotonicity
     pc = record.get("parent_contract")
@@ -1072,6 +1264,70 @@ def _selftest():
     print("[9b] grant.limits: accepted with requirements.admission, refused without it (limits_need_admission); %d wrong shapes refused at the "
           "type door and unreadable to grant_subset; a child may lower a limit, never raise it, drop it or change its unit; the two "
           "published contracts carry no limits and verify as before" % len(wrong))
+
+    # [9c] grant.payload_schema and grant.exposure (2026-11-09): typed at the door, only with requirements.admission, a child
+    # may only narrow them, and payload_problems refuses a payload outside the schema. Counted with the type door, like [9b].
+    PS = {"schema": PAYLOAD_SCHEMA, "other_fields": "refuse", "fields": {
+        "kind": {"type": "enum", "values": ["a", "b", "c"], "required": True},
+        "amount": {"type": "integer", "min": 1, "max": 1000, "required": True},
+        "ref": {"type": "token", "max_chars": 8, "required": False}}}
+    EX = {"pay": {"window_blocks": 144, "max_acts": 4}}
+    def ps_contract(g_over, requirements=need):
+        g = dict(grant, authorized_actions=["read", "observe", "emit_nenrin", "pay"], limits=L)
+        g.update(g_over)
+        c = build_contract(principal, contractor, task, g, establishes, does_not_establish, requirements=requirements)
+        sign_contract(c, ka, pa, principal["domain"]); sign_contract(c, kb, pb, contractor["domain"])
+        return c
+    ok_c = ps_contract({"payload_schema": {"pay": PS}, "exposure": EX})
+    assert verify_contract(ok_c)["verdict"] == "accepted", verify_contract(ok_c)
+    assert codes(verify_contract(ps_contract({"payload_schema": {"pay": PS}}, requirements=None))) == ["limits_need_admission", "payload_schema_needs_admission"]
+    assert codes(verify_contract(ps_contract({"exposure": EX, "limits": None}, requirements=None))) == ["exposure_needs_admission"]
+    def F(**kv):
+        s = json.loads(json.dumps(PS)); s["fields"]["amount"] = dict(s["fields"]["amount"], **kv); return s
+    wrong_ps = [[], {"pay": None}, {"pay": dict(PS, other_fields="accept")}, {"pay": dict(PS, schema="payload-schema-v1")},
+                {"pay": dict(PS, extra=1)}, {"pay": dict(PS, fields={})}, {"pay": dict(PS, fields={"1bad": {"type": "text", "max_chars": 4, "required": False}})},
+                {"pay": F(min=5, max=4)}, {"pay": F(min=1.5)}, {"pay": F(required="yes")}, {"pay": F(type="float")}, {"pay": F(note="x")},
+                {"pay": dict(PS, fields={"t": {"type": "token", "max_chars": 257, "required": False}})},
+                {"pay": dict(PS, fields={"t": {"type": "text", "max_chars": 0, "required": False}})},
+                {"pay": dict(PS, fields={"e": {"type": "enum", "values": ["a", "a"], "required": True}})},
+                {"pay": dict(PS, fields={"e": {"type": "enum", "values": ["a"], "required": True, "values_from": {"path": "x", "sha256": "0" * 63, "pointer": "/"}}})},
+                {"ship": PS}]
+    for bad_ps in wrong_ps:
+        o = verify_contract(ps_contract({"payload_schema": bad_ps}))
+        assert o["verdict"] == "refused" and "grant_type" in codes(o), (bad_ps, o)
+    wrong_ex = [[], {"pay": {"window_blocks": 0, "max_acts": 1}}, {"pay": {"window_blocks": 4321, "max_acts": 1}}, {"pay": {"window_blocks": 6, "max_acts": 0}},
+                {"pay": {"window_blocks": 6, "max_acts": True}}, {"pay": {"window_blocks": "6", "max_acts": 1}}, {"pay": {"window_blocks": 6, "max_acts": 1, "per": "day"}},
+                {"ship": {"window_blocks": 6, "max_acts": 1}}]
+    for bad_ex in wrong_ex:
+        o = verify_contract(ps_contract({"exposure": bad_ex}))
+        assert o["verdict"] == "refused" and "grant_type" in codes(o), (bad_ex, o)
+    pg = {"authorized_actions": ["pay", "read"], "payload_schema": {"pay": PS}, "exposure": EX}
+    sub = lambda **k: grant_subset(dict({"authorized_actions": ["pay"]}, **k), pg)
+    narrow = json.loads(json.dumps(PS)); narrow["fields"]["kind"]["values"] = ["a"]; narrow["fields"]["amount"]["max"] = 20; narrow["fields"]["ref"]["required"] = True
+    assert sub(payload_schema={"pay": PS}, exposure=EX) == [] and sub(payload_schema={"pay": narrow}, exposure={"pay": {"window_blocks": 288, "max_acts": 1}}) == []
+    del narrow["fields"]["ref"]
+    assert sub(payload_schema={"pay": narrow}, exposure=EX) == []                                       # an optional field dropped: narrower
+    widen_ps = [dict(PS, fields=dict(PS["fields"], note={"type": "text", "max_chars": 4, "required": False})), F(max=1001),
+                dict(PS, fields={k: v for k, v in PS["fields"].items() if k != "amount"}), F(type="token", max_chars=4, min=None, max=None)]
+    widen_ps[3]["fields"]["amount"] = {"type": "token", "max_chars": 4, "required": True}
+    for w in widen_ps:
+        assert len(sub(payload_schema={"pay": w}, exposure=EX)) == 1, w
+    assert len(sub(exposure=EX)) == 1 and len(sub(payload_schema={"pay": PS})) == 1
+    for w in ({"window_blocks": 144, "max_acts": 5}, {"window_blocks": 143, "max_acts": 4}, {"window_blocks": 6, "max_acts": 1}):
+        assert len(sub(payload_schema={"pay": PS}, exposure={"pay": w})) == 1, w
+    assert grant_subset({"authorized_actions": ["read"]}, pg) == [] and grant_subset({"authorized_actions": [], "prohibited_actions": ["pay"]}, pg) == []
+    pp = lambda p: payload_problems(ok_c, "pay", p)
+    assert pp({"kind": "a", "amount": 20}) == [] and pp({"kind": "b", "amount": 1000, "ref": "x-1.Y_2"}) == []
+    assert pp({"kind": "a", "amount": 20, "note": "hello"}) == ["payload_field_unknown"] and pp({"kind": "a"}) == ["payload_field_missing"]
+    assert pp({"kind": "z", "amount": 20}) == ["payload_field_value"] and pp({"kind": "a", "amount": 1001}) == ["payload_field_value"]
+    assert pp({"kind": "a", "amount": True}) == ["payload_field_value"] and pp({"kind": "a", "amount": 20, "ref": "a b"}) == ["payload_field_value"]
+    assert pp({"kind": "a", "amount": 20, "ref": "123456789"}) == ["payload_field_value"] and pp([]) == ["payload_not_object"]
+    assert payload_problems(ok_c, "read", {"anything": 1}) == [] and payload_problems(rec, "read", "x") == []
+    assert payload_problems({"grant": {"payload_schema": {"pay": {}}}}, "pay", {}) == ["payload_schema_unreadable"]
+    assert open_fields(PS) == [] and open_fields(widen_ps[0]) == ["note"]
+    print("[9c] grant.payload_schema and grant.exposure: accepted with requirements.admission, refused without it; %d wrong schemas and %d "
+          "wrong exposures refused at the type door; a child may narrow them, never widen or drop them (%d widenings); a payload "
+          "outside the schema is refused by payload_problems" % (len(wrong_ps), len(wrong_ex), len(widen_ps) + 5))
 
     print("\nSELF-TEST PASSED: MUSUBI a2a-contract-v0, 10 checks (build, sign, verify, tamper, overclaim, settle, delegation on every axis, finality, witness and revocation floors, grant key door, grant type door with grant.limits, canonical pin)")
 
