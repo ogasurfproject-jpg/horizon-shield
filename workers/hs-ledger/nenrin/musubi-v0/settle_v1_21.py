@@ -110,7 +110,9 @@ def same_as_v1_20(a21, a20):
 # --------------------------------------------------------------------------- self test
 def _heartbeat_days():
     """(name, contract, events, view, admissions, keys) of every settled day of the SEKI heartbeat whose view lies in
-    view-chunks/, read from ../seki-heartbeat as its own self test reads them; [] when that directory is not beside"""
+    view-chunks/, read from ../seki-heartbeat as its own self test reads them; [] when that directory is not beside.
+    Each day is read under the contract its admissions name (heartbeat.contract_for, since 2026-11-12: run0003 before,
+    seki_demo_v2 from then on), not under the one contract the heartbeat calls with today"""
     import importlib.util
     hb_path = os.path.normpath(os.path.join(HERE, "..", "seki-heartbeat", "heartbeat.py"))
     if not os.path.isfile(hb_path):
@@ -118,7 +120,8 @@ def _heartbeat_days():
     spec = importlib.util.spec_from_file_location("seki_heartbeat_for_v1_21", hb_path)
     hb = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(hb)
-    contract, hd, out = hb.rd(hb.CONTRACT_PATH), [], []
+    hd, out = [], []
+    contract_for = getattr(hb, "contract_for", None)   # absent in a heartbeat.py before 2026-11-12: one contract then
     for name in hb._chunks(os.path.join(hb.HERE, "view-chunks")):
         hd += json.load(open(os.path.join(hb.HERE, "view-chunks", name), encoding="utf-8"))["headers"]
     top = hd[-1]["height"] if hd else -1
@@ -130,6 +133,7 @@ def _heartbeat_days():
         if S["view"]["to"] > top:
             continue
         r = json.load(open(os.path.join(dd, "RUN.json"), encoding="utf-8"))
+        contract = contract_for(dd)[0] if contract_for else hb.rd(hb.CONTRACT_PATH)
         adms = [hb.rd(os.path.join(dd, "admission_%s.anchored.json" % c["service"])) for c in hb.door_calls(r)]
         evs = [hb.rd(os.path.join(dd, "execution_report.anchored.json"))]
         out.append((d, contract, evs, {"headers": [x for x in hd if x["height"] <= S["view"]["to"]]}, adms, {hb.DOOR_DOMAIN: hb.door_key()}))

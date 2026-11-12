@@ -237,5 +237,8 @@ jobs:
           if [ "$RAN" != "true" ]; then echo "nothing to do (see the summary of the check job)"; exit 0; fi
           if [ "$KJOB" != "success" ]; then echo "the day was checked but not kept ($KJOB)"; exit 1; fi
           if [ "$RC" = "0" ]; then echo "no red (green or not all checked; see the summary)"; exit 0; fi
-          if [ "$RC" = "1" ]; then echo "red"; exit 1; fi
+          # 2026-11-12: a red day no longer fails the run. The day's red is already told once, by the issue labelled tooshi
+          # and by tooshi/latest.json; a failed run only added GitHub's "Run failed" mail, twice a day, for the same red.
+          # The run still fails when the check job itself fails, when the day was not kept, or on an unknown exit.
+          if [ "$RC" = "1" ]; then echo "red (the day is red: see the issue labelled tooshi and tooshi/latest.json; the run is not failed for a red day)"; exit 0; fi
           echo "the check itself failed (exit $RC)"; exit 1
