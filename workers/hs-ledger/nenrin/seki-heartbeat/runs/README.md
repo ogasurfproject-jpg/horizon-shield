@@ -1,10 +1,11 @@
 # SEKI heartbeat
 
-Once a day the agent calls HORIZON SHIELD's own paid tool through the SEKI door under the demonstration contract (../../musubi-v0/run0003/contract.json): a report inside its limit, an audit over its limit, a comparison the contract prohibits. The door must admit the first and refuse the other two, and every answer is a signed record on the public ledger. Once the ledger's batch is confirmed in Bitcoin the day is settled with settle v1.15. Principal, agent and door are all The HORIZONs Co., Ltd.; it is a demonstration, not an outside customer, and the pilot's tickets carry no monetary value. heartbeat.py and the workflow seki-heartbeat.yml write this folder. Every deviation is explained in ../README.md, and a final verdict is never rewritten.
+Once a day the agent calls HORIZON SHIELD's own paid tool through the SEKI door under the demonstration contract (../../musubi-v0/seki_demo_v2/contract.json; before 2026-11-12 ../../musubi-v0/run0003/contract.json, under which the audit was over its limit rather than prohibited): a report inside its limit and its payload schema, an audit and a comparison the contract prohibits. The door must admit the first and refuse the other two, and every answer is a signed record on the public ledger. Once the ledger's batch is confirmed in Bitcoin the day is settled with settle v1.15. Principal, agent and door are all The HORIZONs Co., Ltd.; it is a demonstration, not an outside customer, and the pilot's tickets carry no monetary value. heartbeat.py and the workflow seki-heartbeat.yml write this folder. Every deviation is explained in ../README.md, and a final verdict is never rewritten.
 
-| day (UTC) | report (limit 20) | audit 30 (limit 25) | compare (prohibited) | settlement |
+| day (UTC) | report (limit 20) | audit 30 | compare (prohibited) | settlement |
 |---|---|---|---|---|
-| 2026-11-11 | admit 869772c5 | refuse 4b10718b | refuse 28f4469c | waiting for Bitcoin |
+| 2026-11-12 | admit c21fd8c7 | refuse ce056797 | refuse 97feb018 | waiting for Bitcoin |
+| 2026-11-11 | admit 869772c5 | refuse 4b10718b | refuse 28f4469c | within_grant, final |
 | 2026-11-10 | admit 2145f125 | refuse 635a2933 | refuse b56e6780 | within_grant, final |
 | 2026-11-09 | admit 11608863 | refuse 2fc779d8 | refuse d9cfdbd4 | within_grant, final |
 | 2026-11-08 | admit 62ce1e38 | refuse 93c89bdf | refuse 1f353027 | within_grant, final |
