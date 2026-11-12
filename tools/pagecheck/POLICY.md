@@ -11,6 +11,22 @@ fail-closed。1枚でも落ちればバッチ全体を公開しない。
 
 ---
 
+## v1.4.0 (2026-11-06): 工事 x 地域の答えの頁だけ、相場データから計算した金額を載せてよい
+
+対象は yakumo/souba/<slug>/index.html だけ(ちょうど 4 段)。yakumo/<店>/souba/ のような深い枝、加盟店の頁、care/ には広げない。
+施主の問いは「いくらか」で、金額の無い答えの頁は答えになっていない。ただし「出典のない金額を出さない」は崩さない:
+
+    1. data-souba-db(版) / data-souba-region(地域係数の鍵) / data-souba-rows(行の id)を持つ要素がちょうど 1 つ (SOUBA_DECL_COUNT)
+    2. 版は data/souba-db.json の _meta.version と同じ (SOUBA_DB_VERSION_STALE)。行の id は全部その中にある (SOUBA_ROW_UNKNOWN)。
+       地域の鍵は _meta.region_multipliers にある (SOUBA_REGION_UNKNOWN)。souba-db が読めなければ落とす (SOUBA_DB_UNREADABLE)
+    3. 本文と属性の値の金額(¥1,320,000 / 1,320,000円 / 132万円 / 4.4万)は、宣言した行の min / avg / max か、
+       それに地域係数を掛けて四捨五入(floor(x + 0.5))した値だけ (MONEY_NOT_IN_SOUBA_DB)。読めない形の金額は落とす (MONEY_UNPARSED)
+    4. /souba/ への href がある (MONEY_WITHOUT_SOURCE)
+    5. JSON-LD、CSS、インライン JS の金額は今までどおり禁止
+
+金額の無い答えの頁(相場データに行の無い工事)は、今までどおり金額 0 で通る。相場データに行の無い工事に、別の工事の行の値を代わりに載せない(窓ごとの交換に内窓の値、住宅の内装に店舗内装の値、など)。
+redteam.py に 22 手(通す 2、弾く 20)を足した。弾く手には、計算と一致しない金額と、db にあっても宣言していない行の金額を含む。
+
 ## 現行版: v1.3.1 (2026-09-04)
 
 対象: yakumo/**/*.html ・ care/**/*.html ・ qa/**/*.html ・ aeo/**/*.html ・ faq/**/*.html (push で変わったページ、blocking)

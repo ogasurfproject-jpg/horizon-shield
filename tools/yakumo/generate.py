@@ -12,6 +12,8 @@ Yakumoモール 加盟店コンテンツ 自動生成器 (GEO/AEO/LLMO/WebMCP �
 
 恒久ルール:
   - 金額数字を施主向けページに出さない(相場は本体 /souba/ へ誘導)。スコア・ティア・検証で表現。
+    例外(2026-11-06): 工事 x 地域の答えの頁(/yakumo/souba/)だけ、souba-db の行 x 地域係数の値を載せる(answer_block)。
+    門 v1.4.0 が宣言した行から計算し直して照らす。加盟店の自由記述の金額は今までどおり伏せる(safe_pub)。
   - 禁止語(MOAT語。MOAT_FORBIDDEN 参照、逆順表記)を本文に出さない。
   - 会社名 The HORIZONs株式会社(音インタクト)。em/en/bar dash 不使用。
   - 全ページがモール(/yakumo/)とHORIZON SHIELD(/)へバックリンク(認知度拡大)。
@@ -299,6 +301,148 @@ def merge_verification(profile):
             return out
     return profile
 
+# ---------------- 答えの頁(工事 x 地域、2026-11-06) ----------------
+# 施主の問いは「いくらか」なのに、/yakumo/souba/ の頁には金額が 1 つも無かった。答えの頁なのに答えていない。
+# 題名と h1 を問いの語と数にし、冒頭の 1 段落に結論と出どころを置く。数は souba-db の行の値 x 地域係数だけ(9/15 の掟)。
+# 門(tools/pagecheck/validate.py v1.4.0)が、頁に宣言した行から同じ計算をし直して照らす。行の無い工事には金額を書かない。
+SOUBA_DB_PATH = os.path.join(REPO_ROOT, "data", "souba-db.json")
+AREA_REGION = {  # 地域のスラッグ -> souba-db の _meta.region_multipliers の鍵(公開の相場 API と同じ割り当て)
+    "aichi": "chubu", "nagakute": "chubu", "nagoya": "chubu", "nisshin": "chubu", "owariasahi": "chubu", "seto": "chubu",
+    "miyoshi": "chubu", "toyota": "chubu", "kasugai": "chubu", "okazaki": "chubu",
+    "kanagawa": "kanto", "hiratsuka": "kanto", "chigasaki": "kanto", "fujisawa": "kanto", "kamakura": "kanto", "hadano": "kanto",
+    "isehara": "kanto", "odawara": "kanto", "atsugi": "kanto", "samukawa": "kanto", "oiso": "kanto", "ninomiya": "kanto", "nakai": "kanto",
+}
+REGION_LABEL = {"kanto": "関東", "chubu": "中部", "kinki": "近畿", "tohoku": "東北", "other": "その他", "all": "全国"}
+# 工種のスラッグ -> 載せる行。rows は表に出す行、title は題名に出す行(その最小から最大)、what は数の前に置く語。
+# gap は相場データに無いものを書く(無い数を作らない)。rows が空の工種は金額を書かない。
+# 行の無い工種に、別の工事の行を代わりに載せない(2026-11-06 の決め。窓ごとの交換に内窓の値を置くと「窓交換の相場」と読まれる)。
+# lead は表の行が工種そのものでない時の冒頭({area} {range} {src} を埋める)。無ければ「<地域>の<工種>は、<what>で<range>が相場です」。
+SOUBA_ROWS = {
+    "mado-koukan": {"rows": [], "title": [], "what": "窓の交換",
+                    "gap": "窓ごと交換する工事(カバー工法)の行は、相場データにまだありません。別の工事(内窓)の値は、窓の交換の相場として載せません。"},
+    "genkan-koukan": {"rows": ["genkan_door_cover_ume", "genkan_door_cover", "genkan_door_cover_matsu"],
+                      "title": ["genkan_door_cover_ume", "genkan_door_cover_matsu"], "what": "玄関ドアのカバー工法", "gap": ""},
+    "glass-shuri": {"rows": ["mado_glass_ume", "mado_glass_work", "mado_glass_matsu"], "title": ["mado_glass_ume"], "what": "小窓のガラス交換",
+                    "gap": "網入りガラスと合わせガラスの交換の行は、相場データにまだありません。"},
+    "amido-harikae": {"rows": [], "title": [], "what": "網戸の張り替え",
+                      "gap": "網戸の張り替えの行は、相場データにまだありません。無い数は書きません。"},
+    "gaiheki-tosou": {"rows": ["gaiheki_20tsubo", "gaiheki_30tsubo", "gaiheki_40tsubo"], "title": ["gaiheki_30tsubo"], "what": "30坪(シリコン)",
+                      "gap": ""},
+    "yane": {"rows": ["yane_tosou_30tsubo", "yane_cover_30tsubo", "yane_fukikae_galv"], "title": ["yane_cover_30tsubo"], "what": "30坪のカバー工法",
+             "gap": ""},
+    "naiso": {"rows": [], "title": [], "what": "内装",
+              "gap": "住宅の内装一式の行は、相場データにまだありません。別の工事(店舗内装)の値は、住宅の内装の相場として載せません。"},
+    "cloth": {"rows": ["cloth_sqm", "cloth_6jo", "cloth_12jo"], "title": ["cloth_6jo"], "what": "6畳(壁と天井)", "gap": ""},
+}
+_SOUBA_CACHE = {}
+
+def souba_db():
+    if "db" not in _SOUBA_CACHE:
+        _SOUBA_CACHE["db"] = json.load(open(SOUBA_DB_PATH, encoding="utf-8"))
+    return _SOUBA_CACHE["db"]
+
+def round_half_up(x):
+    # 公開の相場 API(JavaScript の Math.round)と同じ丸め。floor(x + 0.5)。
+    import math
+    return int(math.floor(x + 0.5))
+
+def yen(n):
+    return "¥{:,}".format(n)
+
+def man_range(lo, hi):
+    # 題名と冒頭の数。1,000 円単位で割り切れる時は 4.4万〜22万円、そうでなければ ¥13,200〜¥27,500。
+    if lo >= 10000 and hi >= 10000 and lo % 1000 == 0 and hi % 1000 == 0:
+        return "{:g}万〜{:g}万円".format(lo / 10000, hi / 10000)
+    return "%s〜%s" % (yen(lo), yen(hi))
+
+def souba_figures(row_ids, area):
+    """行の id と地域から、表に出す値を作る。地域の係数が分からない時と、行が無い時は None(数を書かない)。"""
+    region = AREA_REGION.get(slugify(area, "area"))
+    db = souba_db()
+    mults = db.get("_meta", {}).get("region_multipliers", {})
+    if not row_ids or region not in mults:
+        return None
+    by_id = {c["id"]: c for c in db.get("categories", [])}
+    m = mults[region]
+    rows = []
+    for i in row_ids:
+        c = by_id[i]   # 無い id は KeyError で止める(作り話の行を出さない)
+        rows.append({"id": i, "work": c["work"], "unit": c.get("unit") or "",
+                     "regional": {k: round_half_up(c[k] * m) for k in ("min", "avg", "max")}})
+    return {"version": db["_meta"]["version"], "region": region, "mult": m, "rows": rows}
+
+def figure_range(fig, title_ids):
+    rs = [r for r in fig["rows"] if r["id"] in title_ids]
+    return man_range(min(r["regional"]["min"] for r in rs), max(r["regional"]["max"] for r in rs))
+
+def mult_text(m):
+    t = "%g" % m
+    return t if "." in t else t + ".0"
+
+def source_short(fig):
+    return "出典 souba-db %s、%sの係数%s" % (fig["version"], REGION_LABEL.get(fig["region"], fig["region"]), mult_text(fig["mult"]))
+
+def verification_record(ms):
+    """yakumo/<店>/verification-record.json(KIRA の検証の記録)を読む。無ければ None。値はこのファイルからだけ取る。"""
+    p = os.path.join(REPO_ROOT, "yakumo", ms, "verification-record.json")
+    try:
+        raw = open(p, "rb").read()
+        return json.loads(raw.decode("utf-8")), hashlib.sha256(raw).hexdigest()
+    except Exception:
+        return None
+
+def answer_block(lead, fig, ms, gap=""):
+    """答えの頁の冒頭。結論と出どころ(1 段落)、表、計算のしかた、KIRA の検証の記録への 1 行、店への 1 行(紹介料なしの開示)。
+    印で囲み、2 回目以降は中身を差し替える(souba_answers.py が既存の頁に当てる時も同じ印)。"""
+    b = '<!-- yakumo-answer-v1 -->\n<div class="section yakumo-answer">\n'
+    b += '<p class="answer speakable"><strong>%s</strong></p>\n' % esc(lead)
+    if fig:
+        b += ('<div style="overflow-x:auto"><table class="souba-table" data-souba-db="%s" data-souba-region="%s" data-souba-rows="%s">'
+              '<thead><tr><th>工事(souba-db の行)</th><th>単位</th><th>下限</th><th>平均</th><th>上限</th></tr></thead><tbody>\n'
+              % (esc(fig["version"]), esc(fig["region"]), esc(",".join(r["id"] for r in fig["rows"]))))
+        for r in fig["rows"]:
+            g = r["regional"]
+            b += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n' % (
+                esc(r["work"]), esc(r["unit"]), yen(g["min"]), yen(g["avg"]), yen(g["max"]))
+        b += '</tbody></table></div>\n'
+        b += ('<p class="note">計算のしかた: <a href="%s/data/souba-db.json">souba-db %s</a> の行の値 × %sの地域係数 %s、小数点以下は四捨五入。'
+              '同じ値は <a href="%s/souba/">相場DB</a> と相場の MCP(get_price_range に地域を渡す)から誰でも取り直せます。</p>\n'
+              % (BASE, esc(fig["version"]), esc(REGION_LABEL.get(fig["region"], fig["region"])), mult_text(fig["mult"]), BASE))
+    else:
+        b += '<p class="note">相場の一覧は <a href="%s/souba/">相場DB</a> で見られます。</p>\n' % BASE
+    if gap:
+        b += '<p class="note">%s</p>\n' % esc(gap)
+    rec = verification_record(ms)
+    if rec:
+        r, h = rec
+        b += ('<p class="kira-record">KIRA の検証の記録: %s、実際の見積書 %s件を相場と照合、適正度%s・誠実度ティア%s・過剰請求の指摘 %s件。'
+              '<a href="%s/yakumo/%s/verification-record.json">verification-record.json</a> sha256 <code>%s</code></p>\n'
+              % (esc(r.get("verified_on")), esc(r.get("estimates_checked")), esc(r.get("fairness_score")), esc(r.get("integrity_tier")),
+                 esc(r.get("red_flags_detected")), BASE, esc(ms), h))
+        b += ('<p class="store-line">この地域の加盟店: <a href="%s/yakumo/%s/">加盟%s %s</a>。HORIZON SHIELD はこの店から紹介料を受け取っていません。</p>\n'
+              % (BASE, esc(ms), esc(r.get("member_no")), esc(r.get("name"))))
+    else:
+        b += '<p class="kira-record">KIRA の検証の記録: この店の記録はまだ公開されていません。</p>\n'
+    b += '</div>\n<!-- /yakumo-answer-v1 -->\n'
+    return b
+
+def geo_answer(trade, area):
+    """工事 x 地域の頁の題名・h1・冒頭の結論。(title, h1_html, lead, fig, gap) を返す。"""
+    spec = SOUBA_ROWS.get(slugify(trade, "trade"), {"rows": [], "title": [], "what": trade, "gap": ""})
+    q = "%sで%sの費用の相場はいくら？" % (area, trade)
+    fig = souba_figures(spec["rows"], area)
+    if fig:
+        rng = figure_range(fig, spec["title"])
+        title = "%s %s %s" % (q, spec["what"], rng)
+        h1 = "%s<br>%s %s" % (esc(q), esc(spec["what"]), esc(rng))
+        lead = (spec["lead"].format(area=area, range=rng, src=source_short(fig)) if spec.get("lead")
+                else "%sの%sは、%sで%sが相場です(%s)。" % (area, trade, spec["what"], rng, source_short(fig)))
+    else:
+        title = "%s 相場データに行が無いため金額は出しません" % q
+        h1 = "%s<br>相場データに行が無いため金額は出しません" % esc(q)
+        lead = "%sの%sの相場は、相場データ(souba-db %s)に行が無いため出しません。" % (area, trade, souba_db()["_meta"]["version"])
+    return title, h1, lead, fig, spec["gap"]
+
 def verify_state_html(profile):
     mn_full = esc(profile.get("member_no") or "")
     mn_num = esc((profile.get("member_no") or "").replace("No.", ""))
@@ -509,6 +653,53 @@ def source_block():
 '<p><strong>運営:</strong> The HORIZONs株式会社 / HORIZON SHIELD / Yakumo</p>'
 '</div></div>'
 ) % (JCCDB_DOI, JCCDB_DOI, ORCID)
+
+def question_page(profile, q, area):
+    """店の盤(客の問い)の 1 問に答える頁(2026-11-06)。置き場所は /yakumo/souba/<slug>/。
+    q は tools/yakumo/souba_questions.json の 1 件: slug, question, conclusion, lead({area} {range} {src} を埋める), rows, title_rows,
+    what, gap, store_answer, points。
+    題名と h1 は問いの語と数、冒頭は結論と出どころ。本文の知識は店の公開の答え、TRADE_TIPS、souba-db の注記からだけ取る。"""
+    company = profile.get("company") or "検証済み加盟店"
+    ms = member_slug(profile)
+    canonical = "%s/yakumo/souba/%s/" % (BASE, q["slug"])
+    fig = souba_figures(q.get("rows") or [], area)
+    if fig:
+        rng = figure_range(fig, q.get("title_rows") or q["rows"])
+        lead = q["lead"].format(area=area, range=rng, src=source_short(fig))
+        title_tail = "%s %s" % (q["what"], rng)
+    else:
+        lead = q["conclusion"]
+        title_tail = ""
+    title = "%s %s｜Yakumo | HORIZON SHIELD" % (q["question"], title_tail) if title_tail else "%s｜Yakumo | HORIZON SHIELD" % q["question"]
+    h1 = esc(q["question"]) + ("<br>%s" % esc(title_tail) if title_tail else "")
+    desc = clean_dashes(lead + " " + "Yakumoは紹介料を取らない中立モール。%sは%s。" % (company, member_no_text(profile)))
+    # JSON-LD の答えには金額を入れない(門は JSON-LD の金額を今までどおり落とす)。数は本文の表にだけ置く。
+    faq_ld = {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+        {"@type": "Question", "name": q["question"],
+         "acceptedAnswer": {"@type": "Answer", "text": q["conclusion"] + " 相場の値は、出典 souba-db(HORIZON SHIELD建設費相場データベース)の行と地域係数から計算し、この頁の表に載せています。"}}]}
+    body = header_html()
+    body += '<div class="hero"><div class="container">'
+    body += '<h1><span class="speakable">%s</span></h1>' % h1
+    body += '<p class="subtitle">%s(%s)の盤の問い ・ Yakumo</p>' % (esc(company), esc(member_no_text(profile)))
+    body += '<span class="badge">建設実務30年 監修 ｜ %s</span></div></div>' % ("数は相場データから計算" if fig else "相場データに無い数は書かない")
+    body += '<div class="container">'
+    body += answer_block(lead, fig, ms, q.get("gap") or "")
+    body += '<div class="breadcrumb"><a href="%s/yakumo/">Yakumoモール</a> &gt; %s &gt; %s</div>' % (BASE, esc(area), esc(q["question"]))
+    if q.get("store_answer"):
+        body += '<div class="section"><h2>%sの答え</h2>' % esc(company)
+        body += '<p>%s</p>' % esc(safe_pub(q["store_answer"]))
+        body += '<p class="note">%s の頁(<a href="%s/yakumo/%s/">%s</a>)に載せている、店自身の答えをそのまま引いています。</p></div>' % (
+            esc(company), BASE, esc(ms), esc(member_no_text(profile)))
+    if q.get("points"):
+        body += '<div class="section"><h2>見積もりの前に確かめること</h2><ul class="tip-list">'
+        for li in q["points"]:
+            body += "<li>%s</li>" % esc(safe_pub(li))
+        body += '</ul><p class="note">建設実務30年(大賀俊勝)監修の一般知識と、相場データの注記です。個別の状態は現地調査で確認してください。</p></div>'
+    body += source_block()
+    body += '</div>'
+    body += recirc_and_mesh(q["slug"], profile)
+    body += cta_and_footer()
+    return canonical, head(title, desc, canonical, [faq_ld, org_person_graph(canonical)]) + body
 
 def aeo_page(profile, faqs, area, idx, topic=None):
     company = profile.get("company") or "検証済み加盟店"
@@ -1118,6 +1309,18 @@ def assert_industry_supported(profile, autopilot):
     sys.exit(4)
 
 
+def display_area(a):
+    """頁に出す地域の名。2026-11-06: No.001 の profile の area が番地まで入った住所(愛知県長久手戸田谷1405)で、
+    自動公開のたびに愛知の 4 頁の題名と本文が番地入りになっていた。数字を含む地名は、地域のスラッグの名(AREA_SLUG の鍵)にする。
+    スラッグ(URL)は変わらない(その鍵を slugify すると同じスラッグに戻る)。名の無いスラッグと、数字の無い地名は触らない。"""
+    if not a or not re.search(r"[0-9０-９]", a):
+        return a
+    s = slugify(a, "area")
+    for k, v in AREA_SLUG.items():
+        if v == s:
+            return k
+    return a
+
 def plan_pages(profile, autopilot=None):
     assert_industry_supported(profile, autopilot)
     works = [w for w in (profile.get("works") or []) if w][:6] or ["リフォーム全般"]
@@ -1128,6 +1331,7 @@ def plan_pages(profile, autopilot=None):
     for a in raw_areas:
         if not a:
             continue
+        a = display_area(a)
         s = slugify(a, "area")
         if s in seen_area:
             continue

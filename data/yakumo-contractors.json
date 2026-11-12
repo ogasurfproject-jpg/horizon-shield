@@ -35,10 +35,10 @@
       ],
       "license_verified": false,
       "status": "onboarding",
-      "verification": "pending",
-      "fairness_score": null,
-      "integrity_tier": null,
-      "red_flags_detected": null,
+      "verification": "verified",
+      "fairness_score": 88,
+      "integrity_tier": "B",
+      "red_flags_detected": 0,
       "claim_sha256": null,
       "ptka_block": null,
       "profile_url": "/yakumo/no001/",
@@ -58,7 +58,7 @@
         "last_answer_at": null
       },
       "joined_at": "2026-07-09",
-      "verified_at": null,
+      "verified_at": "2026-09-19T00:00:00Z",
       "webmcp": {
         "enabled": true,
         "requires_option": true,

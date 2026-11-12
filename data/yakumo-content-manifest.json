@@ -168,9 +168,27 @@
    "tsha": "6686ec3c",
    "simhash": "2968809915bebb68",
    "m": "no001"
+  },
+  {
+   "slug": "yakumo/souba/amiiri-glass-bouhan-hiratsuka",
+   "tsha": "649e81d9",
+   "simhash": "2a6148c8247ca8e8",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/souba/mado-dannetsu-shanetsu-hiratsuka",
+   "tsha": "4916ce49",
+   "simhash": "2a7da988117ca86c",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/souba/genkan-saifu-bouhan-hiratsuka",
+   "tsha": "9efbe11e",
+   "simhash": "a5938c93038abec",
+   "m": "no002"
   }
  ],
- "updated_at": "2026-11-07T00:46:11Z",
+ "updated_at": "2026-11-12T00:00:00Z",
  "rebuilt_at": "2026-08-23",
  "rebuilt_why": "指紋から剥がす共通枠のパターンを直したため、計算結果が変わった。全エントリを一斉に入れ替えて整合を保った。古い台帳は yakumo-content-manifest.json.bak_prerebuild20260823 に残してある。",
  "stores": {

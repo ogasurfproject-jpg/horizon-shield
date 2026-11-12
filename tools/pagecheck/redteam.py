@@ -408,7 +408,56 @@ CONTENT_CASES = [
     ("stub_refresh_without_noindex",         True, ("META_REFRESH_FORBIDDEN",), dict(ns="blog", **_STUB("/souba/", noindex=False))),
     ("stub_noindex_without_refresh",         True, ("ROBOTS",), dict(ns="blog", **_STUB("/souba/", refresh=False))),
     ("member_redirect_stub_still_forbidden", True, ("META_REFRESH_FORBIDDEN",), "member_stub"),
+    # v1.4.0: 答えの頁(yakumo/souba/<slug>/)の金額は、宣言した souba-db の行から計算し直して照らす。免除が広がっていないことも攻める
+    ("souba_answer_ok_figures_from_rows",    False, None, ("sa", dict())),
+    ("souba_answer_ok_no_money_no_decl",     False, None, ("sa", dict(body="相場データに行が無いため金額は出しません。", decl=""))),
+    ("souba_answer_figure_not_in_db",        True, ("MONEY_NOT_IN_SOUBA_DB",), ("sa", dict(body="内窓は ¥45,000〜¥110,000。"))),
+    # 2026-11-06 の決め: 一致しない金額は落ちる(行の値に近いが計算と合わない)。souba-db に行の無い金額は落ちる(db の別の行の値でも、宣言していなければ通さない)
+    ("souba_answer_amount_mismatch_dropped", True, ("MONEY_NOT_IN_SOUBA_DB",), ("sa", dict(body="内窓は ¥44,001〜¥110,000。"))),
+    ("souba_answer_amount_no_row_dropped",   True, ("MONEY_NOT_IN_SOUBA_DB",), ("sa", dict(body="内窓は ¥44,000。網戸は ¥55,000。"))),
+    ("souba_answer_man_form_not_in_db",      True, ("MONEY_NOT_IN_SOUBA_DB",), ("sa", dict(body="内窓は4.5万〜11万円。"))),
+    ("souba_answer_entity_yen_not_in_db",    True, ("MONEY_NOT_IN_SOUBA_DB",), ("sa", dict(body="内窓は &#165;45,000。"))),
+    ("souba_answer_fullwidth_not_in_db",     True, ("MONEY_NOT_IN_SOUBA_DB",), ("sa", dict(body="内窓は ￥４５，０００。"))),
+    ("souba_answer_attr_not_in_db",          True, ("MONEY_NOT_IN_SOUBA_DB",), ("sa", dict(head='<meta property="og:description" content="内窓は¥45,000">\n'))),
+    ("souba_answer_kanji_money",             True, ("MONEY_UNPARSED",), ("sa", dict(body="内窓は ¥44,000。総額は十万円。"))),
+    ("souba_answer_dollar_money",            True, ("MONEY_UNPARSED",), ("sa", dict(body="内窓は ¥44,000。US$400。"))),
+    ("souba_answer_no_source_href",          True, ("MONEY_WITHOUT_SOURCE",), ("sa", dict(source=""))),
+    ("souba_answer_no_decl",                 True, ("SOUBA_DECL_COUNT",), ("sa", dict(decl=""))),
+    ("souba_answer_two_decls",               True, ("SOUBA_DECL_COUNT",), ("sa", dict(body='¥44,000 <i data-souba-db="9.9.9" data-souba-region="kanto" data-souba-rows="rt_row"></i>'))),
+    ("souba_answer_stale_version",           True, ("SOUBA_DB_VERSION_STALE",), ("sa", dict(version="9.9.8"))),
+    ("souba_answer_unknown_row",             True, ("SOUBA_ROW_UNKNOWN",), ("sa", dict(rows="rt_row,rt_none"))),
+    ("souba_answer_unknown_region",          True, ("SOUBA_REGION_UNKNOWN",), ("sa", dict(region="okinawa"))),
+    ("souba_answer_money_in_jsonld",         True, ("MONEY_IN_JSONLD",), ("sa", dict(head='<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","name":"¥44,000"}</script>\n'))),
+    ("souba_answer_money_in_script",         True, ("MONEY_IN_SCRIPT",), ("sa", dict(head='<script>var p="¥44,000";</script>\n'))),
+    ("souba_answer_db_missing",              True, ("SOUBA_DB_UNREADABLE",), ("sa", dict(db=False))),
+    ("souba_answer_deeper_branch_blocked",   True, ("MONEY_ON_PAGE",), ("sa", dict(slug="no002/souba/rt-deep"))),
+    ("souba_answer_store_page_blocked",      True, ("MONEY_ON_PAGE",), ("sa", dict(slug="rt-store"))),
 ]
+
+# v1.4.0 の手の部品。小さな souba-db(版 9.9.9、関東 1.1、行 rt_row = 40,000 / 70,000 / 100,000)を毎回置き直す。
+# rt_other(50,000 / 60,000 / 90,000)は db にあるが頁は宣言しない行。その値(x 1.1 で 55,000 ほか)は通さない。
+SA_DB = {"_meta": {"version": "9.9.9", "region_multipliers": {"all": 1.0, "kanto": 1.1}},
+         "categories": [{"id": "rt_row", "work": "内窓 rt", "unit": "1箇所", "min": 40000, "avg": 70000, "max": 100000},
+                        {"id": "rt_other", "work": "網戸 rt", "unit": "1枚", "min": 50000, "avg": 60000, "max": 90000}]}
+
+def write_souba_answer_case(tmp, name, kw):
+    dbp = os.path.join(tmp, "data", "souba-db.json")
+    os.makedirs(os.path.dirname(dbp), exist_ok=True)
+    if kw.get("db", True):
+        with open(dbp, "w", encoding="utf-8") as f:
+            json.dump(SA_DB, f, ensure_ascii=False)
+    elif os.path.exists(dbp):
+        os.remove(dbp)
+    slug = kw.get("slug", "souba/rt-" + name.replace("_", "-"))
+    decl = kw.get("decl", '<table data-souba-db="%s" data-souba-region="%s" data-souba-rows="%s"><tr><td>内窓</td></tr></table>' % (
+        kw.get("version", "9.9.9"), kw.get("region", "kanto"), kw.get("rows", "rt_row")))
+    body = kw.get("body", "内窓は1箇所 ¥44,000〜¥110,000(平均 77,000円、基準 4万円〜10万円)。")
+    source = kw.get("source", ' <a href="%s/souba/">相場DB</a>' % B)
+    html = page(slug, body=body + decl + source, ns="yakumo", head_extra=kw.get("head", ""))
+    d = os.path.join(tmp, "yakumo", slug); os.makedirs(d, exist_ok=True)
+    with open(os.path.join(d, "index.html"), "w", encoding="utf-8") as f:
+        f.write(html)
+    return "yakumo/%s/index.html" % slug
 
 def all_attacks():
     allatk = [(n, b, ((c,) if c else (None,)), r, body, "", s, "yakumo", None) for (n, b, c, r, body, s) in ATTACKS_V1]
@@ -423,6 +472,8 @@ def write_content_case(tmp, name, kw):
         os.makedirs(os.path.dirname(_ap), exist_ok=True)
         with open(_ap, "w", encoding="utf-8") as f:
             f.write(_content)
+    if isinstance(kw, tuple) and kw[0] == "sa":
+        return write_souba_answer_case(tmp, name, kw[1])
     if kw is None:
         slug = "rt-member-source-leak"
         html = page(slug, body="相場は15,000円。", ns="yakumo")

@@ -69,7 +69,15 @@ BASE = "https://shield.the-horizons-innovation.com"
 MOAT_FORBIDDEN = [s[::-1] for s in ["5.23", "dlohserht_regnad", "CPW"]]  # 逆順表記(公開repoのgrep封印。機能は同一)
 FORBIDDEN_DASH = {"—": "EM", "–": "EN", "―": "BAR", "－": "FW_HYPHEN_MINUS", "‒": "FIGURE", "−": "MINUS", "⸺": "TWO_EM", "⸻": "THREE_EM", "﹘": "SMALL_EM", "﹣": "SMALL_FW_MINUS", "⁓": "SWUNG"}
 
-GATE_VERSION = "1.3.2"
+GATE_VERSION = "1.4.0"
+# v1.4.0 (2026-11-06): yakumo/souba/<slug>/index.html(工事 x 地域の答えの頁)だけ、相場データ(souba-db)から計算した金額を載せてよい。
+#   施主の問いは「いくらか」で、金額の無い答えの頁は答えになっていない。ただし加盟店の面の決まり(出典のない金額を出さない)は崩さない:
+#     ・頁に data-souba-db(版) / data-souba-region(地域係数の鍵) / data-souba-rows(行の id)を持つ要素がちょうど 1 つ
+#     ・版はリポジトリの data/souba-db.json の _meta.version と同じ。行の id は全部その中にある。地域の鍵は _meta.region_multipliers にある
+#     ・頁の金額(可視の本文と属性の値。¥1,320,000 / 1,320,000円 / 132万円 / 4.4万)は、宣言した行の min / avg / max そのものか、
+#       それに地域係数を掛けて四捨五入した値だけ。読めない形の金額が 1 つでも残れば落とす
+#     ・/souba/ への href(出典)があること
+#     ・JSON-LD、CSS、インライン JS の金額は今までどおり禁止。yakumo/<店>/souba/ のような深い枝には免除を広げない
 # v1.3.2 (2026-09-05): 重複関所の「変わったページ」の定義を、git の差分から、題名と本文の指紋の差分に改めた。
 #   きっかけ: フッターの href を 101 ページで書き換えた push が、qa/ の既知の近似重複 13 組(9/4 に計上済み、
 #   文面の書き直しでしか消えない)を同じ束に入れて赤にした。文面が一字も変わっていないページ同士の重複は、
@@ -257,6 +265,71 @@ def is_recruit_path(relpath):
     #   施主向け生成面の下に recruit を名乗る枝を作っても免除しない(置き場所による偽装を潰す)。
     parts = _segments(relpath)
     return "recruit" in parts[1:3]
+
+def is_souba_answer_path(relpath):
+    # v1.4.0: 免除は yakumo/souba/<slug>/index.html だけ(ちょうど 4 段)。それより深い枝や別の名前空間には広げない。
+    parts = _segments(relpath)
+    return len(parts) == 4 and parts[0] == "yakumo" and parts[1] == "souba" and parts[3] == "index.html"
+
+SOUBA_DECL_RE = re.compile(r"<[a-zA-Z][^>]*\bdata-souba-db\s*=", re.I)
+SOUBA_FIG_RE = re.compile(r"¥\s*(\d[\d,]*)|(\d[\d,]*)\s*円|(\d+(?:\.\d+)?)\s*万")
+
+def _round_half_up(x):
+    # 生成器と公開の相場 API は JavaScript の Math.round で丸める。floor(x + 0.5) と同じ。
+    import math
+    return int(math.floor(x + 0.5))
+
+def souba_answer_money_errors(tags, texts):
+    """v1.4.0: 答えの頁の金額を、宣言した souba-db の行から計算し直して照らす。errs のリストを返す(空なら通る)。"""
+    decl = [a for n, a, _ in tags if "data-souba-db" in a]
+    if len(decl) != 1:
+        return ["SOUBA_DECL_COUNT: %d (data-souba-db の要素がちょうど 1 つ要る)" % len(decl)]
+    d = decl[0]
+    try:
+        db = json.load(open(os.path.join(REPO_ROOT, "data", "souba-db.json"), encoding="utf-8"))
+    except Exception as e:
+        return ["SOUBA_DB_UNREADABLE: %s" % type(e).__name__]
+    meta = db.get("_meta", {})
+    errs = []
+    if d.get("data-souba-db", "") != str(meta.get("version")):
+        errs.append("SOUBA_DB_VERSION_STALE: page %s / data %s" % (d.get("data-souba-db", ""), meta.get("version")))
+    mults = meta.get("region_multipliers", {})
+    region = d.get("data-souba-region", "")
+    if region not in mults:
+        errs.append("SOUBA_REGION_UNKNOWN: " + region[:20])
+    by_id = {c.get("id"): c for c in db.get("categories", [])}
+    ids = [x.strip() for x in d.get("data-souba-rows", "").split(",") if x.strip()]
+    if not ids:
+        errs.append("SOUBA_ROWS_EMPTY")
+    missing = [i for i in ids if i not in by_id]
+    if missing:
+        errs.append("SOUBA_ROW_UNKNOWN: " + ",".join(missing)[:60])
+    if errs:
+        return errs
+    m = mults[region]
+    allowed = set()
+    for i in ids:
+        for k in ("min", "avg", "max"):
+            v = by_id[i].get(k)
+            if isinstance(v, (int, float)):
+                if float(v).is_integer():
+                    allowed.add(int(v))   # 基準値(係数を掛ける前)を並べて見せてもよい
+                allowed.add(_round_half_up(v * m))
+    for t in texts:
+        t = normalize_text(t)
+        for fm in SOUBA_FIG_RE.finditer(t):
+            if fm.group(3) is not None:
+                n = _round_half_up(float(fm.group(3)) * 10000)
+            else:
+                n = int((fm.group(1) or fm.group(2)).replace(",", ""))
+            if n not in allowed:
+                errs.append("MONEY_NOT_IN_SOUBA_DB: %s" % fm.group(0).strip())
+                return errs
+        rest = find_money(SOUBA_FIG_RE.sub(" ", t))
+        if rest:
+            errs.append("MONEY_UNPARSED: " + rest)
+            return errs
+    return errs
 
 def is_pricing_path(relpath):
     # 2026-09-29: 運営者自身の料金表(yakumo/plans/)は、特定商取引法の表示として月額を載せる必要があるので金額チェックを免除する。
@@ -692,6 +765,15 @@ def _check_page_full(relpath):
         del errs[_money_start:]
         if _money_found and not SOURCE_HREF_RE.search(src_nc):
             errs.append("MONEY_WITHOUT_SOURCE: %s (no href to /souba/, ledger, JCCDB repo, DOI or SSRN)" % _money_found[0])
+    elif is_souba_answer_path(relpath) and (errs[_money_start:] or SOUBA_DECL_RE.search(src_tags)):
+        # v1.4.0: 答えの頁。本文と属性の金額は souba-db の行から計算し直して照らす。JSON-LD / CSS / JS の金額は今までどおり落とす。
+        _money_found = errs[_money_start:]
+        del errs[_money_start:]
+        errs.extend(e for e in _money_found if e.startswith(("MONEY_IN_JSONLD", "MONEY_IN_CSS", "MONEY_IN_SCRIPT")))
+        if not re.search(r'href\s*=\s*["\'](?:' + re.escape(BASE) + r')?/souba/["\']', src_tags):
+            errs.append("MONEY_WITHOUT_SOURCE: no href to /souba/")
+        _attr_texts = [v for n, a, _ in tags for k, v in a.items() if k not in ATTR_SKIP and v]
+        errs.extend(souba_answer_money_errors(tags, [vis] + _attr_texts))
 
     # バックリンク(認知度導線)
     #
