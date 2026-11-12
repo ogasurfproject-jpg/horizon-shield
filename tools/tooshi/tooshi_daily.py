@@ -223,6 +223,11 @@ Added on 2026-11-07 (22, the loss bound of each admitted call; loss-bound-v0, mu
                    then; a red would be red every day until the contract's next version). Dormant (notice, facts.dormant)
                    when the day is not filed or has no admit. A contract or a policy that cannot be read is named in the
                    notice; it is never red.
+                   2026-11-12: read as loss-bound-v1 (musubi-v0/loss_bound_v1.py). LB_CONTRACTS lists the store's contracts
+                   (seki_demo_v2/contract.json, and run0003/contract.json for the days before the switch); the one whose
+                   contract_sha256 is RUN.json's is read. Under a contract whose grant.payload_schema has no free text field
+                   open_fields is [] and the admit is finite; facts.l_day carries amount_max x calls per 144 blocks from
+                   grant.exposure. Still a notice on every day: the state rule does not change with the contract.
 Added on 2026-11-08 (25, every paid call walked as one chain; nenrin-verify tasuki):
     25             tasuki_chain: each paid call of 17's window walked with nenrin-verify tasuki (workers/hs-ledger/nenrin/
                    sdk-python/src/nenrin_verify/tasuki.py), from its admission record to the Bitcoin anchor, link by link:
@@ -462,7 +467,8 @@ def check_content_mismatch(get, now):
     return c(cid, "red", "on %s the scene got http %s (%s), not 400 content_mismatch" % (d, k.get("status"), k.get("error")), **facts)
 
 
-LB_CONTRACTS = {"hs-seki-demo": "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-ledger/nenrin/musubi-v0/run0003/contract.json"}
+LB_CONTRACTS = {"hs-seki-demo": ["https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-ledger/nenrin/musubi-v0/seki_demo_v2/contract.json",
+                                 "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-ledger/nenrin/musubi-v0/run0003/contract.json"]}
 LB_UNITS = {"hs-seki-demo": "ticket: the pilot's tickets carry no monetary value (the gateway's SEKI_TICKETS); an amount is written in the grant's unit and not converted"}
 LB_RUNS = ("authorized", "conditional")
 
@@ -472,8 +478,46 @@ def lb_contract_sha256(c):
     return sha(b"a2a-contract-v0\n" + canonical({k: v for k, v in c.items() if k != "signatures"}).encode("utf-8"))
 
 
+_LB_FIELD = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,63}\Z")
+_LB_FK = {"enum": ({"type", "values", "required"}, {"values_from"}), "integer": ({"type", "min", "max", "required"}, set()),
+          "token": ({"type", "max_chars", "required"}, set()), "text": ({"type", "max_chars", "required"}, set())}
+_LB_MAXC = {"token": 256, "text": 65536}
+_LB_HEX64 = re.compile(r"^[0-9a-f]{64}\Z")
+_LB_DAY = 144
+
+
+def _lb_field_ok(f):
+    """contract_v0._field_problem is None"""
+    if not isinstance(f, dict) or not isinstance(f.get("type"), str) or f["type"] not in _LB_FK:
+        return False
+    need, may = _LB_FK[f["type"]]
+    if not (need <= set(f) <= need | may) or not isinstance(f["required"], bool):
+        return False
+    t = f["type"]
+    if t == "enum":
+        v = f["values"]
+        if not (isinstance(v, list) and 1 <= len(v) <= 1024 and all(isinstance(x, str) and x for x in v) and len(set(v)) == len(v)):
+            return False
+        if "values_from" in f:
+            x = f["values_from"]
+            return (isinstance(x, dict) and set(x) == {"path", "sha256", "pointer"} and isinstance(x["path"], str) and x["path"] != ""
+                    and isinstance(x["sha256"], str) and _LB_HEX64.match(x["sha256"]) is not None and isinstance(x["pointer"], str) and x["pointer"] != "")
+        return True
+    if t == "integer":
+        return all(isinstance(f[k], int) and not isinstance(f[k], bool) for k in ("min", "max")) and f["min"] <= f["max"]
+    return _int(f["max_chars"], 1) and f["max_chars"] <= _LB_MAXC[t]
+
+
+def _lb_schema_ok(x):
+    """contract_v0.payload_schema_problem is None"""
+    if not isinstance(x, dict) or set(x) != {"schema", "fields", "other_fields"} or x["schema"] != "payload-schema-v0" or x["other_fields"] != "refuse":
+        return False
+    fs = x["fields"]
+    return isinstance(fs, dict) and 1 <= len(fs) <= 64 and all(isinstance(n, str) and _LB_FIELD.match(n) and _lb_field_ok(fs[n]) for n in fs)
+
+
 def loss_bound(contract, action, policy=None):
-    """loss-bound-v0 of one call, as musubi-v0/loss_bound_v0.py writes it (the self test compares the two when that file is beside)"""
+    """loss-bound-v1 of one call, as musubi-v0/loss_bound_v1.py writes it (the self test compares the two when that file is beside)"""
     g = contract.get("grant") if isinstance(contract.get("grant"), dict) else {}
     pro, aut = set(g.get("prohibited_actions") or []), set(g.get("authorized_actions") or [])
     cond = {x.get("action") for x in (g.get("conditional") or []) if isinstance(x, dict)}
@@ -484,19 +528,31 @@ def loss_bound(contract, action, policy=None):
     mx = mx if isinstance(mx, int) and not isinstance(mx, bool) else None
     unit = lim.get("unit") if lim is not None and isinstance(lim.get("unit"), str) else None
     k = kind(action)
-    amount_max, open_fields = (mx, "payload_unbound") if k in LB_RUNS else (0, [])
     names = [a for a in (g.get("authorized_actions") or []) if isinstance(a, str)] + [x.get("action") for x in (g.get("conditional") or []) if isinstance(x, dict) and isinstance(x.get("action"), str)]
     ex = policy.get("exposure") if isinstance(policy, dict) else None
     w = ex.get(action) if isinstance(ex, dict) else None
     win = {"window_blocks": w["window_blocks"], "max_acts": w["max_acts"]} if isinstance(w, dict) and _int(w.get("window_blocks"), 1) and _int(w.get("max_acts"), 1) else None
-    return {"schema": "loss-bound-v0", "contract_sha256": lb_contract_sha256(contract), "action": action, "class": k, "amount_max": amount_max, "unit": unit,
-            "actions": sorted({a for a in names if kind(a) in LB_RUNS}), "open_fields": open_fields, "holds": False, "window": win,
-            "finite": bool(k not in LB_RUNS or (_int(amount_max) and open_fields == []))}
+    te = g.get("exposure").get(action) if isinstance(g.get("exposure"), dict) else None
+    tw = ({"window_blocks": te["window_blocks"], "max_acts": te["max_acts"]} if isinstance(te, dict) and _int(te.get("window_blocks"), 1) and te["window_blocks"] <= 4320
+          and _int(te.get("max_acts"), 1) and te["max_acts"] <= 100000 else None)
+    calls = lambda x: x["max_acts"] * (-(-_LB_DAY // x["window_blocks"]))
+    if k in LB_RUNS:
+        ps = g.get("payload_schema").get(action) if isinstance(g.get("payload_schema"), dict) else None
+        opened = sorted(n for n, f in ps["fields"].items() if f["type"] == "text") if ps is not None and _lb_schema_ok(ps) else "payload_unbound"
+        amount_max, finite = mx, _int(mx) and opened == []
+        calls_day = calls(tw) if tw is not None else None
+        l_day = amount_max * calls_day if finite and calls_day is not None else None
+        l_day_policy = amount_max * calls(win) if finite and win is not None else None
+    else:
+        amount_max, opened, finite, calls_day, l_day, l_day_policy = 0, [], True, 0, 0, 0
+    return {"schema": "loss-bound-v1", "contract_sha256": lb_contract_sha256(contract), "action": action, "class": k, "amount_max": amount_max, "unit": unit,
+            "actions": sorted({a for a in names if kind(a) in LB_RUNS}), "open_fields": opened, "holds": False, "window": win, "terms_window": tw,
+            "day_blocks": _LB_DAY, "calls_day": calls_day, "l_day": l_day, "l_day_policy": l_day_policy, "bounds": "amount", "finite": bool(finite)}
 
 
 def check_loss_bound(get, now):
-    """22: the loss bound (loss-bound-v0) of each admit of the store's own agent on the day 24 reads. A notice, never red, while the
-    contract does not bind the payload"""
+    """22: the loss bound (loss-bound-v1) of each admit of the store's own agent on the day 24 reads, under the store's contract the run
+    names. A notice, never red"""
     cid = "22_loss_bound"
     d = (anchor(now) - HEARTBEAT_DAY_SHIFT).strftime("%Y-%m-%d")
     try:
@@ -512,14 +568,19 @@ def check_loss_bound(get, now):
     if not adm:
         return dormant(cid, "the heartbeat's run of %s has no admit; nothing to bound" % d, day=d, admits=0)
     facts = {"day": d, "store": store, "admits": len(adm), "unit_note": LB_UNITS.get(store)}
-    url = LB_CONTRACTS.get(store)
-    try:
-        cs, ct = get(url) if url else (None, None)
-    except Unreachable:
-        cs, ct = None, None
-    if not (cs == 200 and isinstance(ct, dict)) or lb_contract_sha256(ct) != r.get("contract_sha256"):
-        return c(cid, "notice", "the contract of %s (%s) could not be read or is not the one the run names (%s); no loss bound read today (not red)"
-                 % (store, url, str(r.get("contract_sha256"))[:12]), unread="contract", **facts)
+    urls, ct, url = LB_CONTRACTS.get(store) or [], None, None
+    for u in urls:
+        try:
+            cs, cx = get(u)
+        except Unreachable:
+            continue
+        if cs == 200 and isinstance(cx, dict) and lb_contract_sha256(cx) == r.get("contract_sha256"):
+            ct, url = cx, u
+            break
+    if ct is None:
+        return c(cid, "notice", "no contract of %s (%s) could be read as the one the run names (%s); no loss bound read today (not red)"
+                 % (store, ", ".join(urls) or "none listed", str(r.get("contract_sha256"))[:12]), unread="contract", **facts)
+    facts["contract"] = url
     try:
         ps, p = get(DOOR_POLICY)
     except Unreachable:
@@ -531,9 +592,10 @@ def check_loss_bound(get, now):
           for k, x in recs if not x["finite"]]
     wins = [{"action": x["action"], "amount": x["amount_max"] * x["window"]["max_acts"], "unit": x["unit"], "per_blocks": x["window"]["window_blocks"]}
             for _k, x in recs if x["window"] is not None and _int(x["amount_max"])]
-    facts.update(finite=len(recs) - len(nf), not_finite=nf, window=wins, policy="read" if pol is not None else "unread")
-    why = ("%d of %d admits of %s on %s have a finite loss bound; not finite: %s (open_fields payload_unbound: the contract does not bind the payload, "
-           "so L is not finite until it does; counted, not red)" % (len(recs) - len(nf), len(recs), store, d,
+    lday = [{"action": x["action"], "l_day": x["l_day"], "unit": x["unit"], "per_blocks": x["day_blocks"]} for _k, x in recs if _int(x["l_day"], 1)]
+    facts.update(finite=len(recs) - len(nf), not_finite=nf, window=wins, l_day=lday, policy="read" if pol is not None else "unread")
+    why = ("%d of %d admits of %s on %s have a finite loss bound; not finite: %s (open_fields payload_unbound, or the names of free text fields: the "
+           "contract does not bind the whole payload of that action; counted, not red)" % (len(recs) - len(nf), len(recs), store, d,
                                                                    ", ".join("%s %s %s %s" % (str(x["record_sha256"])[:8], x["action"], x["amount_max"], x["unit"]) for x in nf) or "none"))
     return c(cid, "notice", why, **facts)
 
@@ -3817,7 +3879,7 @@ def selftest():
     cases.append(("24 does not change the states of the other checks (the same run with 24 ok and 24 red)",
                   (lambda a, b: {k: v for k, v in a.items() if k not in (S24, S14)} == {k: v for k, v in b.items() if k not in (S24, S14)})(states(world(cc=True))[1], states(world(cc=True, **{RUN4: run4(dict(MM_ROW, status=403))}))[1]), True))
 
-    # ---- 22 loss_bound (2026-11-07): loss-bound-v0 of each admit of the day 24 reads; a notice, never red, while the payload is not bound ----
+    # ---- 22 loss_bound (2026-11-07; loss-bound-v1 from 2026-11-12): each admit of the day 24 reads under the contract the run names; a notice, never red ----
     S22 = "22_loss_bound"
     LBC = {"contract_id": "11" * 16, "grant": {"authorized_actions": ["report", "audit"], "prohibited_actions": ["compare"], "conditional": [],
                                                "limits": {"report": {"max_amount": 20, "unit": "ticket"}, "audit": {"max_amount": 25, "unit": "ticket"}}},
@@ -3826,9 +3888,20 @@ def selftest():
     LBP = (200, {"stores": [{"store": "hs-seki-demo", "policy": {"exposure": {"report": {"window_blocks": 6, "max_acts": 1}}}}]})
     run22 = lambda *rows, csha=LBS: (200, {"store": "hs-seki-demo", "contract_sha256": csha, "ran_at": "2026-11-04T21:18:40Z", "calls": list(rows)})
     A22 = {"service": "report", "decision": "admit", "record_sha256": hsh("r22")}
-    w22 = lambda run_=None, **o: world(cc=True, **dict({RUN4: run_ or run22(A22, {"service": "audit", "decision": "refuse"}, MM_ROW), LB_CONTRACTS["hs-seki-demo"]: (200, LBC), DOOR_POLICY: LBP}, **o))
+    LBC2 = {"contract_id": "22" * 16, "grant": {"authorized_actions": ["report"], "prohibited_actions": ["audit", "compare"], "conditional": [],
+                                                "limits": {"report": {"max_amount": 20, "unit": "ticket"}}, "exposure": {"report": {"window_blocks": 144, "max_acts": 4}},
+                                                "payload_schema": {"report": {"schema": "payload-schema-v0", "other_fields": "refuse", "fields": {
+                                                    "koji_type": {"type": "enum", "values": ["gaiheki_30tsubo"], "required": True},
+                                                    "teiji_kingaku": {"type": "integer", "min": 1, "max": 1000000000, "required": True}}}}}}
+    LBS2 = lb_contract_sha256(LBC2)
+    U22, U22OLD = LB_CONTRACTS["hs-seki-demo"]
+    w22 = lambda run_=None, **o: world(cc=True, **dict({RUN4: run_ or run22(A22, {"service": "audit", "decision": "refuse"}, MM_ROW), U22: (200, LBC2), U22OLD: (200, LBC), DOOR_POLICY: LBP}, **o))
     x22 = st(w22(), S22)
-    cases.append(("22 notice: the admit of report under limits 20 ticket is not finite (payload_unbound); the window of the door's policy is 20 ticket per 6 blocks",
+    x22n = st(w22(run22(A22, {"service": "audit", "decision": "refuse"}, MM_ROW, csha=LBS2)), S22)
+    cases.append(("22 notice: under the contract that binds the payload (the first in LB_CONTRACTS) the admit of report is finite, L 20 ticket, l_day 80 per 144 blocks",
+                  (x22n["state"], x22n["facts"]["finite"], x22n["facts"]["not_finite"], x22n["facts"]["l_day"], x22n["facts"]["contract"], "1 of 1 admits" in x22n["why"]),
+                  ("notice", 1, [], [{"action": "report", "l_day": 80, "unit": "ticket", "per_blocks": 144}], U22, True)))
+    cases.append(("22 notice: a run under the earlier contract (the second in LB_CONTRACTS): the admit of report under limits 20 ticket is not finite (payload_unbound); the window of the door's policy is 20 ticket per 6 blocks",
                   (x22["state"], x22["facts"]["admits"], x22["facts"]["finite"], x22["facts"]["not_finite"], x22["facts"]["window"], x22["facts"].get("dormant")),
                   ("notice", 1, 0, [{"record_sha256": hsh("r22"), "action": "report", "class": "authorized", "amount_max": 20, "unit": "ticket", "open_fields": "payload_unbound"}],
                    [{"action": "report", "amount": 20, "unit": "ticket", "per_blocks": 6}], None)))
@@ -3840,13 +3913,13 @@ def selftest():
                   tuple((x["state"], x["facts"].get("dormant")) for x in (st(world(cc=True), S22), st(w22(run_=(404, None)), S22))), (("notice", True), ("notice", True))))
     cases.append(("22 never red: the day file down, the contract not the run's, the contract down, the policy down (window empty)",
                   (st(w22(run_="down"), S22)["state"], st(w22(run_=run22(A22, csha="00" * 32)), S22)["facts"].get("unread"),
-                   st(w22(**{LB_CONTRACTS["hs-seki-demo"]: "down"}), S22)["facts"].get("unread"), (lambda x: (x["state"], x["facts"]["window"], x["facts"]["policy"]))(st(w22(**{DOOR_POLICY: "down"}), S22))),
+                   st(w22(**{U22OLD: "down"}), S22)["facts"].get("unread"), (lambda x: (x["state"], x["facts"]["window"], x["facts"]["policy"]))(st(w22(**{DOOR_POLICY: "down"}), S22))),
                   ("notice", "contract", "contract", ("notice", [], "unread"))))
     vnot = lambda r: (lambda xs: "red" if any(x["state"] == "red" for x in xs) else ("green" if not any(x["state"] == "not_yet" for x in xs) else "not_all_checked"))([x for x in r["checks"] if x["id"] != S22])
     r22s = [run(g, now)[0] for g in (w22(), w22(run_=run22(dict(A22, service="compare"), A22)), w22(run_="down"), world(cc=True))]
     cases.append(("22 is a notice on every day above and the verdict is what the other checks give without it",
                   ([[x["state"] for x in r["checks"] if x["id"] == S22] for r in r22s], all(r["verdict"] == vnot(r) for r in r22s)), ([["notice"]] * 4, True)))
-    lbpy = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "workers", "hs-ledger", "nenrin", "musubi-v0", "loss_bound_v0.py")
+    lbpy = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "workers", "hs-ledger", "nenrin", "musubi-v0", "loss_bound_v1.py")
     if os.path.isfile(lbpy):
         import subprocess, tempfile
         real = os.path.join(os.path.dirname(lbpy), "run0003", "contract.json")
@@ -3854,14 +3927,14 @@ def selftest():
         with tempfile.TemporaryDirectory() as td:
             pp = os.path.join(td, "policy.json")
             open(pp, "w").write(json.dumps(LBP[1]["stores"][0]["policy"]))
-            for cf, cobj in ((os.path.join(td, "c.json"), LBC), (real, None)):
+            for cf, cobj in ((os.path.join(td, "c.json"), LBC), (os.path.join(td, "c2.json"), LBC2), (real, None), (os.path.join(os.path.dirname(lbpy), "seki_demo_v2", "contract_unsigned.json"), None)):
                 if cobj is not None:
                     open(cf, "w").write(json.dumps(cobj))
                 co = cobj if cobj is not None else json.load(open(cf, encoding="utf-8"))
                 for a in ("report", "audit", "compare", "ship"):
                     o = subprocess.run([sys.executable, "-I", "-B", lbpy, "--contract", cf, "--action", a, "--policy", pp], capture_output=True, text=True, timeout=120)
                     same.append(o.returncode == 0 and o.stdout.strip() == canonical(loss_bound(co, a, LBP[1]["stores"][0]["policy"])))
-        cases.append(("22's loss_bound gives the bytes of musubi-v0/loss_bound_v0.py (a test contract and run0003/contract.json, four actions each)", (len(same), all(same)), (8, True)))
+        cases.append(("22's loss_bound gives the bytes of musubi-v0/loss_bound_v1.py (two test contracts, run0003/contract.json and seki_demo_v2/contract_unsigned.json, four actions each)", (len(same), all(same)), (16, True)))
 
     # ---- 25 tasuki_chain (2026-11-08): each paid call of 17's window walked as one chain; a notice, never red for now ----
     S25 = "25_tasuki_chain"

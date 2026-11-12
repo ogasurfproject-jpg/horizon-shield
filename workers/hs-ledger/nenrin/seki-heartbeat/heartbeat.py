@@ -4,15 +4,18 @@
 SEKI heartbeat: the first door works every day, whether or not anyone else calls it, and every day is settled.
 
 The door (hs-seki-door) stands in front of HORIZON SHIELD's own paid tool, hs-gateway /report, for the store
-hs-seki-demo, under the demonstration contract musubi-v0/run0003/contract.json. Principal, agent and door are all
+hs-seki-demo, under the demonstration contract musubi-v0/seki_demo_v2/contract.json (before 2026-11-12,
+musubi-v0/run0003/contract.json; a day is settled under the contract its records name). Principal, agent and door are all
 The HORIZONs Co., Ltd., and the contract says so. A door that is only exercised on the day it was built proves little,
 so once a day this file does two things, and the scheduled workflow .github/workflows/seki-heartbeat.yml commits what
 they wrote under runs/<day>/, the UTC day the run is for (see responsible_day):
 
   run      The agent makes the same three calls as run0003, each with a fresh nonce:
-             report   20 tickets, the limit is 20      must be admitted, run, and filed as an execution record
-             audit    30 tickets, the limit is 25      must be refused amount_over_limit, nothing spent
+             report   20 tickets, the limit is 20      must be admitted, run, and filed as an execution record; its
+                                                       payload is inside the contract's grant.payload_schema
+             audit    30 tickets, prohibited           must be refused prohibited_action, nothing spent
              compare  50 tickets, prohibited           must be refused prohibited_action, nothing spent
+           (Under run0003, before 2026-11-12, audit was authorized up to 25 tickets and refused amount_over_limit.)
            Every record the door signs is checked here under the key keys/seki-door.json publishes and must be on
            the ledger. Anything other than the expected answer is a failure (exit 1), so a broken door shows up as a
            failed run, not as a quiet gap. Every call carries its payload as content for the door's content check
@@ -53,7 +56,9 @@ import settle_v1_15 as s15  # noqa: E402
 import settle_v1_20 as s20  # noqa: E402
 from contract_v0 import canonical, contract_sha256, parse_strict  # noqa: E402
 
-CONTRACT_PATH = os.path.join(MUSUBI, "run0003", "contract.json")
+CONTRACT_PATH = os.path.join(MUSUBI, "seki_demo_v2", "contract.json")
+# the contracts a day's records may name, newest first: a day is settled under the one its admissions name (contract_for)
+CONTRACT_PATHS = (CONTRACT_PATH, os.path.join(MUSUBI, "run0003", "contract.json"))
 GATEWAY = "https://hs-gateway.oga-surf-project.workers.dev"
 LEDGER = "https://ledger.horizonshield.dev"
 AGREEMENT = "https://agreement.horizonshield.dev"
@@ -64,7 +69,7 @@ DISCLOSURE = ("a demonstration: the principal, the contractor and the relying pa
               "the door is exercised every day on its own paid path; this is not an arm's-length agreement and the pilot's "
               "tickets carry no monetary value")
 EXPECT = [("report", 20, "admit", ["within_grant"], 200),
-          ("audit", 30, "refuse", ["amount_over_limit"], 403),
+          ("audit", 30, "refuse", ["prohibited_action"], 403),
           ("compare", 50, "refuse", ["prohibited_action"], 403)]
 PAYLOAD = {
     "report": {"koji_type": "gaiheki_30tsubo", "teiji_kingaku": 1200000},
@@ -689,7 +694,7 @@ def extend_view(contract, chunk_dir, sources=None, get=HV._get, chunk=CHUNK):
     return view
 
 
-def settle_day(day_dir, contract, chunk_dir, get=None, cache=None):
+def settle_day(day_dir, contract, chunk_dir, get=None, cache=None, contract_rel="run0003/contract.json"):
     get = get or (lambda u: http("GET", u))
     runp = os.path.join(day_dir, "RUN.json")
     if not os.path.exists(runp) or os.path.exists(os.path.join(day_dir, "settlement.json")):
@@ -741,22 +746,39 @@ def settle_day(day_dir, contract, chunk_dir, get=None, cache=None):
                             "status": s.get("status"), "view": {"from": view["headers"][0]["height"], "to": tip},
                             "ledger_entries": entries, "settlement_sha256": hashlib.sha256(canonical(s).encode()).hexdigest(),
                             "recompute": "anchor_compose.py for each record against its ledger entry (?format=raw and /ots), "
-                                         "header_view_fetch.py --to %d (from runs/<date>/, the tools are in ../../../musubi-v0), then settle_v1_20.py --settle ../../../musubi-v0/run0003/contract.json "
+                                         "header_view_fetch.py --to %d (from runs/<date>/, the tools are in ../../../musubi-v0), then settle_v1_20.py --settle ../../../musubi-v0/%s "
                                          "--event execution_report.anchored.json --admission admission_*.anchored.json "
-                                         "--relying-key %s=<keys/seki-door.json> --view view.json" % (tip, DOOR_DOMAIN)},
+                                         "--relying-key %s=<keys/seki-door.json> --view view.json" % (tip, contract_rel, DOOR_DOMAIN)},
                            indent=2) + "\n")
     return "settled: %s %s" % (s.get("verdict"), s.get("status"))
 
 
+def contract_for(day_dir):
+    """(contract, path) of CONTRACT_PATHS whose contract_sha256 the day's admissions name; the first when the day has no
+    admission yet. A day whose admissions name another contract, or two, is an error (never settled under a guess)."""
+    named = set()
+    for f in sorted(os.listdir(day_dir)) if os.path.isdir(day_dir) else []:
+        if f.startswith("admission_") and f.endswith(".json") and not f.endswith(".anchored.json"):
+            ref = (rd(os.path.join(day_dir, f)).get("contract_ref") or {})
+            named.add(ref.get("contract_sha256"))
+    if not named:
+        return rd(CONTRACT_PATHS[0]), CONTRACT_PATHS[0]
+    for p in CONTRACT_PATHS:
+        c = rd(p)
+        if named == {contract_sha256(c)}:
+            return c, p
+    raise RuntimeError("the admissions of %s name %s, not one of the contracts this file knows" % (day_dir, sorted(map(str, named))))
+
+
 def settle(root, chunk_dir):
-    contract = rd(CONTRACT_PATH)
     days = sorted(d for d in os.listdir(root) if len(d) == 10 and os.path.isdir(os.path.join(root, d))) if os.path.isdir(root) else []
     bad = 0
     now = datetime.datetime.now(datetime.timezone.utc)
     cache = {}
     for d in days:
         try:
-            msg = settle_day(os.path.join(root, d), contract, chunk_dir, cache=cache)
+            contract, cpath = contract_for(os.path.join(root, d))
+            msg = settle_day(os.path.join(root, d), contract, chunk_dir, cache=cache, contract_rel=os.path.relpath(cpath, MUSUBI))
         except Exception as e:
             msg, bad = "FAIL: %s" % e, bad + 1
         if msg.startswith("pending"):
@@ -785,13 +807,14 @@ def write_index(root):
         rows.append("| %s | %s | %s | %s | %s |" % (d, cell("report"), cell("audit"), cell("compare"),
                                                     ("%s, %s" % (sv["verdict"], sv["status"])) if sv else "waiting for Bitcoin"))
     text = ("# SEKI heartbeat\n\nOnce a day the agent calls HORIZON SHIELD's own paid tool through the SEKI door under the demonstration "
-            "contract (../../musubi-v0/run0003/contract.json): a report inside its limit, an audit over its limit, a comparison "
-            "the contract prohibits. The door must admit the first and refuse the other two, and every answer is a signed record "
+            "contract (../../musubi-v0/seki_demo_v2/contract.json; before 2026-11-12 ../../musubi-v0/run0003/contract.json, under "
+            "which the audit was over its limit rather than prohibited): a report inside its limit and its payload schema, an audit "
+            "and a comparison the contract prohibits. The door must admit the first and refuse the other two, and every answer is a signed record "
             "on the public ledger. Once the ledger's batch is confirmed in Bitcoin the day is settled with settle v1.15. "
             "Principal, agent and door are all The HORIZONs Co., Ltd.; it is a demonstration, not an outside customer, and the "
             "pilot's tickets carry no monetary value. heartbeat.py and the workflow seki-heartbeat.yml write this folder. "
             "Every deviation is explained in ../README.md, and a final verdict is never rewritten.\n\n"
-            "| day (UTC) | report (limit 20) | audit 30 (limit 25) | compare (prohibited) | settlement |\n|---|---|---|---|---|\n"
+            "| day (UTC) | report (limit 20) | audit 30 | compare (prohibited) | settlement |\n|---|---|---|---|---|\n"
             + "\n".join(rows) + "\n")
     with open(os.path.join(root, "README.md"), "w", encoding="utf-8") as f:
         f.write(text)
@@ -1106,7 +1129,7 @@ def _selftest():
     assert content_checks(dict(r5("admit", ["within_grant"], two), rules={"version": "0.4"})) is None
     # every day settled so far, whose view lies in view-chunks/ (no network): v1.20 gives v1.15's verdict, status and deviations,
     # v1.12 the same verdict, and v1.15 the bytes settlement.json holds
-    contract = rd(CONTRACT_PATH)
+    contracts_used = set()
     hd = []
     for name in _chunks(os.path.join(HERE, "view-chunks")):
         hd += json.load(open(os.path.join(HERE, "view-chunks", name), encoding="utf-8"))["headers"]
@@ -1125,6 +1148,8 @@ def _selftest():
         adms = [rd(os.path.join(dd, "admission_%s.anchored.json" % c["service"])) for c in door_calls(r)]   # a scene row reached no door
         evs = [rd(os.path.join(dd, "execution_report.anchored.json"))]
         keys = {DOOR_DOMAIN: door_key()}
+        contract, cpath = contract_for(dd)
+        contracts_used.add(os.path.relpath(cpath, MUSUBI))
         a15 = s15.settle_v1_15(contract, evs, view, admissions=adms, relying_keys=keys)
         a20 = s20.settle_v1_20(contract, evs, view, admissions=adms, relying_keys=keys)
         a12 = s12.settle_v1_12(contract, evs, view, admissions=adms, relying_keys=keys)
@@ -1139,6 +1164,23 @@ def _selftest():
                   "(%s to %s) settle under v1.20 with v1.15's verdict, status and deviations and v1.12's verdict, and the settle SETTLED.json names gives the "
                   "bytes settlement.json holds (%d later days need headers past view-chunks/ and are left to the run that settles them)"
                   % (len(days), days[0], days[-1], len(beyond)))
+    # [17] the contract of a day (2026-11-12): a day is settled under the contract its admissions name; the days so far name run0003,
+    # a day with no admission yet gets the newest; a day that names a contract this file does not know is an error, never a guess
+    assert contracts_used == {os.path.join("run0003", "contract.json")}, contracts_used
+    assert EXPECT[1] == ("audit", 30, "refuse", ["prohibited_action"], 403) and contract_sha256(rd(CONTRACT_PATHS[0])) != contract_sha256(rd(CONTRACT_PATHS[1]))
+    g0 = rd(CONTRACT_PATH)["grant"]
+    assert "audit" in g0["prohibited_actions"] and "compare" in g0["prohibited_actions"] and g0["authorized_actions"] == ["report"]
+    with tempfile.TemporaryDirectory() as td:
+        assert contract_for(td)[1] == CONTRACT_PATH
+        open(os.path.join(td, "admission_report.json"), "w").write(json.dumps({"contract_ref": {"contract_sha256": contract_sha256(rd(CONTRACT_PATH))}}))
+        assert contract_for(td)[1] == CONTRACT_PATH
+        open(os.path.join(td, "admission_audit.json"), "w").write(json.dumps({"contract_ref": {"contract_sha256": "00" * 32}}))
+        try:
+            contract_for(td); raise AssertionError("a day naming an unknown contract was settled")
+        except RuntimeError:
+            pass
+    n += 1; print("[17] the contract of a day: the %d settled days name run0003 and are settled under it; a new day gets seki_demo_v2 (audit and compare "
+                  "prohibited, so the audit is expected refused prohibited_action); a day naming an unknown contract is an error" % len(days))
     print("ALL PASS (seki heartbeat: %d checks)" % n)
 
 
