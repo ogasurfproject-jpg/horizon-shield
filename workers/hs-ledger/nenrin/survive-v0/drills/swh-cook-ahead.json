@@ -1,16 +1,35 @@
 {
   "answer": {
-    "at": "2026-11-11T03:27:01Z",
-    "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:6e88770b794673b0f28a1a6ef0362911d743ae2e/raw/\",\"progress_message\":null,\"id\":422569120,\"status\":\"new\",\"swhid\":\"swh:1:dir:6e88770b794673b0f28a1a6ef0362911d743ae2e\"}",
-    "body_sha256": "f65ff62277860459b7890eadff490e37c6a982ad355b0faa1a6498bee1228f8b",
+    "at": "2026-11-12T03:30:20Z",
+    "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:0aa306e663c0e4f58e36fb5d21d5b7a6c60e2f2f/raw/\",\"progress_message\":null,\"id\":422573087,\"status\":\"new\",\"swhid\":\"swh:1:dir:0aa306e663c0e4f58e36fb5d21d5b7a6c60e2f2f\"}",
+    "body_sha256": "6c9c996fdb329435a566eba0f103288df17093a1409f5628a0b7398e3542ccc6",
     "http_status": 200,
     "method": "POST",
     "status": "new",
-    "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:6e88770b794673b0f28a1a6ef0362911d743ae2e/",
-    "vault_id": 422569120
+    "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:0aa306e663c0e4f58e36fb5d21d5b7a6c60e2f2f/",
+    "vault_id": 422573087
   },
-  "directory": "swh:1:dir:6e88770b794673b0f28a1a6ef0362911d743ae2e",
+  "directory": "swh:1:dir:0aa306e663c0e4f58e36fb5d21d5b7a6c60e2f2f",
   "recent": [
+    {
+      "answer": {
+        "at": "2026-11-12T03:30:20Z",
+        "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:0aa306e663c0e4f58e36fb5d21d5b7a6c60e2f2f/raw/\",\"progress_message\":null,\"id\":422573087,\"status\":\"new\",\"swhid\":\"swh:1:dir:0aa306e663c0e4f58e36fb5d21d5b7a6c60e2f2f\"}",
+        "body_sha256": "6c9c996fdb329435a566eba0f103288df17093a1409f5628a0b7398e3542ccc6",
+        "http_status": 200,
+        "method": "POST",
+        "status": "new",
+        "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:0aa306e663c0e4f58e36fb5d21d5b7a6c60e2f2f/",
+        "vault_id": 422573087
+      },
+      "directory": "swh:1:dir:0aa306e663c0e4f58e36fb5d21d5b7a6c60e2f2f",
+      "requested_at": "2026-11-12T03:30:20Z",
+      "revision": "ff2f2673cafa35fe86391d150a0a030db91355b7",
+      "revision_date": "2026-11-12T03:19:00+00:00",
+      "snapshot": "6e04a2c69096443d79090b3c5e86795dfc0998e1",
+      "status_at_request": "new",
+      "visit_date": "2026-11-12T03:19:07.509000+00:00"
+    },
     {
       "answer": {
         "at": "2026-11-11T03:27:01Z",
@@ -67,32 +86,13 @@
       "snapshot": "1f638cecfc66ec5b5a435feea4ae1dcb2c9425d7",
       "status_at_request": "pending",
       "visit_date": "2026-11-09T03:18:57.210000+00:00"
-    },
-    {
-      "answer": {
-        "at": "2026-11-08T03:23:23Z",
-        "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:15976d6b9c6f4d45aae91a4f57be9662c87abd57/raw/\",\"progress_message\":null,\"id\":422493112,\"status\":\"new\",\"swhid\":\"swh:1:dir:15976d6b9c6f4d45aae91a4f57be9662c87abd57\"}",
-        "body_sha256": "3cd2cdec8345d8cb1a30405fab7cb6548ead86c0cf1e4dabfdba171a89f0a82d",
-        "http_status": 200,
-        "method": "POST",
-        "status": "new",
-        "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:15976d6b9c6f4d45aae91a4f57be9662c87abd57/",
-        "vault_id": 422493112
-      },
-      "directory": "swh:1:dir:15976d6b9c6f4d45aae91a4f57be9662c87abd57",
-      "requested_at": "2026-11-08T03:23:23Z",
-      "revision": "d1984cec1dcd1592ad094967f58b393fb1ae6805",
-      "revision_date": "2026-11-08T03:18:43+00:00",
-      "snapshot": "cde8a5d6289d9902d54e4767f671909bc996912a",
-      "status_at_request": "new",
-      "visit_date": "2026-11-08T03:18:49.332000+00:00"
     }
   ],
-  "requested_at": "2026-11-11T03:27:01Z",
-  "revision": "149d1239bdd82c0ff34e9bf49a8e7493f67a22cc",
-  "revision_date": "2026-11-11T03:19:00+00:00",
+  "requested_at": "2026-11-12T03:30:20Z",
+  "revision": "ff2f2673cafa35fe86391d150a0a030db91355b7",
+  "revision_date": "2026-11-12T03:19:00+00:00",
   "schema": "nenrin-survive-precook-v0",
-  "snapshot": "c4f3b6c890113d878261def6b59581392da86146",
+  "snapshot": "6e04a2c69096443d79090b3c5e86795dfc0998e1",
   "status_at_request": "new",
-  "visit_date": "2026-11-11T03:19:13.817000+00:00"
+  "visit_date": "2026-11-12T03:19:07.509000+00:00"
 }
