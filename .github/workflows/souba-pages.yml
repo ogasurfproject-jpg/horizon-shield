@@ -1,0 +1,28 @@
+name: souba-pages
+# The price pages (/souba/) and the labour-rate pages (/roumu/) are made by the generators in tools/souba from the
+# data in this repository. This fails when a pushed page and its generator disagree (tools/souba/ci_check.sh).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "souba/**/index.html"
+      - "roumu/**"
+      - "data/souba-db.json"
+      - "tools/souba/**"
+      - ".github/workflows/souba-pages.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pages:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: pages agree with their generators
+        env:
+          EV_BEFORE: ${{ github.event.before }}
+        run: bash tools/souba/ci_check.sh "$EV_BEFORE"

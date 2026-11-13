@@ -9,7 +9,7 @@
 
 <!-- ===== AI/検索エンジン向け構造化データ：FAQPage ===== -->
 <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "外壁塗装で相見積もりを比較する正しい方法は？", "acceptedAnswer": {"@type": "Answer", "text": "合計金額ではなく、塗装面積(㎡)・塗料の品番・塗り回数・足場の㎡単価・シーリングの範囲・付帯部の内訳の6行を同じ条件にそろえてから、㎡単価と数量で比べます。そろえると30坪シリコンの一式は70〜115万円(平均90万円)(souba-db 2.2.0)に収まるのが普通で、超える社には超えた分がどの行にあるかを聞きます。"}}, {"@type": "Question", "name": "相見積もりを3社取っても、適正価格が分からないのはなぜですか？", "acceptedAnswer": {"@type": "Answer", "text": "相見積もりで分かるのは『3社の中でどこが一番安いか』だけで、その金額が市場の適正価格かどうかは分かりません。施主には比較するための基準価格（ものさし）がないためです。実際に同一工事で2社の見積もりが3.88倍違った事例があり、差額の正体は見積書に書かれていなかった工程の有無でした。"}}, {"@type": "Question", "name": "一番安い見積もりを選んではいけないのはなぜですか？", "acceptedAnswer": {"@type": "Answer", "text": "安い理由が、材料を安価なものに変更している、または本来必要な工程を省いている場合があるためです。その場合、契約後に追加費用が発生したり、施工品質が下がったりするリスクがあります。安さの理由が見積書に明記されているかを確認することが重要です。"}}, {"@type": "Question", "name": "見積書の『書かれていない部分』はどう見抜けばいいですか？", "acceptedAnswer": {"@type": "Answer", "text": "金額の合計ではなく、項目の数と中身を社ごとに比べてください。同じ工事なのにA社にある項目がB社に無い場合、その『無い部分』が後の追加費用や手抜きにつながることがあります。『一番安いか』より『何が含まれていないか』を見るのが要点です。"}}, {"@type": "Question", "name": "業者が来る前に、おおよその価格を知る方法はありますか？", "acceptedAnswer": {"@type": "Answer", "text": "工事種別と規模から概算の参考価格帯を事前に把握しておくことで、業者の見積もりが妥当かを判断する基準を持てます。HORIZON SHIELDは、公開された建設費データベース（JCCDB・526,128件）を基礎に、業者が訪問する前に施主が概算を持てる仕組みを提供しています。"}}]}
+{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "外壁塗装で相見積もりを比較する正しい方法は？", "acceptedAnswer": {"@type": "Answer", "text": "合計金額ではなく、塗装面積(㎡)・塗料の品番・塗り回数・足場の㎡単価・シーリングの範囲・付帯部の内訳の6行を同じ条件にそろえてから、㎡単価と数量で比べます。そろえると30坪シリコンの一式は70〜115万円(平均90万円)(souba-db 2.3.0)に収まるのが普通で、超える社には超えた分がどの行にあるかを聞きます。"}}, {"@type": "Question", "name": "相見積もりを3社取っても、適正価格が分からないのはなぜですか？", "acceptedAnswer": {"@type": "Answer", "text": "相見積もりで分かるのは『3社の中でどこが一番安いか』だけで、その金額が市場の適正価格かどうかは分かりません。施主には比較するための基準価格（ものさし）がないためです。実際に同一工事で2社の見積もりが3.88倍違った事例があり、差額の正体は見積書に書かれていなかった工程の有無でした。"}}, {"@type": "Question", "name": "一番安い見積もりを選んではいけないのはなぜですか？", "acceptedAnswer": {"@type": "Answer", "text": "安い理由が、材料を安価なものに変更している、または本来必要な工程を省いている場合があるためです。その場合、契約後に追加費用が発生したり、施工品質が下がったりするリスクがあります。安さの理由が見積書に明記されているかを確認することが重要です。"}}, {"@type": "Question", "name": "見積書の『書かれていない部分』はどう見抜けばいいですか？", "acceptedAnswer": {"@type": "Answer", "text": "金額の合計ではなく、項目の数と中身を社ごとに比べてください。同じ工事なのにA社にある項目がB社に無い場合、その『無い部分』が後の追加費用や手抜きにつながることがあります。『一番安いか』より『何が含まれていないか』を見るのが要点です。"}}, {"@type": "Question", "name": "業者が来る前に、おおよその価格を知る方法はありますか？", "acceptedAnswer": {"@type": "Answer", "text": "工事種別と規模から概算の参考価格帯を事前に把握しておくことで、業者の見積もりが妥当かを判断する基準を持てます。HORIZON SHIELDは、公開された建設費データベース（JCCDB・526,128件）を基礎に、業者が訪問する前に施主が概算を持てる仕組みを提供しています。"}}]}
 </script>
 
 <!-- ===== Article スキーマ ===== -->
@@ -115,6 +115,7 @@
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
 <link rel="alternate" type="text/plain" href="https://shield.the-horizons-innovation.com/llms.txt" title="LLM向けサイト要約">
 <link rel="mcp-server" href="https://mcp.horizonshield.dev">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "相見積もりを3社取っても、「適正価格」が分からない本当の理由。", "url": "https://shield.the-horizons-innovation.com/souba/aimitsumori-tekisei-kakaku/", "dateModified": "2026-11-14"}</script>
 </head>
 <body>
   <nav class="topnav">
@@ -177,7 +178,7 @@
       <p>合計金額を並べるのではなく、<strong>6つの行を同じ条件にそろえてから、㎡単価と数量で比べます</strong>。塗装面積(㎡)、塗料の品番、塗り回数、足場の㎡単価、シーリングの範囲(打ち替えか増し打ちか)、付帯部の内訳。この6つが各社でそろっていない見積もりは、金額だけ比べても答えが出ません。</p>
     </div>
     <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px">
-      <tr><th style="text-align:left;border-bottom:1px solid #ccc;padding:6px">そろえる行</th><th style="text-align:left;border-bottom:1px solid #ccc;padding:6px">見るもの</th><th style="text-align:left;border-bottom:1px solid #ccc;padding:6px">目安(souba-db 2.2.0)</th></tr>
+      <tr><th style="text-align:left;border-bottom:1px solid #ccc;padding:6px">そろえる行</th><th style="text-align:left;border-bottom:1px solid #ccc;padding:6px">見るもの</th><th style="text-align:left;border-bottom:1px solid #ccc;padding:6px">目安(souba-db 2.3.0)</th></tr>
       <tr><td style="padding:6px">塗装面積</td><td style="padding:6px">㎡数が3社で同じか(延床30坪なら120㎡前後)</td><td style="padding:6px">面積が違えば単価は比べられない</td></tr>
       <tr><td style="padding:6px">塗料</td><td style="padding:6px">メーカーと品番、グレード</td><td style="padding:6px">シリコン2,300〜3,500円/㎡、フッ素3,800〜5,000円/㎡、無機4,500〜6,500円/㎡</td></tr>
       <tr><td style="padding:6px">塗り回数</td><td style="padding:6px">下塗り1回+上塗り2回の3回か</td><td style="padding:6px">2回塗りは単価が安く見えて耐用年数が落ちる</td></tr>
@@ -189,7 +190,7 @@
 <div data-cta="ehn-v1" style="margin:-8px 0 18px;"><a href="https://shield.the-horizons-innovation.com/hacker/submit/?from=box" style="display:block;border:1px solid #16181d;padding:12px 16px;font-weight:700;color:inherit;text-decoration:none;line-height:1.5;">見積書がもう手元にあるなら、匿名で KIRA に解剖させる（無料・業者名は伏せます）→</a></div>
 
     <p>この6行をそろえると、30坪シリコンの一式は70〜115万円(平均90万円)(souba-db)に収まるのが普通です。そろえたうえで最高額を超える社があれば、超えた分がどの行にあるかを聞いてください。どの行でも説明できない差は、その社の上乗せです。3社とも上限を超えているなら、相見積もりの母集団そのものが高い可能性があります。基準を持たずに3社を比べるのが、この記事の冒頭で書いた「答えが出ない」構造です。</p>
-    <p>手順は3つ。①3枚の見積書を上の6行に分けて数量と単価を書き出す ②塗装(材工)の㎡単価を塗料別レンジに当て、総額を坪別レンジに当てる ③「一式」の行は数量と単価に割ってもらう。数字の出どころは souba-db 2.2.0(2026-08-17 更新)で、<a href="https://shield.the-horizons-innovation.com/data/souba-db.json">souba-db.json</a> をそのまま公開しています。</p>
+    <p>手順は3つ。①3枚の見積書を上の6行に分けて数量と単価を書き出す ②塗装(材工)の㎡単価を塗料別レンジに当て、総額を坪別レンジに当てる ③「一式」の行は数量と単価に割ってもらう。数字の出どころは souba-db 2.3.0(2026-10-18 更新)で、<a href="https://shield.the-horizons-innovation.com/data/souba-db.json">souba-db.json</a> をそのまま公開しています。</p>
 
     <h2>Q. 業者が来る前に、おおよその適正価格を知る方法はありますか？</h2>
     <div class="answer">
