@@ -1,0 +1,85 @@
+name: tooshi-follow
+
+# TOOSHI follow (tools/tooshi/tooshi_follow.py), after each run of tooshi-daily. Two things a person did by hand on
+# 2026-11-13:
+# close: an open issue "TOOSHI red <day>" is closed with a note when every check it named red has read ok on a later
+#   published day (tooshi/days). The day file is not touched; the day stays red. Nothing closed these issues before, so an
+#   answered red looked open from outside (six issues, 2026-11-06 to 2026-11-12, were closed by hand).
+# announce: when check 9 (a signed witness answer) has been not_yet on two published days in a row, yesterday's day
+#   record (sha, n, root, read from the runner and the ledger) is written once as a comment on the witness issue, so the
+#   witnesses know which record the next audit reads. Three days were not announced by hand (2026-11-09 to 2026-11-11).
+# It reads public endpoints and this checkout only and uses no secret. It writes issue comments and one issue state with
+# the job's token (issues: write). A run by hand is dry (it prints what it would do) unless dry is set to no.
+# workflow_run starts it when tooshi-daily ends, also for a run that had nothing to do; both steps then do nothing twice.
+
+on:
+  workflow_run:
+    workflows: ["tooshi-daily"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: "yes: print what would be written, write nothing. no: write."
+        required: false
+        default: "yes"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tooshi-follow
+  cancel-in-progress: false
+
+env:
+  WITNESS_ISSUE: "75"
+
+jobs:
+  follow:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+          sparse-checkout: |
+            tools/tooshi
+            tooshi
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - name: self test (fixed answers, no network)
+        run: python -I -B tools/tooshi/tooshi_follow.py --selftest
+      - name: dry or not
+        id: mode
+        env:
+          EVENT: ${{ github.event_name }}
+          DRY: ${{ github.event.inputs.dry }}
+        run: |
+          case "$EVENT:${DRY:-}" in
+            workflow_run:*) echo "flag=" >> "$GITHUB_OUTPUT"; echo "after tooshi-daily: writes" ;;
+            workflow_dispatch:no) echo "flag=" >> "$GITHUB_OUTPUT"; echo "by hand, dry no: writes" ;;
+            workflow_dispatch:*) echo "flag=--dry" >> "$GITHUB_OUTPUT"; echo "by hand: dry, nothing is written" ;;
+            *) echo "unknown trigger $EVENT"; exit 1 ;;
+          esac
+      - name: close the red issues whose checks have read ok since
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          FLAG: ${{ steps.mode.outputs.flag }}
+        run: |
+          set -o pipefail
+          { echo "### tooshi-follow"; echo; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          python -I -B tools/tooshi/tooshi_follow.py close --dir tooshi $FLAG | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: tell the witnesses of yesterday's day record when check 9 has waited two audits
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          FLAG: ${{ steps.mode.outputs.flag }}
+        run: |
+          set -o pipefail
+          python -I -B tools/tooshi/tooshi_follow.py announce --dir tooshi --issue "$WITNESS_ISSUE" $FLAG | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
