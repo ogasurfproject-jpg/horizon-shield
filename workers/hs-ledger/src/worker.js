@@ -2755,13 +2755,38 @@ function acceptPrefersHtml(accept) {
   return html.q >= json.q && html.i < json.i;
 }
 
+// 2026-11-13: a crawler does not always ask for text/html. Bing's URL inspection fetched / three times in four minutes
+// and got the page once and the JSON twice, so "Missing Title Tag" stayed. A request whose Accept names none of
+// text/html, a JSON type or text/event-stream (no Accept, an empty one, */*, text/*) now also gets the page when it comes
+// from a browser or a crawler: a User-Agent that starts with Mozilla/ or names a bot, a crawler, a spider or a preview,
+// and no Sec-Fetch-Mode other than navigate (a script's fetch in a browser says cors or same-origin and keeps the JSON).
+// curl, Python, Node, Go and MCP clients send no such User-Agent, or name JSON, and get the JSON bytes as before.
+// An Accept that names text/html is decided by acceptPrefersHtml alone, as before. Both answers carry
+// Vary: Accept, User-Agent, Sec-Fetch-Mode.
+const ROOT_PAGE_UA = /^mozilla\/|bot|crawl|spider|slurp|preview/i;
+function acceptNamesHtmlOrMachine(accept) {
+  return String(accept || "").split(",").some((part) => {
+    const type = part.split(";")[0].trim().toLowerCase();
+    return type === "text/html" || type === "text/event-stream" || type.includes("json");
+  });
+}
+function rootWantsHtml(request, url) {
+  if (url.searchParams.get("format") === "json") return false;
+  const accept = request.headers.get("accept");
+  if (acceptPrefersHtml(accept)) return true;
+  if (acceptNamesHtmlOrMachine(accept)) return false;
+  const mode = (request.headers.get("sec-fetch-mode") || "").trim().toLowerCase();
+  if (mode && mode !== "navigate") return false;
+  return ROOT_PAGE_UA.test(request.headers.get("user-agent") || "");
+}
+
 async function rootFace(request, res) {
   const url = new URL(request.url);
   const p = url.pathname.replace(/\/+$/, "") || "/";
   if (p !== "/" || (request.method !== "GET" && request.method !== "HEAD") || !res || res.status !== 200) return res;
   const headers = new Headers(res.headers);
-  headers.append("vary", "Accept");
-  if (url.searchParams.get("format") === "json" || !acceptPrefersHtml(request.headers.get("accept")))
+  headers.append("vary", "Accept, User-Agent, Sec-Fetch-Mode");
+  if (!rootWantsHtml(request, url))
     return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
   const body = await res.text();
   const page = `<!doctype html>
@@ -2769,8 +2794,8 @@ async function rootFace(request, res) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>hs-ledger: JIDEC public ledger, anchored to Bitcoin via OpenTimestamps</title>
-<meta name="description" content="The JIDEC ledger of HORIZON SHIELD: an append-only public ledger of hash claims, each anchored to Bitcoin via OpenTimestamps and recomputable by anyone. This page shows the service document that GET / returns as JSON.">
+<title>hs-ledger: JIDEC public ledger, anchored to Bitcoin</title>
+<meta name="description" content="The JIDEC public ledger of HORIZON SHIELD: append-only hash claims, each anchored to Bitcoin via OpenTimestamps and recomputable by anyone.">
 <link rel="alternate" type="application/json" href="/?format=json">
 <style>body{margin:0;padding:24px 16px;background:#0b0b0f;color:#e8e8ee;font:15px/1.6 -apple-system,"Helvetica Neue",Arial,sans-serif}main{max-width:960px;margin:0 auto}h1{font-size:22px;margin:0 0 8px}a{color:#7b7bff}pre{font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;overflow-wrap:anywhere;border-top:1px solid #33334a;padding-top:12px}.k{font:12px ui-monospace,Menlo,monospace;color:#9a9ab0;text-transform:uppercase;letter-spacing:.08em}</style>
 </head>
