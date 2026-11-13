@@ -361,6 +361,24 @@ def mismatch_scene(contract, key, expiry, token, check, get=None, post=None):
     return scene, "as expected" if not bad else "NOT as expected: " + "; ".join(bad)
 
 
+def contract_on_file(ctext, post=None):
+    """(ok, detail): the agreement intake holds the contract, or files it now. Asked BEFORE any call is made (2026-11-13).
+    On 2026-11-12 the intake's checker did not know two grant keys of the new contract and refused it (422
+    grant_key_unknown). The calls were made anyway, so the paid call was admitted and executed, and its execution record
+    could then not be filed (409 contract_not_filed): a paid call with no settlement, on a day that is written once. Now a
+    refusal, an error or no answer stops the run before the first call: nothing is spent, no admission is made, no
+    RUN.json is written, and a later run for the same day (the late fallback cron, or a run by hand) can still make the
+    calls once the intake accepts the contract."""
+    post = post or (lambda u, body: http("POST", u, body, {"content-type": "application/json"}))
+    try:
+        st, _h, b = post(AGREEMENT + "/contract", ctext.encode("utf-8"))
+    except Exception as e:
+        return False, "POST /contract did not answer (%s)" % type(e).__name__
+    j = jl(b) or {}
+    ok = st in (200, 201, 409) and isinstance(j, dict) and (j.get("verdict") == "accepted" or j.get("dedup") is True)
+    return ok, (st, (b or "")[:300])
+
+
 def door_calls(r):
     """The calls of a RUN.json that reached the door (the three of EXPECT). A row with a scene (mismatch, 2026-11-07) asked
     the gateway only: no record, nothing to settle, no cell in the index."""
@@ -419,6 +437,10 @@ def run(root, date, now=None, sleep=time.sleep):
     required, problem = read_door_policy()
     if not check("the door's policy says whether %s requires the content check (required %s)" % (STORE, required), problem is None, problem):
         return 1
+    on_file, detail = contract_on_file(ctext)
+    if not check("the contract is on file at the agreement intake", on_file, detail):
+        print("FAIL: the agreement intake does not hold the contract, so no call is made: nothing is spent, no admission is made and the day is not written. Run again when the intake accepts the contract (see contract_on_file)")
+        return 1
     os.makedirs(out, exist_ok=True)
     tmp = tempfile.mkdtemp(prefix="seki-heartbeat-")
     pem = os.path.join(tmp, "agent.pem")
@@ -429,9 +451,6 @@ def run(root, date, now=None, sleep=time.sleep):
         record = {"schema": "seki-heartbeat-run-v0", "note": DISCLOSURE, "date": date, "day_rule": DAY_RULE, "contract_sha256": csha, "store": STORE,
                   "target": TARGET, "door_public_key_ed25519_b64": door_pub, "gateway": GATEWAY, "balance_before": bal, "door_furui_required": required,
                   "ran_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "calls": []}
-        st, _h, b = http("POST", AGREEMENT + "/contract", ctext.encode("utf-8"), {"content-type": "application/json"})
-        j = jl(b) or {}
-        check("the contract is on file at the agreement intake", st in (200, 201, 409) and (j.get("verdict") == "accepted" or j.get("dedup") is True), (st, b[:300]))
         tip = tip_height()
         expiry = tip + 18
         record["tip_height_at_request"] = tip
@@ -1181,6 +1200,39 @@ def _selftest():
             pass
     n += 1; print("[17] the contract of a day: the %d settled days name run0003 and are settled under it; a new day gets seki_demo_v2 (audit and compare "
                   "prohibited, so the audit is expected refused prohibited_action); a day naming an unknown contract is an error" % len(days))
+    n += 1; print("[18] the contract is on file before any call: accepted or dedup lets the run go on; a refusal (the 422 of 2026-11-12), a 5xx, an answer "
+                  "that is not JSON or no answer stops it, and in run() the question comes before the day's folder and before the first call")
+    import inspect
+    ct = open(CONTRACT_PATH, encoding="utf-8").read()
+    sent = []
+
+    def poster(st, body):
+        def post(u, b):
+            sent.append((u, hashlib.sha256(b).hexdigest()))
+            if st is None:
+                raise OSError("no route")
+            return st, {}, body
+        return post
+    assert contract_on_file(ct, poster(201, '{"verdict":"accepted"}'))[0] is True
+    assert contract_on_file(ct, poster(200, '{"verdict":"accepted"}'))[0] is True
+    assert contract_on_file(ct, poster(409, '{"dedup":true}'))[0] is True
+    assert sent[0] == (AGREEMENT + "/contract", hashlib.sha256(ct.encode("utf-8")).hexdigest()) and len(sent) == 3   # the file's bytes, unchanged, once per ask
+    r422 = contract_on_file(ct, poster(422, '{"error":"grant_key_unknown","keys":["exposure","payload_schema"]}'))
+    assert r422[0] is False and r422[1][0] == 422 and "grant_key_unknown" in r422[1][1]
+    assert contract_on_file(ct, poster(409, '{"error":"contract_not_filed"}'))[0] is False      # a 409 that is not a dedup
+    assert contract_on_file(ct, poster(201, '{"verdict":"refused"}'))[0] is False
+    assert contract_on_file(ct, poster(200, '{"dedup":"true"}'))[0] is False                     # the word true is not the value true
+    assert contract_on_file(ct, poster(500, 'upstream error'))[0] is False
+    assert contract_on_file(ct, poster(200, 'not json'))[0] is False
+    assert contract_on_file(ct, poster(200, '[1]'))[0] is False
+    assert contract_on_file(ct, poster(403, '{"verdict":"accepted"}'))[0] is False
+    na = contract_on_file(ct, poster(None, ""))
+    assert na[0] is False and "did not answer" in na[1]
+    src = inspect.getsource(run)
+    i_ask, i_dir, i_call, i_run = src.index("contract_on_file(ctext)"), src.index("os.makedirs(out"), src.index('"%s/report?store=%s&service=%s"'), src.index('"RUN.json"), "w"')
+    assert src.count("contract_on_file(") == 1 and 'AGREEMENT + "/contract"' not in src
+    assert i_ask < i_dir < i_call < i_run, "the contract is asked for before the folder, the first call and the day file"
+    assert src[i_ask:i_dir].count("return 1") == 1, "a contract that is not on file returns before the folder is made"
     print("ALL PASS (seki heartbeat: %d checks)" % n)
 
 
