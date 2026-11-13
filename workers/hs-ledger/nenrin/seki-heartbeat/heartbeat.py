@@ -40,7 +40,7 @@ allow and the tickets of the pilot carry no monetary value. The door's key never
   python3 heartbeat.py settle [--root runs] [--view-chunks view-chunks]
   python3 heartbeat.py --selftest
 """
-import argparse, base64, datetime, hashlib, json, os, secrets, sys, tempfile, time, urllib.error, urllib.request
+import argparse, base64, contextlib, datetime, hashlib, json, os, secrets, signal, sys, tempfile, time, urllib.error, urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MUSUBI = os.path.normpath(os.path.join(HERE, "..", "musubi-v0"))
@@ -431,6 +431,30 @@ def close_raised_day(record, call, sent, err, fails):
     return True
 
 
+class Terminated(SystemExit):
+    """SIGTERM inside run(): raised by the handler run() sets, so a stop from outside takes the same path as Ctrl-C."""
+
+
+def _terminated(signum, _frame):
+    raise Terminated(128 + signum)
+
+
+@contextlib.contextmanager
+def signals_held():
+    """SIGINT and SIGTERM wait (blocked, not lost) while the day's RUN.json is being closed and written, and arrive after it.
+    A cancel on GitHub Actions sends SIGINT and, a few seconds later, SIGTERM: the second must not cut the first one's
+    writing of the day file short."""
+    mask = getattr(signal, "pthread_sigmask", None)
+    if mask is None:
+        yield
+        return
+    old = mask(signal.SIG_BLOCK, {signal.SIGINT, signal.SIGTERM})
+    try:
+        yield
+    finally:
+        mask(signal.SIG_SETMASK, old)
+
+
 def door_calls(r):
     """The calls of a RUN.json that reached the door (the three of EXPECT). A row with a scene (mismatch, 2026-11-07) asked
     the gateway only: no record, nothing to settle, no cell in the index."""
@@ -499,8 +523,16 @@ def run(root, date, now=None, sleep=time.sleep):
     fd = os.open(pem, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(fd, "wb") as f:
         f.write(key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()))
-    record, call, sent = None, None, 0
+    record, call, sent, old_term = None, None, 0, None
     try:
+        # 2026-11-14. A stop from outside (Ctrl-C, or the SIGINT and then SIGTERM of a cancelled or timed out job) after a call
+        # was sent closes the day like any other raise (close_raised_day); before this, KeyboardInterrupt and SystemExit
+        # passed the except below and SIGTERM ended the process at once, so the day was not written and a later run made the
+        # calls again. Before any call is sent it still writes nothing and the stop goes on as before.
+        try:
+            old_term = signal.signal(signal.SIGTERM, _terminated)
+        except ValueError:                  # not the main thread: SIGTERM keeps its own handling
+            old_term = None
         record = {"schema": "seki-heartbeat-run-v0", "note": DISCLOSURE, "date": date, "day_rule": DAY_RULE, "contract_sha256": csha, "store": STORE,
                   "target": TARGET, "door_public_key_ed25519_b64": door_pub, "gateway": GATEWAY, "balance_before": bal, "door_furui_required": required,
                   "ran_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "calls": []}
@@ -511,16 +543,21 @@ def run(root, date, now=None, sleep=time.sleep):
             nonce = secrets.token_hex(16)
             req = A.build_action_request(contract, service, nonce, expiry, key, target=TARGET, amount=price)
             body = call_body(service, req, contract)
+            # 2026-11-14. The call's row (its nonce and request_sha256, the answer's fields null) and request_<service>.json are
+            # in place before the call is sent, so a call that gets no answer is still named by the day file; the answer
+            # fills the row. The row has the keys it always had.
+            call = {"service": service, "tickets": price, "request_sha256": hashlib.sha256(canonical(req).encode()).hexdigest(), "nonce": nonce,
+                    "status": None, "decision": None, "admission_sha256": None, "record_sha256": None, "published": None, "tickets_spent": None,
+                    "door_furui_required": required}
+            record["calls"].append(call)
+            with open(os.path.join(out, "request_%s.json" % service), "w", encoding="utf-8") as f:
+                f.write(canonical(req))
             sent += 1
             st, hd, rb = http("POST", "%s/report?store=%s&service=%s" % (GATEWAY, STORE, service), json.dumps(body),
                               {"content-type": "application/json", "x-store-token": token})
             hl = {k.lower(): v for k, v in hd.items()}
-            call = {"service": service, "tickets": price, "request_sha256": hashlib.sha256(canonical(req).encode()).hexdigest(), "nonce": nonce,
-                    "status": st, "decision": hl.get("x-seki-decision"), "admission_sha256": hl.get("x-seki-admission-sha256"),
-                    "record_sha256": hl.get("x-seki-record-sha256"), "published": hl.get("x-seki-published"), "tickets_spent": hl.get("x-tickets-spent"),
-                    "door_furui_required": required}
-            with open(os.path.join(out, "request_%s.json" % service), "w", encoding="utf-8") as f:
-                f.write(canonical(req))
+            call.update(status=st, decision=hl.get("x-seki-decision"), admission_sha256=hl.get("x-seki-admission-sha256"),
+                        record_sha256=hl.get("x-seki-record-sha256"), published=hl.get("x-seki-published"), tickets_spent=hl.get("x-tickets-spent"))
             check("%s: HTTP %d" % (service, want_status), st == want_status, (st, rb[:300]))
             rec = None
             if st == 200:
@@ -531,28 +568,53 @@ def run(root, date, now=None, sleep=time.sleep):
             rs = call["record_sha256"]
             check("%s: the door named its signed record (decision %s)" % (service, want_decision), call["decision"] == want_decision and isinstance(rs, str) and len(rs) == 64, call)
             if isinstance(rs, str) and len(rs) == 64:
-                gst, _, gb = http("GET", "%s/seki/record/%s" % (GATEWAY, rs))
+                # 2026-11-14. Every read after the call (the door's record, its parse and checks, the ledger) is a check: an
+                # error there fails the check and the run goes on, so an admitted call reaches its execution record whenever
+                # the door's record could be read. Before this, an error here left run() before the filing.
+                gst, gb = None, b""
+                for _ in range(3):
+                    try:
+                        gst, _, gb = http("GET", "%s/seki/record/%s" % (GATEWAY, rs))
+                    except Exception as e:
+                        gst, gb = "did not answer (%s)" % type(e).__name__, b""
+                    if gst == 200:
+                        break
+                    sleep(5)
                 check("%s: the door serves the record by its sha256" % service, gst == 200 and hashlib.sha256(gb).hexdigest() == rs, gst)
-                rec = parse_strict(gb.decode("utf-8"))
-                v = A.verify_admission(rec, door_pub, contract)
-                check("%s: the record verifies under the door's published key" % service, v.get("verdict") == "accepted", v)
-                judged, ck = judge_record(service, rec, want_decision, want_reasons, required)
-                for name, ok, detail in judged:
-                    check(name, ok, detail)
-                if isinstance(ck, list):
-                    call["content_checks"] = [{"runner_id": rid, "check_sha256": h} for rid, h in ck]
-                elif ck is not None:
-                    call["content_check_sha256"] = ck
-                with open(os.path.join(out, "admission_%s.json" % service), "w", encoding="utf-8") as f:
-                    f.write(gb.decode("utf-8"))
+                if gst == 200:
+                    try:
+                        rec = parse_strict(gb.decode("utf-8"))
+                        with open(os.path.join(out, "admission_%s.json" % service), "w", encoding="utf-8") as f:
+                            f.write(gb.decode("utf-8"))
+                    except Exception as e:
+                        rec = None
+                        check("%s: the door's record is read (%s)" % (service, type(e).__name__), False, str(e)[:200])
+                if rec is not None:
+                    try:
+                        v = A.verify_admission(rec, door_pub, contract)
+                        check("%s: the record verifies under the door's published key" % service, v.get("verdict") == "accepted", v)
+                        judged, ck = judge_record(service, rec, want_decision, want_reasons, required)
+                        for name, ok, detail in judged:
+                            check(name, ok, detail)
+                        if isinstance(ck, list):
+                            call["content_checks"] = [{"runner_id": rid, "check_sha256": h} for rid, h in ck]
+                        elif ck is not None:
+                            call["content_check_sha256"] = ck
+                    except Exception as e:
+                        check("%s: the record was checked (verify and judge)" % service, False, "%s: %s" % (type(e).__name__, str(e)[:200]))
                 lst = None
                 for _ in range(6):
-                    lst, _, _ = http("GET", "%s/admission/%s" % (LEDGER, rs))
+                    try:
+                        lst, _, _ = http("GET", "%s/admission/%s" % (LEDGER, rs))
+                    except Exception as e:
+                        lst = "did not answer (%s)" % type(e).__name__
                     if lst == 200:
                         break
-                    time.sleep(5)
+                    sleep(5)
                 check("%s: the ledger holds the record" % service, lst == 200, lst)
                 call["ledger_url"] = LEDGER + "/admission/" + rs
+            if st == 200 and rec is None:
+                check("%s: the execution record is made (it needs the door's record, which was not read, so it is not filed)" % service, False)
             if st == 200 and rec is not None:
                 e = peer_kit.make_exec(contract, pem, [service], call["report_sha256"], admitted=[(req, rec)])
                 etext = canonical(e)
@@ -564,20 +626,25 @@ def run(root, date, now=None, sleep=time.sleep):
                     f.write(etext)
                 call["execution_sha256"] = hashlib.sha256(etext.encode("utf-8")).hexdigest()
                 call["execution_url"] = AGREEMENT + "/execution/" + call["execution_sha256"]
-            record["calls"].append(call)
         record["result"] = "as expected" if not fails else "NOT as expected: " + "; ".join(fails)
         # the scene mismatch (see the note at MISMATCH): its failures are its own, so settle still reads the three calls
         scene, record["scene_result"] = mismatch_scene(contract, key, expiry, token, check)
         record["calls"].append(scene)
-        with open(os.path.join(out, "RUN.json"), "w", encoding="utf-8") as f:
-            f.write(json.dumps(record, indent=2, ensure_ascii=False) + "\n")
-    except Exception as e:
-        if not close_raised_day(record, call, sent, e, fails):
-            raise
-        print("NG   %s   <<< %s" % (fails[-1], str(e)[:300]))
-        with open(os.path.join(out, "RUN.json"), "w", encoding="utf-8") as f:
-            f.write(json.dumps(record, indent=2, ensure_ascii=False) + "\n")
+        with signals_held():
+            with open(os.path.join(out, "RUN.json"), "w", encoding="utf-8") as f:
+                f.write(json.dumps(record, indent=2, ensure_ascii=False) + "\n")
+    except BaseException as e:              # KeyboardInterrupt and SystemExit (Terminated) too: see the note at the handler
+        with signals_held():
+            closed = close_raised_day(record, call, sent, e, fails)
+            if closed:
+                print("NG   %s   <<< %s" % (fails[-1], str(e)[:300]))
+                with open(os.path.join(out, "RUN.json"), "w", encoding="utf-8") as f:
+                    f.write(json.dumps(record, indent=2, ensure_ascii=False) + "\n")
+        if not closed or not isinstance(e, Exception):
+            raise                           # a stop from outside goes on as a stop, the day written first
     finally:
+        if old_term is not None:
+            signal.signal(signal.SIGTERM, old_term)
         if os.path.exists(pem):
             os.unlink(pem)
         os.rmdir(tmp)
@@ -1348,7 +1415,8 @@ def _selftest():
     from cryptography.hazmat.primitives import serialization as _ser
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey as _K
     g = globals()
-    keep = {k: g[k] for k in ("http", "CONTRACT_PATH", "read_door_policy", "contract_on_file", "tip_height")}
+    keep = {k: g[k] for k in ("http", "CONTRACT_PATH", "read_door_policy", "contract_on_file", "tip_height", "close_raised_day")}
+    keep_verify, keep_term = A.verify_admission, signal.getsignal(signal.SIGTERM)
     kenv = {k: os.environ.get(k) for k in ("SEKI_AGENT_SEED_B64", "HSG_STORE_TOKEN")}
     seed = bytes(range(32))
     pub = base64.b64encode(_K.from_private_bytes(seed).public_key().public_bytes(_ser.Encoding.Raw, _ser.PublicFormat.Raw)).decode()
@@ -1395,16 +1463,184 @@ def _selftest():
             world(1)
             assert run(os.path.join(td, "b"), "2026-11-14", now=noon, sleep=slept.append) == 1 and len(posts) == 1
             rj = json.load(open(os.path.join(td, "b", "2026-11-14", "RUN.json"), encoding="utf-8"))
-            assert rj["calls"] == [] and rj["result"].endswith("the run raised TimeoutError after 1 of the day's calls were sent") and rj["scene_result"].startswith("not run: ")
+            assert [(c["service"], c["status"]) for c in rj["calls"]] == [("report", None)], "the row of the unanswered call is there (2026-11-14)"
+            assert rj["result"].endswith("the run raised TimeoutError after 1 of the day's calls were sent") and rj["scene_result"].startswith("not run: ")
             assert run(os.path.join(td, "b"), "2026-11-14", now=noon, sleep=slept.append) == 1 and len(posts) == 1, "already ran: no second call"
             # (c) the first call is answered and judged (here: not as expected), the second gets no answer: the first is kept
             world(2)
             assert run(os.path.join(td, "c"), "2026-11-14", now=noon, sleep=slept.append) == 1 and len(posts) == 2
             rj = json.load(open(os.path.join(td, "c", "2026-11-14", "RUN.json"), encoding="utf-8"))
-            assert [c["service"] for c in rj["calls"]] == ["report"] and rj["calls"][0]["status"] == 403 and "after 2 of the day's calls were sent" in rj["result"]
-            assert not os.path.exists(os.path.join(td, "c", "2026-11-14", "request_audit.json")) and os.path.exists(os.path.join(td, "c", "2026-11-14", "request_report.json"))
+            assert [(c["service"], c["status"]) for c in rj["calls"]] == [("report", 403), ("audit", None)] and "after 2 of the day's calls were sent" in rj["result"]
+            assert os.path.exists(os.path.join(td, "c", "2026-11-14", "request_audit.json")) and os.path.exists(os.path.join(td, "c", "2026-11-14", "request_report.json"))
+            assert not os.path.exists(os.path.join(td, "c", "2026-11-14", "request_compare.json"))
+
+            # 2026-11-14: a world where the door answers as expected; faults[(what, service)] puts one fault in it
+            recs, filed = {}, []
+            for sv, _p, dc, rr, _st in EXPECT:
+                t = canonical({"schema": "a2a-admission-v0", "decision": dc, "reasons": rr, "test": sv})
+                recs[sv] = (t.encode(), hashlib.sha256(t.encode()).hexdigest())
+            by_sha = {h: sv for sv, (_t, h) in recs.items()}
+
+            def act(f):
+                if f == "sigterm":
+                    os.kill(os.getpid(), signal.SIGTERM)
+                    time.sleep(0.2)
+                    raise AssertionError("SIGTERM was not raised in the call")
+                if isinstance(f, BaseException):
+                    raise f
+                return f()
+
+            def world2(faults=None, tip_fault=None):
+                faults = dict(faults or {})
+                del posts[:], filed[:]
+
+                def tip():
+                    if tip_fault is not None:
+                        act(tip_fault)
+                    return 900000
+
+                def fake(method, url, body=None, headers=None, timeout=120):
+                    if "/balance?" in url:
+                        return 200, {}, b'{"tickets": 50}'
+                    if method == "POST" and "/report?" in url:
+                        sv = url.rsplit("service=", 1)[1]
+                        posts.append(sv)
+                        if ("post", sv) in faults:
+                            return act(faults[("post", sv)])
+                        t, h = recs[sv]
+                        if sv == "report":
+                            return 200, {"X-Seki-Decision": "admit", "X-Seki-Record-Sha256": h, "X-Seki-Admission-Sha256": "ab" * 32, "X-Tickets-Spent": "20"}, b"%PDF-1.7 test"
+                        return 403, {"X-Seki-Decision": "refuse", "X-Seki-Record-Sha256": h}, b'{"error":"refused"}'
+                    if method == "GET" and url.startswith(GATEWAY + "/seki/record/"):
+                        sv = by_sha[url.rsplit("/", 1)[1]]
+                        f = faults.get(("record", sv))
+                        if isinstance(f, list):
+                            f = f.pop(0) if f else None
+                        if f is not None:
+                            return act(f)
+                        return 200, {}, recs[sv][0]
+                    if method == "GET" and url.startswith(LEDGER + "/admission/"):
+                        sv = by_sha[url.rsplit("/", 1)[1]]
+                        if ("ledger", sv) in faults:
+                            return act(faults[("ledger", sv)])
+                        return 200, {}, b"{}"
+                    if method == "POST" and url == AGREEMENT + "/execution":
+                        filed.append(hashlib.sha256(body).hexdigest())
+                        return 201, {}, b'{"verdict":"accepted"}'
+                    if method == "GET" and url == GATEWAY + "/health":
+                        return 404, {}, b""
+                    raise AssertionError("an unexpected call in the test: %s %s" % (method, url))
+
+                def verify(rec, pub_, c):
+                    if ("verify", rec.get("test")) in faults:
+                        act(faults[("verify", rec.get("test"))])
+                    return {"verdict": "accepted"}
+                g["http"], g["tip_height"] = fake, tip
+                A.verify_admission = verify
+
+            def day(root):
+                d = os.path.join(td, root, "2026-11-14")
+                return json.load(open(os.path.join(d, "RUN.json"), encoding="utf-8")), d
+
+            def stop(root, want):
+                try:
+                    run(os.path.join(td, root), "2026-11-14", now=noon, sleep=slept.append)
+                except want as x:
+                    return x
+                raise AssertionError("run() did not stop with %s" % want.__name__)
+
+            def guard(signum, _frame):
+                raise RuntimeError("SIGTERM reached the test, not run()")
+            signal.signal(signal.SIGTERM, guard)
+            world2()
+            assert run(os.path.join(td, "ok"), "2026-11-14", now=noon, sleep=slept.append) == 0 and posts == ["report", "audit", "compare"] and len(filed) == 1
+            rok, dok = day("ok")
+            assert rok["result"] == "as expected" and [c["status"] for c in door_calls(rok)] == [200, 403, 403] and door_calls(rok)[0]["execution_sha256"] == filed[0]
+            assert signal.getsignal(signal.SIGTERM) is guard, "run() gives SIGTERM back as it found it"
+            ROW = set(door_calls(rok)[1]) - {"ledger_url"}
+            n += 1; print("[21] a stop from outside after a call was sent (KeyboardInterrupt, SystemExit, SIGTERM, and SIGTERM again while the day is "
+                          "being written) closes the day as NOT as expected, writes it, and stops; the next run spends nothing; a stop before any call writes nothing")
+            for root, fault, want, name in (("ki", KeyboardInterrupt(), KeyboardInterrupt, "KeyboardInterrupt"), ("se", SystemExit(3), SystemExit, "SystemExit"),
+                                            ("term", "sigterm", Terminated, "Terminated")):
+                world2({("post", "audit"): fault})
+                x = stop(root, want)
+                rj, dd = day(root)
+                assert posts == ["report", "audit"] and len(filed) == 1, (root, posts, filed)
+                assert rj["result"].startswith("NOT as expected") and rj["result"].endswith("the run raised %s after 2 of the day's calls were sent" % name), (root, rj["result"])
+                assert [(c["service"], c["status"]) for c in rj["calls"]] == [("report", 200), ("audit", None)] and rj["calls"][0]["execution_sha256"] == filed[0]
+                assert os.path.exists(os.path.join(dd, "request_audit.json")) and os.path.exists(os.path.join(dd, "execution_report.json"))
+                assert signal.getsignal(signal.SIGTERM) is guard, root
+                if root == "se":
+                    assert x.code == 3
+                if root == "term":
+                    assert x.code == 128 + signal.SIGTERM
+                assert run(os.path.join(td, root), "2026-11-14", now=noon, sleep=slept.append) == 1 and posts == ["report", "audit"], "already ran: no second call"
+            # a cancel on Actions: SIGINT, and SIGTERM while the day is being closed: the day is written in full, then the stop goes on
+            orig_close = keep["close_raised_day"]
+
+            def close_then_term(*a):
+                os.kill(os.getpid(), signal.SIGTERM)
+                time.sleep(0.2)
+                return orig_close(*a)
+            world2({("post", "compare"): KeyboardInterrupt()})
+            g["close_raised_day"] = close_then_term
+            try:
+                x = stop("ki2", (KeyboardInterrupt, Terminated))
+            finally:
+                g["close_raised_day"] = orig_close
+            assert isinstance(x, Terminated), "the SIGTERM waited until the day was written, then stopped the run"
+            rj, dd = day("ki2")
+            assert rj["result"].endswith("the run raised KeyboardInterrupt after 3 of the day's calls were sent") and [c["status"] for c in rj["calls"]] == [200, 403, None]
+            assert run(os.path.join(td, "ki2"), "2026-11-14", now=noon, sleep=slept.append) == 1 and posts == ["report", "audit", "compare"]
+            # before any call: the stop goes on and nothing is written, so a later run can still make the calls
+            for root, fault, want in (("ki0", KeyboardInterrupt(), KeyboardInterrupt), ("term0", "sigterm", Terminated)):
+                world2(tip_fault=fault)
+                stop(root, want)
+                assert posts == [] and not os.path.exists(os.path.join(td, root, "2026-11-14", "RUN.json")) and signal.getsignal(signal.SIGTERM) is guard
+            n += 1; print("[22] a call that gets no answer is named by the day file: its row (nonce, request_sha256, the answer's fields null, the keys a row "
+                          "always has) and request_<service>.json are written before it is sent; settle, the index and door_calls read such a day")
+            world2({("post", "report"): TimeoutError("the gateway did not answer")})
+            assert run(os.path.join(td, "h2"), "2026-11-14", now=noon, sleep=slept.append) == 1 and posts == ["report"] and filed == []
+            rj, dd = day("h2")
+            assert set(rj) == set(rok), "no new key in the day's record"
+            row = rj["calls"][0]
+            assert len(rj["calls"]) == 1 and set(row) == ROW, (set(row) ^ ROW)
+            assert row["status"] is None and row["decision"] is None and row["record_sha256"] is None and row["tickets_spent"] is None
+            assert len(row["nonce"]) == 32 and set(row["nonce"]) <= H64 and is_h64(row["request_sha256"])
+            rq = open(os.path.join(dd, "request_report.json"), encoding="utf-8").read()
+            assert hashlib.sha256(rq.encode()).hexdigest() == row["request_sha256"] and json.loads(rq)["nonce"] == row["nonce"]
+            assert door_calls(rj) == [row] and settle_day(dd, cj, os.path.join(td, "nochunks")) == "skip (the run itself failed; nothing to settle)"
+            write_index(os.path.join(td, "h2"))
+            assert "| 2026-11-14 | ? " in open(os.path.join(td, "h2", "README.md"), encoding="utf-8").read()
+            assert run(os.path.join(td, "h2"), "2026-11-14", now=noon, sleep=slept.append) == 1 and posts == ["report"], "already ran: no second call"
+            n += 1; print("[23] the reads after an admitted call (the door's record, its parse, verify and judge, the ledger) fail a check when they raise and the "
+                          "run goes on: the execution record is filed whenever the door's record was read, the day is written NOT as expected, audit and compare are still called")
+            for root, faults, filed_n, why in (
+                    ("rec1", {("record", "report"): [OSError("reset"), OSError("reset")]}, 1, None),
+                    ("rec3", {("record", "report"): [OSError("reset")] * 3}, 0, "report: the door serves the record by its sha256"),
+                    ("parse", {("record", "report"): [lambda: (200, {}, b"{not json")]}, 0, "report: the door's record is read ("),
+                    ("verify", {("verify", "report"): ValueError("bad signature block")}, 1, "report: the record was checked (verify and judge)"),
+                    ("ledger", {("ledger", "report"): OSError("no route")}, 1, "report: the ledger holds the record"),
+                    ("ledger_a", {("ledger", "audit"): OSError("no route")}, 1, "audit: the ledger holds the record")):
+                world2(faults)
+                del slept[:]
+                assert run(os.path.join(td, root), "2026-11-14", now=noon, sleep=slept.append) == (0 if why is None else 1), root
+                rj, dd = day(root)
+                assert posts == ["report", "audit", "compare"] and len(filed) == filed_n, (root, posts, filed)
+                assert [c["status"] for c in door_calls(rj)] == [200, 403, 403] and rj["calls"][-1].get("scene") == "mismatch"
+                if why is None:
+                    assert rj["result"] == "as expected" and slept == [5, 5], (root, slept)
+                    continue
+                assert rj["result"].startswith("NOT as expected: ") and why in rj["result"], (root, rj["result"])
+                assert "the run raised" not in rj["result"], (root, rj["result"])
+                if filed_n:
+                    assert door_calls(rj)[0]["execution_sha256"] == filed[0] and os.path.exists(os.path.join(dd, "execution_report.json"))
+                else:
+                    assert "report: the execution record is made (it needs the door's record" in rj["result"] and not os.path.exists(os.path.join(dd, "execution_report.json"))
     finally:
         g.update(keep)
+        A.verify_admission = keep_verify
+        signal.signal(signal.SIGTERM, keep_term)
         for k, v in kenv.items():
             if v is None:
                 os.environ.pop(k, None)
@@ -1412,7 +1648,8 @@ def _selftest():
                 os.environ[k] = v
     rsrc = inspect.getsource(run)
     assert rsrc.index("sent += 1") < rsrc.index('st, hd, rb = http("POST", "%s/report?store=%s&service=%s"') and rsrc.count("sent += 1") == 1
-    assert rsrc.count("if not close_raised_day(record, call, sent, e, fails):\n            raise\n") == 1
+    assert rsrc.index('record["calls"].append(call)') < rsrc.index("sent += 1") and rsrc.count('record["calls"].append(call)') == 1
+    assert rsrc.count("except BaseException as e:") == 1 and rsrc.count("closed = close_raised_day(record, call, sent, e, fails)") == 1
     print("ALL PASS (seki heartbeat: %d checks)" % n)
 
 
