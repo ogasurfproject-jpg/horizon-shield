@@ -1,0 +1,13 @@
+# souba-split-commit-v0
+
+created_at: 2026-11-12T07:27:58Z
+label: SOUBA_SPLIT_V0
+base_commit: 1af5346382bda174799af5ad4c870c81be467fdd
+pages_list_sha256: 8b3d6055e431796bfc5918c24f247786cb9e40270b2c663b13d700281a6f1508
+salt_sha256: d988fc62066f1748e3df649645fb018dc86c24f12b19da245cfd8efc8d1376e7
+draw_rule: per stratum, rank = sha256(salt|block|label|slug) ascending; the first ceil(n/2) are first, the rest later
+block_rule: the hash of the Bitcoin block right after the block that confirms the ledger entry of this record (height + 1)
+
+This entry fixes, before the draw, the list of price pages to be split, the salt (by its sha256) and the rule.
+Establishes: that the list and the salt with these sha256 existed no later than the block this entry is anchored to.
+Does not establish: anything about the effect of the change on the pages.

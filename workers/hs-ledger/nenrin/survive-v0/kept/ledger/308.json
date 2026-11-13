@@ -1,0 +1,12 @@
+{
+  "n": 308,
+  "work": "souba-split-commit-v0",
+  "claim_sha256": "ad49025dcfd179e206744c5a00473a57da9bdd10ecbbf6bc4c96d8af3db488f4",
+  "record_canonical": "# souba-split-commit-v0\n\ncreated_at: 2026-11-12T07:27:58Z\nlabel: SOUBA_SPLIT_V0\nbase_commit: 1af5346382bda174799af5ad4c870c81be467fdd\npages_list_sha256: 8b3d6055e431796bfc5918c24f247786cb9e40270b2c663b13d700281a6f1508\nsalt_sha256: d988fc62066f1748e3df649645fb018dc86c24f12b19da245cfd8efc8d1376e7\ndraw_rule: per stratum, rank = sha256(salt|block|label|slug) ascending; the first ceil(n/2) are first, the rest later\nblock_rule: the hash of the Bitcoin block right after the block that confirms the ledger entry of this record (height + 1)\n\nThis entry fixes, before the draw, the list of price pages to be split, the salt (by its sha256) and the rule.\nEstablishes: that the list and the salt with these sha256 existed no later than the block this entry is anchored to.\nDoes not establish: anything about the effect of the change on the pages.\n",
+  "schema": "v0-plain",
+  "created_at": "2026-11-12T07:29:00.205Z",
+  "ots_status": "confirmed",
+  "bitcoin_block": 975532,
+  "block_time": "2026-11-12 08:26 UTC",
+  "stamped_at": "2026-11-12T11:10:48.703Z"
+}
