@@ -379,6 +379,58 @@ def contract_on_file(ctext, post=None):
     return ok, (st, (b or "")[:300])
 
 
+FILE_TRIES, FILE_WAIT = 4, 15
+
+
+def file_execution(etext, post=None, sleep=time.sleep, tries=FILE_TRIES, wait=FILE_WAIT):
+    """(ok, detail, attempts): the execution record is on file at the agreement intake. The paid call is already made when
+    this is asked, so an answer that may pass (no answer, 408, 429, a 5xx) is asked again, up to `tries` times, `wait`
+    seconds apart, with the same bytes; the intake takes a record it already holds as a dedup, so a repeat cannot file it
+    twice. A refusal (any other 4xx, for example 409 contract_not_filed or 422) is final and not asked again. It never
+    raises: http() raises when the intake does not answer, and before this function that left run() after the paid call and
+    before RUN.json was written, so the day would have had a call and no day file. The day's record keeps its shape."""
+    post = post or (lambda u, body: http("POST", u, body, {"content-type": "application/json"}))
+    body, detail, n = etext.encode("utf-8"), None, 0
+    while n < max(1, tries):
+        n += 1
+        try:
+            st, _h, b = post(AGREEMENT + "/execution", body)
+        except Exception as e:
+            st, b, detail = None, "", "POST /execution did not answer (%s)" % type(e).__name__
+        else:
+            j = jl(b) or {}
+            if st in (201, 409) and isinstance(j, dict) and (j.get("verdict") == "accepted" or j.get("dedup") is True):
+                return True, (st, (b or "")[:300]), n
+            detail = (st, (b or "")[:300])
+        if not (st is None or st in (408, 429) or (isinstance(st, int) and 500 <= st <= 599)) or n >= max(1, tries):
+            break
+        sleep(wait)
+    return False, detail, n
+
+
+def close_raised_day(record, call, sent, err, fails):
+    """True when run() raised after a call was sent, and then `record` is made ready to be written as the day's RUN.json.
+
+    Before this, an error between the first call and RUN.json (the gateway, the ledger or the chain tip not answering)
+    left the day's folder without RUN.json: the next run for the day made the calls again, so a paid call could be made
+    twice, and the first one was named by no day file and so was seen by no later check. Now such a day is closed as
+    NOT as expected with the calls it holds, like any other failed day, and "nothing is spent twice" holds.
+    When nothing was sent (sent == 0) it returns False and changes nothing: run() raises as before, the day is not
+    written, and a later run can still make the calls. The record gets no new key."""
+    if not sent or not isinstance(record, dict):
+        return False
+    if call is not None and all(c is not call for c in record["calls"]):
+        record["calls"].append(call)
+    why = "the run raised %s after %d of the day's calls were sent" % (type(err).__name__, sent)
+    fails.append(why)
+    if "result" not in record:
+        record["result"] = "NOT as expected: " + "; ".join(fails)
+        record.setdefault("scene_result", "not run: " + why)
+    else:                                   # the three calls were judged; it was the scene mismatch that raised
+        record["scene_result"] = "NOT as expected: " + why
+    return True
+
+
 def door_calls(r):
     """The calls of a RUN.json that reached the door (the three of EXPECT). A row with a scene (mismatch, 2026-11-07) asked
     the gateway only: no record, nothing to settle, no cell in the index."""
@@ -447,6 +499,7 @@ def run(root, date, now=None, sleep=time.sleep):
     fd = os.open(pem, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(fd, "wb") as f:
         f.write(key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()))
+    record, call, sent = None, None, 0
     try:
         record = {"schema": "seki-heartbeat-run-v0", "note": DISCLOSURE, "date": date, "day_rule": DAY_RULE, "contract_sha256": csha, "store": STORE,
                   "target": TARGET, "door_public_key_ed25519_b64": door_pub, "gateway": GATEWAY, "balance_before": bal, "door_furui_required": required,
@@ -458,6 +511,7 @@ def run(root, date, now=None, sleep=time.sleep):
             nonce = secrets.token_hex(16)
             req = A.build_action_request(contract, service, nonce, expiry, key, target=TARGET, amount=price)
             body = call_body(service, req, contract)
+            sent += 1
             st, hd, rb = http("POST", "%s/report?store=%s&service=%s" % (GATEWAY, STORE, service), json.dumps(body),
                               {"content-type": "application/json", "x-store-token": token})
             hl = {k.lower(): v for k, v in hd.items()}
@@ -502,9 +556,10 @@ def run(root, date, now=None, sleep=time.sleep):
             if st == 200 and rec is not None:
                 e = peer_kit.make_exec(contract, pem, [service], call["report_sha256"], admitted=[(req, rec)])
                 etext = canonical(e)
-                est, _, eb = http("POST", AGREEMENT + "/execution", etext.encode("utf-8"), {"content-type": "application/json"})
-                ej = jl(eb) or {}
-                check("%s: the execution record naming the admission is filed" % service, est in (201, 409) and (ej.get("verdict") == "accepted" or ej.get("dedup") is True), (est, eb[:300]))
+                filed, fdetail, ftries = file_execution(etext, sleep=sleep)
+                check("%s: the execution record naming the admission is filed" % service, filed, (fdetail, "asked %d times" % ftries))
+                if filed and ftries > 1:
+                    print("  note %s: the execution record was filed on try %d of %d" % (service, ftries, FILE_TRIES))
                 with open(os.path.join(out, "execution_%s.json" % service), "w", encoding="utf-8") as f:
                     f.write(etext)
                 call["execution_sha256"] = hashlib.sha256(etext.encode("utf-8")).hexdigest()
@@ -514,6 +569,12 @@ def run(root, date, now=None, sleep=time.sleep):
         # the scene mismatch (see the note at MISMATCH): its failures are its own, so settle still reads the three calls
         scene, record["scene_result"] = mismatch_scene(contract, key, expiry, token, check)
         record["calls"].append(scene)
+        with open(os.path.join(out, "RUN.json"), "w", encoding="utf-8") as f:
+            f.write(json.dumps(record, indent=2, ensure_ascii=False) + "\n")
+    except Exception as e:
+        if not close_raised_day(record, call, sent, e, fails):
+            raise
+        print("NG   %s   <<< %s" % (fails[-1], str(e)[:300]))
         with open(os.path.join(out, "RUN.json"), "w", encoding="utf-8") as f:
             f.write(json.dumps(record, indent=2, ensure_ascii=False) + "\n")
     finally:
@@ -1233,6 +1294,125 @@ def _selftest():
     assert src.count("contract_on_file(") == 1 and 'AGREEMENT + "/contract"' not in src
     assert i_ask < i_dir < i_call < i_run, "the contract is asked for before the folder, the first call and the day file"
     assert src[i_ask:i_dir].count("return 1") == 1, "a contract that is not on file returns before the folder is made"
+    n += 1; print("[19] the execution record is filed after the call: an answer that may pass (no answer, 408, 429, 5xx) is asked again with the same bytes, "
+                  "up to %d times; a refusal is final; a dedup counts as filed; it never raises" % FILE_TRIES)
+    ex = '{"schema":"x","n":1}'
+
+    def seq(answers, log, naps):
+        it = iter(answers)
+
+        def post(u, b):
+            log.append((u, hashlib.sha256(b).hexdigest()))
+            a = next(it)
+            if a is None:
+                raise TimeoutError("no answer")
+            return a[0], {}, a[1]
+        return post, (lambda s: naps.append(s))
+    OKB, DUP = '{"verdict":"accepted"}', '{"dedup":true}'
+    for answers, want_ok, want_tries, want_naps in (
+            ([(201, OKB)], True, 1, 0), ([(409, DUP)], True, 1, 0),
+            ([(500, "x"), (503, "x"), (201, OKB)], True, 3, 2), ([None, (201, OKB)], True, 2, 1), ([(429, "slow"), (408, ""), None, (409, DUP)], True, 4, 3),
+            ([(502, "x")] * 4, False, 4, 3), ([None] * 4, False, 4, 3),
+            ([(409, '{"error":"contract_not_filed"}'), (201, OKB)], False, 1, 0), ([(422, '{"error":"x"}'), (201, OKB)], False, 1, 0),
+            ([(400, "bad"), (201, OKB)], False, 1, 0), ([(201, '{"verdict":"refused"}'), (201, OKB)], False, 1, 0), ([(200, OKB), (201, OKB)], False, 1, 0),
+            ([(201, "[1]"), (201, OKB)], False, 1, 0)):
+        log, naps = [], []
+        post, nap = seq(answers, log, naps)
+        ok_, det, tr = file_execution(ex, post, nap)
+        assert (ok_, tr, len(naps)) == (want_ok, want_tries, want_naps), (answers, ok_, tr, naps)
+        assert set(log) == {(AGREEMENT + "/execution", hashlib.sha256(ex.encode()).hexdigest())} and len(log) == want_tries   # the same bytes every time
+        assert all(s == FILE_WAIT for s in naps)
+        assert want_ok or det is not None
+    log, naps = [], []
+    post, nap = seq([(500, "x")] * 2, log, naps)
+    assert file_execution(ex, post, nap, tries=2)[2] == 2 and len(naps) == 1          # the last try is not followed by a wait
+    rsrc = inspect.getsource(run)
+    assert rsrc.count("file_execution(etext, sleep=sleep)") == 1 and 'AGREEMENT + "/execution"' not in rsrc.replace('AGREEMENT + "/execution/"', "")
+    assert rsrc.index("file_execution(etext") < rsrc.index('"RUN.json"), "w"'), "the day file is written after the filing, whatever its answer"
+    assert "execution_filing" not in rsrc, "the day's record keeps its shape"
+    n += 1; print("[20] a run that raises after a call was sent closes the day as NOT as expected with the calls it holds, so nothing is spent twice; "
+                  "a run that raises before any call is sent writes nothing and raises as before")
+    E = TimeoutError("x")
+    r0 = {"calls": []}
+    assert close_raised_day(r0, None, 0, E, []) is False and r0 == {"calls": []} and close_raised_day(None, None, 2, E, []) is False
+    c1, c2 = {"service": "report"}, {"service": "audit"}
+    r1, f1 = {"calls": [c1]}, ["report: HTTP 200"]
+    assert close_raised_day(r1, c2, 2, E, f1) is True and r1["calls"] == [c1, c2] and len(f1) == 2
+    assert r1["result"] == "NOT as expected: report: HTTP 200; the run raised TimeoutError after 2 of the day's calls were sent" and r1["scene_result"].startswith("not run: ")
+    r2, f2 = {"calls": [c1]}, []
+    assert close_raised_day(r2, c1, 1, E, f2) is True and r2["calls"] == [c1] and r2["result"].startswith("NOT as expected: the run raised")   # not appended twice
+    r3, f3 = {"calls": [c1, c2], "result": "as expected"}, []
+    assert close_raised_day(r3, c2, 3, E, f3) is True and r3["result"] == "as expected" and r3["scene_result"].startswith("NOT as expected: the run raised") and f3
+    assert set(r1) == {"calls", "result", "scene_result"}, "no new key"
+    # run() itself, offline: a made-up contractor key, the questions before the calls answered, then the gateway stops answering
+    from cryptography.hazmat.primitives import serialization as _ser
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey as _K
+    g = globals()
+    keep = {k: g[k] for k in ("http", "CONTRACT_PATH", "read_door_policy", "contract_on_file", "tip_height")}
+    kenv = {k: os.environ.get(k) for k in ("SEKI_AGENT_SEED_B64", "HSG_STORE_TOKEN")}
+    seed = bytes(range(32))
+    pub = base64.b64encode(_K.from_private_bytes(seed).public_key().public_bytes(_ser.Encoding.Raw, _ser.PublicFormat.Raw)).decode()
+    cj = json.loads(open(CONTRACT_PATH, encoding="utf-8").read())
+    for pty in cj["parties"]:
+        if pty["role"] == "contractor":
+            pty["public_key_ed25519_b64"] = pub
+    noon = datetime.datetime(2026, 11, 14, 12, 0, 0, tzinfo=U)
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            cp = os.path.join(td, "contract.json")
+            open(cp, "w", encoding="utf-8").write(canonical(cj))
+            os.environ["SEKI_AGENT_SEED_B64"], os.environ["HSG_STORE_TOKEN"] = base64.b64encode(seed).decode(), "t"
+            g["CONTRACT_PATH"], g["read_door_policy"], g["contract_on_file"] = cp, (lambda: (False, None)), (lambda ctext: (True, "x"))
+            posts = []
+
+            def world(fail_at, tip_ok=True):
+                del posts[:]
+
+                def tip():
+                    if not tip_ok:
+                        raise OSError("no tip")
+                    return 900000
+
+                def fake(method, url, body=None, headers=None, timeout=120):
+                    if "/balance?" in url:
+                        return 200, {}, b'{"tickets": 50}'
+                    if method == "POST" and "/report?" in url:
+                        posts.append(url)
+                        if len(posts) >= fail_at:
+                            raise TimeoutError("the gateway did not answer")
+                        return 403, {"x-seki-decision": "refuse"}, b"{}"
+                    raise AssertionError("an unexpected call in the test: %s %s" % (method, url))
+                g["http"], g["tip_height"] = fake, tip
+            # (a) the chain tip does not answer: nothing was sent, so run() raises and the day is not written
+            world(1, tip_ok=False)
+            try:
+                run(os.path.join(td, "a"), "2026-11-14", now=noon, sleep=slept.append)
+                raise AssertionError("run() must raise when nothing was sent")
+            except OSError:
+                pass
+            assert posts == [] and not os.path.exists(os.path.join(td, "a", "2026-11-14", "RUN.json"))
+            # (b) the first call gets no answer: it may have been spent, so the day is closed and a second run spends nothing
+            world(1)
+            assert run(os.path.join(td, "b"), "2026-11-14", now=noon, sleep=slept.append) == 1 and len(posts) == 1
+            rj = json.load(open(os.path.join(td, "b", "2026-11-14", "RUN.json"), encoding="utf-8"))
+            assert rj["calls"] == [] and rj["result"].endswith("the run raised TimeoutError after 1 of the day's calls were sent") and rj["scene_result"].startswith("not run: ")
+            assert run(os.path.join(td, "b"), "2026-11-14", now=noon, sleep=slept.append) == 1 and len(posts) == 1, "already ran: no second call"
+            # (c) the first call is answered and judged (here: not as expected), the second gets no answer: the first is kept
+            world(2)
+            assert run(os.path.join(td, "c"), "2026-11-14", now=noon, sleep=slept.append) == 1 and len(posts) == 2
+            rj = json.load(open(os.path.join(td, "c", "2026-11-14", "RUN.json"), encoding="utf-8"))
+            assert [c["service"] for c in rj["calls"]] == ["report"] and rj["calls"][0]["status"] == 403 and "after 2 of the day's calls were sent" in rj["result"]
+            assert not os.path.exists(os.path.join(td, "c", "2026-11-14", "request_audit.json")) and os.path.exists(os.path.join(td, "c", "2026-11-14", "request_report.json"))
+    finally:
+        g.update(keep)
+        for k, v in kenv.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+    rsrc = inspect.getsource(run)
+    assert rsrc.index("sent += 1") < rsrc.index('st, hd, rb = http("POST", "%s/report?store=%s&service=%s"') and rsrc.count("sent += 1") == 1
+    assert rsrc.count("if not close_raised_day(record, call, sent, e, fails):\n            raise\n") == 1
     print("ALL PASS (seki heartbeat: %d checks)" % n)
 
 
