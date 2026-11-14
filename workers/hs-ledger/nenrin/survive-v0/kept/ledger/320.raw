@@ -1,0 +1,8 @@
+# pages-prereg-commit-v0
+
+created_at: 2026-11-14T01:31:12Z
+prereg_document_sha256: 2cbc330ba691e1407d59ef3a590df101356ec962cf3272b5c3aa885a7deed0ed
+
+This entry fixes the sha256 of a pre-registration document written before the treatment it describes. The document stays private until it is published; anyone given it can recompute the sha256 above.
+Establishes: that a document with this sha256 existed no later than the block this entry is anchored to.
+Does not establish: anything about the content of the document before it is published.

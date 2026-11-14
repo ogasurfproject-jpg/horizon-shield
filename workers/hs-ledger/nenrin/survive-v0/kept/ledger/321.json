@@ -1,0 +1,15 @@
+{
+  "n": 321,
+  "work": "souba-split-eval-v0",
+  "claim_sha256": "91f2658fcc1533bbb1ab465725f9d56aad1d23f900455970ebd2fe3e2d647225",
+  "record_canonical": "# souba-split-eval-v0\n\nrule_sha256: 40419375b41f55de1def5028592c1df76b0f0e5a4a6c43a885c78887cca61d94\nrule_file_time_jst: 2026-11-11\npublish_entry: 314\npublish_claim_sha256: 9775ffe8f291b77ba5a33d17a37307a3cb2c3f36d3daa5e89e7487f3de7366ff\nsplit_entry: 308\ndraw_block: 975533\nd_jst: 2026-11-14\npre_window_jst: 2026-10-31 to 2026-11-13\npost_window_jst: 2026-11-15 to 2026-11-28\nread_not_before_jst: 2026-12-01\nlater_half_not_before_jst: 2026-11-29\npages_list_sha256: 8b3d6055e431796bfc5918c24f247786cb9e40270b2c663b13d700281a6f1508\nprimary_n: 127\nprimary_list_sha256: 21b2982a2842266d4b01bcdc308bf1f5ddc5da25fcbb16525d91b6e8735d3f38\nprimary_first_n: 73\nprimary_later_n: 54\nprimary_range_first_first_n: 11\nprimary_range_first_later_n: 5\nprimary_later_changed_by_corrections_n: 23\nindexnow_urls_n: 144\nindexnow_urls_sha256: c836a717c1bad0fee23cd041590368c3a853977478a2a3ed29cc61922253b8ed\nindexnow_primary_first_n: 73\nindexnow_primary_later_n: 23\n\nThis entry fixes how the split of entry 308 will be read: the rule file by its sha256, the day the pages went out,\nthe two windows, and the list of pages that count.\nIt was written after the draw and after the pages went out, and before the first day of the post window.\nThe rule file was not anchored before the draw; its file time is 2026-11-11.\nPages changed by the commit were announced to Bing through IndexNow, so a first-half page differs from a later-half\npage in its form and in having been announced. The rule cannot separate the two.\nEstablishes: that the rule file with this sha256 and this list of pages existed no later than the block this entry is anchored to.\nDoes not establish: that the rule was written before the draw, or anything about the effect of the change.\n",
+  "schema": "v0-plain",
+  "created_at": "2026-11-14T03:03:02.076Z",
+  "ots_status": "pending",
+  "bitcoin_block": null,
+  "block_time": null,
+  "stamped_at": "2026-11-14T03:03:13.256Z",
+  "pending_stage": "fresh",
+  "pending_hours": 0,
+  "pending_stale_after_hours": 6
+}

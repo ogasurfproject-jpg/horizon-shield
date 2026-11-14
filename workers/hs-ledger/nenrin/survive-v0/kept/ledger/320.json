@@ -1,0 +1,15 @@
+{
+  "n": 320,
+  "work": "pages-prereg-commit-v0",
+  "claim_sha256": "2a70a72f5105f4949ca52bb8895364431fa3461d31f2ec06924513bd05689488",
+  "record_canonical": "# pages-prereg-commit-v0\n\ncreated_at: 2026-11-14T01:31:12Z\nprereg_document_sha256: 2cbc330ba691e1407d59ef3a590df101356ec962cf3272b5c3aa885a7deed0ed\n\nThis entry fixes the sha256 of a pre-registration document written before the treatment it describes. The document stays private until it is published; anyone given it can recompute the sha256 above.\nEstablishes: that a document with this sha256 existed no later than the block this entry is anchored to.\nDoes not establish: anything about the content of the document before it is published.\n",
+  "schema": "v0-plain",
+  "created_at": "2026-11-14T01:31:52.948Z",
+  "ots_status": "pending",
+  "bitcoin_block": null,
+  "block_time": null,
+  "stamped_at": "2026-11-14T01:37:00.143Z",
+  "pending_stage": "fresh",
+  "pending_hours": 1,
+  "pending_stale_after_hours": 6
+}

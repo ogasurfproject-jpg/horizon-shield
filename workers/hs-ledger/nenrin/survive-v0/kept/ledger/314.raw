@@ -1,0 +1,48 @@
+# souba-publish-v0
+
+published_jst: 2026-11-14
+commit: 823e1911ee1a4727d8188d7c910f4583a89ec3e0
+split_entry: 308
+split_claim_sha256: ad49025dcfd179e206744c5a00473a57da9bdd10ecbbf6bc4c96d8af3db488f4
+split_entry_block: 975532
+draw_block: 975533
+draw_block_hash: 0000000000000000000040645635b8a06e97b6dd5f8659f74e8cfe0273061f28
+manifest_sha256: 18db13e8ab9761027a248daa7421446c51375fadf94dc06f607e0e48412372f2
+pages_list_sha256: 8b3d6055e431796bfc5918c24f247786cb9e40270b2c663b13d700281a6f1508
+first_n: 193
+later_n: 169
+first_list_sha256: 4259be1052d7206b795b2fa5c0505b728c5bab33a1af1ceae076fa2df382a2a3
+files_n: 330
+files_list_sha256: 77f3deff6510baa4bb7c28ef1318ee320cb1b81955b24d62619c3dcece65e2c3
+souba_pages_n: 223
+roumu_files_n: 96
+roumu_pages_json_sha256: ac814271c3f9508bde038986cac07a2e22498fa68c7d6c669c768cd50395355f
+aio_store_page_sha256: none
+held_pages_sha256: 1a67738433e52f2aeedb20dca67b49e71467d06e6970f94d8d7131e8d01f5835
+roumu_csv: a95ea8c9a7011fecc4da61a763b56aa0b91b7d855b805264cd801c998c7269e9 data/jccdb-obs-v2/observations/jp/labor_mlit_roumu_h25.csv
+roumu_csv: 248a058851501204446c5d1df5182df3f1f13628b86b6d3e8e787d44276eb9a9 data/jccdb-obs-v2/observations/jp/labor_mlit_roumu_h26.csv
+roumu_csv: e62b5b4ecaa9a458521958da806052f0cbb51cff438e7a6459ccac59c19ee723 data/jccdb-obs-v2/observations/jp/labor_mlit_roumu_h27.csv
+roumu_csv: e29da638f210bc1c122a8b3d58e3c971d8fe04722dc887310a70ea859b9e86b6 data/jccdb-obs-v2/observations/jp/labor_mlit_roumu_h28.csv
+roumu_csv: 5d8e9cb0777de3b0df7306fec064a078fe0d970a5a64b451612936dc4a11eb26 data/jccdb-obs-v2/observations/jp/labor_mlit_roumu_h29.csv
+roumu_csv: 7698c0672807a6477791e2cb0c1c6e83c2901cc04f26723a4a7548188a63100a data/jccdb-obs-v2/observations/jp/labor_mlit_roumu_h30.csv
+roumu_csv: 916e5a5f23f14608e23ab73ef2111fbf57da2c74aa9f48fc18e0d61fd9ef407f data/jccdb-obs-v2/observations/jp/labor_mlit_roumu_h31.csv
+roumu_csv: fd637906ba22af08fb2be9450636606c8f470a823e7f478a7f650dba668c406c data/jccdb-obs-v2/observations/jp/labor_mlit_roumu_r2.csv
+roumu_csv: c770d571f86a1feaada126578b3287dbd53b6183ff6244ecc70c5d099b421395 data/jccdb-obs-v2/observations/jp/labor_mlit_roumu_r3.csv
+roumu_csv: 0610c50c70fd4a5791b9c51ab9b022be3ca8f001be283a931f7011ba3f58267a data/jccdb-obs-v2/observations/jp/labor_mlit_roumu_r4.csv
+roumu_csv: 7552544e122d34aefae8e2152cb38007ecb6d925d526b82851ecd3de6ab35ce4 data/jccdb-obs-v2/observations/jp/labor_mlit_roumu_r5.csv
+roumu_csv: c71d7f873e6c97006734258044b3d0424a46c5dd0e46aff599383f2a48cd65d0 data/jccdb-obs-v2/observations/jp/labor_mlit_roumu_r6.csv
+roumu_csv: d9c4ae1a354e8301d965822251b11ce3bb2192eac08408c807c8ac9adb1756a3 data/jccdb-obs-v2/observations/jp/labor_mlit_roumu_r7.csv
+roumu_csv: 6993a1d0b680706c6ace416c74955d37e5324b9ce57e3bea3d51799a847eeba4 data/jccdb-obs-v2/observations/jp/labor_mlit_roumu_r8.csv
+tool: b45600def7dfb00425076c23a0f14075c889d39e028489cac431120e85d98b40 tools/souba/check_roumu_pages.py
+tool: 6a9a46e4cd1f160a7b938db51329a83531bee2b4058db314d4aedb239892cd35 tools/souba/ci_check.sh
+tool: 94c4f48f70ca2fd8edebc17badfcfdd4b34b234896a9b72f4d0457bd4d9f6847 tools/souba/gen_region_pages.py
+tool: fee3246c8b466af8468842a1e23494ebed0b558717799fa4deb8d8661d962a67 tools/souba/gen_roumu_pages.py
+tool: e1ad6fddb214bc784d87d1fe750efdca24d188fa956836168f98aea0758a6c22 tools/souba/llms_souba_list.py
+tool: d38c9058757bdad8f9b7dc726e27b4f9a91a53f9e76bbd3434fe9b1721823d4d tools/souba/souba_drift_check.py
+tool: 585fa7052a572c46f538ede553df70ad13921065b13019955bfb8a643ea176ab tools/souba/souba_rebuild.py
+tool: d645e9d92d07b5ba7324c27766ec7054d05786320c51eb1e0302b8b739d6eeab tools/souba/souba_restamp.py
+
+This entry records the day the price pages and the labour-rate pages went out, the draw that chose the first half,
+and the sha256 of the list of files (path and sha256) in that commit.
+Establishes: that the list of files with this sha256 existed no later than the block this entry is anchored to.
+Does not establish: anything about the effect of the change on the pages.

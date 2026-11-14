@@ -1,0 +1,34 @@
+# souba-split-eval-v0
+
+rule_sha256: 40419375b41f55de1def5028592c1df76b0f0e5a4a6c43a885c78887cca61d94
+rule_file_time_jst: 2026-11-11
+publish_entry: 314
+publish_claim_sha256: 9775ffe8f291b77ba5a33d17a37307a3cb2c3f36d3daa5e89e7487f3de7366ff
+split_entry: 308
+draw_block: 975533
+d_jst: 2026-11-14
+pre_window_jst: 2026-10-31 to 2026-11-13
+post_window_jst: 2026-11-15 to 2026-11-28
+read_not_before_jst: 2026-12-01
+later_half_not_before_jst: 2026-11-29
+pages_list_sha256: 8b3d6055e431796bfc5918c24f247786cb9e40270b2c663b13d700281a6f1508
+primary_n: 127
+primary_list_sha256: 21b2982a2842266d4b01bcdc308bf1f5ddc5da25fcbb16525d91b6e8735d3f38
+primary_first_n: 73
+primary_later_n: 54
+primary_range_first_first_n: 11
+primary_range_first_later_n: 5
+primary_later_changed_by_corrections_n: 23
+indexnow_urls_n: 144
+indexnow_urls_sha256: c836a717c1bad0fee23cd041590368c3a853977478a2a3ed29cc61922253b8ed
+indexnow_primary_first_n: 73
+indexnow_primary_later_n: 23
+
+This entry fixes how the split of entry 308 will be read: the rule file by its sha256, the day the pages went out,
+the two windows, and the list of pages that count.
+It was written after the draw and after the pages went out, and before the first day of the post window.
+The rule file was not anchored before the draw; its file time is 2026-11-11.
+Pages changed by the commit were announced to Bing through IndexNow, so a first-half page differs from a later-half
+page in its form and in having been announced. The rule cannot separate the two.
+Establishes: that the rule file with this sha256 and this list of pages existed no later than the block this entry is anchored to.
+Does not establish: that the rule was written before the draw, or anything about the effect of the change.
