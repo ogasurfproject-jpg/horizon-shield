@@ -523,7 +523,7 @@ def run(root, date, now=None, sleep=time.sleep):
     fd = os.open(pem, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(fd, "wb") as f:
         f.write(key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()))
-    record, call, sent, old_term = None, None, 0, None
+    record, call, sent, old_term, written = None, None, 0, None, False
     try:
         # 2026-11-14. A stop from outside (Ctrl-C, or the SIGINT and then SIGTERM of a cancelled or timed out job) after a call
         # was sent closes the day like any other raise (close_raised_day); before this, KeyboardInterrupt and SystemExit
@@ -633,7 +633,10 @@ def run(root, date, now=None, sleep=time.sleep):
         with signals_held():
             with open(os.path.join(out, "RUN.json"), "w", encoding="utf-8") as f:
                 f.write(json.dumps(record, indent=2, ensure_ascii=False) + "\n")
+            written = True
     except BaseException as e:              # KeyboardInterrupt and SystemExit (Terminated) too: see the note at the handler
+        if written:
+            raise                           # the day's RUN.json is written whole; a stop that arrives after it does not rewrite it
         with signals_held():
             closed = close_raised_day(record, call, sent, e, fails)
             if closed:
@@ -1592,6 +1595,22 @@ def _selftest():
             rj, dd = day("ki2")
             assert rj["result"].endswith("the run raised KeyboardInterrupt after 3 of the day's calls were sent") and [c["status"] for c in rj["calls"]] == [200, 403, None]
             assert run(os.path.join(td, "ki2"), "2026-11-14", now=noon, sleep=slept.append) == 1 and posts == ["report", "audit", "compare"]
+            # a SIGTERM that arrives while a whole day's RUN.json is being written: it waits, then stops the run, and the day
+            # stays as written (as expected, its scene_result not rewritten by the stop)
+            import builtins
+
+            def open_then_term(path, *a, **k):
+                if str(path).endswith("RUN.json") and (a[:1] == ("w",) or k.get("mode") == "w"):
+                    os.kill(os.getpid(), signal.SIGTERM)
+                return builtins.open(path, *a, **k)
+            world2()
+            g["open"] = open_then_term
+            try:
+                x = stop("wr", Terminated)
+            finally:
+                del g["open"]
+            rj, dd = day("wr")
+            assert isinstance(x, Terminated) and rj["result"] == "as expected" and "Terminated" not in str(rj.get("scene_result")), (rj["result"], rj.get("scene_result"))
             # before any call: the stop goes on and nothing is written, so a later run can still make the calls
             for root, fault, want in (("ki0", KeyboardInterrupt(), KeyboardInterrupt), ("term0", "sigterm", Terminated)):
                 world2(tip_fault=fault)
