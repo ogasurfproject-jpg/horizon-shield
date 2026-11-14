@@ -1,0 +1,21 @@
+{
+  "status": "pending",
+  "sha": "cb8a8da6622a386644c719adb8637642e8580a0593262b981269924bb10afb19",
+  "record_canonical": "{\"answer\":{\"day\":\"2026-11-13\",\"day_sha256\":\"4babf767e8f454f95f5dca8fa2755a97e2de88a7d83a9a39567e84635d3ccf52\",\"kind\":\"furui-day\",\"leaf_index\":[0,1,2,3,4,5],\"limits\":[\"prior collaboration: MUSUBI peer contract and the aps-receipt adapter with HORIZON SHIELD, 2026. Both projects take part in the open infrastructure federation discussion on aeoess/agent-governance-vocabulary#177.\",\"Recomputed leaves 0 to 5 with nenrin-verify 0.8.1 on macOS. Separately, the day record canonical bytes were rehashed with own tools. The record was pending_anchor when this answer was made, so bitcoin_anchor is not part of it.\",\"This answer does not establish that any check behind the root was right, that the day's log is complete, or who ran the checks beyond the key served at agent-passport.org.\"],\"n\":6,\"observed_at\":\"2026-11-14T22:24:11Z\",\"recomputed\":[\"envelope_shape\",\"leaf_sha256\",\"audit_path\",\"signature\",\"runner_key\"],\"root\":\"da656a66c2008bb320a036d45c24a69e6ef453ce2f699c600a159f09275a545b\",\"schema\":\"witness-answer-v0\",\"signature\":{\"alg\":\"ed25519\",\"key_id\":\"ed25519:b7916322aaea3ae3\",\"sig\":\"D1QHjhoRWtxnTJPGrJ1X7IFXMPXj6od7t3HjjZKvzf6bCP3Q6Aq+4wZs/0f/4Bv9sZd9S+f6fYWxG0AsoholDg==\"},\"tool\":\"nenrin-verify 0.8.1 furui-day\",\"witness\":{\"key_id\":\"ed25519:b7916322aaea3ae3\",\"key_url\":\"https://agent-passport.org/.well-known/witness-1.json\",\"name\":\"agent-passport.org\"}},\"base\":\"https://ledger.horizonshield.dev/furui-check-day/4babf767e8f454f95f5dca8fa2755a97e2de88a7d83a9a39567e84635d3ccf52\",\"commitment\":\"4babf767e8f454f95f5dca8fa2755a97e2de88a7d83a9a39567e84635d3ccf52\",\"does_not_establish\":[\"prior collaboration: MUSUBI peer contract and the aps-receipt adapter with HORIZON SHIELD, 2026. Both projects take part in the open infrastructure federation discussion on aeoess/agent-governance-vocabulary#177.\",\"Recomputed leaves 0 to 5 with nenrin-verify 0.8.1 on macOS. Separately, the day record canonical bytes were rehashed with own tools. The record was pending_anchor when this answer was made, so bitcoin_anchor is not part of it.\",\"This answer does not establish that any check behind the root was right, that the day's log is complete, or who ran the checks beyond the key served at agent-passport.org.\"],\"establishes\":[\"the witness recomputed: envelope_shape, leaf_sha256, audit_path, signature, runner_key\",\"the signed witness-answer-v0 in answer carries the same day_sha256 under key ed25519:b7916322aaea3ae3\"],\"mode\":\"commitment\",\"purpose\":\"furui-day-v0: 2026-11-13\",\"schema\":\"jidec-path-v1\",\"walked_at\":\"2026-11-14T22:24:11Z\",\"witness\":{\"key_url\":\"https://agent-passport.org/.well-known/witness-1.json\",\"name\":\"agent-passport.org\",\"vantage\":\"macOS 26.5 arm64, own machine\"}}",
+  "signed": true,
+  "public_key_ed25519_b64": "GdoZiFi5EnnGVEZDKJTjO+E2jKG62gLBn1hBBB3IeKs=",
+  "signature_ed25519_b64": "MDWamyx4FczKqBeEhlcMVMxBXnw/4hSXt7Mpsc+RVPVZU1Ld8M/Qv/LRWMw5JtrzaY0OS/YtGrL+lk4MZeCbAw==",
+  "signed_domain": "agent-passport.org",
+  "key_url": "https://agent-passport.org/.well-known/witness-1.json",
+  "mode": "commitment",
+  "v11": true,
+  "disclaimer_present": true,
+  "endpoint": "https://ledger.horizonshield.dev/furui-check-day/4babf767e8f454f95f5dca8fa2755a97e2de88a7d83a9a39567e84635d3ccf52",
+  "counted": true,
+  "count_reason": null,
+  "purpose": "furui-day-v0: 2026-11-13",
+  "witness_name": "agent-passport.org",
+  "vantage": "macOS 26.5 arm64, own machine",
+  "submitted_at": "2026-11-14T22:25:59.417Z",
+  "responses": []
+}
