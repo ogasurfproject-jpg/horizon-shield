@@ -1,0 +1,94 @@
+{
+  "schema": "seki-heartbeat-run-v0",
+  "note": "a demonstration: the principal, the contractor and the relying party are all The HORIZONs Co., Ltd.; the door is exercised every day on its own paid path; this is not an arm's-length agreement and the pilot's tickets carry no monetary value",
+  "date": "2026-11-14",
+  "day_rule": "utc-date-of-start-minus-6h",
+  "contract_sha256": "d9599ee00f4aacbd7a8325c91a9123d3ac7d72ba0e9d9961082cfeee2569af44",
+  "store": "hs-seki-demo",
+  "target": "https://hs-gateway.oga-surf-project.workers.dev/report?store=hs-seki-demo",
+  "door_public_key_ed25519_b64": "wbWKQTE9F1A2ixJzzhqfpITrU7GhDr9G2ri5YYGvCTE=",
+  "gateway": "https://hs-gateway.oga-surf-project.workers.dev",
+  "balance_before": 400,
+  "door_furui_required": true,
+  "ran_at": "2026-11-14T21:19:16Z",
+  "calls": [
+    {
+      "service": "report",
+      "tickets": 20,
+      "request_sha256": "a6f4e96b6e81d0f500c42d0afdc398213e1340c5a0ceec6d5f921ce3c6f057f2",
+      "nonce": "5e2104b8d943d0dbab05f0034f2c8df5",
+      "status": 403,
+      "decision": "escalate",
+      "admission_sha256": "142b42c0a4be32f9b4da28e0b8a6c3547f9a7b90dcaa2c58fd2470693f00bed0",
+      "record_sha256": "e1d3549d625c34d296152d3e9ff58d225d8d18c1c1aea8f571ae18e84e4b9fe2",
+      "published": "accepted",
+      "tickets_spent": null,
+      "door_furui_required": true,
+      "content_checks": [
+        {
+          "runner_id": "runner-1",
+          "check_sha256": "2871d4fb72625e6c32a9ded1934a50d4893aafd48dc0e182555af39a2bebc173"
+        }
+      ],
+      "ledger_url": "https://ledger.horizonshield.dev/admission/e1d3549d625c34d296152d3e9ff58d225d8d18c1c1aea8f571ae18e84e4b9fe2"
+    },
+    {
+      "service": "audit",
+      "tickets": 30,
+      "request_sha256": "fc245b1f71c434cfb36a5ceff78bacb3a6b937f3fd6aad7c6c6f98d2e4f1548d",
+      "nonce": "81cd214da24fb76999e0178a2929286e",
+      "status": 403,
+      "decision": "refuse",
+      "admission_sha256": "db32a0a50da5fc4cc915db76f4412c232cad0e649ba3ca3e7c7da69decbeb578",
+      "record_sha256": "baadfa0bad950e4dd1ae57d0a3d72c65ed83a7f43c647f018f020b89fe24f909",
+      "published": "accepted",
+      "tickets_spent": null,
+      "door_furui_required": true,
+      "content_checks": [
+        {
+          "runner_id": "runner-1",
+          "check_sha256": "2ed2d5e31827fb790db4d19550c04e6c0023a5173a569dd6ef7a3f560cc45cf6"
+        }
+      ],
+      "ledger_url": "https://ledger.horizonshield.dev/admission/baadfa0bad950e4dd1ae57d0a3d72c65ed83a7f43c647f018f020b89fe24f909"
+    },
+    {
+      "service": "compare",
+      "tickets": 50,
+      "request_sha256": "955166dc18c9f74ace68ee9d45a8cd9358ba7aa0e18d18d2595c27e7adc817cb",
+      "nonce": "a1c7eb69e1409e0e496bcccf1cbb07cd",
+      "status": 403,
+      "decision": "refuse",
+      "admission_sha256": "5f6edb6cd8fe754f38f920c84095086c946aaf99252d26d70bcb3dba4ad29ec5",
+      "record_sha256": "94b880f86cb83e17038b5be5041afd9860e6728f44f055657a0d24054886f42e",
+      "published": "accepted",
+      "tickets_spent": null,
+      "door_furui_required": true,
+      "content_checks": [
+        {
+          "runner_id": "runner-1",
+          "check_sha256": "0b43ab7aceb053975c5c91d6ead7e0e0dd302ad0887ad0334cb1d1b93a78c0a2"
+        },
+        {
+          "runner_id": "runner-2",
+          "check_sha256": "15036821582842a81f7040d9b81d45e490734631e1a592189f48acc6bfd30476"
+        }
+      ],
+      "ledger_url": "https://ledger.horizonshield.dev/admission/94b880f86cb83e17038b5be5041afd9860e6728f44f055657a0d24054886f42e"
+    },
+    {
+      "service": "compare",
+      "scene": "mismatch",
+      "tickets": 50,
+      "status": 400,
+      "error": "content_mismatch",
+      "nonce": "ec4c2b8ad9a415ed933c84077c39fbe4",
+      "request_sha256": "d452715fa5db1d36d08e877ae2c0043c847ef6284e3db7d3e1fa5083fce68da8",
+      "decision": null,
+      "tickets_spent": null
+    }
+  ],
+  "tip_height_at_request": 975847,
+  "result": "NOT as expected: report: HTTP 200; report: the door named its signed record (decision admit); report: decision admit, reasons ['within_grant'] (content_off_topic allowed); report: the door checked the content (content.checked, a 64 hex check_sha256 for each check read as an answer)",
+  "scene_result": "as expected"
+}
