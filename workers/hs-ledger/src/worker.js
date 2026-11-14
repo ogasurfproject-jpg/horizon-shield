@@ -2763,7 +2763,11 @@ function acceptPrefersHtml(accept) {
 // curl, Python, Node, Go and MCP clients send no such User-Agent, or name JSON, and get the JSON bytes as before.
 // An Accept that names text/html is decided by acceptPrefersHtml alone, as before. Both answers carry
 // Vary: Accept, User-Agent, Sec-Fetch-Mode.
-const ROOT_PAGE_UA = /^mozilla\/|bot|crawl|spider|slurp|preview/i;
+// 2026-11-14: "bot" is matched as a word ending (bingbot, Googlebot, DuckDuckBot), not anywhere: "robotics" and
+// "Botocore" are not crawlers. Some programs start their User-Agent with Mozilla/ or name a bot: PowerShell, the AWS
+// SDK (Boto3, Botocore), an uptime monitor and python-requests keep the JSON whatever else their User-Agent says.
+const ROOT_PAGE_UA = /^mozilla\/|[a-z]*bot\b|crawl|spider|slurp|preview/i;
+const ROOT_PAGE_UA_PROGRAM = /powershell|botocore|boto3|uptimerobot|python-requests/i;
 function acceptNamesHtmlOrMachine(accept) {
   return String(accept || "").split(",").some((part) => {
     const type = part.split(";")[0].trim().toLowerCase();
@@ -2777,7 +2781,8 @@ function rootWantsHtml(request, url) {
   if (acceptNamesHtmlOrMachine(accept)) return false;
   const mode = (request.headers.get("sec-fetch-mode") || "").trim().toLowerCase();
   if (mode && mode !== "navigate") return false;
-  return ROOT_PAGE_UA.test(request.headers.get("user-agent") || "");
+  const ua = request.headers.get("user-agent") || "";
+  return ROOT_PAGE_UA.test(ua) && !ROOT_PAGE_UA_PROGRAM.test(ua);
 }
 
 async function rootFace(request, res) {

@@ -92,14 +92,14 @@ for (const [, ua] of CRAWLERS) for (const [, acc] of OPEN_ACCEPTS) {
   if (r.s === 200 && r.ct === "text/html; charset=utf-8" && /<title>[^<]{10,}<\/title>/.test(r.body) && r.vary === VARY && r.cors === "*") pages++;
 }
 chk("a browser's or a crawler's User-Agent with no Accept, an empty one, */*, text/* or image/* -> the page (" + pagesWant + " requests)", pages === pagesWant && pagesWant === 35, pages + "/" + pagesWant);
-const MACHINES = [["no User-Agent", undefined], ["an empty User-Agent", ""], ["curl", "curl/8.7.1"], ["python-requests", "python-requests/2.32.3"], ["Python-urllib", "Python-urllib/3.13"], ["node", "node"], ["undici", "undici"], ["Go", "Go-http-client/2.0"], ["axios", "axios/1.7.7"], ["nenrin-verify", "nenrin-verify/0.6.0"], ["nenrin sync", "nenrin-localheaders-sync/1 (+https://ledger.horizonshield.dev)"], ["okhttp", "okhttp/4.12.0"], ["Wget", "Wget/1.21.4"], ["tooshi", "tooshi-daily/1"]];
+const MACHINES = [["no User-Agent", undefined], ["an empty User-Agent", ""], ["curl", "curl/8.7.1"], ["python-requests", "python-requests/2.32.3"], ["Python-urllib", "Python-urllib/3.13"], ["node", "node"], ["undici", "undici"], ["Go", "Go-http-client/2.0"], ["axios", "axios/1.7.7"], ["nenrin-verify", "nenrin-verify/0.6.0"], ["nenrin sync", "nenrin-localheaders-sync/1 (+https://ledger.horizonshield.dev)"], ["okhttp", "okhttp/4.12.0"], ["Wget", "Wget/1.21.4"], ["tooshi", "tooshi-daily/1"], ["PowerShell 7", "Mozilla/5.0 (Macintosh; Darwin 25.3.0; en-US) PowerShell/7.4.6"], ["Boto3", "Boto3/1.35.10 md/Botocore#1.35.10 ua/2.0 os/macos#25.3.0 lang/python#3.12.7"], ["UptimeRobot", "Mozilla/5.0+(compatible; UptimeRobot/2.0; http://www.uptimerobot.com/)"], ["robotics in a python-requests UA", "python-requests/2.32.3 robotics-lab"]];
 let same = 0, sameWant = 0;
 for (const [, ua] of MACHINES) for (const [, acc] of OPEN_ACCEPTS) {
   sameWant++;
   const r = await get("/", acc, "GET", ua === undefined ? {} : { "user-agent": ua });
   if (r.s === 200 && r.ct === ref.ct && r.body === ref.body && r.vary === VARY) same++;
 }
-chk("a program's User-Agent (curl, Python, Node, Go, our own clients) or none -> the JSON byte for byte (" + sameWant + " requests)", same === sameWant && sameWant === 70, same + "/" + sameWant);
+chk("a program's User-Agent (curl, Python, Node, Go, our own clients) or none -> the JSON byte for byte (" + sameWant + " requests)", same === sameWant && sameWant === 90, same + "/" + sameWant);
 const NAMED = [
   ["application/json", "application/json"],
   ["application/json, text/event-stream, */* (MCP)", "application/json, text/event-stream, */*"],
