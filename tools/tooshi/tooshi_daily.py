@@ -28,6 +28,8 @@ Added with the door's daily check call (2026-11-03):
                      sha256 of the check of a runner envelope. The envelope of a call is served from the next day and the
                      door shows only its last call, so this binding is made on the previous call (.furui.check_call_prev)
                      and stays not_yet while the door does not show one.
+                   When the door made the call again within the day (furui.check_call.redo, after a first call that
+                     did not reach an answer), an ok 2 is a notice that names the first failure (facts.redo).
                    2 admission to ledger: the ledger serves the call's record under its sha (/admission/<sha>), the
                      door serves the same bytes (/seki/record/<sha>), and the content block is the fixed answer
                      (checked, pass, no marks, the door's rules id).
@@ -86,7 +88,8 @@ Added on 2026-11-06 (the canary scene and signed witness answers):
                    no canary call for today (or its key is not set yet, or the runner left the text unanswered). The door
                    keeps the phrase only as its sha256 (mark_sha256). When the door shows yesterday's call
                    (.furui.canary_call_prev), its check_sha256 must be the check of a leaf of yesterday's day record that
-                   says stop, signed by runner-1 (red otherwise).
+                   says stop, signed by runner-1 (red otherwise). When the door made today's canary call again
+                   (furui.canary_call.redo), an ok 8 is a notice that names the first failure (facts.redo).
     9              witness_answer: the day before yesterday's day record (furui-check-day-v0, the one the ledger serves for
                    the runner's accepted status; a day D is closed at 00:47 UTC of D+1 and goes into the ledger's batch at
                    00:30 UTC of D+2, so a witness has yesterday's record for only a few hours before this run) has at least one signed witness answer (witness-answer-v0, kind furui-day,
@@ -2355,7 +2358,10 @@ def check_paid_chain(get, now):
         if lacks:
             missing.append({"call": x, "store": k["store"], "lacks": lacks})
             bad.append("%s (%s): %s" % (x[:8], k["store"], "; ".join(said)))
-    facts.update(calls=len(calls), complete=len(calls) - len(missing), missing=missing)
+    # complete_calls: the calls of the window that carry all four records, named (tooshi_follow reads them to tell whether a
+    # later day answered a red day: only a call named here closes the red day that named it in missing)
+    gone = {m["call"] for m in missing}
+    facts.update(calls=len(calls), complete=len(calls) - len(missing), missing=missing, complete_calls=sorted(x for x in calls if x not in gone))
     if bad:
         out = c(cid, "red", "%d of %d paid calls from %s to %s lack a record: %s" % (len(missing), len(calls), win[0], win[1], " | ".join(bad)), **facts)
     elif not calls:
@@ -2711,6 +2717,36 @@ def day_facts(get, now, counts):
     return out
 
 
+REDO_CHECKS = {"check_call": "2_admission_ledger", "canary_call": "8_canary_scene"}   # the door's call (GET /seki furui) and the check it shows
+
+
+def with_redo(get, now, checks):
+    """the door calls again within the same day when a call did not reach an answer (cv2, furui.<call>.redo {n, first_at,
+    first_error}). The day's call then reads ok, and the first failure would be told nowhere. A check that reads ok on a call
+    the door made again becomes a notice naming the first failure, with facts.redo; a red or not_yet check keeps its state and
+    gains facts.redo. Today's calls only. Nothing changes when the door does not answer here (the checks already said so)."""
+    try:
+        ps, p = get(DOOR_POLICY)
+    except Unreachable:
+        return checks
+    fu = p.get("furui") if ps == 200 and isinstance(p, dict) and isinstance(p.get("furui"), dict) else {}
+    today = now.strftime("%Y-%m-%d")
+    for call, cid in REDO_CHECKS.items():
+        k = fu.get(call)
+        rd = k.get("redo") if isinstance(k, dict) and k.get("day") == today else None
+        if not isinstance(rd, dict):
+            continue
+        for r in checks:
+            if r.get("id") != cid:
+                continue
+            r.setdefault("facts", {})["redo"] = {"n": rd.get("n"), "first_at": rd.get("first_at"), "first_error": rd.get("first_error")}
+            if r.get("state") == "ok":
+                r["state"] = "notice"
+                r["why"] = "today's %s failed first (%s, at %s) and the door made it again (%s time(s)); the call made again: %s" % (
+                    call.replace("_", " "), rd.get("first_error"), rd.get("first_at"), rd.get("n"), r.get("why"))
+    return checks
+
+
 def run(get, now, trigger="manual", walk_get=None):
     if trigger not in TRIGGERS:
         raise ValueError("trigger must be one of " + ", ".join(TRIGGERS))
@@ -2728,6 +2764,7 @@ def run(get, now, trigger="manual", walk_get=None):
     checks.append(pc)
     checks.append(check_two_runners(get, now, pc.pop(V05_KEY, []), pc.pop(SHORT_KEY, [])))
     checks.append(check_tasuki(now, pc.pop(CALLS_KEY, None), pc, walk_get or tasuki_get(get)))
+    checks = with_redo(get, now, checks)
     checks.append(check_deadlines(get, now, checks))
     checks.sort(key=lambda x: x["id"])
     counts = {k: sum(1 for x in checks if x["state"] == k) for k in ("ok", "red", "notice", "not_yet")}
@@ -3667,6 +3704,9 @@ def selftest():
     cases.append(("17 ok: the one paid call of the window carries its FURUI envelope (leaf 1 of 11-03), SEKI record, MUSUBI settlement and NENRIN entry (279)",
                   (x17["state"], x17["facts"]["window"], x17["facts"]["stores"], x17["facts"]["calls"], x17["facts"]["complete"], x17["facts"]["missing"]),
                   ("ok", ["2026-11-03T03:47:00Z", "2026-11-04T03:47:00Z"], ["hs-seki-demo"], 1, 1, [])))
+    cases.append(("17 ok names its complete calls (complete_calls, read by tooshi_follow); a red day names none of its missing calls there",
+                  (len(x17["facts"]["complete_calls"]) == 1 and all(H64.match(v) for v in x17["facts"]["complete_calls"]),
+                   (lambda r: r["facts"]["complete_calls"])(c17(recs=(paid_rec(e=None),), run_calls=[]))), (True, [])), )
     TN, RN = paid_rec(e=None)
     cases.append(("17 red: a paid call whose record carries no content check (the door did not call the runner); its id and furui_envelope are named",
                   m17(c17(recs=((TN, RN),), run_calls=[])), ("red", [(RN, ["furui_envelope"])])))
@@ -3843,6 +3883,7 @@ def selftest():
     cases.append(("17 red on 2026-11-06's real answers: the one paid call of the window (hs-seki-demo report, 11-04 21:18) has its SEKI record, MUSUBI settlement and NENRIN entry (250) and no FURUI envelope",
                   (xr["state"], xr["facts"]["window"], xr["facts"]["calls"], xr["facts"]["complete"], m17(xr)[1], xr["facts"]["entries_read"]),
                   ("red", ["2026-11-04T03:47:00Z", "2026-11-05T03:47:00Z"], 1, 0, [(REAL17, ["furui_envelope"])], 14)))
+    cases.append(("17 red on the real answers: the call named in missing is not in complete_calls", (REAL17 in xr["facts"]["complete_calls"], xr["facts"]["complete_calls"]), (False, [])))
     cases.append(("17 on the real answers: 27 admissions read, and the two refusals of 11-04, the check calls (price 0) and the admits of another contract are not paid calls",
                   (len([u for u in RC if u.startswith(LEDGER + "/admission/")]), xr["facts"]["calls"]), (27, 1)))
     cases.append(("17 red on the real answers without the settlement of 11-04, or with the door down: each lack is named",
@@ -4118,6 +4159,30 @@ def selftest():
     cases.append(("facts in a run: a red day has red_zero_streak 0 (ended by today, red)", (rr_["verdict"], rr_["facts"]["red_zero_streak"]["days"], rr_["facts"]["red_zero_streak"]["ended_by"]), ("red", 0, {"day": "2026-11-05", "why": "red"})))
     xf = run(wf2(**{RELEASES_URL: (200, "not a list"), PYPI_URL % PV: PJ}), now)[0]
     cases.append(("facts in a run: a fact that cannot be made is written as such and the run goes on", (xf["facts"]["pypi_wheel"]["state"], xf["facts"]["anchored_ledger_days"]["days"], xf["verdict"]), ("unread", None, "green")))
+
+    # cv2: a call the door made again the same day becomes a notice that names the first failure (with_redo)
+    RD = {"n": 2, "first_at": "2026-11-05T03:47:20.000Z", "first_error": "canary_call_failed: runner did not answer"}
+    def rg(fu):
+        return lambda url, raw=False: (200, {"furui": fu}) if url == DOOR_POLICY else (404, None)
+    def base():
+        return [c("2_admission_ledger", "ok", "the ledger serves"), c("8_canary_scene", "ok", "stopped"), c("1_sieve_admission", "ok", "bound")]
+    r1 = {x["id"]: x for x in with_redo(rg({"check_call": {"day": "2026-11-05", "redo": RD}, "canary_call": {"day": "2026-11-05"}}), now, base())}
+    cases.append(("redo: today's check call made again: 2 is a notice naming the first error and first_at, facts.redo; 8 and 1 stay ok",
+                  r1["2_admission_ledger"]["state"] == "notice" and "canary_call_failed" in r1["2_admission_ledger"]["why"] and "2026-11-05T03:47:20" in r1["2_admission_ledger"]["why"]
+                  and r1["2_admission_ledger"]["facts"]["redo"]["n"] == 2 and r1["8_canary_scene"]["state"] == "ok" and r1["1_sieve_admission"]["state"] == "ok", True))
+    r2 = {x["id"]: x for x in with_redo(rg({"canary_call": {"day": "2026-11-05", "redo": RD}}), now, base())}
+    cases.append(("redo: today's canary call made again: 8 is a notice, 2 stays ok", r2["8_canary_scene"]["state"] == "notice" and r2["2_admission_ledger"]["state"] == "ok", True))
+    r3 = {x["id"]: x for x in with_redo(rg({"check_call": {"day": "2026-11-04", "redo": RD}}), now, base())}
+    cases.append(("redo: a redo of another day changes nothing", all(x["state"] == "ok" and "redo" not in x["facts"] for x in r3.values()), True))
+    rr_ = base(); rr_[0] = c("2_admission_ledger", "red", "today's check call failed")
+    r4 = {x["id"]: x for x in with_redo(rg({"check_call": {"day": "2026-11-05", "redo": RD}}), now, rr_)}
+    cases.append(("redo: a red check stays red and gains facts.redo", r4["2_admission_ledger"]["state"] == "red" and r4["2_admission_ledger"]["facts"]["redo"]["first_error"] == RD["first_error"], True))
+    def down(url, raw=False):
+        raise Unreachable("down")
+    r5 = with_redo(down, now, base())
+    cases.append(("redo: the door not answering here changes nothing", [x["state"] for x in r5] == ["ok", "ok", "ok"], True))
+    r6 = {x["id"]: x for x in with_redo(rg({"check_call": {"day": "2026-11-05", "redo": "yes"}}), now, base())}
+    cases.append(("redo: a redo that is not an object is not read", r6["2_admission_ledger"]["state"] == "ok", True))
 
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:
