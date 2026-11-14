@@ -1,0 +1,43 @@
+{
+  "canonical_sha256": "4fdb18bf1c4d14711200557da9abc39da0a21926966579a244961d7cb0e994f2",
+  "record_canonical": "{\"action_ref\":{\"action_binding_digest\":\"d873c562461886fd7acbb63f94490615264a8673957d639c318209a1a83c3e1b\",\"nonce\":\"6b428cd3721d2b451f9495557620a504\"},\"admission_id\":\"3b90d5ed-7669-457a-ab86-4b6cf44b45fb\",\"chain_view\":{\"header_sha256\":\"3e30f70dc7074d9dbb08f93651ac928d9f02d96873b254c31274e45841b1457c\",\"height\":975739},\"clause\":\"grant.authorized_actions[0]\",\"content\":{\"answered\":true,\"check_sha256\":\"079d07ae6592dcd8bbdfa00155ef95adc96f76c85e07a257a9dc7ea5bf7c3716\",\"checked\":true,\"decision\":\"pass\",\"input_commit\":\"48a7178745cd43872d9668ad1da4e6aae3943d6758547994d8098e8a9936b98e\",\"marks\":[],\"rules\":\"a2a-content-check-v1\",\"rules_sha256\":\"2c5a1089a90265717175dd1056be7075472aed44fab5581e6be6e73b1746f195\",\"scope_sha256\":\"abf6c3e1eaa840880326ccdcfdd540d7999081c7dbf98cba7fc638d9a75402f4\",\"unread\":false},\"contract_ref\":{\"contract_id\":\"e491b4f54c7698bc19b930ec2d1c079e\",\"contract_sha256\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\"},\"decision\":\"admit\",\"does_not_establish\":[\"that HS allowed or blocked anything; the relying party ran the function at its own door\",\"that the agent is who it claims to be beyond what the presented signatures and keys on its own domain show\",\"when a revocation without an anchor was issued, or that no revocation exists beyond those in revocations_seen; a revocation the principal signed is obeyed with or without an anchor, and its time is not proven until it is anchored\",\"that the action was lawful, safe or wise; only that it was inside or outside the signed grant\",\"that this record is a legal authorization or determines liability\",\"that the immune rules stopped every harmful act; a clear verdict says only that no rule in the contract's immune terms fired on the request as presented, and the values it read are not in this record\",\"that any content check ran, or that the same check would answer the same way again; the record carries a salted commitment to the bytes the relying party says it checked (only a holder of the bytes and the salt can recompute it), the digest of the check it says it read, the identifier of the rule set, the decision and the marks, and nothing else about the content\",\"that the rates measured for the named rule set hold on this contract's scope; they were measured on the scopes of public datasets, not on a scope rendered from a contract\"],\"establishes\":[\"that the relying party named here ran admit() over this contract, this action digest and this chain view, and signed the result\",\"that the decision and reasons are what the shared clause evaluator (rules.evaluator_sha256) returns for those inputs; anyone holding them can recompute it\"],\"immune\":{\"codes\":[],\"evaluator_sha256\":\"6e1f6f5da9ae831663c0e669a83345a9c3965339deccece721641d71e785b94b\",\"evidence_sha256\":\"4fe3828dad4a7b8af64309a5343ce813cc3a413067942aa62aa8ad4b38dcad77\",\"rules\":\"a2a-immune-v0\",\"second_signal\":null,\"terms_sha256\":null,\"verdict\":\"not_run\"},\"presentation_ref\":[{\"adapter\":\"musubi-native\",\"sha256\":\"197b9332b9f198c3560854cb84a0760bd0eed88406fff59366a90bfb36d5017b\",\"verified\":true}],\"publication\":\"public\",\"reasons\":[\"within_grant\"],\"relying_party\":{\"domain\":\"shield.the-horizons-innovation.com\",\"key_url\":\"https://shield.the-horizons-innovation.com/keys/seki-door.json\"},\"revocations_seen\":[],\"rules\":{\"admit\":\"a2a-admission-v0\",\"evaluator_sha256\":\"fee48c3a66c28fe14ecbb8e2aea03a062fbe7be22810d3ca94332b36f660bed0\",\"version\":\"0.4\"},\"schema\":\"a2a-admission-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"shield.the-horizons-innovation.com\",\"sig\":\"IO4OXINST7GQPGJP7BYP4FrS7gDPB+5u8ptB3CclJnwqfIg314xNymrQO/JKr7zHGzHT7CQCa0dB1loYH5pVCA==\"}]}",
+  "report": {
+    "record_schema": "a2a-admission-v0",
+    "verdict": "accepted",
+    "canonical_sha256": "4fdb18bf1c4d14711200557da9abc39da0a21926966579a244961d7cb0e994f2",
+    "admission_sha256": "6957765eb82bfeb6cfcd20e60e12c5fdcb460d207316cff7e5a2293d83446c09",
+    "relying_party": "shield.the-horizons-innovation.com",
+    "decision": "admit",
+    "admit_version": "0.4",
+    "verifier_version": "admission-intake 0.5.0",
+    "checked": [
+      "canonical bytes",
+      "closed lists for decision and reasons",
+      "the stated limits are unaltered",
+      "key_url on the relying party's own domain",
+      "the immune block's shape and its agreement with the decision and reasons (not the immune rules themselves)",
+      "the content block's shape and its nine rules against the decision and reasons (a salted commitment, digests, the decision and the marks; the content is not sent here)",
+      "Ed25519 signature under the key that key_url serves",
+      "signed consent to publication"
+    ],
+    "not_checked": [
+      "the decision itself; this intake does not run admit() and does not hold the contract"
+    ]
+  },
+  "verifier_version": "admission-intake 0.5.0",
+  "status": "pending_anchor",
+  "ledger_entry": null,
+  "ledger_url": null,
+  "recompute": {
+    "verifier_version": "0.2.0",
+    "steps": [
+      "1. fetch the exact bytes: GET https://ledger.horizonshield.dev/agreement/{canonical_sha256}, field record_canonical.",
+      "2. recompute the hash: sha256 of those bytes must equal canonical_sha256.",
+      "3. reproduce the signing bytes: the canonical JSON of the record with its signatures field removed.",
+      "4. verify each party's Ed25519 signature over those signing bytes against the public_key_ed25519_b64 pinned inside the record (v1.1), or against the key served at each party's key_url (v1).",
+      "5. optionally fetch each party's key_url and confirm it serves the same key; that is attribution to the domain, and its absence is stated in the report."
+    ],
+    "offline": "run the verifier offline yourself: it opens no socket and has no clock; run agreement_verify.py or agreement_verify.mjs on the bytes and do not take this operator's word.",
+    "source": "workers/hs-ledger/nenrin/agreement-v0/agreement_verify.{py,mjs}; two implementations agree byte for byte on the frozen cases."
+  }
+}
