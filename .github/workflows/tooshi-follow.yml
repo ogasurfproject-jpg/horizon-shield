@@ -11,6 +11,10 @@ name: tooshi-follow
 # It reads public endpoints and this checkout only and uses no secret. It writes issue comments and one issue state with
 # the job's token (issues: write). A run by hand is dry (it prints what it would do) unless dry is set to no.
 # workflow_run starts it when tooshi-daily ends, also for a run that had nothing to do; both steps then do nothing twice.
+# The announce step runs also when the close step failed (a 5xx three times, say), so one failed close does not cost the
+# day's announcement; it does not run when the self test or the dry-or-not step did not pass, so a run by hand stays dry.
+# A check that reads a window (1, 2, 3, 6b, 9, 17) closes only when a later audit reads ok the same record, call or day its
+# red named; otherwise the issue stays open with one note, and a person writes the reason and closes it.
 
 on:
   workflow_run:
@@ -75,6 +79,7 @@ jobs:
           { echo "### tooshi-follow"; echo; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
           python -I -B tools/tooshi/tooshi_follow.py close --dir tooshi $FLAG | tee -a "$GITHUB_STEP_SUMMARY"
       - name: tell the witnesses of yesterday's day record when check 9 has waited two audits
+        if: ${{ always() && steps.mode.outcome == 'success' }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
