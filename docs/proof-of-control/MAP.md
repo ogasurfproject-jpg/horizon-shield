@@ -10,11 +10,13 @@ nothing on this page says the system is Proof-of-Control.
   sha256 `ad0aece1...`). The repository's header calls the text Working Draft v0.1.4; the comment copy on the
   project's Google Doc calls it Working Draft v1.0. The requirement numbers below are the repository's. Each
   requirement is given as a short paraphrase; read the original for the exact words.
-- Read on: 2026-11-07, against horizon-shield main at `19c021c5`.
+- Read on: 2026-11-07, against horizon-shield main at `19c021c5`. Read again on 2026-11-15 for the three rows that
+  named TOOSHI 17 as planned (7.6.3, 10.3.2, 10.3.6): TOOSHI 17 has run every day since 2026-11-07. Two of them
+  moved from not met to partly; the counts of 2026-11-07 were met 20, partly 45, not met 62.
 - Status words: **met** (the evidence exists and covers the requirement for the system named below), **partly** (a
   mechanism exists but covers only part of the scope, or one of the requirement's conditions is missing), **not met**
   (nothing here does it today, or the requirement does not apply to anything we run; the note says which).
-- Counts: met 20, partly 45, not met 62.
+- Counts: met 20, partly 47, not met 60.
 
 ## The system this page reads
 
@@ -34,7 +36,8 @@ The chain of one paid call, and the records each step leaves:
 - MUSUBI: the signed contract (grant, limits, expiry) and settlement, a function anyone recomputes.
 - NENRIN: the ledger at https://ledger.horizonshield.dev. Every entry is hash-chained (`prev_entry_sha256`), stamped
   with OpenTimestamps and confirmed in a Bitcoin block. Entries are appended by the operator.
-- TOOSHI: `tools/tooshi/tooshi_daily.py`, the daily end to end check (checks 1 to 16), published under `tooshi/days/`.
+- TOOSHI: `tools/tooshi/tooshi_daily.py`, the daily end to end check (numbered checks up to 25 as of 2026-11-15), published under
+  `tooshi/days/`.
 - TSUGI: recovery records, the witness draw (commit then reveal on Bitcoin) and the daily rebuild of the ledger from a
   copy we do not host.
 
@@ -55,9 +58,12 @@ evidence is produced. Our answer today is **not met**.
 - What does not hold yet: we have not shown that every operation passes the door. Other paths of our services are not
   guarded. The gateway waits for the door's signed answer, not for the record to be durably written on the ledger; the
   ledger receives records in a daily batch. No test yet withholds the evidence store and shows the calls stop.
-- Next: TOOSHI 17 will count, for every paid call of the day that has a SEKI record, whether the FURUI envelope, the
-  admission, the settlement and the ledger entry are all present, and turn red naming any call that lacks one. Until it
-  runs green on real days, the rows that ask for this stay not met.
+- Since 2026-11-07: TOOSHI 17 counts, for every paid call of the day that has a SEKI record, whether the FURUI envelope,
+  the admission, the settlement and the ledger entry are all present, and turns red naming any call that lacks one.
+  From 2026-11-07 to 2026-11-14 it was red on 3 of 8 days (2026-11-07, 2026-11-08, 2026-11-14), and the red days stay
+  in `tooshi/days/`. The paid calls are few and our own (the guarded store `hs-seki-demo`). It finds the calls through
+  the door's records, so a call that left no SEKI record would not be counted; it is not a count kept by the gateway.
+  The Tier 4 rows stay not met until a test withholds the evidence store and shows the calls stop.
 
 ## C1 Provenance (13)
 
@@ -173,7 +179,7 @@ evidence is produced. Our answer today is **not met**.
 | 7.5.2 | Claims describe evidence only as execution facts; documented claims review | 1 | all | partly | Records say what they do not establish; no documented legal review. |
 | 7.6.1 | Evidence pipeline failures alert and are written to a secondary log | 2 | TOOSHI | partly | A red day opens an issue and sends a mail (`tools/tooshi/tooshi_tell.py`, `.github/workflows/tooshi-daily.yml`); daily, not per failure. |
 | 7.6.2 | Monotonic sequence numbers per source, so gaps show | 2 | NENRIN | met | Ledger entry `n` with `prev_entry_sha256`; FURUI day record `n` and leaf index. |
-| 7.6.3 | Actions refused when evidence cannot be generated (fail-closed test) | 4 | SEKI | not met | The gateway fails closed when the door does not answer; no test withholds the evidence store. TOOSHI 17 is planned. |
+| 7.6.3 | Actions refused when evidence cannot be generated (fail-closed test) | 4 | SEKI | not met | The gateway fails closed when the door does not answer; no test withholds the evidence store. TOOSHI 17 (daily since 2026-11-07) reconciles records after the fact; it does not stop a call. |
 | 7.6.4 | Evidence store role-based access; every read recorded | 2 | none | not met | The ledger is public to read; reads are not recorded. |
 | 7.6.5 | Retention period stated, configured and long enough | 1 | NENRIN | partly | The ledger keeps every entry; the gate's history keeps 400 records per endpoint (`nenrin/ring-v1/README.md`). No stated period in a claim. |
 | 7.6.6 | Root anchored within a declared interval; missed deadline alerts | 3 | NENRIN, TOOSHI | partly | Daily batch at 00:30 UTC; TOOSHI 6 turns red on a missing batch and TOOSHI 14 bounds Bitcoin waits to 36 hours. Interval not declared in a claim. |
@@ -229,11 +235,11 @@ evidence is produced. Our answer today is **not met**.
 | 10.2.1 | Residual trust assumptions listed per claim, one to one with mechanisms | 1 | all | partly | `does_not_establish` per record type; not per claim. |
 | 10.2.2 | Each assumption tagged with a category | 2 | none | not met | |
 | 10.3.1 | Evidence in a tamper-evident store; chain checks available to the assessor | 2 | NENRIN, TSUGI | met | The ledger, its export (`/ledger/export.jsonl`) and the daily drill reports (`nenrin/survive-v0/`). |
-| 10.3.2 | Every in-scope action covered; gateway count equals evidence count | 4 | TOOSHI | not met | TOOSHI 17 will reconcile paid calls against records. |
+| 10.3.2 | Every in-scope action covered; gateway count equals evidence count | 4 | TOOSHI | partly | TOOSHI 17 reconciles every paid call of the day against its four records, daily since 2026-11-07 (`tooshi/days/`, red on 3 of 8 days to 2026-11-14). It finds calls through the door's records, not a gateway count, and covers the one guarded store only. |
 | 10.3.3 | Automated validator checks each record within a window; results logged | 4 | TOOSHI | partly | TOOSHI runs daily and publishes each day (`tooshi/days/`); it reads the day's fixed calls, not every record. |
 | 10.3.4 | Validation failures alert within a bounded window; acknowledgment tracked | 4 | TOOSHI | partly | A red day opens an issue and a mail the same morning; acknowledgment times are not tracked. |
 | 10.3.5 | Monitoring re-assessed by an outside assessor on a cycle | 4 | none | not met | |
-| 10.3.6 | Proof coverage computed and published | 3 | TOOSHI | not met | Planned with TOOSHI 17. |
+| 10.3.6 | Proof coverage computed and published | 3 | TOOSHI | partly | TOOSHI 17 publishes each day which paid calls carry all four records and names any that do not (`tooshi/days/`). Coverage is per call of the guarded store, found through the door's records. |
 | 10.3.7 | Automated validators evaluated for structured-trace parsing | 3 | none | not met | |
 
 ## Ledger entries named on this page
