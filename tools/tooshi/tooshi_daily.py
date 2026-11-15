@@ -164,6 +164,20 @@ Added on 2026-11-06 (16, how many outside witnesses sign the day roots):
                    not_yet when the ledger cannot be read for the whole window (never red for that). facts carry the count
                    and, for each signed_domain, the latest batch that lists it (the signature is no later than that day);
                    no name of a person is read or written.
+                   2026-11-15: a witness is counted only while its domain still serves the key that signed. For each
+                   signed_domain, the record of its latest batch is read at GET /witness/<sha> (key_url and
+                   public_key_ed25519_b64, as the intake stored them) and its key_url is read now: it must answer 200 with
+                   {public_key_ed25519_b64} or one ssh-ed25519 line (the intake's two forms) giving the same key. A key_url
+                   that does not answer, answers another status, serves something else or serves another key is not
+                   counted (facts.not_served, with the reason). A record the ledger does not give back is unread
+                   (facts.unread). ok when 3 or more are served and none is set aside; notice when 3 or more are served and
+                   some are set aside (named); not_yet when fewer than 3 are served but served and unread reach 3; red
+                   otherwise. facts.distinct stays the number of signed_domains in the batches; facts.served is the count
+                   that decides. The key_url is read live, so two readers can differ when a witness's site is down for one
+                   of them; a redirect is followed (the intake refuses one at submission).
+                   The key_url is read by key_url_get, not http_get: at most 64 KiB and 20 s per read, twice at most, and
+                   a body larger or slower than that is refused at once. A body nested too deeply to parse is no key. Any
+                   other failure in one witness's key check sets that witness aside (not_served) and the run goes on.
 
 Added on 2026-11-07 (24, the gateway runs only the payload the door is shown):
     24             content_mismatch: the scene mismatch of the store's own agent (seki-heartbeat runs/<day>/RUN.json, the
@@ -357,6 +371,56 @@ def http_get(url, tries=3, wait=10, timeout=30, raw=False):
         if i + 1 < tries:
             time.sleep(wait)
     raise Unreachable("%s: %s after %d tries" % (url, last, tries))
+
+
+KEY_CAP = 65536      # 16: the most bytes read from a witness's key_url (a key file is under 1 KiB)
+KEY_DEADLINE = 20    # 16: the most seconds one read of a key_url body may take
+
+
+class KeyBodyRefused(Exception):
+    pass
+
+
+def read_capped(r, cap=KEY_CAP, deadline=KEY_DEADLINE, clock=time.monotonic):
+    """the body of r, read in pieces; KeyBodyRefused when it passes cap bytes or deadline seconds (a body sent slowly or without end)"""
+    start, buf = clock(), bytearray()
+    while True:
+        if clock() - start > deadline:
+            raise KeyBodyRefused("body not read within %d s" % deadline)
+        piece = r.read1(4096) if hasattr(r, "read1") else r.read(4096)
+        if not piece:
+            return bytes(buf)
+        buf += piece
+        if len(buf) > cap:
+            raise KeyBodyRefused("body larger than %d bytes" % cap)
+
+
+def key_url_get(url, tries=2, wait=5, timeout=10):
+    """16 reads a witness's key_url with this, not http_get: (status, text or None); the body is capped in size and time, and a
+    body that is not UTF-8 is None. A refused body is not tried again. A network failure or a 5xx is tried twice; then Unreachable."""
+    last = None
+    for i in range(tries):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=dict(UA)), timeout=timeout) as r:
+                b = read_capped(r)
+                try:
+                    return r.status, b.decode("utf-8")
+                except UnicodeDecodeError:
+                    return r.status, None
+        except urllib.error.HTTPError as e:
+            if e.code < 500:
+                return e.code, None
+            last = "http %d" % e.code
+        except KeyBodyRefused as e:
+            raise Unreachable("%s: %s" % (url, e))
+        except (urllib.error.URLError, OSError, ValueError) as e:
+            last = type(e).__name__
+        if i + 1 < tries:
+            time.sleep(wait)
+    raise Unreachable("%s: %s after %d tries" % (url, last, tries))
+
+
+http_get.key_get = key_url_get
 
 
 def c(cid, state, why, **facts):
@@ -2010,6 +2074,67 @@ def own_witness(d):
     return any(d == z or d.endswith("." + z) for z in OWN_ZONES)
 
 
+SSH_ED25519_LINE = re.compile(r"^ssh-ed25519[ \t]+([A-Za-z0-9+/]+={0,2})(?:[ \t]+[\x20-\x7e\t]*)?\Z")
+
+
+def served_key_b64(text):
+    """the key a key_url serves, as the intake reads it (workers/hs-ledger/src/ssh_ed25519.mjs servedKeyB64 with ssh):
+    JSON {public_key_ed25519_b64} as given, or the 32 bytes of one ssh-ed25519 line in canonical base64; else None"""
+    if not isinstance(text, str):
+        return None
+    try:
+        j = json.loads(text)
+    except RecursionError:   # a deeply nested body, which the owner of a key_url can serve: no key
+        return None
+    except ValueError:
+        j = Ellipsis
+    if j is not Ellipsis:
+        return j["public_key_ed25519_b64"] if isinstance(j, dict) and isinstance(j.get("public_key_ed25519_b64"), str) else None
+    t = text[:-2] if text.endswith("\r\n") else (text[:-1] if text.endswith("\n") else text)
+    m = SSH_ED25519_LINE.match(t)
+    if not m:
+        return None
+    try:
+        b = base64.b64decode(m.group(1), validate=True)
+    except ValueError:
+        return None
+    if base64.b64encode(b).decode("ascii") != m.group(1) or len(b) != 4 + 11 + 4 + 32:
+        return None
+    if int.from_bytes(b[0:4], "big") != 11 or b[4:15] != b"ssh-ed25519" or int.from_bytes(b[15:19], "big") != 32:
+        return None
+    return base64.b64encode(b[19:51]).decode("ascii")
+
+
+def witness_key_state(get, sha):
+    """16: ("served", None) when the witness record sha's key_url serves now the key that signed it; ("not_served", why) when
+    it does not; ("unread", why) when the ledger does not give the record back"""
+    if not (isinstance(sha, str) and H64.match(sha)):
+        return "unread", "the batch names no record sha"
+    try:
+        s, r = get(LEDGER + "/witness/" + sha)
+    except Unreachable as e:
+        return "unread", "GET /witness/%s did not answer: %s" % (sha[:12], e)
+    st = (r.get("record") if r.get("status") == "anchored" else r) if s == 200 and isinstance(r, dict) else None
+    if not isinstance(st, dict):
+        return "unread", "GET /witness/%s answered http %s without a record" % (sha[:12], s)
+    ku, pub = st.get("key_url"), st.get("public_key_ed25519_b64")
+    if not (isinstance(ku, str) and ku.startswith("https://") and isinstance(pub, str) and pub):
+        return "not_served", "record %s carries no https key_url with its key" % sha[:12]
+    kg = getattr(get, "key_get", None)   # http_get and with_cross carry key_url_get; a test world reads key_url like any URL
+    try:
+        ks, body = kg(ku) if kg else get(ku, raw=True)
+    except Unreachable as e:
+        return "not_served", "key_url did not answer: %s" % e
+    if ks != 200:
+        return "not_served", "key_url %s answered http %s" % (ku, ks)
+    k = served_key_b64(body)
+    if k is None:
+        return "not_served", "key_url %s did not serve {public_key_ed25519_b64} or one ssh-ed25519 line" % ku
+    if k != pub:
+        return "not_served", "key_url %s now serves another key than the one that signed record %s" % (ku, sha[:12])
+    return "served", None
+
+
 def check_witness_pool(get, now):
     """16: at least 3 distinct outside witnesses signed a FURUI or TOOSHI day in the 30 days before today's 03:47 UTC, counted
     from the ledger's witness batches only"""
@@ -2017,7 +2142,7 @@ def check_witness_pool(get, now):
     hi = anchor(now)
     lo = hi - POOL_WINDOW
     win = [iso(lo), iso(hi)]
-    last, other, read = {}, set(), 0
+    last, other, read, sha_of = {}, set(), 0, {}
     try:
         s, h = get(LEDGER + "/ledger/head")
         n = h.get("n") if s == 200 and isinstance(h, dict) else None
@@ -2057,17 +2182,33 @@ def check_witness_pool(get, now):
                     continue
                 if d not in last:   # entries are read from the newest, so the first seen is the latest
                     last[d] = {"signed_domain": d, "last_entry": e.get("n", i + 1), "last_signed": day}
+                    sha_of[d] = r.get("sha")
         if not done and i < 1:
             done = True   # the whole ledger is inside the window
     except Unreachable as e:
         return c(cid, "not_yet", "the ledger did not answer, so the witness batches of the 30 days before %s cannot be read: %s" % (iso(hi), e), window=win, entries_read=read)
     doms = sorted(last.values(), key=lambda x: x["signed_domain"])
+    served, not_served, unread = [], [], []
+    for x in doms:
+        try:
+            k, why = witness_key_state(get, sha_of.get(x["signed_domain"]))
+        except Exception as e:   # whatever a witness's key_url serves, 16 and the day's other checks still finish
+            k, why = "not_served", "the key check of this witness stopped on %s" % type(e).__name__
+        if k == "served":
+            served.append(x)
+        else:
+            (unread if k == "unread" else not_served).append({"signed_domain": x["signed_domain"], "why": why})
     facts = {"window": win, "line": POOL_LINE, "distinct": len(doms), "domains": doms, "entries_read": read,
-             "other_purposes_only": len(other - set(last))}
-    names = ", ".join("%s (latest batch %s, entry %s)" % (x["signed_domain"], x["last_signed"], x["last_entry"]) for x in doms) or "none"
-    if len(doms) < POOL_LINE:
-        return c(cid, "red", "%d outside witness(es) signed a FURUI or TOOSHI day with a key of their own domain in the 30 days before %s (the line is %d): %s" % (len(doms), iso(hi), POOL_LINE, names), **facts)
-    return c(cid, "ok", "%d outside witnesses signed a FURUI or TOOSHI day with a key of their own domain in the 30 days before %s: %s" % (len(doms), iso(hi), names), **facts)
+             "other_purposes_only": len(other - set(last)), "served": len(served), "not_served": not_served, "unread": unread}
+    names = ", ".join("%s (latest batch %s, entry %s)" % (x["signed_domain"], x["last_signed"], x["last_entry"]) for x in served) or "none"
+    aside = "; ".join("%s: %s" % (x["signed_domain"], x["why"]) for x in not_served + unread)
+    tail = (". Set aside: " + aside) if aside else ""
+    if len(served) >= POOL_LINE:
+        st = "notice" if aside else "ok"
+        return c(cid, st, "%d outside witnesses signed a FURUI or TOOSHI day in the 30 days before %s and their domains still serve that key: %s%s" % (len(served), iso(hi), names, tail), **facts)
+    if len(served) + len(unread) >= POOL_LINE:
+        return c(cid, "not_yet", "%d outside witness(es) are confirmed to still serve their key, and the ledger did not give back the record of %d more, so the line of %d cannot be read today: %s%s" % (len(served), len(unread), POOL_LINE, names, tail), **facts)
+    return c(cid, "red", "%d outside witness(es) signed a FURUI or TOOSHI day in the 30 days before %s and their domains still serve that key (the line is %d; %d signed_domain(s) in the batches): %s%s" % (len(served), iso(hi), POOL_LINE, len(doms), names, tail), **facts)
 
 
 class LedgerUnread(Exception):
@@ -2985,10 +3126,21 @@ def selftest():
                 DRILLS + "latest-swh.json": drill("software-heritage", 270)}
     # 16: below the entries 278 to 280 of witness_world, one witness batch of 2026-10-20 with three outside witnesses of a
     # furui-day, and entry 276 made before the window (2026-10-06T03:47 UTC at the 11-05 run), where the read stops
+    POOL_PK = base64.b64encode(b"\x09" * 32).decode("ascii")
+    POOL_KEYS = {}   # 16 (2026-11-15): every signed pool_rec's record at GET /witness/<sha> and its key_url serving the key that signed
+
+    def pool_key_url(dom):
+        return ("https://raw.githubusercontent.com/%s/w/main/witness.json" % dom.split("/", 1)[1]) if dom.lower().startswith("github.com/") else ("https://%s/.well-known/witness.json" % dom.strip().lower())
+
     def pool_rec(dom, purpose="furui-day-v0: 2026-10-18", signed=True, name="A Person"):
         r = {"sha": hsh("%s|%s" % (dom, purpose)), "purpose": purpose, "witness_name": name, "vantage": "a laptop", "signed": signed, "mode": "commitment"}
         if dom:
             r["signed_domain"] = dom
+        if dom and isinstance(dom, str) and dom.strip() and signed is True:
+            ku = pool_key_url(dom)
+            POOL_KEYS[LEDGER + "/witness/" + r["sha"]] = (200, {"status": "anchored", "sha": r["sha"], "ledger_entry": 277,
+                                                               "record": {"sha": r["sha"], "signed": True, "signed_domain": dom, "key_url": ku, "public_key_ed25519_b64": POOL_PK, "purpose": purpose}})
+            POOL_KEYS[ku] = (200, json.dumps({"public_key_ed25519_b64": POOL_PK}))
         return r
 
     def pool_batch(n, at, recs, **f):
@@ -3014,6 +3166,7 @@ def selftest():
         w.update(witness_world("2026-11-03", sha, st3["root"], st3["n"], *(wit(sha, st3["root"], st3["n"]) if wit else ([answer("2026-11-03", sha, st3["root"], st3["n"])],))))
         w.update(v2_world())
         w.update(pool_world())
+        w.update(POOL_KEYS)
         if cc:
             e5 = envelope("2026-11-05", 0)
             t5, r5 = adm_today or admission(e5)
@@ -3605,6 +3758,125 @@ def selftest():
     cases.append(("16 not_yet, not red: an entry inside the window does not answer (5xx three times) or answers 404",
                   (st(world(cc=True, **{LEDGER + "/ledger/278?format=json": "down"}), S16)["state"], st(world(cc=True, **{LEDGER + "/ledger/277?format=json": (404, {"error": "not found"})}), S16)["state"]), ("not_yet", "not_yet")))
     cases.append(("16 not_yet: the head answers without n", st(world(cc=True, **{LEDGER + "/ledger/head": (200, {"schema": "jidec-head-v1"})}), S16)["state"], "not_yet"))
+    # 16 (2026-11-15): a witness counts only while its domain still serves the key that signed
+    P4 = POOL3 + [pool_rec("d.example")]
+    KU = lambda d: pool_key_url(d)
+    WR = lambda r: LEDGER + "/witness/" + r["sha"]
+    x16k = p16(POOL3)
+    cases.append(("16 ok: the three outside witnesses' key_urls serve the key that signed (served 3, nothing set aside)",
+                  (x16k["state"], x16k["facts"]["served"], x16k["facts"]["not_served"], x16k["facts"]["unread"]), ("ok", 3, [], [])))
+    x16u = p16(P4, **{KU("b.example"): "down"})
+    cases.append(("16 notice: four witnesses, b.example's key_url does not answer (served 3; b.example named, not counted)",
+                  (x16u["state"], x16u["facts"]["served"], [x["signed_domain"] for x in x16u["facts"]["not_served"]], "b.example: key_url did not answer" in x16u["why"], x16u["facts"]["distinct"]),
+                  ("notice", 3, ["b.example"], True, 4)))
+    cases.append(("16 notice does not change the day's verdict or counts of red and not_yet (the same run with b.example's key_url up and down)",
+                  (lambda a, b: (a["verdict"] == b["verdict"], a["counts"]["red"] == b["counts"]["red"], a["counts"]["not_yet"] == b["counts"]["not_yet"]))(
+                      run(world(cc=True, **pool_world(P4)), now)[0], run(world(cc=True, **dict(pool_world(P4), **{KU("b.example"): "down"})), now)[0]), (True, True, True)))
+    cases.append(("16 red: three witnesses, one key_url does not answer (served 2)", (lambda x: (x["state"], x["facts"]["served"], x["facts"]["distinct"]))(p16(POOL3, **{KU("a.example"): "down"})), ("red", 2, 3)))
+    cases.append(("16 red: a key_url that answers 404 or 410, or a host gone (NXDOMAIN is the same as no answer)",
+                  [p16(POOL3, **{KU("a.example"): (st_, None)})["state"] for st_ in (404, 410, 403)], ["red", "red", "red"]))
+    OTHER_PK = base64.b64encode(b"\x0a" * 32).decode("ascii")
+    x16c = p16(POOL3, **{KU("b.example"): (200, json.dumps({"public_key_ed25519_b64": OTHER_PK}))})
+    cases.append(("16 red: b.example's key_url now serves another key than the one that signed (a rotation counts again only after a new signature)",
+                  (x16c["state"], x16c["facts"]["served"], any("now serves another key" in x["why"] for x in x16c["facts"]["not_served"])), ("red", 2, True)))
+    SSHL = lambda k32, tail="": "ssh-ed25519 " + base64.b64encode(len(b"ssh-ed25519").to_bytes(4, "big") + b"ssh-ed25519" + (32).to_bytes(4, "big") + k32).decode("ascii") + tail
+    cases.append(("16 ok: a key_url serving the same key as one ssh-ed25519 line (with a comment and a final line feed) is served",
+                  p16(POOL3, **{KU("b.example"): (200, SSHL(b"\x09" * 32, " me@host\n"))})["state"], "ok"))
+    cases.append(("16 red: an ssh-ed25519 line of another key, two lines, or a body that is neither form is not served",
+                  [p16(POOL3, **{KU("b.example"): (200, body)})["state"] for body in (SSHL(b"\x0a" * 32), SSHL(b"\x09" * 32) + "\n" + SSHL(b"\x09" * 32), "<html>moved</html>", json.dumps({"key": POOL_PK}), "[]")],
+                  ["red"] * 5))
+    cases.append(("16 served_key_b64 reads what the intake reads: JSON as given, canonical base64 only for ssh, nothing after the key",
+                  (served_key_b64(json.dumps({"public_key_ed25519_b64": "x"})), served_key_b64(SSHL(b"\x09" * 32)), served_key_b64(SSHL(b"\x09" * 32) + "\r\n"),
+                   served_key_b64("ssh-rsa AAAA"), served_key_b64(None), served_key_b64("ssh-ed25519 " + base64.b64encode((11).to_bytes(4, "big") + b"ssh-ed25519" + (32).to_bytes(4, "big") + b"\x09" * 33).decode())),
+                  ("x", POOL_PK, POOL_PK, None, None, None)))
+    x16n2 = p16(POOL3, **{WR(POOL3[0]): "down"})
+    cases.append(("16 not_yet, not red: the ledger does not give back one record (served 2 + unread 1 reach the line)",
+                  (x16n2["state"], x16n2["facts"]["served"], [x["signed_domain"] for x in x16n2["facts"]["unread"]]), ("not_yet", 2, ["a.example"])))
+    cases.append(("16 red: served 1 and unread 1 do not reach the line", p16(POOL3, **{WR(POOL3[0]): (404, None), KU("b.example"): "down"})["state"], "red"))
+    cases.append(("16 notice: four witnesses, one record not given back (served 3, unread named)", (lambda x: (x["state"], len(x["facts"]["unread"])))(p16(P4, **{WR(P4[3]): (503, None)})), ("notice", 1)))
+    NOKEY = (200, {"status": "anchored", "sha": POOL3[1]["sha"], "record": {"signed": True, "signed_domain": "b.example", "key_url": None, "public_key_ed25519_b64": POOL_PK}})
+    HTTPK = (200, {"status": "anchored", "sha": POOL3[1]["sha"], "record": {"signed": True, "signed_domain": "b.example", "key_url": "http://b.example/w.json", "public_key_ed25519_b64": POOL_PK}})
+    cases.append(("16 red: a record without key_url, or with an http key_url, is not served", [p16(POOL3, **{WR(POOL3[1]): v})["state"] for v in (NOKEY, HTTPK)], ["red", "red"]))
+    PENDREC = (200, {"status": "pending", "sha": POOL3[1]["sha"], "signed": True, "signed_domain": "b.example", "key_url": KU("b.example"), "public_key_ed25519_b64": POOL_PK})
+    cases.append(("16 ok: a record the ledger gives back flat (not wrapped in record) is read the same way", p16(POOL3, **{WR(POOL3[1]): PENDREC})["state"], "ok"))
+    A2 = pool_rec("a.example", purpose="furui-day-v0: 2026-11-02")
+    x16l = st(world(cc=True, **dict(pool_world(POOL3), **{LEDGER + "/ledger/279?format=json": pool_batch(279, "2026-11-04T23:00:00.000Z", [A2]),
+                                                          KU("a.example"): (200, json.dumps({"public_key_ed25519_b64": OTHER_PK})),
+                                                          WR(A2): (200, {"status": "anchored", "sha": A2["sha"], "record": {"key_url": KU("a.example"), "public_key_ed25519_b64": OTHER_PK}})})), S16)
+    cases.append(("16 ok: the key of a domain's latest record is the one compared (a.example rotated and signed again with the new key)", (x16l["state"], x16l["facts"]["served"]), ("ok", 3)))
+    REAL5 = [pool_rec(d) for d in ("agent-passport.org", "invinoveritas.dev", "ovaic.org", "pipavlo82.github.io", "sencor.ai")]
+    x16r5 = p16(REAL5, **{KU("ovaic.org"): "down"})
+    cases.append(("16 notice on the shape of 2026-11-15: five witnesses, ovaic.org's host does not answer (served 4, ovaic.org named)",
+                  (x16r5["state"], x16r5["facts"]["served"], [x["signed_domain"] for x in x16r5["facts"]["not_served"]]), ("notice", 4, ["ovaic.org"])))
+    SEEN16 = []
+    g16 = world(cc=True, **pool_world(POOL3[:2] + [pool_rec("c.example", purpose="a2a-conduct-walk-v1: https://x"), pool_rec("horizonshield.dev")]))
+    check_witness_pool(lambda u, raw=False: (SEEN16.append(u), g16(u, raw))[1], now)
+    cases.append(("16: only the counted domains' records and key_urls are read (not a walk-only domain's, not our own zone's)",
+                  sorted(u for u in SEEN16 if "/witness/" in u or "/.well-known/" in u or "raw.githubusercontent" in u),
+                  sorted([WR(POOL3[0]), WR(POOL3[1]), KU("a.example"), KU("b.example")])))
+    # 16 (2026-11-15, FROM_TEAM_365): what a witness's key_url serves cannot stop the run
+    DEEP = "[" * 200000
+    def safe16(f):
+        try:
+            return f()
+        except Exception as e:
+            return "raised " + type(e).__name__
+    cases.append(("16 served_key_b64: a body nested too deeply to parse is no key, not an exception", tuple(safe16(lambda b=b: served_key_b64(b)) for b in (DEEP, '{"a":' * 200000)), (None, None)))
+    x16deep = safe16(lambda: (lambda x: (x["state"], x["facts"]["served"]))(p16(POOL3, **{KU("b.example"): (200, DEEP)})))
+    cases.append(("16 red: a key_url serving a deeply nested body is not served, and 16 still returns", x16deep, ("red", 2)))
+    def run16(over, boom=None):
+        g0 = world(cc=True, **dict(pool_world(P4), **over))
+        def g(u, raw=False):
+            if boom and u == boom:
+                raise RuntimeError("boom")
+            return g0(u, raw)
+        try:
+            r = run(g, now)[0]
+            return r["verdict"], [x["state"] for x in r["checks"] if x["id"] == S16][0]
+        except Exception as e:
+            return "the run stopped on " + type(e).__name__, None
+    ok16 = run16({})
+    cases.append(("16: the day's run finishes, with the same verdict, when one witness's key_url serves a deeply nested body (16 notice)",
+                  run16({KU("b.example"): (200, DEEP)}), (ok16[0], "notice")))
+    cases.append(("16: the day's run finishes when reading one witness's key_url raises an unexpected exception (16 notice)", run16({}, boom=KU("b.example")), (ok16[0], "notice")))
+    xb = safe16(lambda: (lambda x: (x["state"], [y["why"] for y in x["facts"]["not_served"]]))((lambda w: check_witness_pool(lambda u, raw=False: (_ for _ in ()).throw(RuntimeError("boom")) if u == KU("a.example") else w(u, raw), now))(world(cc=True, **pool_world(POOL3)))))
+    cases.append(("16: an unexpected exception in one witness's key check names its type and sets the witness aside",
+                  xb, ("red", ["the key check of this witness stopped on RuntimeError"])))
+    import io
+    class Drip:
+        def __init__(s, n): s.n = n
+        def read1(s, k):
+            if s.n <= 0:
+                return b""
+            s.n -= 1
+            return b"x"
+    tick = iter(range(0, 10 ** 6, 3))
+    def refused(f):
+        try:
+            f()
+            return "read"
+        except KeyBodyRefused as e:
+            return str(e)
+    cases.append(("16 read_capped: a small body is read whole; more than 64 KiB, or longer than 20 s, is refused",
+                  (read_capped(io.BytesIO(b"k" * 100)), refused(lambda: read_capped(io.BytesIO(b"k" * (KEY_CAP + 1)))),
+                   refused(lambda: read_capped(Drip(1000), clock=lambda: next(tick))), read_capped(io.BytesIO(b"k" * KEY_CAP)) == b"k" * KEY_CAP),
+                  (b"k" * 100, "body larger than 65536 bytes", "body not read within 20 s", True)))
+    KG = []
+    kgw = world(cc=True, **pool_world(POOL3))
+    def kget(u, raw=False):
+        if raw and ("/.well-known/" in u or "raw.githubusercontent" in u):
+            KG.append(("plain", u))
+        return kgw(u, raw)
+    def kbound(u):
+        KG.append(("bounded", u))
+        return kgw(u, True)
+    kget.key_get = kbound
+    xk = check_witness_pool(kget, now)
+    cases.append(("16: a getter that carries key_get reads every key_url through it, never through the plain getter",
+                  (xk["state"], sorted(set(k for k, _ in KG)), len(KG)), ("ok", ["bounded"], 3)))
+    cases.append(("16: http_get carries key_url_get, and with_cross keeps it (the daily run and the witness run both use with_cross(http_get, ...))",
+                  (getattr(http_get, "key_get", None) is key_url_get, getattr(with_cross(http_get, None), "key_get", None) is key_url_get, hasattr(with_cross(lambda u, raw=False: (404, None), None), "key_get")),
+                  (True, True, False)))
     MANY = lambda u, raw=False: (200, {"n": 5000}) if u == LEDGER + "/ledger/head" else ((200, {"n": 1, "created_at": "2026-11-01T00:00:00.000Z", "record_canonical": "{}"}) if "/ledger/" in u else (404, None))
     x16m = check_witness_pool(MANY, now)
     cases.append(("16 not_yet: the window holds more entries than the scan reads (600)", (x16m["state"], x16m["facts"]["entries_read"]), ("not_yet", POOL_SCAN)))
@@ -3628,6 +3900,17 @@ def selftest():
         if add:
             e = dict(RP["entries"]["256"]); b = json.loads(e["record_canonical"]); b["records"] = b["records"] + add; e["record_canonical"] = canonical(b)
             w[LEDGER + "/ledger/256?format=json"] = (200, e)
+        w.update(POOL_KEYS)
+        for k, v in RP["entries"].items():   # 16 (2026-11-15): the fixture's outside witnesses serve the key that signed
+            try:
+                b = json.loads(v.get("record_canonical") or "")
+            except ValueError:
+                continue
+            for r in (b.get("records") or []) if isinstance(b, dict) and b.get("schema") == "nenrin-witness-batch-v1" else []:
+                if isinstance(r, dict) and r.get("signed") is True and isinstance(r.get("signed_domain"), str) and isinstance(r.get("sha"), str):
+                    ku = pool_key_url(r["signed_domain"])
+                    w.setdefault(LEDGER + "/witness/" + r["sha"], (200, {"status": "anchored", "sha": r["sha"], "record": {"key_url": ku, "public_key_ed25519_b64": POOL_PK}}))
+                    w.setdefault(ku, (200, json.dumps({"public_key_ed25519_b64": POOL_PK})))
         w.update(over)
         return lambda u, raw=False: w[u] if u in w else (404, None)
     r16 = check_witness_pool(wp(), N6)
@@ -4216,6 +4499,8 @@ def with_cross(get, path):
         if url == CROSS_SOURCE:
             return (200, x) if isinstance(x, dict) else ((422, None) if x == "unreadable" else (404, None))
         return get(url, raw=raw) if raw else get(url)
+    if getattr(get, "key_get", None):
+        g.key_get = get.key_get
     return g
 
 
