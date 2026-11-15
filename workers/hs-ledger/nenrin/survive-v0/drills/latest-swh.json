@@ -1,13 +1,13 @@
 {
   "anchors": {
-    "confirmed": 280,
+    "confirmed": 286,
     "explorers": [
       "blockstream.info",
       "mempool.space"
     ],
     "failed": [],
     "first_block": 959118,
-    "last_block": 975368,
+    "last_block": 975619,
     "pending": [
       166,
       167,
@@ -40,8 +40,8 @@
   },
   "chain": {
     "broken_at": null,
-    "head": "bddfc54f69b7dec63a24caa8ab62153399b7607b8073911b16cc300443cec539",
-    "rebuilt_through": 307,
+    "head": "77facb6dd05deec4b02ccf94691f940b9dd1c11448d32bf0b8d504a2da6c66e6",
+    "rebuilt_through": 313,
     "stamped_heads": [
       {
         "carried_by": 58,
@@ -437,33 +437,43 @@
         "carried_by": 306,
         "head_n": 302,
         "result": "match"
+      },
+      {
+        "carried_by": 309,
+        "head_n": 308,
+        "result": "match"
+      },
+      {
+        "carried_by": 312,
+        "head_n": 308,
+        "result": "match"
       }
     ],
-    "stamped_heads_matched": 79
+    "stamped_heads_matched": 81
   },
   "copy": {
-    "directory": "swh:1:dir:0aa306e663c0e4f58e36fb5d21d5b7a6c60e2f2f",
+    "directory": "swh:1:dir:adf70c2e6df8fc26350cc7a44fb0216d59584fde",
     "is_todays_visit": false,
     "kind": "cooked_ahead",
-    "precooked_at": "2026-11-12T03:30:20Z",
-    "revision": "ff2f2673cafa35fe86391d150a0a030db91355b7",
+    "precooked_at": "2026-11-13T03:30:29Z",
+    "revision": "5b2aa5f2cb324a4b96fdf08a40361d56477bbe1e",
     "revision_age_hours": 48.0,
-    "revision_date": "2026-11-12T03:19:00+00:00",
-    "visit_date": "2026-11-12T03:19:07.509000+00:00"
+    "revision_date": "2026-11-13T03:18:55+00:00",
+    "visit_date": "2026-11-13T03:19:07.735000+00:00"
   },
   "digests": {
     "failed": [],
-    "ok": 307
+    "ok": 313
   },
   "does_not_establish": [
     "that any claim in the ledger is true",
     "that the copy is complete past its highest entry; the newest entries may not have reached the custodian yet",
     "that two explorers agreeing is Bitcoin consensus; check headers against your own node for that",
     "anything about entries whose proofs are still pending; they are listed, not counted",
-    "that the copy is today's: it is the copy asked for at 2026-11-12T03:30:20Z, of the revision committed at 2026-11-12T03:19:00+00:00 (48.0 hours before the drill); entries added after that are not in it"
+    "that the copy is today's: it is the copy asked for at 2026-11-13T03:30:29Z, of the revision committed at 2026-11-13T03:18:55+00:00 (48.0 hours before the drill); entries added after that are not in it"
   ],
-  "drill_at": "2026-11-14T03:19:50Z",
-  "entries": 307,
+  "drill_at": "2026-11-15T03:19:35Z",
+  "entries": 313,
   "establishes": [
     "these ledger bytes were rebuilt from the named custodian without connecting to any operator host",
     "every digest, the jidec-chain-v1 head, the stamped heads and the Bitcoin anchors were recomputed from the copy and two public explorers"
@@ -476,75 +486,75 @@
   "outcome": "rebuilt",
   "range": [
     1,
-    307
+    313
   ],
-  "report_sha256": "b1e5ab093a49dbc048f803a0565e4d4f0c4dd165172f435714ceea60222fab9e",
+  "report_sha256": "e6623b28718aae9e2d26b419a1106c13f41728e95288ea7ffe2ca79e7afd43c7",
   "schema": "nenrin-survive-drill-v0",
   "source": {
-    "archive_sha256": "4e2d24f03b892d5588133800799722248fdeb596021e24736d2e7909b1997eef",
+    "archive_sha256": "7c72aa2f88b95c049173c0b5667f4f390aa3e981ffaf096f83c9dbd6b1e69f09",
     "cooked_ahead": {
       "candidates": 4,
-      "requested_at": "2026-11-12T03:30:20Z",
+      "requested_at": "2026-11-13T03:30:29Z",
       "used": true
     },
     "copy": {
-      "directory": "swh:1:dir:0aa306e663c0e4f58e36fb5d21d5b7a6c60e2f2f",
+      "directory": "swh:1:dir:adf70c2e6df8fc26350cc7a44fb0216d59584fde",
       "is_todays_visit": false,
       "kind": "cooked_ahead",
-      "precooked_at": "2026-11-12T03:30:20Z",
-      "revision": "ff2f2673cafa35fe86391d150a0a030db91355b7",
+      "precooked_at": "2026-11-13T03:30:29Z",
+      "revision": "5b2aa5f2cb324a4b96fdf08a40361d56477bbe1e",
       "revision_age_hours": 48.0,
-      "revision_date": "2026-11-12T03:19:00+00:00",
-      "visit_date": "2026-11-12T03:19:07.509000+00:00"
+      "revision_date": "2026-11-13T03:18:55+00:00",
+      "visit_date": "2026-11-13T03:19:07.735000+00:00"
     },
     "custodian": "software-heritage",
-    "directory": "swh:1:dir:0aa306e663c0e4f58e36fb5d21d5b7a6c60e2f2f",
+    "directory": "swh:1:dir:adf70c2e6df8fc26350cc7a44fb0216d59584fde",
     "operator_controlled": false,
-    "revision": "ff2f2673cafa35fe86391d150a0a030db91355b7",
-    "snapshot": "6e04a2c69096443d79090b3c5e86795dfc0998e1",
+    "revision": "5b2aa5f2cb324a4b96fdf08a40361d56477bbe1e",
+    "snapshot": "8f879a0514a018d7a7348cf2f05565bfb0c7aaa9",
     "todays_visit": {
-      "directory": "swh:1:dir:e36db4a5afe278bdfe107ba6ef5b6907d2140042",
-      "revision": "6e4157d1c7610cc13f6db51b3f5d29889116fd44",
-      "revision_date": "2026-11-14T03:19:03+00:00",
-      "snapshot": "279c316b49536ea831d3bb02241195062657fcb5",
-      "visit_date": "2026-11-14T03:19:15.792000+00:00"
+      "directory": "swh:1:dir:03746dc85c0b02bdce36c03c7c496c81a93c11c6",
+      "revision": "184da3bc4045cee99b3b5b83a201d793311316be",
+      "revision_date": "2026-11-15T03:18:49+00:00",
+      "snapshot": "d4db6e5445b7d990dfc6fc5a2c8410219b975661",
+      "visit_date": "2026-11-15T03:18:56.079000+00:00"
     },
     "vault": {
       "ahead_get": [
         {
-          "at": "2026-11-14T03:19:54Z",
-          "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:adf70c2e6df8fc26350cc7a44fb0216d59584fde/raw/\",\"progress_message\":null,\"id\":422576582,\"status\":\"new\",\"swhid\":\"swh:1:dir:adf70c2e6df8fc26350cc7a44fb0216d59584fde\"}",
-          "body_sha256": "12ebced91f3f325ca879107d70215450e950cea1cd50da56341a12782b51230c",
+          "at": "2026-11-15T03:19:38Z",
+          "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:e36db4a5afe278bdfe107ba6ef5b6907d2140042/raw/\",\"progress_message\":null,\"id\":422648086,\"status\":\"new\",\"swhid\":\"swh:1:dir:e36db4a5afe278bdfe107ba6ef5b6907d2140042\"}",
+          "body_sha256": "1e12ccae47974de0e3f786596892ac67b45a3a093e7f2cebef0839825dc9fa95",
           "http_status": 200,
           "method": "GET",
           "status": "new",
-          "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:adf70c2e6df8fc26350cc7a44fb0216d59584fde/",
-          "vault_id": 422576582
+          "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:e36db4a5afe278bdfe107ba6ef5b6907d2140042/",
+          "vault_id": 422648086
         },
         {
-          "at": "2026-11-14T03:19:54Z",
-          "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:0aa306e663c0e4f58e36fb5d21d5b7a6c60e2f2f/raw/\",\"progress_message\":null,\"id\":422573087,\"status\":\"done\",\"swhid\":\"swh:1:dir:0aa306e663c0e4f58e36fb5d21d5b7a6c60e2f2f\"}",
-          "body_sha256": "68a79f5421eedd8a1bbc49b1571aa237eb2023b0cab3f2a02fde735e665c429f",
+          "at": "2026-11-15T03:19:38Z",
+          "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:adf70c2e6df8fc26350cc7a44fb0216d59584fde/raw/\",\"progress_message\":null,\"id\":422576582,\"status\":\"done\",\"swhid\":\"swh:1:dir:adf70c2e6df8fc26350cc7a44fb0216d59584fde\"}",
+          "body_sha256": "c615b2df5df4785453367ad43dc4aa174fcd6e04022edc87f9f1c294bdd9365a",
           "http_status": 200,
           "method": "GET",
           "status": "done",
-          "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:0aa306e663c0e4f58e36fb5d21d5b7a6c60e2f2f/",
-          "vault_id": 422573087
+          "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:adf70c2e6df8fc26350cc7a44fb0216d59584fde/",
+          "vault_id": 422576582
         }
       ],
-      "directory": "swh:1:dir:e36db4a5afe278bdfe107ba6ef5b6907d2140042",
+      "directory": "swh:1:dir:03746dc85c0b02bdce36c03c7c496c81a93c11c6",
       "post": {
-        "at": "2026-11-14T03:19:53Z",
-        "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:e36db4a5afe278bdfe107ba6ef5b6907d2140042/raw/\",\"progress_message\":null,\"id\":422648086,\"status\":\"new\",\"swhid\":\"swh:1:dir:e36db4a5afe278bdfe107ba6ef5b6907d2140042\"}",
-        "body_sha256": "1e12ccae47974de0e3f786596892ac67b45a3a093e7f2cebef0839825dc9fa95",
+        "at": "2026-11-15T03:19:37Z",
+        "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:03746dc85c0b02bdce36c03c7c496c81a93c11c6/raw/\",\"progress_message\":null,\"id\":422651774,\"status\":\"new\",\"swhid\":\"swh:1:dir:03746dc85c0b02bdce36c03c7c496c81a93c11c6\"}",
+        "body_sha256": "4e449c746e6708cd81eb1600e7f6dc00fc4dabcefe72c5e80ee06908a912ffc1",
         "http_status": 200,
         "method": "POST",
         "status": "new",
-        "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:e36db4a5afe278bdfe107ba6ef5b6907d2140042/",
-        "vault_id": 422648086
+        "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:03746dc85c0b02bdce36c03c7c496c81a93c11c6/",
+        "vault_id": 422651774
       }
     },
-    "visit_date": "2026-11-12T03:19:07.509000+00:00"
+    "visit_date": "2026-11-13T03:19:07.735000+00:00"
   },
   "version": "0.1.0"
 }
