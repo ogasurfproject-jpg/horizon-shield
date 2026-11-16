@@ -1,0 +1,12 @@
+{
+  "n": 327,
+  "work": "pages-prereg-addendum-v0",
+  "claim_sha256": "6d281a4352cb0326c0a6e7f69e80abcd09e4c1df82ff0dd20a7573b215891e92",
+  "record_canonical": "# pages-prereg-addendum-v0\n\namends: 2cbc330ba691e1407d59ef3a590df101356ec962cf3272b5c3aa885a7deed0ed\naddendum_document_sha256: 597e731c00b5c6c8b750bd7956442d62252f7d1a2986becab3a5e9b446f44e3e\n\nThis entry fixes the sha256 of an addendum to the pre-registration document named in amends, written before the change it describes and before the first measurement it applies to. The addendum stays private until it is published with that document; anyone given it can recompute the sha256 above.\nEstablishes: that a document with this sha256 existed no later than the block this entry is anchored to.\nDoes not establish: anything about the content of the document before it is published.\n",
+  "schema": "v0-plain",
+  "created_at": "2026-11-15T14:24:37.835Z",
+  "ots_status": "confirmed",
+  "bitcoin_block": 975972,
+  "block_time": "2026-11-15 14:38 UTC",
+  "stamped_at": "2026-11-15T15:18:38.257Z"
+}
