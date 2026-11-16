@@ -4,7 +4,8 @@ Once a day at 03:47 UTC the door sends its fixed check request: the content chec
 
 | day (UTC) | admission record | execution | settlement |
 |---|---|---|---|
-| 2026-11-15 | c749dc12 | 877e6205 | waiting for Bitcoin |
+| 2026-11-16 | 5d26fa65 | e123da3e | waiting for Bitcoin |
+| 2026-11-15 | c749dc12 | 877e6205 | within_grant, final (settle v1.19) |
 | 2026-11-14 | 4fdb18bf | 9af775c3 | within_grant, final (settle v1.19) |
 | 2026-11-13 | 87802c42 | ecddd3da | within_grant, final (settle v1.19) |
 | 2026-11-12 | 1f03e62f | 26a90e5c | within_grant, final (settle v1.19) |
