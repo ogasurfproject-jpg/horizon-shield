@@ -51,8 +51,8 @@
   },
   {
    "slug": "yakumo/souba/genkan-koukan-hiratsuka",
-   "tsha": "726e4e54",
-   "simhash": "a87ba0c97bf89bec",
+   "tsha": "26e8ef1a",
+   "simhash": "287ba0c829f093fe",
    "m": "no002"
   },
   {
@@ -63,8 +63,8 @@
   },
   {
    "slug": "yakumo/souba/amido-harikae-hiratsuka",
-   "tsha": "3a21b749",
-   "simhash": "886ba4c960ec9ae8",
+   "tsha": "7d9db12e",
+   "simhash": "807ba0c8607caae8",
    "m": "no002"
   },
   {
@@ -135,26 +135,26 @@
   },
   {
    "slug": "yakumo/souba/gaiheki-tosou-aichi",
-   "tsha": "73f56939",
-   "simhash": "9c7b12c843acda7c",
+   "tsha": "3d081b6f",
+   "simhash": "e7f30880460927d",
    "m": "no001"
   },
   {
    "slug": "yakumo/souba/yane-aichi",
-   "tsha": "1f9693b6",
-   "simhash": "987a02c96bacdcd0",
+   "tsha": "33bf5c20",
+   "simhash": "4a7f32881d74b055",
    "m": "no001"
   },
   {
    "slug": "yakumo/souba/naiso-aichi",
-   "tsha": "45011231",
-   "simhash": "b07a12c963fc50f4",
+   "tsha": "d99c68e9",
+   "simhash": "907b30c847fc38f1",
    "m": "no001"
   },
   {
    "slug": "yakumo/souba/cloth-aichi",
-   "tsha": "93268896",
-   "simhash": "887b96c973e894f0",
+   "tsha": "0ed2d57c",
+   "simhash": "8a7f908820f89070",
    "m": "no001"
   },
   {
@@ -186,9 +186,15 @@
    "tsha": "6686ec3c",
    "simhash": "207890c918b89260",
    "m": "no001"
+  },
+  {
+   "slug": "yakumo/souba/mado-koukan-mitsumori-hiratsuka",
+   "tsha": "426312ab",
+   "simhash": "5b6d18c8613e0b68",
+   "m": "no002"
   }
  ],
- "updated_at": "2026-11-15T05:19:32Z",
+ "updated_at": "2026-11-16T00:00:00Z",
  "rebuilt_at": "2026-08-23",
  "rebuilt_why": "指紋から剥がす共通枠のパターンを直したため、計算結果が変わった。全エントリを一斉に入れ替えて整合を保った。古い台帳は yakumo-content-manifest.json.bak_prerebuild20260823 に残してある。",
  "stores": {

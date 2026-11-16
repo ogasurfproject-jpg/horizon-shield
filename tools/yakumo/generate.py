@@ -313,6 +313,13 @@ AREA_REGION = {  # 地域のスラッグ -> souba-db の _meta.region_multiplier
     "isehara": "kanto", "odawara": "kanto", "atsugi": "kanto", "samukawa": "kanto", "oiso": "kanto", "ninomiya": "kanto", "nakai": "kanto",
 }
 REGION_LABEL = {"kanto": "関東", "chubu": "中部", "kinki": "近畿", "tohoku": "東北", "other": "その他", "all": "全国"}
+# 答えの型に揃えるのを 2026-12-11 の後まで待つ工事 x 地域の頁(スラッグ)。題名に対照群の問いの語が入るので、
+# post の窓(2026-11-28 から 2026-12-11)が終わるまで今の型のまま置く。自動公開もこの頁は今の型で書き、souba_answers.py も揃えない。
+ANSWER_HOLD = {"mado-koukan-hiratsuka", "glass-shuri-hiratsuka"}
+# 答えの型に揃えない頁(待つのではなく、揃えない。2026-12-11 の後も外さない)。同じ店(no001)、同じ工事、同じ地域係数(中部)の頁が
+# 愛知県の側に在り、揃えると中身が重なって重複の門(pagecheck の near-dup)に掛かる(2026-11-12 に main の上で確かめた)。
+# この 3 頁をどうするか(消す / 店の欄だけ直して残す)が決まったら、この集合を直す。
+ANSWER_SKIP = {"gaiheki-tosou-nagakute", "yane-nagakute", "naiso-nagakute"}
 # 工種のスラッグ -> 載せる行。rows は表に出す行、title は題名に出す行(その最小から最大)、what は数の前に置く語。
 # gap は相場データに無いものを書く(無い数を作らない)。rows が空の工種は金額を書かない。
 # 行の無い工種に、別の工事の行を代わりに載せない(2026-11-06 の決め。窓ごとの交換に内窓の値を置くと「窓交換の相場」と読まれる)。
@@ -596,9 +603,15 @@ def trade_tips_for(trade):
 def geo_page(profile, trade, area):
     company = profile.get("company") or "検証済み加盟店"
     canonical = "%s/yakumo/souba/%s-%s/" % (BASE, slugify(trade, "trade"), slugify(area, "area"))
-    title = "%sの%s｜適正価格を第三者検証で確かめる（Yakumo 検証済み加盟店） | HORIZON SHIELD" % (area, trade)
+    # 2026-11-06: 題名と h1 は施主の問いの語と数(souba-db の行 x 地域係数)。冒頭の 1 段落に結論と出どころ。
+    _q_title, _q_h1, _lead, _fig, _gap = geo_answer(trade, area)
+    _hold = "%s-%s" % (slugify(trade, "trade"), slugify(area, "area")) in (ANSWER_HOLD | ANSWER_SKIP)
+    title = "%s｜Yakumo | HORIZON SHIELD" % _q_title
     _vstate = "検証済み(KIRA適正診断を通過)" if is_verified(profile) else "検証手続き中"
-    desc = clean_dashes("%sで%sを検討中の方へ。Yakumoは紹介料を取らない中立モール。掲載店は適正価格の検証と過剰請求チェック(KIRA)を通過した店だけ。%sは%sとして%sです。金額の適正は本体の相場データで確認できます。" % (area, trade, company, member_no_text(profile), _vstate))
+    desc = clean_dashes("%s Yakumoは紹介料を取らない中立モール。%sは%sとして%sです。" % (_lead, company, member_no_text(profile), _vstate))
+    if _hold:
+        title = "%sの%s｜適正価格を第三者検証で確かめる（Yakumo 検証済み加盟店） | HORIZON SHIELD" % (area, trade)
+        desc = clean_dashes("%sで%sを検討中の方へ。Yakumoは紹介料を取らない中立モール。掲載店は適正価格の検証と過剰請求チェック(KIRA)を通過した店だけ。%sは%sとして%sです。金額の適正は本体の相場データで確認できます。" % (area, trade, company, member_no_text(profile), _vstate))
     faq_ld = {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
         {"@type":"Question","name":"%sで%sの業者はどう選べばよいですか？" % (area, trade),
          "acceptedAnswer":{"@type":"Answer","text":"相場との照合と過剰請求チェックを第三者が済ませた店から選ぶのが安全です。Yakumoは、適正価格の検証(KIRA)を通過した加盟店だけを掲載する中立モールです。出典：HORIZON SHIELD建設費相場データベース(大賀俊勝 建設実務経験30年監修)"}},
@@ -607,10 +620,15 @@ def geo_page(profile, trade, area):
     ]}
     body = header_html()
     body += '<div class="hero"><div class="container">'
-    body += '<h1><span class="speakable">%sの%s<br>適正価格を第三者検証で確かめる</span></h1>' % (esc(area), esc(trade))
+    if _hold:
+        body += '<h1><span class="speakable">%sの%s<br>適正価格を第三者検証で確かめる</span></h1>' % (esc(area), esc(trade))
+    else:
+        body += '<h1><span class="speakable">%s</span></h1>' % _q_h1
     body += '<p class="subtitle">Yakumo ・ 紹介料を取らない中立の加盟店モール</p>'
     body += '<span class="badge">建設実務30年 監修 ｜ 検証で並ぶ加盟店</span></div></div>'
     body += '<div class="container">'
+    if not _hold:
+        body += answer_block(_lead, _fig, member_slug(profile), _gap)
     body += '<div class="breadcrumb"><a href="%s/yakumo/">Yakumoモール</a> &gt; %s &gt; %s</div>' % (BASE, esc(area), esc(trade))
     body += '<div class="section"><h2>%sで%sを頼む前に</h2>' % (esc(area), esc(trade))
     body += '<p>%sの%sは、業者や範囲で金額が大きく動きます。契約の前に、相場との照合と過剰請求チェックを第三者に通しておくと安全です。Yakumoは、その検証を通過した加盟店だけを並べる中立モールです。当サービスは施工業者から報酬を受け取りません。</p>' % (esc(area), esc(trade))

@@ -15,6 +15,8 @@
   7. 代わりの値を載せない(2026-11-06 の決め): 相場データに行の無い工事(窓ごとの交換、住宅の内装、網戸)と、
      その行が無い問い(網入りガラスの防犯、窓の交換の見積もり。souba_questions.json に在る時)は、生成器の表でも頁でも金額 0
   8. 自動公開の地域の名: profile の area が番地入りの住所でも、工事 x 地域の頁の題名と本文に住所を出さない。URL は変わらない
+  9. 揃えを待つ頁(generate.ANSWER_HOLD): 頁は今の型のまま(答えの印が無く、題名は「<地域>の<工種>｜適正価格を」)。
+     自動公開の生成器も、この頁は今の型で書く
 """
 import glob, hashlib, html as _html, json, math, os, re, shutil, subprocess, sys, tempfile
 
@@ -103,6 +105,19 @@ def main():
     chk("8 番地入りの profile から作る工事 x 地域の頁は今の 4 頁と同じ URL", [c for c, _h in geo] == want_urls, [c for c, _h in geo])
     chk("8 その 4 頁の題名と本文に住所(戸田谷、1405)が無く、題名は「愛知県」で始まる",
         geo and all("戸田谷" not in h_ and "1405" not in h_ and re.search(r"<title>愛知県(の|で)", h_) for _c, h_ in geo))
+    # 9 揃えを待つ頁(題名に対照群の問いの語が入る。post の窓が終わるまで今の型)
+    old_t = re.compile(r"<title>(.+?)の(.+?)｜適正価格を第三者検証で確かめる")
+    for hs in sorted(G.ANSWER_HOLD | G.ANSWER_SKIP):
+        hp = os.path.join(ROOT, "yakumo", "souba", hs, "index.html")
+        hh = open(hp, encoding="utf-8").read() if os.path.isfile(hp) else ""
+        m = old_t.search(hh)
+        chk("9 %s は今の型のまま(答えの印が無く、題名が今の形)" % hs, hh and "<!-- yakumo-answer-v1 -->" not in hh and m, hs)
+        if not m:
+            continue
+        hprof = {"company": "試験の工務店", "member_no": "No.002", "industry": "construction", "area": m.group(1), "works": [m.group(2)]}
+        c_, g_ = G.geo_page(hprof, m.group(2), m.group(1))
+        chk("9 %s は生成器でも今の型で書く(同じ URL、答えの印が無く、題名が今の形)" % hs,
+            c_ == "%s/yakumo/souba/%s/" % (G.BASE, hs) and "<!-- yakumo-answer-v1 -->" not in g_ and old_t.search(g_), c_)
     # 6 もう一度当てても同じ bytes(写しの上で)
     tmp = tempfile.mkdtemp(prefix="souba_answers_test_")
     try:
