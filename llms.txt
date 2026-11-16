@@ -354,6 +354,22 @@ Each object answers one buyer question with numbers from souba-db (version 2.2.0
 - [建設見積もりの誠実性監査をエージェント/APIで｜estimate-integrity-audit](https://shield.the-horizons-innovation.com/webmcp/estimate-integrity-audit-api/): HORIZON SHIELDの誠実性監査スキル（estimate-integrity-audit）を、A2A/MCP経由でエージェントから呼び出す方法とfail-closedの検証を解説。
 - [日本の中古物件取得＋リフォーム相談窓口（A2A）｜HORIZON SHIELD](https://shield.the-horizons-innovation.com/webmcp/property-reform-intake-a2a/): HORIZON SHIELDのjapan-property-reform-intakeは、日本の中古物件取得とリフォームの相談をA2Aで受け付ける窓口。売買は宅地建物取引士が対応。
 
+<!-- yakumo-souba-index-v1 -->
+## Yakumo answer pages (/yakumo/souba/)
+
+- [地域と工事で探す、相場と見積もりの答え](https://shield.the-horizons-innovation.com/yakumo/souba/): Index of the answer pages for the areas and trades of the verified Yakumo stores. Each page answers one question; amounts on a page come only from souba-db rows times the regional multiplier, and the rows are named on the page. A trade with no souba-db row shows no amount.
+- [愛知県でクロスの費用の相場はいくら？](https://shield.the-horizons-innovation.com/yakumo/souba/cloth-aichi/): 愛知県, クロス. Store: No.001 リフォーム職人株式会社 (https://shield.the-horizons-innovation.com/yakumo/no001/).
+- [愛知県で内装の費用の相場はいくら？](https://shield.the-horizons-innovation.com/yakumo/souba/naiso-aichi/): 愛知県, 内装. Store: No.001 リフォーム職人株式会社 (https://shield.the-horizons-innovation.com/yakumo/no001/).
+- [愛知県で外壁塗装の費用の相場はいくら？](https://shield.the-horizons-innovation.com/yakumo/souba/gaiheki-tosou-aichi/): 愛知県, 外壁塗装. Store: No.001 リフォーム職人株式会社 (https://shield.the-horizons-innovation.com/yakumo/no001/).
+- [愛知県で屋根の費用の相場はいくら？](https://shield.the-horizons-innovation.com/yakumo/souba/yane-aichi/): 愛知県, 屋根. Store: No.001 リフォーム職人株式会社 (https://shield.the-horizons-innovation.com/yakumo/no001/).
+- [網入りのガラスは防犯に役立つのか？](https://shield.the-horizons-innovation.com/yakumo/souba/amiiri-glass-bouhan-hiratsuka/): 平塚市, ガラス. Store: No.002 ミネオトーヨー住器株式会社 (https://shield.the-horizons-innovation.com/yakumo/no002/).
+- [防犯に気を付けながら、玄関や勝手口から風を取り入れたい](https://shield.the-horizons-innovation.com/yakumo/souba/genkan-saifu-bouhan-hiratsuka/): 平塚市, 玄関. Store: No.002 ミネオトーヨー住器株式会社 (https://shield.the-horizons-innovation.com/yakumo/no002/).
+- [平塚市で玄関の交換の費用の相場はいくら？](https://shield.the-horizons-innovation.com/yakumo/souba/genkan-koukan-hiratsuka/): 平塚市, 玄関の交換. Store: No.002 ミネオトーヨー住器株式会社 (https://shield.the-horizons-innovation.com/yakumo/no002/).
+- [窓は遮熱と断熱どちらが大切か？](https://shield.the-horizons-innovation.com/yakumo/souba/mado-dannetsu-shanetsu-hiratsuka/): 平塚市, 窓. Store: No.002 ミネオトーヨー住器株式会社 (https://shield.the-horizons-innovation.com/yakumo/no002/).
+- [窓の交換の見積もりが高いか安いかを判断するには？](https://shield.the-horizons-innovation.com/yakumo/souba/mado-koukan-mitsumori-hiratsuka/): 平塚市, 窓の交換. Store: No.002 ミネオトーヨー住器株式会社 (https://shield.the-horizons-innovation.com/yakumo/no002/).
+- [平塚市で網戸張替えの費用の相場はいくら？](https://shield.the-horizons-innovation.com/yakumo/souba/amido-harikae-hiratsuka/): 平塚市, 網戸張替え. Store: No.002 ミネオトーヨー住器株式会社 (https://shield.the-horizons-innovation.com/yakumo/no002/).
+<!-- /yakumo-souba-index-v1 -->
+
 ## Yakumo (verified contractor mall)
 
 - [Yakumo 加盟店モール](https://shield.the-horizons-innovation.com/yakumo/): A neutral mall of Japanese renovation and construction contractors operated by The HORIZ音s株式会社 (HORIZON SHIELD). Only stores that pass an independent fair-price and overcharge audit (KIRA) are listed. It takes no referral fees, so it can show only verified stores. Each store carries an integrity score, a tier, and a recomputable signed receipt (claim_sha256). Prices are never shown to homeowners, only scores and tiers.

@@ -31,3 +31,4 @@ Allow: /
 
 Sitemap: https://shield.the-horizons-innovation.com/sitemap.xml
 Sitemap: https://shield.the-horizons-innovation.com/sitemap-ehn.xml
+Sitemap: https://shield.the-horizons-innovation.com/sitemap-yakumo.xml

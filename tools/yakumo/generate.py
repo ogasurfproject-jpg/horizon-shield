@@ -1435,6 +1435,7 @@ def update_sitemap(urls, today):
     #   sitemap.xml は Google に見せるコア(約115本)だけにする。ボットが毎回 sitemap.xml を太らせると、
     #   Google が「Discovered - currently not indexed」を積み上げて、コアまで巻き添えで却下する(9/13 GSC: 索引22 / 却下386 / 未クロール352)。
     #   sitemap-yakumo.xml は robots.txt に載せへん。Bing Webmaster に手で出す(Bing の索引が ChatGPT検索・Copilot の入口)。
+    # 2026-11-16: robots.txt に sitemap-yakumo.xml の行を足した(souba_index.py)。Search Console には 11-12 に出してあり、Google の外の crawler にも知らせる。
     sm = os.path.join(REPO_ROOT, "sitemap-yakumo.xml")
     if not os.path.exists(sm):
         open(sm, "w", encoding="utf-8").write(
