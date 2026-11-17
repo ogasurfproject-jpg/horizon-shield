@@ -2,23 +2,23 @@
  "days": [
   {
    "counts": {
-    "not_yet": 3,
+    "not_yet": 2,
     "notice": 3,
-    "ok": 17,
+    "ok": 18,
     "red": 0
    },
    "day": "2026-11-17",
-   "day_sha256": "03311f3a5dfd843a51f24a4861919661750947af520e1aebf98fcfe5b8d4f933",
+   "day_sha256": "df8d2cb5ea2d0dd6a10d92a2d17fb74f47eed08ceae63729a920978b55874865",
    "facts": {
     "anchored_ledger_days": 75,
     "pypi_wheel": "no_release_wheel",
     "red_zero_streak": 3
    },
    "path": "days/2026-11-17.json",
-   "result_sha256": "b106178d62c95e579f5fd54ecc811bc28a2eae0a166011c44ca5e01ce1a93e70",
-   "run_url": "https://github.com/ogasurfproject-jpg/horizon-shield/actions/runs/44014700435",
-   "runs": 1,
-   "trigger": "schedule",
+   "result_sha256": "9fabb58114cd120e3c3fb2adb25532df48c2a07b3b90f37d588a5cd1cdde8914",
+   "run_url": "https://github.com/ogasurfproject-jpg/horizon-shield/actions/runs/44018225520",
+   "runs": 2,
+   "trigger": "second",
    "verdict": "not_all_checked"
   },
   {
