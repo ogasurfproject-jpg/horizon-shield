@@ -671,6 +671,57 @@ async function publicPageVisible(page, url) {
   return false;
 }
 
+// 2026-11-16 run 43802965811 は 5 秒待った時点で editor.note.com/new のまま、contenteditable数 0 で止まった。
+//   開けた回は URL が /notes/<id>/edit/ に替わり contenteditable が 1 になる。それを 1 秒ごとに見て最大 30 秒待つ。
+//   開かなければ画面を残し、1 度だけやり直す。下書きが既に作られていれば(URL が /notes/<id>/)、その下書きの edit に移る
+//   (notes/new をもう一度開くと下書きが 2 つになるため)。待ちの秒は NOTE_EDITOR_WAIT_SEC と NOTE_EDITOR_POLL_MS で替えられる(試し用)。
+function editorDraftId(url) {
+  const m = String(url || '').match(/\/notes\/([a-z0-9]+)(?:[/?#]|$)/);
+  return m && m[1] !== 'new' ? m[1] : null;
+}
+
+function editorEditUrl(url) {
+  return /\/notes\/[a-z0-9]+\/edit(?:[/?#]|$)/.test(String(url || '')) && editorDraftId(url) !== null;
+}
+
+async function waitEditor(page) {
+  const waitMs = Math.round(parseFloat(process.env.NOTE_EDITOR_WAIT_SEC || '30') * 1000);
+  const pollMs = parseInt(process.env.NOTE_EDITOR_POLL_MS || '1000', 10);
+  const end = Date.now() + waitMs;
+  for (;;) {
+    const url = page.url();
+    if (url.includes('/login')) return { login: true, url, count: 0 };
+    let count = 0;
+    try {
+      count = await page.evaluate(() => document.querySelectorAll('[contenteditable]').length);
+    } catch (_e) { /* 画面が切り替わる途中 */ }
+    if (editorEditUrl(url) && count >= 1) return { ok: true, url, count };
+    if (Date.now() >= end) return { ok: false, url, count };
+    await new Promise((r) => setTimeout(r, pollMs));
+  }
+}
+
+async function openEditor(page) {
+  await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
+  let w = await waitEditor(page);
+  console.log('エディタURL:', w.url);
+  if (w.login) throw new Error('クッキー認証失敗: ログインページにリダイレクト');
+  console.log('contenteditable数:', w.count);
+  if (w.ok) return w;
+  await snap(page, 'editor-not-open-1');
+  const id = editorDraftId(page.url());
+  const again = id ? 'https://editor.note.com/notes/' + id + '/edit/' : 'https://note.com/notes/new';
+  console.log('エディタが開かない。やり直す(1 度だけ):', id ? '作られた下書き ' + id + ' の edit' : 'notes/new');
+  await page.goto(again, { waitUntil: 'networkidle2', timeout: 30000 });
+  w = await waitEditor(page);
+  console.log('エディタURL(やり直し):', w.url);
+  if (w.login) throw new Error('クッキー認証失敗: ログインページにリダイレクト');
+  console.log('contenteditable数(やり直し):', w.count);
+  if (w.ok) return w;
+  await snap(page, 'editor-not-open');
+  throw new Error('エディタが開けていない');
+}
+
 async function postToNote(theme, articleText, opts) {
   console.log('ブラウザ起動中...');
   const browser = await require('puppeteer-core').launch({
@@ -711,14 +762,7 @@ async function postToNote(theme, articleText, opts) {
     }
     console.log('クッキーセット完了:', cookies.map(c => c.name).join(', '));
 
-    await page.goto('https://note.com/notes/new', { waitUntil: 'networkidle2', timeout: 30000 });
-    await new Promise(r => setTimeout(r, 5000));
-    console.log('エディタURL:', page.url());
-    if (page.url().includes('/login')) throw new Error('クッキー認証失敗: ログインページにリダイレクト');
-
-    const editableCount = await page.evaluate(() => document.querySelectorAll('[contenteditable]').length);
-    console.log('contenteditable数:', editableCount);
-    if (editableCount === 0) throw new Error('エディタが開けていない');
+    await openEditor(page);
 
     // 2026-09-30 見出し画像(連載のとき)。失敗しても投稿は止めない。
     if (opts && opts.eyecatchPng) {
@@ -1655,4 +1699,4 @@ async function eigoMain() {
 
 // 2026-10-02 検査から関数だけを読めるように、直に走らせたときだけ main を呼ぶ。
 if (require.main === module) main();
-module.exports = { uploadEyecatch, candidates, visibleBox, headerImageShown, findUploadItem, closeOverlays, waitForButtonText };
+module.exports = { uploadEyecatch, candidates, visibleBox, headerImageShown, findUploadItem, closeOverlays, waitForButtonText, openEditor, postToNote };
