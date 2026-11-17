@@ -47,6 +47,7 @@ class Ledger:
         self.missing = set()           # entry numbers whose json 404s
         self.unstamped = set()         # entry numbers the ledger reports as unstamped (its /ots answers 404)
         self.ots_404 = set()           # entry numbers whose /ots 404s while the entry claims a stamp
+        self.flaky = {}                # path -> list of answers to give first, each a status code or "drop" (close, no answer)
         self.requests = []
 
     def add_witness_batch(self):
@@ -84,6 +85,12 @@ def make_handler(L):
 
         def do_GET(self):
             L.requests.append(self.path)
+            if L.flaky.get(self.path):
+                how = L.flaky[self.path].pop(0)
+                if how == "drop":
+                    self.close_connection = True
+                    return
+                return self._send(how, b'{"error":"busy"}')
             u = urlparse(self.path); q = parse_qs(u.query); parts = u.path.strip("/").split("/")
             if u.path == "/ledger":
                 return self._send(200, json.dumps(L.index()).encode())
@@ -276,9 +283,65 @@ def main():
         assert M.verify(G, quiet=True) == 1
         L.ots_404 = set(); del L.raw[5]
         n += 1; print("[10] unstamped entry: listed as awaiting, not a problem; fetched on the next pull once stamped; a stamped entry without a proof is still a problem")
+
+        # [11] 2026-11-17: a fetch with no answer or a 5xx is tried again, twice; 200 and 4xx are not. Every kind of
+        # fetch a pull makes is covered: the index, entry json, raw, ots, an object, a record named without bytes_url.
+        saved_waits = M.RETRY_WAITS
+        M.RETRY_WAITS = (0.0, 0.0)
+        try:
+            assert M._retry_waits("5,15") == (5.0, 15.0) and M._retry_waits("0,0") == (0.0, 0.0)
+            assert M._retry_waits("1") == (5.0, 15.0) and M._retry_waits("x,y") == (5.0, 15.0) and M._retry_waits("-1,2") == (5.0, 15.0)
+            obj0 = sorted(L.objects)[0]
+            L.flaky = {"/ledger?format=json": [503], "/ledger/1?format=json": ["drop"], "/ledger/2?format=json": [503],
+                       "/ledger/2?format=raw": [502], "/ledger/3/ots": ["drop"], "/object/" + obj0: [500], "/witness/" + w[0]: [503]}
+            I = os.path.join(tmp, "I")
+            before = len(L.requests)
+            assert M.pull(base, I, quiet=True) == 0
+            got = L.requests[before:]
+            man = json.loads(open(os.path.join(I, "manifest.json"), encoding="utf-8").read())
+            assert man["problems"] == [] and len(man["entries"]) == 4 and all(e["raw_ok"] and e["ots"] for e in man["entries"]), man["problems"]
+            for path in ("/ledger?format=json", "/ledger/1?format=json", "/ledger/2?format=json", "/ledger/2?format=raw", "/ledger/3/ots", "/object/" + obj0, "/witness/" + w[0]):
+                assert got.count(path) == 2, (path, got.count(path))
+            assert got.count("/witness/" + w[2]) == 1          # 404: an answer, asked once
+            assert [(pb["what"], pb["sha"]) for pb in man["named_record_problems"]] == [("named_record_unreachable", w[2])]
+            assert M.verify(I, quiet=True) == 0
+            n += 1; print("[11] one 5xx or one dropped connection on each kind of fetch: tried again, 0 problems; a 404 is asked once")
+
+            # [12] three 503 in a row: a problem, exit 1, and the pull prints it on one line; a 404 entry is asked once
+            L.flaky = {"/ledger/2?format=json": [503, 503, 503]}
+            L.missing = {3}
+            J = os.path.join(tmp, "J")
+            before = len(L.requests)
+            env = dict(os.environ, NENRIN_MIRROR_RETRY_WAITS="0,0")
+            t0 = time.time()
+            rr = subprocess.run([sys.executable, os.path.join(HERE, "mirror.py"), "pull", "--dir", J, "--base", base], capture_output=True, text=True, env=env)
+            took = time.time() - t0
+            got = L.requests[before:]
+            assert rr.returncode == 1, rr.stdout + rr.stderr
+            assert '  {"n": 2, "what": "entry_json", "status": 503}' in rr.stdout.splitlines(), rr.stdout
+            assert '  {"n": 3, "what": "entry_json", "status": 404}' in rr.stdout.splitlines(), rr.stdout
+            assert any(ln.startswith('  {"n": 4, "what": "named_record_unreachable"') for ln in rr.stdout.splitlines()), rr.stdout
+            assert got.count("/ledger/2?format=json") == 3 and got.count("/ledger/3?format=json") == 1, got
+            assert took < 5, took
+            L.missing = set(); L.flaky = {}
+            n += 1; print("[12] three 503 in a row: entry_json problem, exit 1, printed one per line with the 404 and the named record; the 404 asked once")
+
+            # [13] the waits are the ones configured: 0.25 s and 0.5 s add at least 0.75 s; 0 and 0 add none
+            K = os.path.join(tmp, "K")
+            M.RETRY_WAITS = (0.25, 0.5)
+            L.flaky = {"/ledger/2?format=json": [503, 503, 503]}
+            t0 = time.time(); assert M.pull(base, K, 2, 2, quiet=True) == 1; slow = time.time() - t0
+            M.RETRY_WAITS = (0.0, 0.0)
+            L.flaky = {"/ledger/2?format=json": [503, 503, 503]}
+            t0 = time.time(); assert M.pull(base, K, 2, 2, quiet=True) == 1; fast = time.time() - t0
+            assert slow >= 0.75 and fast < 0.75, (slow, fast)
+            L.flaky = {}
+            n += 1; print("[13] the waits between tries come from RETRY_WAITS (NENRIN_MIRROR_RETRY_WAITS): %.2f s with 0.25,0.5, %.2f s with 0,0" % (slow, fast))
+        finally:
+            M.RETRY_WAITS = saved_waits; L.flaky = {}; L.missing = set()
     finally:
         srv.shutdown(); shutil.rmtree(tmp, ignore_errors=True)
-    print("\nSELF-TEST PASSED: nenrin-mirror-v0, %d checks (honest pull, resume, tampered copy, lying server, diff, unreachable entry, content digests, CLI, contract address rule, records named without bytes_url, entries awaiting their first stamp)" % n)
+    print("\nSELF-TEST PASSED: nenrin-mirror-v0, %d checks (honest pull, resume, tampered copy, lying server, diff, unreachable entry, content digests, CLI, contract address rule, records named without bytes_url, entries awaiting their first stamp, fetches tried again)" % n)
 
 
 if __name__ == "__main__":

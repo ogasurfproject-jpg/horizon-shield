@@ -51,7 +51,22 @@ def sha256_hex(b):
     return hashlib.sha256(b).hexdigest()
 
 
-def fetch(url, timeout=30):
+def _retry_waits(text):
+    """Two waits in seconds, "a,b". Anything else falls back to the default."""
+    try:
+        w = tuple(float(x) for x in text.split(","))
+    except ValueError:
+        return (5.0, 15.0)
+    return w if len(w) == 2 and all(0 <= x <= 600 for x in w) else (5.0, 15.0)
+
+
+# 2026-11-17. One GET of entry 336 failed once during a drill pull, and the entry became a problem. A fetch that got
+# no answer (network error, timeout) or a 5xx is tried again, twice, after these waits; 200 and 4xx are answers and
+# are never retried. NENRIN_MIRROR_RETRY_WAITS="0,0" makes the self test run without sleeping.
+RETRY_WAITS = _retry_waits(os.environ.get("NENRIN_MIRROR_RETRY_WAITS", "5,15"))
+
+
+def _fetch_once(url, timeout):
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
@@ -60,6 +75,16 @@ def fetch(url, timeout=30):
         return e.code, b""
     except Exception as e:  # noqa: BLE001
         return None, str(e).encode("utf-8", "replace")
+
+
+def fetch(url, timeout=30):
+    st, b = _fetch_once(url, timeout)
+    for wait in RETRY_WAITS:
+        if st is not None and not 500 <= st <= 599:
+            break
+        time.sleep(wait)
+        st, b = _fetch_once(url, timeout)
+    return st, b
 
 
 def _write(path, b):
@@ -314,6 +339,9 @@ def pull(base, d, n_from=None, n_to=None, quiet=False):
     say("manifest.json sha256 %s; %d entries, %d objects, %d problem(s), %d named record(s) not obtained%s" % (sha256_hex(mb), len(entries), len(objects), len(problems), len(named_problems),
         "" if not awaiting else ", %d awaiting their first stamp (%s)" % (len(awaiting), ", ".join(str(x) for x in awaiting))))
     say("content_sha256 %s  entries_sha256 %s  (compare these with another mirror; the manifest sha never matches by design)" % (man["content_sha256"], man["entries_sha256"]))
+    # one line each, as verify prints them, so a red run names the entry without opening manifest.json
+    for p in problems + named_problems:
+        say("  " + json.dumps(p, ensure_ascii=False))
     return 0 if not problems else 1
 
 
