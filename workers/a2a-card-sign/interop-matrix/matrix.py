@@ -4,6 +4,13 @@ Signers and verifiers: a2a-python (a2a-sdk), @a2a-js/sdk, a2a-go (a2acrypto, cop
 import path). Cards: a control plus one case per REQUIRED-or-not field at its default value, and the frozen
 JS-signed production card from a2aproject/a2a-go#445 (verify only).
 
+Pairs (2026-11-17): two cards that differ in one declaration. For each SDK the matrix records whether the two
+canonical forms are the same bytes, and whether the declaration is still in the canonical form. Each card is then
+served with every signature made over the other card. The first pair is a set oneof member whose message is empty,
+securitySchemes {"mtls": {"mtlsSecurityScheme": {}}}, against the control card (a2aproject/a2a-python#1278).
+Pairs are kept out of CASES. vectors.py, the corpus and the moved-cell comparison with results_20261001.json
+therefore see the same six cases as before.
+
 The signing key is a published test key derived from a public phrase, so anyone can re-create it and re-run
 every row. It signs test vectors only and is not a production key of anyone.
 """
@@ -63,6 +70,16 @@ CASES = [
 ]
 
 
+# (name, what, declared card, case it is paired with, path of the declaration inside the canonical JSON)
+# Neither card carries securityRequirements. The reports on #1278 compare the card with and without the scheme.
+# A requirement naming "mtls" on the control card would point at an undeclared scheme. A requirement for mtls also
+# holds an empty scope list, which is the nested_empty_security question rather than this one.
+PAIRS = [
+    ("empty_oneof_mtls", "securitySchemes.mtls = {\"mtlsSecurityScheme\": {}} (set oneof member, empty message) against control",
+     case(lambda c: c.__setitem__("securitySchemes", {"mtls": {"mtlsSecurityScheme": {}}})), "control", ("securitySchemes", "mtls", "mtlsSecurityScheme")),
+]
+
+
 SPEC_EXAMPLE_IN = {"name": "Example Agent", "description": "", "capabilities": {"streaming": False, "pushNotifications": False, "extensions": []}, "skills": []}
 SPEC_EXAMPLE_OUT = '{"capabilities":{"pushNotifications":false,"streaming":false},"description":"","name":"Example Agent","skills":[]}'
 
@@ -107,6 +124,50 @@ def py_canon(obj, text=False):
     return r
 
 
+def canon_all(cp, card):
+    """{sdk: {len, sha256, text}} for the canonical form each SDK signs over."""
+    out = {"python": py_canon(card, text=True).get("text"), "js": run(["node", "js_tool.mjs", "canon", cp]).get("text"), "go": run([GO_BIN, "canon", cp]).get("text")}
+    return {s: ({"len": len(t.encode()), "sha256": hashlib.sha256(t.encode()).hexdigest(), "text": t} if isinstance(t, str) else {"error": "no canonical form"}) for s, t in out.items()}
+
+
+def has_path(text, path):
+    o = json.loads(text)
+    for k in path:
+        if not isinstance(o, dict) or k not in o:
+            return False
+        o = o[k]
+    return True
+
+
+def sign_all(cp, card, priv, keyp):
+    sigs = {}
+    try:
+        sigs["python"] = py_sign(card, priv)
+    except Exception as e:
+        sigs["python"] = {"error": str(e)[:200]}
+    r = run(["node", "js_tool.mjs", "sign", cp, keyp, KID, JKU]); sigs["js"] = r.get("signature") or {"error": r.get("error")}
+    r = run([GO_BIN, "sign", cp, keyp, KID, JKU]); sigs["go"] = r.get("signature") or {"error": r.get("error")}
+    return sigs
+
+
+def verify_cells(card, sigs, sp_base, jwks, jwksp, sdks):
+    """Serve card with each signer's signature in turn and ask every verifier; same cell shape as the matrix rows."""
+    cells = {}
+    for s in sdks:
+        if "error" in sigs[s]:
+            for v in sdks:
+                cells[s + ">" + v] = {"ok": None, "error": "signer failed: " + str(sigs[s]["error"])}
+            continue
+        served = dict(card)
+        served["signatures"] = [{"protected": sigs[s]["protected"], "signature": sigs[s]["signature"]}]
+        sp = sp_base + "." + s + "-signed.json"
+        json.dump(served, open(sp, "w"), separators=(",", ":"), ensure_ascii=False)
+        cells[s + ">python"] = py_verify(served, jwks)
+        cells[s + ">js"] = run(["node", "js_tool.mjs", "verify", sp, jwksp])
+        g = run([GO_BIN, "verify", sp, jwksp]); cells[s + ">go"] = {"ok": g.get("ok"), "error": None if g.get("ok") else json.dumps(g.get("per_signature"))[:300]}
+    return cells
+
+
 def main():
     priv, pem, jwks = test_key()
     os.makedirs(os.path.join(HERE, "out"), exist_ok=True)
@@ -148,6 +209,29 @@ def main():
         jc = run(["node", "js_tool.mjs", "canon", cp]); jc.pop("text", None)
         rows.append({"case": name, "what": what, "card_sha256": hashlib.sha256(open(cp, "rb").read()).hexdigest(),
                      "canonical": {"python": py_canon(card), "js": jc, "go": go_canon}, "cells": cells})
+    pairs = []
+    cards = {n: c for n, _w, c in CASES}
+    for name, what, card, other, path in PAIRS:
+        und = cards[other]
+        cp = os.path.join(HERE, "out", name + ".json"); up = os.path.join(HERE, "out", name + ".undeclared.json")
+        json.dump(card, open(cp, "w"), separators=(",", ":"), ensure_ascii=False)
+        json.dump(und, open(up, "w"), separators=(",", ":"), ensure_ascii=False)
+        dc, uc = canon_all(cp, card), canon_all(up, und)
+        canonical = {}
+        for s in sdks:
+            d, u = dc[s], uc[s]
+            ok = "text" in d and "text" in u
+            canonical[s] = {"declared": {k: d.get(k) for k in ("len", "sha256")}, "undeclared": {k: u.get(k) for k in ("len", "sha256")},
+                            "same_bytes": (d["sha256"] == u["sha256"]) if ok else None,
+                            "declaration_kept": has_path(d["text"], path) if ok else None, "declared_text": d.get("text")}
+        dsig, usig = sign_all(cp, card, priv, keyp), sign_all(up, und, priv, keyp)
+        pairs.append({"pair": name, "what": what, "undeclared_case": other, "declaration_path": list(path),
+                      "declared_card_sha256": hashlib.sha256(open(cp, "rb").read()).hexdigest(),
+                      "undeclared_card_sha256": hashlib.sha256(open(up, "rb").read()).hexdigest(),
+                      "canonical": canonical,
+                      "cells": verify_cells(card, dsig, os.path.join(HERE, "out", name), jwks, jwksp, sdks),
+                      "declared_sig_on_undeclared": verify_cells(und, dsig, os.path.join(HERE, "out", name + ".dsig-on-undeclared"), jwks, jwksp, sdks),
+                      "undeclared_sig_on_declared": verify_cells(card, usig, os.path.join(HERE, "out", name + ".usig-on-declared"), jwks, jwksp, sdks)})
     fz = os.path.join(HERE, "..", "interop-go", "fixtures", "gate_card_20260928.json"); fzj = os.path.join(HERE, "..", "interop-go", "fixtures", "gate_jwks_20260928.json")
     fcard = json.load(open(fz))
     frozen = {"card_sha256": hashlib.sha256(open(fz, "rb").read()).hexdigest(), "jwks_sha256": hashlib.sha256(open(fzj, "rb").read()).hexdigest(),
@@ -161,7 +245,7 @@ def main():
             "js": run(["node", "js_tool.mjs", "canon", sp_in]).get("text"),
             "go": gspec.get("text")}
     spec["matches"] = {k: spec[k] == SPEC_EXAMPLE_OUT for k in ("python", "js", "go")}
-    res = {"schema": "hs-a2a-signing-interop-v0", "versions": versions, "test_key": {"kid": KID, "phrase": PHRASE, "jwks_sha256": hashlib.sha256(open(jwksp, "rb").read()).hexdigest()}, "spec_8_4_1_example": spec, "rows": rows, "frozen_production_card": frozen}
+    res = {"schema": "hs-a2a-signing-interop-v0", "versions": versions, "test_key": {"kid": KID, "phrase": PHRASE, "jwks_sha256": hashlib.sha256(open(jwksp, "rb").read()).hexdigest()}, "spec_8_4_1_example": spec, "rows": rows, "pairs": pairs, "frozen_production_card": frozen}
     json.dump(res, open(os.path.join(HERE, "out", "results.json"), "w"), indent=2, ensure_ascii=False)
     mark = lambda c: "pass" if c.get("ok") is True else ("n/a" if c.get("ok") is None else "FAIL")
     lines = ["| case | " + " | ".join(s + " signs > " + v for s in sdks for v in sdks) + " |", "|---|" + "---|" * 9]
@@ -173,6 +257,21 @@ def main():
     for k in ("python", "js", "go"):
         print("  %s: %s" % (k, spec[k]))
     print("frozen production card (JS-signed): python %s, js %s, go %s" % (mark(frozen["python"]), mark(frozen["js"]), mark(frozen["go"])))
+    took = lambda c: "accepts" if c.get("ok") is True else ("n/a" if c.get("ok") is None else "rejects")
+    for p in pairs:
+        print("\npair %s: %s" % (p["pair"], p["what"]))
+        print("| SDK | declared card, canonical | %s, canonical | same bytes | declaration in canonical |" % p["undeclared_case"])
+        print("|---|---|---|---|---|")
+        for s in sdks:
+            c = p["canonical"][s]
+            f = lambda x: "%s bytes, sha256 %s" % (x["len"], (x["sha256"] or "")[:16])
+            yn = lambda b: "n/a" if b is None else ("yes" if b else "no")
+            print("| %s | %s | %s | %s | %s |" % (s, f(c["declared"]), f(c["undeclared"]), yn(c["same_bytes"]), "n/a" if c["declaration_kept"] is None else ("kept" if c["declaration_kept"] else "removed")))
+        print("| served card, signature | " + " | ".join(s + " signs > " + v for s in sdks for v in sdks) + " |")
+        print("|---|" + "---|" * 9)
+        print("| declared card, signature over it | " + " | ".join(mark(p["cells"][s + ">" + v]) for s in sdks for v in sdks) + " |")
+        print("| %s, signature over declared card | " % p["undeclared_case"] + " | ".join(took(p["declared_sig_on_undeclared"][s + ">" + v]) for s in sdks for v in sdks) + " |")
+        print("| declared card, signature over %s | " % p["undeclared_case"] + " | ".join(took(p["undeclared_sig_on_declared"][s + ">" + v]) for s in sdks for v in sdks) + " |")
 
 
 if __name__ == "__main__":

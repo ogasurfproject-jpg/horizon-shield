@@ -14,6 +14,9 @@ What it reports:
      the corpus also carries s2 to s4, whose vectors list readings of other axes (unknown fields, dual names), so a
      comparison over the whole corpus matched no reading and the watch reported "none" for every SDK from then on.
      Each group is now also classified on its own, against the readings that group's vectors list
+  4. each pair in matrix.PAIRS (2026-11-17): per SDK, whether the two cards canonicalize to the same bytes and whether
+     the declaration survives. Then which signer/verifier pairs accept a signature made over the other card. Pairs
+     are not in results_20261001.json, so they are printed as measured and never counted as moved cells.
 It decides nothing about which reading is right; that is a2aproject/A2A#2122.
 """
 import hashlib
@@ -95,6 +98,12 @@ def main():
         "corpus_readings_scope": "s0-control and s1-default-valued",
         "corpus_readings_by_group": by_group,
         "frozen_production_card": {s: mark(res["frozen_production_card"][s]) for s in SDKS},
+        "pairs": {p["pair"]: {"same_bytes": {s: p["canonical"][s]["same_bytes"] for s in SDKS},
+                              "declaration_kept": {s: p["canonical"][s]["declaration_kept"] for s in SDKS},
+                              "declared_card": {k: mark(c) for k, c in sorted(p["cells"].items())},
+                              "declared_sig_on_undeclared": {k: mark(c) for k, c in sorted(p["declared_sig_on_undeclared"].items())},
+                              "undeclared_sig_on_declared": {k: mark(c) for k, c in sorted(p["undeclared_sig_on_declared"].items())}}
+                  for p in res.get("pairs", [])},
     }
     lines = ["### Interop matrix re-measured", "",
              "| SDK | version |", "|---|---|"]
@@ -107,6 +116,19 @@ def main():
         lines.append("")
     lines += ["**Section 8.4.1 worked example reproduced:** " + ", ".join("%s %s" % (LABEL[s], "yes" if res["spec_8_4_1_example"]["matches"][s] else "no") for s in SDKS), ""]
     lines += ["**Frozen production card (JS-signed, 2026-09-28):** " + ", ".join("%s %s" % (LABEL[s], state["frozen_production_card"][s]) for s in SDKS), ""]
+    took = lambda c: "accepts" if c.get("ok") is True else ("n/a" if c.get("ok") is None else "rejects")
+    yn = lambda b: "n/a" if b is None else ("yes" if b else "no")
+    for p in res.get("pairs", []):
+        lines += ["**Pair `%s`** (%s; not in the 2026-10-01 run, so shown as measured, not as moved):" % (p["pair"], p["what"]), "",
+                  "| SDK | declared card, canonical bytes | `%s`, canonical bytes | same bytes | declaration in canonical form |" % p["undeclared_case"], "|---|---|---|---|---|"]
+        for s in SDKS:
+            c = p["canonical"][s]
+            lines.append("| %s | %s, sha256 `%s` | %s, sha256 `%s` | %s | %s |" % (LABEL[s], c["declared"]["len"], (c["declared"]["sha256"] or "")[:16], c["undeclared"]["len"],
+                         (c["undeclared"]["sha256"] or "")[:16], yn(c["same_bytes"]), "n/a" if c["declaration_kept"] is None else ("kept" if c["declaration_kept"] else "removed")))
+        lines += ["", "| served card, signature | " + " | ".join("%s signs, %s verifies" % (s, v) for s in SDKS for v in SDKS) + " |", "|---|" + "---|" * 9,
+                  "| declared card, signature over it | " + " | ".join(mark(p["cells"][s + ">" + v]) for s in SDKS for v in SDKS) + " |",
+                  "| `%s`, signature over the declared card | " % p["undeclared_case"] + " | ".join(took(p["declared_sig_on_undeclared"][s + ">" + v]) for s in SDKS for v in SDKS) + " |",
+                  "| declared card, signature over `%s` | " % p["undeclared_case"] + " | ".join(took(p["undeclared_sig_on_declared"][s + ">" + v]) for s in SDKS for v in SDKS) + " |", ""]
     lines += ["**Which reading each verifier follows on the signed corpus (a2a-card-sign-v01, a2aproject/a2a-tck#246), groups s0 and s1, the groups the 2026-10-01 run had:**", "",
               "| SDK | today | 2026-10-01 |", "|---|---|---|"]
     lines += ["| %s | %s | %s |" % (LABEL[s], readings[s], base_readings[s]) for s in SDKS]
