@@ -134,6 +134,17 @@
    "m": "no002"
   },
   {
+   "slug": "yakumo/souba/mado-koukan-mitsumori-hiratsuka",
+   "tsha": "426312ab",
+   "simhash": "5b6d18c8613e0b68",
+   "m": "no002"
+  },
+  {
+   "slug": "yakumo/souba",
+   "tsha": "ee168484",
+   "simhash": "3a6920c973de8964"
+  },
+  {
    "slug": "yakumo/souba/gaiheki-tosou-aichi",
    "tsha": "3d081b6f",
    "simhash": "e7f30880460927d",
@@ -160,7 +171,7 @@
   {
    "slug": "yakumo/faq/yakumo-aichi-faq-1",
    "tsha": "5bb03607",
-   "simhash": "e85e72cbe0a41a4d",
+   "simhash": "e04e72cbe1a41a4d",
    "m": "no001"
   },
   {
@@ -178,33 +189,22 @@
   {
    "slug": "yakumo/webmcp/yakumo-verified-stores-mcp-no001",
    "tsha": "752431ba",
-   "simhash": "8279849945e5a1c9",
+   "simhash": "8279849945e4a1c1",
    "m": "no001"
   },
   {
    "slug": "yakumo/network/no001",
    "tsha": "6686ec3c",
-   "simhash": "207890c918b89260",
+   "simhash": "6069c0c8308c3824",
    "m": "no001"
-  },
-  {
-   "slug": "yakumo/souba/mado-koukan-mitsumori-hiratsuka",
-   "tsha": "426312ab",
-   "simhash": "5b6d18c8613e0b68",
-   "m": "no002"
-  },
-  {
-   "slug": "yakumo/souba",
-   "tsha": "ee168484",
-   "simhash": "3a6920c973de8964"
   }
  ],
- "updated_at": "2026-11-16T00:00:00Z",
+ "updated_at": "2026-11-17T22:28:02Z",
  "rebuilt_at": "2026-08-23",
  "rebuilt_why": "指紋から剥がす共通枠のパターンを直したため、計算結果が変わった。全エントリを一斉に入れ替えて整合を保った。古い台帳は yakumo-content-manifest.json.bak_prerebuild20260823 に残してある。",
  "stores": {
   "no002": "e667a3c152e7",
-  "no001": "c58a6c0e217f"
+  "no001": "3de31263cf64"
  },
  "pruned_at": "2026-09-07T14:58:32Z",
  "pruned": [

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-15T05:19:32Z",
+  "generated_at": "2026-11-17T22:28:02Z",
   "member_no": "No.001",
   "company": "リフォーム職人株式会社",
   "focus": "franchise",
@@ -82,32 +82,32 @@
   "new_fingerprints": [
     {
       "slug": "yakumo/souba/gaiheki-tosou-aichi",
-      "tsha": "73f56939",
-      "simhash": "9c7b12c843acda7c",
+      "tsha": "3d081b6f",
+      "simhash": "e7f30880460927d",
       "m": "no001"
     },
     {
       "slug": "yakumo/souba/yane-aichi",
-      "tsha": "1f9693b6",
-      "simhash": "987a02c96bacdcd0",
+      "tsha": "33bf5c20",
+      "simhash": "4a7f32881d74b055",
       "m": "no001"
     },
     {
       "slug": "yakumo/souba/naiso-aichi",
-      "tsha": "45011231",
-      "simhash": "b07a12c963fc50f4",
+      "tsha": "d99c68e9",
+      "simhash": "907b30c847fc38f1",
       "m": "no001"
     },
     {
       "slug": "yakumo/souba/cloth-aichi",
-      "tsha": "93268896",
-      "simhash": "887b96c973e894f0",
+      "tsha": "0ed2d57c",
+      "simhash": "8a7f908820f89070",
       "m": "no001"
     },
     {
       "slug": "yakumo/faq/yakumo-aichi-faq-1",
       "tsha": "5bb03607",
-      "simhash": "e85e72cbe0a41a4d",
+      "simhash": "e04e72cbe1a41a4d",
       "m": "no001"
     },
     {
@@ -125,13 +125,13 @@
     {
       "slug": "yakumo/webmcp/yakumo-verified-stores-mcp-no001",
       "tsha": "752431ba",
-      "simhash": "8279849945e5a1c9",
+      "simhash": "8279849945e4a1c1",
       "m": "no001"
     },
     {
       "slug": "yakumo/network/no001",
       "tsha": "6686ec3c",
-      "simhash": "207890c918b89260",
+      "simhash": "6069c0c8308c3824",
       "m": "no001"
     }
   ]
