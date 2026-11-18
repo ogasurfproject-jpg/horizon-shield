@@ -67,6 +67,42 @@ jobs:
             fs.writeFileSync('/tmp/dispatch.json', JSON.stringify({ client_payload: { profile: p, autopilot: p.autopilot || {} } }));
             core.info('manual dispatch written');
 
+      # 2026-11-17: 事前登録 hs-partner-002-pages-01 の post の窓(2026-11-28〜2026-12-11 JST)の間は、No.002 の頁を作り直さない。
+      #   窓の間に No.002 の合図が来ても、生成の前で止める。
+      #   店は client_payload.profile.member_no で見分ける。写し方は generate.py の member_slug と同じ(小文字、no. を no、英数字だけ)。
+      #   company の文字では見分けない。member_no が無い、または読めない時は止めない(今までどおり)。
+      #   日付は runner の時刻を TZ=Asia/Tokyo で JST に直す。窓は JST 2026-11-28 00:00 から 2026-12-12 00:00 の前まで。
+      #   止める時は hold=true を出す。後の段(生成と門、Commit and push)は if で走らない。job は失敗にしない。
+      #   published が出ないので、indexnow の job も走らない。窓の外と、No.002 でない店は今までどおり通る。
+      - name: 事前登録の窓の間は No.002 を止める (hs-partner-002 post)
+        id: hold
+        run: |
+          MN=$(python3 -c '
+          import json, re
+          try:
+              mn = json.load(open("/tmp/dispatch.json"))["client_payload"]["profile"].get("member_no")
+          except Exception:
+              mn = None
+          print(re.sub(r"[^a-z0-9]", "", str(mn or "").lower().replace("no.", "no")))
+          ')
+          D=$(TZ=Asia/Tokyo date +%Y%m%d)
+          NOW=$(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M')
+          case "$D" in [0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]) ;; *) echo "::error::JST の日付を読めなかった($D)"; exit 1 ;; esac
+          echo "member_no の写し=${MN:-(無い)} JST=$NOW"
+          if [ "$MN" = "no002" ] && [ "$D" -ge 20261128 ] && [ "$D" -le 20261211 ]; then
+            {
+              echo "### 生成を止めた"
+              echo ""
+              echo "事前登録 hs-partner-002-pages-01 の post の窓(2026-11-28〜2026-12-11 JST)の間は No.002 の頁を作り直さない"
+              echo ""
+              echo "No.002 の合図を受けた(JST $NOW)。生成、commit、IndexNow は走らせなかった。"
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "No.002 は窓の間なので止めた(JST $NOW)"
+            echo "hold=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "hold=false" >> "$GITHUB_OUTPUT"
+          fi
+
       # 2026-08-24: ここは tools/yakumo/generate.py を直に呼んでいた。
       #   建設の生成器である。訪問看護の dispatch が来ると、その安全弁(exit 4)で止まる。
       #   他社の名前で建設のページが作られることはない。しかし、止まるだけである。
@@ -81,10 +117,12 @@ jobs:
       #     ・その業種に出口が無い  -> 0 で終わる(失敗にしない)。だが「無い」と記録して言う。
       #     ・生成器か門が落ちた    -> 非ゼロで終わる。公開しない(fail-closed)。
       - name: 生成と門(業種で振り分ける)
+        if: steps.hold.outputs.hold != 'true'
         run: python3 tools/industries/route_generate.py --dispatch /tmp/dispatch.json
 
       - name: Commit and push (門を通ったときだけ)
         id: commit
+        if: steps.hold.outputs.hold != 'true'
         run: |
           set -e
           # 2026-08-25: ここは値を裸で書いていた。
