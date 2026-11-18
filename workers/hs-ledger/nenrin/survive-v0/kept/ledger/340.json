@@ -1,0 +1,13 @@
+{
+  "n": 340,
+  "work": "NENRIN agreement batch (7 records)",
+  "claim_sha256": "e63ddc450def08714d5c5d312f96eaf50763787cb0c35dc28d7420a5a8871e1e",
+  "record_canonical": "{\"schema\":\"nenrin-agreement-batch-v1\",\"anchored_at\":\"2026-11-18T00:30:33.049Z\",\"count\":7,\"records\":[{\"canonical_sha256\":\"131c5cf80072ed06781fb2e86ca498678c4beadfb1cccff8ca3e3de19ab336a7\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"13c20854c99db9c17f3dd0c78ad77f44aca227a93ded16208a6a9949636a34a8\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"4f6b662c2b082c2729438926a86edfff72db006d412d2fa47e6889010aab1d6d\",\"record_schema\":\"furui-check-day-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"furui-check-day-intake 0.3.0\"},{\"canonical_sha256\":\"6a15cdf1da688a7f258eeba31892a7762e0c42913372b94f032376f3c5c818f4\",\"record_schema\":\"furui-check-day-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"furui-check-day-intake 0.3.0\"},{\"canonical_sha256\":\"70a96425461ec158769b69c766ea858150b6e8eff6ec79ade70eaedc531177e7\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"dd36364d7e77a87ac9522aea8a14c88d64607a6154fd02f55b2820eea44971f8\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"ff97c3ade2de26b43daa68545bf97dde1833ba30c76c4f79a01c3d012dc3460d\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"}]}",
+  "schema": "v0-plain",
+  "created_at": "2026-11-18T00:30:33.126Z",
+  "ots_status": "confirmed",
+  "bitcoin_block": 976362,
+  "block_time": "2026-11-18 01:56 UTC",
+  "stamped_at": "2026-11-18T03:19:10.954Z",
+  "anchored_by": "schedule"
+}

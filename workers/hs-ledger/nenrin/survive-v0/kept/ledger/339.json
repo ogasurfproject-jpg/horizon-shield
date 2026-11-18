@@ -1,0 +1,13 @@
+{
+  "n": 339,
+  "work": "NENRIN witness batch (2 records)",
+  "claim_sha256": "ecc7edb61b699edd1001a8c0faba4e456fc3e25d2469d354c73ee1aa53268011",
+  "record_canonical": "{\"schema\":\"nenrin-witness-batch-v1\",\"anchored_at\":\"2026-11-18T00:30:31.468Z\",\"count\":2,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"n\":338,\"entry_sha256\":\"66d77e34fd92d5aa7866cc8a81c5d819ee98dba03af1b7c2da7550749e05d9cb\"},\"records\":[{\"sha\":\"381b6b1eceeb4c402b4e7fc96f3b680affb67cfceb8e2f40dac873ac4e986f93\",\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"witness_name\":\"kuangmi-bit\",\"vantage\":\"github-actions hosted runner (Linux) for kuangmi-bit/conduct-witness\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"sha\":\"bd22680325d80a12b7841ff76d2272dfc3fe7cc2d44ab794a0a5ee03d5c1452d\",\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"witness_name\":\"kuangmi-bit\",\"vantage\":\"github-actions hosted runner (Linux) for kuangmi-bit/conduct-witness\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"}]}",
+  "schema": "v0-plain",
+  "created_at": "2026-11-18T00:30:31.525Z",
+  "ots_status": "confirmed",
+  "bitcoin_block": 976362,
+  "block_time": "2026-11-18 01:56 UTC",
+  "stamped_at": "2026-11-18T03:18:50.569Z",
+  "anchored_by": "schedule"
+}
