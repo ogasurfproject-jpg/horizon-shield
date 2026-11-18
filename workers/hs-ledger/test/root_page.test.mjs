@@ -5,6 +5,8 @@
 // its User-Agent is a browser's or a crawler's and it is not a script's fetch (Bing's crawler does not always ask for
 // text/html). Both answers carry Vary: Accept, User-Agent, Sec-Fetch-Mode.
 // The JSON of / is the same object as /health, which this change does not touch, so /health's bytes are the reference.
+// 2026-11-19: /sitemap.xml lists the root; robots.txt names /sitemap.xml. The rule for / is not changed; the checks
+// below keep it: Bing and Google get the page with no Accept, */* or a browser's Accept, and the JSON when they name JSON.
 // Offline. Run: node test/root_page.test.mjs
 
 import { loadWorker, mockKV, checker } from "./load.mjs";
@@ -147,5 +149,49 @@ chk("the meta description is 25 to 160 characters (Bing: too long or too short)"
 const ttl = (/<title>([^<]*)<\/title>/.exec(page) || [])[1] || "";
 chk("the title is 10 to 69 characters and starts with hs-ledger: JIDEC public ledger (Bing: Title too long)", [...ttl].length >= 10 && [...ttl].length <= 69 && ttl.startsWith("hs-ledger: JIDEC public ledger"), String([...ttl].length));
 chk("the page has one h1 and a lang", (page.match(/<h1>/g) || []).length === 1 && /<html lang="[a-z]{2}">/.test(page));
+
+// 2026-11-19: what Bing and Google get from /, and what programs get.
+const BOTS = [
+  ["bingbot (Chrome form)", BING_NEW],
+  ["bingbot (short form)", "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)"],
+  ["Googlebot", "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"],
+  ["Googlebot smartphone", "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.204 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"],
+  ["Googlebot/2.1 alone", "Googlebot/2.1 (+http://www.google.com/bot.html)"],
+];
+let botPages = 0;
+for (const [, ua] of BOTS) for (const acc of [undefined, "*/*", BINGBOT]) {
+  const r = await get("/", acc, "GET", { "user-agent": ua });
+  const d = (/<meta name="description" content="([^"]*)">/.exec(r.body) || [])[1] || "";
+  if (r.s === 200 && r.ct === "text/html; charset=utf-8" && r.body === page && r.vary === VARY && /<title>[^<]{10,69}<\/title>/.test(r.body) && d.length >= 25 && /<html lang="[a-z]{2}">/.test(r.body) && (r.body.match(/<h1>/g) || []).length === 1) botPages++;
+}
+chk("bingbot and Googlebot with no Accept, */* or a browser's Accept -> the browser's page byte for byte, with a title, a description, a lang and one h1 (15 requests)", botPages === 15, String(botPages));
+let botJson = 0;
+for (const [, ua] of BOTS) for (const acc of ["application/json", "application/json, text/event-stream, */*"]) {
+  const r = await get("/", acc, "GET", { "user-agent": ua });
+  if (r.s === 200 && r.ct === ref.ct && r.body === ref.body && r.vary === VARY) botJson++;
+}
+chk("bingbot and Googlebot that name application/json -> the JSON byte for byte, as before (10 requests)", botJson === 10, String(botJson));
+const PROGRAMS = [undefined, "curl/8.7.1", "Python-urllib/3.13", "python-requests/2.32.3", "node", "undici", "mcp-client/1.0", "glama-inspector/1"];
+let progJson = 0;
+for (const ua of PROGRAMS) for (const acc of [undefined, "*/*", "application/json", "application/json, text/event-stream, */*"]) {
+  const r = await get("/", acc, "GET", ua === undefined ? {} : { "user-agent": ua });
+  if (r.s === 200 && r.ct === ref.ct && r.body === ref.body && r.vary === VARY) progJson++;
+}
+chk("curl, Python (urllib and requests), Node and MCP clients -> the JSON byte for byte, as before (32 requests)", progJson === 32, String(progJson));
+
+// /sitemap.xml and robots.txt.
+const sm = await get("/sitemap.xml");
+chk("GET /sitemap.xml -> 200 application/xml, a urlset (sitemaps.org 0.9) with the root as its one URL and no lastmod",
+  sm.s === 200 && sm.ct === "application/xml; charset=utf-8" && sm.body === '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>' + B + '/</loc></url>\n</urlset>\n', sm.ct + " " + sm.body.slice(0, 80));
+const smOther = await worker.fetch(new Request("https://hs-ledger.oga-surf-project.workers.dev/sitemap.xml"), env, { waitUntil() {} });
+chk("on another host the sitemap names that host", (await smOther.text()).includes("<loc>https://hs-ledger.oga-surf-project.workers.dev/</loc>"));
+const rb = await get("/robots.txt");
+const rbLines = rb.body.split("\n");
+const sitemapLines = rbLines.filter((l) => /^sitemap:/i.test(l));
+chk("robots.txt names /sitemap.xml in its one Sitemap line", rb.s === 200 && sitemapLines.length === 1 && sitemapLines[0] === "Sitemap: " + B + "/sitemap.xml", sitemapLines.join(" | "));
+const ROBOTS_KEPT = ["User-agent: *", "Allow: /", "", "# This ledger exists to be read, cited and ", "# Nothing here is private and nothing here requires attribution", "", "# AIPREF (IETF, draft), machine-readable usage preference.", "Content-Usage: train-ai=y, search=y, ai-input=y", "", "# Cloudflare Content Signals.", "Content-signal: search=yes, ai-input=yes, ai-train=yes", ""];
+chk("robots.txt keeps its other lines and names llms.txt only in a comment", ROBOTS_KEPT.every((l, i) => (l.startsWith("# ") && l.length > 40 ? rbLines[i].startsWith(l) : rbLines[i] === l)) && rbLines[ROBOTS_KEPT.length] === "# Orientation for agents sent here to verify: " + B + "/llms.txt" && rbLines.length === ROBOTS_KEPT.length + 3 && rbLines[rbLines.length - 1] === "", JSON.stringify(rbLines.slice(-3)));
+const unknown = await get("/no-such-path");
+chk("a path the ledger does not serve still answers 404 (not changed)", unknown.s === 404, String(unknown.s));
 
 process.exit(chk.done() ? 1 : 0);

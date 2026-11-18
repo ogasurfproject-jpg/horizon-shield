@@ -1212,9 +1212,16 @@ const robotsTxt = (origin) =>
     "# Cloudflare Content Signals.",
     "Content-signal: search=yes, ai-input=yes, ai-train=yes",
     "",
-    "Sitemap: " + origin + "/llms.txt",
+    "# Orientation for agents sent here to verify: " + origin + "/llms.txt",
+    "Sitemap: " + origin + "/sitemap.xml",
     "",
   ].join("\n");
+
+// 2026-11-19: the Sitemap line named llms.txt, which is Markdown, not a sitemap. /sitemap.xml lists the root page, the
+// page this host answers as HTML to a browser or a crawler. No lastmod: the page carries no date of its own.
+const sitemapXml = (origin) =>
+  '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+  "  <url><loc>" + origin + "/</loc></url>\n</urlset>\n";
 
 // llms.txt. Its measured value is NOT AI search (97% of published files are
 // never requested, and Google states it does not use them). Its measured value
@@ -1707,6 +1714,9 @@ async function handle(request, env) {
 
     if (p === "/robots.txt" && request.method === "GET")
       return new Response(robotsTxt(origin), { headers: { "content-type": "text/plain; charset=utf-8", ...CORS } });
+
+    if (p === "/sitemap.xml" && request.method === "GET")
+      return new Response(sitemapXml(origin), { headers: { "content-type": "application/xml; charset=utf-8", ...CORS } });
 
     if (p === "/llms.txt" && request.method === "GET")
       return new Response(llmsTxt(origin), { headers: { "content-type": "text/markdown; charset=utf-8", ...CORS } });
