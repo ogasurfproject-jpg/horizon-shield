@@ -4,7 +4,8 @@ name: aps-receipt adapter
 # workers/hs-ledger/nenrin/musubi-v0/adapters/aps_receipt. Installs the pinned APS SDK from the lockfile without
 # install scripts and runs the adapter's selftest, which refuses to run on any package bytes other than PINS.json.
 # Since 2026-11-07 also the door itself (workers/hs-ledger/nenrin/refund-door-v0), which runs the adapter over the same
-# pinned SDK, with its own test: no network (fetch replaced), no secret (test keys from fixed labels).
+# pinned SDK, with its own test: no network (fetch replaced), no secret (test keys from fixed labels). Since 2026-11 also
+# the door's record of requests and answers, through a stand-in Durable Object over node:sqlite.
 # No secret, no network after the install.
 
 on:
@@ -49,3 +50,6 @@ jobs:
       - name: the refund sandbox door
         working-directory: workers/hs-ledger/nenrin/refund-door-v0
         run: node refund_door_v0.test.mjs
+      - name: the refund sandbox door's record of requests and answers
+        working-directory: workers/hs-ledger/nenrin/refund-door-v0
+        run: node refund_door_log.test.mjs

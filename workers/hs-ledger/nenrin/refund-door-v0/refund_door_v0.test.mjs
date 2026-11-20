@@ -187,8 +187,14 @@ const base = makeCase();
   const { DOOR_KEY } = await import("./door_key.mjs");
   const r = await W.handleRefundSandbox(post({ "x-hs-sandbox-key": key }), env, u);
   const rj = await r.json();
-  ok(r.status === 503 && rj.error === "door_unavailable" && rj.why === (DOOR_KEY ? "door_key_not_the_published_key" : "door_key_not_published"),
-    "a seed that is not the published key's (or no published key): 503 door_unavailable, " + rj.why);
+  // Since the record (refund_door_log.mjs) every keyed /admit goes through the Durable Object, so without one bound the
+  // answer is 503 state_not_bound; the door_unavailable answer with a Durable Object is in refund_door_log.test.mjs [3].
+  ok(r.status === 503 && rj.error === "door_unavailable" && rj.why === "state_not_bound",
+    "a keyed /admit without the Durable Object bound: 503 door_unavailable, " + rj.why);
+  const rr = await W.handleRefundSandbox(new Request("https://ledger.horizonshield.dev/sandbox/refund/replay", { method: "POST", headers: { "x-hs-sandbox-key": key }, body: "{}" }), env, new URL("https://ledger.horizonshield.dev/sandbox/refund/replay"));
+  const rrj = await rr.json();
+  ok(rr.status === 503 && rrj.error === "door_unavailable" && rrj.why === (DOOR_KEY ? "door_key_not_the_published_key" : "door_key_not_published"),
+    "/replay with a seed that is not the published key's (or no published key): 503 door_unavailable, " + rrj.why);
   ok(DOOR_KEY === null || (/^[A-Za-z0-9+/]{43}=$/.test(DOOR_KEY.public_key_ed25519_b64) && Buffer.from(DOOR_KEY.public_key_ed25519_b64, "base64").length === 32 && typeof DOOR_KEY.key_id === "string" && Object.keys(DOOR_KEY).sort().join() === "key_id,not_before,public_key_ed25519_b64"),
     "door_key.mjs is null or one Ed25519 public key with key_id and not_before");
   const g = await W.handleRefundSandbox(new Request("https://ledger.horizonshield.dev/sandbox/refund"), env, new URL("https://ledger.horizonshield.dev/sandbox/refund"));
