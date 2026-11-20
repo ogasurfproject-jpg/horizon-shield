@@ -1,0 +1,179 @@
+{
+ "schema": "hs-fair-price-receipt-day-copy-v1",
+ "date": "2026-11-19",
+ "store": "https://mcp.horizonshield.dev/ledger/",
+ "count": 10,
+ "receipts": [
+  {
+   "sha": "152d364bd4facf3cbd1017a4e1df100a0e9b0989f18efdef34c5aa37eff82ea0",
+   "record": {
+    "claim": {
+     "work": "外壁塗装 30坪 一式（シリコン）",
+     "unit": "一式",
+     "fair_min": 700000,
+     "fair_avg": 900000,
+     "fair_max": 1150000,
+     "source": "HORIZON SHIELD souba-db",
+     "issued_at": "2026-11-19T16:47:12.920Z"
+    },
+    "claim_sha256": "152d364bd4facf3cbd1017a4e1df100a0e9b0989f18efdef34c5aa37eff82ea0",
+    "bitcoin_block": 949356,
+    "issued_at": "2026-11-19T16:47:12.920Z"
+   }
+  },
+  {
+   "sha": "443e11cd9324a4857e2d6d57b4acb7357c622de47ec78da164633f2314374eb9",
+   "record": {
+    "claim": {
+     "work": "外壁塗装 30坪 一式（シリコン）",
+     "unit": "一式",
+     "fair_min": 700000,
+     "fair_avg": 900000,
+     "fair_max": 1150000,
+     "source": "HORIZON SHIELD souba-db",
+     "issued_at": "2026-11-19T16:47:14.189Z"
+    },
+    "claim_sha256": "443e11cd9324a4857e2d6d57b4acb7357c622de47ec78da164633f2314374eb9",
+    "bitcoin_block": 949356,
+    "issued_at": "2026-11-19T16:47:14.189Z"
+   }
+  },
+  {
+   "sha": "857afa983123baba68974c36bd96493aa15d2ebc017353780b6542c1c969b426",
+   "record": {
+    "claim": {
+     "work": "外壁塗装 30坪 一式（シリコン）",
+     "unit": "一式",
+     "fair_min": 700000,
+     "fair_avg": 900000,
+     "fair_max": 1150000,
+     "source": "HORIZON SHIELD souba-db",
+     "issued_at": "2026-11-19T16:47:11.718Z"
+    },
+    "claim_sha256": "857afa983123baba68974c36bd96493aa15d2ebc017353780b6542c1c969b426",
+    "bitcoin_block": 949356,
+    "issued_at": "2026-11-19T16:47:11.718Z"
+   }
+  },
+  {
+   "sha": "96d24077fc87c9d96c6f1c49ce91dd3f97666095a1a25a264559b93320651266",
+   "record": {
+    "claim": {
+     "work": "外壁塗装 30坪 一式（シリコン）",
+     "unit": "一式",
+     "fair_min": 700000,
+     "fair_avg": 900000,
+     "fair_max": 1150000,
+     "source": "HORIZON SHIELD souba-db",
+     "issued_at": "2026-11-19T16:47:20.082Z"
+    },
+    "claim_sha256": "96d24077fc87c9d96c6f1c49ce91dd3f97666095a1a25a264559b93320651266",
+    "bitcoin_block": 949356,
+    "issued_at": "2026-11-19T16:47:20.082Z"
+   }
+  },
+  {
+   "sha": "9b357653cd67b006cf4ed6d25b426e600127b178d050c759ce9f36a850638292",
+   "record": {
+    "claim": {
+     "work": "外壁塗装 30坪 一式（シリコン）",
+     "unit": "一式",
+     "fair_min": 700000,
+     "fair_avg": 900000,
+     "fair_max": 1150000,
+     "source": "HORIZON SHIELD souba-db",
+     "issued_at": "2026-11-19T16:47:21.324Z"
+    },
+    "claim_sha256": "9b357653cd67b006cf4ed6d25b426e600127b178d050c759ce9f36a850638292",
+    "bitcoin_block": 949356,
+    "issued_at": "2026-11-19T16:47:21.324Z"
+   }
+  },
+  {
+   "sha": "a96824c32531627b4996201116c64b15833d02d1445850f7c8fad97120b93d38",
+   "record": {
+    "claim": {
+     "work": "外壁塗装 30坪 一式（シリコン）",
+     "unit": "一式",
+     "fair_min": 700000,
+     "fair_avg": 900000,
+     "fair_max": 1150000,
+     "source": "HORIZON SHIELD souba-db",
+     "issued_at": "2026-11-19T16:47:10.553Z"
+    },
+    "claim_sha256": "a96824c32531627b4996201116c64b15833d02d1445850f7c8fad97120b93d38",
+    "bitcoin_block": 949356,
+    "issued_at": "2026-11-19T16:47:10.553Z"
+   }
+  },
+  {
+   "sha": "b3a08c0570d6b5fa7587533fbb0357932ad6ea2ade5d5dcf03d79be6c7d3e3b6",
+   "record": {
+    "claim": {
+     "work": "外壁塗装 30坪 一式（シリコン）",
+     "unit": "一式",
+     "fair_min": 700000,
+     "fair_avg": 900000,
+     "fair_max": 1150000,
+     "source": "HORIZON SHIELD souba-db",
+     "issued_at": "2026-11-19T16:47:18.735Z"
+    },
+    "claim_sha256": "b3a08c0570d6b5fa7587533fbb0357932ad6ea2ade5d5dcf03d79be6c7d3e3b6",
+    "bitcoin_block": 949356,
+    "issued_at": "2026-11-19T16:47:18.735Z"
+   }
+  },
+  {
+   "sha": "e40ceec6935d11736f3e4b6c5138a0e9bd0cba64903404a6261a2df494d3a576",
+   "record": {
+    "claim": {
+     "work": "外壁塗装 30坪 一式（シリコン）",
+     "unit": "一式",
+     "fair_min": 700000,
+     "fair_avg": 900000,
+     "fair_max": 1150000,
+     "source": "HORIZON SHIELD souba-db",
+     "issued_at": "2026-11-19T16:47:17.028Z"
+    },
+    "claim_sha256": "e40ceec6935d11736f3e4b6c5138a0e9bd0cba64903404a6261a2df494d3a576",
+    "bitcoin_block": 949356,
+    "issued_at": "2026-11-19T16:47:17.028Z"
+   }
+  },
+  {
+   "sha": "ef812dd358ead859ff5a72075a6c931d5af158729da8f313dd7b53b5e89de14a",
+   "record": {
+    "claim": {
+     "work": "外壁塗装 30坪 一式（シリコン）",
+     "unit": "一式",
+     "fair_min": 700000,
+     "fair_avg": 900000,
+     "fair_max": 1150000,
+     "source": "HORIZON SHIELD souba-db",
+     "issued_at": "2026-11-19T16:47:15.610Z"
+    },
+    "claim_sha256": "ef812dd358ead859ff5a72075a6c931d5af158729da8f313dd7b53b5e89de14a",
+    "bitcoin_block": 949356,
+    "issued_at": "2026-11-19T16:47:15.610Z"
+   }
+  },
+  {
+   "sha": "f81a84ea247eaeab515a92512b0a4286ec7b26df1d0a248adad9b5d92f7c1b93",
+   "record": {
+    "claim": {
+     "work": "外壁塗装 30坪 一式（シリコン）",
+     "unit": "一式",
+     "fair_min": 700000,
+     "fair_avg": 900000,
+     "fair_max": 1150000,
+     "source": "HORIZON SHIELD souba-db",
+     "issued_at": "2026-11-19T16:47:22.538Z"
+    },
+    "claim_sha256": "f81a84ea247eaeab515a92512b0a4286ec7b26df1d0a248adad9b5d92f7c1b93",
+    "bitcoin_block": 949356,
+    "issued_at": "2026-11-19T16:47:22.538Z"
+   }
+  }
+ ],
+ "refused": []
+}

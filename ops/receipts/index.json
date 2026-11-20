@@ -15,6 +15,11 @@
    "ledger_entry": 333,
    "claim_sha256": "b817e691f64b13f032def06d5b8bedd69609cfa4935a3bef7dd681e905076a80",
    "count": 1
+  },
+  "2026-11-19": {
+   "ledger_entry": 354,
+   "claim_sha256": "58a3904fc9e1716d76019755da38cc866809406481c3feb006d90589437e6793",
+   "count": 10
   }
  }
 }
