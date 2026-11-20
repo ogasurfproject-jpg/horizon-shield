@@ -1,0 +1,1 @@
+{"schema":"nenrin-slot-witness-batch-v0","anchored_at":"2026-11-20T00:30:50.082Z","count":1,"records":[{"sha":"2ae4a1302d482cc91fc82ec1da39a617d1cf7e264c8342e79fc5cd5111a5a01f","request_slot":null,"receipt_event_id":null,"verdict":"slot_log_copy","observed_at":"2026-11-20T00:30:41Z","response_sha256":"c2dd4ffa8e79beb3620626991944812171874dc119d2340885c315a6bd21a9ff"}]}
