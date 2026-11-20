@@ -2,6 +2,18 @@
 User-agent: *
 Allow: /
 
+# Googlebot reads only the group that names it, so this group repeats the rules of *
+User-agent: Googlebot
+Allow: /
+Disallow: /blog/
+Disallow: /faq/
+Disallow: /hacker/
+Disallow: /llmo/
+Disallow: /qa/
+Disallow: /roumu/
+Disallow: /us/
+Disallow: /verify-directory/
+
 User-agent: GPTBot
 Allow: /
 User-agent: ChatGPT-User
