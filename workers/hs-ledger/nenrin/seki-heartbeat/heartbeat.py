@@ -1280,6 +1280,7 @@ def _selftest():
     # every day settled so far, whose view lies in view-chunks/ (no network): v1.20 gives v1.15's verdict, status and deviations,
     # v1.12 the same verdict, and v1.15 the bytes settlement.json holds
     contracts_used = set()
+    day_contract = []                                   # (day, the contract path it was settled under), in day order
     hd = []
     for name in _chunks(os.path.join(HERE, "view-chunks")):
         hd += json.load(open(os.path.join(HERE, "view-chunks", name), encoding="utf-8"))["headers"]
@@ -1300,6 +1301,7 @@ def _selftest():
         keys = {DOOR_DOMAIN: door_key()}
         contract, cpath = contract_for(dd)
         contracts_used.add(os.path.relpath(cpath, MUSUBI))
+        day_contract.append((d, cpath))
         a15 = s15.settle_v1_15(contract, evs, view, admissions=adms, relying_keys=keys)
         a20 = s20.settle_v1_20(contract, evs, view, admissions=adms, relying_keys=keys)
         a12 = s12.settle_v1_12(contract, evs, view, admissions=adms, relying_keys=keys)
@@ -1314,9 +1316,18 @@ def _selftest():
                   "(%s to %s) settle under v1.20 with v1.15's verdict, status and deviations and v1.12's verdict, and the settle SETTLED.json names gives the "
                   "bytes settlement.json holds (%d later days need headers past view-chunks/ and are left to the run that settles them)"
                   % (len(days), days[0], days[-1], len(beyond)))
-    # [17] the contract of a day (2026-11-12): a day is settled under the contract its admissions name; the days so far name run0003,
-    # a day with no admission yet gets the newest; a day that names a contract this file does not know is an error, never a guess
-    assert contracts_used == {os.path.join("run0003", "contract.json")}, contracts_used
+    # [17] the contract of a day (2026-11-12): a day is settled under the contract its admissions name (contract_for, above);
+    # a day with no admission yet gets the newest; a day that names a contract this file does not know is an error, never a guess.
+    # (2026-11-21) These are checked as rules, not as the list of days so far. Those days grow as Bitcoin confirms them.
+    # The first form of this check failed once days under seki_demo_v2 were settled. Every contract used is one of
+    # CONTRACT_PATHS, and the days before 2026-11-12 name run0003. In day order, no day goes back to an older contract.
+    R3 = os.path.join(MUSUBI, "run0003", "contract.json")
+    assert contracts_used <= {os.path.relpath(x, MUSUBI) for x in CONTRACT_PATHS}, contracts_used
+    assert os.path.relpath(R3, MUSUBI) in contracts_used, contracts_used
+    assert all(c == R3 for d, c in day_contract if d < "2026-11-12"), [d for d, c in day_contract if d < "2026-11-12" and c != R3]
+    age = [CONTRACT_PATHS.index(c) for d, c in day_contract]     # 0 is the newest
+    assert all(a >= b for a, b in zip(age, age[1:])), [(d, os.path.relpath(c, MUSUBI)) for d, c in day_contract]
+    per = {os.path.relpath(x, MUSUBI).split(os.sep)[0]: sum(1 for d, c in day_contract if c == x) for x in CONTRACT_PATHS}
     assert EXPECT[1] == ("audit", 30, "refuse", ["prohibited_action"], 403) and contract_sha256(rd(CONTRACT_PATHS[0])) != contract_sha256(rd(CONTRACT_PATHS[1]))
     g0 = rd(CONTRACT_PATH)["grant"]
     assert "audit" in g0["prohibited_actions"] and "compare" in g0["prohibited_actions"] and g0["authorized_actions"] == ["report"]
@@ -1329,8 +1340,10 @@ def _selftest():
             contract_for(td); raise AssertionError("a day naming an unknown contract was settled")
         except RuntimeError:
             pass
-    n += 1; print("[17] the contract of a day: the %d settled days name run0003 and are settled under it; a new day gets seki_demo_v2 (audit and compare "
-                  "prohibited, so the audit is expected refused prohibited_action); a day naming an unknown contract is an error" % len(days))
+    n += 1; print("[17] the contract of a day: each of the %d settled days is settled under the contract its admissions name (%s). The days "
+                  "before 2026-11-12 name run0003, and no day goes back to an older contract. A new day gets seki_demo_v2, where audit and "
+                  "compare are prohibited, so the audit is expected refused (prohibited_action). A day naming an unknown contract is an error."
+                  % (len(days), ", ".join("%s %d" % (k, v) for k, v in per.items())))
     n += 1; print("[18] the contract is on file before any call: accepted or dedup lets the run go on; a refusal (the 422 of 2026-11-12), a 5xx, an answer "
                   "that is not JSON or no answer stops it, and in run() the question comes before the day's folder and before the first call")
     import inspect
