@@ -239,13 +239,13 @@ def repo_get(over=None):
     return get
 
 
-def settle_1104(over=None):
+def settle_1104(over=None, get=None):
     with open(os.path.join(HEARTBEAT, "runs", "2026-11-04", "RUN.json"), encoding="utf-8") as f:
         r = json.load(f)
     with open(os.path.join(REPO, "keys", "seki-door.json"), encoding="utf-8") as f:
         pub = json.load(f)["public_key_ed25519_b64"]
     call = [k for k in r["calls"] if k.get("service") == "report"][0]
-    W = T._Walk(repo_get(over), NOW)
+    W = T._Walk(get or repo_get(over), NOW)
     W.put("adm->exec", "holds", "given")
     T._settle(W, "2026-11-04", r, call, call["execution_sha256"], call["admission_sha256"], "shield.the-horizons-innovation.com", pub)
     return W.links
@@ -273,9 +273,19 @@ def test_1104_a_changed_anchored_admit_does_not_settle_to_the_bytes():
 
 @needs_repo
 def test_1104_a_view_chunk_not_written_is_not_yet_and_an_unknown_settle_is_missing():
-    last = sorted(x for x in os.listdir(os.path.join(HEARTBEAT, "view-chunks")) if x.endswith(".json"))[-1]
-    ls = settle_1104({T.RAW_CHUNKS + last: None})
-    assert ls["settle->recompute"]["state"] == "not_yet"
+    # The heartbeat adds a view chunk every day, so the newest file of view-chunks is not one the 2026-11-04 settle reads.
+    # Take the chunks this settle actually reads, and remove each of them in turn.
+    read, base = [], repo_get()
+
+    def get(url):
+        if url.startswith(T.RAW_CHUNKS):
+            read.append(url[len(T.RAW_CHUNKS):])
+        return base(url)
+    assert settle_1104(get=get)["settle->recompute"]["state"] == "holds"
+    assert read, "the 2026-11-04 settle read no view chunk"
+    for name in sorted(set(read)):
+        ls = settle_1104({T.RAW_CHUNKS + name: None})
+        assert ls["settle->recompute"]["state"] == "not_yet", name
     u = T.RAW_RUNS + "2026-11-04/SETTLED.json"
     with open(os.path.join(REPO, u[len(T.RAW):]), encoding="utf-8") as f:
         s = json.load(f)
