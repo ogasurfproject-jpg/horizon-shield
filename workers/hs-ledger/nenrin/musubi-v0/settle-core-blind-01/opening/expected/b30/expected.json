@@ -1,0 +1,12 @@
+{
+ "bond_outcome": "held",
+ "contract_sha256": "e0816babf33628039717e68d8cf8a0e289170e7cfc9d7aeaad8eb088b279f65b",
+ "deviation_codes": [],
+ "dispositions": {
+  "e91eb30a56238c46856a32653ecd9d66fa196c31d8f0c04ea66db2273de3f852": "rejected"
+ },
+ "event_set": [],
+ "status": "final",
+ "underspecified_reasons": [],
+ "verdict": "nothing_to_settle"
+}

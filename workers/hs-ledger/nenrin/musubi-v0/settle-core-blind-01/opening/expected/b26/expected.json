@@ -1,0 +1,20 @@
+{
+ "bond_outcome": "forfeited",
+ "contract_sha256": "06a87020a0133679ca8edfd1880817d87010ba0d6ffbb0cec0cf897fa3ccf49e",
+ "deviation_codes": [
+  "nonconforming_record"
+ ],
+ "dispositions": {
+  "00ed2858f063f244e921aac45cf1cfe5188ec8d672c5a77ab59892fa2091d671": "accepted"
+ },
+ "event_set": [
+  {
+   "height": 800002,
+   "kind": "execution",
+   "sha256": "00ed2858f063f244e921aac45cf1cfe5188ec8d672c5a77ab59892fa2091d671"
+  }
+ ],
+ "status": "final",
+ "underspecified_reasons": [],
+ "verdict": "deviation"
+}

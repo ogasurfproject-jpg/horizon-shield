@@ -1,0 +1,38 @@
+{
+ "bond_outcome": "forfeited",
+ "contract_sha256": "1139c750466fb6a64d0740fe9bc9036d41030494a2b022d659a31337f837527b",
+ "deviation_codes": [
+  "revoked"
+ ],
+ "dispositions": {
+  "4ce4c54a8d8c419c041e834c7fb6c6e6b4d7114cb254ce68215992f9ef602952": "accepted",
+  "6114b65b43b7b0f9063ddab628a85c3deaea872e9354d7b6144bcea321dbd95b": "accepted",
+  "61936a7c2970eae3bbc5995664ebeb5b4588b4a55bd0ab0ecd5ceca2ed1fb884": "accepted",
+  "6f771a0706cc9465fce4a09091d4fc731e87c45cfd45b26cf0b6b72930d70553": "accepted"
+ },
+ "event_set": [
+  {
+   "height": 800002,
+   "kind": "execution",
+   "sha256": "6f771a0706cc9465fce4a09091d4fc731e87c45cfd45b26cf0b6b72930d70553"
+  },
+  {
+   "height": 800003,
+   "kind": "revocation_ack",
+   "sha256": "61936a7c2970eae3bbc5995664ebeb5b4588b4a55bd0ab0ecd5ceca2ed1fb884"
+  },
+  {
+   "height": 800004,
+   "kind": "revocation",
+   "sha256": "4ce4c54a8d8c419c041e834c7fb6c6e6b4d7114cb254ce68215992f9ef602952"
+  },
+  {
+   "height": 800005,
+   "kind": "execution",
+   "sha256": "6114b65b43b7b0f9063ddab628a85c3deaea872e9354d7b6144bcea321dbd95b"
+  }
+ ],
+ "status": "final",
+ "underspecified_reasons": [],
+ "verdict": "deviation"
+}

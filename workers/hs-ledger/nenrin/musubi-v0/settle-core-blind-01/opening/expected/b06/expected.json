@@ -1,0 +1,31 @@
+{
+ "bond_outcome": "held",
+ "contract_sha256": "5f264873f715416757c4d49ca67212b8f2263ab9eb606cc95519073e450f7ab8",
+ "deviation_codes": [],
+ "dispositions": {
+  "261da0f59c2e8fd9c1956d3b42d61c31d68eabb588a32aa05cb6b6d739b08b2e": "accepted",
+  "627ef571acfe1f47257ed3533f62c64739fb452c8e85c3e39294c6ba2e3bafaa": "anchor_not_strict",
+  "c1a0a19f844e6da070baa1d55644ab21ea9b5165e48af05ad3238e4449edf317": "accepted",
+  "c61c824c626b3e91b6f0db303fe153eb47004bdef1f10f440e7f359276fb519c": "accepted"
+ },
+ "event_set": [
+  {
+   "height": 800002,
+   "kind": "revocation",
+   "sha256": "c61c824c626b3e91b6f0db303fe153eb47004bdef1f10f440e7f359276fb519c"
+  },
+  {
+   "height": 800003,
+   "kind": "revocation_ack",
+   "sha256": "261da0f59c2e8fd9c1956d3b42d61c31d68eabb588a32aa05cb6b6d739b08b2e"
+  },
+  {
+   "height": 800004,
+   "kind": "execution",
+   "sha256": "c1a0a19f844e6da070baa1d55644ab21ea9b5165e48af05ad3238e4449edf317"
+  }
+ ],
+ "status": "final",
+ "underspecified_reasons": [],
+ "verdict": "within_grant"
+}

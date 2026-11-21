@@ -1,0 +1,20 @@
+{
+ "bond_outcome": "pending_finality",
+ "contract_sha256": "06a87020a0133679ca8edfd1880817d87010ba0d6ffbb0cec0cf897fa3ccf49e",
+ "deviation_codes": [
+  "prohibited"
+ ],
+ "dispositions": {
+  "c117b66a1c3f50cda14391adb339f7fff170d613d5f589316c84bc0c58c812cc": "accepted"
+ },
+ "event_set": [
+  {
+   "height": 800002,
+   "kind": "execution",
+   "sha256": "c117b66a1c3f50cda14391adb339f7fff170d613d5f589316c84bc0c58c812cc"
+  }
+ ],
+ "status": "provisional",
+ "underspecified_reasons": [],
+ "verdict": "deviation"
+}

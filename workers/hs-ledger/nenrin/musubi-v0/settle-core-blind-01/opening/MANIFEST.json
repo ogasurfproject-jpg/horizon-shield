@@ -1,0 +1,1110 @@
+{
+ "schema": "settle-core-v0-blind-manifest",
+ "set": "blind-01",
+ "count": 48,
+ "core_fields": [
+  "contract_sha256",
+  "verdict",
+  "status",
+  "bond_outcome",
+  "deviation_codes",
+  "underspecified_reasons",
+  "event_set",
+  "dispositions"
+ ],
+ "vectors": [
+  {
+   "id": "b01",
+   "name": "o_exec_before_revocation",
+   "section": "10.1",
+   "intent": "read at h, revocation at h+1",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "f826fbcec35464fd936c88975bd0fe74efae0fc45a1813c654dab9e88084bff5",
+    "events/e01.json": "26510101c9b10b989484cc2debde3b119a483a809a63b8c40f33107b5d5a2e43",
+    "view.json": "914b643c4022da303634c896b860a11bc8ff1395cde0da2b7ff2a557d50fae7f"
+   }
+  },
+  {
+   "id": "b02",
+   "name": "a_parent_null_with_parent",
+   "section": "4.3",
+   "intent": "parent_contract null, a parent supplied anyway",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "d1969a5c6185328f40a148c64e06d32e41b6417d87d6a642f02e27bfde38b2bb",
+    "events/e00.json": "889b8316298e5dac9b19f74235232d574242fb95527473483917056e1c32326a",
+    "parent.json": "4a9cfa4729d3a5668da5b8ed3149a0f169b76c9ebafce03300ff9ec893a9894a",
+    "view.json": "60ccc39d9b01dde58301ed1d1e734c8f81fc0c6d2c142ecd0e532f0224304d62"
+   }
+  },
+  {
+   "id": "b03",
+   "name": "o_view_header_upper",
+   "section": "5",
+   "intent": "one header (not the checkpoint) in upper case hex",
+   "reference": {
+    "verdict": "underspecified",
+    "status": "undetermined",
+    "bond_outcome": "undetermined",
+    "deviation_codes": [],
+    "underspecified_reasons": [
+     "chain_view_rejected",
+     "view_not_strict"
+    ]
+   },
+   "dispositions": [],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "f826fbcec35464fd936c88975bd0fe74efae0fc45a1813c654dab9e88084bff5",
+    "view.json": "4895080d43557bb16c298d7be67ee46b08adf457e1fa46f00e0ba031f022f4ab"
+   }
+  },
+  {
+   "id": "b04",
+   "name": "a_parent_wider_with_prohibited_exec",
+   "section": "4.3,2.3",
+   "intent": "child adds write (fails narrowing) and the contractor performs delete",
+   "reference": {
+    "verdict": "underspecified",
+    "status": "undetermined",
+    "bond_outcome": "undetermined",
+    "deviation_codes": [],
+    "underspecified_reasons": [
+     "parent_narrowing_failed"
+    ]
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "8b15e0a97a1801746278d7582e21d6276762778f63b286c054cce2ab8ddc99a9",
+    "events/e00.json": "1d2822d47289ee1ff7f684c69b5aa12f2d77cd2f7a0014e20b704b7d30a0e8bb",
+    "parent.json": "4a9cfa4729d3a5668da5b8ed3149a0f169b76c9ebafce03300ff9ec893a9894a",
+    "view.json": "bfb79017c4cdff04cbe2c1af0aaa7a69e1e7b9b6cccd306ed81a79918a632d79"
+   }
+  },
+  {
+   "id": "b05",
+   "name": "o_actions_256",
+   "section": "6.6",
+   "intent": "256 performed actions, all read",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "5edaf1a89b254cb885fab71d5107ce13b3c915893f499ece53596a05bacdceb1",
+    "view.json": "15e9f68b61725969e1f357bbe9f9a3fc636cd4159674451ac66f941c7e6dd469"
+   }
+  },
+  {
+   "id": "b06",
+   "name": "a_ack_names_set_aside_copy",
+   "section": "6.0,10.1 (N15 B6)",
+   "intent": "window 10; ack names a copy set aside as anchor_not_strict; read one block after the ack",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted",
+    "anchor_not_strict"
+   ],
+   "files": {
+    "contract.json": "7b3ac4b6e5e3c6a9d2250974df10f291f882d1a76e97cdf87eba1e35e1050f87",
+    "events/e00.json": "c61c824c626b3e91b6f0db303fe153eb47004bdef1f10f440e7f359276fb519c",
+    "events/e01.json": "627ef571acfe1f47257ed3533f62c64739fb452c8e85c3e39294c6ba2e3bafaa",
+    "events/e02.json": "261da0f59c2e8fd9c1956d3b42d61c31d68eabb588a32aa05cb6b6d739b08b2e",
+    "events/e03.json": "c1a0a19f844e6da070baa1d55644ab21ea9b5165e48af05ad3238e4449edf317",
+    "view.json": "6e2f8a05d38eb8da800dc2f520ea492c977f563d141f15734bc4904fb9de7457"
+   }
+  },
+  {
+   "id": "b07",
+   "name": "o_walk_names_this_contract",
+   "section": "11.1",
+   "intent": "nenrin_ref names a supplied walk under these terms",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "71df5147d8913da538542eb77e40c37100b5bb4914e3af7a1266d6d2df28bfc9",
+    "nenrin/n00.json": "d6326f705e9467e1aef381a067bcfe45c25dfa105093627c343a496a4f2b5316",
+    "view.json": "0169c69877a3a0163cdd33431f5e8d394d5514b8d229a23e495695d4a3987f98"
+   }
+  },
+  {
+   "id": "b08",
+   "name": "o_base",
+   "section": "8,9",
+   "intent": "one contractor execution of read, depth 6",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "f826fbcec35464fd936c88975bd0fe74efae0fc45a1813c654dab9e88084bff5",
+    "view.json": "10633f623e828bd517ff69102309e5f5ff4d1d67b800acdaac60b8fa76f0fe28"
+   }
+  },
+  {
+   "id": "b09",
+   "name": "a_binding_before_triage_upper_csha",
+   "section": "6.1 before 6.0",
+   "intent": "signed delete whose contract_sha256 is the right digest in upper case",
+   "reference": {
+    "verdict": "nothing_to_settle",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "inconsistent"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "2015b651b5cf5da21a77ab8ba31a53a612bc0479498e5cb674b200890ed41776",
+    "view.json": "1182444f906353732be58a7dbb7b677b1e40f5e2e74b232416e25b49d92cec30"
+   }
+  },
+  {
+   "id": "b10",
+   "name": "a_parent_wider_and_bond_zero",
+   "section": "4.3",
+   "intent": "child adds write and has bond amount 0",
+   "reference": {
+    "verdict": "underspecified",
+    "status": "undetermined",
+    "bond_outcome": "n/a",
+    "deviation_codes": [],
+    "underspecified_reasons": [
+     "bond_malformed",
+     "parent_narrowing_failed"
+    ]
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "bd72939cef8692af2f19293b78e56a0ad135dda6025c9cdf065c02af4982cae2",
+    "events/e00.json": "701f10858f514f806156c03bcfe617cbb59be7a6eb034d07cd0f4e49aaa9809d",
+    "parent.json": "4a9cfa4729d3a5668da5b8ed3149a0f169b76c9ebafce03300ff9ec893a9894a",
+    "view.json": "ca7c58cc262eb0a1291cb2ce1a495998fe9a5b146155f544d014d9fb7169dcd7"
+   }
+  },
+  {
+   "id": "b11",
+   "name": "a_not_provided_for_with_ack",
+   "section": "6.0,10.1",
+   "intent": "grant without revocation; revocation, ack naming it, read",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted",
+    "revocation_not_provided_for"
+   ],
+   "files": {
+    "contract.json": "b9676a9054eb6b1816ea1a72ce376ead140eb5ac875fc191a620555c1d6f93ae",
+    "events/e00.json": "992d11345ea8af64df1247673c873d040b7c99f358da4257338e3bc0b5615742",
+    "events/e01.json": "a5caf03a82a5c4be2d4505b0a07277036331a00b9cbc5e6d5bc32e0a62cc7fdc",
+    "events/e02.json": "b84d1eaefadb6a5737ecb61f7be537ed065a1f408b69d717e0b69a727728e62a",
+    "view.json": "700050dfdcbb4e58ee0008395e5d29dc015717b1ebcb660415e75137e51b09ab"
+   }
+  },
+  {
+   "id": "b12",
+   "name": "o_expired_prohibited",
+   "section": "10.2",
+   "intent": "expiry CK+2; read at CK+2, delete at CK+3",
+   "reference": {
+    "verdict": "deviation",
+    "status": "final",
+    "bond_outcome": "forfeited",
+    "deviation_codes": [
+     "after_expiry",
+     "prohibited"
+    ],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "08d92af84d23772bb36c729fb9f443c60b6450ca8b9b1690c542a1a4f0da3e01",
+    "events/e00.json": "592adda3c35c8781366a410ea4cd0901523ec076b44dae3f10bebce294d203bc",
+    "events/e01.json": "065a78aa3f39d3e65271b571ba64a4f5a599a427c6adc9c215e88d5ed9325a3c",
+    "view.json": "7a61abe9cf0315cc6472bc0ebfbe9d59982f17c6d2227b19b590df19351c73ce"
+   }
+  },
+  {
+   "id": "b13",
+   "name": "a_same_block_shared_single_use",
+   "section": "8.3,10.4",
+   "intent": "one single use approval earlier, two refunds in one block",
+   "reference": {
+    "verdict": "deviation",
+    "status": "final",
+    "bond_outcome": "forfeited",
+    "deviation_codes": [
+     "conditional"
+    ],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "99be89df09d32311361abd146b327ee8849ac3ab0fdf5752328198ce0342325a",
+    "events/e00.json": "bc6fe070de277b0fb2a955dc1fcd1ab0d76ffa598d70964cc958da3ec5a7d06a",
+    "events/e01.json": "526a6387487cfbfddf97416e2c3e90768b8b30e3e5aeed7c5a81d2961d04d8cf",
+    "events/e02.json": "846da3e42562b04873bb12bd3e8e56243a7943f40e713f7806da3a8b4e034c84",
+    "view.json": "06d3e33859438cebc9151ea657858723132d9b9ee968a0373eefcae387dec1a3"
+   }
+  },
+  {
+   "id": "b14",
+   "name": "o_provisional_deviation",
+   "section": "8.5,9.3",
+   "intent": "prohibited delete, pad 4",
+   "reference": {
+    "verdict": "deviation",
+    "status": "provisional",
+    "bond_outcome": "pending_finality",
+    "deviation_codes": [
+     "prohibited"
+    ],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "c117b66a1c3f50cda14391adb339f7fff170d613d5f589316c84bc0c58c812cc",
+    "view.json": "ec13aea2a4ebf938cffcb35140a1204b6b11acd47ae158520779368e7a1836f5"
+   }
+  },
+  {
+   "id": "b15",
+   "name": "a_parent_ack_without_window",
+   "section": "4.3.1 rule 9",
+   "intent": "parent delivery_ack without ack_window (4.2 would refuse it), child window 3",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "9b3aa4c83ee95a292e4e39a2ba60d4d4565e0f97a0bc9717ca01a41fc45d052e",
+    "events/e00.json": "995541606a7b90e57ea02888723abca89e46627068c5c2d745720b2b5007f573",
+    "parent.json": "a04dc80e63982f9d12dc97bb0e582bea0e8957b5f55770074c11f8880f648699",
+    "view.json": "61c00eae4655e3b3c2663d5d00461127b3e3b4b6abb3c4450dd8a4b0653752a3"
+   }
+  },
+  {
+   "id": "b16",
+   "name": "a_signature_entry_not_strict_beside_good",
+   "section": "6.0 last paragraph",
+   "intent": "a strict entry plus a copy of it with a control character",
+   "reference": {
+    "verdict": "deviation",
+    "status": "final",
+    "bond_outcome": "forfeited",
+    "deviation_codes": [
+     "prohibited"
+    ],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "bbec4fe93e54b73a617e5bb36ac7f735873337b10b0ed2a6d43fe7813e95f7ea",
+    "view.json": "77c93829d1b51ed310f19772e724151eda897585bbba10f4d24630f852b2c74e"
+   }
+  },
+  {
+   "id": "b17",
+   "name": "a_ack_names_rejected_revocation",
+   "section": "6.6,10.1",
+   "intent": "revocation with a field outside the schema (rejected), ack naming it, read",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted",
+    "rejected"
+   ],
+   "files": {
+    "contract.json": "7b3ac4b6e5e3c6a9d2250974df10f291f882d1a76e97cdf87eba1e35e1050f87",
+    "events/e00.json": "35540a7f4c42f3955da51995e3c9987e8e104453bc27635554c86655f8d82b9d",
+    "events/e01.json": "6174702cf308f07517dbb5493de78bc4d0ed3c700aa8c3dbbbf6c0dd5524a253",
+    "events/e02.json": "3677caa0c7585388b51c4d87856cb034e67cf9730bc4310df5abb1952613c1b8",
+    "view.json": "268cde565bbbda1bb1e6a55da75fcb29bae66b4262351ad80f5271fc3f338fda"
+   }
+  },
+  {
+   "id": "b18",
+   "name": "o_tip_exactly_final",
+   "section": "8.4,8.5",
+   "intent": "pad 5 after the execution block (depth 6)",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "f826fbcec35464fd936c88975bd0fe74efae0fc45a1813c654dab9e88084bff5",
+    "view.json": "b51da053f55d6f3f8909e883a022bd4f17af53d7df1af553299cd60a2f928636"
+   }
+  },
+  {
+   "id": "b19",
+   "name": "o_contract_bad_contractor_sig_with_delete",
+   "section": "4,6",
+   "intent": "contractor contract signature broken; a signed delete",
+   "reference": {
+    "verdict": "underspecified",
+    "status": "undetermined",
+    "bond_outcome": "undetermined",
+    "deviation_codes": [],
+    "underspecified_reasons": [
+     "contract_not_verified"
+    ]
+   },
+   "dispositions": [],
+   "files": {
+    "contract.json": "699abf666acbc9ebc7febad97baad0560e8ae09c477bf644c29867025682cef1",
+    "events/e00.json": "c117b66a1c3f50cda14391adb339f7fff170d613d5f589316c84bc0c58c812cc",
+    "view.json": "2d9725223e7976d68d5181edb2249677f1fc6f735696a575f21c1e688c05ff3d"
+   }
+  },
+  {
+   "id": "b20",
+   "name": "o_revoked_next_block",
+   "section": "10.1",
+   "intent": "anchor-mode revocation at h, delete at h+1",
+   "reference": {
+    "verdict": "deviation",
+    "status": "final",
+    "bond_outcome": "forfeited",
+    "deviation_codes": [
+     "revoked"
+    ],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "bc48c7351b670a370f539a49b73b541d8b96a28d2de939edaf82568d3481e70b",
+    "events/e01.json": "9e93d8377ff02f631c8cfe025c61c8522a918deeab14a4ddcdce449101d3b7ae",
+    "view.json": "60b8d7eca435d30d754c6dd7cc7cf713ba634709dbfdf65e4dd31cf582443f5e"
+   }
+  },
+  {
+   "id": "b21",
+   "name": "a_approval_signature_short_beside_good",
+   "section": "6.0,10.4",
+   "intent": "valid sig_b64, plus signature that decodes to 5 bytes",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "99be89df09d32311361abd146b327ee8849ac3ab0fdf5752328198ce0342325a",
+    "events/e00.json": "45f3cc100788e3f64469fc393c64ada9891accc1ea80257ead6b93d7122fbb08",
+    "view.json": "baae3edb62ecc7181193fe997a89e9d52830500a564aa5e40bb2006445373c7b"
+   }
+  },
+  {
+   "id": "b22",
+   "name": "a_approval_sig_malleated_only",
+   "section": "6.0 row 4",
+   "intent": "refund whose approval sig_b64 is S + L",
+   "reference": {
+    "verdict": "underspecified",
+    "status": "undetermined",
+    "bond_outcome": "undetermined",
+    "deviation_codes": [],
+    "underspecified_reasons": [
+     "record_not_strict"
+    ]
+   },
+   "dispositions": [
+    "record_not_strict"
+   ],
+   "files": {
+    "contract.json": "99be89df09d32311361abd146b327ee8849ac3ab0fdf5752328198ce0342325a",
+    "events/e00.json": "e5c2bb29fbcd7459b2b1b26bca8c2f99f758f0c9a9b51ceb3ecff3d080b942df",
+    "view.json": "0301a3d167b327cd7b62c2a02a9f9a1656f341f85cf59a342d87e2b09f845fcf"
+   }
+  },
+  {
+   "id": "b23",
+   "name": "o_orphaned_delete_beside_read",
+   "section": "7.4",
+   "intent": "a delete whose anchor names the next height, and an honest read",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted",
+    "orphaned"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "2c9d38451d49bbc5f37a5a86f10a1fbe3bf8a380e66c5c0931ba2619145227a3",
+    "events/e01.json": "ffb3e330d9dbcfecff0c5e3d6b1f9c450f595af43e2a00ac03e94de8b6293dd0",
+    "view.json": "21981047abf07b5dfeea182e2eb4171d93fd194e4f15ce9c5fae97878e09bfbf"
+   }
+  },
+  {
+   "id": "b24",
+   "name": "a_parent_max_hops_zero",
+   "section": "4.3.1 rule 4",
+   "intent": "parent max_hops 0, child max_hops 0",
+   "reference": {
+    "verdict": "underspecified",
+    "status": "undetermined",
+    "bond_outcome": "undetermined",
+    "deviation_codes": [],
+    "underspecified_reasons": [
+     "parent_narrowing_failed"
+    ]
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "54526fb10ae33183eae92c71b7a32d024200751d4f2b5be4f6c47956e5bf1ea7",
+    "events/e00.json": "3f966ea8a1fe7a42b23aa2827b3f344921f18e2db35ba83ba62b836e31c8abbe",
+    "parent.json": "e19fb9a31b4a258a3709f22cde58a067703f2b06404a1e13439e196152a2b019",
+    "view.json": "bd9be202c824aa5dc19cbddeb0a77bebbf4b0897e333ebc3cf80964d5a4d3900"
+   }
+  },
+  {
+   "id": "b25",
+   "name": "o_witness_key_is_contractor_key",
+   "section": "4.2",
+   "intent": "witness key equals the contractor's key",
+   "reference": {
+    "verdict": "underspecified",
+    "status": "undetermined",
+    "bond_outcome": "undetermined",
+    "deviation_codes": [],
+    "underspecified_reasons": [
+     "key_conflict"
+    ]
+   },
+   "dispositions": [],
+   "files": {
+    "contract.json": "0583f81345d16296d67196c40c3c25c19ced07d5e167909e156da2ef41806453",
+    "events/e00.json": "16126b4aa53d25ef3faef5cdfd6257428424dec27d1e6529017a21119e3aa672",
+    "view.json": "38859c07bafa27c63c3766ddb0f49d979bf2ce0e20c38f92271a0ddbd8382bcb"
+   }
+  },
+  {
+   "id": "b26",
+   "name": "o_actions_257",
+   "section": "6.6",
+   "intent": "257 performed actions, all read",
+   "reference": {
+    "verdict": "deviation",
+    "status": "final",
+    "bond_outcome": "forfeited",
+    "deviation_codes": [
+     "nonconforming_record"
+    ],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "00ed2858f063f244e921aac45cf1cfe5188ec8d672c5a77ab59892fa2091d671",
+    "view.json": "8428aaf6f1060225c5181185b9cc05eea5369edb3b82ea249fa6061255e4d6c6"
+   }
+  },
+  {
+   "id": "b27",
+   "name": "o_ack_anchored_before_revocation",
+   "section": "10.1 (written behaviour)",
+   "intent": "read at h, ack at h+1, its revocation at h+2, read at h+3",
+   "reference": {
+    "verdict": "deviation",
+    "status": "final",
+    "bond_outcome": "forfeited",
+    "deviation_codes": [
+     "revoked"
+    ],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "80e5b906a822a169c6ddb8585e2ec2400337cce064427fe13101bea1f99de1f5",
+    "events/e00.json": "6f771a0706cc9465fce4a09091d4fc731e87c45cfd45b26cf0b6b72930d70553",
+    "events/e01.json": "61936a7c2970eae3bbc5995664ebeb5b4588b4a55bd0ab0ecd5ceca2ed1fb884",
+    "events/e02.json": "4ce4c54a8d8c419c041e834c7fb6c6e6b4d7114cb254ce68215992f9ef602952",
+    "events/e03.json": "6114b65b43b7b0f9063ddab628a85c3deaea872e9354d7b6144bcea321dbd95b",
+    "view.json": "2bcf4a42a99cea0b8b558214dd761140f46fe040a0f69b1b51b9d38df22aef2c"
+   }
+  },
+  {
+   "id": "b28",
+   "name": "o_witness_read",
+   "section": "6.5",
+   "intent": "execution of read signed only by the grant witness",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "df6a07a815b57789eaa89bf97c2c859224c60a64a8ecb24665e77c0b35e78dd3",
+    "events/e00.json": "579f0375da4a249d47159aa28e1142de7c0457096cd9bf19ad2ebcc64e2e0f6f",
+    "view.json": "4ea80da43be40c61c5d776c80f08e6da57cea19775bef9b3d139394d74e6d5ff"
+   }
+  },
+  {
+   "id": "b29",
+   "name": "o_witness_name_unknown",
+   "section": "6.5",
+   "intent": "witness key, witness_name not in the grant",
+   "reference": {
+    "verdict": "nothing_to_settle",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "rejected"
+   ],
+   "files": {
+    "contract.json": "df6a07a815b57789eaa89bf97c2c859224c60a64a8ecb24665e77c0b35e78dd3",
+    "events/e00.json": "a912007d1e97c3bfd4619bc6f2d1ebca96b48a5e6fde690f7544b72146f780fa",
+    "view.json": "c2f110abeb50c3ec248031282a273c91c17f273dc4916ee38b4edf5be4035c6a"
+   }
+  },
+  {
+   "id": "b30",
+   "name": "a_row2_lax_witness_only",
+   "section": "6.0 row 2",
+   "intent": "witness-signed delete, its only signature S + L",
+   "reference": {
+    "verdict": "nothing_to_settle",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "rejected"
+   ],
+   "files": {
+    "contract.json": "df6a07a815b57789eaa89bf97c2c859224c60a64a8ecb24665e77c0b35e78dd3",
+    "events/e00.json": "e91eb30a56238c46856a32653ecd9d66fa196c31d8f0c04ea66db2273de3f852",
+    "view.json": "0bf7aa8e8b003a0abe19bf5ac9ed37f721dd9a33cdaeba771907dae4a12bf1c3"
+   }
+  },
+  {
+   "id": "b31",
+   "name": "a_ignored_revocation_with_ack",
+   "section": "6.5,10.1,8.2",
+   "intent": "revocation with revoked_by contractor (ignored), an ack naming it, read",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted",
+    "ignored"
+   ],
+   "files": {
+    "contract.json": "80e5b906a822a169c6ddb8585e2ec2400337cce064427fe13101bea1f99de1f5",
+    "events/e00.json": "c97e9ad361b7bb33f595cc8ebabab7bf5ef321e559b2e1a993c22018b0fce522",
+    "events/e01.json": "d1fc6ac68ed52024699d9b412db4d8f86899842f36cae486b27b7edfc003383a",
+    "events/e02.json": "9750c63ac287513a0a64ed9c06161cace9e4e655730f8b9bbdba6c150494c0b9",
+    "view.json": "f54ba7e1851d97089b22753e98a7403e3a6482112e779c8c3b1bd587a2a3acc3"
+   }
+  },
+  {
+   "id": "b32",
+   "name": "o_payment_and_read",
+   "section": "10.3",
+   "intent": "one record performs read and payment (payment prohibited)",
+   "reference": {
+    "verdict": "deviation",
+    "status": "final",
+    "bond_outcome": "forfeited",
+    "deviation_codes": [
+     "prohibited"
+    ],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "d7130bf8ac6338b9fd0bcfed6a1c8034b66dfb736717557a08ff0d562b21bebd",
+    "view.json": "5d8b7c017da3291c97c65f555e999be145ec442c4cef38a5d6722b8a5518b81a"
+   }
+  },
+  {
+   "id": "b33",
+   "name": "a_parent_is_list",
+   "section": "4.3",
+   "intent": "parent.json is a list",
+   "reference": {
+    "verdict": "underspecified",
+    "status": "undetermined",
+    "bond_outcome": "undetermined",
+    "deviation_codes": [],
+    "underspecified_reasons": [
+     "parent_narrowing_failed"
+    ]
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "315269bc38e0bff24253b51a7062e4d7efc474414afbe5d27d2664c473626682",
+    "events/e00.json": "5aacac7fcbbcc08f3ba165783d32348ade6b44b901c8440335737136d2c0351c",
+    "parent.json": "ccba6511cab3ae747ee13aaf2d0543529cef0e104470c307501c07579f90a5ce",
+    "view.json": "51cc9f36a760a8436ebe53015bfae429bf42119330e6f6fd7388f3f79daaf58d"
+   }
+  },
+  {
+   "id": "b34",
+   "name": "o_batch_leg_extra_field",
+   "section": "7.6",
+   "intent": "batch v1 with one more top-level field before records",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "6448087397cfb92907e7c721aa6d16e53517043d35634d8495d26335f7b72cce",
+    "view.json": "0d796018248145ff3c07d4d60082789daa14b6ca84e3d8bdb047d0e3c7b4760e"
+   }
+  },
+  {
+   "id": "b35",
+   "name": "o_outcome_bad_value",
+   "section": "6.6",
+   "intent": "outcomes {read: done}",
+   "reference": {
+    "verdict": "deviation",
+    "status": "final",
+    "bond_outcome": "forfeited",
+    "deviation_codes": [
+     "nonconforming_record"
+    ],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "7fba30e318578fb42117cdbe0f19a68119faa900edfa59642a143ad418290286",
+    "view.json": "ec38f3236d3f1293239bba8e9ac6483940bb25e715b8af2f4953a7dc3d4bfa52"
+   }
+  },
+  {
+   "id": "b36",
+   "name": "a_row1_unsigned_nenrin_upper_beside_good",
+   "section": "6.0 row 1",
+   "intent": "honest read, plus unsigned delete with upper case nenrin_ref",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted",
+    "record_not_strict"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "f826fbcec35464fd936c88975bd0fe74efae0fc45a1813c654dab9e88084bff5",
+    "events/e01.json": "e45fb99e3208260af2a7d7323adf945ce9cca4d6def2c9f5a7cf4ddc66c25aaf",
+    "view.json": "d5dabdfc49c285da560852ea77aba8e245987d3cce0f65025fc61aafbc50e39a"
+   }
+  },
+  {
+   "id": "b37",
+   "name": "o_duplicate_anchorings",
+   "section": "6.4",
+   "intent": "the same signed body anchored in two blocks, later copy first in the list",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted",
+    "duplicate_dropped"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "e0be2c9aea241ca9d9f61374ed01540192830ab0ced3f0a573123929192f80b9",
+    "events/e01.json": "f826fbcec35464fd936c88975bd0fe74efae0fc45a1813c654dab9e88084bff5",
+    "view.json": "92462a99ec7a75547d16414995ea451eed038fffd8703d6c010d47897599101b"
+   }
+  },
+  {
+   "id": "b38",
+   "name": "o_approval_valid_until_equal",
+   "section": "10.4",
+   "intent": "refund at h carrying an approval with valid_until_height h",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "99be89df09d32311361abd146b327ee8849ac3ab0fdf5752328198ce0342325a",
+    "events/e00.json": "35188a2dcaa9259023302f8a797b29a11473d2a3e2717e00785abd1a0105d8bd",
+    "view.json": "f4559db08aac07c6e5b49cf8bb5400deef30a93eba4c32552ea03e087c8ced01"
+   }
+  },
+  {
+   "id": "b39",
+   "name": "a_signature_entry_not_strict_only",
+   "section": "6.0 strictly signed",
+   "intent": "the only signature entry verifies but carries a key with a control character",
+   "reference": {
+    "verdict": "nothing_to_settle",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "signature_not_strict"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "804ffcec125ff96c0fecc8e8a8f5b795278b1fb92478b982a16a4cc4015ff2b5",
+    "view.json": "d9e9231224ac45672f06293706b5202165a03ecc1643ff377ead763d042d4fca"
+   }
+  },
+  {
+   "id": "b40",
+   "name": "a_ignored_revocation_same_block",
+   "section": "6.5,8.2",
+   "intent": "ignored revocation and read in one block",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted",
+    "ignored"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "0af340ad86cbf2470b5c667a9e2111b016ffdf73d6e4ce6d19e54d11f73f1f9f",
+    "events/e01.json": "7779d990bdaffa8bfcdd89af0925aab1607cd23e1f313d0528ecdb77a0ece081",
+    "view.json": "33d92b52f202de2bbdddd0f4807a23199c33e2af69052ced9127ef89c6553514"
+   }
+  },
+  {
+   "id": "b41",
+   "name": "o_delegation_allowed_and_not",
+   "section": "10.3",
+   "intent": "two records: delegated_to an allowed domain, and to another",
+   "reference": {
+    "verdict": "deviation",
+    "status": "final",
+    "bond_outcome": "forfeited",
+    "deviation_codes": [
+     "delegation"
+    ],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "38bec4ad873ca6779d70d460c0c90bbe1fe00d8268e7ad9f837213c3c63f583c",
+    "events/e00.json": "af5c688a680186f3244c506d42b2a925bc659df7eb503f06e12fcde6bc6760b2",
+    "events/e01.json": "eca64adad0df733e8fb344497d39505732e6e9f54a958dd57041502bf74a7e80",
+    "view.json": "76edbdd30b9a5a93078d5b33cb6629458c5976c7e36507c9e98d91160f9b3b27"
+   }
+  },
+  {
+   "id": "b42",
+   "name": "o_approval_other_terms",
+   "section": "10.4",
+   "intent": "refund carrying a principal approval signed for other terms",
+   "reference": {
+    "verdict": "deviation",
+    "status": "final",
+    "bond_outcome": "forfeited",
+    "deviation_codes": [
+     "conditional"
+    ],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "99be89df09d32311361abd146b327ee8849ac3ab0fdf5752328198ce0342325a",
+    "events/e00.json": "5b1cd9bcb60afe4b63639f6a1c588883214932a52e896542e3ccb45cd62e364d",
+    "view.json": "d8df9c9cd52803576448812124e46dfd07c8f62740bc701f8d09372bda57e595"
+   }
+  },
+  {
+   "id": "b43",
+   "name": "a_row4_nenrin_ref_upper",
+   "section": "6.0 row 4",
+   "intent": "signed read with nenrin_ref in upper case hex",
+   "reference": {
+    "verdict": "underspecified",
+    "status": "undetermined",
+    "bond_outcome": "undetermined",
+    "deviation_codes": [],
+    "underspecified_reasons": [
+     "record_not_strict"
+    ]
+   },
+   "dispositions": [
+    "record_not_strict"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "f4fbd9761883eee3a0c31b1bd844e7723593c4bb160ad919606191b3f5e07633",
+    "view.json": "dff3e6e4c8d806a680caf02e88001d199d89ccea4a374094727b13e248003b1a"
+   }
+  },
+  {
+   "id": "b44",
+   "name": "a_parent_signature_broken",
+   "section": "4.3",
+   "intent": "child is within, the supplied parent's principal signature is broken",
+   "reference": {
+    "verdict": "underspecified",
+    "status": "undetermined",
+    "bond_outcome": "undetermined",
+    "deviation_codes": [],
+    "underspecified_reasons": [
+     "parent_narrowing_failed"
+    ]
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "315269bc38e0bff24253b51a7062e4d7efc474414afbe5d27d2664c473626682",
+    "events/e00.json": "5aacac7fcbbcc08f3ba165783d32348ade6b44b901c8440335737136d2c0351c",
+    "parent.json": "8233990556c9d03be57da54f0aeb72488134493c612aa1f3d466c72d7f2d567d",
+    "view.json": "51cc9f36a760a8436ebe53015bfae429bf42119330e6f6fd7388f3f79daaf58d"
+   }
+  },
+  {
+   "id": "b45",
+   "name": "o_ack_same_block_as_exec",
+   "section": "10.1",
+   "intent": "delivery_ack window 5; ack (naming the body digest) and read in one block h+1",
+   "reference": {
+    "verdict": "deviation",
+    "status": "final",
+    "bond_outcome": "forfeited",
+    "deviation_codes": [
+     "revoked"
+    ],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted"
+   ],
+   "files": {
+    "contract.json": "80e5b906a822a169c6ddb8585e2ec2400337cce064427fe13101bea1f99de1f5",
+    "events/e00.json": "061e1eab07f2258abf3686ebfbb19e486525949db952978850bd9253ecd60a31",
+    "events/e01.json": "98e5a53d01ffa15c73224f6dd88d14bd35f90756bcd4cd6c5b5091d3e59f8d6b",
+    "events/e02.json": "e00f95b3d721c4cd3fdf76cc04e9d573de92a9813fb15217ce8128820e15a305",
+    "view.json": "aa5a03c4469c04bf80cf8957e86227cf6f69717aab3a1c76e40640397f632d53"
+   }
+  },
+  {
+   "id": "b46",
+   "name": "a_row1_lax_and_body_not_strict",
+   "section": "6.0 row 1 before row 2",
+   "intent": "S + L signature over a body with a float",
+   "reference": {
+    "verdict": "nothing_to_settle",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "record_not_strict"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "bf6ed2ff747d4ce9e67d450ab225d6a4b36db87c2d73f78dc0d43ac42e0340d3",
+    "view.json": "178d8b17250a625fd9e06c35a1f74fd13c89248ffbdfd0192d60faa394f92314"
+   }
+  },
+  {
+   "id": "b47",
+   "name": "a_row1_stranger_float_beside_good",
+   "section": "6.0 row 1 before row 3",
+   "intent": "honest read, plus stranger-signed delete carrying a float",
+   "reference": {
+    "verdict": "within_grant",
+    "status": "final",
+    "bond_outcome": "held",
+    "deviation_codes": [],
+    "underspecified_reasons": []
+   },
+   "dispositions": [
+    "accepted",
+    "record_not_strict"
+   ],
+   "files": {
+    "contract.json": "f179f8a826b66c7dad5501e6802219c591b759b26300284761b983a224219d8e",
+    "events/e00.json": "f826fbcec35464fd936c88975bd0fe74efae0fc45a1813c654dab9e88084bff5",
+    "events/e01.json": "9659e4874ab59f3da484699b4f7dc545c0e7e3bc339ad1ab200e1588b2d99420",
+    "view.json": "26bcb12f3613d2b86755c8f672a447d7fc6e5342c235d2ba20841d733977031c"
+   }
+  },
+  {
+   "id": "b48",
+   "name": "a_parent_ref_without_id",
+   "section": "4.1/4.3.1",
+   "intent": "parent_contract without contract_id, parent supplied",
+   "reference": {
+    "verdict": "underspecified",
+    "status": "undetermined",
+    "bond_outcome": "undetermined",
+    "deviation_codes": [],
+    "underspecified_reasons": [
+     "contract_not_verified",
+     "parent_narrowing_failed"
+    ]
+   },
+   "dispositions": [],
+   "files": {
+    "contract.json": "f969783fc30a19225c7af762cf7c58649ba1f184468a2bf082bef746ebbe3678",
+    "events/e00.json": "a73cca6ed6f7544926f49f7c17091e166f1f3caf4d56b7172a6039447ff2d541",
+    "parent.json": "4a9cfa4729d3a5668da5b8ed3149a0f169b76c9ebafce03300ff9ec893a9894a",
+    "view.json": "2ba32ce8aea4fd254b159e5ccba09582cce127732102ac3ddbae9899126dc8f1"
+   }
+  }
+ ]
+}
