@@ -20,6 +20,11 @@
    "ledger_entry": 354,
    "claim_sha256": "58a3904fc9e1716d76019755da38cc866809406481c3feb006d90589437e6793",
    "count": 10
+  },
+  "2026-11-20": {
+   "ledger_entry": 360,
+   "claim_sha256": "cb7ede5c4eae3fc75c33b7ebc6f37ac67ac1bbfc7298f16723f074c3f1175caa",
+   "count": 1
   }
  }
 }
