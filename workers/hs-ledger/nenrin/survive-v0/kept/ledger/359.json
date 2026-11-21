@@ -1,0 +1,12 @@
+{
+  "n": 359,
+  "work": "NENRIN agreement batch (3)",
+  "claim_sha256": "fae18810363b44230b11cb0da5622ae4e172648d6df496ebdb9d00ef7b9ad7a2",
+  "record_canonical": "{\"schema\":\"nenrin-agreement-batch-v1\",\"anchored_at\":\"2026-11-21T00:45:42Z\",\"count\":3,\"kinds\":{\"execution\":3},\"records\":[{\"sha\":\"1e10fe6cbcd8a3cd52db977e6e3b8e6f2c3bad814a8e9250c0c93b613292bf34\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/1e10fe6cbcd8a3cd52db977e6e3b8e6f2c3bad814a8e9250c0c93b613292bf34\",\"musubi_version\":\"0.4.1\",\"contract_sha256\":\"d9599ee00f4aacbd7a8325c91a9123d3ac7d72ba0e9d9961082cfeee2569af44\"},{\"sha\":\"825f2a6190a20605646bd50db9f7a33ed85266ca464c2dd92f5231e7e4223bb0\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/825f2a6190a20605646bd50db9f7a33ed85266ca464c2dd92f5231e7e4223bb0\",\"musubi_version\":\"0.4.1\",\"contract_sha256\":\"d8f28e81288f45d2fcc07f00532f19b67aeeb9b2873ee5a496cc88adb8e50580\"},{\"sha\":\"832c80fee45c05304181146cd3bb720d861fba467135b77843d069e6f7400ca6\",\"kind\":\"execution\",\"schema\":\"a2a-execution-v0\",\"parties\":[\"shield.the-horizons-innovation.com\"],\"bytes_url\":\"https://agreement.horizonshield.dev/execution/832c80fee45c05304181146cd3bb720d861fba467135b77843d069e6f7400ca6\",\"musubi_version\":\"0.4.1\",\"contract_sha256\":\"d6703b32b7690290e553d1162a0abc1f1e316df5654dcf21ee9b67cd12c6d4f6\"}],\"intake_version\":\"0.4.0\",\"musubi_version\":\"0.4.1\",\"verifier_sha256\":\"27b5492cbd3612be8db7f084a2b0f8384c3b912388496247e08016efa03aa61c\",\"note\":\"NENRIN batch: each sha names the exact bytes of a record this intake accepted, an a2a-agreement (two party agreement, public verifier), an a2a-contract-v0 (MUSUBI terms, both parties signed, keys served) or an a2a-execution-v0 (evidence under a filed contract, signed by the contractor). Bytes at each record's bytes_url. This entry's Bitcoin anchor bounds every record in it from above; it settles nothing.\"}",
+  "schema": "v0",
+  "created_at": "2026-11-21T00:45:42.424Z",
+  "ots_status": "confirmed",
+  "bitcoin_block": 976821,
+  "block_time": "2026-11-21 01:54 UTC",
+  "stamped_at": "2026-11-21T02:19:18.818Z"
+}

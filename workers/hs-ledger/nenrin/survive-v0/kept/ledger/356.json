@@ -1,0 +1,13 @@
+{
+  "n": 356,
+  "work": "NENRIN agreement batch (9 records)",
+  "claim_sha256": "cc4862e055d09b339421756a209ede2026a43feceff9a9ec005110ecb315fe85",
+  "record_canonical": "{\"schema\":\"nenrin-agreement-batch-v1\",\"anchored_at\":\"2026-11-21T00:30:32.510Z\",\"count\":9,\"records\":[{\"canonical_sha256\":\"7ad586d9708bbfa6d7537601c21c73f911775e517bb999fb1e14957456aab7ad\",\"record_schema\":\"furui-check-day-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"furui-check-day-intake 0.3.0\"},{\"canonical_sha256\":\"a69f2639b056491683fe03fb238e0df8f6d4c1b78cc0ad9a58e1b0aa5a1251a9\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"adebf500460352a399ebb9738efa39b27cf843dc25bebcb39f609dd650455755\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"baa4f74e09b241ebdb65ccfc35a38fb7747de16b62d32b4e5c9070a6756ebdfa\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"c8aa0d853e4d5220cde4738cdfb1ec4043a2fe5757e0b7baf0c5ee5391296635\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"d3fa6d08c37ef2bd0bb6c99632203d0075958d8dde90992996e68f08b0f7b2ce\",\"record_schema\":\"furui-check-day-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"furui-check-day-intake 0.3.0\"},{\"canonical_sha256\":\"dda51d41e42a94328777f4f5ab0a6bc7190cb64d541d3c64046d5a943f839c17\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"e54733a3cbbf4afb2e80f43c3431713bafd280bfa83b3d2cd655c9c648bbecf2\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"eb85d045639cbf0c319dfda7ef26e52f11a608335b1aaba2309ddac2d091d81d\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"}]}",
+  "schema": "v0-plain",
+  "created_at": "2026-11-21T00:30:32.547Z",
+  "ots_status": "confirmed",
+  "bitcoin_block": 976821,
+  "block_time": "2026-11-21 01:54 UTC",
+  "stamped_at": "2026-11-21T02:19:09.313Z",
+  "anchored_by": "schedule"
+}
