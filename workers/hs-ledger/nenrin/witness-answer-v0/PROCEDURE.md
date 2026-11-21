@@ -2,11 +2,11 @@
 
 The helper needs Python 3.8 or later, standard library only.
 
-Status: v0, 2026-11-04. Everything this page uses is in this folder (`workers/hs-ledger/nenrin/witness-answer-v0/` in ogasurfproject-jpg/horizon-shield):
+Status: v0, 2026-11-04; v0.2 for a FURUI day, 2026-11-20. Everything this page uses is in this folder (`workers/hs-ledger/nenrin/witness-answer-v0/` in ogasurfproject-jpg/horizon-shield):
 
 * `witness_answer_v0.py`: the helper. Python 3 standard library only. It builds, signs and verifies an answer, compares a TOOSHI day, and writes the body for the ledger's witness intake. It sends nothing; only `verify --fetch` reads your `key_url`.
 * `test_witness_answer_v0.py`: its tests. They block every socket before they start. Run `python3 -I -B test_witness_answer_v0.py` (or `python3 -I -B witness_answer_v0.py selftest`).
-* `vectors.json`: answers and an enrollment with their expected verdicts, signed with the public test key of RFC 8032 section 7.1 TEST 1. The tests rebuild it and compare.
+* `vectors.json`: answers (v0 and v0.2) and an enrollment with their expected verdicts, signed with the public test key of RFC 8032 section 7.1 TEST 1. The tests rebuild it and compare.
 * `fixtures/`: `tooshi_day_2026-11-04.json` is a byte copy of `tooshi/days/2026-11-04.json` in this repository; `pipavlo82_witness_json_20261104.json` is the key document `https://pipavlo82.github.io/keys/witness.json` served on 2026-11-04 (a public key).
 
 To take the helper by itself:
@@ -170,6 +170,31 @@ The commands use 2026-11-06 as the day; put your day in its place.
           --name <your handle> --key-url <your key_url> --key witness_key.pem --limit "<a line>" --out answer.json
 
    Steps that were not ok for every leaf are left out of `recomputed`. If the anchor is not yet there, `bitcoin_anchor` is not in the answer, and you can sign a second answer after it lands. The intake stores every record it accepts, but counts only the first one per witness identity, per day record and per UTC day; a second answer filed on the same UTC day is stored and marked `counted: false`.
+
+## witness-answer-v0.2: a FURUI day that did not match (2026-11-20)
+
+v0 can only say "it matched": a step that failed is left out, and nothing is signed when nothing held. v0.2 lets you sign "it did not match" too. It is for furui-day only; tooshi-day stays v0.
+
+The answer has the v0 keys plus five more:
+
+* `runner_id`: `"runner-1"` or `"runner-2"`, the runner whose day record the answer is about
+* `outcome`: `"match"`, `"mismatch"` or `"incomplete"`. A match means every listed step held on every listed leaf. A mismatch means a recomputed value differed or a signature failed. Incomplete means a leaf or the record could not be read
+* `failures`: a list of `{"leaf", "step", "detail"}`. `leaf` is a leaf index, or `null` for the day record itself. `step` is a step name above, or `day_record` or `ledger_head`. `detail` is one line of at most 200 characters
+* `implementation`: `{"origin", "name", "version", "sha256"}`. `origin` is `"operator-kit"` for the operator's kit and `"own"` for a tool you wrote; `sha256` is that of the script you ran
+* `ledger_head`: `{"n", "head", "observed_at"}` from one `GET /ledger/head` in your run, or `null` with a `ledger_head` failure when it did not have that shape
+
+Rules the helper holds (`check_shape_v02`):
+
+* A match names `day_sha256`, `root` and `n`, lists leaves and steps, and carries no failure except a `ledger_head` one.
+* A mismatch or an incomplete answer names at least one other failure. It carries the values you obtained, and `null` where you obtained none.
+* The preimage starts with `"witness-answer-v0.2\n"`, so a v0.2 signature never verifies as a v0 one, and the other way round.
+* An answer without `day_sha256` cannot be filed, because the intake record commits to it. Keep it in your own copy.
+
+Build it with `build_furui_v02` and `finish(obj, pub, seed, SCHEMA_V02)` in `witness_answer_v0.py`. `verify`, `preimage` and `intake-body` read the schema from the answer. `vectors.json` has v0.2 cases: a match, a mismatch, an incomplete answer, one changed after signing, and one read as v0.
+
+The operator's daily audit (check 9 of TOOSHI) reads both runners and both schemas. A mismatch is red, an incomplete answer a notice. A match whose failures name a step other than `ledger_head` is read as malformed and not counted. It also reads your `status.json` and your copy of the answer; see `../witness-kit/WITNESS_KIT.md`.
+
+The operator's kit in `../witness-kit/` makes v0.2 answers for you on GitHub Actions. It uses only the Python standard library and openssl.
 
 ## What a verified answer shows, and what it does not
 

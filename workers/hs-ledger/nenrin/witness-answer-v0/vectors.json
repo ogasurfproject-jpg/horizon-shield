@@ -247,6 +247,296 @@
       },
       "preimage_sha256": "17fdbc243f8806f383f5bf8cb655f84e557c50b587b4485ab014089484b5f8c2",
       "schema": "witness-enroll-v0"
+    },
+    {
+      "expect": "ok",
+      "key_doc": {
+        "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo="
+      },
+      "name": "furui_day_v02_match_ok",
+      "object": {
+        "day": "2026-11-03",
+        "day_sha256": "cb41b38387d6fca01272be03380f63568fccbd724c299ae58e8d548d91b67a58",
+        "failures": [],
+        "implementation": {
+          "name": "furui-witness",
+          "origin": "operator-kit",
+          "sha256": "2cb0b74e0263d98763cb67760578e8d6afc299f0e7415b4709830f0f99ab0a4f",
+          "version": "0.1.0"
+        },
+        "kind": "furui-day",
+        "leaf_index": [
+          0,
+          1
+        ],
+        "ledger_head": {
+          "head": "9f2e6d33a3717ee826353a404ba4618d1aeeb6879ad7936bce8ed5f46814924d",
+          "n": 354,
+          "observed_at": "2026-11-04T01:50:00Z"
+        },
+        "limits": [
+          "digest and inclusion checks only; not the correctness of the content",
+          "not the completeness of the day's log",
+          "the runner key was taken from the key list the ledger serves; its history was not authenticated separately"
+        ],
+        "n": 2,
+        "observed_at": "2026-11-04T01:50:00Z",
+        "outcome": "match",
+        "recomputed": [
+          "envelope_shape",
+          "leaf_sha256",
+          "audit_path"
+        ],
+        "root": "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2",
+        "runner_id": "runner-1",
+        "schema": "witness-answer-v0.2",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "PJmxozxhy/4ETIc3LeFOVRMsB7vRvhG83G2U3cftW4U0cEW9LGAkq3NUPqY+P44tNykjfGwDFSGL45qtHApuDA=="
+        },
+        "tool": "furui_witness.py 0.1.0",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://witness.example/keys/witness.json",
+          "name": "w"
+        }
+      },
+      "preimage_sha256": "c757b57b4157ef396a3e76de92faea2229d20b60de3501ea636a9f9282c94e8a",
+      "schema": "witness-answer-v0.2"
+    },
+    {
+      "expect": "ok",
+      "key_doc": {
+        "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo="
+      },
+      "name": "furui_day_v02_mismatch_ok",
+      "object": {
+        "day": "2026-11-03",
+        "day_sha256": "cb41b38387d6fca01272be03380f63568fccbd724c299ae58e8d548d91b67a58",
+        "failures": [
+          {
+            "detail": "the root recomputed from the audit path differs from the record",
+            "leaf": 1,
+            "step": "audit_path"
+          }
+        ],
+        "implementation": {
+          "name": "furui-witness",
+          "origin": "operator-kit",
+          "sha256": "2cb0b74e0263d98763cb67760578e8d6afc299f0e7415b4709830f0f99ab0a4f",
+          "version": "0.1.0"
+        },
+        "kind": "furui-day",
+        "leaf_index": [
+          0,
+          1
+        ],
+        "ledger_head": {
+          "head": "9f2e6d33a3717ee826353a404ba4618d1aeeb6879ad7936bce8ed5f46814924d",
+          "n": 354,
+          "observed_at": "2026-11-04T01:50:00Z"
+        },
+        "limits": [
+          "digest and inclusion checks only; not the correctness of the content",
+          "not the completeness of the day's log",
+          "the runner key was taken from the key list the ledger serves; its history was not authenticated separately"
+        ],
+        "n": 2,
+        "observed_at": "2026-11-04T01:50:00Z",
+        "outcome": "mismatch",
+        "recomputed": [
+          "envelope_shape",
+          "leaf_sha256",
+          "audit_path"
+        ],
+        "root": "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2",
+        "runner_id": "runner-1",
+        "schema": "witness-answer-v0.2",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "88I9EVw176Vl4co3TyaZFuvehtztrDlQz3xfx13eVQXQFWLkyXKcDxp2dK1dRc0KF62jVRVlMbE95lEKUawzDw=="
+        },
+        "tool": "furui_witness.py 0.1.0",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://witness.example/keys/witness.json",
+          "name": "w"
+        }
+      },
+      "preimage_sha256": "b765a69fcf9af62be3faaf5037e1b0d5ae8bfed0c6b114b48b34ded72f76976d",
+      "schema": "witness-answer-v0.2"
+    },
+    {
+      "expect": "ok",
+      "key_doc": {
+        "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo="
+      },
+      "name": "furui_day_v02_incomplete_ok",
+      "object": {
+        "day": "2026-11-03",
+        "day_sha256": "cb41b38387d6fca01272be03380f63568fccbd724c299ae58e8d548d91b67a58",
+        "failures": [
+          {
+            "detail": "the day record could not be read from the ledger",
+            "leaf": null,
+            "step": "day_record"
+          }
+        ],
+        "implementation": {
+          "name": "furui-witness",
+          "origin": "operator-kit",
+          "sha256": "2cb0b74e0263d98763cb67760578e8d6afc299f0e7415b4709830f0f99ab0a4f",
+          "version": "0.1.0"
+        },
+        "kind": "furui-day",
+        "leaf_index": [],
+        "ledger_head": {
+          "head": "9f2e6d33a3717ee826353a404ba4618d1aeeb6879ad7936bce8ed5f46814924d",
+          "n": 354,
+          "observed_at": "2026-11-04T01:50:00Z"
+        },
+        "limits": [
+          "digest and inclusion checks only; not the correctness of the content",
+          "not the completeness of the day's log",
+          "the runner key was taken from the key list the ledger serves; its history was not authenticated separately"
+        ],
+        "n": null,
+        "observed_at": "2026-11-04T01:50:00Z",
+        "outcome": "incomplete",
+        "recomputed": [],
+        "root": null,
+        "runner_id": "runner-1",
+        "schema": "witness-answer-v0.2",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "0aqu86XcnHHuZrZOCkEd2qQIaYepikLCb1GGbA/PhRH2EWsHnvp+VSOIATr/8bUzW1c0IGGU5koxDmN08a/WBg=="
+        },
+        "tool": "furui_witness.py 0.1.0",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://witness.example/keys/witness.json",
+          "name": "w"
+        }
+      },
+      "preimage_sha256": "04791b713f3b9f76f2f269a4c8f11f0589a0218577c415a77a677a8421cc4fc8",
+      "schema": "witness-answer-v0.2"
+    },
+    {
+      "expect": "fail:signature",
+      "key_doc": {
+        "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo="
+      },
+      "name": "furui_day_v02_changed_after_signing",
+      "object": {
+        "day": "2026-11-03",
+        "day_sha256": "cb41b38387d6fca01272be03380f63568fccbd724c299ae58e8d548d91b67a58",
+        "failures": [],
+        "implementation": {
+          "name": "furui-witness",
+          "origin": "operator-kit",
+          "sha256": "2cb0b74e0263d98763cb67760578e8d6afc299f0e7415b4709830f0f99ab0a4f",
+          "version": "0.1.0"
+        },
+        "kind": "furui-day",
+        "leaf_index": [
+          0,
+          1
+        ],
+        "ledger_head": {
+          "head": "9f2e6d33a3717ee826353a404ba4618d1aeeb6879ad7936bce8ed5f46814924d",
+          "n": 354,
+          "observed_at": "2026-11-04T01:50:00Z"
+        },
+        "limits": [
+          "digest and inclusion checks only; not the correctness of the content",
+          "not the completeness of the day's log",
+          "the runner key was taken from the key list the ledger serves; its history was not authenticated separately"
+        ],
+        "n": 2,
+        "observed_at": "2026-11-04T01:50:00Z",
+        "outcome": "match",
+        "recomputed": [
+          "envelope_shape",
+          "leaf_sha256",
+          "audit_path"
+        ],
+        "root": "d9298a10d1b0735837dc4bd85dac641b0f3cef27a47e5d53a54f2f3f5b2fcffa",
+        "runner_id": "runner-1",
+        "schema": "witness-answer-v0.2",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "PJmxozxhy/4ETIc3LeFOVRMsB7vRvhG83G2U3cftW4U0cEW9LGAkq3NUPqY+P44tNykjfGwDFSGL45qtHApuDA=="
+        },
+        "tool": "furui_witness.py 0.1.0",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://witness.example/keys/witness.json",
+          "name": "w"
+        }
+      },
+      "preimage_sha256": "c6ce210576ac01b933f40a547948ec0056eb441bd46b23bedb89a8b6bccb7576",
+      "schema": "witness-answer-v0.2"
+    },
+    {
+      "expect": "fail:shape",
+      "key_doc": {
+        "public_key_ed25519_b64": "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo="
+      },
+      "name": "furui_day_v02_read_as_v0",
+      "object": {
+        "day": "2026-11-03",
+        "day_sha256": "cb41b38387d6fca01272be03380f63568fccbd724c299ae58e8d548d91b67a58",
+        "failures": [],
+        "implementation": {
+          "name": "furui-witness",
+          "origin": "operator-kit",
+          "sha256": "2cb0b74e0263d98763cb67760578e8d6afc299f0e7415b4709830f0f99ab0a4f",
+          "version": "0.1.0"
+        },
+        "kind": "furui-day",
+        "leaf_index": [
+          0,
+          1
+        ],
+        "ledger_head": {
+          "head": "9f2e6d33a3717ee826353a404ba4618d1aeeb6879ad7936bce8ed5f46814924d",
+          "n": 354,
+          "observed_at": "2026-11-04T01:50:00Z"
+        },
+        "limits": [
+          "digest and inclusion checks only; not the correctness of the content",
+          "not the completeness of the day's log",
+          "the runner key was taken from the key list the ledger serves; its history was not authenticated separately"
+        ],
+        "n": 2,
+        "observed_at": "2026-11-04T01:50:00Z",
+        "outcome": "match",
+        "recomputed": [
+          "envelope_shape",
+          "leaf_sha256",
+          "audit_path"
+        ],
+        "root": "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2",
+        "runner_id": "runner-1",
+        "schema": "witness-answer-v0.2",
+        "signature": {
+          "alg": "ed25519",
+          "key_id": "ed25519:21fe31dfa154a261",
+          "sig": "PJmxozxhy/4ETIc3LeFOVRMsB7vRvhG83G2U3cftW4U0cEW9LGAkq3NUPqY+P44tNykjfGwDFSGL45qtHApuDA=="
+        },
+        "tool": "furui_witness.py 0.1.0",
+        "witness": {
+          "key_id": "ed25519:21fe31dfa154a261",
+          "key_url": "https://witness.example/keys/witness.json",
+          "name": "w"
+        }
+      },
+      "preimage_sha256": "97213dc994b185b5d8800d21a20ea21142aef881f98026f8bb8a489e9ca1f3ee",
+      "schema": "witness-answer-v0"
     }
   ],
   "key": "RFC 8032 section 7.1 TEST 1 (a public test key)",

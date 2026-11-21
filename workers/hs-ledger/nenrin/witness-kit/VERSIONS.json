@@ -1,6 +1,14 @@
 {
   "schema": "witness-kit-versions-v0",
-  "updated": "2026-11-20",
+  "updated": "2026-11-21",
   "rule": "An answer whose implementation.origin is operator-kit and whose implementation.sha256 is a furui_witness_py_sha256 below is shown as kit <version>; any other sha256 is shown as modified. origin own is shown as own.",
-  "versions": []
+  "versions": [
+    {
+      "version": "0.1.0",
+      "furui_witness_py_sha256": "acd9f6154408d77211371dd55bc4fbe205ea2d523b997654f6166fea8feaafaf",
+      "furui_witness_yml_sha256": "51b5e93191d23a67d4020107b4d1d66fe5833a7b9d4d2db7839de55ef25a080a",
+      "setup_sh_sha256": "d233a03752ac7dda650983462991062a5e85e95936cd3d6fd606895eff5359a7",
+      "released": "2026-11-21"
+    }
+  ]
 }

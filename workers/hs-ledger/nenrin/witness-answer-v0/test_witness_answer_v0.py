@@ -474,6 +474,16 @@ def make_vectors():
     e = {"schema": W.ENROLL_SCHEMA, "kinds": ["furui-day", "tooshi-day"], "enrolled_at": "2026-11-04T03:00:00Z", "limits": LIMITS,
          "witness": {"name": "pipavlo82", "key_id": "", "key_url": KEY_URL}}
     add("enroll_ok", W.finish(e, PUB1, SEED1, W.ENROLL_SCHEMA), DOC1, W.ENROLL_SCHEMA)
+    add("furui_day_v02_match_ok", v02(), DOC1, W.SCHEMA_V02)
+    add("furui_day_v02_mismatch_ok", v02("mismatch", failures=[{"leaf": 1, "step": "audit_path", "detail": "the root recomputed from the audit path differs from the record"}]),
+        DOC1, W.SCHEMA_V02)
+    add("furui_day_v02_incomplete_ok", v02("incomplete", {"day_sha256": H("rec"), "root": None, "n": None},
+                                           [{"leaf": None, "step": "day_record", "detail": "the day record could not be read from the ledger"}], leaves=(), steps=()),
+        DOC1, W.SCHEMA_V02)
+    m = v02()
+    m["root"] = H("other")
+    add("furui_day_v02_changed_after_signing", m, DOC1, W.SCHEMA_V02)
+    add("furui_day_v02_read_as_v0", v02(), DOC1)
     return {"schema": "witness-answer-v0-vectors", "key": "RFC 8032 section 7.1 TEST 1 (a public test key)",
             "public_key_ed25519_b64": DOC1["public_key_ed25519_b64"], "cases": cases}
 

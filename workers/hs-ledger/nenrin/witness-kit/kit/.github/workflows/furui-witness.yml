@@ -1,0 +1,66 @@
+# furui-witness-kit 0.1.0. The job that holds the signing key cannot write to the repository, and the job that writes cannot read the key.
+# answer: reads the operator's public URLs, signs with secrets.FURUI_WITNESS_KEY, sends to the ledger, hands the sent bytes on.
+# keep: holds no secret; checks that the bytes hash to the shas answer named, then commits answers/<day>/<sha>.json and status.json.
+name: furui-witness
+on:
+  schedule:
+    - cron: "50 1 * * *"
+    - cron: "50 3 * * *"
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: furui-witness
+  cancel-in-progress: false
+jobs:
+  answer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    permissions:
+      contents: read
+    outputs:
+      shas: ${{ steps.run.outputs.shas }}
+      ok: ${{ steps.run.outputs.ok }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: run
+        env:
+          FURUI_WITNESS_KEY: ${{ secrets.FURUI_WITNESS_KEY }}
+          FURUI_WITNESS_KEY_URL: ${{ vars.FURUI_WITNESS_KEY_URL }}
+          FURUI_WITNESS_NAME: ${{ vars.FURUI_WITNESS_NAME }}
+        run: python3 -I -B furui_witness.py answer --answers answers --out out --github-output "$GITHUB_OUTPUT" || echo "furui_witness.py ended with $?"
+      - if: steps.run.outputs.shas != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: answers-${{ github.run_id }}
+          path: out/
+          retention-days: 7
+          if-no-files-found: error
+  keep:
+    needs: answer
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - if: needs.answer.outputs.shas != ''
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: answers-${{ github.run_id }}
+          path: incoming
+      - if: needs.answer.outputs.shas != ''
+        env:
+          SHAS: ${{ needs.answer.outputs.shas }}
+        run: |
+          python3 -I -B furui_witness.py keep --incoming incoming --shas "$SHAS" --answers answers --status status.json
+          git config user.name "furui-witness"
+          git config user.email "furui-witness@users.noreply.github.com"
+          git add answers status.json
+          git commit -m "furui-witness: answers kept $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push
+      - if: needs.answer.outputs.ok != 'yes'
+        run: |
+          echo "not every day and runner ended in a sent match; read the answer job's log"
+          exit 1

@@ -119,6 +119,9 @@ jobs:
         run: python -I -B scripts/jidec_stamp_test.py
       - name: the SEKI heartbeat
         run: python -I -B workers/hs-ledger/nenrin/seki-heartbeat/heartbeat.py --selftest
+      - name: the FURUI witness kit (offline; a test world, openssl keys made in the test)
+        working-directory: workers/hs-ledger/nenrin/witness-kit
+        run: python -I -B -W error::ResourceWarning test_furui_witness.py
       - name: the ledger token rotation (dry run with a fake home)
         run: bash ops/rotate_ledger_admin_token.test.sh
       - name: MUSUBI immune v0 (self test, and the first attack recomputed from its records)
