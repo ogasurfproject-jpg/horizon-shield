@@ -192,7 +192,7 @@ jobs:
         with:
           name: tooshi-result
           path: tooshi-out
-      - name: keep the day (tooshi/days, latest, index)
+      - name: keep the day (tooshi/days, latest, index, and the witness table tooshi/witness)
         env:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
@@ -207,7 +207,9 @@ jobs:
             git reset --hard origin/main
             OUT=$(python3 -I -B tools/tooshi/tooshi_publish.py write --result tooshi-out/tooshi_result.json "${NOTES[@]}" --run-url "$RUN_URL" --dir tooshi)
             echo "$OUT" | tee -a "$GITHUB_STEP_SUMMARY"
-            git add tooshi/days tooshi/latest.json tooshi/index.json
+            WT=()
+            if [ -d tooshi/witness ]; then WT=(tooshi/witness); fi
+            git add tooshi/days tooshi/latest.json tooshi/index.json "${WT[@]}"
             if git diff --cached --quiet; then echo "nothing changed"; ok=1; break; fi
             set -- $OUT
             git commit -m "tooshi: $2 kept (result $(printf %.8s "$3"), day $(printf %.8s "$4"))"

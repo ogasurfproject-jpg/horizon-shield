@@ -99,6 +99,34 @@ Added on 2026-11-06 (the canary scene and signed witness answers):
                    answer's signature verifies under the key the intake checked at its key_url, its key_id is that key's,
                    and its day_sha256, root and n are the day record's; red when an answer for that day does not verify or
                    names another day_sha256, root or n; not_yet when there is none yet (or the day record is not served).
+                   2026-11-20: both runners. The day records of runner-1 and runner-2 are read; an answer is held to the
+                   record whose sha is its day_sha256, else to the runner it names (runner_id; a v0 answer: runner-1), so
+                   a match on runner-2 is no longer red. witness-answer-v0.2 is read beside v0 (its preimage line is
+                   witness-answer-v0.2): a mismatch is red, an incomplete a notice, a runner_id that is not the record's
+                   runner red. A match whose failures name a step other than ledger_head is read as malformed: a notice,
+                   not counted. A red answer named by a note says "red, answered by note <n>"; the day stays red and the
+                   answer stays counted. A note is only a chain entry of schema witness-mismatch-note-v0 whose body, the
+                   bytes that hash to its claim_sha256, names the answer (answer_sha256); a record of an intake anyone can
+                   POST to is never a note. For a v0.2 answer the witness's status.json is read (beside its key file, one
+                   folder up from keys/; same host only, 64 KiB, 20 s) and ends one of three ways: in its shape
+                   ({"schema": "furui-witness-status-v0", revoked: [{key_id, since}]}): an answer signed by a revoked key
+                   is set aside unless a batch entry made before since lists it, and its copy at answers/<D>/<sha>.json
+                   must be the record's bytes (other bytes red, not read a notice); 404: no status, nothing revoked;
+                   anything else (no answer, 5xx, another shape, over the cap, a redirect to another host): a notice
+                   "status unread", the answer counted and its revocation shown as unread. facts.table holds one row per answer with
+                   fixed words, hex and integers only (detail, limits and tool are never shown): runner, domain,
+                   outcome, step names, implementation origin and sha256, the kit word (kit <version> when the sha256 is
+                   a furui_witness.py of workers/hs-ledger/nenrin/witness-kit/VERSIONS.json, modified when it is not,
+                   own), the kept ledger head, state, counted and revocation (checked, revoked, no_status, unread).
+                   tooshi_publish.py writes it to tooshi/witness/<D>.json.
+    19             head_kept_by_witness (2026-11-20): each v0.2 answer of the day before yesterday that 9 counted carries
+                   ledger_head {n, head, observed_at}, read once per run from GET /ledger/head by the witness. The chain is
+                   recomputed from GET /ledger/export.jsonl (jidec-chain-v1: entry_sha256 = sha256 of the line without
+                   entry_sha256, keys sorted, no spaces, non-ASCII escaped; entry 1 links to 64 zeros). Red when a kept n is
+                   beyond the entries served now, when the kept head is not entry n's, or when the same witness kept a
+                   higher n the day before (both answer shas named); notice when ledger_head is null (not counted). The
+                   export is read up to 8 MiB; over it, or not answering (no answer, 5xx), 19 is "not checked": a notice.
+                   Dormant while no v0.2 answer is there (no export is read).
 
 Added on 2026-11-06 (v2: whether the measures themselves hold, whether main is red now, and a deadline for every not_yet).
 The windows of 11, 12, 13 and 15 are counted from 03:47 UTC of the run's day (anchor), not from the run's own time, so a
@@ -259,7 +287,7 @@ Added on 2026-11-08 (25, every paid call walked as one chain; nenrin-verify tasu
                    missing link turns the day red. Dormant (notice, facts.dormant) when 17's window has no paid call. Reads
                    with the walk's own GET (the ledger, the runner, the agreement intake, raw.githubusercontent.com and the
                    relying party's key_url); needs the cryptography package for the Ed25519 signatures.
-Dormant checks (18, 22, 24, 25): the code runs and the row is written with state notice and facts.dormant true; a notice does not
+Dormant checks (18, 19, 22, 24, 25): the code runs and the row is written with state notice and facts.dormant true; a notice does not
 change the verdict and 14 does not count it. Each is counted again by itself, on the first day the records it reads are
 there, with no change to this file.
 Added on 2026-11-10 (the day's facts, beside the checks): the result carries facts, read from public files with GET only.
@@ -338,6 +366,24 @@ DAY_URL = "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/m
 CANARY_AFTER = (3, 47)                   # the door's canary call runs right after its check call (cron 47 3 * * *)
 ANSWER_KEYS = sorted(["schema", "kind", "day", "day_sha256", "n", "root", "leaf_index", "recomputed", "tool", "observed_at", "limits", "witness", "signature"])
 WITNESS_SCAN_MAX = 40                    # at most this many ledger entries are read back from the head for witness batches
+# 9 and 19 (2026-11-20): witness-answer-v0.2 (workers/hs-ledger/nenrin/witness-answer-v0, check_shape_v02)
+ANSWER_V02 = "witness-answer-v0.2"
+ANSWER_KEYS_V02 = sorted(ANSWER_KEYS + ["runner_id", "outcome", "failures", "implementation", "ledger_head"])
+OUTCOMES = ("match", "mismatch", "incomplete")
+FAILURE_STEPS = ("envelope_shape", "leaf_sha256", "audit_path", "signature", "runner_key", "bitcoin_anchor", "day_record", "ledger_head")
+HEX64 = re.compile(r"[0-9a-f]{64}")
+ISO_Z = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z")
+IMPL = {"origin": re.compile(r"operator-kit|own"), "name": re.compile(r"[a-z0-9-]{1,40}"), "version": re.compile(r"[0-9.]{1,20}"), "sha256": HEX64}
+DOMAIN_RE = re.compile(r"[a-z0-9.-]{1,253}|github\.com/[A-Za-z0-9-]{1,39}")
+KIT_URL = "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/main/workers/hs-ledger/nenrin/witness-kit/"
+WITNESS_FILE_CAP = 1048576               # 9: the most bytes read of a witness's copy of an answer
+STATUS_CAP = 65536                       # 9: the most bytes read of a witness's status.json
+STATUS_SCHEMA = "furui-witness-status-v0"  # 9: the shape of a witness's status.json that is read (status_shape_ok)
+EXPORT_CAP = 8388608                     # 19: the most bytes read of /ledger/export.jsonl
+KEY_ID_RE = re.compile(r"ed25519:[0-9a-f]{16}")
+MALFORMED_MATCH = "a match carries a failure other than ledger_head"   # 9: read as malformed: a notice, not counted
+NOTE_SCHEMA = "witness-mismatch-note-v0" # 9: a ledger entry whose record names an answer sha (answer_sha256) answers that red
+HEADS_KEY = "_ledger_heads"              # 9 hands 19 the v0.2 answers it counted under this key; run() takes it out
 
 
 class Unreachable(Exception):
@@ -421,6 +467,44 @@ def key_url_get(url, tries=2, wait=5, timeout=10):
 
 
 http_get.key_get = key_url_get
+
+
+class SameHostRedirect(urllib.request.HTTPRedirectHandler):
+    """follows a redirect only to the same host; to another host the 3xx is the answer"""
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if urllib.parse.urlsplit(newurl).netloc.lower() != urllib.parse.urlsplit(req.full_url).netloc.lower():
+            return None
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+def capped_get(url, cap, same_host=False, tries=2, wait=5, timeout=20):
+    """9 and 19 (2026-11-20): (status, text or None) of url, its body capped at cap bytes and KEY_DEADLINE seconds, sent with UA.
+    With same_host a redirect to another host is not followed (its 3xx status is returned). A refused body is not tried again;
+    a network failure or a 5xx is tried twice; then Unreachable."""
+    op = urllib.request.build_opener(SameHostRedirect) if same_host else urllib.request.build_opener()
+    last = None
+    for i in range(tries):
+        try:
+            with op.open(urllib.request.Request(url, headers=dict(UA)), timeout=timeout) as r:
+                b = read_capped(r, cap)
+                try:
+                    return r.status, b.decode("utf-8")
+                except UnicodeDecodeError:
+                    return r.status, None
+        except urllib.error.HTTPError as e:
+            if e.code < 500:
+                return e.code, None
+            last = "http %d" % e.code
+        except KeyBodyRefused as e:
+            raise Unreachable("%s: %s" % (url, e))
+        except (urllib.error.URLError, OSError, ValueError) as e:
+            last = type(e).__name__
+        if i + 1 < tries:
+            time.sleep(wait)
+    raise Unreachable("%s: %s after %d tries" % (url, last, tries))
+
+
+http_get.capped_get = capped_get
 
 
 def c(cid, state, why, **facts):
@@ -1442,9 +1526,44 @@ def check_canary(get, now):
     return c(cid, "red", "no leaf among the first %d of %s carries yesterday's canary check" % (min(day["n"], LEAF_SCAN_MAX), y), **facts)
 
 
+def answer_shape_v02(a):
+    """witness-answer-v0.2: the closed keys of check_shape_v02 (witness_answer_v0.py). Only fixed words, hex and integers are
+    read from it; failures[].detail, limits and tool are never shown."""
+    if not isinstance(a, dict) or sorted(a) != ANSWER_KEYS_V02 or a.get("schema") != ANSWER_V02 or a.get("kind") != "furui-day":
+        return "not a furui-day witness-answer-v0.2"
+    if a["runner_id"] not in RUNNER_DAYS or a["outcome"] not in OUTCOMES:
+        return "runner_id or outcome is not one of its fixed words"
+    if not all(a[k] is None or (isinstance(a[k], str) and HEX64.fullmatch(a[k])) for k in ("day_sha256", "root")) or not (a["n"] is None or _int(a["n"], 1)):
+        return "day_sha256, root or n has another shape"
+    if a["outcome"] == "match" and None in (a["day_sha256"], a["root"], a["n"]):
+        return "a match names no day_sha256, root or n"
+    f = a["failures"]
+    if not isinstance(f, list) or len(f) > 64 or not all(_keys(x, ["detail", "leaf", "step"]) and x["step"] in FAILURE_STEPS and (x["leaf"] is None or _int(x["leaf"]))
+                                                        and isinstance(x["detail"], str) and len(x["detail"]) <= 200 for x in f):
+        return "failures has another shape"
+    if a["outcome"] == "match" and any(x["step"] != "ledger_head" for x in f):
+        return MALFORMED_MATCH
+    if a["outcome"] != "match" and not any(x["step"] != "ledger_head" for x in f):
+        return "the outcome and the failures disagree"
+    im = a["implementation"]
+    if not _keys(im, list(IMPL)) or not all(isinstance(im[k], str) and r.fullmatch(im[k]) for k, r in IMPL.items()):
+        return "implementation has another shape"
+    lh = a["ledger_head"]
+    if lh is not None and not (_keys(lh, ["head", "n", "observed_at"]) and _int(lh["n"], 1) and lh["n"] <= 10 ** 9 and isinstance(lh["head"], str)
+                               and HEX64.fullmatch(lh["head"]) and isinstance(lh["observed_at"], str) and ISO_Z.fullmatch(lh["observed_at"])):
+        return "ledger_head has another shape"
+    return None
+
+
 def answer_problem(a, pub_b64):
-    """witness-answer-v0 (workers/hs-ledger/nenrin/witness-answer-v0): the closed keys, a furui-day answer, key_id of the key, the signature"""
-    if not isinstance(a, dict) or sorted(a) != ANSWER_KEYS or a.get("schema") != "witness-answer-v0" or a.get("kind") != "furui-day":
+    """witness-answer-v0 (workers/hs-ledger/nenrin/witness-answer-v0): the closed keys, a furui-day answer, key_id of the key, the signature.
+    witness-answer-v0.2 (2026-11-20): its own closed keys (answer_shape_v02), signed over the line witness-answer-v0.2."""
+    v02 = isinstance(a, dict) and a.get("schema") == ANSWER_V02
+    if v02:
+        p = answer_shape_v02(a)
+        if p:
+            return p
+    elif not isinstance(a, dict) or sorted(a) != ANSWER_KEYS or a.get("schema") != "witness-answer-v0" or a.get("kind") != "furui-day":
         return "not a furui-day witness-answer-v0"
     w, g = a.get("witness"), a.get("signature")
     if not isinstance(w, dict) or not isinstance(g, dict) or g.get("alg") != "ed25519" or not isinstance(g.get("sig"), str):
@@ -1456,13 +1575,16 @@ def answer_problem(a, pub_b64):
     if w.get("key_id") != kid or g.get("key_id") != kid:
         return "key_id is not the key the intake checked"
     body = {k: v for k, v in a.items() if k != "signature"}
-    if not ed25519_verify(pub_b64, ("witness-answer-v0\n" + canonical(body)).encode("utf-8"), g["sig"]):
+    if not ed25519_verify(pub_b64, ((ANSWER_V02 if v02 else "witness-answer-v0") + "\n" + canonical(body)).encode("utf-8"), g["sig"]):
         return "the answer's signature does not verify"
     return None
 
 
-def witness_shas(get, d):
-    """the shas of the witness intake's records whose purpose is furui-day-v0: <d>, pending or in a witness batch made since d"""
+def witness_shas(get, d, found=None):
+    """the shas of the witness intake's records whose purpose is furui-day-v0: <d>, pending or in a witness batch made since d.
+    With found (9, 2026-11-20): found["at"][sha] is the created_at of the batch entry that lists the record, and
+    found["notes"][answer sha] the n of a chain entry of schema witness-mismatch-note-v0 read on the way, whose body (the
+    bytes that hash to its claim_sha256) names answer_sha256. A record of an intake anyone can POST to is never a note."""
     purpose, out = "furui-day-v0: " + d, []
     s, pend = get(LEDGER + "/witness/pending")
     for x in ((pend or {}).get("pending") or []) if s == 200 and isinstance(pend, dict) else []:
@@ -1478,6 +1600,17 @@ def witness_shas(get, d):
             continue
         if str(e.get("created_at") or "")[:10] <= d:
             break
+        if e.get("schema") == NOTE_SCHEMA:
+            # a note is a chain entry of this schema only; its body is the bytes whose sha256 is the entry's claim_sha256
+            rc = e.get("record_canonical")
+            if found is not None and isinstance(rc, str) and isinstance(e.get("claim_sha256"), str) and sha(rc) == e["claim_sha256"]:
+                try:
+                    nb = json.loads(rc)
+                except ValueError:
+                    nb = None
+                if isinstance(nb, dict) and isinstance(nb.get("answer_sha256"), str) and HEX64.fullmatch(nb["answer_sha256"]):
+                    found["notes"].setdefault(nb["answer_sha256"], i)
+            continue
         try:
             b = json.loads(e.get("record_canonical") or "")
         except ValueError:
@@ -1486,50 +1619,298 @@ def witness_shas(get, d):
             for r in b.get("records") or []:
                 if isinstance(r, dict) and r.get("purpose") == purpose and isinstance(r.get("sha"), str) and H64.match(r["sha"]):
                     out.append(r["sha"])
+                    if found is not None:
+                        found["at"][r["sha"]] = e.get("created_at")
     return sorted(set(out))
 
 
+def witness_answer_of(get, w, d):
+    """the intake's record w as 9 reads it: (the record as stored, the response, its answer, the problem or None), or None when
+    it is not an answer of day d signed by a domain key"""
+    s, r = get(LEDGER + "/witness/" + w)
+    st = (r.get("record") if r.get("status") == "anchored" else r) if s == 200 and isinstance(r, dict) else None
+    if not isinstance(st, dict) or st.get("signed") is not True or not st.get("signed_domain"):
+        return None   # unsigned, or not signed by a domain key: not a signed answer
+    pub, rc = st.get("public_key_ed25519_b64"), st.get("record_canonical")
+    rec = json.loads(rc) if isinstance(rc, str) else None
+    a = rec.get("answer") if isinstance(rec, dict) else None
+    if not isinstance(a, dict) or a.get("day") != d:
+        return None
+    p = answer_problem(a, pub)
+    if not p and not (isinstance(st.get("signature_ed25519_b64"), str) and ed25519_verify(pub, rc.encode("utf-8"), st["signature_ed25519_b64"])):
+        p = "the record's signature does not verify"
+    if not p and rec.get("commitment") != a["day_sha256"]:
+        p = "the record's commitment is not the answer's day_sha256"
+    return st, r, a, p
+
+
+def kit_label(get, im, cache):
+    """the table's word for an answer's implementation: own, kit <version> when its sha256 is a furui_witness.py listed in the
+    kit's VERSIONS.json, modified when it is not listed, unread when the list was not read"""
+    if im["origin"] == "own":
+        return "own"
+    if "versions" not in cache:
+        try:
+            s, j = get(KIT_URL + "VERSIONS.json")
+        except Unreachable:
+            s, j = None, None
+        vs = j.get("versions") if s == 200 and isinstance(j, dict) else None
+        cache["versions"] = {x["furui_witness_py_sha256"]: x["version"] for x in vs if isinstance(x, dict) and isinstance(x.get("furui_witness_py_sha256"), str)
+                             and isinstance(x.get("version"), str) and IMPL["version"].fullmatch(x["version"])} if isinstance(vs, list) else None
+    if cache["versions"] is None:
+        return "unread"
+    v = cache["versions"].get(im["sha256"])
+    return ("kit " + v) if v else "modified"
+
+
+def witness_status_url(key_url):
+    """a witness's status.json: beside its key file, or one folder up when the key file sits in keys/ (the kit's layout)"""
+    u = urllib.parse.urlsplit(key_url)
+    base = u.path.rsplit("/", 1)[0]
+    if base.endswith("/keys"):
+        base = base[:-len("/keys")]
+    return urllib.parse.urlunsplit((u.scheme, u.netloc, base + "/status.json", "", ""))
+
+
+def capped(get, url, cap, same_host=False):
+    """(status, text or None) through capped_get in a run; a test world answers like any URL and the cap is held on its text"""
+    cg = getattr(get, "capped_get", None)
+    if cg:
+        return cg(url, cap, same_host)
+    st_, t = get(url, raw=True)
+    if isinstance(t, str) and len(t.encode("utf-8")) > cap:
+        raise Unreachable("%s: body larger than %d bytes" % (url, cap))
+    return st_, t
+
+
+def status_shape_ok(j):
+    """a status.json 9 reads: {"schema": furui-witness-status-v0, ...}; revoked, when present, is a list of {key_id, since}"""
+    if not isinstance(j, dict) or j.get("schema") != STATUS_SCHEMA:
+        return False
+    rv = j.get("revoked", [])
+    return isinstance(rv, list) and all(isinstance(x, dict) and isinstance(x.get("key_id"), str) and KEY_ID_RE.fullmatch(x["key_id"])
+                                        and isinstance(x.get("since"), str) and ISO_Z.fullmatch(x["since"]) for x in rv)
+
+
+def witness_side(get, st, a, w, d, at, cache):
+    """9: what the witness's own site says of its answer w: (state, why, revocation). status.json is read beside the key (same
+    host only, STATUS_CAP bytes) and ends one of three ways: 200 in its shape (revocation "checked"): an answer signed by a key
+    in revoked [{key_id, since}] counts only when a batch entry made before since lists it ("revoked" otherwise), and the copy at
+    answers/<d>/<w>.json must be the record's bytes; 404: no status, nothing revoked ("no_status"); anything else (no answer, 5xx,
+    another shape, over the cap, a redirect to another host): a notice "status unread", the answer stays counted ("unread")."""
+    ku = st.get("key_url")
+    if not (isinstance(ku, str) and ku.startswith("https://")):
+        return "ok", None, None
+    su = witness_status_url(ku)
+    if su not in cache:
+        try:
+            s_, t = capped(get, su, STATUS_CAP, same_host=True)
+            j = json.loads(t) if s_ == 200 and isinstance(t, str) else None
+        except (Unreachable, ValueError, RecursionError):
+            s_, j = None, None
+        cache[su] = ("no_status", None) if s_ == 404 else (("checked", j) if s_ == 200 and status_shape_ok(j) else ("unread", None))
+    rv, j = cache[su]
+    if rv == "no_status":
+        return "ok", None, rv
+    if rv == "unread":
+        return "notice", "status unread", rv
+    kid = a["signature"]["key_id"]
+    for x in j.get("revoked", []):
+        if x["key_id"] == kid:
+            b = at.get(w)
+            if not (isinstance(b, str) and b[:19] < x["since"][:19]):
+                return "revoked", "the key was revoked since %s and no batch made before it lists the answer" % x["since"], "revoked"
+    try:
+        s2, t2 = capped(get, urllib.parse.urljoin(su, "answers/%s/%s.json" % (d, w)), WITNESS_FILE_CAP, same_host=True)
+    except Unreachable:
+        return "notice", "the witness's copy of the answer did not answer", rv
+    if s2 != 200 or not isinstance(t2, str):
+        return "notice", "the witness's copy of the answer was not read (http %s)" % s2, rv
+    if sha(t2) != w:
+        return "red", "the witness's copy of the answer is other bytes than the record the ledger serves", rv
+    return "ok", None, rv
+
+
+def table_row(w, dom, rid, a, state, kit, counted=True, revocation=None):
+    """one row of the day's witness table (tooshi/witness/<D>.json, tooshi_publish.py): fixed words, hex and integers only"""
+    v02 = a.get("schema") == ANSWER_V02 and answer_shape_v02(a) is None
+    im, lh = (a["implementation"], a["ledger_head"]) if v02 else (None, None)
+    return {"answer_sha256": w, "runner_id": rid, "domain": dom if isinstance(dom, str) and DOMAIN_RE.fullmatch(dom) else None,
+            "schema": a.get("schema") if a.get("schema") in ("witness-answer-v0", ANSWER_V02) else None, "outcome": a["outcome"] if v02 else None,
+            "steps": sorted({x["step"] for x in a["failures"]}) if v02 else [], "origin": im["origin"] if im else None,
+            "implementation_sha256": im["sha256"] if im else None, "kit": kit, "ledger_head": {"n": lh["n"], "head": lh["head"]} if lh else None,
+            "state": state, "counted": counted, "revocation": revocation}
+
+
 def check_witness_answer(get, now):
-    """9: the day before yesterday's day record has a signed witness answer at the ledger with its day_sha256, root and n"""
+    """9: the day before yesterday's day records (runner-1 and runner-2) have signed witness answers at the ledger with their
+    day_sha256, root and n; a v0.2 mismatch is red, an incomplete a notice"""
     cid = "9_witness_answer"
     y = (now - datetime.timedelta(days=2)).strftime("%Y-%m-%d")
     try:
-        why, day = ledger_day(get, y)
-        if why == "empty":
-            return c(cid, "notice", "%s had no checks, so there is no day record to witness (not red)" % y, day=y)
-        if why:
+        days, whys = {}, {}
+        for rid in RUNNER_DAYS:
+            why, day = ledger_day(get, y, rid)
+            if why:
+                whys[rid] = why
+            else:
+                days[rid] = day
+        why = whys.get("runner-1")
+        if not days:
+            if why == "empty":
+                return c(cid, "notice", "%s had no checks, so there is no day record to witness (not red)" % y, day=y)
             return c(cid, "not_yet", "the day record of %s is not served for a witness to answer yet: %s" % (y, why), day=y)
-        good, bad = [], []
-        for w in witness_shas(get, y):
-            s, r = get(LEDGER + "/witness/" + w)
-            st = (r.get("record") if r.get("status") == "anchored" else r) if s == 200 and isinstance(r, dict) else None
-            if not isinstance(st, dict) or st.get("signed") is not True or not st.get("signed_domain"):
-                continue   # unsigned, or not signed by a domain key: not a signed answer
-            pub, rc = st.get("public_key_ed25519_b64"), st.get("record_canonical")
-            rec = json.loads(rc) if isinstance(rc, str) else None
-            a = rec.get("answer") if isinstance(rec, dict) else None
-            if not isinstance(a, dict) or a.get("day") != y:
+        found = {"at": {}, "notes": {}}
+        good, bad, warn, aside, rows, heads, kc, sc = [], [], [], [], [], [], {}, {}
+        for w in witness_shas(get, y, found):
+            x = witness_answer_of(get, w, y)
+            if x is None:
                 continue
-            p = answer_problem(a, pub)
-            if not p and not (isinstance(st.get("signature_ed25519_b64"), str) and ed25519_verify(pub, rc.encode("utf-8"), st["signature_ed25519_b64"])):
-                p = "the record's signature does not verify"
-            if not p and rec.get("commitment") != a["day_sha256"]:
-                p = "the record's commitment is not the answer's day_sha256"
-            if not p and a["day_sha256"] != day["sha"]:
+            st, r, a, p = x
+            dom, v02, trusted = st.get("signed_domain"), a.get("schema") == ANSWER_V02, not p
+            if p == MALFORMED_MATCH:
+                warn.append((w, dom, "read as malformed and not counted: " + p))
+                rows.append(table_row(w, dom, a["runner_id"], a, "notice", None, counted=False))
+                continue
+            # the answer is about the runner whose day record has its day_sha256; otherwise the runner it names (v0: runner-1)
+            rid = next((k for k in sorted(days) if days[k]["sha"] == a.get("day_sha256")), None) or (a["runner_id"] if v02 and not p else "runner-1")
+            day = days.get(rid)
+            if not p and v02 and a["runner_id"] != rid:
+                p = "runner_id names %s, but the answer's day_sha256 is %s's day record" % (a["runner_id"], rid)
+            kit = kit_label(get, a["implementation"], kc) if v02 and trusted else None
+            if not p and day is None:
+                warn.append((w, dom, "the day record of %s is not served, so the answer is not held to it" % rid))
+                rows.append(table_row(w, dom, rid, a, "notice", kit))
+                continue
+            if not p and a["day_sha256"] is not None and a["day_sha256"] != day["sha"]:
                 p = "day_sha256 %s is not the day record's %s" % (a["day_sha256"], day["sha"])
-            if not p and (a["root"] != day["root"] or a["n"] != day["n"]):
+            if not p and ((a["root"] is not None and a["root"] != day["root"]) or (a["n"] is not None and a["n"] != day["n"])):
                 p = "root or n is not the day record's"
-            (bad if p else good).append((w, st.get("signed_domain"), p, st.get("status") or r.get("status")))
+            side, rv = None, None
+            if trusted and v02:
+                ss, side, rv = witness_side(get, st, a, w, y, found["at"], sc)
+                if ss == "revoked":
+                    aside.append({"answer_sha256": w, "domain": dom, "why": side})
+                    rows.append(table_row(w, dom, rid, a, "set_aside", kit, counted=False, revocation=rv))
+                    continue
+                if ss == "red" and not p:
+                    p = side
+                if ss != "notice":
+                    side = None
+                heads.append({"sha": w, "domain": dom, "ledger_head": a["ledger_head"]})
+            if not p and v02 and a["outcome"] == "mismatch":
+                p = "the witness signed a mismatch on %s (steps: %s)" % (rid, ", ".join(sorted({f["step"] for f in a["failures"]})))
+            if p:
+                if w in found["notes"]:
+                    p += "; red, answered by note %d" % found["notes"][w]
+                bad.append((w, dom, p, st.get("status") or r.get("status")))
+                rows.append(table_row(w, dom, rid, a, "red", kit, revocation=rv))
+            elif side or (v02 and a["outcome"] == "incomplete"):
+                warn.append((w, dom, side or "the witness could not finish on %s (steps: %s)" % (rid, ", ".join(sorted({f["step"] for f in a["failures"]})))))
+                rows.append(table_row(w, dom, rid, a, "notice", kit, revocation=rv))
+            else:
+                good.append((w, dom, None, st.get("status") or r.get("status")))
+                rows.append(table_row(w, dom, rid, a, "ok", kit, revocation=rv))
     except Unreachable as e:
         return c(cid, "red", "an endpoint did not answer: " + str(e), day=y)
     except (ValueError, KeyError, TypeError, AttributeError) as e:
         return c(cid, "red", "an answer did not have its shape: %s" % type(e).__name__, day=y)
-    facts = {"day": y, "record": day["sha"], "answers": len(good), "witnesses": sorted({x[1] for x in good})}
+    facts = {"day": y, "record": days["runner-1"]["sha"] if "runner-1" in days else None, "answers": len(good), "witnesses": sorted({x[1] for x in good}),
+             "records": {k: days[k]["sha"] for k in sorted(days)}, "table": sorted(rows, key=lambda x: (x["runner_id"], str(x["domain"]), x["answer_sha256"]))}
+    if aside:
+        facts["set_aside"] = aside
+    nb = {x[0]: found["notes"][x[0]] for x in bad if x[0] in found["notes"]}
+    if nb:
+        facts["answered_by_note"] = nb
     if bad:
-        return c(cid, "red", "; ".join("%s (%s): %s" % (x[0][:12], x[1], x[2]) for x in bad), contradicting=len(bad), **facts)
-    if good:
-        return c(cid, "ok", "%d signed answer(s) for %s carry the day record's day_sha256, root and n under the key each witness serves (%s)" % (len(good), y, ", ".join(facts["witnesses"])), **facts)
-    return c(cid, "not_yet", "no signed witness answer for %s is at the ledger yet" % y, **facts)
+        out = c(cid, "red", "; ".join("%s (%s): %s" % (x[0][:12], x[1], x[2]) for x in bad), contradicting=len(bad), **facts)
+    elif warn:
+        out = c(cid, "notice", "; ".join("%s (%s): %s" % (x[0][:12], x[1], x[2]) for x in warn) + ("; %d answer(s) hold" % len(good) if good else ""), notices=len(warn), **facts)
+    elif good:
+        out = c(cid, "ok", "%d signed answer(s) for %s carry the day record's day_sha256, root and n under the key each witness serves (%s)" % (len(good), y, ", ".join(facts["witnesses"])), **facts)
+    elif "runner-1" in whys:
+        out = (c(cid, "notice", "%s had no checks, so there is no day record to witness (not red)" % y, **facts) if why == "empty"
+               else c(cid, "not_yet", "the day record of %s is not served for a witness to answer yet: %s" % (y, why), **facts))
+    else:
+        out = c(cid, "not_yet", "no signed witness answer for %s is at the ledger yet" % y, **facts)
+    out[HEADS_KEY] = heads
+    return out
+
+
+def ledger_chain(get):
+    """the entry_sha256 of entries 1..n as GET /ledger/export.jsonl serves them, each recomputed (jidec-chain-v1,
+    workers/hs-ledger/src/chain_v1.mjs): sha256 of the line without entry_sha256, keys sorted, no spaces, non-ASCII escaped;
+    entry 1 links to 64 zeros. The end marker (jidec-head-v1) is skipped. ValueError where a line does not link."""
+    s, t = capped(get, LEDGER + "/ledger/export.jsonl", EXPORT_CAP)
+    if s >= 500:
+        raise Unreachable("the export answered http %d" % s)
+    if s != 200 or not isinstance(t, str):
+        raise ValueError("the export answered http %s" % s)
+    out, prev = [], "0" * 64
+    for line in t.splitlines():
+        if not line.strip():
+            continue
+        e = json.loads(line)
+        if e.get("schema") == "jidec-head-v1":
+            continue
+        body = {k: v for k, v in e.items() if k != "entry_sha256"}
+        if e.get("n") != len(out) + 1 or e.get("prev_entry_sha256") != prev or sha(json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=True)) != e.get("entry_sha256"):
+            raise ValueError("the export's chain does not hold at entry %d" % (len(out) + 1))
+        prev = e["entry_sha256"]
+        out.append(prev)
+    return out
+
+
+def check_head_kept(get, now, kept):
+    """19: the ledger head each witness kept in its v0.2 answers of the day before yesterday (ledger_head {n, head}) is the head
+    of entry n recomputed from /ledger/export.jsonl now; n beyond the ledger, another head, or a witness whose n went down
+    from the day before is red. ledger_head null is a notice, not counted. Dormant until a v0.2 answer is there."""
+    cid = "19_head_kept_by_witness"
+    y = (now - datetime.timedelta(days=2)).strftime("%Y-%m-%d")
+    if not kept:
+        return dormant(cid, "no witness-answer-v0.2 for %s is at the ledger, so no witness kept a ledger head" % y, day=y)
+    held = [x for x in kept if x["ledger_head"]]
+    facts = {"day": y, "answers": len(kept), "null": len(kept) - len(held)}
+    if not held:
+        return c(cid, "notice", "the %d witness-answer-v0.2 for %s carry ledger_head null, so none is counted here" % (len(kept), y), **facts)
+    y1 = (now - datetime.timedelta(days=3)).strftime("%Y-%m-%d")
+    try:
+        heads = ledger_chain(get)
+    except Unreachable as e:
+        return c(cid, "notice", "not checked: the ledger's export was not read within its cap (%d bytes) or did not answer: %s" % (EXPORT_CAP, e), not_checked=True, **facts)
+    except (ValueError, KeyError, TypeError, AttributeError, RecursionError) as e:
+        return c(cid, "red", "the ledger's export could not be recomputed: %s" % (e if isinstance(e, ValueError) and str(e).startswith("the export") else type(e).__name__), **facts)
+    try:
+        before = {}
+        for w in witness_shas(get, y1):
+            x = witness_answer_of(get, w, y1)
+            if x and not x[3] and x[2].get("schema") == ANSWER_V02 and x[2]["ledger_head"]:
+                before.setdefault(x[0].get("signed_domain"), []).append((x[2]["ledger_head"]["n"], w))
+    except Unreachable as e:
+        return c(cid, "red", "an endpoint did not answer: " + str(e), **facts)
+    except (ValueError, KeyError, TypeError, AttributeError, RecursionError) as e:
+        return c(cid, "red", "the day before's answers could not be read: %s" % type(e).__name__, **facts)
+    bad, down = [], []
+    for x in held:
+        n, h = x["ledger_head"]["n"], x["ledger_head"]["head"]
+        if n > len(heads):
+            bad.append("%s (%s): kept entry %d, beyond the %d entries the ledger serves now" % (x["sha"][:12], x["domain"], n, len(heads)))
+        elif heads[n - 1] != h:
+            bad.append("%s (%s): kept another head for entry %d than the one recomputed now" % (x["sha"][:12], x["domain"], n))
+    for dom in sorted({x["domain"] for x in held}):
+        lo = min((x["ledger_head"]["n"], x["sha"]) for x in held if x["domain"] == dom)
+        hi = max(before.get(dom) or [(0, None)])
+        if hi[0] > lo[0]:
+            down.append({"domain": dom, "from": {"day": y1, "n": hi[0], "answer_sha256": hi[1]}, "to": {"day": y, "n": lo[0], "answer_sha256": lo[1]}})
+            bad.append("%s: kept n went down from %d (%s) to %d (%s)" % (dom, hi[0], hi[1][:12], lo[0], lo[1][:12]))
+    facts.update(held=len(held), ledger_n=len(heads), red=len(bad))
+    if down:
+        facts["went_down"] = down
+    if bad:
+        return c(cid, "red", "; ".join(bad), **facts)
+    if facts["null"]:
+        return c(cid, "notice", "%d kept head(s) for %s are entries of the ledger as recomputed now; %d answer(s) with ledger_head null are not counted" % (len(held), y, facts["null"]), **facts)
+    return c(cid, "ok", "%d kept head(s) for %s are entries of the ledger as recomputed now (%d entries)" % (len(held), y, len(heads)), **facts)
 
 
 # ---- 10 to 15 (2026-11-06): the measures themselves, main's CI, the paid rows, LINE delivery, not_yet deadlines, recovery ----
@@ -2898,7 +3279,8 @@ def run(get, now, trigger="manual", walk_get=None):
     checks.append(check_content_mismatch(get, now))
     checks.append(check_loss_bound(get, now))
     checks += [check_door_runner(get), check_day_root(get, now), check_leaves(get, now), check_heartbeat(get, now)]
-    checks += [check_canary(get, now), check_witness_answer(get, now)]
+    k8, w9 = check_canary(get, now), check_witness_answer(get, now)
+    checks += [k8, w9, check_head_kept(get, now, w9.pop(HEADS_KEY, []))]
     checks += [check_cross_client(get, now), check_main_ci(get, now), check_paid_rows(get, now), check_line_delivery(get, now), check_recovery(get, now)]
     checks.append(check_witness_pool(get, now))
     pc = check_paid_chain(get, now)
@@ -3062,7 +3444,7 @@ def selftest():
         a["signature"] = {"alg": "ed25519", "key_id": a["witness"]["key_id"], "sig": base64.b64encode(ed25519_sign(key, ("witness-answer-v0\n" + canonical(a)).encode("utf-8"))).decode()}
         return a
 
-    def witness_world(d, ds, root, n, answers, anchored=(), unsigned=False):
+    def witness_world(d, ds, root, n, answers, anchored=(), unsigned=False, key_url=None):
         """the intake as /witness/pending, /witness/<sha>, the head and one witness batch made the day after d show it"""
         w, pend, batch = {}, [], []
         for i, a in enumerate(list(answers) + list(anchored)):
@@ -3070,6 +3452,8 @@ def selftest():
             s_ = hsh(rc)
             st = {"sha": s_, "record_canonical": rc, "signed": not unsigned, "public_key_ed25519_b64": PUBW, "signed_domain": None if unsigned else "w.example",
                   "signature_ed25519_b64": base64.b64encode(ed25519_sign(SKW, rc.encode("utf-8"))).decode(), "purpose": "furui-day-v0: " + d}
+            if key_url:
+                st["key_url"] = key_url
             if i < len(answers):
                 pend.append({"sha": s_, "purpose": st["purpose"]}); w[LEDGER + "/witness/" + s_] = (200, dict(st, status="pending"))
             else:
@@ -3491,11 +3875,202 @@ def selftest():
     cases.append(("9 not_yet: the day record of the day before yesterday is not served yet", st9(world(**{RUNNER + "/furui/day/2026-11-03/status": (200, {"status": None})}))["state"], "not_yet"))
     cases.append(("9 reads the day before yesterday (11-03 at the 11-05 run), not yesterday", (x9["facts"]["day"], st9(world(cc=True), now + datetime.timedelta(days=1))["facts"]["day"]), ("2026-11-03", "2026-11-04")))
     cases.append(("9 red: the ledger head does not answer", st9(world(cc=True, **{LEDGER + "/ledger/head": "down"}))["state"], "red"))
+    # ---- 9 (2026-11-20): runner-1 and runner-2, witness-answer-v0.2, the witness's own site, notes; 19 head_kept_by_witness ----
+    S3 = W3[RUNNER + "/furui/day/2026-11-03/status"][1]["status"]
+    RT1, N1 = S3["root"], S3["n"]
+    RC2 = canonical({"schema": "furui-check-day-v0", "day": "2026-11-03", "signer": SIGNER, "n": 5, "tree": "rfc6962-sha256", "root": hsh("root2")})
+    S2, RT2 = hsh(RC2), hsh("root2")
+    R2 = {RUNNER + "/furui2/day/2026-11-03/status": (200, {"day": "2026-11-03", "status": {"state": "accepted", "n": 5, "root": RT2, "ledger_canonical_sha256": S2}}),
+          LEDGER + "/furui-check-day/" + S2: (200, {"canonical_sha256": S2, "record_canonical": RC2, "status": "anchored", "ledger_entry": 251})}
+    KIDW = "ed25519:" + hashlib.sha256(ed25519_public(SKW)).hexdigest()[:16]
+    KIT01 = hsh("furui_witness.py 0.1.0")
+    VER = {KIT_URL + "VERSIONS.json": (200, {"schema": "witness-kit-versions-v0", "versions": [{"version": "0.1.0", "furui_witness_py_sha256": KIT01, "furui_witness_yml_sha256": hsh("yml"), "released": "2026-11-21"}]})}
+    KU = "https://w.example/keys/witness.json"
+
+    def answer2(d, ds, root, n, rid="runner-1", outcome="match", failures=(), origin="operator-kit", isha=KIT01, lh=None, key=SKW, line=ANSWER_V02, **chg):
+        a = {"schema": ANSWER_V02, "kind": "furui-day", "day": d, "day_sha256": ds, "n": n, "root": root, "leaf_index": [0] if outcome == "match" else [],
+             "recomputed": ["envelope_shape", "leaf_sha256"] if outcome == "match" else [], "runner_id": rid, "outcome": outcome, "failures": [dict(f) for f in failures],
+             "implementation": {"origin": origin, "name": "furui-witness", "version": "0.1.0", "sha256": isha}, "ledger_head": lh, "tool": "furui_witness.py 0.1.0",
+             "observed_at": "2026-11-04T01:50:00Z", "limits": ["a line"], "witness": {"name": "w", "key_id": KIDW, "key_url": KU}}
+        a.update(chg)
+        a["signature"] = {"alg": "ed25519", "key_id": KIDW, "sig": base64.b64encode(ed25519_sign(key, (line + "\n" + canonical(a)).encode("utf-8"))).decode()}
+        return a
+
+    def rec_text(d, a):
+        return canonical({"schema": "jidec-path-v1", "purpose": "furui-day-v0: " + d, "mode": "commitment", "commitment": a["day_sha256"], "answer": a})
+
+    def w9(answers, anchored=(), key_url=None, **over):
+        return st9(world(cc=True, wit=lambda ds, rt, n: (list(answers), list(anchored), False, key_url), **over))
+    FAIL = lambda step, leaf=0, detail="root recomputed from the audit path differs from the record": {"leaf": leaf, "step": step, "detail": detail}
+    a2 = answer2("2026-11-03", S2, RT2, 5, rid="runner-2")
+    x = w9([answer("2026-11-03", S2, RT2, 5)], **R2)
+    cases.append(("9 ok (2026-11-20): a v0 answer on runner-2's day record is held to runner-2's record, not to runner-1's (it was red before)",
+                  (x["state"], sorted(x["facts"]["records"]), [r["runner_id"] for r in x["facts"]["table"]]), ("ok", ["runner-1", "runner-2"], ["runner-2"])))
+    x = w9([a2], **dict(R2, **VER))
+    cases.append(("9 ok: a v0.2 match on runner-2 from the listed kit; the table row says runner-2, match, operator-kit, kit 0.1.0",
+                  (x["state"], [(r["runner_id"], r["outcome"], r["origin"], r["kit"], r["schema"], r["counted"]) for r in x["facts"]["table"]]),
+                  ("ok", [("runner-2", "match", "operator-kit", "kit 0.1.0", ANSWER_V02, True)])))
+    cases.append(("9: the kit word is modified for a sha the list does not hold, own for origin own, unread when VERSIONS.json is not served",
+                  [w9([answer2("2026-11-03", sha, RT1, N1, **k)], **o)["facts"]["table"][0]["kit"] for k, o in (({"isha": hsh("edited")}, VER), ({"origin": "own"}, VER), ({}, {}))],
+                  ["modified", "own", "unread"]))
+    BAD = "<script>alert(1)</script>\n\"x\""
+    xm = w9([answer2("2026-11-03", sha, RT1, N1, outcome="mismatch", failures=[FAIL("audit_path", detail=BAD)], limits=[BAD])])
+    cases.append(("9 red: a v0.2 mismatch, named by its steps; the detail and limits text are in neither the why nor the facts",
+                  (xm["state"], "signed a mismatch on runner-1 (steps: audit_path)" in xm["why"], "script" in json.dumps(xm), xm["facts"]["table"][0]["steps"]), ("red", True, False, ["audit_path"])))
+    xi = w9([answer2("2026-11-03", sha, None, None, outcome="incomplete", failures=[FAIL("day_record", None, "leaf count above the limit of this tool")])])
+    cases.append(("9 notice: a v0.2 incomplete (not red), with day_sha256 and null root and n", (xi["state"], xi["facts"]["notices"], "could not finish on runner-1 (steps: day_record)" in xi["why"]), ("notice", 1, True)))
+    cases.append(("9 notice beside a match: one incomplete makes the day a notice and names how many hold",
+                  (lambda x: (x["state"], x["why"].endswith("1 answer(s) hold")))(w9([answer("2026-11-03", sha, RT1, N1), answer2("2026-11-03", sha, None, None, outcome="incomplete", failures=[FAIL("signature")])])), ("notice", True)))
+    am = answer2("2026-11-03", sha, RT1, N1, outcome="mismatch", failures=[FAIL("signature")])
+    wm = hsh(rec_text("2026-11-03", am))
+    NB = canonical({"schema": NOTE_SCHEMA, "answer_sha256": wm, "day": "2026-11-03", "runner_id": "runner-1", "differs": "witness"})
+    note_entry = lambda **f: {LEDGER + "/ledger/head": (200, {"n": 281}), LEDGER + "/ledger/281?format=json": (200, dict({"n": 281, "created_at": "2026-11-05T02:00:00.000Z",
+                                                                                                                       "schema": NOTE_SCHEMA, "claim_sha256": hsh(NB), "record_canonical": NB}, **f))}
+    NOTE = note_entry()
+    xn = w9([am], **NOTE)
+    cases.append(("9 red, answered by note: a note on the ledger names the answer; the day stays red, the answer stays counted in the table",
+                  (xn["state"], "red, answered by note 281" in xn["why"], xn["facts"]["answered_by_note"], xn["facts"]["table"][0]["counted"]), ("red", True, {wm: 281}, True)))
+    cases.append(("9 red: without the note the same mismatch has no answered_by_note", ("answered_by_note" in w9([am])["facts"], "note" in w9([am])["why"]), (False, False)))
+    # a note is only a chain entry of schema witness-mismatch-note-v0 whose claim_sha256 hashes its body; look-alikes are not notes
+    LOOK = {LEDGER + "/witness/pending": (200, {"pending": [{"sha": wm, "purpose": "furui-day-v0: 2026-11-03"}, {"sha": hsh(NB), "purpose": "furui-day-v0: 2026-11-03"}]}),
+            LEDGER + "/witness/" + hsh(NB): (200, {"sha": hsh(NB), "record_canonical": NB, "signed": True, "public_key_ed25519_b64": PUBW, "signed_domain": "w.example", "status": "pending",
+                                                  "signature_ed25519_b64": base64.b64encode(ed25519_sign(SKW, NB.encode("utf-8"))).decode(), "purpose": "furui-day-v0: 2026-11-03"})}
+    cases.append(("9 red, not answered: the same note body at the witness intake, in a chain entry of another schema, or under a claim_sha256 that is not its sha",
+                  [(lambda x: (x["state"], "answered_by_note" in x["facts"], "note" in x["why"]))(w9([am], **o)) for o in (LOOK, note_entry(schema="v0-plain"), note_entry(claim_sha256=hsh("other")))],
+                  [("red", False, False)] * 3))
+    cases.append(("9 red: a v0.2 whose runner_id names runner-1 while its day_sha256 is runner-2's record",
+                  (lambda x: (x["state"], "runner_id names runner-1" in x["why"]))(w9([answer2("2026-11-03", S2, RT2, 5)], **R2)), ("red", True)))
+    cases.append(("9 red: a v0.2 match on a day_sha256 that is neither runner's record", w9([answer2("2026-11-03", hsh("other"), RT1, N1)], **R2)["state"], "red"))
+    cases.append(("9 red: a v0.2 signed over the v0 line does not verify", (lambda x: (x["state"], "signature does not verify" in x["why"]))(w9([answer2("2026-11-03", sha, RT1, N1, line="witness-answer-v0")])), ("red", True)))
+    cases.append(("9 notice: a v0.2 match that carries a failure other than ledger_head is read as malformed and not counted",
+                  (lambda x: (x["state"], "read as malformed" in x["why"], x["facts"]["answers"], [r["counted"] for r in x["facts"]["table"]]))(w9([answer2("2026-11-03", sha, RT1, N1, failures=[FAIL("signature")])])),
+                  ("notice", True, 0, [False])))
+    cases.append(("9 red: a v0.2 mismatch without a failure other than ledger_head has no shape",
+                  (lambda x: (x["state"], "outcome and the failures disagree" in x["why"]))(w9([answer2("2026-11-03", sha, RT1, N1, outcome="mismatch", failures=[FAIL("ledger_head")])])), ("red", True)))
+    cases.append(("9 ok: a v0.2 match may carry a ledger_head failure (ledger_head null); the day's outcome stays match",
+                  w9([answer2("2026-11-03", sha, RT1, N1, failures=[FAIL("ledger_head", None, "ledger head did not have its shape")])])["state"], "ok"))
+    # the witness's own site: status.json beside the key (one folder up from keys/), its revoked list and its copy of the answer
+    STU = "https://w.example/status.json"
+    ap = answer2("2026-11-03", sha, RT1, N1)
+    wp = hsh(rec_text("2026-11-03", ap))
+    CPU = "https://w.example/answers/2026-11-03/%s.json" % wp
+    REV = lambda since: {STU: (200, json.dumps({"schema": "furui-witness-status-v0", "revoked": [{"key_id": KIDW, "since": since}], "last_answer": wp}))}
+    xr = w9([ap], key_url=KU, **REV("2026-11-01T00:00:00Z"))
+    cases.append(("9: an answer signed by a key the witness revoked, pending (in no batch), is set aside: not counted, named, not red",
+                  (xr["state"], len(xr["facts"]["set_aside"]), xr["facts"]["table"][0]["counted"], xr["facts"]["answers"]), ("not_yet", 1, False, 0)))
+    xb = w9([], anchored=[ap], key_url=KU, **dict(REV("2026-11-05T01:00:00Z"), **{CPU: (200, rec_text("2026-11-03", ap))}))
+    cases.append(("9 ok: revoked since a time after the batch that lists the answer (2026-11-05T00:30:41): the answer counts", (xb["state"], "set_aside" in xb["facts"]), ("ok", False)))
+    cases.append(("9: revoked since a time before that batch: set aside", "set_aside" in w9([], anchored=[ap], key_url=KU, **REV("2026-11-05T00:00:00Z"))["facts"], True))
+    OKST = {STU: (200, json.dumps({"schema": "furui-witness-status-v0", "last_answer": wp}))}
+    cases.append(("9: the witness's copy of the answer: same bytes ok, other bytes red, not served notice, no status.json ok (nothing to read)",
+                  [w9([ap], key_url=KU, **dict(OKST, **o))["state"] for o in ({CPU: (200, rec_text("2026-11-03", ap))}, {CPU: (200, rec_text("2026-11-03", ap) + "\n")}, {}, {STU: (404, None)})],
+                  ["ok", "red", "notice", "ok"]))
+    cases.append(("9 notice: a status.json nested too deep to read", w9([ap], key_url=KU, **{STU: (200, "[" * 100000)})["state"], "notice"))
+    # status.json ends one of three ways: read (in its shape), no_status (404), unread (anything else: a notice, the answer counted)
+    st9r = lambda o, ku=KU: (lambda x: (x["state"], x["why"].endswith("status unread"), x["facts"]["table"][0]["counted"], x["facts"]["table"][0]["revocation"]))(w9([ap], key_url=ku, **o))
+    ROOT = {"https://w.example/status.json": (200, json.dumps({"status": "operational", "page": {"name": "w.example", "updated_at": "2026-11-20T00:00:00Z"}}))}
+    BIG = {STU: (200, json.dumps({"schema": STATUS_SCHEMA, "revoked": [], "pad": "x" * STATUS_CAP}))}
+    cases.append(("9: status.json 404 is no status and nothing revoked (ok, revocation no_status)", st9r({STU: (404, None)}), ("ok", False, True, "no_status")))
+    cases.append(("9 notice status unread, the answer counted, revocation unread: no answer, 5xx, another shape at a site root, over 64 KiB, a redirect to another host",
+                  [st9r(o, ku) for o, ku in (({STU: "down"}, KU), ({STU: (503, None)}, KU), (ROOT, "https://w.example/witness.json"), (BIG, KU), ({STU: (302, None)}, KU))],
+                  [("notice", True, True, "unread")] * 5))
+    cases.append(("9: status.json in its shape is read (revocation checked); revoked must be a list of {key_id, since}",
+                  (st9r(dict(OKST, **{CPU: (200, rec_text("2026-11-03", ap))}))[3], status_shape_ok({"schema": STATUS_SCHEMA, "revoked": [{"key_id": "x", "since": "2026-11-01T00:00:00Z"}]}),
+                   status_shape_ok({"schema": STATUS_SCHEMA}), status_shape_ok({"schema": STATUS_SCHEMA, "revoked": {}})), ("checked", False, True, False)))
+    _rq = urllib.request.Request("https://w.example/status.json")
+    cases.append(("9: a status.json or copy is read with capped_get, which follows a redirect on the same host only and carries the tool's User-Agent",
+                  (SameHostRedirect().redirect_request(_rq, None, 302, "Found", {}, "https://other.example/status.json") is None,
+                   SameHostRedirect().redirect_request(_rq, None, 302, "Found", {}, "https://w.example/s2.json").full_url,
+                   getattr(http_get, "capped_get", None) is capped_get, getattr(with_cross(http_get, None), "capped_get", None) is capped_get, UA["user-agent"]),
+                  (True, "https://w.example/s2.json", True, True, "tooshi-daily/0.1")))
+    cases.append(("9: a status.json under keys/ is read one folder up; a key file elsewhere has its status.json beside it",
+                  (witness_status_url(KU), witness_status_url("https://w.example/a/witness.json"), witness_status_url("https://w.example/witness.json")),
+                  ("https://w.example/status.json", "https://w.example/a/status.json", "https://w.example/status.json")))
+    tb = w9([am, a2], **dict(R2, **VER))["facts"]["table"]
+    cases.append(("9: a table row holds fixed words, hex and integers only (no detail, limits, tool or name)",
+                  (sorted({k for r in tb for k in r}), all(DOMAIN_RE.fullmatch(r["domain"]) for r in tb), "detail" in json.dumps(tb) or "a line" in json.dumps(tb)),
+                  (["answer_sha256", "counted", "domain", "implementation_sha256", "kit", "ledger_head", "origin", "outcome", "revocation", "runner_id", "schema", "state", "steps"], True, False)))
+    wav = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "workers", "hs-ledger", "nenrin", "witness-answer-v0", "witness_answer_v0.py")
+    if os.path.isfile(wav):
+        import importlib.util
+        _sp = importlib.util.spec_from_file_location("witness_answer_v0_for_9", wav)
+        WA = importlib.util.module_from_spec(_sp)
+        _sp.loader.exec_module(WA)
+        built = WA.finish(WA.build_furui_v02("2026-11-03", "runner-1", "match", {"day_sha256": sha, "root": RT1, "n": N1}, [0], ["envelope_shape", "leaf_sha256"], [],
+                                             {"origin": "own", "name": "my-tool", "version": "1.0", "sha256": hsh("mine")}, {"n": 3, "head": hsh("h"), "observed_at": "2026-11-04T01:50:00Z"},
+                                             "w", KU, ["a line"], "2026-11-04T01:50:00Z", "my-tool 1.0"), ed25519_public(SKW), SKW, WA.SCHEMA_V02)
+        WA.check_shape_v02(built)
+        cases.append(("9 ok: a v0.2 built and signed by witness_answer_v0.py (its own Ed25519 code) verifies here", w9([built])["state"], "ok"))
+    # 19 head_kept_by_witness: the first four lines of the ledger's real export (2026-11-20) and its end marker
+    EXP4 = [
+        '{"n":1,"claim_sha256":"9a40b9811ac816421a3a4a819136f48d3377c55c1b982f433f760b4b7595f88d","prev_entry_sha256":"0000000000000000000000000000000000000000000000000000000000000000","created_at":"2026-07-22T07:27:53.063Z","entry_sha256":"ceebc5b7d58613651394f9ea193717362f8a051055fd4efe0243c9536ecef054"}',
+        '{"n":2,"claim_sha256":"020b7c82f2bd9bde351776f7976d1d6f15c6ed6dc522094411ebd5fa78bb9a77","prev_entry_sha256":"ceebc5b7d58613651394f9ea193717362f8a051055fd4efe0243c9536ecef054","schema":"v0-plain","created_at":"2026-07-25T01:19:41.499Z","entry_sha256":"c479fab3126c2a5b9a49165f067f04f4ca56a10214527bd49b37541fde74c886"}',
+        '{"n":3,"claim_sha256":"e882837d45022fb69ba1bffff9e8332e831424def28cc8fd3582e58b940fdd2f","prev_entry_sha256":"c479fab3126c2a5b9a49165f067f04f4ca56a10214527bd49b37541fde74c886","schema":"v0-plain","created_at":"2026-07-25T02:09:16.352Z","entry_sha256":"2ed48b65c9ffa28c51983db223afada2a1380d24e15cb8b8d56eb0a36665316a"}',
+        '{"n":4,"claim_sha256":"793f569f18e4b0b1ea20814697eb633b109882929b2ec375485a1a7feb56f33e","prev_entry_sha256":"2ed48b65c9ffa28c51983db223afada2a1380d24e15cb8b8d56eb0a36665316a","schema":"v0-plain","created_at":"2026-07-25T08:00:00.577Z","entry_sha256":"2ef5a3335d1ba076ace837b82e02fbc97e3a10c83b3d5fee4a68dcb2fc489ba3"}',
+    ]
+    EH = [json.loads(l)["entry_sha256"] for l in EXP4]
+    EXPT = "\n".join(EXP4 + [json.dumps({"schema": "jidec-head-v1", "n": 4, "head": EH[3]})]) + "\n"
+    EXW = {LEDGER + "/ledger/export.jsonl": (200, EXPT)}
+    st19 = lambda get: [x for x in run(get, now)[0]["checks"] if x["id"] == "19_head_kept_by_witness"][0]
+    LH = lambda n, h: {"n": n, "head": h, "observed_at": "2026-11-04T01:50:00Z"}
+    s19 = lambda answers, **o: st19(world(cc=True, wit=lambda ds, rt, n: (list(answers),), **dict(EXW, **o)))
+    cases.append(("19: the export's first four entries recompute to the entry_sha256 the ledger serves", ledger_chain(lambda u, raw=False: EXW[u]), EH))
+    x19 = s19([answer2("2026-11-03", sha, RT1, N1, lh=LH(3, EH[2]))])
+    cases.append(("19 ok: a witness kept entry 3's head and the export recomputes the same", (x19["state"], x19["facts"]["held"], x19["facts"]["ledger_n"]), ("ok", 1, 4)))
+    cases.append(("19 red: the kept n is beyond the entries the ledger serves now (the ledger got shorter)",
+                  (lambda x: (x["state"], "beyond the 4 entries" in x["why"]))(s19([answer2("2026-11-03", sha, RT1, N1, lh=LH(5, EH[3]))])), ("red", True)))
+    cases.append(("19 red: the kept head is not the recomputed head of that entry", s19([answer2("2026-11-03", sha, RT1, N1, lh=LH(2, EH[2]))])["state"], "red"))
+    cases.append(("19 notice: ledger_head null is not counted", (lambda x: (x["state"], x["facts"]["null"]))(s19([answer2("2026-11-03", sha, RT1, N1)])), ("notice", 1)))
+    cases.append(("19 notice: one kept head holds, one answer carries null", s19([answer2("2026-11-03", sha, RT1, N1, lh=LH(3, EH[2])), answer2("2026-11-03", S2, RT2, 5, rid="runner-2")], **R2)["state"], "notice"))
+    ay = answer2("2026-11-02", hsh("the day before"), hsh("r"), 2, lh=LH(4, EH[3]))
+    ry = rec_text("2026-11-02", ay)
+    wy = hsh(ry)
+    at = answer2("2026-11-03", sha, RT1, N1, lh=LH(3, EH[2]))
+    wt = hsh(rec_text("2026-11-03", at))
+    PREV = {LEDGER + "/witness/pending": (200, {"pending": [{"sha": wt, "purpose": "furui-day-v0: 2026-11-03"}, {"sha": wy, "purpose": "furui-day-v0: 2026-11-02"}]}),
+            LEDGER + "/witness/" + wy: (200, {"sha": wy, "record_canonical": ry, "signed": True, "public_key_ed25519_b64": PUBW, "signed_domain": "w.example", "status": "pending",
+                                            "signature_ed25519_b64": base64.b64encode(ed25519_sign(SKW, ry.encode("utf-8"))).decode(), "purpose": "furui-day-v0: 2026-11-02"})}
+    xd = s19([at], **PREV)
+    cases.append(("19 red: the same witness kept n 4 on the day before and n 3 now; both answer shas are named",
+                  (xd["state"], xd["facts"]["went_down"], "went down from 4" in xd["why"]),
+                  ("red", [{"domain": "w.example", "from": {"day": "2026-11-02", "n": 4, "answer_sha256": wy}, "to": {"day": "2026-11-03", "n": 3, "answer_sha256": wt}}], True)))
+    ay2 = answer2("2026-11-02", hsh("the day before"), hsh("r"), 2, lh=LH(2, EH[1]))
+    ry2 = rec_text("2026-11-02", ay2)
+    PREV2 = dict(PREV, **{LEDGER + "/witness/pending": (200, {"pending": [{"sha": wt, "purpose": "furui-day-v0: 2026-11-03"}, {"sha": hsh(ry2), "purpose": "furui-day-v0: 2026-11-02"}]}),
+                          LEDGER + "/witness/" + hsh(ry2): (200, dict(PREV[LEDGER + "/witness/" + wy][1], sha=hsh(ry2), record_canonical=ry2,
+                                                                      signature_ed25519_b64=base64.b64encode(ed25519_sign(SKW, ry2.encode("utf-8"))).decode()))})
+    cases.append(("19 ok: the same witness kept n 2 the day before and n 3 now", s19([at], **PREV2)["state"], "ok"))
+    BRK = EXPT.replace(EH[1], hsh("rewritten"), 1)
+    cases.append(("19 red: an export whose chain does not link, and an export answered 404", [s19([at], **{LEDGER + "/ledger/export.jsonl": v})["state"] for v in ((200, BRK), (404, None))], ["red", "red"]))
+    cases.append(("19 not checked (notice, neither green nor red): an export over 8 MiB",
+                  (lambda x: (x["state"], x["facts"].get("not_checked")))(s19([at], **{LEDGER + "/ledger/export.jsonl": (200, EXPT + " " * EXPORT_CAP)})), ("notice", True)))
+    cases.append(("19 not checked (notice): an export that does not answer, or answers 5xx",
+                  [(lambda x: (x["state"], x["facts"].get("not_checked")))(s19([at], **{LEDGER + "/ledger/export.jsonl": v})) for v in ("down", (503, None))], [("notice", True)] * 2))
+    SEEN19 = []
+    g19 = world(cc=True)
+    x19d = [x for x in run(lambda u, raw=False: (SEEN19.append(u), g19(u, raw))[1], now)[0]["checks"] if x["id"] == "19_head_kept_by_witness"][0]
+    cases.append(("19 is dormant while no v0.2 answer is there, and then reads no export", (x19d["state"], x19d["facts"].get("dormant"), any("export.jsonl" in u for u in SEEN19)), ("notice", True, False)))
+    cases.append(("9 and 19: the hand-over key is not in the written result", HEADS_KEY in run(world(cc=True, wit=lambda ds, rt, n: ([at],), **EXW), now)[1], False))
+    RW = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "tooshi_real_witness_20261120.json"), encoding="utf-8"))
+
+    def real9(day):
+        w = {u: tuple(v) for u, v in RW["urls"].items()}
+        w.update({LEDGER + "/ledger/%s?format=json" % n: (200, e) for n, e in RW["entries"].items()})
+        w.update({LEDGER + "/witness/" + s: (200, r) for s, r in RW["witness"].items()})
+        w[LEDGER + "/witness/pending"] = (200, {"count": 0, "pending": []})
+        w[LEDGER + "/ledger/head"] = (200, {"n": RW["heads"][day]})
+        return check_witness_answer(lambda u, raw=False: w.get(u, (404, None)), datetime.datetime.strptime(day + "T04:05:00Z", "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc))
+    R9 = {d: real9(d) for d in sorted(RW["heads"])}
+    OK9 = {"2026-11-10": ["agent-passport.org", "invinoveritas.dev"], "2026-11-15": ["agent-passport.org"], "2026-11-19": ["agent-passport.org"]}
+    cases.append(("9 on the real answers (11-05 to 11-20 runs, ledger heads of each run): the states the published days carry, ok on 11-10, 11-15, 11-19 and not_yet on the others",
+                  {d: (x["state"], x["facts"].get("witnesses")) for d, x in R9.items()}, {d: ("ok", OK9[d]) if d in OK9 else ("not_yet", []) for d in R9}))
+    cases.append(("9 on the real answers: runner-2's records are read from 11-09 on, and no real answer is routed to runner-2",
+                  (min(d for d, x in R9.items() if "runner-2" in x["facts"].get("records", {})), sorted({r["runner_id"] for x in R9.values() for r in x["facts"].get("table", [])})), ("2026-11-11", ["runner-1"])))
     # 10 to 15 (2026-11-06)
     def st(get, cid, when=now):
         return [x for x in run(get, when)[0]["checks"] if x["id"] == cid][0]
     S10, S11, S12, S13, S14, S15 = "10_cross_client", "11_main_ci", "12_paid_rows_daily", "13_line_delivery", "14_not_yet_deadline", "15_recovery_fresh"
-    cases.append(("v2: the whole day holds with the six new checks, 16 and 24: every check ok, the verdict green, 22 checks besides 17 (18, 22 and 25 dormant, notices)", (lambda r: (r["verdict"], len([x for x in r["checks"] if x["id"] != "17_paid_call_chain"]), r["counts"]["ok"] - 1))(run(world(cc=True), now)[0]), ("green", 22, 19)))
+    cases.append(("v2: the whole day holds with the six new checks, 16 and 24: every check ok, the verdict green, 23 checks besides 17 (18, 19, 22 and 25 dormant, notices)", (lambda r: (r["verdict"], len([x for x in r["checks"] if x["id"] != "17_paid_call_chain"]), r["counts"]["ok"] - 1))(run(world(cc=True), now)[0]), ("green", 23, 19)))
     cases.append(("10: the draw of 2026-11-07 from five endpoints is the cross client's (cross_client_test.mjs has the same vector)", cross_draw("2026-11-07", list(reversed(CANDS))),
                   ["https://c.example/mcp", "https://d.example/mcp", "https://e.example/mcp"]))
     x10 = st(world(cc=True), S10)
@@ -4040,8 +4615,8 @@ def selftest():
     cases.append(("17: a batch made after 03:47 UTC of the day is not read, so the 04:05 and 11:50 runs give the same 17",
                   (lambda a, b: (a == b, a["state"]))(check_paid_chain(world(cc=True, **chain_world(**L17)), now), check_paid_chain(world(cc=True, **chain_world(**L17)), now.replace(hour=11, minute=50))), (True, "ok")))
     r17 = run(world(cc=True, **chain_world()), now)[0]
-    cases.append(("17: the whole day holds with 17 (one paid call, all four records): every check ok, the verdict green, 23 checks (18 and 22 dormant, 25 a notice)",
-                  (r17["verdict"], len(r17["checks"]), r17["counts"]["ok"], [x["state"] for x in r17["checks"] if x["id"] == S17]), ("green", 23, 20, ["ok"])))
+    cases.append(("17: the whole day holds with 17 (one paid call, all four records): every check ok, the verdict green, 24 checks (18, 19 and 22 dormant, 25 a notice)",
+                  (r17["verdict"], len(r17["checks"]), r17["counts"]["ok"], [x["state"] for x in r17["checks"] if x["id"] == S17]), ("green", 24, 20, ["ok"])))
     cases.append(("17 does not change the states of 1 to 16 (the same run with 17 ok and 17 red)",
                   (lambda a, b: {k: v for k, v in a.items() if k not in (S17, S14)} == {k: v for k, v in b.items() if k not in (S17, S14)})(states(world(cc=True, **chain_world()))[1], states(world(cc=True, **chain_world(recs=((TN, RN),), run_calls=[])))[1]), True))
     # ---- 17 with admission 0.5 (two runners) and 18 (FURUI 1.0) ----
@@ -4138,7 +4713,7 @@ def selftest():
     r5 = run(world(cc=True, **dict(chain_world(recs=((T5, R5),), run_calls=[]), **W2, **KEYS2)), now)
     s5 = {x["id"]: x for x in r5[0]["checks"]}
     cases.append(("run: 17 ok with the 0.5 record, 18 counted (ok) with it; the hand-over key is not in the written result",
-                  (s5[S17]["state"], s5["18_two_runners"]["state"], s5["18_two_runners"]["facts"]["records"], V05_KEY in r5[1], len(r5[0]["checks"])), ("ok", "ok", 1, False, 23)))
+                  (s5[S17]["state"], s5["18_two_runners"]["state"], s5["18_two_runners"]["facts"]["records"], V05_KEY in r5[1], len(r5[0]["checks"])), ("ok", "ok", 1, False, 24)))
     rg = run(world(cc=True, **chain_world()), now)[0]
     sg = {x["id"]: x for x in rg["checks"]}
     cases.append(("a day with no red is green while 18 and 24 are dormant (both notice with facts.dormant; the verdict and 14 do not count them)",
@@ -4501,6 +5076,8 @@ def with_cross(get, path):
         return get(url, raw=raw) if raw else get(url)
     if getattr(get, "key_get", None):
         g.key_get = get.key_get
+    if getattr(get, "capped_get", None):
+        g.capped_get = get.capped_get
     return g
 
 

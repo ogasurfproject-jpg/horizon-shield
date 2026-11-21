@@ -27,6 +27,15 @@
           tooshi/latest.json       the newest day, the same bytes as its day file
           tooshi/index.json        one line per day, newest first (with facts: the days of red_zero_streak and
                                    anchored_ledger_days and the state of pypi_wheel)
+          tooshi/witness/<D>.json  (2026-11-20) the witness table of the day D that check 9 read (the day before
+                                   yesterday): its rows (answer sha, runner, domain, outcome, step names, implementation
+                                   origin and sha256, kit word, kept ledger head, state, counted) and one entry per domain.
+                                   The hand-written fields of a domain (operator_named, operator_name, checked_at,
+                                   basis_url, insider_name) are carried from this day's table when it is written again, else
+                                   from the newest earlier table that has the domain; a person edits them in the newest
+                                   table. counted is operator_named, not insider_name, and not in
+                                   workers/hs-ledger/nenrin/witness-kit/NOT_COUNTED.json. Written only when the result's
+                                   check 9 carries a table.
         and prints "TOOSHI_KEPT <day> <result_sha256> <day_sha256>".
     python3 -I -B tools/tooshi/tooshi_publish.py --selftest
 Standard library only. Writes only under --dir.
@@ -43,6 +52,12 @@ RECIPE = ("result_sha256 = sha256 of the UTF-8 bytes of result_canonical. day_sh
           "result_canonical, so neither sha covers them.")
 WITNESS = "python3 -I -B tools/tooshi/tooshi_daily.py --witness <your name> [--vantage <your network>] [--dry-run]"
 DAY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+NOT_COUNTED = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "workers", "hs-ledger", "nenrin", "witness-kit", "NOT_COUNTED.json")
+HAND = ("operator_named", "operator_name", "checked_at", "basis_url", "insider_name")
+WITNESS_RULE = ("A domain is counted when a person found a named operator on its pages (operator_named, with basis_url and checked_at), "
+                "its operator_name is not an insider of the operator or Yakumo (insider_name), and it is not in NOT_COUNTED.json. "
+                "matched_operators counts the distinct operator_name of counted domains with an ok row, per runner; own counts those rows of origin own.")
+WITNESS_NOTE = "Domains are self-declared; we have not verified who operates them."
 
 
 def canon(o):
@@ -170,11 +185,69 @@ def write(result_path, run_url, out_dir, notes_path=None):
         f = res["facts"]
         rows[-1]["facts"] = {"red_zero_streak": (f.get("red_zero_streak") or {}).get("days"), "anchored_ledger_days": (f.get("anchored_ledger_days") or {}).get("days"),
                              "pypi_wheel": (f.get("pypi_wheel") or {}).get("state")}
+    write_witness(res, rs, out_dir)
     rows.sort(key=lambda r: r["day"], reverse=True)
     _write(idxf, {"schema": "tooshi-index-v0", "latest": rows[0]["day"], "days": rows, "recipe": RECIPE})
     latest = _load(os.path.join(out_dir, "days", rows[0]["day"] + ".json"))
     _write(os.path.join(out_dir, "latest.json"), latest)
     return d, rs, ds
+
+
+def not_counted(dom, nc):
+    """dom is in NOT_COUNTED.json: one of its domains or a subdomain of one, or github.com/<a listed owner>"""
+    d = dom.lower()
+    if d.startswith("github.com/"):
+        return any(isinstance(x, dict) and d == "github.com/" + str(x.get("owner")).lower() for x in nc.get("github_owners") or [])
+    return any(isinstance(x, dict) and isinstance(x.get("domain"), str) and (d == x["domain"] or d.endswith("." + x["domain"])) for x in nc.get("domains") or [])
+
+
+def hand_fields(wdir, day):
+    """the hand-written fields of each domain: from the table of day when it exists, else from the newest earlier table with the domain"""
+    out = {}
+    try:
+        names = sorted((f for f in os.listdir(wdir) if DAY_RE.match(f[:-5]) and f.endswith(".json") and f[:10] <= day), reverse=True)
+    except FileNotFoundError:
+        return out
+    for f in names:
+        t = _load(os.path.join(wdir, f))
+        for dom, v in ((t.get("domains") if isinstance(t, dict) else None) or {}).items():
+            if isinstance(v, dict) and dom not in out:
+                out[dom] = {k: v.get(k) for k in HAND}
+    return out
+
+
+def write_witness(res, rs, out_dir, nc_path=None):
+    """tooshi/witness/<D>.json from check 9's table (tooshi_daily.py facts.table); None when the result has no table"""
+    x = next((c for c in res["checks"] if isinstance(c, dict) and c.get("id") == "9_witness_answer"), None)
+    f = (x or {}).get("facts") or {}
+    if not isinstance(f.get("table"), list) or not DAY_RE.match(str(f.get("day"))):
+        return None
+    try:
+        nc = _load(nc_path or NOT_COUNTED)
+    except ValueError:
+        nc = None
+    wdir = os.path.join(out_dir, "witness")
+    hand = hand_fields(wdir, f["day"])
+    doms = {}
+    for r in f["table"]:
+        d = r.get("domain") if isinstance(r, dict) else None
+        if not isinstance(d, str) or d in doms:
+            continue
+        h = hand.get(d) or {}
+        e = {"operator_named": h.get("operator_named") is True, "operator_name": h.get("operator_name") if isinstance(h.get("operator_name"), str) else None,
+             "checked_at": h.get("checked_at"), "basis_url": h.get("basis_url"), "insider_name": h.get("insider_name") is True,
+             "not_counted": not_counted(d, nc) if isinstance(nc, dict) else None}
+        e["counted"] = e["operator_named"] and not e["insider_name"] and e["not_counted"] is False
+        doms[d] = e
+    line = {}
+    for rid in sorted({r.get("runner_id") for r in f["table"] if isinstance(r, dict) and isinstance(r.get("runner_id"), str)}):
+        ok = [r for r in f["table"] if isinstance(r, dict) and r.get("runner_id") == rid and r.get("state") == "ok" and r.get("counted") and (doms.get(r.get("domain")) or {}).get("counted")]
+        line[rid] = {"matched_operators": len({doms[r["domain"]]["operator_name"] for r in ok}), "own": sum(1 for r in ok if r.get("origin") == "own")}
+    t = {"schema": "tooshi-witness-day-v0", "day": f["day"], "checked_at": res["checked_at"], "result_sha256": rs, "state": x.get("state"),
+         "records": f.get("records") or {}, "rows": f["table"], "domains": doms, "line": line, "rule": WITNESS_RULE, "note": WITNESS_NOTE,
+         "not_counted_read": isinstance(nc, dict)}
+    _write(os.path.join(wdir, f["day"] + ".json"), t)
+    return t
 
 
 def selftest():
@@ -289,6 +362,56 @@ def selftest():
     write(p7, "u", da)
     ya = _load(os.path.join(da, "days", "2026-11-06.json"))
     cases.append(("a later run without notes: its day has no notes, the earlier run keeps its own", ("notes" in ya, ya["earlier"][0]["notes"]["items"][0]["state"]), (False, "not_confirmed")))
+    # the witness table (2026-11-20): tooshi/witness/<D>.json from check 9's facts.table
+    def row(dom, rid="runner-1", state="ok", origin="operator-kit", counted=True):
+        return {"answer_sha256": sha(dom + rid), "runner_id": rid, "domain": dom, "schema": "witness-answer-v0.2", "outcome": "match", "steps": [], "origin": origin,
+                "implementation_sha256": sha("kit"), "kit": "modified", "ledger_head": None, "state": state, "counted": counted}
+    def wres(at, rows):
+        r = {"schema": "tooshi-daily-v0", "checked_at": at, "trigger": "schedule", "verdict": "green", "counts": {"ok": 1, "red": 0, "notice": 0, "not_yet": 0},
+             "checks": [{"id": "9_witness_answer", "state": "ok", "why": "w", "facts": {"day": at[:8] + "%02d" % (int(at[8:10]) - 2), "records": {"runner-1": sha("r1")}, "table": rows}}]}
+        p = os.path.join(tmp, "w_%s.json" % at.replace(":", ""))
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write(canon(r) + "\n")
+        return p
+    ncp = os.path.join(tmp, "nc.json")
+    with open(ncp, "w", encoding="utf-8") as fh:
+        json.dump({"domains": [{"domain": "horizonshield.dev"}, {"domain": "reform-sn.com"}], "github_owners": [{"owner": "ogasurfproject-jpg"}]}, fh)
+    ow = os.path.join(tmp, "wt")
+    R1 = [row("a.example"), row("b.example"), row("x.horizonshield.dev"), row("c.example", origin="own"), row("a.example", "runner-2"), row("d.example", state="red")]
+    res1, _ = read_result(wres("2026-11-22T04:05:00Z", R1))
+    t1 = write_witness(res1, "rs", ow, ncp)
+    cases.append(("witness table: written for the day check 9 read, every domain once, nobody counted before a person names an operator",
+                  (os.path.isfile(os.path.join(ow, "witness", "2026-11-20.json")), sorted(t1["domains"]), [d["counted"] for d in t1["domains"].values()], t1["line"]),
+                  (True, ["a.example", "b.example", "c.example", "d.example", "x.horizonshield.dev"], [False] * 5,
+                   {"runner-1": {"matched_operators": 0, "own": 0}, "runner-2": {"matched_operators": 0, "own": 0}})))
+    t1 = _load(os.path.join(ow, "witness", "2026-11-20.json"))
+    for dom, nm in (("a.example", "Alice Org"), ("b.example", "Alice Org"), ("c.example", "Carol"), ("x.horizonshield.dev", "Us"), ("d.example", "Dan")):
+        t1["domains"][dom].update(operator_named=True, operator_name=nm, checked_at="2026-11-20T09:00:00Z", basis_url="https://%s/about" % dom)
+    t1["domains"]["c.example"]["insider_name"] = False
+    _write(os.path.join(ow, "witness", "2026-11-20.json"), t1)
+    res2, _ = read_result(wres("2026-11-23T04:05:00Z", R1 + [row("e.example")]))
+    t2 = write_witness(res2, "rs2", ow, ncp)
+    cases.append(("witness table: the next day carries the hand fields; a subdomain of NOT_COUNTED is not counted; two domains of one operator count once; own is counted beside",
+                  ({k: v["counted"] for k, v in t2["domains"].items()}, t2["line"], t2["domains"]["a.example"]["basis_url"]),
+                  ({"a.example": True, "b.example": True, "c.example": True, "d.example": True, "e.example": False, "x.horizonshield.dev": False},
+                   {"runner-1": {"matched_operators": 2, "own": 1}, "runner-2": {"matched_operators": 1, "own": 0}}, "https://a.example/about")))
+    t2 = _load(os.path.join(ow, "witness", "2026-11-21.json"))
+    t2["domains"]["b.example"]["insider_name"] = True
+    _write(os.path.join(ow, "witness", "2026-11-21.json"), t2)
+    t3 = write_witness(read_result(wres("2026-11-23T11:50:00Z", R1))[0], "rs3", ow, ncp)
+    cases.append(("witness table: a second run of the same day keeps that day's hand fields (an insider name is not counted)",
+                  (t3["domains"]["b.example"]["counted"], t3["domains"]["a.example"]["counted"], t3["result_sha256"]), (False, True, "rs3")))
+    t4 = write_witness(read_result(wres("2026-11-24T04:05:00Z", [row("github.com/ogasurfproject-jpg"), row("github.com/someone")]))[0], "rs4", ow, os.path.join(tmp, "none.json"))
+    cases.append(("witness table: without NOT_COUNTED.json nothing is counted (not_counted null)", ([d["not_counted"] for d in t4["domains"].values()], t4["not_counted_read"]), ([None, None], False)))
+    cases.append(("witness table: our GitHub account is in NOT_COUNTED, another account is not", (not_counted("github.com/OgaSurfProject-jpg", {"github_owners": [{"owner": "ogasurfproject-jpg"}]}),
+                  not_counted("github.com/someone", {"github_owners": [{"owner": "ogasurfproject-jpg"}]}), not_counted("evilhorizonshield.dev", {"domains": [{"domain": "horizonshield.dev"}]})), (True, False, False)))
+    cases.append(("witness table: a result whose check 9 has no table writes none (an older tooshi_daily.py)", write_witness(r1, "x", ow, ncp), None))
+    rep = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+    if os.path.isfile(os.path.join(rep, "data", "yakumo-store-places.json")) and os.path.isfile(NOT_COUNTED):
+        st_ = (_load(os.path.join(rep, "data", "yakumo-store-places.json")) or {}).get("stores") or {}
+        sites = sorted(re.sub(r"^www\.", "", re.match(r"^https?://([^/:]+)", v["website"]).group(1).lower()) for v in st_.values() if isinstance(v, dict) and isinstance(v.get("website"), str) and re.match(r"^https?://[^/:]+", v["website"]))
+        cases.append(("NOT_COUNTED.json holds the own site of every store in data/yakumo-store-places.json (add a new store's site the same day)",
+                      [s_ for s_ in sites if not not_counted(s_, _load(NOT_COUNTED))], []))
     shutil.rmtree(tmp, ignore_errors=True)
     bad = [n for n, got, want in cases if got != want]
     for n, got, want in cases:

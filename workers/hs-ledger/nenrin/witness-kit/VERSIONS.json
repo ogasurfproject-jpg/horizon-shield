@@ -1,0 +1,6 @@
+{
+  "schema": "witness-kit-versions-v0",
+  "updated": "2026-11-20",
+  "rule": "An answer whose implementation.origin is operator-kit and whose implementation.sha256 is a furui_witness_py_sha256 below is shown as kit <version>; any other sha256 is shown as modified. origin own is shown as own.",
+  "versions": []
+}

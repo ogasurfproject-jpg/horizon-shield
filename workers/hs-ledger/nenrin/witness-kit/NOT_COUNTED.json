@@ -1,0 +1,18 @@
+{
+  "schema": "witness-not-counted-v0",
+  "updated": "2026-11-20",
+  "rule": "A witness domain is not counted toward the line when it is one of these domains or a subdomain of one, or a GitHub account listed here. A witness whose operator_name is the name of an officer, an employee or a member store of the operator or of Yakumo is not counted either, whatever its domain; that is checked by hand in the day's witness table.",
+  "domains": [
+    {"domain": "horizonshield.dev", "why": "operator"},
+    {"domain": "the-horizons-innovation.com", "why": "operator"},
+    {"domain": "ogasurfproject-jpg.github.io", "why": "operator"},
+    {"domain": "oga-surf-project.workers.dev", "why": "operator"},
+    {"domain": "yakumo-corp.jp", "why": "operator"},
+    {"domain": "reform-sn.com", "why": "member store No.001 (data/yakumo-store-places.json)"},
+    {"domain": "mineotfc.com", "why": "member store No.002 (data/yakumo-store-places.json)"}
+  ],
+  "github_owners": [
+    {"owner": "ogasurfproject-jpg", "why": "operator"}
+  ],
+  "note": "Domains are self-declared; we have not verified who operates them."
+}

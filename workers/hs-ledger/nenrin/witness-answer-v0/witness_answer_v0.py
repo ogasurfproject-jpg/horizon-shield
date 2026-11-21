@@ -30,6 +30,9 @@ The answer (every key required, no other key allowed):
     limits        one line each, in the witness's own words: what this answer does not establish
     witness       {name, key_id, key_url}
     signature     {alg: "ed25519", key_id, sig}
+witness-answer-v0.2 (2026-11-20, furui-day only) adds runner_id, outcome, failures, implementation and ledger_head, so a
+witness can also sign "did not match"; its preimage starts with "witness-answer-v0.2\n" (check_shape_v02, build_furui_v02).
+verify, preimage and intake-body read the schema from the answer.
 key_id = "ed25519:" + the first 16 hex of sha256(raw 32-byte public key). The key_url serves {"public_key_ed25519_b64": ...}
 or one OpenSSH line "ssh-ed25519 <base64> [comment]", read to the same 32 bytes as the ledger's witness intake reads it.
 preimage = UTF-8 bytes of "witness-answer-v0\n" + canonical JSON of the answer without "signature".
@@ -446,6 +449,110 @@ def _check_sig_shape(s, kid):
         raise Bad("signature.sig must be 88 characters of base64 (64 bytes)")
 
 
+# ---- witness-answer-v0.2 (2026-11-20): a furui-day answer that can also say "did not match" ----
+# The v0 keys plus runner_id, outcome, failures, implementation and ledger_head. The preimage starts with
+# "witness-answer-v0.2\n", so a v0.2 signature never verifies as a v0 one. v0 above is unchanged.
+#   runner_id       "runner-1" | "runner-2": the runner whose day record the answer is about
+#   outcome         "match" (every listed step held on every listed leaf) | "mismatch" (a recomputed value differed or a
+#                   signature failed) | "incomplete" (a leaf or the record could not be read)
+#   failures        [{leaf, step, detail}]: leaf is an index or null (the day record itself); step is a step name of
+#                   FAILURE_STEPS; detail is one line of at most 200 characters. A match carries only ledger_head failures.
+#   day_sha256, root, n   on a mismatch or incomplete, the values the witness obtained; null where it obtained none
+#   implementation  {origin: "operator-kit" | "own", name, version, sha256}: who wrote the tool that made the answer
+#   ledger_head     {n, head, observed_at} read once from the ledger's GET /ledger/head in the run, or null when the
+#                   value did not have its shape (a ledger_head failure then says so); the day's outcome does not change
+SCHEMA_V02 = "witness-answer-v0.2"
+ANSWER_KEYS_V02 = sorted(ANSWER_KEYS + ["runner_id", "outcome", "failures", "implementation", "ledger_head"])
+RUNNERS = ("runner-1", "runner-2")
+OUTCOMES = ("match", "mismatch", "incomplete")
+FAILURE_STEPS = FURUI_STEPS + ["day_record", "ledger_head"]
+ORIGINS = ("operator-kit", "own")
+IMPL_NAME = re.compile(r"[a-z0-9-]{1,40}")
+IMPL_VERSION = re.compile(r"[0-9.]{1,20}")
+DETAIL_MAX, FAILURES_MAX, HEAD_N_MAX = 200, 64, 10 ** 9
+
+
+def _is_int(x, lo, hi=SAFE):
+    return isinstance(x, int) and not isinstance(x, bool) and lo <= x <= hi
+
+
+def check_shape_v02(a):
+    """raises Bad with the first problem; a witness-answer-v0.2 must be exactly its closed shape"""
+    if not isinstance(a, dict) or sorted(a) != ANSWER_KEYS_V02:
+        raise Bad("the answer must carry exactly the keys " + ", ".join(ANSWER_KEYS_V02))
+    if a["schema"] != SCHEMA_V02 or a["kind"] != "furui-day":
+        raise Bad("schema must be %s and kind furui-day" % SCHEMA_V02)
+    if not _real_day(a["day"]):
+        raise Bad("day must be a real YYYY-MM-DD")
+    if a["runner_id"] not in RUNNERS:
+        raise Bad("runner_id must be one of " + ", ".join(RUNNERS))
+    if a["outcome"] not in OUTCOMES:
+        raise Bad("outcome must be one of " + ", ".join(OUTCOMES))
+    match = a["outcome"] == "match"
+    for k in ("day_sha256", "root"):
+        if not (a[k] is None or (isinstance(a[k], str) and H64.fullmatch(a[k]))):
+            raise Bad(k + " must be 64 lower-case hex or null")
+    n = a["n"]
+    if not (n is None or _is_int(n, 1)):
+        raise Bad("n must be an integer >= 1 or null")
+    if match and None in (a["day_sha256"], a["root"], n):
+        raise Bad("a match names day_sha256, root and n")
+    li, rc = a["leaf_index"], a["recomputed"]
+    if not isinstance(li, list) or not all(_is_int(i, 0) for i in li) or li != sorted(set(li)) or (li and (n is None or li[-1] >= n)):
+        raise Bad("leaf_index must be a strictly increasing list of leaves < n")
+    if not isinstance(rc, list) or any(x not in FURUI_STEPS for x in rc) or rc != [x for x in FURUI_STEPS if x in rc]:
+        raise Bad("recomputed takes step names of nenrin-verify furui-day, in its order: " + ", ".join(FURUI_STEPS))
+    if match and (not li or not rc):
+        raise Bad("a match lists the leaves and the steps it recomputed")
+    f = a["failures"]
+    if not isinstance(f, list) or len(f) > FAILURES_MAX:
+        raise Bad("failures must be a list of at most %d" % FAILURES_MAX)
+    for x in f:
+        if not isinstance(x, dict) or sorted(x) != ["detail", "leaf", "step"]:
+            raise Bad("each failure is exactly {leaf, step, detail}")
+        if not (x["leaf"] is None or _is_int(x["leaf"], 0)) or x["step"] not in FAILURE_STEPS:
+            raise Bad("a failure names a leaf index or null and a step of " + ", ".join(FAILURE_STEPS))
+        _line(x["detail"], "failure detail", DETAIL_MAX)
+    if match == any(x["step"] != "ledger_head" for x in f):
+        raise Bad("a match carries no failure but ledger_head ones; a mismatch or incomplete names at least one other")
+    im = a["implementation"]
+    if not isinstance(im, dict) or sorted(im) != ["name", "origin", "sha256", "version"] or im["origin"] not in ORIGINS \
+            or not (isinstance(im["name"], str) and IMPL_NAME.fullmatch(im["name"])) \
+            or not (isinstance(im["version"], str) and IMPL_VERSION.fullmatch(im["version"])) \
+            or not (isinstance(im["sha256"], str) and H64.fullmatch(im["sha256"])):
+        raise Bad("implementation must be exactly {origin: operator-kit|own, name [a-z0-9-]{1,40}, version [0-9.]{1,20}, sha256 64 hex}")
+    lh = a["ledger_head"]
+    if lh is not None and not (isinstance(lh, dict) and sorted(lh) == ["head", "n", "observed_at"] and _is_int(lh["n"], 1, HEAD_N_MAX)
+                               and isinstance(lh["head"], str) and H64.fullmatch(lh["head"])
+                               and isinstance(lh["observed_at"], str) and ISO.fullmatch(lh["observed_at"]) and _real_day(lh["observed_at"][:10])):
+        raise Bad("ledger_head must be null or exactly {n 1..10^9, head 64 hex, observed_at YYYY-MM-DDTHH:MM:SSZ}")
+    _line(a["tool"], "tool", 200)
+    if not isinstance(a["observed_at"], str) or not ISO.fullmatch(a["observed_at"]) or not _real_day(a["observed_at"][:10]):
+        raise Bad("observed_at must be YYYY-MM-DDTHH:MM:SSZ")
+    if a["observed_at"][:10] < a["day"]:
+        raise Bad("observed_at cannot be before the day")
+    lim = a["limits"]
+    if not isinstance(lim, list) or not lim or len(lim) > LIMITS_MAX:
+        raise Bad("limits must be a list of 1 to %d lines" % LIMITS_MAX)
+    for x in lim:
+        _line(x, "each limit")
+    _check_witness(a["witness"])
+    _check_sig_shape(a["signature"], a["witness"]["key_id"])
+
+
+def build_furui_v02(day, runner_id, outcome, record, leaf_index, recomputed, failures, implementation, ledger_head,
+                    name, key_url, limits, observed_at, tool):
+    """a witness-answer-v0.2 before finish(obj, pub, seed, SCHEMA_V02); record is {day_sha256, root, n} with null where unread"""
+    return {"schema": SCHEMA_V02, "kind": "furui-day", "day": day, "runner_id": runner_id, "outcome": outcome,
+            "day_sha256": record.get("day_sha256"), "root": record.get("root"), "n": record.get("n"),
+            "leaf_index": list(leaf_index), "recomputed": list(recomputed), "failures": [dict(x) for x in failures],
+            "implementation": dict(implementation), "ledger_head": dict(ledger_head) if ledger_head else None,
+            "tool": tool, "observed_at": observed_at, "limits": list(limits), "witness": {"name": name, "key_id": "", "key_url": key_url}}
+
+
+SHAPES = {SCHEMA: check_shape, SCHEMA_V02: check_shape_v02}
+
+
 def preimage(obj, schema=SCHEMA):
     body = {k: v for k, v in obj.items() if k != "signature"}
     return (schema + "\n" + canonical(body)).encode("utf-8")
@@ -480,7 +587,7 @@ def verify(a, key_doc, schema=SCHEMA):
         except (Bad, ValueError, KeyError, TypeError) as e:
             out.append((name, False, str(e)))
             return False
-    if not step("shape", lambda: (check_shape if schema == SCHEMA else check_enroll_shape)(a)):
+    if not step("shape", lambda: SHAPES.get(schema, check_enroll_shape)(a)):
         return out
     holder = {}
 
@@ -569,6 +676,8 @@ def intake_record(a, vantage):
     """a jidec-path-v1 commitment record that carries the signed answer; the record itself is signed separately over its
     exact bytes, which is what POST /witness verifies today (worker.js witnessVerifySig)."""
     _line(vantage, "vantage")
+    if a.get("schema") == SCHEMA_V02 and a["day_sha256"] is None:
+        raise Bad("a v0.2 answer without day_sha256 has nothing to commit to; keep it in your own copy")
     if a["kind"] == "tooshi-day":
         purpose, base = "tooshi-day-v0: " + a["day"], TOOSHI_DAY_URL % a["day"]
     else:
@@ -718,7 +827,7 @@ def main(argv):
         else:
             with open(opt["--key-doc"], "rb") as f:
                 doc = f.read()
-        res = verify(a, doc, a.get("schema") if a.get("schema") in (SCHEMA, ENROLL_SCHEMA) else SCHEMA)
+        res = verify(a, doc, a.get("schema") if a.get("schema") in (SCHEMA, SCHEMA_V02, ENROLL_SCHEMA) else SCHEMA)
         for name, ok, why in res:
             print("%-4s %s%s" % ("ok" if ok else "FAIL", name, "" if ok else ": " + why))
         good = len(res) == 4 and all(ok for _, ok, _ in res)
@@ -737,7 +846,7 @@ def main(argv):
         return 0 if same else 1
     if cmd == "intake-body":
         a = _load(pos[0])
-        check_shape(a)
+        SHAPES.get(a.get("schema"), check_shape)(a)
         rc = intake_record(a, opt["--vantage"])
         if "--key" in opt:
             seed, pub = _keys(opt)

@@ -383,6 +383,77 @@ class SshKeyLine(unittest.TestCase):
                                        ssh_line(PUB1).encode())["public_key_ed25519_b64"], DOC1["public_key_ed25519_b64"])
 
 
+IMPL = {"origin": "operator-kit", "name": "furui-witness", "version": "0.1.0", "sha256": H("furui_witness.py")}
+HEAD = {"n": 354, "head": H("head"), "observed_at": "2026-11-04T01:50:00Z"}
+
+
+def v02(outcome="match", record=None, failures=(), runner="runner-1", leaves=(0, 1), steps=("envelope_shape", "leaf_sha256", "audit_path"), head=HEAD, impl=IMPL, seed=SEED1, pub=PUB1):
+    rec = record or {"day_sha256": H("rec"), "root": H("root"), "n": 2}
+    a = W.build_furui_v02("2026-11-03", runner, outcome, rec, leaves, steps, failures, impl, head, "w", KEY_URL, LIMITS, "2026-11-04T01:50:00Z", "furui_witness.py 0.1.0")
+    return W.finish(a, pub, seed, W.SCHEMA_V02)
+
+
+class AnswerV02(unittest.TestCase):
+    def test_match_mismatch_incomplete_verify(self):
+        self.assertEqual(verdict(v02(), schema=W.SCHEMA_V02), "ok")
+        self.assertEqual(verdict(v02("mismatch", failures=[{"leaf": 1, "step": "audit_path", "detail": "root recomputed from the audit path differs from the record"}]), schema=W.SCHEMA_V02), "ok")
+        self.assertEqual(verdict(v02("incomplete", {"day_sha256": H("rec"), "root": None, "n": None}, [{"leaf": None, "step": "day_record", "detail": "leaf count above the limit of this tool"}],
+                                     leaves=(), steps=()), schema=W.SCHEMA_V02), "ok")
+        self.assertEqual(verdict(v02(head=None, failures=[{"leaf": None, "step": "ledger_head", "detail": "ledger head did not have its shape"}]), schema=W.SCHEMA_V02), "ok")
+
+    def test_preimage_line_keeps_v0_and_v02_apart(self):
+        a = v02()
+        self.assertTrue(W.preimage(a, W.SCHEMA_V02).startswith(b"witness-answer-v0.2\n"))
+        self.assertEqual(verdict(a, schema=W.SCHEMA), "shape")
+        b = copy.deepcopy(a)
+        b["signature"]["sig"] = base64.b64encode(W.ed25519_sign(SEED1, W.preimage(b, W.SCHEMA))).decode()
+        self.assertEqual(verdict(b, schema=W.SCHEMA_V02), "signature")
+
+    def test_shape_refusals(self):
+        bad = [lambda a: a.update(runner_id="runner-3"), lambda a: a.update(outcome="ok"), lambda a: a.update(day_sha256=None),
+               lambda a: a.update(failures=[{"leaf": 0, "step": "signature", "detail": "x"}]),
+               lambda a: a.update(failures=[{"leaf": 0, "step": "made_up", "detail": "x"}]),
+               lambda a: a.update(failures=[{"leaf": 0, "step": "ledger_head", "detail": "a\nb"}]),
+               lambda a: a.update(failures=[{"leaf": 0, "step": "ledger_head", "detail": "x" * 201}]),
+               lambda a: a.update(ledger_head={"n": 0, "head": H("h"), "observed_at": "2026-11-04T01:50:00Z"}),
+               lambda a: a.update(ledger_head={"n": 10 ** 9 + 1, "head": H("h"), "observed_at": "2026-11-04T01:50:00Z"}),
+               lambda a: a.update(ledger_head={"n": 1, "head": "<script>", "observed_at": "2026-11-04T01:50:00Z"}),
+               lambda a: a.update(implementation=dict(IMPL, origin="third")), lambda a: a.update(implementation=dict(IMPL, name="Furui Witness")),
+               lambda a: a.update(n=1e309 if False else 2 ** 60), lambda a: a.update(root="<script>"), lambda a: a.update(leaf_index=[0, 2]),
+               lambda a: a.update(kind="tooshi-day"), lambda a: a.update(extra=1)]
+        for i, f in enumerate(bad):
+            a = v02()
+            f(a)
+            with self.assertRaises(W.Bad, msg=str(i)):
+                W.check_shape_v02(a)
+        m = v02("mismatch", failures=[{"leaf": 0, "step": "signature", "detail": "x"}])
+        m["failures"] = []
+        with self.assertRaises(W.Bad):
+            W.check_shape_v02(m)
+
+    def test_intake_record_and_cli_verify(self):
+        a = v02()
+        rec = json.loads(W.intake_record(a, "a laptop"))
+        self.assertEqual((rec["commitment"], rec["purpose"], rec["answer"]["schema"]), (a["day_sha256"], "furui-day-v0: 2026-11-03", W.SCHEMA_V02))
+        with self.assertRaises(W.Bad):
+            W.intake_record(v02("incomplete", {"day_sha256": None, "root": None, "n": None}, [{"leaf": None, "step": "day_record", "detail": "x"}], leaves=(), steps=()), "a laptop")
+        with tempfile.TemporaryDirectory() as td:
+            ap, dp = os.path.join(td, "a.json"), os.path.join(td, "k.json")
+            with open(ap, "w") as f:
+                json.dump(a, f)
+            with open(dp, "w") as f:
+                json.dump(DOC1, f)
+            self.assertEqual(W.main(["verify", ap, "--key-doc", dp]), 0)
+            a["outcome"] = "mismatch"
+            with open(ap, "w") as f:
+                json.dump(a, f)
+            self.assertEqual(W.main(["verify", ap, "--key-doc", dp]), 1)
+
+    def test_fetch_sends_its_own_user_agent(self):
+        src = open(os.path.join(HERE, "witness_answer_v0.py"), encoding="utf-8").read()
+        self.assertIn('"user-agent": "witness-answer-v0/0.2"', src)
+
+
 def make_vectors():
     cases = []
 
