@@ -1,0 +1,13 @@
+{
+  "n": 362,
+  "work": "NENRIN witness batch (3 records)",
+  "claim_sha256": "346490d3f4e95ea509b7d78ac98f3fd2ee8e560fb201c0683b3d4996add28afb",
+  "record_canonical": "{\"schema\":\"nenrin-witness-batch-v1\",\"anchored_at\":\"2026-11-22T00:30:32.710Z\",\"count\":3,\"ledger_head\":{\"chain\":\"jidec-chain-v1\",\"n\":361,\"entry_sha256\":\"55ad6ee7716bafe737a51680c1e9b74b5be9bccc9b4cd34d05631c00479cf54c\"},\"records\":[{\"sha\":\"48628e4f0e670298d2d6d81577164ef30de95b25413c5ec567914414550540e6\",\"purpose\":\"a2a-conduct-walk-v1: https://gate.horizonshield.dev/mcp\",\"witness_name\":\"kuangmi-bit\",\"vantage\":\"github-actions hosted runner (Linux) for kuangmi-bit/conduct-witness\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"sha\":\"9d51f001f39e0c38974c9e7035e229b78de5ba28dba315a0e8f37881ddaf3630\",\"purpose\":\"a2a-conduct-walk-v1: https://mcp.horizonshield.dev/mcp\",\"witness_name\":\"kuangmi-bit\",\"vantage\":\"github-actions hosted runner (Linux) for kuangmi-bit/conduct-witness\",\"signed\":true,\"signed_domain\":\"kuangmi-bit.github.io\"},{\"sha\":\"ca30347912de94483e581835e07ecabf339987781b723d404f57c26fdd18dc15\",\"purpose\":\"furui-day-v0: 2026-11-20\",\"witness_name\":\"agent-passport.org\",\"vantage\":\"macOS 27.2.1 arm64, own machine\",\"signed\":true,\"signed_domain\":\"agent-passport.org\",\"mode\":\"commitment\"}]}",
+  "schema": "v0-plain",
+  "created_at": "2026-11-22T00:30:32.784Z",
+  "ots_status": "confirmed",
+  "bitcoin_block": 976974,
+  "block_time": "2026-11-22 02:09 UTC",
+  "stamped_at": "2026-11-22T03:18:39.738Z",
+  "anchored_by": "schedule"
+}
