@@ -1,0 +1,48 @@
+{
+ "checked_at": "2026-11-22T04:06:38Z",
+ "day": "2026-11-20",
+ "domains": {
+  "agent-passport.org": {
+   "basis_url": null,
+   "checked_at": null,
+   "counted": false,
+   "insider_name": false,
+   "not_counted": false,
+   "operator_name": null,
+   "operator_named": false
+  }
+ },
+ "line": {
+  "runner-1": {
+   "matched_operators": 0,
+   "own": 0
+  }
+ },
+ "not_counted_read": true,
+ "note": "Domains are self-declared; we have not verified who operates them.",
+ "records": {
+  "runner-1": "8901b6055d847528634c0684409ecf326006ac85a38ff96caa0784cde1ac149f",
+  "runner-2": "7ad586d9708bbfa6d7537601c21c73f911775e517bb999fb1e14957456aab7ad"
+ },
+ "result_sha256": "911d54243242c79ba18c639fe907319e7ec0615db3d151d3de13a9264f3a7b03",
+ "rows": [
+  {
+   "answer_sha256": "ca30347912de94483e581835e07ecabf339987781b723d404f57c26fdd18dc15",
+   "counted": true,
+   "domain": "agent-passport.org",
+   "implementation_sha256": null,
+   "kit": null,
+   "ledger_head": null,
+   "origin": null,
+   "outcome": null,
+   "revocation": null,
+   "runner_id": "runner-1",
+   "schema": "witness-answer-v0",
+   "state": "ok",
+   "steps": []
+  }
+ ],
+ "rule": "A domain is counted when a person found a named operator on its pages (operator_named, with basis_url and checked_at), its operator_name is not an insider of the operator or Yakumo (insider_name), and it is not in NOT_COUNTED.json. matched_operators counts the distinct operator_name of counted domains with an ok row, per runner; own counts those rows of origin own.",
+ "schema": "tooshi-witness-day-v0",
+ "state": "ok"
+}
