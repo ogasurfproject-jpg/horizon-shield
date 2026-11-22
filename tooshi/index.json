@@ -15,10 +15,10 @@
     "red_zero_streak": 8
    },
    "path": "days/2026-11-22.json",
-   "result_sha256": "911d54243242c79ba18c639fe907319e7ec0615db3d151d3de13a9264f3a7b03",
-   "run_url": "https://github.com/ogasurfproject-jpg/horizon-shield/actions/runs/44983488420",
-   "runs": 1,
-   "trigger": "schedule",
+   "result_sha256": "8ebaafbb88d27ea3897ff14c31957c25f597648666def7187779902b22b44c1f",
+   "run_url": "https://github.com/ogasurfproject-jpg/horizon-shield/actions/runs/44985720735",
+   "runs": 2,
+   "trigger": "second",
    "verdict": "not_all_checked"
   },
   {
