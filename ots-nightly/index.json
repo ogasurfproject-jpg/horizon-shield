@@ -13,6 +13,24 @@
     "too_recent": 0,
     "unstamped": 0
    },
+   "night": "2026-11-23",
+   "path": "nights/2026-11-23.json",
+   "result_sha256": "78ca1c145dac32dca12e85551165c23206cffbb6eceb2ecf934b8813da297d7e",
+   "verdict": "green"
+  },
+  {
+   "answers_sha256": "de7443781704507c91ec36c71641b5f2f0a10cda9c3a781a5e6333f8898df44c",
+   "counts": {
+    "confirmed": 367,
+    "entries": 367,
+    "not_checked": 0,
+    "ok": 367,
+    "other": 0,
+    "pending": 0,
+    "red": 0,
+    "too_recent": 0,
+    "unstamped": 0
+   },
    "night": "2026-11-22",
    "path": "nights/2026-11-22.json",
    "result_sha256": "4b3567a0c964953a3f71d1405767fec9af883b5ef305050f0b6c769fd075b290",
