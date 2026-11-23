@@ -1,6 +1,6 @@
 {
   "schema": "hs-adoption-count-v1",
-  "measured_at": "2026-11-16T06:30:25Z",
+  "measured_at": "2026-11-23T07:39:15Z",
   "metrics": {
     "independent_implementations": {
       "count": 19,
@@ -267,16 +267,18 @@
     "independent_witnesses": {
       "count": 7,
       "ledger": {
-        "ledger_n": 333,
-        "ledger_head": "127bfcf292be2251ca7d8ed152ae76e688fd93b12660598d53d5dcd0d1ef450a",
-        "witness_batches": 55,
+        "ledger_n": 372,
+        "ledger_head": "b39eaf193697af2a66ddead41a45b16553ccf8c61753f4eff389f25263f6e837",
+        "witness_batches": 62,
         "unreadable_entries": [],
         "refused_shared_host": [],
         "signed_domains": {
           "agent-passport.org": [
             283,
             298,
-            322
+            322,
+            344,
+            362
           ],
           "api.babyblueviper.com": [
             57,
@@ -329,7 +331,14 @@
             309,
             315,
             322,
-            328
+            328,
+            334,
+            339,
+            344,
+            349,
+            355,
+            362,
+            368
           ],
           "ovaic.org": [
             273
@@ -747,7 +756,7 @@
           "repo": "kuangmi-bit/conduct-witness",
           "created_from_template": true,
           "reproduce_success_last_30_days": true,
-          "last_success": "2026-11-09T14:21:10Z"
+          "last_success": "2026-11-16T13:59:53Z"
         }
       ],
       "method": "GitHub search for repositories named like conduct-witness, kept when template_repository is ogasurfproject-jpg/conduct-witness-template and reproduce.yml has a successful run in the last 30 days"
