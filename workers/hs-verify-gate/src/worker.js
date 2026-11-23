@@ -3621,6 +3621,16 @@ async function writeRemovedStone(env, stone, prev) {
   try { await env.HS_VERIFY_KV.put(await removedStoneKey(stone.endpoint), JSON.stringify(rec), { metadata: md }); return true; }
   catch (_e) { return false; }
 }
+// 2026-11-23. The ISO time of a new stone, kept after every earlier stone of the same endpoint (prev and prev.earlier).
+function laterThanEarlierStones(now, prev) {
+  let t = now.getTime();
+  const all = prev ? [prev].concat(Array.isArray(prev.earlier) ? prev.earlier : []) : [];
+  for (const s of all) {
+    const p = Date.parse(s && s.removed_at);
+    if (Number.isFinite(p) && p >= t) t = p + 1;
+  }
+  return new Date(t).toISOString();
+}
 const REMOVED_READ_FAILED_NOTE = "The public list of removals could not be read (storage error). This is NOT a statement that no row was ever removed.";
 
 
@@ -7252,7 +7262,11 @@ export default {
       if (!prevStone) return json({ error: "removed_list_read_failed", note: "The public record of this endpoint's earlier removal could not be read, so nothing was removed. Try again." }, 503);
       const row = got.row;
       if (!row) return json({ error: "not_a_removable_row", note: "either not on the register, or a self row fixed in the gate's source" }, 404);
-      const stone = { endpoint: ep, removed_at: new Date().toISOString(), reason: reason.trim(), requested_by: row.requested_by || "unrecorded", added_at: row.added_at || null, owner_file_at_request: row.owner_file_at_request || null, history_kept: true };
+      // 2026-11-23. A stone is told apart from the earlier stones of its endpoint by endpoint and removed_at (stoneId). A
+      // second removal in the same millisecond as the previous one got the same removed_at, and the list dropped it as a
+      // duplicate (test 7 of mould_removed_perkey failed once on 2026-11-22). removed_at is now kept later than every
+      // earlier stone of the endpoint, by one millisecond when the clock has not moved.
+      const stone = { endpoint: ep, removed_at: laterThanEarlierStones(new Date(), prevStone.stone), reason: reason.trim(), requested_by: row.requested_by || "unrecorded", added_at: row.added_at || null, owner_file_at_request: row.owner_file_at_request || null, history_kept: true };
       // The stone first: a row removed without its public stone would be the silent edit the reason requirement exists to prevent.
       const stoneOk = await writeRemovedStone(env, stone, prevStone.stone);
       if (!stoneOk) return json({ error: "removed_stone_write_failed", note: "The public removal record could not be written, so the row was not removed. Try again." }, 503);
