@@ -29,16 +29,24 @@ concurrency:
 jobs:
   generate:
     runs-on: ubuntu-24.04
+    # 2026-11-23: actions: write は、push の後に static.yml を workflow_dispatch で起こすため。
+    #   job に permissions を書くと上の permissions はこの job では使われないので、contents: write もここに書く。
+    permissions:
+      contents: write
+      actions: write
     outputs:
       published: ${{ steps.commit.outputs.published }}
+      sha: ${{ steps.commit.outputs.sha }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
-          # 重要: GITHUB_TOKENのpushは他のワークフローを起動しない(GitHub仕様)。
-          # PAT(YAKUMO_PUSH_TOKEN)でpushすることで、公開コミットが Pages デプロイ(static.yml)を自動起動する。
-          # secret未設定時は従来動作(その場合は手動でPagesを回す)。
-          token: ${{ secrets.YAKUMO_PUSH_TOKEN || github.token }}
+          # 2026-11-23: 前は PAT(YAKUMO_PUSH_TOKEN)で push し、その push で static.yml を起こしていた。
+          #   その fine-grained token が 2026-11-23 13:12 JST に切れ、期限の在る鍵に公開が掛かっていた事が分かった。
+          #   今は github.token で push する。GITHUB_TOKEN の push は on: push の workflow を起こさない(GitHub の仕様)。
+          #   その代わり、下の「Pages の deploy を起こす」段が workflow_dispatch で static.yml を起こす
+          #   (workflow_dispatch は GITHUB_TOKEN からでも run を作る例外。tooshi-daily.yml と同じ形)。
+          token: ${{ github.token }}
 
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
@@ -213,7 +221,74 @@ jobs:
             sleep $((2**i))
           done
           [ "$ok" = 1 ] || { echo "::error::push failed 4 times"; exit 1; }
+          # 2026-11-23: push した commit(pull --rebase の後の HEAD)の sha を出す。checks の job が検査に渡し、
+          #   検査は main の先頭でなくこの commit だけを見る(push の時と同じ範囲)。
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           echo "published=true" >> "$GITHUB_OUTPUT"
+
+      # 2026-11-23: github.token の push では static.yml(Pages の deploy)が起きない。
+      #   ここで workflow_dispatch で起こす。ref は main(上で push した commit を含む main の先頭)。
+      #   static.yml を起こせなかった時は job を失敗にする。published は出ているが job が失敗なので
+      #   indexnow と checks の job(needs: generate)は走らない。頁が出ていないのに IndexNow を送らない(fail-closed)。
+      #   commit は main に残るので、直す時は gh workflow run static.yml --ref main を 1 回打てばよい。
+      - name: Pages の deploy を起こす (github.token の push は static.yml を起こさない)
+        if: steps.commit.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ok=0
+          for i in 1 2 3; do
+            if gh workflow run static.yml --ref main -R "$GITHUB_REPOSITORY"; then ok=1; break; fi
+            echo "static.yml dispatch retry $i"
+            sleep $((5*i))
+          done
+          if [ "$ok" != 1 ]; then
+            echo "::error::static.yml を起こせなかった。commit は main に在る。gh workflow run static.yml --ref main で回す"
+            exit 1
+          fi
+          echo "static.yml を workflow_dispatch で起こした(ref main)" >> "$GITHUB_STEP_SUMMARY"
+
+  # 2026-11-23: PAT の push が on: push で起こしていた検査を、workflow_dispatch で起こし直す(検査を減らさない)。
+  #   PAT の push の時に走っていたのは static、pagecheck、gitleaks、public boundary、nursing-questions の 5 本
+  #   (yakumo-bot の commit 9cb42756、4efee84c の run で確かめた)。static は上の generate で起こす。
+  #   nursing-questions は yakumo の commit が tools/ の下の last_route.json と last_manifest.json を変えるので paths に当たっていた。
+  #   中身は業種の設問と生成の振り分けの回帰試験で、yakumo の頁そのものは見ないが、今までどおり走らせる。
+  #   1 本でも起こせなければこの job を赤にする。indexnow の job とは別なので、IndexNow は止めない。
+  #   pagecheck、gitleaks、public boundary には push した commit の sha を inputs.commit で渡す。
+  #   どれも main の先頭でなくその commit を見る(push の時と同じ範囲。gitleaks は全履歴を見ない)。
+  checks:
+    needs: generate
+    if: needs.generate.outputs.published == 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+    steps:
+      - name: push で走っていた検査を起こす (pagecheck、gitleaks、public boundary は push した commit を渡す。nursing-questions)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ needs.generate.outputs.sha }}
+        run: |
+          case "$SHA" in *[!0-9a-f]*|"") echo "::error::generate の出した sha が 16 進でない(${SHA})"; exit 1;; esac
+          [ "${#SHA}" = 40 ] || { echo "::error::generate の出した sha が 40 桁でない(${SHA})"; exit 1; }
+          ng=""
+          for wf in pagecheck.yml gitleaks.yml public-boundary.yml nursing-questions.yml; do
+            if [ "$wf" = nursing-questions.yml ]; then f=(); else f=(-f "commit=${SHA}"); fi
+            ok=0
+            for i in 1 2 3; do
+              if gh workflow run "$wf" --ref main -R "$GITHUB_REPOSITORY" "${f[@]}"; then ok=1; break; fi
+              echo "$wf dispatch retry $i"
+              sleep $((5*i))
+            done
+            if [ "$ok" = 1 ]; then
+              echo "${wf} を workflow_dispatch で起こした(ref main ${f[*]})" >> "$GITHUB_STEP_SUMMARY"
+            else
+              ng="$ng $wf"
+            fi
+          done
+          if [ -n "$ng" ]; then
+            echo "::error::起こせなかった検査:${ng}。gh workflow run <名> --ref main -f commit=${SHA} で起こす"
+            exit 1
+          fi
 
   indexnow:
     needs: generate

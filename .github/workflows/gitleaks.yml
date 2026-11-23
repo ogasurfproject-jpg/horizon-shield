@@ -3,8 +3,21 @@ on:
   push:
     branches: [main]
   pull_request:
+  # 2026-11-23: yakumo-content.yml は github.token で push するので、その push では on: push が起きない。
+  #   yakumo-content.yml の checks の job が、push した commit の sha を inputs.commit に入れてここを起こす。
+  #   gitleaks-action(v3.0.0 e0c47f4f)は workflow_dispatch の時に範囲を付けず全履歴を見る
+  #   (src/gitleaks.js 102-116 行で範囲を付けるのは push と pull_request だけ、src/index.js 176-181 行、
+  #   BASE_REF も push と pull_request の時だけ読む)。全履歴では .gitleaksignore の後も古い当たりが残るので、
+  #   dispatch の時は action を使わず、scan-commit の job が gitleaks を直に呼んでその commit だけを見る。
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "見る commit の sha(40 桁)。この commit だけを見る(push の時の gitleaks-action と同じ --log-opts=-1)"
+        required: true
+        type: string
 jobs:
   scan:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -17,3 +30,38 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
           GITLEAKS_ENABLE_SUMMARY: "true"
+
+  # 2026-11-23: workflow_dispatch の時だけ。inputs.commit の 1 つだけを見る。
+  #   gitleaks は gitleaks-action の既定と同じ 8.24.3(src/index.js 138 行)。release の tar.gz の sha256 を照らしてから使う
+  #   (9991e0b2 は release の gitleaks_8.24.3_checksums.txt の値で、2026-11-23 に落とした物の sha256 とも一致した)。
+  #   規則は push の時と同じく、repo の .gitleaks.toml と .gitleaksignore を gitleaks が root から読む。
+  scan-commit:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: commit の形(40 桁の 16 進)
+        env:
+          C: ${{ inputs.commit }}
+        run: |
+          case "$C" in *[!0-9a-f]*|"") echo "::error::inputs.commit が 16 進でない"; exit 1;; esac
+          [ "${#C}" = 40 ] || { echo "::error::inputs.commit が 40 桁でない"; exit 1; }
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.commit }}
+          fetch-depth: 2
+      - name: gitleaks 8.24.3 を入れる(sha256 を照らす)
+        run: |
+          set -euo pipefail
+          curl -sSfL --max-time 120 -o "$RUNNER_TEMP/gl.tgz" https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz
+          echo "9991e0b2903da4c8f6122b5c3186448b927a5da4deef1fe45271c3793f4ee29c  $RUNNER_TEMP/gl.tgz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/gl"
+          tar -xzf "$RUNNER_TEMP/gl.tgz" -C "$RUNNER_TEMP/gl" gitleaks
+      - name: その commit だけを見る(--log-opts=-1)
+        env:
+          C: ${{ inputs.commit }}
+        run: |
+          set -euo pipefail
+          [ "$(git rev-parse HEAD)" = "$C" ] || { echo "::error::checkout した HEAD が inputs.commit でない"; exit 1; }
+          "$RUNNER_TEMP/gl/gitleaks" detect --redact -v --exit-code=2 --log-opts=-1 --report-format=sarif --report-path="$RUNNER_TEMP/results.sarif"

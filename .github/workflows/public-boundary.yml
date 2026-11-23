@@ -6,6 +6,16 @@ on:
   push:
     branches: [main]
   pull_request: {}
+  # 2026-11-23: yakumo-content.yml は github.token で push するので、その push では on: push が起きない。
+  #   yakumo-content.yml の checks の job が、push した commit の sha を inputs.commit に入れてここを起こす。
+  #   3 つの job はどれも checkout した木を見る。push の時は push した commit(github.sha)、dispatch の時は
+  #   inputs.commit を checkout するので、見る木は同じになる。inputs.commit が空なら今までどおり main の先頭。
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "見る commit の sha。空なら main の先頭"
+        required: false
+        type: string
 permissions:
   contents: read
 jobs:
@@ -13,6 +23,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.commit }}
       - run: bash tools/boundary/check_public_boundary.sh
 
   # The files that list the hs-mcp tools (lhm.plugin.json, CODEX.md, README.md, llms.txt and others) against the
@@ -22,6 +34,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.commit }}
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           package-manager-cache: false
@@ -37,6 +51,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.commit }}
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           package-manager-cache: false

@@ -46,7 +46,16 @@ on:
       - "blog/**/*.html"
       - "souba/**/*.html"
       - "tools/pagecheck/**"
+  # 2026-11-23: yakumo-content.yml の checks の job が、push した commit の sha を inputs.commit に入れてここを起こす。
+  #   dispatch の時は下の「変わったページだけ」が HEAD^..HEAD を見るので、inputs.commit を checkout して
+  #   HEAD をその commit にする。push の時の before..sha(1 commit の push なら同じ)と同じ範囲になる。
+  #   inputs.commit が空なら今までどおり main の先頭。
   workflow_dispatch:
+    inputs:
+      commit:
+        description: "見る commit の sha。空なら main の先頭"
+        required: false
+        type: string
 
 jobs:
   pagecheck:
@@ -57,6 +66,7 @@ jobs:
           # 2026-08-30: 複数コミットをまとめて push しても、その push で変わった全ページを見るため全履歴。
           #   旧: fetch-depth 2 + HEAD^..HEAD は「最後の1コミット」しか見ず、先のコミットのページが素通りした。
           fetch-depth: 0
+          ref: ${{ inputs.commit }}
 
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
