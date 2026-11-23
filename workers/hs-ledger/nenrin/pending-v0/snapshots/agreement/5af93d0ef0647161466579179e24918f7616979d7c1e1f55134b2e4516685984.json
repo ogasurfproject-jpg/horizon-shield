@@ -1,0 +1,41 @@
+{
+  "canonical_sha256": "5af93d0ef0647161466579179e24918f7616979d7c1e1f55134b2e4516685984",
+  "record_canonical": "{\"clock_skew\":0,\"day\":\"2026-11-22\",\"first_height\":976951,\"last_height\":977105,\"late\":0,\"leaf\":\"sha256(0x00 || musubi-canonical-v0(envelope))\",\"n\":6,\"publication\":\"public\",\"root\":\"e43a1a15dc28f810dd6e06100e11cbe0a0604f2a04e0b93b56306d7f3630d2d3\",\"schema\":\"furui-check-day-v0\",\"signatures\":[{\"alg\":\"ed25519\",\"domain\":\"horizonshield.dev\",\"key_id\":\"runner-1\",\"sig\":\"UyDyaVkBx1MmEmZ14YOxTf8a6UyVnP6FMkHG/fcezC8zFIBp+xd7cAfEMPzKaymlLyk7XxBU/4IB1fvRf0/7DQ==\"}],\"signer\":{\"domain\":\"horizonshield.dev\",\"key_url\":\"https://ledger.horizonshield.dev/.well-known/furui-check-keys.json\"},\"tree\":\"rfc6962-sha256\"}",
+  "report": {
+    "record_schema": "furui-check-day-v0",
+    "verdict": "accepted",
+    "canonical_sha256": "5af93d0ef0647161466579179e24918f7616979d7c1e1f55134b2e4516685984",
+    "signer": "horizonshield.dev",
+    "runner_id": "runner-1",
+    "day": "2026-11-22",
+    "n": 6,
+    "verifier_version": "furui-check-day-intake 0.3.0",
+    "checked": [
+      "canonical bytes",
+      "the closed shape",
+      "the key the ledger serves for furui-check, inside its heights",
+      "the runner the key is listed for (runner-1 when the record names none)",
+      "Ed25519 signature",
+      "one record per runner per day"
+    ],
+    "not_checked": [
+      "any envelope, content or check behind the root; only the runner holds the leaves"
+    ]
+  },
+  "verifier_version": "furui-check-day-intake 0.3.0",
+  "status": "pending_anchor",
+  "ledger_entry": null,
+  "ledger_url": null,
+  "recompute": {
+    "verifier_version": "0.2.0",
+    "steps": [
+      "1. fetch the exact bytes: GET https://ledger.horizonshield.dev/agreement/{canonical_sha256}, field record_canonical.",
+      "2. recompute the hash: sha256 of those bytes must equal canonical_sha256.",
+      "3. reproduce the signing bytes: the canonical JSON of the record with its signatures field removed.",
+      "4. verify each party's Ed25519 signature over those signing bytes against the public_key_ed25519_b64 pinned inside the record (v1.1), or against the key served at each party's key_url (v1).",
+      "5. optionally fetch each party's key_url and confirm it serves the same key; that is attribution to the domain, and its absence is stated in the report."
+    ],
+    "offline": "run the verifier offline yourself: it opens no socket and has no clock; run agreement_verify.py or agreement_verify.mjs on the bytes and do not take this operator's word.",
+    "source": "workers/hs-ledger/nenrin/agreement-v0/agreement_verify.{py,mjs}; two implementations agree byte for byte on the frozen cases."
+  }
+}
