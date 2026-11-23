@@ -1,0 +1,16 @@
+{
+  "n": 369,
+  "work": "NENRIN agreement batch (7 records)",
+  "claim_sha256": "7b4a5d4c473d4006f67a906cc19873a72de04d02d2e76d8e8bcc80025c59b994",
+  "record_canonical": "{\"schema\":\"nenrin-agreement-batch-v1\",\"anchored_at\":\"2026-11-23T00:30:34.783Z\",\"count\":7,\"records\":[{\"canonical_sha256\":\"74844a78fdc05242a0e508518571c6e8de5ecd6910e8e618fedff91042684e3c\",\"record_schema\":\"furui-check-day-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"furui-check-day-intake 0.3.0\"},{\"canonical_sha256\":\"8f1c691197d569916c9a45249ff594584331ec00659658894d434a7c6d02b9b6\",\"record_schema\":\"furui-check-day-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"furui-check-day-intake 0.3.0\"},{\"canonical_sha256\":\"9a785331841f7a10a3fc4ca7b36e6d8fdb358ffa2f8fc8b9c6c3ec778c6f2400\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"ae702084475047e9cf015f8a8df29f4233b709c292a734b2d0abe14abc6c0234\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"d4b9c9cb7f925640e485679314de2ca3cb004dad0ccf988ca491eb09965af6bc\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"f2cffe2f141b20253560bc7ac0d1e6ba24311fe5b60e8b303c6c26a4508359a9\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"},{\"canonical_sha256\":\"fdcc847bff25981ce3554ca6f128079f099f61ef4135140cb22edc05d01a03fb\",\"record_schema\":\"a2a-admission-v0\",\"verdict\":\"accepted\",\"verifier_version\":\"admission-intake 0.5.0\"}]}",
+  "schema": "v0-plain",
+  "created_at": "2026-11-23T00:30:34.850Z",
+  "ots_status": "pending",
+  "bitcoin_block": null,
+  "block_time": null,
+  "stamped_at": "2026-11-23T01:18:47.744Z",
+  "anchored_by": "schedule",
+  "pending_stage": "fresh",
+  "pending_hours": 2,
+  "pending_stale_after_hours": 6
+}
