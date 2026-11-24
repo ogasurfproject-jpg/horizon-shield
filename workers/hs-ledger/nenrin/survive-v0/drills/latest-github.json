@@ -1,13 +1,13 @@
 {
   "anchors": {
-    "confirmed": 328,
+    "confirmed": 333,
     "explorers": [
       "blockstream.info",
       "mempool.space"
     ],
     "failed": [],
     "first_block": 959118,
-    "last_block": 977131,
+    "last_block": 977301,
     "pending": [
       166,
       167,
@@ -57,8 +57,8 @@
   },
   "chain": {
     "broken_at": null,
-    "head": "b39eaf193697af2a66ddead41a45b16553ccf8c61753f4eff389f25263f6e837",
-    "rebuilt_through": 372,
+    "head": "bf20affbb83b4588a2b862a63d0561f54b667e539c4ca2250eea6540b0623bd5",
+    "rebuilt_through": 377,
     "stamped_heads": [
       {
         "carried_by": 58,
@@ -564,13 +564,23 @@
         "carried_by": 371,
         "head_n": 367,
         "result": "match"
+      },
+      {
+        "carried_by": 373,
+        "head_n": 372,
+        "result": "match"
+      },
+      {
+        "carried_by": 376,
+        "head_n": 372,
+        "result": "match"
       }
     ],
-    "stamped_heads_matched": 101
+    "stamped_heads_matched": 103
   },
   "digests": {
     "failed": [],
-    "ok": 372
+    "ok": 377
   },
   "does_not_establish": [
     "that any claim in the ledger is true",
@@ -578,8 +588,8 @@
     "that two explorers agreeing is Bitcoin consensus; check headers against your own node for that",
     "anything about entries whose proofs are still pending; they are listed, not counted"
   ],
-  "drill_at": "2026-11-23T03:24:30Z",
-  "entries": 372,
+  "drill_at": "2026-11-24T03:24:30Z",
+  "entries": 377,
   "establishes": [
     "these ledger bytes were rebuilt from the named custodian without connecting to any operator host",
     "every digest, the jidec-chain-v1 head, the stamped heads and the Bitcoin anchors were recomputed from the copy and two public explorers"
@@ -592,12 +602,12 @@
   "outcome": "rebuilt",
   "range": [
     1,
-    372
+    377
   ],
-  "report_sha256": "3cd7b6eb6f0967fef78908c39f54751b85e28725771d8593a524c353fb095a7a",
+  "report_sha256": "8b79c9ab53608aa0d4171a8d831a74b8e9e1515a7e1e06d0c2595cdeadd2d3e6",
   "schema": "nenrin-survive-drill-v0",
   "source": {
-    "archive_sha256": "8a5b42f8b472a152e59b1cd983c2684343dbaa495ea0ff49a74e4060b47a2cc6",
+    "archive_sha256": "4e6c25cd6dcdbe29272bc937acb5369e6fc83fe81328f10b8fbf8eddc7668cfa",
     "custodian": "github",
     "note": "the operator can delete this account; this source proves the copy's form, not its survival",
     "operator_controlled": true,
