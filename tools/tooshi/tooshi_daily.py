@@ -2036,11 +2036,16 @@ def check_cross_client(get, now):
     tg = x.get("targets") if isinstance(x.get("targets"), list) else []
     if [t.get("endpoint") for t in tg if isinstance(t, dict)] != [CROSS_OWN] + picked or x.get("picked") != picked:
         return c(cid, "red", "the cross client did not measure the own endpoint and the day's draw (%s)" % ", ".join(picked), gate_version=gv, drawn=picked)
-    differ, unreached, gate_silent = [], [], []
+    differ, unreached, gate_silent, gate_held = [], [], [], []
     for t in tg:
         e, g, k = t["endpoint"], t.get("gate") or {}, t.get("sdk") or {}
         if g.get("answered") is not True or not isinstance(g.get("pass"), bool):
             gate_silent.append("%s (%s)" % (e, g.get("error")))
+            continue
+        if g.get("gate_side") is True:
+            # the gate answered that it did not measure (its own relay path failed; the record is held), so its pass false says nothing
+            # about the endpoint and is not compared with the SDK client (2026-11-24: the relay was suspended, the own endpoint is measured through it)
+            gate_held.append("%s (%s)" % (e, g.get("reason")))
             continue
         if k.get("reached") is not True or not isinstance(k.get("pass"), bool):
             unreached.append((e, t.get("kind"), k.get("error")))
@@ -2049,9 +2054,10 @@ def check_cross_client(get, now):
             differ.append("%s: the gate says %s (%s), the SDK client says %s (%s)" % (e, "pass" if g["pass"] else "fail", g.get("reason"), "pass" if k["pass"] else "fail", k.get("reason")))
     facts = {"gate_version": gv, "drawn": picked, "sdk": CROSS_SDK["version"]}
     own_unreached = [u for u in unreached if u[1] == "own"]
-    if differ or gate_silent or own_unreached:
+    if differ or gate_silent or own_unreached or gate_held:
         why = differ + ["the gate did not answer POST /check for " + w for w in gate_silent] + ["the SDK client did not reach the own endpoint %s (%s)" % (u[0], u[2]) for u in own_unreached]
-        return c(cid, "red", "; ".join(why), disagree=len(differ), **facts)
+        why += ["the gate's own measurement is stopped for %s: the gate answered held (gate_side, its relay path did not answer), so it did not measure and this is not a disagreement with the SDK client" % w for w in gate_held]
+        return c(cid, "red", "; ".join(why), disagree=len(differ), gate_held=len(gate_held), **facts)
     if unreached:
         return c(cid, "not_yet", "the SDK client did not reach %s; the others agree with the gate" % ", ".join("%s (%s)" % (u[0], u[2]) for u in unreached), unreached=len(unreached), **facts)
     return c(cid, "ok", "the SDK client (%s %s) and the gate agree on mcp_endpoint for the own endpoint and the %d drawn (%s)" % (CROSS_SDK["name"], CROSS_SDK["version"], len(picked), ", ".join(picked)), **facts)
@@ -4081,6 +4087,17 @@ def selftest():
     cases.append(("10 not_yet: a drawn endpoint is not reached by the SDK client, the others agree", st(world(cc=True, **{CROSS_SOURCE: target(2, sdk={"reached": False, "pass": None, "error": "not reached: ENOTFOUND"})}), S10)["state"], "not_yet"))
     x10r = st(world(cc=True, **{CROSS_SOURCE: target(1, gate={"pass": False, "reason": "initialize failed: http 406"})}), S10)
     cases.append(("10 red: the gate fails a drawn endpoint that the SDK client passes; both reasons are named", (x10r["state"], "http 406" in x10r["why"] and "SDK client says pass" in x10r["why"], x10r["facts"]["disagree"]), ("red", True, 1)))
+    x10h = st(world(cc=True, **{CROSS_SOURCE: target(0, gate={"pass": False, "gate_side": True, "reason": "not measured: gate-side failure: relay answered http 402"})}), S10)
+    cases.append(("10 red (2026-11-25): the gate answers held for the own endpoint (gate_side): red with its own text, not a disagreement",
+                  (x10h["state"], "gate's own measurement is stopped" in x10h["why"], "relay path did not answer" in x10h["why"], "SDK client says" in x10h["why"], x10h["facts"]["disagree"], x10h["facts"]["gate_held"]),
+                  ("red", True, True, False, 0, 1)))
+    cases.append(("10 red (2026-11-25): a real disagreement keeps its text and its red; it is not called held",
+                  (x10r["state"], "gate's own measurement is stopped" in x10r["why"], x10r["facts"]["disagree"], x10r["facts"]["gate_held"]), ("red", False, 1, 0)))
+    x10b = st(world(cc=True, **{CROSS_SOURCE: (lambda x: (x[1]["targets"][2]["gate"].update({"pass": False, "reason": "initialize failed: http 406"}), x)[1])(target(0, gate={"pass": False, "gate_side": True, "reason": "not measured: gate-side failure"}))}), S10)
+    cases.append(("10 red (2026-11-25): held on the own endpoint and a disagreement on a drawn one: both are named",
+                  (x10b["state"], "gate's own measurement is stopped" in x10b["why"], "SDK client says pass" in x10b["why"], x10b["facts"]["disagree"], x10b["facts"]["gate_held"]), ("red", True, True, 1, 1)))
+    x10g = st(world(cc=True, **{CROSS_SOURCE: target(1, gate={"gate_side": False})}), S10)
+    cases.append(("10 ok (2026-11-25): both sides agree; gate_side false is not held", (x10g["state"], "gate_held" in x10g["facts"]), ("ok", False)))
     cases.append(("10 red: the SDK client fails an endpoint that the gate passes", st(world(cc=True, **{CROSS_SOURCE: target(3, sdk={"pass": False, "reason": "http 406"})}), S10)["state"], "red"))
     cases.append(("10 red: the SDK client does not reach the own endpoint", st(world(cc=True, **{CROSS_SOURCE: target(0, sdk={"reached": False, "pass": None, "error": "not reached: ECONNREFUSED"})}), S10)["state"], "red"))
     cases.append(("10 red: the cross client measured other endpoints than the day's draw", st(world(cc=True, **{CROSS_SOURCE: cross(picked=list(reversed(DRAWN)))}), S10)["state"], "red"))

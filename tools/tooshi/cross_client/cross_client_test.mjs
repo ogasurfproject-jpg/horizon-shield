@@ -93,7 +93,7 @@ function gateWorld(version, verdicts) {
     calls.push((init.method || "GET") + " " + u);
     if (u === GATE + "/health") return Response.json({ ok: true, gate_version: version, gate_commit: "abc" });
     if (u === GATE + "/register") return Response.json(reg);
-    if (u === GATE + "/check") { const ep = JSON.parse(init.body).endpoint; const v = verdicts[ep] ?? true; return Response.json({ record_sha256: "f".repeat(64), checks: { mcp_endpoint: { pass: v, reason: v ? "MCP endpoint responds to initialize and tools/list" : "initialize failed: http 406" } } }); }
+    if (u === GATE + "/check") { const ep = JSON.parse(init.body).endpoint; const v = verdicts[ep] ?? true; if (v === "held") return Response.json({ status: "held", reachable: null, record_sha256: "f".repeat(64), checks: { mcp_endpoint: { pass: false, gate_side: true, measured: false, reason: "not measured: gate-side failure" } } }); return Response.json({ record_sha256: "f".repeat(64), checks: { mcp_endpoint: { pass: v, reason: v ? "MCP endpoint responds to initialize and tools/list" : "initialize failed: http 406" } } }); }
     return srv.fetchFn(url, init);
   };
   return { fetchFn, calls };
@@ -107,6 +107,12 @@ ok([r.skipped, r.sdk, r.targets.map((t) => [t.kind, t.endpoint, t.gate.pass, t.s
   [null, SDK, [["own", OWN, true, true], ["drawn", "https://c.example/mcp", true, true], ["drawn", "https://d.example/mcp", false, true], ["drawn", "https://e.example/mcp", true, true]]],
   "the gate says 0.4.24: the own endpoint and the three drawn, each with the gate's verdict and the SDK's");
 ok(g.calls.some((c) => /tools\/call/.test(c)), false, "no tools/call is ever sent");
+ok(r.targets.map((t) => "gate_side" in t.gate), [false, false, false, false], "a measured verdict (pass or fail) carries no gate_side");
+g = gateWorld("0.4.24", { [OWN]: "held" });
+r = await run({ day: "2026-11-07", doFetch: g.fetchFn });
+ok(r.targets.map((t) => [t.kind, t.gate.answered, t.gate.pass, t.gate.gate_side === true, t.sdk.pass]),
+  [["own", true, false, true, true], ["drawn", true, true, false, true], ["drawn", true, true, false, true], ["drawn", true, true, false, true]],
+  "the gate answers held for the own endpoint (gate_side, not measured): the file keeps gate_side true next to its pass false");
 const src = readFileSync(new URL("./cross_client.mjs", import.meta.url), "utf8");
 ok(/"tools\/call"|'tools\/call'|callTool\(/.test(src), false, "the source has no tools/call");
 const lock = JSON.parse(readFileSync(new URL("./package-lock.json", import.meta.url), "utf8"));

@@ -15,6 +15,8 @@
 // The SDK's answer is "pass" when initialize and tools/list both return results and tools/list has at least one tool
 // with a non-empty string name and an inputSchema object and no name twice (the gate's rule, 0.2.2). An endpoint the
 // SDK cannot reach at all (no connection, no TLS, no answer within the time) is "not reached", never pass or fail.
+// When the gate answers that it did not measure (checks.mcp_endpoint.gate_side true: its own relay path failed, the record is
+// held), the file keeps gate_side: true next to the gate's pass, so check 10 can tell that from a disagreement.
 import { createHash } from "node:crypto";
 import { writeFileSync, realpathSync } from "node:fs";
 import { pathToFileURL } from "node:url";
@@ -133,7 +135,7 @@ export async function gateVerdict(endpoint, gate, doFetch = fetch) {
     const j = await r.json().catch(() => null);
     const m = j && j.checks && j.checks.mcp_endpoint;
     if (r.status !== 200 || !m || typeof m.pass !== "boolean") return { answered: false, error: "POST /check answered http " + r.status + (j && j.error ? " " + short(j.error) : "") };
-    return { answered: true, pass: m.pass, reason: short(m.reason), record_sha256: typeof j.record_sha256 === "string" ? j.record_sha256 : null };
+    return { answered: true, pass: m.pass, reason: short(m.reason), record_sha256: typeof j.record_sha256 === "string" ? j.record_sha256 : null, ...(m.gate_side === true ? { gate_side: true } : {}) };
   } catch (e) {
     return { answered: false, error: "POST /check: " + short((e && e.name) + " " + (e && e.message)) };
   }
@@ -172,7 +174,7 @@ async function main(argv) {
   const r = await run({ day: a.day, gate: a.gate });
   writeFileSync(a.out, JSON.stringify(r) + "\n");
   if (r.skipped) console.log("CROSS_CLIENT " + a.day + " skipped " + r.skipped + ": " + (r.why || ""));
-  for (const t of r.targets) console.log("CROSS_CLIENT " + t.kind + " " + t.endpoint + " gate " + (t.gate.answered ? (t.gate.pass ? "pass" : "fail") : "no answer") + " sdk " + (t.sdk.reached ? (t.sdk.pass ? "pass" : "fail") : "not reached"));
+  for (const t of r.targets) console.log("CROSS_CLIENT " + t.kind + " " + t.endpoint + " gate " + (t.gate.answered ? (t.gate.gate_side ? "held (gate side, not measured)" : t.gate.pass ? "pass" : "fail") : "no answer") + " sdk " + (t.sdk.reached ? (t.sdk.pass ? "pass" : "fail") : "not reached"));
   return 0;
 }
 
