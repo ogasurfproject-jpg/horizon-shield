@@ -95,6 +95,29 @@ jobs:
           # 打ち直し(gh run rerun --failed)でも束の名が 1 つになるよう、試行の番号を名に入れる。
           # deploy-pages は同じ run の束を名で探し、同じ名が 2 つあると落ちる(2026-11-03 run 41640082685)。
           name: github-pages-${{ github.run_attempt }}
+      # 上げた束が run の artifact の一覧に出るまで待つ。deploy-pages は一覧を name で引き、無ければすぐ落ちる。
+      # 2026-11-24 08:33Z からの run 45357121497 は 3 回とも、上げた 0.4 秒後に引いて名が無く落ちた(retry も 0.6 秒後で同じ)。
+      # deploy-pages v5.0.1 は runner の Actions results service(ListArtifacts)で引き、ここは同じ run の REST の一覧
+      # (actions/runs/<run_id>/artifacts、name で絞る)を github.token で引く。口が違うので、出た後も 15 秒置いて先へ。
+      # 5 秒おきに最大 5 分。5 分で出なければ warning を書いて先へ進む(ここでは止めず、deploy の段に任せる)。
+      # gh api が 3 回続けて落ちた時(token に actions の読みが無くて断られる時を含む)は、30 秒だけ待って先へ進む。
+      - name: 束が一覧に出るまで待つ
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WANT: github-pages-${{ github.run_attempt }}
+        run: |
+          err=0
+          for i in $(seq 1 60); do
+            if n=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?name=$WANT" -q '.total_count' 2>/dev/null); then
+              err=0
+              if [ "$n" = "1" ]; then echo "listed after $i tries"; sleep 15; exit 0; fi
+            else
+              err=$((err + 1))
+              if [ "$err" -ge 3 ]; then echo "::warning::the artifact list could not be read 3 times in a row; waiting 30 seconds instead"; sleep 30; exit 0; fi
+            fi
+            sleep 5
+          done
+          echo "::warning::$WANT is not in the artifact list after 5 minutes"
       # deploy-pages は 10 分で打ち切る(timeout の入力は 600000 ms が上限で、それより大きい値は 600000 に戻される)。
       # 約 1 万 2 千 file の同期が 10 分を超えて落ちる事がある(2026-11-06 run 42257475670、42262708719。どちらも打ち直しで通った)。
       # 1 回目が落ちた時だけ、同じ束でもう一度 deploy する。2 回目も落ちたら run は赤になる。
@@ -104,6 +127,10 @@ jobs:
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
         with:
           artifact_name: github-pages-${{ github.run_attempt }}
+      # 1 回目が落ちた時だけ、retry の前に 60 秒置く(2026-11-24 の run 45357121497 は間を置かない retry が同じ理由で落ちた)。
+      - name: retry の前に 60 秒待つ
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 60
       - name: Deploy to GitHub Pages (retry)
         id: deployment_retry
         if: steps.deployment.outcome == 'failure'
