@@ -1,0 +1,55 @@
+{
+ "K": 3,
+ "L_b06_tokens": 4111.0,
+ "L_cap_bytes": 80000.0,
+ "M_marks": 7612,
+ "N_benign": 5312,
+ "P1_max_count_N_benign": 17,
+ "P1_max_count_without_E": 11,
+ "V": 4096,
+ "haiku_records": 10404,
+ "haiku_usd_max": 0.0004111,
+ "j_benign_measure_rows": 2812,
+ "mark_chars": 18,
+ "mark_collision_birthday": 0.0004215874942019582,
+ "n_benign_by_stratum": {
+  "E ordinary (upper, if every E row is ordinary)": 1500,
+  "J-benign": 2812,
+  "N2": 1000
+ },
+ "rows": [
+  {
+   "L": 4111,
+   "L_name": "blind-06 bound",
+   "expected_hits": 1.8693243547567e-05,
+   "p_at_least_one": 1.8693068829955806e-05,
+   "p_one_text_one_mark": 4.623041779794971e-13,
+   "q": 0.13
+  },
+  {
+   "L": 80000,
+   "L_name": "per-call cap bound",
+   "expected_hits": 0.0003637702466079689,
+   "p_at_least_one": 0.0003637040902340072,
+   "p_one_text_one_mark": 8.996432556156597e-12,
+   "q": 0.13
+  },
+  {
+   "L": 4111,
+   "L_name": "blind-06 bound",
+   "expected_hits": 0.043575687193296936,
+   "p_at_least_one": 0.042639908549541805,
+   "p_one_text_one_mark": 1.077673984000001e-09,
+   "q": 0.2
+  },
+  {
+   "L": 80000,
+   "L_name": "per-call cap bound",
+   "expected_hits": 0.8479822367948809,
+   "p_at_least_one": 0.5717217752609536,
+   "p_one_text_one_mark": 2.0971520000000023e-08,
+   "q": 0.2
+  }
+ ],
+ "table_sha256": "5e07dd2bedf30e2d7796082371bfe34668d0b75315804a283f2b3c67576b4b39"
+}

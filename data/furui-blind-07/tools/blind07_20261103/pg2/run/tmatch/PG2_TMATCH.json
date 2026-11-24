@@ -1,0 +1,39 @@
+{
+ "allowed_stops": 4,
+ "inputs": {
+  "N items.jsonl": "7efcb21495a46741941feb648faf37dc1cd3a593d75c6beca7a0901fd168053b",
+  "N2 items.jsonl": "f9a4b01ad36c7b97daa1891c21d96c4ffab08af867c5984bc91bbb69c1d84045",
+  "PG2_FILES.sha256": "4630e2cdb6602c93d5195395e0a24f45a77ba921115c5d925504998d1d6e6994",
+  "b07_pg2.py": "f0767595e77ea0e09664a335a6e3d8b5d39f9ad29b2740197406156260b05002"
+ },
+ "models": {
+  "22M": {
+   "T_match": 0.20882567854553716,
+   "T_match_repr": "0.20882567854553716",
+   "W": 510,
+   "malicious_index": 1,
+   "max_windows_in_a_row": 1,
+   "scores_file": "scores_22M.jsonl",
+   "scores_sha256": "bb53538deaabc06cd171f0e83426678530a39386856e17c1a49d294080986386",
+   "stops_at_T_card": 2,
+   "stops_at_T_match": 4,
+   "unscored": 0,
+   "windows": 4537
+  },
+  "86M": {
+   "T_match": 0.9405071353534699,
+   "T_match_repr": "0.9405071353534699",
+   "W": 510,
+   "malicious_index": 1,
+   "max_windows_in_a_row": 1,
+   "scores_file": "scores_86M.jsonl",
+   "scores_sha256": "588e8db3f1955411d7d94dea323833f3a2ac8f831399cbdad6c3c7c9c9250140",
+   "stops_at_T_card": 6,
+   "stops_at_T_match": 4,
+   "unscored": 0,
+   "windows": 4537
+  }
+ },
+ "rows": 4537,
+ "rule": "stop when score >= T_match; T_card stop when any window's argmax is malicious"
+}

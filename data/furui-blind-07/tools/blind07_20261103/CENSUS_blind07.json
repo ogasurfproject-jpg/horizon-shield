@@ -1,0 +1,61 @@
+{
+ "GOV": {
+  "blind06_population": 650776,
+  "blind06_population_keys_sha256": "2d0c62d2c7a54fd7497f0203e9f382d2825153d99210854c51548ec553096c24",
+  "keys_sha256": "06dc4209c3b03b16bd261b98a61232931444371a0fd3116cf2d8f68e6b05ec9d",
+  "population": 647776,
+  "removed_before_blind06": {
+   "build_half": 648999,
+   "drawn_in_blind05": 174,
+   "label_rows": 1299973,
+   "no_scope": 12,
+   "no_text": 12
+  },
+  "removed_drawn_in_blind06": 3000
+ },
+ "JB": {
+  "items_rows": 6003,
+  "key_rule": "sha256(\"hs@156d0db10074ab44547832dbd415469d7666c95f|furui_ja_benign_20261025|\" + id)",
+  "keys_sha256": "7668cc11dd6fff6faadf4452192d223be055ce8edd42e0f64e1133a6283770b3",
+  "manifest_rows_from_ja_or_hs_source": 0,
+  "manifests_checked": {
+   "a7_4_n2_work/manifest.json": 1000,
+   "a7_build_work/manifest.json": 6095,
+   "blind05_draw/manifest.json": 3644,
+   "blind06_draw/manifest.json": 5533
+  },
+  "measure_ids_in_tune": 0,
+  "measure_rows": 2812,
+  "overlap_keys": 0,
+  "overlap_src_ids": 0,
+  "per_stratum": {
+   "aeo": 349,
+   "blog": 326,
+   "contract": 106,
+   "ehn": 214,
+   "faq": 105,
+   "guide": 133,
+   "other": 140,
+   "qa": 165,
+   "souba": 760,
+   "souba-v2": 389,
+   "yakumo": 125
+  },
+  "tune_rows": 3191
+ },
+ "N2": {
+  "blind06_population": 663261,
+  "blind06_population_keys_sha256": "c8474fe5f22da9349bea817e0f7a95c6db4ad6c40d5e48ea63cd1f34cb3b8ad3",
+  "keys_sha256": "4d0ab8f67c2fb44a317802e6f8a35cd727234adac732fea0b4d60c9cc2bc030a",
+  "population": 662261,
+  "removed_before_blind06": {
+   "build_half": 661628,
+   "label_rows": 1324990,
+   "no_scope": 19,
+   "no_text": 82
+  },
+  "removed_drawn_in_blind06": 1000
+ },
+ "govtech_revision": "226c66f56fbbd032b17ea07528b7057078eb0dc6",
+ "schema": "furui-blind07-census-v0"
+}

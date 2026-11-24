@@ -1,0 +1,11 @@
+# blind07-readings-addendum-commit-v0
+
+created_at: 2026-11-21T09:54:06Z
+plan: 06bad04c14415d78dbf5168cfc3dc70af71b8448526128112d4e36bc4dd8fc67
+readings_entry: 282
+readings_document_sha256: 7d310d0d69755a3e3929052036257ceb396fef393826b9b667cfa832d5e51914
+addendum_document_sha256: c1add59c048c57708dcdc2020049e71066323708996fe4ce04a4df83ccd11bc3
+
+This entry fixes the sha256 of an addendum to the readings of entry 282, for the plan named in plan, written after the last call of that plan. The addendum stays private until it is published with the result; anyone given it can recompute the sha256 above.
+Establishes: that a document with this sha256 existed no later than the block this entry is anchored to.
+Does not establish: anything about the content of the document before it is published.

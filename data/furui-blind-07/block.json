@@ -1,0 +1,13 @@
+{
+ "block_hash": "0000000000000000000018e449d3c93ecaa9987897f54bccd6b3cdae9d787bc1",
+ "block_height": 975030,
+ "checks": [
+  "ledger bitcoin_block == ots bitcoin height",
+  "two sources give the same block hash and header",
+  "sha256d(header) == block hash",
+  "ots path ends at the header merkle root"
+ ],
+ "entry": 272,
+ "merkle_root": "6314d22a0e726c1db3815edae820f7d35e7d51ce48d10d8112b0f147824e3222",
+ "plan_sha256": "06bad04c14415d78dbf5168cfc3dc70af71b8448526128112d4e36bc4dd8fc67"
+}

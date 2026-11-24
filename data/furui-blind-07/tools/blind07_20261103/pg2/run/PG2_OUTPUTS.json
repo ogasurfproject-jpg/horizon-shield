@@ -1,0 +1,109 @@
+{
+ "benign_index": 0,
+ "malicious_index": 1,
+ "models": {
+  "22M": {
+   "card": {
+    "file": "README.md",
+    "line": 213,
+    "sha256": "5d2a3e0c46397609a784a5034dc823da408aa8b5a414828609f32dc18ee16933",
+    "text": "- **Inference utilities:** Our [inference utilities](https://github.com/meta-llama/llama-cookbook/blob/main/getting-started/responsible_ai/prompt_guard/inference.py) offer tools for efficiently running Prompt Guard in parallel on long inputs, such as extended strings and documents, as well as large numbers of strings."
+   },
+   "config.json": {
+    "hidden_size": 384,
+    "id2label": null,
+    "names": "config.json に id2label も num_labels も無い。無いので transformers の既定の LABEL_0 と LABEL_1 になる",
+    "num_labels": null,
+    "sha256": "1dc4742d04507072cafffb7235dc5dba5af9ba126f7a9830b95ed7ec00fd9104"
+   },
+   "model.safetensors": {
+    "classifier.bias": {
+     "dtype": "F32",
+     "shape": [
+      2
+     ]
+    },
+    "classifier.weight": {
+     "dtype": "F32",
+     "shape": [
+      2,
+      384
+     ]
+    },
+    "header_bytes": 24536
+   }
+  },
+  "86M": {
+   "card": {
+    "file": "README.md",
+    "line": 213,
+    "sha256": "5d2a3e0c46397609a784a5034dc823da408aa8b5a414828609f32dc18ee16933",
+    "text": "- **Inference utilities:** Our [inference utilities](https://github.com/meta-llama/llama-cookbook/blob/main/getting-started/responsible_ai/prompt_guard/inference.py) offer tools for efficiently running Prompt Guard in parallel on long inputs, such as extended strings and documents, as well as large numbers of strings."
+   },
+   "config.json": {
+    "hidden_size": 768,
+    "id2label": null,
+    "names": "config.json に id2label も num_labels も無い。無いので transformers の既定の LABEL_0 と LABEL_1 になる",
+    "num_labels": null,
+    "sha256": "cd54ac39a1f2c3c5146bd5295b34038f8b4d9069e2f844450da014a523bb7653"
+   },
+   "model.safetensors": {
+    "classifier.bias": {
+     "dtype": "F32",
+     "shape": [
+      2
+     ]
+    },
+    "classifier.weight": {
+     "dtype": "F32",
+     "shape": [
+      2,
+      768
+     ]
+    },
+    "header_bytes": 24664
+   }
+  }
+ },
+ "sources": [
+  {
+   "commit": "3c106f3e6ee79d6df51ae706bc7ef2d734ec3ded",
+   "index": 1,
+   "lines": {
+    "10": "NOTE: this code is for PromptGuard 2. For our older PromptGuard 1 model, see prompt_guard_1_inference.py",
+    "106": "float: The probability of the text containing malicious content.",
+    "109": "return probabilities[0, 1].item()",
+    "96": "Evaluate the probability that a given string contains malicious jailbreak or prompt injection."
+   },
+   "note": "card(README.md 213 行)が inference utilities として指す file。この commit はこの file を替えた最後の commit で、2026-11-06 の main(2f22a9eb030f92d0e99227e57e9a1123af1f9532)の file も同じ sha256",
+   "path": "getting-started/responsible_ai/prompt_guard/inference.py",
+   "repo": "meta-llama/llama-cookbook",
+   "sha256": "29afa64415b07811c22b3c2e27330ee40f9e8edff0a7faf4940b8cfc1c74d424"
+  },
+  {
+   "commit": "f64eebd53003a87d9c2d2a3a712133534c214c8d",
+   "index": 1,
+   "lines": {
+    "122": "def get_jailbreak_score(",
+    "129": "return probabilities[0, -1].item()",
+    "40": "model_name: str = \"meta-llama/Llama-Prompt-Guard-2-86M\","
+   },
+   "note": "出口が 2 つなので -1 は 1 番。既定の model は 86M",
+   "path": "LlamaFirewall/src/llamafirewall/scanners/promptguard_utils.py",
+   "repo": "meta-llama/PurpleLlama",
+   "sha256": "1648185dc970960ee27a76f94389acbd62e30b39882a89b63d983c6a67d9aef2"
+  },
+  {
+   "commit": "f64eebd53003a87d9c2d2a3a712133534c214c8d",
+   "index": null,
+   "lines": {
+    "36": "score = self.pg.get_jailbreak_score(text=text)",
+    "39": "ScanDecision.BLOCK if score >= self.block_threshold else ScanDecision.ALLOW"
+   },
+   "note": "上の 129 行の値で止める側(BLOCK)を決める。番号そのものは言わない",
+   "path": "LlamaFirewall/src/llamafirewall/scanners/prompt_guard_scanner.py",
+   "repo": "meta-llama/PurpleLlama",
+   "sha256": "ca607816ce2f30dc2b540b2c119f1fc536a5110b73359fb537ce21c74ffea4fb"
+  }
+ ]
+}

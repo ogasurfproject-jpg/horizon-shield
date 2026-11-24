@@ -1,0 +1,9 @@
+# blind07-readings-commit-v0
+
+created_at: 2026-11-09T12:09:41Z
+plan: 06bad04c14415d78dbf5168cfc3dc70af71b8448526128112d4e36bc4dd8fc67
+readings_document_sha256: 7d310d0d69755a3e3929052036257ceb396fef393826b9b667cfa832d5e51914
+
+This entry fixes the sha256 of a document that states how the operator reads the plan named in plan, written before the calls it applies to. The document stays private until it is published with the result; anyone given it can recompute the sha256 above.
+Establishes: that a document with this sha256 existed no later than the block this entry is anchored to.
+Does not establish: anything about the content of the document before it is published.

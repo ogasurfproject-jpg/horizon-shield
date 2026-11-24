@@ -53,6 +53,9 @@
 # a7_count.py は計画が名指す sha のままのバイトで替えられず、自己試験の作り話の行の password の語に反応する。欄の名と長さは公開の道具が照らす。
 # 2026-11-05: Azure の入口の試験(workers/hs-verify-gate-azure/test の azurite.mjs と run_tests.mjs)は、手元の Azurite に繋ぐ接続文字列に、
 # Azurite の README に載っている開発用の既定の account(devstoreaccount1)の鍵を持つ。どの Azure の account の鍵でもなく、秘密ではない。その 1 つの値だけを許す。
+# 2026-11: FURUI blind-07 の公開(data/furui-blind-07)の manifest.json、canary.jsonl、rule_flags.jsonl、各段の答え ai_*.jsonl は "key" の欄に行の印か
+# 母集団の key の sha256 を持ち、数えと数え直しの program と計画 13 節の道具は留めた sha256 の定数(RUN_KEY_SHA など)を持つ。generic-api-key が反応するので、その file だけ許す。
+# 鍵でも秘密でもない(salt と光の回しの鍵の 2 file は許しに入れない)。公開の道具が、許す前に欄の名と形を照らす(blind-06 の公開と同じ形)。
 title = "horizon-shield gitleaks config"
 
 [extend]
@@ -90,4 +93,5 @@ paths = [
   '''data/furui-blind-05/(manifest\.json|ai_v[0-9a-z_]+\.jsonl)''',
   '''data/furui-blind-06/(manifest\.json|census_blind06\.json|ai_[0-9a-z_]+\.jsonl)''',
   '''data/furui-blind-06/witness/(quote_checks\.jsonl|row_scopes\.jsonl|excluded_keys\.txt|excluded_scopes\.txt|SHA256SUMS_WITNESS\.txt|a7_count\.py)''',
+  '''data/furui-blind-07/(manifest\.json|canary\.jsonl|rule_flags\.jsonl|(day2/)?ai_[0-9a-z_]+\.jsonl|score_blind07\.py|recount_blind07\.py|tools/blind07_20261103/(b07_draw\.py|b07_day2\.py|CENSUS_blind07\.json|pg2/run/tmatch/scores_(86M|22M)\.jsonl)|tools/blind06_draw/manifest\.json)''',
 ]
