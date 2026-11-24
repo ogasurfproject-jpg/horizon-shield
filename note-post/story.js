@@ -204,13 +204,24 @@ async function callModel({ apiKey, model, system, user, fetchImpl }) {
   return { ok: true, text };
 }
 
-/* 書く。門を通るまで最大4回。モデルが無い・混んでいるときは次のモデルへ。 */
+/* 門に落ちた稿の理由を、次の書き直しの指示に足す文。1 回目の指示には入れない。 */
+function retryNote(reasons) {
+  const rs = (reasons || []).filter(Boolean);
+  if (!rs.length) return '';
+  let t = '前の稿は出せなかった。直す所: ' + rs.join('、') + '。';
+  if (rs.some((x) => /」が出てこない$/.test(x))) t += '必ず出す名前は、呼びかけや地の文で、本文の中に文字で書く。';
+  if (rs.some((x) => /^(短すぎる|長すぎる)/.test(x))) t += '長さは1800字から2400字(空白を除いて数える)。';
+  return t;
+}
+
+/* 書く。門を通るまで最大4回。モデルが無い・混んでいるときは次のモデルへ。門に落ちたら、落ちた理由を次の指示に足す。 */
 async function generate(ep, ctx, opts) {
   const o = opts || {};
   const fetchImpl = o.fetchImpl || fetch;
   const models = o.models || (process.env.NOTE_STORY_MODEL ? [process.env.NOTE_STORY_MODEL].concat(DEFAULT_MODELS) : DEFAULT_MODELS);
   const sleep = o.sleep || ((ms) => new Promise((r) => setTimeout(r, ms)));
-  const { system, user } = buildPrompt(ctx.bible, ctx.outline, ctx.state, ep, ctx.prevBody);
+  const { system, user: user0 } = buildPrompt(ctx.bible, ctx.outline, ctx.state, ep, ctx.prevBody);
+  let user = user0;
   const tried = [];
   let mi = 0, gateTries = 0;
   for (let attempt = 0; attempt < 10 && mi < models.length && gateTries < 4; attempt++) {
@@ -239,6 +250,7 @@ async function generate(ep, ctx, opts) {
     gateTries++;
     if (g.ok && !extra.length) return { ok: true, body, title, line, model, tries: gateTries };
     tried.push(model + ': 門 ' + g.reasons.concat(extra).join(' / '));
+    user = user0 + '\n\n' + retryNote(g.reasons.concat(extra));
   }
   return { ok: false, reasons: tried };
 }
@@ -396,7 +408,7 @@ function savePosted(ep, body, url, now, source, dir = STORY_DIR) {
 module.exports = {
   STORY_DIR, LP_URL, LINE_URL, DEFAULT_MODELS, DASH_RE, DASH_TEST, MACHINE_RE,
   loadOutline, loadBible, loadState, mainEpisodes, gaidenSeeds, nextEpisode, episodeByKey, peekNext, remaining,
-  label, fullTitle, prewritten, previousBody, cleanBody, gateBody, buildPrompt, parseFree, generate,
+  label, fullTitle, prewritten, previousBody, cleanBody, gateBody, buildPrompt, parseFree, retryNote, generate,
   composePost, broadcastText, xText, ownerNotice, jstDate, alreadyPostedToday, savePosted,
   hashtagsFor, eyecatchHtml, lacquered,
 };

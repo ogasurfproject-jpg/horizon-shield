@@ -11,6 +11,7 @@
  *   ・note の全文、LINE の文に、フィクションの断り書きと会社の案内があり、機械の名前が無い
  *   ・同じ日に二度出さない
  *   ・書く部品(generate)が、門に落ちたら書き直し、無いモデルは飛ばし、自由題の題と目盛りを取り出す
+ *   ・門に落ちた理由が次の書き直しの指示に入り、1 回目の指示には入らない
  */
 const fs = require('fs');
 const os = require('os');
@@ -143,12 +144,13 @@ console.log('\n8) 公開した回を残す');
   const good = S.cleanBody(messy);
   const mk = (responses) => {
     let i = 0; const seen = [];
+    const users = [];
     const f = async (url, init) => {
-      const body = JSON.parse(init.body); seen.push(body.model);
+      const body = JSON.parse(init.body); seen.push(body.model); users.push(body.messages[0].content);
       const r = responses[Math.min(i++, responses.length - 1)];
       return { ok: r.status === 200, status: r.status, json: async () => r.json };
     };
-    f.seen = seen; return f;
+    f.seen = seen; f.users = users; return f;
   };
   const ctx = { bible, outline, state: { posted: [] }, prevBody: 'まえのはなし' };
   {
@@ -162,6 +164,24 @@ console.log('\n8) 公開した回を残す');
                   { status: 200, json: { content: [{ type: 'text', text: good }] } }]);
     const r = await S.generate(ep4, ctx, { apiKey: 'k', fetchImpl: f, models: ['nai', 'aru'], sleep: async () => {} });
     check('無いモデルは飛ばして次で書く', r.ok && r.model === 'aru', f.seen.join(','));
+  }
+  {
+    const noName = good.replace(/航一/g, 'あの人');
+    const f = mk([{ status: 200, json: { content: [{ type: 'text', text: noName }] } },
+                  { status: 200, json: { content: [{ type: 'text', text: good }] } }]);
+    const r = await S.generate(ep4, ctx, { apiKey: 'k', fetchImpl: f, models: ['m1'], sleep: async () => {} });
+    check('名が出ない稿は書き直して通す', r.ok && r.tries === 2, JSON.stringify(r.reasons || ''));
+    check('1 回目の指示に、落ちた理由は入らない', f.users.length === 2 && !f.users[0].includes('前の稿は出せなかった'));
+    check('2 回目の指示に、落ちた理由と名の書き方が入る', f.users[1].includes('前の稿は出せなかった。直す所: 「航一」が出てこない') && f.users[1].includes('必ず出す名前は、呼びかけや地の文で、本文の中に文字で書く'));
+    check('2 回目の指示も、1 回目の指示をそのまま含む', f.users[1].startsWith(f.users[0]));
+  }
+  {
+    const f = mk([{ status: 200, json: { content: [{ type: 'text', text: good.slice(0, 300) }] } },
+                  { status: 200, json: { content: [{ type: 'text', text: good.slice(0, 300) }] } },
+                  { status: 200, json: { content: [{ type: 'text', text: good }] } }]);
+    const r = await S.generate(ep4, ctx, { apiKey: 'k', fetchImpl: f, models: ['m1'], sleep: async () => {} });
+    check('短すぎる稿の理由と長さが次の指示に入り、理由は前の 1 回分だけ', r.ok && r.tries === 3 && f.users[1].includes('短すぎる(') && f.users[1].includes('長さは1800字から2400字') && f.users[2].split('前の稿は出せなかった').length === 2, JSON.stringify(r.reasons || ''));
+    check('理由が無ければ足す文は空', S.retryNote([]) === '' && S.retryNote(['長すぎる(4000字)']).includes('長さは1800字から2400字') && !S.retryNote(['URL が本文にある']).includes('長さ'));
   }
   {
     const f = mk([{ status: 200, json: { content: [{ type: 'text', text: 'AIです' }] } }]);
@@ -235,7 +255,7 @@ console.log('\n8) 公開した回を残す');
     check('絵が無ければ、文字だけの見出し画像', !S.eyecatchHtml(outline, ep1).includes('class="art"'));
   }
 
-  const EXPECT = 118;
+  const EXPECT = 124;
   console.log('\n確かめた数: ' + checks + ' (最低 ' + EXPECT + ')');
   if (checks < EXPECT) { console.log('  NG   試験がまるごと走っていません。'); fail++; }
   console.log(fail ? fail + ' 件 失敗' : '連載の検査 すべて通過');
