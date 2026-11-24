@@ -1,5 +1,5 @@
 {
- "checked_at": "2026-11-24T04:06:34Z",
+ "checked_at": "2026-11-24T04:36:45Z",
  "day": "2026-11-22",
  "domains": {},
  "line": {},
@@ -9,7 +9,7 @@
   "runner-1": "5af93d0ef0647161466579179e24918f7616979d7c1e1f55134b2e4516685984",
   "runner-2": "74844a78fdc05242a0e508518571c6e8de5ecd6910e8e618fedff91042684e3c"
  },
- "result_sha256": "3512dff0fd4f937757a8c5cc5af3190da0840a0e33e70277fa058781dca42c76",
+ "result_sha256": "f5e3ab54377b57e1f01d6f594bd56b6ee49613aeecb31362c126f66cf0adf158",
  "rows": [],
  "rule": "A domain is counted when a person found a named operator on its pages (operator_named, with basis_url and checked_at), its operator_name is not an insider of the operator or Yakumo (insider_name), and it is not in NOT_COUNTED.json. matched_operators counts the distinct operator_name of counted domains with an ok row, per runner; own counts those rows of origin own.",
  "schema": "tooshi-witness-day-v0",
