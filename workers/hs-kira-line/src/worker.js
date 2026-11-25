@@ -25,9 +25,10 @@ LP: https://shield.the-horizons-innovation.com
 2. SVC-00\u6848\u5185\u5F8C\u306B\u30E6\u30FC\u30B6\u30FC\u304C\u300C\u3082\u3063\u3068\u8A73\u3057\u304F\u300D\u3068\u8A00\u3063\u305F\u3089SVC-01\u3092\u6848\u5185\u3059\u308B
 3. \xA555,000\u3092\u6700\u521D\u306B\u51FA\u3059\u3053\u3068\u306F\u7D76\u5BFE\u306B\u7981\u6B62
 
-\u3010\u304A\u652F\u6255\u3044\u65B9\u6CD5\u3011
-\u9280\u884C\u632F\u8FBC\u306E\u307F\u5BFE\u5FDC\uFF08\u30AF\u30EC\u30B8\u30C3\u30C8\u30AB\u30FC\u30C9\u6C7A\u6E08\u306F\u6E96\u5099\u4E2D\uFF09
-\u7533\u3057\u8FBC\u307F\u610F\u601D\u78BA\u8A8D\u5F8C\u306B\u632F\u8FBC\u5148\u3092\u3054\u6848\u5185
+【お支払い方法】
+PayPal(クレジットカード・デビットカードも使える。PayPal のアカウントが無くても払える)と、銀行振込。
+お支払いの案内(PayPal のリンクと振込先)は、システムが決まった文で送る。あなたは銀行名・支店名・口座番号・口座名義・振込先・PayPal のリンクを絶対に書かない。知らない事を作らない。
+支払いや申し込みの話が出たら「お支払いのご案内をお送りします」とだけ書く。
 
 \u3010\u76F8\u5834\u77E5\u8B58\uFF08\u5373\u7B54\u7528\uFF092026\u5E744\u6708\u6700\u65B0\u7248\u3011
 \u25A0\u5916\u58C1\u5857\u88C530\u576A\uFF1A\u30B7\u30EA\u30B3\u30F380\u301C120\u4E07\u3001\u30D5\u30C3\u7D20110\u301C150\u4E07\u3001\u8DB3\u583415\u301C25\u4E07\u3002150\u4E07\u8D85\u306F\u904E\u5270\u306E\u7591\u3044
@@ -106,7 +107,7 @@ LP: https://shield.the-horizons-innovation.com
 \u706B\u707D\u4FDD\u967A\u3067\u30EA\u30D5\u30A9\u30FC\u30E0\u2192\u300C\u7533\u8ACB\u4EE3\u884C30%\u624B\u6570\u6599\u306F\u8A50\u6B3A\u306E\u7591\u3044\u5927\u3067\u3059\u300D
 \u592A\u967D\u51491kW40\u4E07\u5186\u8D85\u2192\u300C\u76F8\u5834\u306E1.3\u500D\u4EE5\u4E0A\u3001\u904E\u5270\u8ACB\u6C42\u306E\u7591\u3044\u304C\u3042\u308A\u307E\u3059\u300D
 \u30B7\u30ED\u30A2\u30EA50\u4E07\u5186\u2192\u300C30\u576A\u9069\u6B63\u306F15\u301C30\u4E07\u3001\u76F8\u5834\u306E1.7\u500D\u4EE5\u4E0A\u3067\u3059\u300D
-\u652F\u6255\u3044\u30FB\u6C7A\u6E08\u306E\u8A71\u2192\u9280\u884C\u632F\u8FBC\u6848\u5185\u3092\u81EA\u52D5\u9001\u4ED8
+支払い・決済の話→お支払いの案内(PayPal と銀行振込)はシステムが送る。あなたは振込先を書かない
 \u3010BtoB\u5206\u5C90\u3011
 \u30E6\u30FC\u30B6\u30FC\u304C\u4EE5\u4E0B\u306E\u3044\u305A\u308C\u304B\u306B\u8A72\u5F53\u3059\u308B\u5834\u5408\u306F\u5373\u5EA7\u306BBtoB\u30E2\u30FC\u30C9\u306B\u5207\u308A\u66FF\u3048\u308B\uFF1A
 - \u300C\u4E0D\u52D5\u7523\u4F1A\u793E\u3067\u3059\u300D\u300C\u7BA1\u7406\u4F1A\u793E\u3067\u3059\u300D\u300C\u5DE5\u52D9\u5E97\u3067\u3059\u300D\u300C\u4E0D\u52D5\u7523\u696D\u8005\u3067\u3059\u300D
@@ -162,50 +163,84 @@ BtoB\u30E2\u30FC\u30C9\u4E2D\u306F\u6709\u6599\u30B5\u30FC\u30D3\u30B9\u306E\u81
 \u3010\u30B5\u30FC\u30D3\u30B9\u9023\u643A\u3011\u5F15\u8D8A\u3057\u9023\u52D5\u30EA\u30D5\u30A9\u30FC\u30E0\u30B5\u30FC\u30D3\u30B9\u3001\u4EEE\u4F4F\u307E\u3044\u652F\u63F4\u30B5\u30FC\u30D3\u30B9\u3001\u907A\u54C1\u6574\u7406\u30FB\u751F\u524D\u6574\u7406\u30B5\u30FC\u30D3\u30B9
 \u3010\u65B0\u7BC9\u30FB\u5927\u898F\u6A21\u30EA\u30D5\u30A9\u30FC\u30E0\u3011\u65B0\u7BC9\u6238\u5EFA\u3066\u3001\u30DE\u30F3\u30B7\u30E7\u30F3\u8CFC\u5165\u5F8C\u30EA\u30CE\u30D9\u30FC\u30B7\u30E7\u30F3`;
 var PAYMENT_KEYWORDS = ["\u632F\u8FBC\u5148\u3092\u6559\u3048\u3066", "\u7533\u3057\u8FBC\u307F\u307E\u3059", "\u304A\u7533\u3057\u8FBC\u307F\u3057\u307E\u3059", "\u652F\u6255\u3044\u65B9\u6CD5\u3092\u6559\u3048\u3066", "\u6C7A\u6E08\u3057\u305F\u3044", "\u8CFC\u5165\u3057\u307E\u3059"];
+// 2026-11-25 v28: お客さまの「クレジットカードでお支払いお願いいたします」が上の 6 つに当たらず AI に回り、AI(KIRA_SYSTEM の
+//   古い「銀行振込のみ(カードは準備中)」)が実在しない振込先を作って送った。支払いの話は言い回しで広く拾い、AI に渡さない。
+//   お金の手続き(返金・取り消し・領収書・振り込んでしまった等)は大賀さんへ回す。
+var PAY_INTENT_RE = /(支払|払い|払え|払う|払わ|決済|カード|クレジット|デビット|振込|振り込|口座|ペイパル|paypal|申し込|申込|購入)/i;
+var PAY_HUMAN_RE = /(返金|払い戻|払戻|キャンセル|取り消|取消|領収|請求書|二重|振り込んでしま|振込んでしま|振り込みまし|振込みまし|振り込んだ|振込んだ|間違え)/;
 function isPaymentRequest(text) {
-  return PAYMENT_KEYWORDS.some((k) => text.includes(k));
+  return PAYMENT_KEYWORDS.some((k) => text.includes(k)) || PAY_INTENT_RE.test(text);
 }
 __name(isPaymentRequest, "isPaymentRequest");
-function buildBankMessage(env, service = null) {
-  const bankInfo = env.BANK_INFO || "\u9280\u884C\u540D \u652F\u5E97 \u7A2E\u5225 \u53E3\u5EA7\u756A\u53F7 \u540D\u7FA9";
-  const [bankName, branch, type, number, name] = bankInfo.split(" ");
-  const serviceInfo = service ? {
-    "SVC-01": { name: "\u5EFA\u8A2D\u8CBB\u8A3A\u65AD\uFF08\u898B\u7A4D\u66F8\u67FB\u5B9A\uFF09", amount: "\xA555,000" },
-    "SVC-02": { name: "\u5909\u66F4\u5DE5\u4E8B\u67FB\u5B9A", amount: "\xA533,000" },
-    "SVC-03": { name: "\u5B8C\u6210\u691C\u67FB\u7ACB\u4F1A\u3044", amount: "\xA588,000+\u4EA4\u901A\u8CBB" }
-  }[service] : null;
-  let msg = `\u304A\u7533\u3057\u8FBC\u307F\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\uFF01\u{1F389}
-
-`;
-  if (serviceInfo) {
-    msg += `\u3010\u304A\u7533\u3057\u8FBC\u307F\u30B5\u30FC\u30D3\u30B9\u3011
-${serviceInfo.name}
-\u6599\u91D1\uFF1A${serviceInfo.amount}
-
-`;
+function isMoneyForHuman(text) {
+  return PAY_HUMAN_RE.test(text);
+}
+__name(isMoneyForHuman, "isMoneyForHuman");
+// 2026-11-25 v28: PayPal の決済のページ(サイトの各プランの「PayPalで申し込む」と同じ)。
+var PAYPAL_LINKS = {
+  "SVC-00": { name: "逆見積もり診断(診断書 PDF)", amount: "5,500円(税込)", url: "https://www.paypal.com/ncp/payment/H747QJMWFM4BS", after: "お支払いの確認後、2営業日以内(多くの場合は当日中)に、診断書(PDF)をメールでお届けします。" },
+  "SVC-01": { name: "建設費診断(見積書査定)", amount: "55,000円(税込)", url: "https://www.paypal.com/ncp/payment/9V2ZUX9JZAU68", after: "お支払いの確認後、2営業日以内に詳しいレポートをお届けします。" },
+  "SVC-02": { name: "変更工事査定", amount: "33,000円(税込)", url: "https://www.paypal.com/ncp/payment/LXM4H73CFJH98", after: "お支払いの確認後、24時間以内に確認の結果をお届けします。" },
+  "SVC-03": { name: "完成検査立会い", amount: "88,000円(税込、交通費は別)", url: "https://www.paypal.com/ncp/payment/7C7WF642ZJJUC", after: "お支払いの確認後、立会いの日程を担当の大賀からご連絡します。" }
+};
+var PAYPAL_IDS = Object.keys(PAYPAL_LINKS).map((k) => PAYPAL_LINKS[k].url.split("/").pop());
+// BANK_INFO は「銀行名 支店 種別 番号 名義」。名義には空白が入る(ザ ホライズンズ（カ)ので、5 つ目から後を全部名義にする。
+//   前の作りは 5 つ目の語だけを名義にしていて、名義が「The」とだけ出ていた。
+function parseBankInfo(env) {
+  const parts = String(env.BANK_INFO || "").trim().split(/\s+/);
+  if (parts.length < 5 || !/^[0-9]{7}$/.test(parts[3])) return null;
+  return { bank: parts[0], branch: parts[1], type: parts[2], number: parts[3], holder: parts.slice(4).join(" ") };
+}
+__name(parseBankInfo, "parseBankInfo");
+function buildPaymentMessage(env, service = null) {
+  const p = PAYPAL_LINKS[service] || PAYPAL_LINKS["SVC-00"];
+  const b = parseBankInfo(env);
+  let msg = "お支払いのご案内です。\n\n";
+  msg += "【クレジットカード・デビットカード(PayPal)】\n";
+  msg += "PayPal のアカウントをお持ちでなくても、カードでお支払いいただけます。\n";
+  msg += p.name + " " + p.amount + "\n" + p.url + "\n\n";
+  if (b) {
+    msg += "【銀行振込】\n";
+    msg += "銀行名：" + b.bank + "\n支店名：" + b.branch + "\n口座種別：" + b.type + "\n口座番号：" + b.number + "\n口座名義：" + b.holder + "\n";
+    msg += "振込手数料はお客様のご負担となります。\n\n";
+  } else {
+    msg += "【銀行振込】\n振込先は、担当の大賀からお知らせします。\n\n";
   }
-  msg += `\u3010\u304A\u632F\u8FBC\u5148\u3011
-`;
-  msg += `\u9280\u884C\u540D\uFF1A${bankName}
-`;
-  msg += `\u652F\u5E97\u540D\uFF1A${branch}
-`;
-  msg += `\u53E3\u5EA7\u7A2E\u5225\uFF1A${type}
-`;
-  msg += `\u53E3\u5EA7\u756A\u53F7\uFF1A${number}
-`;
-  msg += `\u53E3\u5EA7\u540D\u7FA9\uFF1A${name}
-
-`;
-  msg += `\u632F\u8FBC\u78BA\u8A8D\u5F8C\u30012\u55B6\u696D\u65E5\u4EE5\u5185\u306B
-\u3054\u9023\u7D61\u3044\u305F\u3057\u307E\u3059\u3002
-
-`;
-  msg += `\u898B\u7A4D\u66F8\u306F\u4E0B\u8A18\u30E1\u30FC\u30EB\u3078\u304A\u9001\u308A\u304F\u3060\u3055\u3044\u{1F4E7}
-contact@the-horizons-innovation.com`;
+  msg += p.after + "\n";
+  if (!PAYPAL_LINKS[service]) msg += "ほかの診断(建設費診断 55,000円 など)をご希望の場合は、サービス名をお送りください。\n";
+  msg += "\n見積書は、このトークに写真でお送りいただくか、contact@the-horizons-innovation.com へお送りください📧\nご質問があれば、このままメッセージをお送りください。";
   return msg;
 }
+__name(buildPaymentMessage, "buildPaymentMessage");
+function buildBankMessage(env, service = null) {
+  return buildPaymentMessage(env, service);
+}
 __name(buildBankMessage, "buildBankMessage");
+// v28: AI の返事にお支払いの細目が入っていないか。振込先らしき語、知らない PayPal のリンク、「カードは準備中」の類。
+var BANKLIKE_RE = /(口座番号|口座名義|口座種別|振込先|お振込先|支店名|普通預金|当座預金|銀行[^\n。]{0,15}支店)/;
+function aiWroteMoneyDetails(text) {
+  const s = String(text || "");
+  if (BANKLIKE_RE.test(s)) return true;
+  if (/準備中/.test(s) && /(カード|決済|支払|振込)/.test(s)) return true;
+  const pp = s.match(/paypal\.(com|me)\/[^\s)」』]*/gi) || [];
+  return pp.some((u) => !PAYPAL_IDS.some((id) => u.includes(id)));
+}
+__name(aiWroteMoneyDetails, "aiWroteMoneyDetails");
+var MONEY_HUMAN_TEXT = "お問い合わせありがとうございます。お支払いの取り消しや返金、領収書などのお手続きは、担当の大賀から直接ご連絡いたします。少しお待ちください。";
+var HUMAN_ACK_TEXT = "受け取りました。ありがとうございます。担当の大賀からお返事いたします。";
+// v28: 人が返す相手から届いた物は、大賀さんへ回す。相手への受け取りの一言は 6 時間に 1 回まで。
+async function humanModeForward(env, replyToken, userId, text, failed) {
+  try {
+    await pushToLine(env.LINE_USER_ID, "【人が返す相手から】" + (failed ? "(人が返す印を今は読み込めなかったため、KIRA は返していません)" : "") + "\nユーザー: " + userId + "\n" + String(text || "").slice(0, 400), env.LINE_CHANNEL_TOKEN);
+  } catch (_e) {}
+  let acked = null;
+  try { acked = await env.SEEN_STORE.get("human_ack:" + userId); } catch (_e) { acked = "unreadable"; }
+  if (acked || !replyToken) return;
+  const r = await replyToLine(replyToken, HUMAN_ACK_TEXT, env.LINE_CHANNEL_TOKEN);
+  if (r && r.ok === false) return;
+  try { await env.SEEN_STORE.put("human_ack:" + userId, "1", { expirationTtl: 60 * 60 * 6 }); } catch (_e) {}
+}
+__name(humanModeForward, "humanModeForward");
 // 2026-10-13 issue #13: returns null when the KV read fails. A failed read is not a new user: callers must not
 //   reply as if the conversation were empty, and must not save a fresh history over the one they could not read.
 async function getHistory(userId, env) {
@@ -274,7 +309,7 @@ var worker_default = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === "/health") {
-      return json({ status: "ok", version: "v27-quota-20261106", service: "hs-kira-line", lessons: "per-key-20261013", line_last_fail: await kiraLineLastFail(env), line_quota: await kiraLineQuota(env) });
+      return json({ status: "ok", version: "v28-payment-20261125", service: "hs-kira-line", lessons: "per-key-20261013", line_last_fail: await kiraLineLastFail(env), line_quota: await kiraLineQuota(env) });
     }
     if (url.pathname === "/diagnosis" && request.method === "POST") {
       return handleDiagnosis(request, env, ctx);
@@ -500,6 +535,12 @@ async function processEvents(events, env) {
         await handlePartnerMessage(userMessage, replyToken, userId, pf.justJoined, env, event.message && event.message.id);
         continue;
       }
+      // v28: 大賀さんが「人が返す」にした相手には KIRA は返さず、届いた文を大賀さんへ回す(読めない時も KIRA は返さない)。
+      const hmt = await kvFlag(env, "human:" + userId);
+      if (hmt !== "no") {
+        await humanModeForward(env, replyToken, userId, userMessage, hmt === "failed");
+        continue;
+      }
       if (userMessage.startsWith("\u696D\u8005\u30C1\u30A7\u30C3\u30AF") || userMessage.startsWith("\u30C1\u30A7\u30C3\u30AF:") || userMessage.startsWith("\u30C1\u30A7\u30C3\u30AF\uFF1A")) {
         const companyName = userMessage.replace(/^(業者チェック|チェック[:：])\s*/, "").trim();
         if (companyName) {
@@ -512,11 +553,19 @@ async function processEvents(events, env) {
     if (event.type === "message" && event.message.type === "image") {
       const pfImg = await isPartner(userId, "", env);
       if (pfImg.failed) { await kiraReadFailAck(env, event.replyToken, "写真を受け取りました。ありがとうございます。担当の大賀が確認します。", "加盟店かどうかを今は読み込めなかったため、KIRA は写真を読んでいません", userId, ""); continue; }
+      if (!pfImg.partner) {
+        const hmi = await kvFlag(env, "human:" + userId);
+        if (hmi !== "no") { await humanModeForward(env, event.replyToken, userId, "[写真] が届きました(chat.line.biz で見てください)", hmi === "failed"); continue; }
+      }
       await handleImageMessage(event, userId, env, pfImg.partner);
     }
     if (event.type === "message" && event.message.type === "file") {
       const pfFile = await isPartner(userId, "", env);
       if (pfFile.failed) { await kiraReadFailAck(env, event.replyToken, "ファイルを受け取りました。ありがとうございます。担当の大賀が確認します。", "加盟店かどうかを今は読み込めなかったため、KIRA はファイルを読んでいません", userId, String(event.message.fileName || "")); continue; }
+      if (!pfFile.partner) {
+        const hmf = await kvFlag(env, "human:" + userId);
+        if (hmf !== "no") { await humanModeForward(env, event.replyToken, userId, "[ファイル] " + String(event.message.fileName || "名前なし").slice(0, 80) + "(chat.line.biz で見てください)", hmf === "failed"); continue; }
+      }
       await handleFileMessage(event, userId, env, pfFile.partner);
     }
   }
@@ -586,19 +635,29 @@ ${market.summary}
     console.error("\u8CC7\u6750\u30CB\u30E5\u30FC\u30B9\u53D6\u5F97\u30A8\u30E9\u30FC:", e.message);
   }
   history.messages.push({ role: "user", content: userMessage });
-  if (isPaymentRequest(userMessage) && history.phase !== "GREETING") {
-    const bankMsg = buildBankMessage(env, history.recommendedService || null);
+  // v28: お金の手続き(返金・取り消し・領収書・振り込んでしまった等)は AI に渡さず、大賀さんへ。
+  if (isMoneyForHuman(userMessage)) {
+    await replyToLine(replyToken, MONEY_HUMAN_TEXT, env.LINE_CHANNEL_TOKEN);
+    await pushToLine(env.LINE_USER_ID, "💰【お金の手続きの問い合わせ 要対応】\nユーザー: " + userId + "\n" + userMessage.slice(0, 400), env.LINE_CHANNEL_TOKEN);
+    history.messages.push({ role: "assistant", content: MONEY_HUMAN_TEXT });
+    await saveHistory(userId, history, env);
+    return;
+  }
+  // v28: 支払いの話は、どの段でも AI に渡さず、決まった文(PayPal と正しい振込先)で返す。
+  //   2026-11-25: 「クレジットカードでお支払いお願いいたします」が前の 6 つの決まった言葉に当たらず AI に回り、AI が振込先を作った。
+  if (isPaymentRequest(userMessage)) {
+    const bankMsg = buildPaymentMessage(env, history.recommendedService || null);
     await replyToLine(replyToken, bankMsg, env.LINE_CHANNEL_TOKEN);
     await pushToLine(
       env.LINE_USER_ID,
-      `\u{1F4B0}\u3010\u632F\u8FBC\u6848\u5185\u9001\u4ED8\u3011
-\u30E6\u30FC\u30B6\u30FC: ${userId}
-\u63A8\u5968: ${history.recommendedService || "\u672A\u5B9A"}
+      `💰【お支払い案内送付】
+ユーザー: ${userId}
+推奨: ${history.recommendedService || "未定"}
 
-\u632F\u8FBC\u78BA\u8A8D\u5F8C\u306B\u30B5\u30FC\u30D3\u30B9\u958B\u59CB\u3057\u3066\u304F\u3060\u3055\u3044\uFF01`,
+入金(PayPal か振込)を確かめてからサービスを始めてください！`,
       env.LINE_CHANNEL_TOKEN
     );
-    history.phase = "COMPLETE";
+    if (history.phase !== "GREETING") history.phase = "COMPLETE";
     history.messages.push({ role: "assistant", content: bankMsg });
     await saveHistory(userId, history, env);
     return;
@@ -640,10 +699,19 @@ ${market.summary}
   } catch {
     aiReply = "\u305F\u3060\u3044\u307E\u6DF7\u307F\u5408\u3063\u3066\u304A\u308A\u307E\u3059\u3002\u5C11\u3057\u7D4C\u3063\u3066\u304B\u3089\u518D\u5EA6\u304A\u8A66\u3057\u304F\u3060\u3055\u3044\u3002";
   }
-  if (containsCompanyKeyword(userMessage) && !aiReply.includes("\u696D\u8005\u30C1\u30A7\u30C3\u30AF")) {
+  // v28: AI が振込先・知らない PayPal のリンク・「カードは準備中」を書いたら、送らずに決まった文に差し替え、大賀さんに知らせる。
+  //   2026-11-25 17:16 JST、AI が実在しない振込先(銀行・支店・番号・名義)を作ってお客さまに送った(KIRA_SYSTEM の古い「銀行振込のみ」)。
+  let moneyReplaced = false;
+  if (aiWroteMoneyDetails(aiReply)) {
+    const orig = aiReply;
+    aiReply = buildPaymentMessage(env, recommendedService || history.recommendedService || null);
+    moneyReplaced = true;
+    try { await pushToLine(env.LINE_USER_ID, "【KIRA の返事を差し替えた】AI がお支払いの細目(振込先・リンク・決済の可否)を書いたため、送らずに決まったお支払いの案内に差し替えました。\nユーザー: " + userId + "\n元の文(頭 200 字、数字は伏せた): " + orig.slice(0, 200).replace(/[0-9]{6,8}/g, "[番号]"), env.LINE_CHANNEL_TOKEN); } catch (_e) {}
+  }
+  if (!moneyReplaced && containsCompanyKeyword(userMessage) && !aiReply.includes("業者チェック")) {
     aiReply += "\n\n\u{1F4A1}\u300C\u696D\u8005\u30C1\u30A7\u30C3\u30AF: \u4F1A\u793E\u540D\u300D\u3068\u9001\u308B\u3068\u3001\u305D\u306E\u696D\u8005\u3092\u5373\u8ABF\u67FB\u3057\u307E\u3059\uFF01";
   }
-  if (newPhase === "CLOSING") {
+  if (newPhase === "CLOSING" && !moneyReplaced) {
     const is55k = ["SVC-01", "SVC-02", "SVC-03"].includes(recommendedService);
     if (!is55k) {
       aiReply += `
@@ -653,15 +721,15 @@ ${market.summary}
 \u{1F447} \u30B5\u30F3\u30D7\u30EB\u78BA\u8A8D\u30FB\u7533\u8FBC\u307F
 https://shield.the-horizons-innovation.com/presentation.html
 
-\u300C\u7533\u3057\u8FBC\u307F\u307E\u3059\u300D\u3068\u9001\u308C\u3070\u632F\u8FBC\u5148\u3092\u3054\u6848\u5185\u3057\u307E\u3059\u{1F4B3}`;
+お支払いは PayPal(カード可)か銀行振込です。「申し込みます」と送っていただければ、お支払いのご案内をお送りします💳`;
     } else {
       aiReply += `
 
 \u{1F447} \u304A\u7533\u3057\u8FBC\u307F\u306F\u3053\u3061\u3089
 https://shield.the-horizons-innovation.com/presentation.html
 
-\u300C\u7533\u3057\u8FBC\u307F\u307E\u3059\u300D\u3068\u9001\u3063\u3066\u3044\u305F\u3060\u3051\u308C\u3070
-\u632F\u8FBC\u5148\u3092\u3054\u6848\u5185\u3057\u307E\u3059\u{1F4B3}`;
+「申し込みます」と送っていただければ
+お支払いのご案内(PayPal・銀行振込)をお送りします💳`;
     }
   }
   history.messages.push({ role: "assistant", content: aiReply });
@@ -986,8 +1054,8 @@ ${result.red_flags.slice(0, 2).map((f) => `\u30FB${f}`).join("\n")}${result.red_
 \u{1F447} \u4ECA\u3059\u3050\u7533\u3057\u8FBC\u3080
 https://shield.the-horizons-innovation.com
 
-\u300C\u7533\u3057\u8FBC\u307F\u307E\u3059\u300D\u3068\u9001\u308C\u3070
-\u632F\u8FBC\u5148\u3092\u3054\u6848\u5185\u3057\u307E\u3059\u{1F4B3}`;
+「申し込みます」と送れば
+お支払いのご案内(PayPal・銀行振込)をお送りします💳`;
     }
     replyMsg = adaptForPartner(replyMsg, partnerFlag);
     const senderLabel = partnerFlag ? (userId + " \u2605\u52A0\u76DF\u5E97") : userId;
@@ -1464,8 +1532,8 @@ ${result.red_flags.slice(0, 2).map((f) => `\u30FB${f}`).join("\n")}${result.red_
 \u{1F447} \u4ECA\u3059\u3050\u7533\u3057\u8FBC\u3080
 https://shield.the-horizons-innovation.com
 
-\u300C\u7533\u3057\u8FBC\u307F\u307E\u3059\u300D\u3068\u9001\u308C\u3070
-\u632F\u8FBC\u5148\u3092\u3054\u6848\u5185\u3057\u307E\u3059\u{1F4B3}`;
+「申し込みます」と送れば
+お支払いのご案内(PayPal・銀行振込)をお送りします💳`;
     }
     replyMsg = adaptForPartner(replyMsg, partnerFlag);
     const senderLabel = partnerFlag ? (userId + " \u2605\u52A0\u76DF\u5E97") : userId;
@@ -1674,6 +1742,8 @@ async function runFollowups(env) {
       // 2026-10-13 issue #13: if the flag cannot be read, skip this user this hour (never drip on a failed read).
       const isP = await kvFlag(env, `partner:${userId}`);
       if (isP !== "no") continue;
+      // v28: 人が返す相手には追客を送らない(読めない時も送らない)。
+      if ((await kvFlag(env, `human:${userId}`)) !== "no") continue;
       const data = await env.SEEN_STORE.get(name);
       if (!data) continue;
       let history;
@@ -2278,6 +2348,56 @@ async function kiraGroupName(env, gid) {
 async function handleOwnerLessonCommand(text, replyToken, env) {
   const t = String(text || "").trim();
   let m;
+  // 2026-11-25 v28: 人が返す相手(KIRA は返さず、届いた文と写真を大賀さんに回す)。
+  if ((m = t.match(/^人が返す\s+(U[0-9a-f]{32})$/))) {
+    try { await env.SEEN_STORE.put("human:" + m[1], JSON.stringify({ since: Date.now(), by: "owner" }), { expirationTtl: 60 * 60 * 24 * 90 }); } catch (e) {
+      await replyToLine(replyToken, "記録できませんでした(読み書きの失敗)。少し置いてもう一度送ってください。", env.LINE_CHANNEL_TOKEN);
+      return true;
+    }
+    await replyToLine(replyToken, "以後 " + m[1] + " には KIRA は返さず、届いた文と写真を大賀さんに回します(90 日)。戻すときは「KIRAに戻す " + m[1] + "」。", env.LINE_CHANNEL_TOKEN);
+    return true;
+  }
+  if ((m = t.match(/^KIRAに戻す\s+(U[0-9a-f]{32})$/))) {
+    try { await env.SEEN_STORE.delete("human:" + m[1]); } catch (e) {
+      await replyToLine(replyToken, "戻せませんでした(読み書きの失敗)。少し置いてもう一度送ってください。", env.LINE_CHANNEL_TOKEN);
+      return true;
+    }
+    await replyToLine(replyToken, m[1] + " を KIRA に戻しました。", env.LINE_CHANNEL_TOKEN);
+    return true;
+  }
+  if (/^人が返す一覧$/.test(t)) {
+    let ks;
+    try { ks = await kiraKvListAll(env, "human:"); } catch (e) {
+      await replyToLine(replyToken, "一覧を読めませんでした。少し置いてもう一度送ってください。", env.LINE_CHANNEL_TOKEN);
+      return true;
+    }
+    await replyToLine(replyToken, ks.length ? "人が返す相手:\n" + ks.map((k, i) => (i + 1) + ". " + k.name.slice(6)).join("\n") : "人が返す相手はいません。", env.LINE_CHANNEL_TOKEN);
+    return true;
+  }
+  // 2026-11-25 v28: AI が振込先らしき物を書いた会話を探す(会話の記録 chat:* は最大 20 発言、30 日)。見つけた相手は「人が返す」で止める。
+  if (/^振込先の誤りを探す$/.test(t)) {
+    let ks;
+    try { ks = await kiraKvListAll(env, "chat:"); } catch (e) {
+      await replyToLine(replyToken, "会話の一覧を読めませんでした。少し置いてもう一度送ってください。", env.LINE_CHANNEL_TOKEN);
+      return true;
+    }
+    const b = parseBankInfo(env);
+    const hits = [];
+    let unread = 0;
+    for (const k of ks) {
+      let h = null;
+      try { h = JSON.parse((await env.SEEN_STORE.get(k.name)) || "null"); } catch (e) { unread++; continue; }
+      if (!h || !Array.isArray(h.messages)) continue;
+      const bad = h.messages.find((x) => x && x.role === "assistant" && typeof x.content === "string" && aiWroteMoneyDetails(x.content)
+        && !(b && x.content.includes(b.bank) && x.content.includes(b.number)));
+      if (bad) hits.push(k.name.slice(5) + ": " + bad.content.replace(/[0-9]{6,8}/g, "[番号]").replace(/\s+/g, " ").slice(0, 60));
+    }
+    const head = "会話 " + ks.length + " 件を見た(読めなかった物 " + unread + " 件)。";
+    await replyToLine(replyToken, hits.length
+      ? head + "\nAI が振込先・決済の細目を書いた会話 " + hits.length + " 件:\n" + hits.slice(0, 20).join("\n") + (hits.length > 20 ? "\n…ほか " + (hits.length - 20) + " 件" : "") + "\n\n止めるときは「人が返す U…」"
+      : head + "\nAI が振込先・決済の細目を書いた会話は見つかりませんでした。", env.LINE_CHANNEL_TOKEN);
+    return true;
+  }
   if (/^経験帳$/.test(t)) {
     let g, groups = 0, items = 0;
     try {

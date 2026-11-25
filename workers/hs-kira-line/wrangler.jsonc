@@ -7,6 +7,8 @@
   //  - BANK_INFO は顧客に案内する振込先。8/9にダッシュボードで実値へ修正済み。
   //  - LINE_USER_ID は代表への push 通知の宛先で、コード内8箇所で使う。
   //    他の5本の Worker と同じく Secret に寄せた。vars には置かない。
+  //  - 2026-11-25 v28: 名義はサイトの銀行振込の頁と同じ「ザ ホライズンズ（カ」にした。前の値は名義に空白があり、
+  //    コードが 5 つ目の語までしか読まず、お客さまへの案内に名義が「The」とだけ出ていた。
   //  - cron はダッシュボードの Triggers から実測: 0 * * * *（毎時0分）。
   "name": "hs-kira-line",
   "preview_urls": false,
@@ -18,6 +20,6 @@
     { "binding": "SEEN_STORE", "id": "a67d53a8777f4952bb81440d60287e91" }
   ],
   "vars": {
-    "BANK_INFO": "\u9759\u5ca1\u9280\u884c \u5e73\u585a\u652f\u5e97 \u666e\u901a 0479810 The HORIZ\u97f3s\u682a\u5f0f\u4f1a\u793e"
+    "BANK_INFO": "\u9759\u5ca1\u9280\u884c \u5e73\u585a\u652f\u5e97 \u666e\u901a 0479810 \u30b6 \u30db\u30e9\u30a4\u30ba\u30f3\u30ba\uff08\u30ab"
   }
 }
