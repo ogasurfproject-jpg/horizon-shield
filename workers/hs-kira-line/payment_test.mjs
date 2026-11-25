@@ -260,7 +260,7 @@ console.log("\n16) /health の版");
 {
   const env = makeEnv();
   const h = await (await W.fetch(new Request("https://x/health"), env, { waitUntil: () => {} })).json();
-  check("version は v28-payment-20261125", h.version === "v28-payment-20261125", h.version);
+  check("version は v28b-owner-20261125", h.version === "v28b-owner-20261125", h.version);
 }
 
 console.log("\nchecks: " + checks + ", failed: " + fail);

@@ -133,7 +133,7 @@ console.log("\n8) 月が変われば、また知らせる");
 console.log("\n9) /health の版");
 {
   const h = await health(await freshEnv());
-  check("version は v28-payment-20261125", h.version === "v28-payment-20261125", h.version);
+  check("version は v28b-owner-20261125", h.version === "v28b-owner-20261125", h.version);
 }
 
 const EXPECT = 18;

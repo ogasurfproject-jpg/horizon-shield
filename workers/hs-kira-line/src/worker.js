@@ -309,7 +309,7 @@ var worker_default = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === "/health") {
-      return json({ status: "ok", version: "v28-payment-20261125", service: "hs-kira-line", lessons: "per-key-20261013", line_last_fail: await kiraLineLastFail(env), line_quota: await kiraLineQuota(env) });
+      return json({ status: "ok", version: "v28b-owner-20261125", service: "hs-kira-line", lessons: "per-key-20261013", line_last_fail: await kiraLineLastFail(env), line_quota: await kiraLineQuota(env) });
     }
     if (url.pathname === "/diagnosis" && request.method === "POST") {
       return handleDiagnosis(request, env, ctx);
@@ -599,6 +599,16 @@ async function handleKiraResponse(userMessage, replyToken, userId, env) {
     await kiraReadFailAck(env, replyToken, QUOTE_ACK_TEXT, "会話の記録を今は読み込めなかったため、KIRA は返していません", userId, userMessage);
     return;
   }
+  // 2026-11-25 v28b: 大賀さんからの申し送り(このお客さまだけ)。読めない時は「無い」と見なさず、KIRA は返さず大賀さんへ回す。
+  let note = null;
+  try {
+    const nr = await env.SEEN_STORE.get("note:" + userId);
+    note = nr ? JSON.parse(nr) : null;
+  } catch (e) {
+    await kiraReadFailAck(env, replyToken, QUOTE_ACK_TEXT, "申し送りを今は読み込めなかったため、KIRA は返していません", userId, userMessage);
+    return;
+  }
+  const noPay = !!(note && note.text && NOTE_NO_PAY_RE.test(String(note.text)));
   let mcpContext = "";
   try {
     const mcpKeywords = ["\u5857\u88C5", "\u5C4B\u6839", "\u30AD\u30C3\u30C1\u30F3", "\u6D74\u5BA4", "\u30C8\u30A4\u30EC", "\u7D66\u6E6F\u5668", "\u30A8\u30A2\u30B3\u30F3", "\u30B7\u30ED\u30A2\u30EA", "\u89E3\u4F53", "\u5916\u58C1", "\u30EA\u30D5\u30A9\u30FC\u30E0", "\u5DE5\u4E8B", "\u898B\u7A4D", "\u8CBB\u7528", "\u76F8\u5834", "\u30B0\u30EA\u30B9\u30C8\u30E9\u30C3\u30D7", "\u30C0\u30AF\u30C8", "\u9632\u97F3", "\u65AD\u71B1", "\u592A\u967D\u5149", "\u84C4\u96FB\u6C60", "\u5E8A", "\u30AF\u30ED\u30B9", "\u5185\u88C5", "\u914D\u7BA1", "\u96FB\u6C17", "\u30B5\u30C3\u30B7", "\u7A93", "\u8DB3\u5834"];
@@ -643,6 +653,14 @@ ${market.summary}
     await saveHistory(userId, history, env);
     return;
   }
+  // 2026-11-25 v28b: 申し送りで「支払い不要」のお客さまには、お支払いの案内を出さない。
+  if (noPay && isPaymentRequest(userMessage)) {
+    await replyToLine(replyToken, NOTE_NO_PAY_TEXT, env.LINE_CHANNEL_TOKEN);
+    await pushToLine(env.LINE_USER_ID, "💰【お支払いの問い(申し送り: 支払い不要)】\nユーザー: " + userId + "\n案内は出さず「今回のお支払いは不要です」と返しました。\n" + userMessage.slice(0, 400), env.LINE_CHANNEL_TOKEN);
+    history.messages.push({ role: "assistant", content: NOTE_NO_PAY_TEXT });
+    await saveHistory(userId, history, env);
+    return;
+  }
   // v28: 支払いの話は、どの段でも AI に渡さず、決まった文(PayPal と正しい振込先)で返す。
   //   2026-11-25: 「クレジットカードでお支払いお願いいたします」が前の 6 つの決まった言葉に当たらず AI に回り、AI が振込先を作った。
   if (isPaymentRequest(userMessage)) {
@@ -651,7 +669,7 @@ ${market.summary}
     await pushToLine(
       env.LINE_USER_ID,
       `💰【お支払い案内送付】
-ユーザー: ${userId}
+ユーザー: ${userId}${userId === env.LINE_USER_ID ? "(大賀さんご自身の LINE から)" : ""}
 推奨: ${history.recommendedService || "未定"}
 
 入金(PayPal か振込)を確かめてからサービスを始めてください！`,
@@ -678,7 +696,7 @@ ${market.summary}
         max_tokens: 500,
         system: KIRA_SYSTEM + `
 
-\u73FE\u5728\u306E\u30D5\u30A7\u30FC\u30BA: ${history.phase}` + marketContext,
+\u73FE\u5728\u306E\u30D5\u30A7\u30FC\u30BA: ${history.phase}` + marketContext + (note && note.text ? "\n\n【担当(大賀)からの申し送り。このお客さまへの返事では必ず守る】\n" + String(note.text).slice(0, 500) : ""),
         messages: history.messages
       })
     });
@@ -704,14 +722,14 @@ ${market.summary}
   let moneyReplaced = false;
   if (aiWroteMoneyDetails(aiReply)) {
     const orig = aiReply;
-    aiReply = buildPaymentMessage(env, recommendedService || history.recommendedService || null);
+    aiReply = noPay ? NOTE_NO_PAY_TEXT : buildPaymentMessage(env, recommendedService || history.recommendedService || null);
     moneyReplaced = true;
     try { await pushToLine(env.LINE_USER_ID, "【KIRA の返事を差し替えた】AI がお支払いの細目(振込先・リンク・決済の可否)を書いたため、送らずに決まったお支払いの案内に差し替えました。\nユーザー: " + userId + "\n元の文(頭 200 字、数字は伏せた): " + orig.slice(0, 200).replace(/[0-9]{6,8}/g, "[番号]"), env.LINE_CHANNEL_TOKEN); } catch (_e) {}
   }
   if (!moneyReplaced && containsCompanyKeyword(userMessage) && !aiReply.includes("業者チェック")) {
     aiReply += "\n\n\u{1F4A1}\u300C\u696D\u8005\u30C1\u30A7\u30C3\u30AF: \u4F1A\u793E\u540D\u300D\u3068\u9001\u308B\u3068\u3001\u305D\u306E\u696D\u8005\u3092\u5373\u8ABF\u67FB\u3057\u307E\u3059\uFF01";
   }
-  if (newPhase === "CLOSING" && !moneyReplaced) {
+  if (newPhase === "CLOSING" && !moneyReplaced && !noPay) {
     const is55k = ["SVC-01", "SVC-02", "SVC-03"].includes(recommendedService);
     if (!is55k) {
       aiReply += `
@@ -1744,6 +1762,8 @@ async function runFollowups(env) {
       if (isP !== "no") continue;
       // v28: 人が返す相手には追客を送らない(読めない時も送らない)。
       if ((await kvFlag(env, `human:${userId}`)) !== "no") continue;
+      // v28b: 申し送りのあるお客さまには追客を送らない(読めない時も送らない)。
+      if ((await kvFlag(env, `note:${userId}`)) !== "no") continue;
       const data = await env.SEEN_STORE.get(name);
       if (!data) continue;
       let history;
@@ -2344,12 +2364,135 @@ async function kiraGroupName(env, gid) {
   } catch (_e) {}
   return "加盟店グループ";
 }
+// 2026-11-25 v28b: 大賀さんの合図は、言い回しの揺れを受ける。
+//   23:35 JST、「振り込みの誤りを探す」が「振込先の誤りを探す」と一字違いで合図と見なされず、お客さま向けの
+//   お支払いの案内が大賀さんに返った。全角は NFKC で半角にし、空白は無視し、振込・振り込み・振込み・口座、
+//   誤り・間違い、探す・調べる、を受ける。相手の ID は大文字でも受けて小文字にそろえ、「ユーザー:」が付いていても読む。
+//   合図らしいのに形が合わない文は、お客さま向けの返事に回さず、合図の一覧を返す(ownerCmdHelpText)。
+var OWNER_CMD_HELP = "大賀さんの合図(全角・空白・言い回しの揺れは受けます)\n"
+  + "・振込先の誤りを探す … AI が振込先を書いた会話を探す\n"
+  + "・人が返す U… … その相手に KIRA は返さず、届いた物を大賀さんへ回す(90 日)\n"
+  + "・KIRAに戻す U… … KIRA の返事に戻す\n"
+  + "・人が返す 名前 … 名前でも受ける(1 人に決まる時だけ)。KIRAに戻す 名前 も同じ\n"
+  + "・人が返す一覧\n"
+  + "・会話の一覧 … お客さまの会話を、LINE の名前つきで新しい順に\n"
+  + "・申し送り U…(か名前) 本文 … その方への返事で KIRA に守らせる事(90 日)。「無料」「支払い不要」と書けば、お支払いの問いに案内を出さない\n"
+  + "・申し送り U…(か名前) … 今の申し送りを見る / 申し送りを消す U…(か名前)\n"
+  + "・経験帳 / おぼえて 本文 / わすれて 番号\n"
+  + "・グループへ 本文 / 記録 本文 / グループ一覧\n"
+  + "・1対1へ 本文 / 1対1記録 本文 / 1対1一覧\n"
+  + "U… は U で始まる 33 文字の ID です(お知らせの「ユーザー:」の後ろ)。";
+// 2026-11-25 v28b: 申し送りに「無料」「支払い不要」などがあるお客さまには、お支払いの案内を出さない。
+var NOTE_NO_PAY_RE = /(無料|支払い?不要|お支払いは不要|支払いは不要|料金不要|代金不要|料金はいただ(か|き)ません|お代はいただ(か|き)ません|いただかない)/;
+var NOTE_NO_PAY_TEXT = "今回のお支払いは不要です(担当の大賀から承っております)。\nご不明な点は、このままメッセージをお送りください。";
+function ownerCmdNorm(t) {
+  let s = String(t || "");
+  try { s = s.normalize("NFKC"); } catch (_e) {}
+  return s.replace(/\s+/g, "");
+}
+function ownerCmdMatch(t, kind) {
+  const n = ownerCmdNorm(t);
+  if (!n || n.length > 80) return null;
+  const um = n.match(/U[0-9a-fA-F]{32}(?![0-9a-zA-Z])/);
+  const uid = um ? "U" + um[0].slice(1).toLowerCase() : null;
+  const head = (um ? n.replace(um[0], "") : n).replace(/ユーザー(ID)?:?/gi, "");
+  if (kind === "scan") {
+    return !um && /(誤り|誤|間違|まちが|あやまり)/.test(head) && /(探|さが|調べ|しらべ|検索|見つけ)/.test(head) && /(振|ふりこ|口座|入金)/.test(head) ? [n] : null;
+  }
+  if (kind === "list") {
+    return !um && /^(人が返す|人がかえす|ひとがかえす|人間が返す|手動)の?(一覧|いちらん|リスト|相手)を?(見せて|出して|ください)?$/.test(head) ? [n] : null;
+  }
+  if (kind === "convlist") {
+    return !um && /^(会話|お客さま|お客様|お客|客)の?(一覧|いちらん|リスト)を?(見せて|出して|ください)?$/.test(head) ? [n] : null;
+  }
+  if (kind === "human") {
+    return uid && /^を?(人が返す|人がかえす|ひとがかえす|人間が返す|人が対応|人で返す|手で返す|手動|KIRAを止める|キラを止める)(に|にする|にして|で|する|して)?$/i.test(head) ? [n, uid] : null;
+  }
+  if (kind === "back") {
+    return uid && /^を?(KIRAに戻す|KIRAへ戻す|キラに戻す|キラへ戻す|自動に戻す|KIRAに戻して|キラに戻して)$/i.test(head) ? [n, uid] : null;
+  }
+  return null;
+}
+function ownerCmdHelpText(t) {
+  const n = ownerCmdNorm(t);
+  if (!n || n.length > 80) return null;
+  if (/^(合図|合図一覧|合図の一覧|ヘルプ|help|使い方|コマンド)$/i.test(n)) return OWNER_CMD_HELP;
+  if (/(人が返す|人がかえす|KIRAに戻す|キラに戻す|申し送り|誤りを探|間違いを探|誤りを調べ|間違いを調べ|誤りをさが|間違いをさが)/i.test(n)) return "合図の形が読み取れませんでした。\n" + OWNER_CMD_HELP;
+  return null;
+}
+// 2026-11-25 v28b: 「人が返す 山口」「山口さんを人が返す」の様に、ID の代わりに名前で書いた合図を読む。
+function ownerCmdName(t, kind) {
+  const n = ownerCmdNorm(t);
+  if (!n || n.length > 40 || /U[0-9a-fA-F]{32}/.test(n)) return null;
+  const W = kind === "human"
+    ? "(?:人が返す|人がかえす|ひとがかえす|人間が返す|人が対応|人で返す|手で返す|手動|KIRAを止める|キラを止める)"
+    : "(?:KIRAに戻す|KIRAへ戻す|キラに戻す|キラへ戻す|自動に戻す)";
+  const T = "(?:に|にする|にして|で|する|して)?";
+  let m = n.match(new RegExp("^" + W + T + ":?(.{1,20})$", "i"));
+  let name = m ? m[1] : null;
+  if (!name) { m = n.match(new RegExp("^(.{1,20}?)を" + W + T + "$", "i")); name = m ? m[1] : null; }
+  if (!name) return null;
+  name = name.replace(/(さん|様|さま|氏)$/, "");
+  if (!name || /^(一覧|いちらん|リスト|相手)$/.test(name)) return null;
+  return { name };
+}
+// 2026-11-25 v28b: お客さまの LINE の名前(プロフィール)。読めない時は null。
+async function kiraConsumerName(env, uid) {
+  try {
+    const r = await fetch("https://api.line.me/v2/bot/profile/" + encodeURIComponent(uid), { headers: { "Authorization": "Bearer " + env.LINE_CHANNEL_TOKEN } });
+    if (r && r.ok) {
+      const j = await r.json();
+      if (j && j.displayName) return String(j.displayName);
+    }
+  } catch (_e) {}
+  return null;
+}
+// 2026-11-25 v28b: お客さまの会話(chat:*、大賀さん自身を除く)を、最後の発言が新しい順に読む。
+//   一覧を読めない時は投げる(呼ぶ側が「読めなかった」と返す)。1 件ずつ読めない物は数だけ数える。
+async function kiraConsumerConvs(env) {
+  const ks = await kiraKvListAll(env, "chat:");
+  const list = [];
+  let unread = 0;
+  for (const k of ks) {
+    const uid = k.name.slice(5);
+    if (!/^U[0-9a-f]{32}$/.test(uid) || uid === env.LINE_USER_ID) continue;
+    let h = null;
+    try { h = JSON.parse((await env.SEEN_STORE.get(k.name)) || "null"); } catch (e) { unread++; continue; }
+    if (!h || !Array.isArray(h.messages)) continue;
+    list.push({ uid, h, at: Number(h.lastEventAt || h.registeredAt || 0) });
+  }
+  list.sort((a, b) => b.at - a.at);
+  return { list, unread };
+}
+async function ownerFindByName(env, name) {
+  const want = ownerCmdNorm(name).toLowerCase();
+  const c = await kiraConsumerConvs(env);
+  const found = [];
+  for (const x of c.list.slice(0, 30)) {
+    const nm = await kiraConsumerName(env, x.uid);
+    if (nm && ownerCmdNorm(nm).toLowerCase().includes(want)) found.push({ uid: x.uid, name: nm });
+  }
+  return found;
+}
+function kiraJst(ms) {
+  if (!ms) return "不明";
+  const d = new Date(Number(ms) + 9 * 3600e3);
+  const p = (x) => String(x).padStart(2, "0");
+  return (d.getUTCMonth() + 1) + "/" + d.getUTCDate() + " " + p(d.getUTCHours()) + ":" + p(d.getUTCMinutes());
+}
+// 2026-11-25 v28b: 見つけた会話の、お金の細目のあたりを短く出す(番号は伏せる)。
+function kiraMoneySnippet(s) {
+  const t = String(s || "");
+  const m = t.match(BANKLIKE_RE) || t.match(/準備中/) || t.match(/paypal\.com[^\s]*/i);
+  const i = m ? Math.max(0, m.index - 20) : 0;
+  return t.slice(i, i + 70).replace(/[0-9]{6,8}/g, "[番号]").replace(/\s+/g, " ");
+}
 // 大賀さんの 1 対 1 だけで使える経験帳の口: 「経験帳」で一覧、「おぼえて ...」で全体に足す、「わすれて 番号」で全体から消す。
 async function handleOwnerLessonCommand(text, replyToken, env) {
   const t = String(text || "").trim();
   let m;
   // 2026-11-25 v28: 人が返す相手(KIRA は返さず、届いた文と写真を大賀さんに回す)。
-  if ((m = t.match(/^人が返す\s+(U[0-9a-f]{32})$/))) {
+  if ((m = ownerCmdMatch(t, "human"))) {
     try { await env.SEEN_STORE.put("human:" + m[1], JSON.stringify({ since: Date.now(), by: "owner" }), { expirationTtl: 60 * 60 * 24 * 90 }); } catch (e) {
       await replyToLine(replyToken, "記録できませんでした(読み書きの失敗)。少し置いてもう一度送ってください。", env.LINE_CHANNEL_TOKEN);
       return true;
@@ -2357,7 +2500,7 @@ async function handleOwnerLessonCommand(text, replyToken, env) {
     await replyToLine(replyToken, "以後 " + m[1] + " には KIRA は返さず、届いた文と写真を大賀さんに回します(90 日)。戻すときは「KIRAに戻す " + m[1] + "」。", env.LINE_CHANNEL_TOKEN);
     return true;
   }
-  if ((m = t.match(/^KIRAに戻す\s+(U[0-9a-f]{32})$/))) {
+  if ((m = ownerCmdMatch(t, "back"))) {
     try { await env.SEEN_STORE.delete("human:" + m[1]); } catch (e) {
       await replyToLine(replyToken, "戻せませんでした(読み書きの失敗)。少し置いてもう一度送ってください。", env.LINE_CHANNEL_TOKEN);
       return true;
@@ -2365,7 +2508,7 @@ async function handleOwnerLessonCommand(text, replyToken, env) {
     await replyToLine(replyToken, m[1] + " を KIRA に戻しました。", env.LINE_CHANNEL_TOKEN);
     return true;
   }
-  if (/^人が返す一覧$/.test(t)) {
+  if (ownerCmdMatch(t, "list")) {
     let ks;
     try { ks = await kiraKvListAll(env, "human:"); } catch (e) {
       await replyToLine(replyToken, "一覧を読めませんでした。少し置いてもう一度送ってください。", env.LINE_CHANNEL_TOKEN);
@@ -2375,7 +2518,7 @@ async function handleOwnerLessonCommand(text, replyToken, env) {
     return true;
   }
   // 2026-11-25 v28: AI が振込先らしき物を書いた会話を探す(会話の記録 chat:* は最大 20 発言、30 日)。見つけた相手は「人が返す」で止める。
-  if (/^振込先の誤りを探す$/.test(t)) {
+  if (ownerCmdMatch(t, "scan")) {
     let ks;
     try { ks = await kiraKvListAll(env, "chat:"); } catch (e) {
       await replyToLine(replyToken, "会話の一覧を読めませんでした。少し置いてもう一度送ってください。", env.LINE_CHANNEL_TOKEN);
@@ -2390,12 +2533,85 @@ async function handleOwnerLessonCommand(text, replyToken, env) {
       if (!h || !Array.isArray(h.messages)) continue;
       const bad = h.messages.find((x) => x && x.role === "assistant" && typeof x.content === "string" && aiWroteMoneyDetails(x.content)
         && !(b && x.content.includes(b.bank) && x.content.includes(b.number)));
-      if (bad) hits.push(k.name.slice(5) + ": " + bad.content.replace(/[0-9]{6,8}/g, "[番号]").replace(/\s+/g, " ").slice(0, 60));
+      if (bad) hits.push({ uid: k.name.slice(5), snip: kiraMoneySnippet(bad.content), n: h.messages.filter((x) => x && x.role === "assistant" && typeof x.content === "string" && aiWroteMoneyDetails(x.content) && !(b && x.content.includes(b.bank) && x.content.includes(b.number))).length });
+    }
+    const lines = [];
+    for (const x of hits.slice(0, 20)) {
+      const nm = await kiraConsumerName(env, x.uid);
+      lines.push("・" + (nm ? nm + " さん" : "(名前を読めない)") + " " + x.uid + "(該当 " + x.n + " 件)\n  「…" + x.snip + "…」");
     }
     const head = "会話 " + ks.length + " 件を見た(読めなかった物 " + unread + " 件)。";
     await replyToLine(replyToken, hits.length
-      ? head + "\nAI が振込先・決済の細目を書いた会話 " + hits.length + " 件:\n" + hits.slice(0, 20).join("\n") + (hits.length > 20 ? "\n…ほか " + (hits.length - 20) + " 件" : "") + "\n\n止めるときは「人が返す U…」"
+      ? head + "\nAI が振込先・決済の細目を書いた会話 " + hits.length + " 件:\n" + lines.join("\n") + (hits.length > 20 ? "\n…ほか " + (hits.length - 20) + " 件" : "") + "\n\n止めるときは「人が返す U…」か「人が返す 名前」"
       : head + "\nAI が振込先・決済の細目を書いた会話は見つかりませんでした。", env.LINE_CHANNEL_TOKEN);
+    return true;
+  }
+  // 2026-11-25 v28b: 申し送り。大賀さんが、そのお客さまへの返事で KIRA に守らせる事を書いておく(note:<uid>、90 日)。
+  //   「申し送り U…(か名前) 本文」で残す、「申し送り U…(か名前)」で見る、「申し送りを消す U…(か名前)」で消す。
+  //   本文に「無料」「支払い不要」などがあれば、お支払いの問いには案内を出さず NOTE_NO_PAY_TEXT を返す。
+  {
+    let s0 = String(t || "");
+    try { s0 = s0.normalize("NFKC"); } catch (_e) {}
+    s0 = s0.trim();
+    const mn = s0.match(/^申し送り(を消す|を削除|消す)?[\s:]*(U[0-9a-fA-F]{32}|[^\s:]{1,20})(?:[\s:]+([\s\S]{1,500}))?$/);
+    if (mn) {
+      const del = !!mn[1];
+      let uid = null, nm = null;
+      if (/^U[0-9a-fA-F]{32}$/.test(mn[2])) uid = "U" + mn[2].slice(1).toLowerCase();
+      else {
+        const nameIn = mn[2].replace(/(さん|様|さま|氏)$/, "");
+        let found;
+        try { found = await ownerFindByName(env, nameIn); } catch (e) {
+          await replyToLine(replyToken, "会話の一覧を読めませんでした。少し置いてもう一度送ってください。", env.LINE_CHANNEL_TOKEN);
+          return true;
+        }
+        if (found.length !== 1) {
+          await replyToLine(replyToken, found.length
+            ? "名前に「" + nameIn + "」を含むお客さまが " + found.length + " 人います。ID で送ってください:\n" + found.slice(0, 10).map((x, j) => (j + 1) + ". " + x.name + " さん " + x.uid).join("\n")
+            : "名前に「" + nameIn + "」を含むお客さまは、最近 30 日の会話の中に見つかりませんでした。「会話の一覧」で ID を確かめて「申し送り U… 本文」と送ってください。", env.LINE_CHANNEL_TOKEN);
+          return true;
+        }
+        uid = found[0].uid; nm = found[0].name;
+      }
+      const label = nm ? nm + " さん(" + uid + ")" : uid;
+      try {
+        if (del) {
+          await env.SEEN_STORE.delete("note:" + uid);
+          await replyToLine(replyToken, label + " への申し送りを消しました。", env.LINE_CHANNEL_TOKEN);
+        } else if (mn[3] && mn[3].trim()) {
+          const text = mn[3].trim().slice(0, 500);
+          await env.SEEN_STORE.put("note:" + uid, JSON.stringify({ text, at: Date.now(), by: "owner" }), { expirationTtl: 60 * 60 * 24 * 90 });
+          await replyToLine(replyToken, label + " への申し送りを残しました(90 日)。KIRA はこの方への返事でこれを守り、追客も送りません" + (NOTE_NO_PAY_RE.test(text) ? "。お支払いの問いには、案内を出さず「今回のお支払いは不要です」と返します" : "") + "。\n「" + text + "」", env.LINE_CHANNEL_TOKEN);
+        } else {
+          const cur = await env.SEEN_STORE.get("note:" + uid);
+          const j = cur ? JSON.parse(cur) : null;
+          await replyToLine(replyToken, j && j.text ? label + " への申し送り:\n「" + j.text + "」" : label + " への申し送りはありません。", env.LINE_CHANNEL_TOKEN);
+        }
+      } catch (e) {
+        await replyToLine(replyToken, "申し送りを読み書きできませんでした。少し置いてもう一度送ってください。", env.LINE_CHANNEL_TOKEN);
+      }
+      return true;
+    }
+  }
+  // 2026-11-25 v28b: お客さまの会話を、LINE の名前つきで新しい順に出す(ID を探さずに「人が返す」を送れるように)。
+  if (ownerCmdMatch(t, "convlist")) {
+    let c;
+    try { c = await kiraConsumerConvs(env); } catch (e) {
+      await replyToLine(replyToken, "会話の一覧を読めませんでした。少し置いてもう一度送ってください。", env.LINE_CHANNEL_TOKEN);
+      return true;
+    }
+    const rows = [];
+    let i = 0;
+    for (const x of c.list.slice(0, 20)) {
+      i++;
+      const nm = await kiraConsumerName(env, x.uid);
+      let hm = "no";
+      try { hm = (await env.SEEN_STORE.get("human:" + x.uid)) ? "yes" : "no"; } catch (_e) { hm = "?"; }
+      rows.push(i + ". " + (nm ? nm + " さん" : "(名前を読めない)") + (hm === "yes" ? " [人が返す]" : hm === "?" ? " [人が返すか読めない]" : "") + "\n   " + x.uid + "  発言 " + x.h.messages.length + "・最後 " + kiraJst(x.at));
+    }
+    await replyToLine(replyToken, c.list.length
+      ? "お客さまの会話 " + c.list.length + " 件(最近 30 日、新しい順" + (c.list.length > 20 ? "、上の 20 件" : "") + (c.unread ? "、読めなかった物 " + c.unread + " 件" : "") + "):\n" + rows.join("\n") + "\n\n止めるときは「人が返す U…」か「人が返す 名前」"
+      : "お客さまの会話はありません(最近 30 日" + (c.unread ? "、読めなかった物 " + c.unread + " 件" : "") + ")。", env.LINE_CHANNEL_TOKEN);
     return true;
   }
   if (/^経験帳$/.test(t)) {
@@ -2518,6 +2734,39 @@ async function handleOwnerLessonCommand(text, replyToken, env) {
     }
     return true;
   }
+  // 2026-11-25 v28b: 「人が返す 山口」の様に名前でも受ける。名前が 1 人に決まる時だけ記録し、2 人以上なら ID を出して選んでもらう。
+  const byH = ownerCmdName(t, "human");
+  const byB = byH ? null : ownerCmdName(t, "back");
+  if (byH || byB) {
+    const kind = byH ? "human" : "back";
+    const nameIn = (byH || byB).name;
+    let found;
+    try { found = await ownerFindByName(env, nameIn); } catch (e) {
+      await replyToLine(replyToken, "会話の一覧を読めませんでした。少し置いてもう一度送ってください。", env.LINE_CHANNEL_TOKEN);
+      return true;
+    }
+    if (found.length !== 1) {
+      await replyToLine(replyToken, found.length
+        ? "名前に「" + nameIn + "」を含むお客さまが " + found.length + " 人います。ID で送ってください:\n" + found.slice(0, 10).map((x, j) => (j + 1) + ". " + x.name + " さん " + x.uid).join("\n")
+        : "名前に「" + nameIn + "」を含むお客さまは、最近 30 日の会話の中に見つかりませんでした。「会話の一覧」で ID を確かめて「" + (kind === "human" ? "人が返す" : "KIRAに戻す") + " U…」と送ってください。", env.LINE_CHANNEL_TOKEN);
+      return true;
+    }
+    const x = found[0];
+    try {
+      if (kind === "human") await env.SEEN_STORE.put("human:" + x.uid, JSON.stringify({ since: Date.now(), by: "owner" }), { expirationTtl: 60 * 60 * 24 * 90 });
+      else await env.SEEN_STORE.delete("human:" + x.uid);
+    } catch (e) {
+      await replyToLine(replyToken, "記録できませんでした(読み書きの失敗)。少し置いてもう一度送ってください。", env.LINE_CHANNEL_TOKEN);
+      return true;
+    }
+    await replyToLine(replyToken, kind === "human"
+      ? "以後 " + x.name + " さん(" + x.uid + ")には KIRA は返さず、届いた文と写真を大賀さんに回します(90 日)。戻すときは「KIRAに戻す " + x.uid + "」。"
+      : x.name + " さん(" + x.uid + ")を KIRA に戻しました。", env.LINE_CHANNEL_TOKEN);
+    return true;
+  }
+  // 2026-11-25 v28b: 合図らしいのに形が合わない文は、お客さま向けの返事に回さず、合図の一覧を返す。
+  const help = ownerCmdHelpText(t);
+  if (help) { await replyToLine(replyToken, help, env.LINE_CHANNEL_TOKEN); return true; }
   return false;
 }
 async function isPartner(userId, text, env) {
