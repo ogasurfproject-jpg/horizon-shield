@@ -1,0 +1,16 @@
+{
+  "schema": "seki-heartbeat-settled-v0",
+  "settle": "v1.20 (v1.12 agrees on the verdict)",
+  "verdict": "within_grant",
+  "status": "final",
+  "view": {
+    "from": 970715,
+    "to": 977462
+  },
+  "ledger_entries": [
+    380,
+    383
+  ],
+  "settlement_sha256": "1435f05fa259773991bf9f718ab18fa31a4630c5de0cf33d8e688e90091b53d4",
+  "recompute": "anchor_compose.py for each record against its ledger entry (?format=raw and /ots), header_view_fetch.py --to 977462 (from runs/<date>/, the tools are in ../../../musubi-v0), then settle_v1_20.py --settle ../../../musubi-v0/seki_demo_v2/contract.json --event execution_report.anchored.json --admission admission_*.anchored.json --relying-key shield.the-horizons-innovation.com=<keys/seki-door.json> --view view.json"
+}
