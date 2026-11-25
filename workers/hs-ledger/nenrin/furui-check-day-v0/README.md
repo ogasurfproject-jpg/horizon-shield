@@ -87,7 +87,7 @@ The door, https://hs-gateway.oga-surf-project.workers.dev/seki
 
 | GET | What it returns |
 |---|---|
-| `/seki` | the door's policy. Its `furui` block names the runner's rule set and, once the door's daily check call has run (03:47 UTC), `check_call`: the day, the time, `ok`, the admission's `record_sha256`, its decision, reasons and version, a summary of the content block, and whether the ledger accepted it. `check_call_prev` keeps the call before it, so the envelope of yesterday's call can be found among the runner's leaves |
+| `/seki` | the door's policy. Its `furui` block names the runner's rule set and, once the door's daily check call has run (03:47 UTC), `check_call`: the day, the time, `ok`, the admission's `record_sha256`, its decision, reasons and version, a summary of the content block, and whether the ledger accepted it; `runner_asked` (true when the door asked its runners for this call) and `runner_due` (absent from calls recorded before the door read the nonce ahead of its runners; true once the call reached the step where the door asks its runners, whether or not it asked them: the door now refuses a nonce it already answered, a request its party did not sign and a content over 8192 bytes before any runner is asked, and the hourly cron reads `runner_due` to ask a failed call again as often as before). `check_call_prev` keeps the call before it, so the envelope of yesterday's call can be found among the runner's leaves |
 | `/seki/record/{sha256}` | the admission bytes as the door holds them; they must equal the ledger's |
 
 ## Checking a day by hand
