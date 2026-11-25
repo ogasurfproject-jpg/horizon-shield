@@ -1,0 +1,9 @@
+{
+  "public_key_ed25519_b64": "x79/3WXa6Za6+cqRXX/oC0UKP48sqyNzI4M0ZXiReoQ=",
+  "alg": "ed25519",
+  "domain": "shield.the-horizons-innovation.com",
+  "key_url": "https://shield.the-horizons-innovation.com/keys/seki-rows-principal.json",
+  "role": "principal of the SEKI rows store contract (signs a2a-contract-v0)",
+  "operator": "The HORIZONs Co., Ltd.",
+  "note": "a demonstration: the principal, the contractor and the relying party are all The HORIZONs Co., Ltd.; this contract lets the contractor send one text a call to the door's content check and is not an arm's-length agreement; the seed was made on the operator's machine and stays in its Keychain"
+}

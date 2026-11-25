@@ -1,0 +1,9 @@
+{
+  "public_key_ed25519_b64": "usJnCalLolOHyeIF23aQmnIZQDWdu8EH6l//d5hOJdE=",
+  "alg": "ed25519",
+  "domain": "the-horizons-innovation.com",
+  "key_url": "https://shield.the-horizons-innovation.com/keys/seki-rows-agent.json",
+  "role": "contractor of the SEKI rows store contract (signs action requests)",
+  "operator": "The HORIZONs Co., Ltd.",
+  "note": "a demonstration: the principal, the contractor and the relying party are all The HORIZONs Co., Ltd.; this contract lets the contractor send one text a call to the door's content check and is not an arm's-length agreement; the seed was made on the operator's machine and stays in its Keychain"
+}
