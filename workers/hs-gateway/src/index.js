@@ -21,7 +21,7 @@ import { routeVertical } from "./router.js";
 import { callDirectory, buildReceipt, appendToLedger, sha256hex } from "./adapter.js";
 import { canAfford, spend, refund, grantTickets, prepaidStatus, getBalance, PRICES, PACKS, packPrice, YEN_PER_TICKET } from "./tickets.js";
 import { TicketLedgerDO } from "./ticket_do.js";
-import { sekiGuarded, sekiAsk, sekiHeaders, sekiRead, ledgerStoreId, contentMatch, SEKI_TICKETS } from "./seki.js";
+import { sekiGuarded, sekiAsk, sekiHeaders, sekiRead, ledgerStoreId, contentMatch, SEKI_TICKETS, SEKI_BODY_MAX_BYTES, readBodyCapped } from "./seki.js";
 
 // チケットの販売(2026-10-10 TOshi): 実証期間中は売らない。必要な枚数は運営が /admin/grant で無償で付ける。
 // 売るのは env.TICKET_SALES が "open" のときだけ(wrangler.jsonc の vars。無ければ止まったまま)。
@@ -316,6 +316,9 @@ export default {
           // 2026-11-07: SEKI が守る店の /report は、走る payload と門に見せる seki.content が同じ時だけ通す(src/seki.js contentMatch)。
           // seki-heartbeat と TOOSHI と deploy の台本が、この欄でこの照らしが入っている事を読む。
           seki_content_match: true,
+          // 2026-12-02: the longest /report body read for a guarded store (src/seki.js SEKI_BODY_MAX_BYTES); the deploy
+          // script reads this field after the deploy.
+          seki_body_max_bytes: SEKI_BODY_MAX_BYTES,
           site: SITE
         }, null, 2), { headers: { "Content-Type": "application/json", ...CORS } });
       }
@@ -458,7 +461,19 @@ export default {
         return new Response(JSON.stringify({ ok: false, error: "invalid_store_token" }), { status: 401, headers: { "Content-Type": "application/json", ...CORS } });
       }
       // 2026-11-07: 本文は文字のまま受けてから読む。守られた店で中身が合わない時、log にこの本文の sha256 だけを出すため。
-      var rtext = await request.text().catch(function () { return null; });
+      // 2026-12-02: a store the door guards reads at most SEKI_BODY_MAX_BYTES of the body (src/seki.js). A longer body is
+      // answered 413 before it is parsed, before the door is asked and before anything is spent; nothing is logged.
+      var rtext = null;
+      if (sekiGuarded(rstore)) {
+        var rcap = null;
+        try { rcap = await readBodyCapped(request, SEKI_BODY_MAX_BYTES); } catch (e) { rcap = null; }
+        if (rcap && !rcap.ok) {
+          return new Response(JSON.stringify({ ok: false, error: "body_too_long", max_bytes: SEKI_BODY_MAX_BYTES, spent: 0, why: "the body of a call to a store a SEKI door guards is at most " + SEKI_BODY_MAX_BYTES + " bytes; the door was not asked and nothing was spent" }), { status: 413, headers: { "Content-Type": "application/json", ...CORS } });
+        }
+        rtext = rcap ? rcap.text : null;
+      } else {
+        rtext = await request.text().catch(function () { return null; });
+      }
       var rpayload = null;
       try { rpayload = rtext === null ? null : JSON.parse(rtext); } catch (e) { rpayload = null; }
       if (!rpayload || typeof rpayload !== "object") {

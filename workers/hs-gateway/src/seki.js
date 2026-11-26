@@ -25,6 +25,37 @@
 // records show the door working on a live paid path. It is not an outside party and is not counted as one.
 export var SEKI_STORES = ["hs-seki-demo"];
 
+// 2026-12-02 (deploy order 3): the longest /report body the gateway reads for a store a SEKI door guards. A longer body is
+// answered 413 body_too_long before it is parsed, before the door is asked and before anything is spent, and nothing is
+// logged. Why 65536: the door takes a content of at most 8192 bytes in canonical form (it answers 413 content_too_long), and a
+// guarded body carries that content twice (the payload, and seki.content, which must be the same) plus the signed request and
+// the presentation; the content check runner reads a body of at most 65536 bytes (its /health lengths.body_bytes, 0.4.2).
+// So a call the door could admit is never refused here, and a body no runner would read is not carried to the door. A store
+// not in SEKI_STORES is untouched (its body is read as before).
+export var SEKI_BODY_MAX_BYTES = 65536;
+
+// The body as text, read at most max bytes. A declared Content-Length over max is refused without reading; otherwise the
+// stream is read and given up as soon as it passes max, whatever Content-Length said. { ok: true, text } or
+// { ok: false, bytes } (bytes: the declared length, or how far the read got). Throws only when the stream does.
+export async function readBodyCapped(request, max) {
+  if (request.headers.has("content-length")) {
+    var declared = Number(request.headers.get("content-length"));
+    if (Number.isFinite(declared) && declared > max) return { ok: false, bytes: declared };
+  }
+  if (!request.body) return { ok: true, text: "" };
+  var reader = request.body.getReader(), parts = [], n = 0;
+  for (;;) {
+    var x = await reader.read();
+    if (x.done) break;
+    n += x.value.byteLength;
+    if (n > max) { try { await reader.cancel(); } catch (e) { /* the answer is the same */ } return { ok: false, bytes: n }; }
+    parts.push(x.value);
+  }
+  var buf = new Uint8Array(n), o = 0;
+  parts.forEach(function (p) { buf.set(p, o); o += p.byteLength; });
+  return { ok: true, text: new TextDecoder().decode(buf) };
+}
+
 // Tickets at a guarded store during the pilot (TOshi, 2026-10-10): the operator grants them free through /admin/grant and
 // they carry no monetary value; no payment is taken for them. Commercial SEKI will be sold in US dollars and billed after
 // use, decided but not built. Every guarded answer says which of the two it is, so a record of a spend is never read as a
