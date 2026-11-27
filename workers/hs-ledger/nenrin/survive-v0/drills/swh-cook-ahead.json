@@ -1,16 +1,35 @@
 {
   "answer": {
-    "at": "2026-11-26T03:29:36Z",
-    "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:37f07fd338f03802054dd21f54638c427fbf430c/raw/\",\"progress_message\":null,\"id\":422725995,\"status\":\"new\",\"swhid\":\"swh:1:dir:37f07fd338f03802054dd21f54638c427fbf430c\"}",
-    "body_sha256": "99bbac2dc301e33d0b2c797a430fc6e77587bd8632bb79802870711b3f581a06",
+    "at": "2026-11-27T03:27:51Z",
+    "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:53624808861c4a801055ebdc955710416a634877/raw/\",\"progress_message\":null,\"id\":422730670,\"status\":\"new\",\"swhid\":\"swh:1:dir:53624808861c4a801055ebdc955710416a634877\"}",
+    "body_sha256": "7c24fcd9709e4899d836e64e38f185d78fdf73a977808c88b14830db5affa50e",
     "http_status": 200,
     "method": "POST",
     "status": "new",
-    "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:37f07fd338f03802054dd21f54638c427fbf430c/",
-    "vault_id": 422725995
+    "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:53624808861c4a801055ebdc955710416a634877/",
+    "vault_id": 422730670
   },
-  "directory": "swh:1:dir:37f07fd338f03802054dd21f54638c427fbf430c",
+  "directory": "swh:1:dir:53624808861c4a801055ebdc955710416a634877",
   "recent": [
+    {
+      "answer": {
+        "at": "2026-11-27T03:27:51Z",
+        "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:53624808861c4a801055ebdc955710416a634877/raw/\",\"progress_message\":null,\"id\":422730670,\"status\":\"new\",\"swhid\":\"swh:1:dir:53624808861c4a801055ebdc955710416a634877\"}",
+        "body_sha256": "7c24fcd9709e4899d836e64e38f185d78fdf73a977808c88b14830db5affa50e",
+        "http_status": 200,
+        "method": "POST",
+        "status": "new",
+        "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:53624808861c4a801055ebdc955710416a634877/",
+        "vault_id": 422730670
+      },
+      "directory": "swh:1:dir:53624808861c4a801055ebdc955710416a634877",
+      "requested_at": "2026-11-27T03:27:51Z",
+      "revision": "00f348f47875203d05365d806230e01820c91973",
+      "revision_date": "2026-11-27T03:18:57+00:00",
+      "snapshot": "b2dbc504266d78a67fa740eda2ceea7cbe6bf0ec",
+      "status_at_request": "new",
+      "visit_date": "2026-11-27T03:19:08.467000+00:00"
+    },
     {
       "answer": {
         "at": "2026-11-26T03:29:36Z",
@@ -86,32 +105,13 @@
       "snapshot": "f8d9e32c5dc3573d6ff87fd1429ebeb38a564d28",
       "status_at_request": "new",
       "visit_date": "2026-11-23T03:19:17.152000+00:00"
-    },
-    {
-      "answer": {
-        "at": "2026-11-22T11:36:39Z",
-        "body": "{\"fetch_url\":\"https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:59290c4b4bc778c1d782203e0146ba67e9df41b6/raw/\",\"progress_message\":null,\"id\":422693418,\"status\":\"new\",\"swhid\":\"swh:1:dir:59290c4b4bc778c1d782203e0146ba67e9df41b6\"}",
-        "body_sha256": "d58a5be9da777c7b5ba8b5b4e521b86f09e39e9feb5e7b479dbb8637fce9eb30",
-        "http_status": 200,
-        "method": "POST",
-        "status": "new",
-        "url": "https://archive.softwareheritage.org/api/1/vault/flat/swh:1:dir:59290c4b4bc778c1d782203e0146ba67e9df41b6/",
-        "vault_id": 422693418
-      },
-      "directory": "swh:1:dir:59290c4b4bc778c1d782203e0146ba67e9df41b6",
-      "requested_at": "2026-11-22T11:36:39Z",
-      "revision": "bd2873c8a74addc2ff491ea838e9b154123c934c",
-      "revision_date": "2026-11-22T11:30:49+00:00",
-      "snapshot": "2f5bc9a8be9befe43e5dd683e74cbc6a221809b7",
-      "status_at_request": "new",
-      "visit_date": "2026-11-22T11:31:03.537000+00:00"
     }
   ],
-  "requested_at": "2026-11-26T03:29:36Z",
-  "revision": "f80fa410019aa416b8ad794c40af47703b4a3f88",
-  "revision_date": "2026-11-26T03:19:03+00:00",
+  "requested_at": "2026-11-27T03:27:51Z",
+  "revision": "00f348f47875203d05365d806230e01820c91973",
+  "revision_date": "2026-11-27T03:18:57+00:00",
   "schema": "nenrin-survive-precook-v0",
-  "snapshot": "3cbb035c18de4b30fc97e9cc59d448fcd8083709",
+  "snapshot": "b2dbc504266d78a67fa740eda2ceea7cbe6bf0ec",
   "status_at_request": "new",
-  "visit_date": "2026-11-26T03:19:14.712000+00:00"
+  "visit_date": "2026-11-27T03:19:08.467000+00:00"
 }
