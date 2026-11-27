@@ -15,7 +15,13 @@ const path = require('path');
 const STORY_DIR = path.join(__dirname, 'story');
 const LP_URL = 'https://shield.the-horizons-innovation.com';
 const LINE_URL = 'https://line.me/R/ti/p/@172piime';
-const DEFAULT_MODELS = ['claude-opus-5-5', 'claude-sonnet-5', 'claude-sonnet-4-6'];
+const DEFAULT_MODELS = ['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-sonnet-5', 'claude-sonnet-4-6'];
+// 1 回の稿の上限。日本語の 2400 字は 4096 では足りない時があり、途中で切れた稿が門に落ちていた(2026-11-24、11-27)。
+const MAX_TOKENS = 8192;
+// 同じモデルが門に続けて落ちたら、次のモデルに替える回数。
+const SAME_MODEL_GATE_FAILS = 2;
+// 全部のモデルを合わせた、門で見る回数の上限。
+const GATE_TRIES = 6;
 
 // 長いダッシュの類(文字コードで持つ。ソースに字そのものを置かない)
 const DASH_CODES = [0x2012, 0x2013, 0x2014, 0x2015, 0x2E3A, 0x2E3B, 0x2500, 0x2501];
@@ -196,12 +202,25 @@ async function callModel({ apiKey, model, system, user, fetchImpl }) {
   const r = await fetchImpl('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model, max_tokens: 4096, system, messages: [{ role: 'user', content: user }] }),
+    body: JSON.stringify({ model, max_tokens: MAX_TOKENS, system, messages: [{ role: 'user', content: user }] }),
   });
   let data = null; try { data = await r.json(); } catch (_e) { data = null; }
   if (!r.ok) return { ok: false, status: r.status, why: (data && data.error && (data.error.type + ': ' + data.error.message)) || ('HTTP ' + r.status) };
   const text = ((data && data.content) || []).filter((c) => c.type === 'text').map((c) => c.text).join('\n');
-  return { ok: true, text };
+  const stop = (data && data.stop_reason) || '';
+  const out = (data && data.usage && data.usage.output_tokens) || 0;
+  return { ok: true, text, stop, out };
+}
+
+/* 稿が最後まで書かれたか。stop_reason が end_turn か stop_sequence なら最後まで。無い応答(古い形)は最後までとみなす。 */
+function finished(r) {
+  return !r.stop || r.stop === 'end_turn' || r.stop === 'stop_sequence';
+}
+
+/* 止まった理由の後ろに足す、モデルの止まり方。 */
+function stopNote(r) {
+  if (finished(r)) return '';
+  return ' (stop_reason ' + r.stop + (r.out ? '、' + r.out + ' tokens' : '') + ')';
 }
 
 /* 門に落ちた稿の理由を、次の書き直しの指示に足す文。1 回目の指示には入れない。 */
@@ -214,7 +233,9 @@ function retryNote(reasons) {
   return t;
 }
 
-/* 書く。門を通るまで最大4回。モデルが無い・混んでいるときは次のモデルへ。門に落ちたら、落ちた理由を次の指示に足す。 */
+/* 書く。モデルが無い・混んでいるときは次のモデルへ。稿が空か途中で切れたら、そのモデルには書かせず次のモデルへ。
+   門に落ちたら、落ちた理由を次の指示に足して書き直す。同じモデルが門に SAME_MODEL_GATE_FAILS 回続けて落ちたら次のモデルへ。
+   門で見るのは全部で GATE_TRIES 回まで。どれでも通らなければ、出さずに止める。 */
 async function generate(ep, ctx, opts) {
   const o = opts || {};
   const fetchImpl = o.fetchImpl || fetch;
@@ -223,14 +244,18 @@ async function generate(ep, ctx, opts) {
   const { system, user: user0 } = buildPrompt(ctx.bible, ctx.outline, ctx.state, ep, ctx.prevBody);
   let user = user0;
   const tried = [];
-  let mi = 0, gateTries = 0;
-  for (let attempt = 0; attempt < 10 && mi < models.length && gateTries < 4; attempt++) {
+  let mi = 0, gateTries = 0, sameFails = 0;
+  for (let attempt = 0; attempt < 14 && mi < models.length && gateTries < GATE_TRIES; attempt++) {
     const model = models[mi];
     const r = await callModel({ apiKey: o.apiKey, model, system, user, fetchImpl });
     if (!r.ok) {
       tried.push(model + ': ' + r.why);
-      if (r.status === 529 || r.status === 503 || r.status === 429) { await sleep(8000 * (attempt + 1)); if (attempt % 2 === 1) mi++; continue; }
-      mi++; continue;
+      if (r.status === 529 || r.status === 503 || r.status === 429) { await sleep(8000 * (attempt + 1)); if (attempt % 2 === 1) { mi++; sameFails = 0; } continue; }
+      mi++; sameFails = 0; continue;
+    }
+    if (!String(r.text || '').trim() || !finished(r)) {
+      tried.push(model + ': 稿が空か途中で切れた(' + String(r.text || '').replace(/\s/g, '').length + '字)' + stopNote(r));
+      mi++; sameFails = 0; continue;
     }
     let title = ep.title, line = ep.line, raw = r.text;
     if (ep.free) {
@@ -251,6 +276,9 @@ async function generate(ep, ctx, opts) {
     if (g.ok && !extra.length) return { ok: true, body, title, line, model, tries: gateTries };
     tried.push(model + ': 門 ' + g.reasons.concat(extra).join(' / '));
     user = user0 + '\n\n' + retryNote(g.reasons.concat(extra));
+    sameFails++;
+    // 次のモデルがある時だけ替える。モデルが 1 つなら、今までどおり同じモデルで書き直す。
+    if (sameFails >= SAME_MODEL_GATE_FAILS && mi + 1 < models.length) { mi++; sameFails = 0; }
   }
   return { ok: false, reasons: tried };
 }
@@ -406,7 +434,7 @@ function savePosted(ep, body, url, now, source, dir = STORY_DIR) {
 }
 
 module.exports = {
-  STORY_DIR, LP_URL, LINE_URL, DEFAULT_MODELS, DASH_RE, DASH_TEST, MACHINE_RE,
+  STORY_DIR, LP_URL, LINE_URL, DEFAULT_MODELS, MAX_TOKENS, SAME_MODEL_GATE_FAILS, GATE_TRIES, DASH_RE, DASH_TEST, MACHINE_RE,
   loadOutline, loadBible, loadState, mainEpisodes, gaidenSeeds, nextEpisode, episodeByKey, peekNext, remaining,
   label, fullTitle, prewritten, previousBody, cleanBody, gateBody, buildPrompt, parseFree, retryNote, generate,
   composePost, broadcastText, xText, ownerNotice, jstDate, alreadyPostedToday, savePosted,

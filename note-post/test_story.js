@@ -12,6 +12,7 @@
  *   ・同じ日に二度出さない
  *   ・書く部品(generate)が、門に落ちたら書き直し、無いモデルは飛ばし、自由題の題と目盛りを取り出す
  *   ・門に落ちた理由が次の書き直しの指示に入り、1 回目の指示には入らない
+ *   ・稿が空か途中で切れたら(stop_reason)、そのモデルには書かせず次のモデルへ。同じモデルが門に 2 回落ちたら次のモデルへ
  */
 const fs = require('fs');
 const os = require('os');
@@ -145,12 +146,13 @@ console.log('\n8) 公開した回を残す');
   const mk = (responses) => {
     let i = 0; const seen = [];
     const users = [];
+    const maxTokens = [];
     const f = async (url, init) => {
-      const body = JSON.parse(init.body); seen.push(body.model); users.push(body.messages[0].content);
+      const body = JSON.parse(init.body); seen.push(body.model); users.push(body.messages[0].content); maxTokens.push(body.max_tokens);
       const r = responses[Math.min(i++, responses.length - 1)];
       return { ok: r.status === 200, status: r.status, json: async () => r.json };
     };
-    f.seen = seen; f.users = users; return f;
+    f.seen = seen; f.users = users; f.maxTokens = maxTokens; return f;
   };
   const ctx = { bible, outline, state: { posted: [] }, prevBody: 'まえのはなし' };
   {
@@ -187,6 +189,36 @@ console.log('\n8) 公開した回を残す');
     const f = mk([{ status: 200, json: { content: [{ type: 'text', text: 'AIです' }] } }]);
     const r = await S.generate(ep4, ctx, { apiKey: 'k', fetchImpl: f, models: ['m1'], sleep: async () => {} });
     check('ずっと門に落ちれば、出さずに止める', !r.ok && r.reasons.length >= 1);
+  }
+  {
+    const f = mk([{ status: 200, json: { content: [], stop_reason: 'end_turn' } },
+                  { status: 200, json: { content: [{ type: 'text', text: good }], stop_reason: 'end_turn' } }]);
+    const r = await S.generate(ep4, ctx, { apiKey: 'k', fetchImpl: f, models: ['m1', 'm2'], sleep: async () => {} });
+    check('稿が空なら、そのモデルには書かせず次のモデルで書く', r.ok && r.model === 'm2' && r.tries === 1 && f.seen.join(',') === 'm1,m2', f.seen.join(','));
+  }
+  {
+    const f = mk([{ status: 200, json: { content: [{ type: 'text', text: good }], stop_reason: 'max_tokens', usage: { output_tokens: 8192 } } },
+                  { status: 200, json: { content: [{ type: 'text', text: good }], stop_reason: 'end_turn' } }]);
+    const r = await S.generate(ep4, ctx, { apiKey: 'k', fetchImpl: f, models: ['m1', 'm2'], sleep: async () => {} });
+    check('途中で切れた稿(max_tokens)は門に通さず、次のモデルで書く', r.ok && r.model === 'm2' && r.tries === 1, f.seen.join(','));
+  }
+  {
+    const f = mk([{ status: 200, json: { content: [], stop_reason: 'refusal', usage: { output_tokens: 12 } } }]);
+    const r = await S.generate(ep4, ctx, { apiKey: 'k', fetchImpl: f, models: ['m1', 'm2'], sleep: async () => {} });
+    check('どのモデルも空なら出さずに止め、止まり方が理由に残る', !r.ok && r.reasons.length === 2 && r.reasons.every((x) => x.includes('stop_reason refusal') && x.includes('12 tokens')), JSON.stringify(r.reasons));
+  }
+  {
+    const short = { status: 200, json: { content: [{ type: 'text', text: good.slice(0, 300) }], stop_reason: 'end_turn' } };
+    const f = mk([short, short, { status: 200, json: { content: [{ type: 'text', text: good }], stop_reason: 'end_turn' } }]);
+    const r = await S.generate(ep4, ctx, { apiKey: 'k', fetchImpl: f, models: ['m1', 'm2'], sleep: async () => {} });
+    check('同じモデルが門に 2 回続けて落ちたら、次のモデルで書く', r.ok && r.model === 'm2' && r.tries === 3 && f.seen.join(',') === 'm1,m1,m2', f.seen.join(','));
+    check('次のモデルへの指示にも、前の稿の落ちた理由が入る', f.users[2].includes('前の稿は出せなかった') && f.users[2].includes('短すぎる('));
+  }
+  {
+    const f = mk([{ status: 200, json: { content: [{ type: 'text', text: good.slice(0, 300) }], stop_reason: 'end_turn' } }]);
+    const r = await S.generate(ep4, ctx, { apiKey: 'k', fetchImpl: f, models: ['m1', 'm2', 'm3', 'm4'], sleep: async () => {} });
+    check('門で見るのは全部で 6 回まで(2 回ずつ次のモデルへ)', !r.ok && f.seen.join(',') === 'm1,m1,m2,m2,m3,m3' && S.GATE_TRIES === 6 && S.SAME_MODEL_GATE_FAILS === 2, f.seen.join(','));
+    check('稿の上限は 8192 で、モデルの順は opus 5.5 の次に sonnet 5.5', f.maxTokens.every((x) => x === 8192) && S.MAX_TOKENS === 8192 && S.DEFAULT_MODELS[0] === 'claude-opus-5-5' && S.DEFAULT_MODELS[1] === 'claude-sonnet-5-5', JSON.stringify(S.DEFAULT_MODELS));
   }
   {
     const freeEp = S.nextEpisode(outline, stAll);
@@ -255,7 +287,7 @@ console.log('\n8) 公開した回を残す');
     check('絵が無ければ、文字だけの見出し画像', !S.eyecatchHtml(outline, ep1).includes('class="art"'));
   }
 
-  const EXPECT = 124;
+  const EXPECT = 131;
   console.log('\n確かめた数: ' + checks + ' (最低 ' + EXPECT + ')');
   if (checks < EXPECT) { console.log('  NG   試験がまるごと走っていません。'); fail++; }
   console.log(fail ? fail + ' 件 失敗' : '連載の検査 すべて通過');
