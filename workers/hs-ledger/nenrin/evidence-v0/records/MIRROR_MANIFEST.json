@@ -2,12 +2,12 @@
   "schema": "gate-record-mirror-v0",
   "mirror_version": "0.1.1",
   "gate": "https://gate.horizonshield.dev",
-  "taken_at": "2026-11-26T01:57:02.459Z",
-  "register_sha256": "95e162726475283bffb8406762507a4de89c4ff0b87083f4149164016a18f598",
+  "taken_at": "2026-11-27T01:55:05.910Z",
+  "register_sha256": "42bcb41d52d43097e2ab43755aedd1220a08dc85a452ac675a110f8a86f6fc66",
   "endpoints": 43,
   "counts": {
-    "mirrored_new": 11,
-    "already_mirrored": 827,
+    "mirrored_new": 13,
+    "already_mirrored": 838,
     "not_stored_by_gate": 248,
     "hash_mismatch": 0,
     "fetch_failed": 0
@@ -867,6 +867,14 @@
       "status": "verified",
       "record_sha256": "996c2a4758da6217dc69bfefaf1a89d7458605794f74d5b6ecc3691c46624118",
       "file": "mcp-horizonshield-dev-mcp/996c2a4758da6217dc69bfefaf1a89d7458605794f74d5b6ecc3691c46624118.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://mcp.horizonshield.dev/mcp",
+      "at": "2026-11-26T18:00:42.894Z",
+      "status": "verified",
+      "record_sha256": "8bdbb4625e56ae2efc427cf44ced6d3d71704fa71436f228bd2ff8657ce65904",
+      "file": "mcp-horizonshield-dev-mcp/8bdbb4625e56ae2efc427cf44ced6d3d71704fa71436f228bd2ff8657ce65904.json",
       "result": "mirrored_new"
     },
     {
@@ -1723,6 +1731,14 @@
       "status": "verified",
       "record_sha256": "9edf0c24668c3e71f441beec1200c0c2282bd3a1cd7b740d82c996ae548645c8",
       "file": "hearing-horizonshield-dev-mcp/9edf0c24668c3e71f441beec1200c0c2282bd3a1cd7b740d82c996ae548645c8.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://hearing.horizonshield.dev/mcp",
+      "at": "2026-11-26T18:00:44.033Z",
+      "status": "verified",
+      "record_sha256": "2ea4a4efcf38134912efe6a5ebfa4c2f3eb5c687234f7e47897a14c47b63134e",
+      "file": "hearing-horizonshield-dev-mcp/2ea4a4efcf38134912efe6a5ebfa4c2f3eb5c687234f7e47897a14c47b63134e.json",
       "result": "mirrored_new"
     },
     {
@@ -2579,6 +2595,14 @@
       "status": "verified",
       "record_sha256": "14a3dca27faddb06c8b3255085d96cd9628a95a4ed73737445fe90215d4af9de",
       "file": "web-horizonshield-dev-mcp/14a3dca27faddb06c8b3255085d96cd9628a95a4ed73737445fe90215d4af9de.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://web.horizonshield.dev/mcp",
+      "at": "2026-11-26T18:00:46.304Z",
+      "status": "verified",
+      "record_sha256": "54be3e3e2f6c38da39dfd3f1a1a00a8b0630aa39ccf3a013580cb176dddb84dd",
+      "file": "web-horizonshield-dev-mcp/54be3e3e2f6c38da39dfd3f1a1a00a8b0630aa39ccf3a013580cb176dddb84dd.json",
       "result": "mirrored_new"
     },
     {
@@ -3419,6 +3443,14 @@
       "status": "verified",
       "record_sha256": "fb211b7307f546980038b35f3fe131999993d736faa790476c9ef8015fa02aa3",
       "file": "jidec-horizonshield-dev-mcp/fb211b7307f546980038b35f3fe131999993d736faa790476c9ef8015fa02aa3.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://jidec.horizonshield.dev/mcp",
+      "at": "2026-11-26T18:00:47.414Z",
+      "status": "verified",
+      "record_sha256": "3944cd5b035dadc5607fb1bbac3ff9a0e5208b015dd0ac9e269af802169561d2",
+      "file": "jidec-horizonshield-dev-mcp/3944cd5b035dadc5607fb1bbac3ff9a0e5208b015dd0ac9e269af802169561d2.json",
       "result": "mirrored_new"
     },
     {
@@ -4275,6 +4307,14 @@
       "status": "verified",
       "record_sha256": "e3b38cc1ad2937e2202186451f175a49c30330d25ae4fdfd3c1c3346eb799566",
       "file": "p001-horizonshield-dev-mcp/e3b38cc1ad2937e2202186451f175a49c30330d25ae4fdfd3c1c3346eb799566.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://p001.horizonshield.dev/mcp",
+      "at": "2026-11-26T18:00:51.249Z",
+      "status": "verified",
+      "record_sha256": "5df9264078d81c43b9cf05d12c33db2c113c37da35ab9fbcb7c2725548539a8c",
+      "file": "p001-horizonshield-dev-mcp/5df9264078d81c43b9cf05d12c33db2c113c37da35ab9fbcb7c2725548539a8c.json",
       "result": "mirrored_new"
     },
     {
@@ -5131,6 +5171,14 @@
       "status": "verified",
       "record_sha256": "31c0b1cdd6182a7802a282dba2e689f9c3b7948c6934ede64b628f0462559041",
       "file": "p002-horizonshield-dev-mcp/31c0b1cdd6182a7802a282dba2e689f9c3b7948c6934ede64b628f0462559041.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://p002.horizonshield.dev/mcp",
+      "at": "2026-11-26T18:00:52.395Z",
+      "status": "verified",
+      "record_sha256": "d1bf375a5903ba781ed343506216102fb48cf8f69b658407fca4fcf0f72bf523",
+      "file": "p002-horizonshield-dev-mcp/d1bf375a5903ba781ed343506216102fb48cf8f69b658407fca4fcf0f72bf523.json",
       "result": "mirrored_new"
     },
     {
@@ -5987,6 +6035,14 @@
       "status": "verified",
       "record_sha256": "9bb67ecccdcd1535c747d776d11573201389dacb051454e298df77dfa5ce78fc",
       "file": "gate-horizonshield-dev-mcp/9bb67ecccdcd1535c747d776d11573201389dacb051454e298df77dfa5ce78fc.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://gate.horizonshield.dev/mcp",
+      "at": "2026-11-26T18:00:53.517Z",
+      "status": "verified",
+      "record_sha256": "0745e8532622653c00cb27b882c45b61aceeea20ee940dcfeb9f4f8e1f2a456e",
+      "file": "gate-horizonshield-dev-mcp/0745e8532622653c00cb27b882c45b61aceeea20ee940dcfeb9f4f8e1f2a456e.json",
       "result": "mirrored_new"
     },
     {
@@ -6667,6 +6723,14 @@
       "status": "verified",
       "record_sha256": "bd9cf5a6cfb7f2f8ba97c11654b97ac19b85ac9b80549a4c5964e99c388737be",
       "file": "femtech-horizonshield-dev-mcp/bd9cf5a6cfb7f2f8ba97c11654b97ac19b85ac9b80549a4c5964e99c388737be.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://femtech.horizonshield.dev/mcp",
+      "at": "2026-11-26T18:00:41.742Z",
+      "status": "verified",
+      "record_sha256": "6a13a1aeee09baf288ed8f0bcff4721d82c93d306210befa4d61099fcd495959",
+      "file": "femtech-horizonshield-dev-mcp/6a13a1aeee09baf288ed8f0bcff4721d82c93d306210befa4d61099fcd495959.json",
       "result": "mirrored_new"
     },
     {
@@ -7027,6 +7091,14 @@
       "status": "pending",
       "record_sha256": "c3537b657fde02f012f28551f0b7fd15457f075b1d96587716abb16b52b9b2a7",
       "file": "ccdb-horizonshield-dev-mcp/c3537b657fde02f012f28551f0b7fd15457f075b1d96587716abb16b52b9b2a7.json",
+      "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://ccdb.horizonshield.dev/mcp",
+      "at": "2026-11-26T18:00:23.917Z",
+      "status": "pending",
+      "record_sha256": "c3526bbcce852f07d005cf2a164e79ff89f9fb2cfb11d9737198806c040f87d0",
+      "file": "ccdb-horizonshield-dev-mcp/c3526bbcce852f07d005cf2a164e79ff89f9fb2cfb11d9737198806c040f87d0.json",
       "result": "mirrored_new"
     },
     {
@@ -7123,7 +7195,7 @@
       "status": "pending",
       "record_sha256": "e8b9ef59df16a826b1cfc0dc2170597d2f5dedfc2892a8a2a8af569568345d60",
       "file": "intel-twzrd-xyz-mcp/e8b9ef59df16a826b1cfc0dc2170597d2f5dedfc2892a8a2a8af569568345d60.json",
-      "result": "mirrored_new"
+      "result": "already_mirrored"
     },
     {
       "endpoint": "https://integrated-system-gzyu.onrender.com/mcp",
@@ -7292,6 +7364,14 @@
       "record_sha256": "0f8f14cdd827172df5d9e45cf63f7efe7bd83810a26f7ea85ffee9f23a091be5",
       "file": "agentdiet-dev-mcp/0f8f14cdd827172df5d9e45cf63f7efe7bd83810a26f7ea85ffee9f23a091be5.json",
       "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://agentdiet.dev/mcp",
+      "at": "2026-11-26T18:00:59.206Z",
+      "status": "verified",
+      "record_sha256": "22776b5278450cb6c34fcfff358a507940ae6a6df1f191c2e9b911f070ae2965",
+      "file": "agentdiet-dev-mcp/22776b5278450cb6c34fcfff358a507940ae6a6df1f191c2e9b911f070ae2965.json",
+      "result": "mirrored_new"
     },
     {
       "endpoint": "https://assay.agentdiet.dev/mcp",
@@ -7878,6 +7958,14 @@
       "result": "already_mirrored"
     },
     {
+      "endpoint": "https://github-audit.agentdiet.dev/mcp",
+      "at": "2026-11-26T18:00:57.842Z",
+      "status": "verified",
+      "record_sha256": "0b553160c320cf77fa68c66316230983e05106565b48f9692c478ddb15b56a76",
+      "file": "github-audit-agentdiet-dev-mcp/0b553160c320cf77fa68c66316230983e05106565b48f9692c478ddb15b56a76.json",
+      "result": "mirrored_new"
+    },
+    {
       "endpoint": "https://company-enrich.agentdiet.dev/mcp",
       "at": "2026-10-28T18:00:57.826Z",
       "status": "verified",
@@ -8075,7 +8163,7 @@
       "status": "verified",
       "record_sha256": "815785131cbdaac44af40f694facb737ab81b6a1de44107b27fbda616cd68f35",
       "file": "email-verify-agentdiet-dev-mcp/815785131cbdaac44af40f694facb737ab81b6a1de44107b27fbda616cd68f35.json",
-      "result": "mirrored_new"
+      "result": "already_mirrored"
     },
     {
       "endpoint": "https://arxiv-digest.agentdiet.dev/mcp",
@@ -8598,6 +8686,14 @@
       "result": "already_mirrored"
     },
     {
+      "endpoint": "https://alpha-stream.agentdiet.dev/mcp",
+      "at": "2026-11-26T18:00:56.492Z",
+      "status": "verified",
+      "record_sha256": "e46670e0bcdcfc43e8a153e894102aa847128fd9181c20ecdaebbe1558b799d0",
+      "file": "alpha-stream-agentdiet-dev-mcp/e46670e0bcdcfc43e8a153e894102aa847128fd9181c20ecdaebbe1558b799d0.json",
+      "result": "mirrored_new"
+    },
+    {
       "endpoint": "https://mcp-compiler.agentdiet.dev/mcp",
       "at": "2026-10-22T18:01:27.784Z",
       "status": "verified",
@@ -8644,6 +8740,14 @@
       "record_sha256": "f8735edea30c895e160d2a41e88b640fc98c51b9604eedce58d40168345c0ed1",
       "file": "mcp-compiler-agentdiet-dev-mcp/f8735edea30c895e160d2a41e88b640fc98c51b9604eedce58d40168345c0ed1.json",
       "result": "already_mirrored"
+    },
+    {
+      "endpoint": "https://mcp-compiler.agentdiet.dev/mcp",
+      "at": "2026-11-26T18:01:00.617Z",
+      "status": "verified",
+      "record_sha256": "e09aed6d3f1a8421ad33454480bf61a11cee205c33a24d73270985f53745990a",
+      "file": "mcp-compiler-agentdiet-dev-mcp/e09aed6d3f1a8421ad33454480bf61a11cee205c33a24d73270985f53745990a.json",
+      "result": "mirrored_new"
     },
     {
       "endpoint": "https://cve-intel.agentdiet.dev/mcp",
