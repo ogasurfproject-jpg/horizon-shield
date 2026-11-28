@@ -209,6 +209,25 @@ t("crosswalk rows run only at a pinned commit", all(i.get("pin") for i in impls 
 t("history: a saved and a rerun row of one corpus are separate cells",
   rb.cell_key({"implementation": "x", "corpus": "c", "scored_by": "board", "mode": "saved"}) != rb.cell_key({"implementation": "x", "corpus": "c", "scored_by": "board", "mode": "rerun"}))
 
+# ---- the ledger's nightly VLC-1 grade (ledger_vlc.py; offline: a made-up ledger, proofs, headers, a stand-in checker) ----
+import ledger_vlc_test
+ledger_vlc_test.run(t)
+row = rb.LEDGER_VLC.run(get=lambda url, limit: (503, b""))
+t("ledger: run_board loads ledger_vlc beside it, and a night it cannot reach is not run", row["status"] == "not_run" and "HTTP 503" in row["reason"])
+lb = {"measured_at": "2026-11-28T18:41:00Z", "runs": [], "ledger_vlc": row}
+h = rb.update_history(None, lb)
+h = rb.update_history(h, {"measured_at": "2026-11-29T18:41:00Z", "runs": []})
+t("history: a run without the ledger row (--only) keeps the ledger's nights as they were", len(h.get("ledger_vlc", [])) == 1)
+for i in range(rb.HISTORY_KEEP + 3):
+    h = rb.update_history(h, dict(lb, measured_at="2026-12-%02dT18:41:00Z" % (i % 28 + 1)))
+t("history: the ledger keeps the last HISTORY_KEEP nights", len(h["ledger_vlc"]) == rb.HISTORY_KEEP and h["ledger_vlc"][-1]["status"] == "not_run")
+base = {"board_sha256": "x", "measured_at": "t", "summary": {"passed": 0, "runs": 0, "outside_passed": 0}, "implementations": {},
+        "runs": [], "pairs": [], "differential": None}
+t("board markdown: the ledger section is there when the board ran it, and only then",
+  "## The ledger, graded by an outside checker" in rb.to_md(dict(base, ledger_vlc=row), h)
+  and "Tonight: not run: the checker wheel could not be fetched (HTTP 503)" in rb.to_md(dict(base, ledger_vlc=row), h)
+  and "## The ledger" not in rb.to_md(base, h))
+
 print("")
 if fail:
     print("FAIL %d (tsunagi)" % fail); sys.exit(1)

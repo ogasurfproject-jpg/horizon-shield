@@ -19,6 +19,12 @@ triages it, never this script.
 History and badges: each run is added to history.json (consecutive passing runs, the commit each cell last moved to),
 and badges/<id>.json is a shields.io endpoint an author can put in their own README.
 
+The ledger, graded by an outside checker (ledger_vlc.py): each night this project's own JIDEC ledger is read by VLC-1's
+vlc-check 1.0.0 (Matthew Moore, MIT; wheel and adapter pinned by sha256) against the head in the newest checkpoint entry
+whose OpenTimestamps proof is in a Bitcoin block; the board checks that proof and the block header itself, and every head
+stamped inside the entries it reads. The row is in board.json (ledger_vlc), history.json and BOARD.md. It needs the
+network; it is skipped with --only or --no-ledger-vlc.
+
 Each row of implementations.json is code in its author's own repository. The board clones it at the default branch
 head, runs the command in the row against this repository's corpus, and records the commit it ran, the exit code,
 the counts and, where the implementation prints them, one result per vector. Rows marked ours are one column among
@@ -237,6 +243,17 @@ def _referee():
 
 
 REFEREE = _referee()
+
+
+def _ledger_vlc():
+    """ledger_vlc.py beside this file, loaded by path like the referee, before any outside code runs."""
+    spec = importlib.util.spec_from_file_location("tsunagi_ledger_vlc", os.path.join(HERE, "ledger_vlc.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+LEDGER_VLC = _ledger_vlc()
 
 
 def canonical(obj):
@@ -595,6 +612,10 @@ def update_history(prev, board):
             c["commit"], c["commit_since"] = commit, day
         c["runs"] = (c["runs"] + [[day, passed, commit[:8]]])[-HISTORY_KEEP:]
         hist["cells"][key] = c
+    if isinstance(prev, dict) and isinstance(prev.get("ledger_vlc"), list):
+        hist["ledger_vlc"] = prev["ledger_vlc"]
+    if isinstance(board.get("ledger_vlc"), dict):   # one row a night: the ledger's VLC-1 grade (ledger_vlc.history_row)
+        hist["ledger_vlc"] = (hist.get("ledger_vlc", []) + [LEDGER_VLC.history_row(day, board["ledger_vlc"])])[-HISTORY_KEEP:]
     return hist
 
 
@@ -680,6 +701,9 @@ def to_md(board, hist=None):
             for k, v in sorted(d.get("skipped", {}).items()):
                 L.append("")
                 L.append("Skipped %s: %s" % (k, v))
+    lv = board.get("ledger_vlc")
+    if isinstance(lv, dict):
+        L += ["", "## The ledger, graded by an outside checker", ""] + LEDGER_VLC.to_md(lv, (hist or {}).get("ledger_vlc"))
     L += ["", "## Join", "",
           "Add your implementation with one pull request: a row in `tools/tsunagi/implementations.json` naming your "
           "public repository, the command, and the corpus. It appears on the next night's board, at your own commit, "
@@ -700,6 +724,7 @@ def main():
     ap.add_argument("--history-in", help="the previous history.json, to carry streaks forward")
     ap.add_argument("--no-differential", action="store_true")
     ap.add_argument("--keep-reports", metavar="DIR", help="write each crosswalk comparison report the board scored (its sha256 is in board.json either way)")
+    ap.add_argument("--no-ledger-vlc", action="store_true", help="skip the ledger's nightly VLC-1 grade (it needs the network; --only skips it too)")
     a = ap.parse_args()
     global KEEP_REPORTS
     KEEP_REPORTS = os.path.abspath(a.keep_reports) if a.keep_reports else None
@@ -720,6 +745,15 @@ def main():
     if a.history_in and os.path.exists(a.history_in):
         prev = json.load(open(a.history_in, encoding="utf-8"))   # read before any outside code runs
     rows, pairs, heads, diff = run_board(spec, ext, local)
+    ledger = None
+    if not (a.only or a.no_ledger_vlc):   # after every implementation, with its own snapshot: vlc-check is outside code too
+        snap = snapshot()
+        ledger = LEDGER_VLC.run(out_dir=os.path.join(os.path.abspath(a.out), "ledger"),
+                                earlier=prev.get("ledger_vlc") if isinstance(prev, dict) else None)
+        tampered = restore_if_changed(snap)
+        if tampered:
+            ledger.update({"ok": False, "tampered_with": tampered[:20],
+                           "problem": "the run changed files the board scores against; they were restored and the row is not ok"})
     board = {"schema": "hs-tsunagi-board-v1", "measured_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
              "repository_commit": head(ROOT), "implementations": heads, "runs": rows, "pairs": pairs, "differential": diff,
              "summary": {"runs": len(rows), "passed": sum(1 for r in rows if r.get("passed")),
@@ -727,6 +761,8 @@ def main():
                          "outside_authors_passing": sorted({heads[r["implementation"]]["author"] for r in rows if r.get("passed") and not r["ours"]}),
                          "refereed_passed": sum(1 for r in rows if r.get("passed") and r.get("scored_by") == "board"),
                          "not_run": sum(1 for r in rows if r.get("status") != "ran")}}
+    if ledger is not None:
+        board["ledger_vlc"] = ledger
     board["board_sha256"] = hashlib.sha256(canonical({k: v for k, v in board.items() if k != "board_sha256"}).encode()).hexdigest()
     os.makedirs(a.out, exist_ok=True)
     hist = update_history(prev, board)
@@ -749,6 +785,8 @@ def main():
                   % (diff["bundles"], len(diff["implementations"]), ", ".join(diff["implementations"]), diff["agree"], len(diff["disagreements"])))
         else:
             print("differential: not run: " + diff["reason"])
+    if ledger is not None:
+        print(LEDGER_VLC.summary(ledger))
     return 0
 
 
