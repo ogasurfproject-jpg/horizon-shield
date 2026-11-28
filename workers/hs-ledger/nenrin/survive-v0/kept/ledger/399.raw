@@ -1,0 +1,25 @@
+# souba-split-count-tool-v7
+
+rule_sha256: 40419375b41f55de1def5028592c1df76b0f0e5a4a6c43a885c78887cca61d94
+eval_entry: 321
+eval_claim_sha256: 91f2658fcc1533bbb1ab465725f9d56aad1d23f900455970ebd2fe3e2d647225
+tool: 1a1b5be11cb4d8127dd1451058b1b7373278504d85e6799bbeaa7a0da21104c3 souba_split_count_v7.py
+tool_readme: 03bb1f6c600238ceb3100772a6ca01925fbbe33de523bdada52ed5dbeb1d1d0f README_souba_split_count_v7.md
+deviations: 2e36a79a149f91e44cb45161beef25773caa825a95dbcd8a11483fa96a454d6e DEVIATIONS_souba_split_v0.md
+deviations_pages: 0a000107c9f9162a233d830d8cc90ff15acd37930f441bd641cd4f271b63913e DEVIATIONS_pages_v1.txt
+compare_template: 4e9a726332dbe1080db91e3b941fe47f2e31ec628611116c63551bf0689fcecf compare_template_v7.tsv
+repro_check: 0cd776e249f1facfd6d286cbd866ddad0c824d7bf2cbfd5a1ef4b8742137443e repro_check_v7.py
+pages_list_sha256: 8b3d6055e431796bfc5918c24f247786cb9e40270b2c663b13d700281a6f1508
+manifest_file_sha256: 218427a18a4e2ffdc0610601f895a2e75b565c50381437b71a5cf42d88f5b8a7
+manifest_canonical_sha256: 18db13e8ab9761027a248daa7421446c51375fadf94dc06f607e0e48412372f2
+first_list_sha256: 4259be1052d7206b795b2fa5c0505b728c5bab33a1af1ceae076fa2df382a2a3
+primary_list_sha256: 21b2982a2842266d4b01bcdc308bf1f5ddc5da25fcbb16525d91b6e8735d3f38
+read_not_before_jst: 2026-12-01
+
+This entry fixes, by their sha256, the tool that will count the split of entry 308 by the rule of entry 321, the files
+that go with it, and the list of the 127 pages that count. It is written before the page-level numbers of the two
+windows are opened.
+Earlier versions of the tool (souba_split_count_v0.py, sha256 bd5b01afa1558f1ce67292e81c9961c3ad74e5bfab6822f733a0ff3b687941d8, souba_split_count_v1.py, sha256 6742b8d1b5cb1a8aa65de775e1c3ab6776a663530d18b51b121285579f1789b5, souba_split_count_v2.py, sha256 ee901a9cde2482e9e9db8bfc42d6e74900c9422d55520e631e9fa490fb3ae17c, souba_split_count_v3.py, sha256 49f7a3cdf9234ab71968b00d83f5d149506f176b6ba8bc226621b2ca867594bc, souba_split_count_v4.py, sha256 7317e54c7889cef4f841d34aebb0dc992f355abd9ff736965d5e795d8ea0a193, souba_split_count_v5.py, sha256 f4bd84dcf92adf179e4531797c591c9dfd4246ac7b6beb8d4dc44433ff8fe83d, and souba_split_count_v6.py, sha256 d05ee9de56e38b2fea5e4a5861d368b9790d3c756ca07017d2784d7c7b1495e6) were replaced on 2026-11-25, 2026-11-26, 2026-11-27 and 2026-11-28 after review. None of them has been run on the numbers of the two windows.
+As of 2026-11-25 JST, since the pages went out on 2026-11-14, the Bing AI performance report had been opened twice, on 2026-11-23 and 2026-11-25. The screen images taken then show only the site-wide totals and the daily line, not the page-level or query-level tables, and no page was changed because of them. Other parts of Bing Webmaster Tools (sitemaps, URL inspection, recommendations) were also used in that time. Any later opening before the reading is reported with the result.
+Establishes: that the tool and this list of pages existed no later than the block this entry is anchored to.
+Does not establish: anything about the effect of the change, or about the result of the reading.
