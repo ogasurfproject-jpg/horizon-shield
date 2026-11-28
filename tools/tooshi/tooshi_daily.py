@@ -111,7 +111,10 @@ Added on 2026-11-06 (the canary scene and signed witness answers):
                    folder up from keys/; same host only, 64 KiB, 20 s) and ends one of three ways: in its shape
                    ({"schema": "furui-witness-status-v0", revoked: [{key_id, since}]}): an answer signed by a revoked key
                    is set aside unless a batch entry made before since lists it, and its copy at answers/<D>/<sha>.json
-                   must be the record's bytes (other bytes red, not read a notice); 404: no status, nothing revoked;
+                   must be the record's bytes (other bytes red, not read a notice); 2026-11-26: a status.json that names
+                   answers_url (https, a host name, ending in /; witness kit 0.2.0 writes it when the key sits on the
+                   witness's own site and the copies on its GitHub Pages) has the copy read at answers_url<D>/<sha>.json
+                   instead; 404: no status, nothing revoked;
                    anything else (no answer, 5xx, another shape, over the cap, a redirect to another host): a notice
                    "status unread", the answer counted and its revocation shown as unread. facts.table holds one row per answer with
                    fixed words, hex and integers only (detail, limits and tool are never shown): runner, domain,
@@ -380,6 +383,7 @@ KIT_URL = "https://raw.githubusercontent.com/ogasurfproject-jpg/horizon-shield/m
 WITNESS_FILE_CAP = 1048576               # 9: the most bytes read of a witness's copy of an answer
 STATUS_CAP = 65536                       # 9: the most bytes read of a witness's status.json
 STATUS_SCHEMA = "furui-witness-status-v0"  # 9: the shape of a witness's status.json that is read (status_shape_ok)
+ANSWERS_URL_RE = re.compile(r"https://(?:[a-z0-9-]+\.)+[a-z]{2,63}(?:/[A-Za-z0-9._~-]+)*/")   # 9: status.json answers_url (2026-11-26)
 EXPORT_CAP = 8388608                     # 19: the most bytes read of /ledger/export.jsonl
 KEY_ID_RE = re.compile(r"ed25519:[0-9a-f]{16}")
 MALFORMED_MATCH = "a match carries a failure other than ledger_head"   # 9: read as malformed: a notice, not counted
@@ -1687,8 +1691,12 @@ def capped(get, url, cap, same_host=False):
 
 
 def status_shape_ok(j):
-    """a status.json 9 reads: {"schema": furui-witness-status-v0, ...}; revoked, when present, is a list of {key_id, since}"""
+    """a status.json 9 reads: {"schema": furui-witness-status-v0, ...}; revoked, when present, is a list of {key_id, since};
+    answers_url, when present, is where the witness serves its copies (ANSWERS_URL_RE, at most 300 characters)"""
     if not isinstance(j, dict) or j.get("schema") != STATUS_SCHEMA:
+        return False
+    au = j.get("answers_url")
+    if au is not None and not (isinstance(au, str) and len(au) <= 300 and ANSWERS_URL_RE.fullmatch(au)):
         return False
     rv = j.get("revoked", [])
     return isinstance(rv, list) and all(isinstance(x, dict) and isinstance(x.get("key_id"), str) and KEY_ID_RE.fullmatch(x["key_id"])
@@ -1724,7 +1732,9 @@ def witness_side(get, st, a, w, d, at, cache):
             if not (isinstance(b, str) and b[:19] < x["since"][:19]):
                 return "revoked", "the key was revoked since %s and no batch made before it lists the answer" % x["since"], "revoked"
     try:
-        s2, t2 = capped(get, urllib.parse.urljoin(su, "answers/%s/%s.json" % (d, w)), WITNESS_FILE_CAP, same_host=True)
+        au = j.get("answers_url")
+        cu = (au + "%s/%s.json" % (d, w)) if au else urllib.parse.urljoin(su, "answers/%s/%s.json" % (d, w))
+        s2, t2 = capped(get, cu, WITNESS_FILE_CAP, same_host=True)
     except Unreachable:
         return "notice", "the witness's copy of the answer did not answer", rv
     if s2 != 200 or not isinstance(t2, str):
@@ -3999,6 +4009,20 @@ def selftest():
     cases.append(("9: a status.json under keys/ is read one folder up; a key file elsewhere has its status.json beside it",
                   (witness_status_url(KU), witness_status_url("https://w.example/a/witness.json"), witness_status_url("https://w.example/witness.json")),
                   ("https://w.example/status.json", "https://w.example/a/status.json", "https://w.example/status.json")))
+    # 2026-11-26: status.json may name answers_url, where the witness serves its copies (kit 0.2.0: the key on the witness's
+    # own site, the copies on its GitHub Pages); the copy is read there, the same caps and the same-host redirect rule
+    AUS = {STU: (200, json.dumps({"schema": "furui-witness-status-v0", "last_answer": wp, "answers_url": "https://tester.github.io/witness/answers/"}))}
+    CPA = "https://tester.github.io/witness/answers/2026-11-03/%s.json" % wp
+    cases.append(("9: status.json names answers_url: the copy is read there (same bytes ok, other bytes red, not served notice), not beside status.json",
+                  [w9([ap], key_url=KU, **dict(AUS, **o))["state"] for o in ({CPA: (200, rec_text("2026-11-03", ap))}, {CPA: (200, rec_text("2026-11-03", ap) + "\n")},
+                                                                             {CPU: (200, rec_text("2026-11-03", ap))})],
+                  ["ok", "red", "notice"]))
+    cases.append(("9: answers_url must be https, a host name and end in /; another value makes status.json unread (a notice, the answer counted)",
+                  [status_shape_ok({"schema": STATUS_SCHEMA, "answers_url": u}) for u in ("https://tester.github.io/witness/answers/", "https://w.example/a/",
+                                                                                         "http://tester.github.io/a/", "https://tester.github.io/a", "https://127.0.0.1/a/",
+                                                                                         "https://localhost/a/", "https://w.example/a/?x=1/", 7, "https://w.example/" + "a" * 300 + "/")]
+                  + [st9r({STU: (200, json.dumps({"schema": STATUS_SCHEMA, "answers_url": "http://w.example/answers/"}))})],
+                  [True, True, False, False, False, False, False, False, False, ("notice", True, True, "unread")]))
     tb = w9([am, a2], **dict(R2, **VER))["facts"]["table"]
     cases.append(("9: a table row holds fixed words, hex and integers only (no detail, limits, tool or name)",
                   (sorted({k for r in tb for k in r}), all(DOMAIN_RE.fullmatch(r["domain"]) for r in tb), "detail" in json.dumps(tb) or "a line" in json.dumps(tb)),

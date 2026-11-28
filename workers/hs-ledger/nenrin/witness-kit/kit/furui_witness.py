@@ -1,15 +1,32 @@
-"""furui_witness.py, furui-witness-kit 0.1.0: recompute the FURUI day records of runner-1 and runner-2 and sign what you found.
+"""furui_witness.py, furui-witness-kit 0.2.0: recompute the FURUI day records of runner-1 and runner-2, check that each is
+anchored in Bitcoin, and sign what you found.
 
-What it reads (GET only, https, no redirects, 1 MiB per answer, 20 s per call, 60 calls and 5 minutes per run):
+Two answers per day and runner, both in the witness-answer-v0.2 shape:
+  day answer     (purpose furui-day-v0: <D>)     the first run after the day closes: the day record and every leaf, five
+                 steps of nenrin-verify furui-day (envelope_shape, leaf_sha256, audit_path, signature, runner_key).
+  anchor answer  (purpose furui-anchor-v0: <D>)  the first run after the ledger's batch entry that lists the day record is
+                 confirmed in Bitcoin: the same five steps again and the sixth, bitcoin_anchor. The batch entry hashes to
+                 its claim and lists the day record; its OpenTimestamps proof commits the entry to the block the ledger
+                 names; mempool.space and blockstream.info serve the same block hash and the same header at that height;
+                 the header hashes to the block hash, meets the target of its own bits, and holds the proof's merkle root.
+                 The record of the answer names the ledger entry, the block height and the block hash.
+                 runner-1 closes a day at 00:47 UTC of D+1, so its anchor answer comes at 03:50 UTC of D+2; runner-2
+                 closes at 00:14 UTC, so its anchor answer usually comes at 03:50 UTC of D+1. When a day record is
+                 still not in a confirmed batch 4 days after the day, the anchor answer says incomplete.
+
+What it reads (GET only, https, no redirects, 1 MiB per answer, 20 s per call, 160 calls and 8 minutes per run):
   https://furui.horizonshield.dev/furui/day/<D>/status and /leaf/<i>      runner-1
   https://furui.horizonshield.dev/furui2/day/<D>/status and /leaf/<i>     runner-2
   https://ledger.horizonshield.dev/furui-check-day/<sha>                  the day record as the ledger keeps it
   https://ledger.horizonshield.dev/.well-known/furui-check-keys.json      the runner keys
   https://ledger.horizonshield.dev/ledger/head                            the ledger head, kept in each answer
+  https://ledger.horizonshield.dev/ledger/<n>?format=json and /ledger/<n>/ots   the batch entry and its proof
+  https://mempool.space/api and https://blockstream.info/api              /block-height/<h> and /block/<hash>/header
   your own key_url                                                        to see that it serves your key
-What it writes: one POST https://ledger.horizonshield.dev/witness per day and runner, and files in --out.
+What it writes: at most two POST https://ledger.horizonshield.dev/witness per day and runner, and files in --out.
 It runs no code from the operator, installs nothing, and copies no text from any answer into what it signs:
 only hex, integers, dates and the fixed words of this file. Signing is done by openssl (pkeyutl -rawin).
+Your key_url may serve {"public_key_ed25519_b64": "..."} or one OpenSSH line "ssh-ed25519 <base64> [comment]".
 
   python3 -I -B furui_witness.py answer --answers answers --out out [--github-output FILE] [--now YYYY-MM-DDTHH:MM:SSZ]
       env FURUI_WITNESS_KEY (PEM), FURUI_WITNESS_KEY_URL, FURUI_WITNESS_NAME
@@ -18,20 +35,26 @@ only hex, integers, dates and the fixed words of this file. Signing is done by o
 import base64, datetime, hashlib, json, os, re, subprocess, sys, tempfile, time
 import http.client, urllib.error, urllib.request
 
-KIT, VERSION = "furui-witness-kit", "0.1.0"
+KIT, VERSION = "furui-witness-kit", "0.2.0"
 UA = "%s/%s (+https://github.com/ogasurfproject-jpg/horizon-shield/tree/main/workers/hs-ledger/nenrin/witness-kit)" % (KIT, VERSION)
 FURUI, LEDGER = "https://furui.horizonshield.dev", "https://ledger.horizonshield.dev"
 TREES = {"runner-1": "/furui/day/", "runner-2": "/furui2/day/"}
 SIGNER = {"domain": "horizonshield.dev", "key_url": LEDGER + "/.well-known/furui-check-keys.json"}
 DAY_LEAF = "sha256(0x00 || musubi-canonical-v0(envelope))"
-STEPS = ["envelope_shape", "leaf_sha256", "audit_path", "signature", "runner_key"]   # bitcoin_anchor is not checked (limits)
-CAP, CALL_S, RUN_S, CALLS, MAX_N, BACK = 1 << 20, 20.0, 300.0, 60, 4096, 6
+STEPS = ["envelope_shape", "leaf_sha256", "audit_path", "signature", "runner_key"]   # a day answer
+ANCHOR_STEPS = STEPS + ["bitcoin_anchor"]                                             # an anchor answer
+PURPOSE = {"day": "furui-day-v0: ", "anchor": "furui-anchor-v0: "}
+EXPLORERS = (("mempool.space", "https://mempool.space/api"), ("blockstream.info", "https://blockstream.info/api"))
+CAP, CALL_S, RUN_S, CALLS, MAX_N, BACK, ANCHOR_WAIT = 1 << 20, 20.0, 480.0, 160, 4096, 6, 4
+BASE_CALLS = 3                                  # key_url, ledger head and runner keys, read once per run
 SAFE = 9007199254740991
 H64 = re.compile(r"[0-9a-f]{64}")
+H160 = re.compile(r"[0-9a-f]{160}")
 DAY = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
 ISO_MS = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z")
 NONCE = re.compile(r"[0-9a-f]{32}|heartbeat-[0-9]{4}-[0-9]{2}-[0-9]{2}")
 SIG88 = re.compile(r"[A-Za-z0-9+/]{86}==")
+SSH_LINE = re.compile(r"ssh-ed25519[ \t]+([A-Za-z0-9+/]+={0,2})(?:[ \t]+[\x20-\x7e\t]*)?")
 DER = bytes.fromhex("302a300506032b6570032100")
 CHECK_KEYS = sorted(["action_binding_digest", "answered", "checked_at_height", "contract_sha256", "decision", "input_commit", "marks",
                      "nonce", "rules_sha256", "schema", "scope_sha256", "signed_at", "stage_reached", "trace_sha256", "unread"])
@@ -53,11 +76,26 @@ FAIL = {"record_unread": ("day_record", "i", "the day record could not be read f
         "path": ("audit_path", "m", "the root recomputed from the audit path differs from the record"),
         "leaf_sig": ("signature", "m", "the envelope signature does not verify"),
         "key_range": ("runner_key", "m", "the runner key was not valid at the heights the record names"),
-        "head_unread": ("ledger_head", "h", "the ledger head could not be read or did not have its shape")}
-LIMITS = ["The Bitcoin anchor was not checked by this tool.",
-          "This answer checks the day record and its leaves as the operator serves them, not the checks they describe.",
-          "A leaf the runner no longer serves cannot be checked, and the answer then says incomplete."]
-VANTAGE = "a GitHub Actions runner of the witness (furui-witness-kit 0.1.0)"
+        "head_unread": ("ledger_head", "h", "the ledger head could not be read or did not have its shape"),
+        "anchor_wait": ("bitcoin_anchor", "i", "the day record was not in a ledger batch confirmed in Bitcoin 4 days after the day"),
+        "anchor_entry_unread": ("bitcoin_anchor", "i", "the ledger batch entry that lists the day record could not be read"),
+        "anchor_entry": ("bitcoin_anchor", "m", "the ledger batch entry does not hash to its claim or does not list the day record"),
+        "anchor_ots_unread": ("bitcoin_anchor", "i", "the OpenTimestamps proof of the batch entry could not be read"),
+        "anchor_ots": ("bitcoin_anchor", "m", "the OpenTimestamps proof does not commit the batch entry to the Bitcoin block the ledger names"),
+        "anchor_explorer": ("bitcoin_anchor", "i", "the two block explorers did not serve one block hash and one header at the height"),
+        "anchor_header": ("bitcoin_anchor", "i", "the header the explorers served does not hash to the block hash or does not meet its target"),
+        "anchor_root": ("bitcoin_anchor", "m", "the block header does not hold the merkle root the OpenTimestamps proof reaches")}
+# an anchor read that failed on the side of the network or the explorers is tried again by the next run until the day is
+# ANCHOR_WAIT days old; then the anchor answer is signed incomplete with that failure
+RETRY = ("anchor_entry_unread", "anchor_ots_unread", "anchor_explorer", "anchor_header")
+LIMITS = {"day": ["The Bitcoin anchor is not in this answer: a day record is anchored one or two days after the day, and this tool checks it then, in its anchor answer (purpose furui-anchor-v0).",
+                  "This answer checks the day record and its leaves as the operator serves them, not the checks they describe.",
+                  "A leaf the runner no longer serves cannot be checked, and the answer then says incomplete."],
+          "anchor": ["The block hash and header were read from two block explorers, mempool.space and blockstream.info, not from a copy of the Bitcoin chain the witness keeps.",
+                     "The header's proof of work was checked against the target of its own bits, not against the difficulty of the chain at that height.",
+                     "This answer checks the day record and its leaves as the operator serves them, not the checks they describe.",
+                     "A leaf the runner no longer serves cannot be checked, and the answer then says incomplete."]}
+VANTAGE = "a GitHub Actions runner of the witness (furui-witness-kit 0.2.0)"
 
 
 class Unread(Exception):
@@ -130,6 +168,37 @@ def b64(s, n):
     return b if b is not None and len(b) == n and base64.b64encode(b).decode() == s else None
 
 
+def ssh_ed25519_key(b):
+    """bytes as served: one OpenSSH line, with at most one final \\n or \\r\\n -> the 32 key bytes, or None (the same reading
+    as the ledger's witness intake, src/ssh_ed25519.mjs, and witness-enroll-v0's ssh_ed25519_key)"""
+    try:
+        t = b.decode("ascii")
+    except (UnicodeDecodeError, AttributeError):
+        return None
+    t = t[:-2] if t.endswith("\r\n") else t[:-1] if t.endswith("\n") else t
+    m = SSH_LINE.fullmatch(t)
+    if not m:
+        return None
+    try:
+        w = base64.b64decode(m.group(1), validate=True)
+    except ValueError:
+        return None
+    if base64.b64encode(w).decode() != m.group(1) or len(w) != 4 + 11 + 4 + 32:
+        return None
+    if w[:4] != (11).to_bytes(4, "big") or w[4:15] != b"ssh-ed25519" or w[15:19] != (32).to_bytes(4, "big"):
+        return None
+    return w[19:]
+
+
+def served_key(b):
+    """the 32 key bytes a key_url serves: {"public_key_ed25519_b64": ...} or one ssh-ed25519 line; None otherwise"""
+    try:
+        doc = parse(b)
+    except (ValueError, UnicodeDecodeError, RecursionError):
+        return ssh_ed25519_key(b)
+    return b64(doc.get("public_key_ed25519_b64"), 32) if isinstance(doc, dict) else None
+
+
 # ---- the network: one door with every limit ----
 class Net:
     def __init__(self, hosts, now=time.monotonic):
@@ -145,7 +214,10 @@ class Net:
         except urllib.error.HTTPError as e:
             return e.code, e.read(CAP + 1)
 
-    def fetch(self, url, body=None):
+    def left(self):
+        return CALLS - self.calls
+
+    def fetch(self, url, body=None, accept="application/json"):
         m = re.fullmatch(r"https://([a-z0-9.-]+)(/[^\s#]*)", url)
         if not m or m.group(1) not in self.hosts:
             raise Unread("not an allowed URL")
@@ -153,7 +225,7 @@ class Net:
         if self.calls >= CALLS or left <= 1:
             raise Budget()
         self.calls += 1
-        h = {"user-agent": UA, "accept": "application/json"}
+        h = {"user-agent": UA, "accept": accept}
         if body is not None:
             h["content-type"] = "application/json"
         req = urllib.request.Request(url, data=body, headers=h, method="POST" if body is not None else "GET")
@@ -224,7 +296,7 @@ class Signer:
         os.rmdir(self.t)
 
 
-# ---- the checks (the steps of nenrin-verify furui-day, without bitcoin_anchor) ----
+# ---- the checks (the steps of nenrin-verify furui-day) ----
 def envelope_ok(e, rid):
     if not keys(e, ["check", "schema", "signatures", "signer"]) or e["schema"] != "furui-check-signed-v1":
         return False
@@ -286,36 +358,38 @@ def envelope_message(e):
     return ("furui-check-signed-v1\n" + canonical({"schema": e["schema"], "check": e["check"], "signer": e["signer"]})).encode("utf-8")
 
 
-def check_day(net, d, rid, st, keydoc):
-    """-> (record values, leaf_index, recomputed, failures); st is the runner's accepted status for d"""
+def read_record(net, d, rid, st):
+    """-> (record values, record or None, the ledger's answer {status, ledger_entry} or None, failures) for the sha st names"""
     fails, rec_v = [], {"day_sha256": st["ledger_canonical_sha256"], "root": None, "n": None}
-    f = lambda code, leaf=None: fails.append((leaf, code))
     try:
         lr = net.json(LEDGER + "/furui-check-day/" + rec_v["day_sha256"])
         rc = lr.get("record_canonical") if isinstance(lr, dict) else None
         if not isinstance(rc, str):
             raise Unread("no record_canonical")
-    except (Unread, Budget):
-        f("record_unread")
-        return rec_v, [], [], fails
+    except Budget:
+        return rec_v, None, None, [(None, "budget")]
+    except Unread:
+        return rec_v, None, None, [(None, "record_unread")]
+    at = {"status": lr.get("status"), "ledger_entry": lr.get("ledger_entry")}
     if sha(rc) != rec_v["day_sha256"]:
-        f("record_sha")
-        return rec_v, [], [], fails
+        return rec_v, None, at, [(None, "record_sha")]
     try:
         rec = parse(rc)
         ok = canonical(rec) == rc and record_ok(rec, rid, d)
     except (ValueError, RecursionError):
         ok = False
     if not ok:
-        f("record_shape")
-        return rec_v, [], [], fails
+        return rec_v, None, at, [(None, "record_shape")]
     rec_v.update(root=rec["root"], n=rec["n"])
     if rec["n"] != st["n"] or rec["root"] != st["root"]:
-        f("record_other")
-        return rec_v, [], [], fails
-    if rec["n"] + net.calls + 1 > CALLS:
-        f("too_many")
-        return rec_v, [], [], fails
+        return rec_v, None, at, [(None, "record_other")]
+    return rec_v, rec, at, fails
+
+
+def check_leaves(net, d, rid, rec, rec_v, keydoc):
+    """-> (leaf_index, recomputed, failures) of the five steps, for a record read_record accepted"""
+    fails = []
+    f = lambda code, leaf=None: fails.append((leaf, code))
     k = None
     if keydoc is None:
         f("keys_unread")
@@ -377,25 +451,227 @@ def check_day(net, d, rid, st, keydoc):
                 done["runner_key"] = False
     if not leaves:
         done = {s: False for s in STEPS}
-    return rec_v, leaves, [s for s in STEPS if done[s]], fails
+    return leaves, [s for s in STEPS if done[s]], fails
 
 
-def build(d, rid, rec_v, leaves, recomputed, fails, head, w, impl, observed_at):
+# ---- OpenTimestamps: enough of the format to follow sha256, append and prepend to the Bitcoin attestations ----
+# (the reading of nenrin-verify's furui_day.py ots_parse: the same limits, the same refusals)
+OTS_MAGIC = b"\x00OpenTimestamps\x00\x00Proof\x00\xbf\x89\xe2\xe8\x84\xe8\x92\x94"
+OTS_BITCOIN = bytes.fromhex("0588960d73d71901")
+OTS_PENDING = bytes.fromhex("83dfe30d2ef90c8e")
+
+
+def ots_parse(b):
+    """-> (file digest bytes, [(height, merkle root in block explorer order)], pending count) or raise ValueError"""
+    pos = [0]
+
+    def rd(n):
+        if pos[0] + n > len(b):
+            raise ValueError("ots_truncated")
+        v = b[pos[0]:pos[0] + n]
+        pos[0] += n
+        return v
+
+    def varuint():
+        v = 0
+        for i in range(8):
+            c = rd(1)[0]
+            v |= (c & 0x7F) << (7 * i)
+            if not c & 0x80:
+                if v > SAFE:
+                    raise ValueError("ots_varuint")
+                return v
+        raise ValueError("ots_varuint")
+
+    def varbytes(mx):
+        n = varuint()
+        if n > mx:
+            raise ValueError("ots_too_long")
+        return rd(n)
+
+    if rd(len(OTS_MAGIC)) != OTS_MAGIC or varuint() != 1 or rd(1) != b"\x08":
+        raise ValueError("ots_header")
+    digest = rd(32)
+    btc, pend, steps = [], [0], [0]
+
+    def item(tag, msg, depth):
+        if tag == 0:
+            t = rd(8)
+            payload = varbytes(8192)
+            if t == OTS_BITCOIN:
+                v, i, done = 0, 0, False
+                while i < len(payload) and i < 8:
+                    c = payload[i]
+                    v |= (c & 0x7F) << (7 * i)
+                    i += 1
+                    if not c & 0x80:
+                        done = True
+                        break
+                if not done or i != len(payload) or v > SAFE or len(msg) != 32:
+                    raise ValueError("ots_attestation")
+                btc.append((v, msg[::-1].hex()))
+            elif t == OTS_PENDING:
+                pend[0] += 1
+            return
+        steps[0] += 1
+        if steps[0] > 10000 or depth > 256:
+            raise ValueError("ots_too_deep")
+        if tag == 0x08:
+            nxt = hashlib.sha256(msg).digest()
+        elif tag == 0xF0:
+            nxt = msg + varbytes(4096)
+        elif tag == 0xF1:
+            nxt = varbytes(4096) + msg
+        else:
+            raise ValueError("ots_unsupported_op")
+        if len(nxt) > 4096:
+            raise ValueError("ots_too_long")
+        stamp(nxt, depth + 1)
+
+    def stamp(msg, depth):
+        tag = rd(1)[0]
+        while tag == 0xFF:
+            item(rd(1)[0], msg, depth)
+            tag = rd(1)[0]
+        item(tag, msg, depth)
+
+    try:
+        stamp(digest, 0)
+    except RecursionError:
+        raise ValueError("ots_too_deep")
+    if pos[0] != len(b):
+        raise ValueError("ots_trailing")
+    return digest, btc, pend[0]
+
+
+def sha256d(b):
+    return hashlib.sha256(hashlib.sha256(b).digest()).digest()
+
+
+def bits_target(bits):
+    """the target a header's compact bits encode, or None when the bits are negative, zero or wider than 256 bits"""
+    exp, mant = bits >> 24, bits & 0x007FFFFF
+    if bits & 0x00800000 or mant == 0 or exp > 32:
+        return None
+    return mant << (8 * (exp - 3)) if exp >= 3 else mant >> (8 * (3 - exp))
+
+
+class Anchor:
+    """step 6 for the day records of one run; a batch entry and a block header are read once per run"""
+    def __init__(self, net):
+        self.net, self.entries, self.headers = net, {}, {}
+
+    def check(self, rec_sha, at):
+        """-> ("wait", None, None) while the record is not in a confirmed batch; ("ok", None, facts); or (state, code, None)
+        with state retry (RETRY codes: tried again by the next run) or done (a mismatch code). Budget passes through."""
+        if not isinstance(at, dict) or at.get("status") != "anchored" or not isint(at.get("ledger_entry"), 1):
+            return "wait", None, None
+        n = at["ledger_entry"]
+        if n not in self.entries:
+            self.entries[n] = self._entry(n)
+        code, e = self.entries[n]
+        if code:
+            return ("retry" if code in RETRY else "done"), code, None
+        if rec_sha not in e["listed"]:
+            return "done", "anchor_entry", None
+        if not e["confirmed"]:
+            return "wait", None, None
+        code, ots = e["ots"]
+        if code:
+            return ("retry" if code in RETRY else "done"), code, None
+        h, mr = ots
+        if h not in self.headers:
+            self.headers[h] = self._header(h)
+        code, bh = self.headers[h]
+        if code:
+            return ("retry" if code in RETRY else "done"), code, None
+        if bh["merkle_root"] != mr:
+            return "done", "anchor_root", None
+        return "ok", None, {"ledger_entry": n, "bitcoin_block": h, "block_hash": bh["block_hash"]}
+
+    def _entry(self, n):
+        try:
+            e = self.net.json(LEDGER + "/ledger/%d?format=json" % n)
+        except Unread:
+            return "anchor_entry_unread", None
+        rc = e.get("record_canonical") if isinstance(e, dict) else None
+        if not isinstance(rc, str) or e.get("claim_sha256") != sha(rc):
+            return "anchor_entry", None
+        try:
+            bt = parse(rc)
+        except (ValueError, RecursionError):
+            bt = None
+        rows = bt.get("records") if isinstance(bt, dict) and bt.get("schema") == "nenrin-agreement-batch-v1" else None
+        if not isinstance(rows, list):
+            return "anchor_entry", None
+        listed = {r["canonical_sha256"] for r in rows if isinstance(r, dict) and r.get("record_schema") == "furui-check-day-v0"
+                  and isinstance(r.get("canonical_sha256"), str) and H64.fullmatch(r["canonical_sha256"])}
+        confirmed = e.get("ots_status") == "confirmed" and isint(e.get("bitcoin_block"), 1)
+        out = {"listed": listed, "confirmed": confirmed, "ots": (None, None)}
+        if confirmed:
+            out["ots"] = self._ots(n, e["claim_sha256"], e["bitcoin_block"])
+        return None, out
+
+    def _ots(self, n, claim, height):
+        try:
+            st, b = self.net.fetch(LEDGER + "/ledger/%d/ots" % n, accept="application/vnd.opentimestamps.proof")
+        except Unread:
+            return "anchor_ots_unread", None
+        if st != 200:
+            return "anchor_ots_unread", None
+        try:
+            digest, btc, _p = ots_parse(b)
+        except ValueError:
+            return "anchor_ots", None
+        hit = [m for h, m in btc if h == height]
+        if digest.hex() != claim or not hit:
+            return "anchor_ots", None
+        return None, (height, hit[0])
+
+    def _header(self, h):
+        hashes, headers = [], []
+        for _name, base in EXPLORERS:
+            try:
+                st, b = self.net.fetch(base + "/block-height/%d" % h, accept="text/plain")
+                t = b.decode("latin-1")
+                if st != 200 or not H64.fullmatch(t):
+                    return "anchor_explorer", None
+                st, b = self.net.fetch(base + "/block/" + t + "/header", accept="text/plain")
+                x = b.decode("latin-1")
+                if st != 200 or not H160.fullmatch(x):
+                    return "anchor_explorer", None
+            except Unread:
+                return "anchor_explorer", None
+            hashes.append(t)
+            headers.append(x)
+        if hashes[0] != hashes[1] or headers[0] != headers[1]:
+            return "anchor_explorer", None
+        hb = bytes.fromhex(headers[0])
+        bh = sha256d(hb)[::-1].hex()
+        target = bits_target(int.from_bytes(hb[72:76], "little"))
+        if bh != hashes[0] or target is None or int(bh, 16) > target:
+            return "anchor_header", None
+        return None, {"block_hash": bh, "merkle_root": hb[36:68][::-1].hex()}
+
+
+# ---- the answers ----
+def build(kind, d, rid, rec_v, leaves, recomputed, fails, head, w, impl, observed_at):
     fl = [{"leaf": leaf, "step": FAIL[c][0], "detail": FAIL[c][2]} for leaf, c in fails]
     cls = {FAIL[c][1] for _, c in fails}
     outcome = "mismatch" if "m" in cls else ("incomplete" if "i" in cls else "match")
-    if outcome == "match" and (len(leaves) != rec_v["n"] or recomputed != STEPS):
+    if outcome == "match" and (len(leaves) != rec_v["n"] or recomputed != (ANCHOR_STEPS if kind == "anchor" else STEPS)):
         outcome = "incomplete"
     return {"schema": "witness-answer-v0.2", "kind": "furui-day", "day": d, "runner_id": rid, "outcome": outcome,
             "day_sha256": rec_v["day_sha256"], "root": rec_v["root"], "n": rec_v["n"], "leaf_index": leaves, "recomputed": recomputed,
             "failures": fl[:64], "implementation": impl, "ledger_head": head,
             "tool": "%s %s furui_witness.py sha256 %s" % (KIT, VERSION, impl["sha256"]), "observed_at": observed_at,
-            "limits": list(LIMITS), "witness": w}
+            "limits": list(LIMITS[kind]), "witness": w}
 
 
 def intake_record(a):
-    """the jidec-path-v1 commitment record the ledger's POST /witness takes (the same bytes as witness_answer_v0.intake_record)"""
-    rec = {"schema": "jidec-path-v1", "purpose": "furui-day-v0: " + a["day"], "walked_at": a["observed_at"],
+    """the jidec-path-v1 commitment record of a day answer that the ledger's POST /witness takes (the same bytes as
+    witness_answer_v0.intake_record)"""
+    rec = {"schema": "jidec-path-v1", "purpose": PURPOSE["day"] + a["day"], "walked_at": a["observed_at"],
            "base": LEDGER + "/furui-check-day/" + a["day_sha256"], "mode": "commitment", "commitment": a["day_sha256"],
            "witness": {"name": a["witness"]["name"], "vantage": VANTAGE, "key_url": a["witness"]["key_url"]},
            "establishes": ["the witness recomputed: " + ", ".join(a["recomputed"]),
@@ -404,21 +680,40 @@ def intake_record(a):
     return canonical(rec)
 
 
+def anchor_record(a, facts):
+    """the record of an anchor answer: the day answer's record under purpose furui-anchor-v0, and, when step 6 held, one more
+    line that names the ledger entry, the Bitcoin block height and the block hash"""
+    est = ["the witness recomputed: " + ", ".join(a["recomputed"]) if a["recomputed"] else "the witness recomputed no step",
+           "the signed witness-answer-v0 in answer carries the same day_sha256 under key " + a["witness"]["key_id"]]
+    if facts:
+        est.append("the day record is listed in ledger entry %d, whose OpenTimestamps proof reaches Bitcoin block %d (%s); "
+                   "mempool.space and blockstream.info served the same header, which holds the proof's merkle root"
+                   % (facts["ledger_entry"], facts["bitcoin_block"], facts["block_hash"]))
+    rec = {"schema": "jidec-path-v1", "purpose": PURPOSE["anchor"] + a["day"], "walked_at": a["observed_at"],
+           "base": LEDGER + "/furui-check-day/" + a["day_sha256"], "mode": "commitment", "commitment": a["day_sha256"],
+           "witness": {"name": a["witness"]["name"], "vantage": VANTAGE, "key_url": a["witness"]["key_url"]},
+           "establishes": est, "does_not_establish": list(a["limits"]), "answer": a}
+    return canonical(rec)
+
+
 def kept_answers(folder):
-    """{(day, runner_id)} already answered, from the files job keep committed (answers/<D>/<sha>.json)"""
-    out = set()
+    """({(day, runner_id)} with a day answer, {(day, runner_id)} with an anchor answer), from the files job keep committed
+    (answers/<D>/<sha>.json); a record of kit 0.1.0 is a day answer"""
+    out = {"day": set(), "anchor": set()}
     for d in sorted(os.listdir(folder)) if os.path.isdir(folder) else []:
         if not real_day(d):
             continue
         for n in os.listdir(os.path.join(folder, d)):
             try:
                 with open(os.path.join(folder, d, n), "rb") as f:
-                    a = parse(f.read(CAP)).get("answer", {})
+                    r = parse(f.read(CAP))
+                a = r.get("answer", {})
+                kind = "anchor" if r.get("purpose") == PURPOSE["anchor"] + d else "day"
                 if a.get("day") == d and a.get("runner_id") in TREES:
-                    out.add((d, a["runner_id"]))
+                    out[kind].add((d, a["runner_id"]))
             except (OSError, ValueError, AttributeError, UnicodeDecodeError, RecursionError):
                 continue
-    return out
+    return out["day"], out["anchor"]
 
 
 def answer(args, net=None, signer=None):
@@ -427,7 +722,7 @@ def answer(args, net=None, signer=None):
     m = re.fullmatch(r"https://([a-z0-9.-]+)/[A-Za-z0-9._~/-]*", ku)
     if not m or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9 ._-]{0,63}", name):
         raise SystemExit("set FURUI_WITNESS_KEY_URL (https, your own host) and FURUI_WITNESS_NAME (letters, digits, space . _ -)")
-    net = net or Net(["furui.horizonshield.dev", "ledger.horizonshield.dev", m.group(1)])
+    net = net or Net(["furui.horizonshield.dev", "ledger.horizonshield.dev", m.group(1)] + [u[8:].split("/")[0] for _, u in EXPLORERS])
     signer = signer or Signer(os.environ.get("FURUI_WITNESS_KEY", ""))
     try:
         return _answer(args, net, signer, now, ku, name)
@@ -435,12 +730,34 @@ def answer(args, net=None, signer=None):
         signer.close()
 
 
+def _status(net, d, rid, lines):
+    """the runner's accepted status of d, or (None, ok): None with a line when there is nothing to answer about"""
+    try:
+        st = net.json(FURUI + TREES[rid] + "%s/status" % d)
+    except Budget:
+        lines.append("%s %s: not read in this run (call or time limit); the next run takes it" % (d, rid))
+        return None, True
+    except Unread:
+        lines.append("%s %s: the runner status was not read; no answer (it names the sha to answer about)" % (d, rid))
+        return None, False
+    s = st.get("status") if isinstance(st, dict) and st.get("day") == d else None
+    state = s.get("state") if isinstance(s, dict) else None
+    if state != "accepted":
+        lines.append("%s %s: no accepted day record to answer about (%s)" % (d, rid, state if state in ("empty", "open", "refused") else "no status yet"))
+        return None, True
+    if not (isinstance(s.get("ledger_canonical_sha256"), str) and H64.fullmatch(s["ledger_canonical_sha256"])
+            and isint(s.get("n"), 1, MAX_N) and isinstance(s.get("root"), str) and H64.fullmatch(s["root"])):
+        lines.append("%s %s: the runner status names an accepted day without its sha, n and root in their shape; no answer" % (d, rid))
+        return None, False
+    return s, True
+
+
 def _answer(args, net, signer, now, ku, name):
     out, shas, lines, ok = args["--out"], [], [], True
     os.makedirs(out, exist_ok=True)
     try:
-        kd = net.json(ku)
-        served = b64(kd.get("public_key_ed25519_b64"), 32) if isinstance(kd, dict) else None
+        st_, kb = net.fetch(ku, accept="application/json, text/plain")
+        served = served_key(kb) if st_ == 200 else None
     except (Unread, Budget):
         served = None
     if served != signer.pub:
@@ -448,9 +765,10 @@ def _answer(args, net, signer, now, ku, name):
     with open(os.path.abspath(__file__), "rb") as f:
         impl = {"origin": "operator-kit", "name": KIT, "version": VERSION, "sha256": sha(f.read())}
     w = {"name": name, "key_id": signer.key_id, "key_url": ku}
+    stamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
     try:
         h = net.json(LEDGER + "/ledger/head")
-        head = {"n": h["n"], "head": h["head"], "observed_at": now.strftime("%Y-%m-%dT%H:%M:%SZ")} \
+        head = {"n": h["n"], "head": h["head"], "observed_at": stamp} \
             if isinstance(h, dict) and isint(h.get("n"), 1, 10 ** 9) and isinstance(h.get("head"), str) and H64.fullmatch(h["head"]) else None
     except (Unread, Budget):
         head = None
@@ -459,61 +777,132 @@ def _answer(args, net, signer, now, ku, name):
         keydoc = kd["keys"] if isinstance(kd, dict) and kd.get("use") == "furui-check" and isinstance(kd.get("keys"), list) else None
     except (Unread, Budget):
         keydoc = None
-    done = kept_answers(args["--answers"])
+    day_done, anchor_done = kept_answers(args["--answers"])
     yday = (now - datetime.timedelta(days=1)).date()
-    first = min([datetime.date.fromisoformat(d) for d, _ in done] or [yday])
+    first = min([datetime.date.fromisoformat(d) for d, _ in day_done] or [yday])
     days = [str(yday - datetime.timedelta(days=i)) for i in range(BACK + 1) if yday - datetime.timedelta(days=i) >= first]
     late = now.hour >= 3                         # the 03:50 run; the 01:50 run holds an incomplete answer back for it
+    seen, anchors = {}, Anchor(net)
+
+    def send(kind, a, facts=None):
+        """sign a, POST its record, keep the bytes in out; -> True when the ledger took it"""
+        nonlocal ok
+        d, rid = a["day"], a["runner_id"]
+        a["signature"] = {"alg": "ed25519", "key_id": signer.key_id, "sig": "A" * 86 + "=="}
+        body = {k: v for k, v in a.items() if k != "signature"}
+        a["signature"]["sig"] = base64.b64encode(signer.sign(("witness-answer-v0.2\n" + canonical(body)).encode("utf-8"))).decode()
+        rcan = intake_record(a) if kind == "day" else anchor_record(a, facts)
+        post = json.dumps({"record_canonical": rcan, "signature_ed25519_b64": base64.b64encode(signer.sign(rcan.encode("utf-8"))).decode(),
+                           "public_key_ed25519_b64": base64.b64encode(signer.pub).decode()}).encode("utf-8")
+        try:
+            ps, pb = net.fetch(LEDGER + "/witness", post)
+            pj = parse(pb) if ps in (200, 201) else None
+        except (Unread, Budget, ValueError, UnicodeDecodeError, RecursionError):
+            ps, pj = None, None
+        if not (isinstance(pj, dict) and pj.get("sha") == sha(rcan)):
+            lines.append("%s %s: %s answer %s, but the ledger did not take it (http %s); not kept" % (d, rid, kind, a["outcome"], ps))
+            ok = False
+            return False
+        with open(os.path.join(out, sha(rcan) + ".json"), "w", encoding="utf-8", newline="") as fo:
+            fo.write(rcan)
+        shas.append(sha(rcan))
+        ok = ok and a["outcome"] == "match"
+        note = "" if kind == "anchor" or pj.get("counted", True) else " (stored, not counted)"
+        blk = " (block %d)" % facts["bitcoin_block"] if facts else ""
+        lines.append("%s %s: %s answer %s%s, sent %s%s" % (d, rid, kind, a["outcome"], blk, sha(rcan), note))
+        return True
+
+    # 1. day answers, the newest day first: the five steps, at the first run after the day closes
     for d in sorted(days, reverse=True):
         for rid in TREES:
-            if (d, rid) in done:
+            if (d, rid) in day_done:
                 continue
-            try:
-                st = net.json(FURUI + TREES[rid] + "%s/status" % d)
-            except Budget:
-                lines.append("%s %s: not read in this run (call or time limit); the next run takes it" % (d, rid))
+            s, good = _status(net, d, rid, lines)
+            ok = ok and good
+            if s is None:
                 continue
-            except Unread:
-                lines.append("%s %s: the runner status was not read; no answer (it names the sha to answer about)" % (d, rid))
-                ok = False
+            if s["n"] + 3 + BASE_CALLS > CALLS:
+                rec_v, leaves, rc, fails = {"day_sha256": s["ledger_canonical_sha256"], "root": None, "n": None}, [], [], [(None, "too_many")]
+            elif s["n"] + 2 > net.left():
+                lines.append("%s %s: not read in this run (call limit); the next run takes it" % (d, rid))
                 continue
-            s = st.get("status") if isinstance(st, dict) and st.get("day") == d else None
-            state = s.get("state") if isinstance(s, dict) else None
-            if state != "accepted":
-                lines.append("%s %s: no accepted day record to answer about (%s)" % (d, rid, state if state in ("empty", "open", "refused") else "no status yet"))
-                continue
-            if not (isinstance(s.get("ledger_canonical_sha256"), str) and H64.fullmatch(s["ledger_canonical_sha256"])
-                    and isint(s.get("n"), 1, MAX_N) and isinstance(s.get("root"), str) and H64.fullmatch(s["root"])):
-                lines.append("%s %s: the runner status names an accepted day without its sha, n and root in their shape; no answer" % (d, rid))
-                ok = False
-                continue
-            rec_v, leaves, rc, fails = check_day(net, d, rid, s, keydoc)
-            if head is None:
-                fails = fails + [(None, "head_unread")]
-            a = build(d, rid, rec_v, leaves, rc, fails, head, w, impl, now.strftime("%Y-%m-%dT%H:%M:%SZ"))
+            else:
+                rec_v, rec, at, fails = read_record(net, d, rid, s)
+                leaves, rc = [], []
+                if rec is not None:
+                    leaves, rc, f2 = check_leaves(net, d, rid, rec, rec_v, keydoc)
+                    fails = fails + f2
+                if any(c == "budget" for _, c in fails):
+                    lines.append("%s %s: not finished in this run (call or time limit); the next run takes it" % (d, rid))
+                    continue
+                seen[(d, rid)] = (s, rec_v, rec, at, leaves, rc, fails)
+            a = build("day", d, rid, rec_v, leaves, rc, fails + ([(None, "head_unread")] if head is None else []), head, w, impl, stamp)
             if a["outcome"] == "incomplete" and not late and d == str(yday):
                 lines.append("%s %s: incomplete; held back for the run after 03:00 UTC" % (d, rid))
                 continue
-            a["signature"] = {"alg": "ed25519", "key_id": signer.key_id, "sig": "A" * 86 + "=="}
-            body = {k: v for k, v in a.items() if k != "signature"}
-            a["signature"]["sig"] = base64.b64encode(signer.sign(("witness-answer-v0.2\n" + canonical(body)).encode("utf-8"))).decode()
-            rcan = intake_record(a)
-            post = json.dumps({"record_canonical": rcan, "signature_ed25519_b64": base64.b64encode(signer.sign(rcan.encode("utf-8"))).decode(),
-                               "public_key_ed25519_b64": base64.b64encode(signer.pub).decode()}).encode("utf-8")
-            try:
-                ps, pb = net.fetch(LEDGER + "/witness", post)
-                pj = parse(pb) if ps in (200, 201) else None
-            except (Unread, Budget, ValueError, UnicodeDecodeError, RecursionError):
-                ps, pj = None, None
-            if not (isinstance(pj, dict) and pj.get("sha") == sha(rcan)):
-                lines.append("%s %s: %s, but the ledger did not take it (http %s); not kept" % (d, rid, a["outcome"], ps))
-                ok = False
+            if send("day", a):
+                day_done.add((d, rid))
+
+    # 2. anchor answers, the oldest day first: the six steps, once the day record's batch entry is confirmed in Bitcoin
+    for d in sorted(days):
+        age = (now.date() - datetime.date.fromisoformat(d)).days
+        for rid in TREES:
+            if (d, rid) in anchor_done or (d, rid) not in day_done:
                 continue
-            with open(os.path.join(out, sha(rcan) + ".json"), "w", encoding="utf-8", newline="") as fo:
-                fo.write(rcan)
-            shas.append(sha(rcan))
-            ok = ok and a["outcome"] == "match"
-            lines.append("%s %s: %s, sent %s%s" % (d, rid, a["outcome"], sha(rcan), "" if pj.get("counted", True) else " (stored, not counted)"))
+            if (d, rid) in seen:
+                s, rec_v, rec, at, leaves, rc, fails = seen[(d, rid)]
+            else:
+                if net.left() < 3:
+                    lines.append("%s %s: anchor not read in this run (call limit); the next run takes it" % (d, rid))
+                    continue
+                s, good = _status(net, d, rid, lines)
+                ok = ok and good
+                if s is None:
+                    continue
+                rec_v, rec, at, fails = read_record(net, d, rid, s)
+                leaves = rc = None
+            if any(c == "budget" for _, c in fails):
+                lines.append("%s %s: anchor not read in this run (call or time limit); the next run takes it" % (d, rid))
+                continue
+            if at is None:                     # the ledger did not answer for the day record
+                if age <= ANCHOR_WAIT:
+                    lines.append("%s %s: %s; the next run tries again" % (d, rid, FAIL["record_unread"][2]))
+                    continue
+                state, code, facts = "done", None, None
+            else:
+                try:
+                    state, code, facts = anchors.check(rec_v["day_sha256"], at)
+                except Budget:
+                    lines.append("%s %s: anchor not read in this run (call or time limit); the next run takes it" % (d, rid))
+                    continue
+            if state == "wait" and age <= ANCHOR_WAIT:
+                lines.append("%s %s: the day record is not in a batch confirmed in Bitcoin yet; the anchor answer waits" % (d, rid))
+                continue
+            if state == "retry" and age <= ANCHOR_WAIT:
+                lines.append("%s %s: %s; the next run tries again" % (d, rid, FAIL[code][2]))
+                continue
+            if leaves is None:
+                leaves, rc = [], []
+                if rec is not None and rec["n"] + 3 + BASE_CALLS > CALLS:
+                    fails = fails + [(None, "too_many")]
+                elif rec is not None:
+                    if rec["n"] + 1 > net.left():
+                        lines.append("%s %s: anchor answer not finished in this run (call limit); the next run takes it" % (d, rid))
+                        continue
+                    leaves, rc, f2 = check_leaves(net, d, rid, rec, rec_v, keydoc)
+                    fails = fails + f2
+                    if any(c == "budget" for _, c in fails):
+                        lines.append("%s %s: anchor answer not finished in this run (call or time limit); the next run takes it" % (d, rid))
+                        continue
+            af = list(fails)
+            if state == "wait":
+                af.append((None, "anchor_wait"))
+            elif code:
+                af.append((None, code))
+            arc = rc + ["bitcoin_anchor"] if state == "ok" else list(rc)
+            a = build("anchor", d, rid, rec_v, leaves, arc, af + ([(None, "head_unread")] if head is None else []), head, w, impl, stamp)
+            if send("anchor", a, facts if state == "ok" else None):
+                anchor_done.add((d, rid))
     print("\n".join(lines + ["calls %d, answers sent %d" % (net.calls, len(shas))]))
     if "--github-output" in args:
         with open(args["--github-output"], "a", encoding="utf-8") as g:
@@ -525,8 +914,8 @@ def keep(args):
     """job keep: holds no key. Copies each answer the answer job sent into answers/<D>/<sha>.json, after checking that its
     bytes hash to a sha the answer job named, and writes last_answer into status.json. Anything off: nothing is written."""
     shas = args["--shas"]
-    if not re.fullmatch(r"[0-9a-f]{64}( [0-9a-f]{64}){0,31}", shas):
-        raise SystemExit("--shas must be 1 to 32 sha256 hex, one space apart")
+    if not re.fullmatch(r"[0-9a-f]{64}( [0-9a-f]{64}){0,63}", shas):
+        raise SystemExit("--shas must be 1 to 64 sha256 hex, one space apart")
     shas, inc = shas.split(" "), args["--incoming"]
     names = sorted(os.listdir(inc))
     if names != sorted(x + ".json" for x in set(shas)):

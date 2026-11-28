@@ -1,0 +1,2 @@
+# furui-witness-kit: keep every file with LF line endings, also when the repository is checked out on Windows
+* text=auto eol=lf
