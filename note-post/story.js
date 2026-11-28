@@ -17,7 +17,9 @@ const LP_URL = 'https://shield.the-horizons-innovation.com';
 const LINE_URL = 'https://line.me/R/ti/p/@172piime';
 const DEFAULT_MODELS = ['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-sonnet-5', 'claude-sonnet-4-6'];
 // 1 回の稿の上限。日本語の 2400 字は 4096 では足りない時があり、途中で切れた稿が門に落ちていた(2026-11-24、11-27)。
-const MAX_TOKENS = 8192;
+// 2026-11-28: claude-opus-5-5 は考える段(adaptive thinking)が毎回入り、止められない。max_tokens は考える段と本文の
+// 合計の上限なので(Claude の移行の手引き)、考える段が長い日は 8192 でも本文が短く切れるか空になる。16000 にする。
+const MAX_TOKENS = 16000;
 // 同じモデルが門に続けて落ちたら、次のモデルに替える回数。
 const SAME_MODEL_GATE_FAILS = 2;
 // 全部のモデルを合わせた、門で見る回数の上限。
@@ -115,10 +117,25 @@ function previousBody(outline, state, ep, dir = STORY_DIR) {
 }
 
 /* 書かれた本文を整える。見出し・記号・ダッシュを落とし、段落を空行で区切る。 */
+// 「今日の目盛り」の見出しはこちらで付ける。稿の後ろ半分の行頭に出たら、そこから後を落とす。前半の行頭に出た時は、
+// その行だけを落とす(前は最初に出た所から後を全部落としたので、稿の頭に書かれると本文が 0 字になった)。
+// 文の途中(会話の中など)の語は本文なので残す。
+const MEMORI_HEAD_RE = /^[\s\u3000]*今日の目盛り/;
+function cutMemori(text) {
+  const t = String(text || '');
+  const ls = t.split('\n');
+  const half = t.length / 2;
+  let pos = 0;
+  for (let i = 0; i < ls.length; i++) {
+    if (MEMORI_HEAD_RE.test(ls[i]) && pos >= half) return ls.slice(0, i).filter((l) => !MEMORI_HEAD_RE.test(l)).join('\n');
+    pos += ls[i].length + 1;
+  }
+  return ls.filter((l) => !MEMORI_HEAD_RE.test(l)).join('\n');
+}
+
 function cleanBody(text) {
   let t = String(text || '').replace(/\r/g, '');
-  const cut = t.indexOf('今日の目盛り');
-  if (cut >= 0) t = t.slice(0, cut);
+  t = cutMemori(t);
   const lines = t.split('\n').map((l) => l.trim()).filter((l) => l.length);
   const out = [];
   lines.forEach((l, i) => {
@@ -244,6 +261,8 @@ async function generate(ep, ctx, opts) {
   const { system, user: user0 } = buildPrompt(ctx.bible, ctx.outline, ctx.state, ep, ctx.prevBody);
   let user = user0;
   const tried = [];
+  // 書かれた稿を全部とっておく(門で止まった時に debug/ に残し、何が返ったかを後で読めるように)。鍵は入れない。
+  const drafts = [];
   let mi = 0, gateTries = 0, sameFails = 0;
   for (let attempt = 0; attempt < 14 && mi < models.length && gateTries < GATE_TRIES; attempt++) {
     const model = models[mi];
@@ -253,6 +272,7 @@ async function generate(ep, ctx, opts) {
       if (r.status === 529 || r.status === 503 || r.status === 429) { await sleep(8000 * (attempt + 1)); if (attempt % 2 === 1) { mi++; sameFails = 0; } continue; }
       mi++; sameFails = 0; continue;
     }
+    drafts.push({ model, stop_reason: r.stop || null, output_tokens: r.out || 0, chars: String(r.text || '').replace(/\s/g, '').length, text: String(r.text || '') });
     if (!String(r.text || '').trim() || !finished(r)) {
       tried.push(model + ': 稿が空か途中で切れた(' + String(r.text || '').replace(/\s/g, '').length + '字)' + stopNote(r));
       mi++; sameFails = 0; continue;
@@ -273,14 +293,20 @@ async function generate(ep, ctx, opts) {
       if (MACHINE_RE.test(t2) || DASH_TEST.test(t2) || BRAND_RE.test(t2)) extra.push('題か目盛りに出してはいけない語');
     }
     gateTries++;
-    if (g.ok && !extra.length) return { ok: true, body, title, line, model, tries: gateTries };
-    tried.push(model + ': 門 ' + g.reasons.concat(extra).join(' / '));
+    if (g.ok && !extra.length) return { ok: true, body, title, line, model, tries: gateTries, drafts };
+    tried.push(model + (r.out ? '(' + r.out + ' tokens)' : '') + ': 門 ' + g.reasons.concat(extra).join(' / '));
     user = user0 + '\n\n' + retryNote(g.reasons.concat(extra));
     sameFails++;
     // 次のモデルがある時だけ替える。モデルが 1 つなら、今までどおり同じモデルで書き直す。
     if (sameFails >= SAME_MODEL_GATE_FAILS && mi + 1 < models.length) { mi++; sameFails = 0; }
   }
-  return { ok: false, reasons: tried };
+  return { ok: false, reasons: tried, drafts };
+}
+
+/* 門で止まった日に debug/ に残す中身。書かれた稿と止まり方だけで、鍵や指示は入れない。 */
+function draftsJson(ep, r) {
+  const ds = ((r && r.drafts) || []).map((d) => ({ model: d.model, stop_reason: d.stop_reason, output_tokens: d.output_tokens, chars: d.chars, text: d.text }));
+  return JSON.stringify({ key: ep && ep.key, at: new Date().toISOString(), reasons: (r && r.reasons) || [], drafts: ds }, null, 2) + '\n';
 }
 
 /* note に載せる全文 */
@@ -436,7 +462,7 @@ function savePosted(ep, body, url, now, source, dir = STORY_DIR) {
 module.exports = {
   STORY_DIR, LP_URL, LINE_URL, DEFAULT_MODELS, MAX_TOKENS, SAME_MODEL_GATE_FAILS, GATE_TRIES, DASH_RE, DASH_TEST, MACHINE_RE,
   loadOutline, loadBible, loadState, mainEpisodes, gaidenSeeds, nextEpisode, episodeByKey, peekNext, remaining,
-  label, fullTitle, prewritten, previousBody, cleanBody, gateBody, buildPrompt, parseFree, retryNote, generate,
+  label, fullTitle, prewritten, previousBody, cutMemori, cleanBody, gateBody, buildPrompt, parseFree, retryNote, generate, draftsJson,
   composePost, broadcastText, xText, ownerNotice, jstDate, alreadyPostedToday, savePosted,
   hashtagsFor, eyecatchHtml, lacquered,
 };

@@ -13,6 +13,7 @@
  *   ・書く部品(generate)が、門に落ちたら書き直し、無いモデルは飛ばし、自由題の題と目盛りを取り出す
  *   ・門に落ちた理由が次の書き直しの指示に入り、1 回目の指示には入らない
  *   ・稿が空か途中で切れたら(stop_reason)、そのモデルには書かせず次のモデルへ。同じモデルが門に 2 回落ちたら次のモデルへ
+ *   ・稿の上限は 16000(opus 5.5 は考える段が毎回入る)。稿の頭の「今日の目盛り」で本文が 0 字にならない。止まった日は稿を debug/ に残す
  */
 const fs = require('fs');
 const os = require('os');
@@ -96,6 +97,13 @@ check('太字の記号を落とす', !c.includes('*'));
 check('ダッシュを三点リーダーに', !S.DASH_TEST.test(c) && c.includes('言った……航一'));
 check('区切りの記号は ◇ に', c.includes('\n\n◇\n\n'));
 check('今日の目盛りから後は落とす', !c.includes('今日の目盛り'));
+{
+  const head = S.cleanBody('今日の目盛り「屋根に」\n\n' + long + '\n\n今日の目盛り\n「屋根に」');
+  check('稿の頭に今日の目盛りが書かれても、本文は 0 字にならない', head.replace(/\s/g, '').length >= long.length - 10 && !head.includes('今日の目盛り'), String(head.replace(/\s/g, '').length));
+  const talk = S.cleanBody(long + '\n「今日の目盛りは、これや」とハルが言った。\n' + long);
+  check('会話の中の「今日の目盛り」の語は本文として残る', talk.includes('「今日の目盛りは、これや」'));
+  check('前半の行頭の今日の目盛りは、その行だけ落とす', S.cutMemori('今日の目盛り\nあ\nい\nう\nえ\nお\nか\nき') === 'あ\nい\nう\nえ\nお\nか\nき');
+}
 check('整えた本文は門を通る', S.gateBody(c, ep4).ok, S.gateBody(c, ep4).reasons.join(' / '));
 check('機械の名前があれば落とす', !S.gateBody(c + 'AIが', ep4).ok);
 check('全角のAIも落とす', !S.gateBody(c + 'ＡＩ', ep4).ok);
@@ -218,7 +226,21 @@ console.log('\n8) 公開した回を残す');
     const f = mk([{ status: 200, json: { content: [{ type: 'text', text: good.slice(0, 300) }], stop_reason: 'end_turn' } }]);
     const r = await S.generate(ep4, ctx, { apiKey: 'k', fetchImpl: f, models: ['m1', 'm2', 'm3', 'm4'], sleep: async () => {} });
     check('門で見るのは全部で 6 回まで(2 回ずつ次のモデルへ)', !r.ok && f.seen.join(',') === 'm1,m1,m2,m2,m3,m3' && S.GATE_TRIES === 6 && S.SAME_MODEL_GATE_FAILS === 2, f.seen.join(','));
-    check('稿の上限は 8192 で、モデルの順は opus 5.5 の次に sonnet 5.5', f.maxTokens.every((x) => x === 8192) && S.MAX_TOKENS === 8192 && S.DEFAULT_MODELS[0] === 'claude-opus-5-5' && S.DEFAULT_MODELS[1] === 'claude-sonnet-5-5', JSON.stringify(S.DEFAULT_MODELS));
+    check('稿の上限は 16000(opus 5.5 は考える段が毎回入る)で、モデルの順は opus 5.5 の次に sonnet 5.5', f.maxTokens.every((x) => x === 16000) && S.MAX_TOKENS === 16000 && S.DEFAULT_MODELS[0] === 'claude-opus-5-5' && S.DEFAULT_MODELS[1] === 'claude-sonnet-5-5', JSON.stringify(S.DEFAULT_MODELS));
+  }
+  {
+    const short = { status: 200, json: { content: [{ type: 'thinking', thinking: '' }, { type: 'text', text: good.slice(0, 300) }], stop_reason: 'end_turn', usage: { output_tokens: 7420 } } };
+    const f = mk([short]);
+    const r = await S.generate(ep4, ctx, { apiKey: 'kagi', fetchImpl: f, models: ['m1'], sleep: async () => {} });
+    check('門に落ちた稿の理由に、使った tokens が残る', !r.ok && r.reasons[0].startsWith('m1(7420 tokens): 門 短すぎる('), r.reasons[0]);
+    check('書かれた稿は drafts に残る(モデル、止まり方、tokens、字数、文)', r.drafts.length === r.reasons.length && r.drafts[0].model === 'm1' && r.drafts[0].stop_reason === 'end_turn' && r.drafts[0].output_tokens === 7420 && r.drafts[0].chars > 0 && r.drafts[0].text.length > 0);
+    const j = S.draftsJson(ep4, r);
+    const jo = JSON.parse(j);
+    check('debug に残す中身は、回の名、理由、稿だけで、鍵も指示も入らない', jo.key === ep4.key && jo.drafts.length === r.drafts.length && !j.includes('kagi') && !j.includes(f.users[0].slice(0, 30)));
+    const src = fs.readFileSync(path.join(__dirname, 'post_to_note.js'), 'utf8');
+    check('門で止まった日は debug/drafts-<回>.json を残してから止める', src.includes("'drafts-' + ep.key + '.json'") && src.includes('STORY.draftsJson(ep, r)') && src.indexOf('STORY.draftsJson(ep, r)') < src.indexOf("throw new Error('本文が門を通らない: '"));
+    const okr = await S.generate(ep4, ctx, { apiKey: 'k', fetchImpl: mk([{ status: 200, json: { content: [{ type: 'text', text: good }], stop_reason: 'end_turn', usage: { output_tokens: 3100 } } }]), models: ['m1'], sleep: async () => {} });
+    check('通った時も drafts を返す(1 回で通れば 1 つ)', okr.ok && okr.drafts.length === 1 && okr.drafts[0].output_tokens === 3100);
   }
   {
     const freeEp = S.nextEpisode(outline, stAll);
@@ -287,7 +309,7 @@ console.log('\n8) 公開した回を残す');
     check('絵が無ければ、文字だけの見出し画像', !S.eyecatchHtml(outline, ep1).includes('class="art"'));
   }
 
-  const EXPECT = 131;
+  const EXPECT = 139;
   console.log('\n確かめた数: ' + checks + ' (最低 ' + EXPECT + ')');
   if (checks < EXPECT) { console.log('  NG   試験がまるごと走っていません。'); fail++; }
   console.log(fail ? fail + ' 件 失敗' : '連載の検査 すべて通過');

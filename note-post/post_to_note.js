@@ -1552,7 +1552,14 @@ async function storyMain() {
       const usedTitles = (state.posted || []).map((p) => p.title);
       const r = await STORY.generate(ep, { outline, bible, state, prevBody: STORY.previousBody(outline, state, ep), usedTitles },
         { apiKey: process.env.ANTHROPIC_API_KEY });
-      if (!r.ok) throw new Error('本文が門を通らない: ' + r.reasons.join(' | ').slice(0, 600));
+      if (!r.ok) {
+        // 2026-11-28: 書かれた稿と止まり方を debug/ に残す(成果物 note-debug に上がる)。残せなくても止め方は同じ。
+        try {
+          fs.mkdirSync(path.join(__dirname, 'debug'), { recursive: true });
+          fs.writeFileSync(path.join(__dirname, 'debug', 'drafts-' + ep.key + '.json'), STORY.draftsJson(ep, r));
+        } catch (_e) { /* 何もしない */ }
+        throw new Error('本文が門を通らない: ' + r.reasons.join(' | ').slice(0, 600));
+      }
       body = r.body; ep.title = r.title; ep.line = r.line; source = 'generated';
       console.log('書いた回数:', r.tries, ' モデル:', r.model);
     }
