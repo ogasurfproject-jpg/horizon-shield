@@ -235,11 +235,11 @@
       "admission_sha256": "85a5de97083a931cc1c91832755a68a488cba41ce0ad90e62f75ff7dc556db49",
       "execution_sha256": "56bb72fd45be08760f416c70f2c30891c3bc26bbc721b22227f738c844b6db4e",
       "record_sha256": "912d4dba1ed3a822ceb66af925dcb9aa9391ff8f78dbf8bd9a44f5bfdf2792a0",
-      "settle": null,
-      "settled": false,
-      "settlement_sha256": null,
-      "status": null,
-      "verdict": null
+      "settle": "v1.19",
+      "settled": true,
+      "settlement_sha256": "253beb72891144d99640d6c7f4d833d859378ff7e2fd8233bc3fbe5360792315",
+      "status": "final",
+      "verdict": "within_grant"
     }
   },
   "first_day": "2026-11-03",
