@@ -335,6 +335,7 @@ RUNNER = "https://furui.horizonshield.dev"
 LEDGER = "https://ledger.horizonshield.dev"
 DOOR_POLICY = "https://hs-gateway.oga-surf-project.workers.dev/seki"
 CAPS = {"request_usd": 0.4, "day_usd": 5.0, "party_per_day": 100}
+LENGTHS = {"content_bytes": 8192, "body_bytes": 65536}   # 5 (runner 0.4.2): the longest content (canonical bytes) and body POST /check takes
 RUNNER_DAYS = {"runner-1": "/furui/day", "runner-2": "/furui2/day"}   # each runner's day tree at RUNNER (runner-2 from FURUI 1.0)
 V05_KEY = "_admissions_0_5"          # 17 hands 18 the 0.5 records it read under this key; run() takes it out
 CALLS_KEY = "_paid_calls"            # 17 hands 25 the record shas of its paid calls under this key; run() takes it out
@@ -542,6 +543,8 @@ def check_door_runner(get):
         bad.append("caps are %s, not %s" % (json.dumps(h.get("caps"), sort_keys=True), json.dumps(CAPS, sort_keys=True)))
     if h.get("anthropic_key_set") is not True:
         bad.append("the model key is not set")
+    if h.get("lengths") != LENGTHS:
+        bad.append("lengths are %s, not %s" % (json.dumps(h.get("lengths"), sort_keys=True), json.dumps(LENGTHS, sort_keys=True)))
     if (h.get("rules_sha256") or None) != (door_rules or None):
         bad.append("rules_sha256 differs: runner %s, door %s" % (h.get("rules_sha256"), door_rules))
     if pol.get("required") is True and not (isinstance(door_rules, str) and H64.match(door_rules)):
@@ -550,7 +553,7 @@ def check_door_runner(get):
         bad.append("the door checks envelopes with a public half other than the runner's")
     if "check_call" in fu and CHECK_STORE not in requiring:
         bad.append("the door makes check calls but its check store %s does not require the content check (stores_requiring %s)" % (CHECK_STORE, json.dumps(fu.get("stores_requiring"))))
-    facts = {"runner": h.get("runner"), "rules_sha256": h.get("rules_sha256"), "door_required": pol.get("required"),
+    facts = {"runner": h.get("runner"), "rules_sha256": h.get("rules_sha256"), "lengths": h.get("lengths"), "door_required": pol.get("required"),
              "check_store_required": CHECK_STORE in requiring}
     return c(cid, "red" if bad else "ok", "; ".join(bad) or "the runner's key, caps, model key and rules id agree with the ledger and the door", **facts)
 
@@ -3545,7 +3548,7 @@ def selftest():
 
     def world(cc=False, prev=True, d4key=SK, adm_today=None, adm_prev=None, canary=None, canary_prev=True, wit=None, **over):
         w = {
-            RUNNER + "/health": (200, {"runner": "hs-furui-runner 0.4.0", "key_id": "runner-1", "public_key_ed25519_b64": PUB, "rules_sha256": RULES if cc else None, "caps": dict(CAPS), "anthropic_key_set": True}),
+            RUNNER + "/health": (200, {"runner": "hs-furui-runner 0.4.0", "key_id": "runner-1", "public_key_ed25519_b64": PUB, "rules_sha256": RULES if cc else None, "caps": dict(CAPS), "lengths": dict(LENGTHS), "anthropic_key_set": True}),
             LEDGER + "/.well-known/furui-check-keys.json": (200, {"use": "furui-check", "keys": [{"key_id": "runner-1", "public_key_ed25519_b64": PUB, "from_height": 0, "revoked_height": None}]}),
             DOOR_POLICY: (200, {"furui": {"policy": {"required": False}}}),
             RUNNER + "/furui/heartbeat": (200, {"at": "2026-11-05T03:17:09.000Z", "ok": True, "decision": "pass", "answered": True, "marks": [], "capped": False, "spent_usd": 0.03}),
@@ -3610,6 +3613,10 @@ def selftest():
     cases.append(("the door names a rules id the runner does not carry: red", (v, s["5_door_runner"]), ("red", "red")))
     v, s = states(world(**{RUNNER + "/health": (200, {"key_id": "runner-1", "public_key_ed25519_b64": PUB, "rules_sha256": None, "caps": {"request_usd": 0.4, "day_usd": 50, "party_per_day": 100}, "anthropic_key_set": True})}))
     cases.append(("caps other than 0.40 / 5.00 / 100: red", s["5_door_runner"], "red"))
+    v, s = states(world(**{RUNNER + "/health": (200, {"key_id": "runner-1", "public_key_ed25519_b64": PUB, "rules_sha256": None, "caps": dict(CAPS), "lengths": {"content_bytes": 16384, "body_bytes": 65536}, "anthropic_key_set": True})}))
+    cases.append(("lengths other than 8192 / 65536: red", s["5_door_runner"], "red"))
+    v, s = states(world(**{RUNNER + "/health": (200, {"key_id": "runner-1", "public_key_ed25519_b64": PUB, "rules_sha256": None, "caps": dict(CAPS), "anthropic_key_set": True})}))
+    cases.append(("no lengths (a runner before 0.4.2): red", s["5_door_runner"], "red"))
     v, s = states(world(**{RUNNER + "/furui/heartbeat": (200, {"at": "2026-11-04T03:17:09.000Z", "ok": True, "decision": "pass", "answered": True, "marks": [], "capped": False, "spent_usd": 0.03})}))
     cases.append(("the heartbeat is from yesterday (old): red", (v, s["7_heartbeat_scene"]), ("red", "red")))
     v, s = states(world(**{RUNNER + "/furui/heartbeat": (200, {"at": "2026-11-05T03:17:09.000Z", "ok": True, "decision": "stop", "answered": True, "marks": ["off_topic"], "capped": False, "spent_usd": 0.03})}))
